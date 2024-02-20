@@ -1,0 +1,19 @@
+version: '3.8'
+
+services:
+    laravel-app:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        ports:
+            - "8801:80"
+        volumes:
+            - .:/var/www/html
+        # links:
+        #     - mysql
+        #     - redis
+        networks:
+            - cp-network
+networks:
+    cp-network:
+        driver: bridge
