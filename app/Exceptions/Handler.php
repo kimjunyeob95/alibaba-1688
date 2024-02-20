@@ -2,7 +2,9 @@
 
 namespace App\Exceptions;
 
+use App\Constants\HttpConstant;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Throwable;
 
 class Handler extends ExceptionHandler
@@ -37,5 +39,15 @@ class Handler extends ExceptionHandler
         $this->reportable(function (Throwable $e) {
             //
         });
+    }
+
+    public function render($request, Throwable $exception)
+    {
+        // 404 Not Found 예외 처리
+        if ($exception instanceof NotFoundHttpException) {
+            return helpers_json_response(HttpConstant::NOT_FOUND, [], HttpConstant::ERROR_MESSAGE_NOT_FOUND);
+        }
+
+        return parent::render($request, $exception);
     }
 }
