@@ -16,6 +16,6 @@ yarn-error.log
 /storage/debugbar
 /public/excel
 /stubs
-/bootstrap/cache
+# /bootstrap/cache
 /storage/framework/cache
 .DS_Store
