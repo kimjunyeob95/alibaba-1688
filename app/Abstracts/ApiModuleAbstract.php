@@ -14,6 +14,6 @@ abstract class ApiModuleAbstract
     }
 
     abstract function getAllCategory(int $categoryId): array;
-    abstract function getCategory(int $categoryId): array;
+    abstract function get1688Category(int $categoryId): array;
     abstract function apiCurl(string $method, string $endPoint, array $payload, array $header): array;
 }

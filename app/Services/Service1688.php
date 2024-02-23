@@ -185,7 +185,7 @@ class Service1688 extends ApiModuleAbstract
         }
     }
 
-    public function getCategory(int $categoryId): array
+    public function get1688Category(int $categoryId): array
     {
         $returnMsg = $this->returnMsg;
 
