@@ -18,7 +18,17 @@ class ApiController extends Controller
         $this->apiModuleAbstract = $apiModuleAbstract;
     }
 
-    public function getCategory($categoryId): JsonResponse
+    public function getAllCategory(int $categoryId = 1038378): JsonResponse
+    {
+        $result = $this->apiModuleAbstract->getAllCategory($categoryId);
+        if( $result["isSuccess"] == true ){
+            return helpers_json_response(HttpConstant::OK, $result);
+        } else {
+            return helpers_json_response(HttpConstant::BAD_REQUEST, [], $result["msg"]);
+        }
+    }
+
+    public function getCategory(int $categoryId = 1038378): JsonResponse
     {
         $result = $this->apiModuleAbstract->getCategory($categoryId);
         if( $result["isSuccess"] == true ){
