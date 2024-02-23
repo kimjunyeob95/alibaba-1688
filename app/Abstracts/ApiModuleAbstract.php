@@ -2,10 +2,6 @@
 
 namespace App\Abstracts;
 
-use App\Constants\SolutionErrorMessageConstant;
-use Exception;
-use InvalidArgumentException;
-
 abstract class ApiModuleAbstract
 {
     protected array $returnMsg;
@@ -17,7 +13,7 @@ abstract class ApiModuleAbstract
         $this->apiDomain = $apiDomain;
     }
 
+    abstract function getAllCategory(int $categoryId): array;
     abstract function getCategory(int $categoryId): array;
-
     abstract function apiCurl(string $method, string $endPoint, array $payload, array $header): array;
 }

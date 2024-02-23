@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Abstracts\ApiModuleAbstract;
 use App\Models\Category;
 use Exception;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
 use InvalidArgumentException;
 use JsonException;
@@ -22,6 +23,48 @@ class Service1688 extends ApiModuleAbstract
         $this->appKey      = env("1688_APP_KEY");
         $this->appSecret   = env("1688_APP_SECRET_KEY");
         $this->accessToken = env("1688_ACCESS_TOKEN");
+    }
+
+    public function getAllCategory(int $categoryId): array
+    {
+        $returnMsg = $this->returnMsg;
+
+        try {
+            $getCategoryObjs = Category::where("parent_cate_id", 0)->where("category_id", $categoryId)->get();
+            $result          = $this->getBuildTree($getCategoryObjs, 0);
+            $returnMsg = helpers_success_message($result);
+        } catch (Exception $e) {
+            $returnMsg = helpers_fail_message(false, $e->getMessage());
+        }
+
+        return $returnMsg;
+    }
+
+    public function getBuildTree(Collection $elements, int $parentId = 0): array
+    {
+        $result = [];
+        foreach ($elements as $element) {
+            if( $parentId == $element->parent_cate_id ){
+                $childObjs = Category::where("parent_cate_id", $element->category_id)->get();
+                if( count($childObjs) > 0 ){
+                    $element["childs"] = $this->getBuildTree($childObjs, $element->category_id);
+                }
+                $paramArray = [
+                    "id"             => $element->id,
+                    "category_id"    => $element->category_id,
+                    "category_name"  => $element->category_name,
+                    "leaf"           => $element->leaf,
+                    "level"          => $element->level,
+                    "parent_cate_id" => $element->parent_cate_id,
+                ];
+                if( isset($element["childs"]) && !empty($element["childs"])){
+                    $paramArray["childs"] = $element["childs"];
+                }
+                $result[] = $paramArray;
+            }
+        }
+    
+        return $result;
     }
 
     public function saveCategory(): void
