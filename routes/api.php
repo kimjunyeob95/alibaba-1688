@@ -1,15 +1,10 @@
 <?php
 
-use Illuminate\Http\Request;
+use App\Http\Controllers\ApiController;
 use Illuminate\Support\Facades\Route;
 
-/*
-|--------------------------------------------------------------------------
-| API Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register API routes for your application. These
-| routes are loaded by the RouteServiceProvider within a group which
-| is assigned the "api" middleware group. Enjoy building your API!
-|
-*/
+Route::name('v1.')->prefix('v1')->group(function () {
+    Route::name('1688.')->prefix('1688')->group(function () {
+        Route::get('/category/{categoryId}', [ApiController::class, 'getCategory'])->name('getCategory');
+    });
+});
