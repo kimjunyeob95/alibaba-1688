@@ -40,7 +40,7 @@ class Service1688 extends ApiModuleAbstract
                 "total" => count($getCategoryMappingObjs),
             ];
             foreach ($getCategoryMappingObjs as $getCategoryMappingObj) {
-                $categoryFullPath = "";
+                $categoryFullPath = $categoryChineseFullPath = "";
                 if( $getCategoryMappingObj->cate_first ){
                     $categoryFullPath = $getCategoryMappingObj->cate_first;
                 }
@@ -50,10 +50,20 @@ class Service1688 extends ApiModuleAbstract
                 if( $getCategoryMappingObj->cate_third ){
                     $categoryFullPath .= " > " . $getCategoryMappingObj->cate_third;
                 }
+                if( $getCategoryMappingObj->cate_chinese_first ){
+                    $categoryChineseFullPath = $getCategoryMappingObj->cate_chinese_first;
+                }
+                if( $getCategoryMappingObj->cate_chinese_second ){
+                    $categoryChineseFullPath .= " > " . $getCategoryMappingObj->cate_chinese_second;
+                }
+                if( $getCategoryMappingObj->cate_chinese_third ){
+                    $categoryChineseFullPath .= " > " . $getCategoryMappingObj->cate_chinese_third;
+                }
 
                 $result["categories"][] = [
-                    "categoryId"       => $getCategoryMappingObj->category_id,
-                    "categoryFullPath" => $categoryFullPath,
+                    "categoryId"              => $getCategoryMappingObj->category_id,
+                    "categoryFullPath"        => $categoryFullPath,
+                    "categoryChineseFullPath" => $categoryChineseFullPath,
                 ];
             }
 
@@ -98,12 +108,13 @@ class Service1688 extends ApiModuleAbstract
                     $element["childs"] = $this->getBuildTree($childObjs, $element->category_id);
                 }
                 $paramArray = [
-                    "id"             => $element->id,
-                    "category_id"    => $element->category_id,
-                    "category_name"  => $element->category_name,
-                    "leaf"           => $element->leaf,
-                    "level"          => $element->level,
-                    "parent_cate_id" => $element->parent_cate_id,
+                    "id"                    => $element->id,
+                    "category_id"           => $element->category_id,
+                    "category_name"         => $element->category_name,
+                    "category_chinese_name" => $element->category_chinese_name,
+                    "leaf"                  => $element->leaf,
+                    "level"                 => $element->level,
+                    "parent_cate_id"        => $element->parent_cate_id,
                 ];
                 if( isset($element["childs"]) && !empty($element["childs"])){
                     $paramArray["childs"] = $element["childs"];
@@ -277,26 +288,32 @@ class Service1688 extends ApiModuleAbstract
             foreach ($parentCategoryObjs as $parentCategoryObj) {
                 $getTreeCategory = $this->getTreeCategory($parentCategoryObj->category_id);
                 foreach ($getTreeCategory["data"] as $firstCategory) {
-                    $first_cate_first  = $firstCategory["category_name"];
-                    $first_cate_second = null;
-                    $first_cate_third  = null;
-                    $first_categoryId  = $firstCategory["category_id"];
+                    $first_cate_first          = $firstCategory["category_name"];
+                    $first_chinese_cate_first  = $firstCategory["category_chinese_name"];
+                    $first_categoryId          = $firstCategory["category_id"];
                     if( isset($firstCategory["childs"]) && count($firstCategory["childs"]) > 0 ){
                         foreach ($firstCategory["childs"] as $secondCatogories) {
-                            $second_cate_first  = $firstCategory["category_name"];
-                            $second_cate_second = $secondCatogories["category_name"];
-                            $second_cate_third  = null;
-                            $second_categoryId  = $secondCatogories["category_id"];
+                            $second_cate_first          = $firstCategory["category_name"];
+                            $second_cate_second         = $secondCatogories["category_name"];
+                            $second_chinese_cate_first  = $firstCategory["category_chinese_name"];
+                            $second_chinese_cate_second = $secondCatogories["category_chinese_name"];
+                            $second_categoryId          = $secondCatogories["category_id"];
                             if( isset($secondCatogories["childs"]) && count($secondCatogories["childs"]) > 0 ){
                                 foreach ($secondCatogories["childs"] as $thirdCategory) {
-                                    $third_cate_first  = $firstCategory["category_name"];
-                                    $third_cate_second = $secondCatogories["category_name"];
-                                    $third_cate_third  = $thirdCategory["category_name"];
-                                    $third_categoryId  = $thirdCategory["category_id"];
-                                    $third_upsertWhere = [
-                                        "cate_first"  => $third_cate_first,
-                                        "cate_second" => $third_cate_second,
-                                        "cate_third"  => $third_cate_third,
+                                    $third_cate_first          = $firstCategory["category_name"];
+                                    $third_cate_second         = $secondCatogories["category_name"];
+                                    $third_cate_third          = $thirdCategory["category_name"];
+                                    $third_chinese_cate_first  = $firstCategory["category_chinese_name"];
+                                    $third_chinese_cate_second = $secondCatogories["category_chinese_name"];
+                                    $third_chinese_cate_third  = $thirdCategory["category_chinese_name"];
+                                    $third_categoryId          = $thirdCategory["category_id"];
+                                    $third_upsertWhere         = [
+                                        "cate_first"          => $third_cate_first,
+                                        "cate_second"         => $third_cate_second,
+                                        "cate_third"          => $third_cate_third,
+                                        "cate_chinese_first"  => $third_chinese_cate_first,
+                                        "cate_chinese_second" => $third_chinese_cate_second,
+                                        "cate_chinese_third"  => $third_chinese_cate_third,
                                     ];
                                     CategoryMapping::updateOrCreate(
                                         ["category_id" => $third_categoryId],
@@ -305,9 +322,12 @@ class Service1688 extends ApiModuleAbstract
                                 }
                             }
                             $second_upsertWhere = [
-                                "cate_first"  => $second_cate_first,
-                                "cate_second" => $second_cate_second,
-                                "cate_third"  => $second_cate_third,
+                                "cate_first"          => $second_cate_first,
+                                "cate_second"         => $second_cate_second,
+                                "cate_third"          => null,
+                                "cate_chinese_first"  => $second_chinese_cate_first,
+                                "cate_chinese_second" => $second_chinese_cate_second,
+                                "cate_chinese_third"  => null,
                             ];
                             CategoryMapping::updateOrCreate(
                                 ["category_id" => $second_categoryId],
@@ -316,9 +336,12 @@ class Service1688 extends ApiModuleAbstract
                         }
                     }
                     $first_upsertWhere = [
-                        "cate_first"  => $first_cate_first,
-                        "cate_second" => $first_cate_second,
-                        "cate_third"  => $first_cate_third,
+                        "cate_first"          => $first_cate_first,
+                        "cate_second"         => null,
+                        "cate_third"          => null,
+                        "cate_chinese_first"  => $first_chinese_cate_first,
+                        "cate_chinese_second" => null,
+                        "cate_chinese_third"  => null,
                     ];
                     CategoryMapping::updateOrCreate(
                         ["category_id" => $first_categoryId],
