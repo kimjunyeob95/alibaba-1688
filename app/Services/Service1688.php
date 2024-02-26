@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Abstracts\ApiModuleAbstract;
 use App\Models\Category;
+use App\Models\CategoryMapping;
 use Exception;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
@@ -24,14 +25,61 @@ class Service1688 extends ApiModuleAbstract
         $this->appSecret   = env("1688_APP_SECRET_KEY");
         $this->accessToken = env("1688_ACCESS_TOKEN");
     }
+    
+    /**
+     * @func getAllCategory
+     * @description '1688에서 수집 한 카테고리를 단계별로 정리한 데이터 목록'
+     */
+    public function getAllCategory(): array
+    {
+        $returnMsg = $this->returnMsg;
 
-    public function getAllCategory(int $categoryId): array
+        try {
+            $getCategoryMappingObjs = CategoryMapping::orderBy("cate_first", "asc")->orderBy("cate_second", "asc")->orderBy("cate_third", "asc")->get();
+            $result = [
+                "total" => count($getCategoryMappingObjs),
+            ];
+            foreach ($getCategoryMappingObjs as $getCategoryMappingObj) {
+                $categoryFullPath = "";
+                if( $getCategoryMappingObj->cate_first ){
+                    $categoryFullPath = $getCategoryMappingObj->cate_first;
+                }
+                if( $getCategoryMappingObj->cate_second ){
+                    $categoryFullPath .= " > " . $getCategoryMappingObj->cate_second;
+                }
+                if( $getCategoryMappingObj->cate_third ){
+                    $categoryFullPath .= " > " . $getCategoryMappingObj->cate_third;
+                }
+
+                $result["categories"][] = [
+                    "categoryId"       => $getCategoryMappingObj->category_id,
+                    "categoryFullPath" => $categoryFullPath,
+                ];
+            }
+
+            $returnMsg = helpers_success_message($result);
+        } catch (Exception $e) {
+            $returnMsg = helpers_fail_message(false, $e->getMessage());
+        }
+
+        return $returnMsg;
+    }
+
+    /**
+     * @func getTreeCategory
+     * @description '1688에서 수집 한 최상위 카테고리 단위를 계층별 목록으로 반환'
+     * @param int $categoryId '카테고리 ID'
+     */
+    public function getTreeCategory(int $categoryId): array
     {
         $returnMsg = $this->returnMsg;
 
         try {
             $getCategoryObjs = Category::where("parent_cate_id", 0)->where("category_id", $categoryId)->get();
-            $result          = $this->getBuildTree($getCategoryObjs, 0);
+            if( count($getCategoryObjs) == 0 ){
+                throw new Exception("최상위 카테고리가 아니거나 수집 된 최상위 카테고리가 없습니다.");
+            }
+            $result    = $this->getBuildTree($getCategoryObjs, 0);
             $returnMsg = helpers_success_message($result);
         } catch (Exception $e) {
             $returnMsg = helpers_fail_message(false, $e->getMessage());
@@ -67,6 +115,10 @@ class Service1688 extends ApiModuleAbstract
         return $result;
     }
 
+    /**
+     * @func saveCategory
+     * @description '1688 카테고리 endPoint 조회 후 저장'
+     */
     public function saveCategory(): void
     {
         $msg = "======================== 실행 시작 ========================";
@@ -185,6 +237,11 @@ class Service1688 extends ApiModuleAbstract
         }
     }
 
+    /**
+     * @func get1688Category
+     * @description '1688 카테고리 endPoint 조회'
+     * @param int $categoryId '카테고리 ID'
+     */
     public function get1688Category(int $categoryId): array
     {
         $returnMsg = $this->returnMsg;
@@ -201,6 +258,77 @@ class Service1688 extends ApiModuleAbstract
             $returnMsg = helpers_fail_message(false, $e->getMessage());
         }
         return $returnMsg;
+    }
+
+    /**
+     * @func saveCategoryMapping
+     * @description 'categories 테이블의 데이터들을 category_mappings 테이블로 정리'
+     */
+    public function saveCategoryMapping(): void
+    {
+        $msg = "======================== 실행 시작 ========================";
+        debug_log($msg, "saveCategoryMappingLog", "saveCategoryMappingLog");
+
+        try {
+            $parentCategoryObjs = Category::where("parent_cate_id", 0)->get();
+            foreach ($parentCategoryObjs as $parentCategoryObj) {
+                $getAllCategories = $this->getAllCategory($parentCategoryObj->category_id);
+                foreach ($getAllCategories["data"] as $firstCategory) {
+                    $cate_first  = $firstCategory["category_name"];
+                    $cate_second = null;
+                    $cate_third  = null;
+                    $categoryId  = $firstCategory["category_id"];
+                    if( isset($firstCategory["childs"]) && count($firstCategory["childs"]) > 0 ){
+                        foreach ($firstCategory["childs"] as $secondCatogories) {
+                            $cate_second = $secondCatogories["category_name"];
+                            $categoryId  = $secondCatogories["category_id"];
+                            if( isset($secondCatogories["childs"]) && count($secondCatogories["childs"]) > 0 ){
+                                foreach ($secondCatogories["childs"] as $thirdCategory) {
+                                    $cate_third = $thirdCategory["category_name"];
+                                    $categoryId = $thirdCategory["category_id"];
+                                    $upsertWhere = [
+                                        "cate_first"  => $cate_first,
+                                        "cate_second" => $cate_second,
+                                        "cate_third"  => $cate_third,
+                                    ];
+                                    CategoryMapping::updateOrCreate(
+                                        ["category_id" => $categoryId],
+                                        $upsertWhere
+                                    );
+                                }
+                            } else {
+                                $upsertWhere = [
+                                    "cate_first"  => $cate_first,
+                                    "cate_second" => $cate_second,
+                                    "cate_third"  => $cate_third,
+                                ];
+                                CategoryMapping::updateOrCreate(
+                                    ["category_id" => $categoryId],
+                                    $upsertWhere
+                                );
+                            }
+                        }
+                    } else {
+                        $upsertWhere = [
+                            "cate_first"  => $cate_first,
+                            "cate_second" => $cate_second,
+                            "cate_third"  => $cate_third,
+                        ];
+                        CategoryMapping::updateOrCreate(
+                            ["category_id" => $categoryId],
+                            $upsertWhere
+                        );
+                    }
+                }
+            }
+        } catch (Exception $e) {
+            $msg = "======================== 에러 발생 ========================\r\n";
+            $msg .= "error: " . $e->getMessage();
+            debug_log($msg, "saveCategoryMappingLog", "saveCategoryMappingLog");
+        }
+
+        $msg = "======================== 실행 종료 ========================";
+        debug_log($msg, "saveCategoryMappingLog", "saveCategoryMappingLog");
     }
 
     function apiCurl(string $method, string $endPoint, array $payload, array $header = ["Content-Type: application/x-www-form-urlencoded"]): array
