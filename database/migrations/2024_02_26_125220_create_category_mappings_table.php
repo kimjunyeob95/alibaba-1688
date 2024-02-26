@@ -20,6 +20,9 @@ class CreateCategoryMappingsTable extends Migration
             $table->string('cate_first', 50)->nullable(true)->comment('카테고리 레벨 1');
             $table->string('cate_second', 50)->nullable(true)->comment('카테고리 레벨 2');
             $table->string('cate_third', 50)->nullable(true)->comment('카테고리 레벨 3');
+            $table->string('cate_chinese_first', 50)->nullable(true)->comment('중국어 카테고리 레벨 1');
+            $table->string('cate_chinese_second', 50)->nullable(true)->comment('중국어 카테고리 레벨 2');
+            $table->string('cate_chinese_third', 50)->nullable(true)->comment('중국어 카테고리 레벨 3');
 
             $table->timestamps();
             $table->softDeletes();
@@ -30,7 +33,7 @@ class CreateCategoryMappingsTable extends Migration
             $table->index('cate_third');
         });
 
-        DB::statement('ALTER TABLE category_mappings COMMENT "1688 카테고리 정규화 테이블"');
+        DB::statement('ALTER TABLE category_mappings COMMENT "1688 카테고리 정리 테이블"');
     }
 
     /**
