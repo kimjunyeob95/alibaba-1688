@@ -30,4 +30,11 @@ class Kernel extends ConsoleKernel
 
         require base_path('routes/console.php');
     }
+
+    public function handle($input, $output = null)
+    {
+        set_time_limit(0); // 시간 제한을 무제한으로 설정
+
+        parent::handle($input, $output);
+    }
 }
