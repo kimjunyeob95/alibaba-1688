@@ -275,53 +275,55 @@ class Service1688 extends ApiModuleAbstract
         try {
             $parentCategoryObjs = Category::where("parent_cate_id", 0)->get();
             foreach ($parentCategoryObjs as $parentCategoryObj) {
-                $getAllCategories = $this->getAllCategory($parentCategoryObj->category_id);
-                foreach ($getAllCategories["data"] as $firstCategory) {
-                    $cate_first  = $firstCategory["category_name"];
-                    $cate_second = null;
-                    $cate_third  = null;
-                    $categoryId  = $firstCategory["category_id"];
+                $getTreeCategory = $this->getTreeCategory($parentCategoryObj->category_id);
+                foreach ($getTreeCategory["data"] as $firstCategory) {
+                    $first_cate_first  = $firstCategory["category_name"];
+                    $first_cate_second = null;
+                    $first_cate_third  = null;
+                    $first_categoryId  = $firstCategory["category_id"];
                     if( isset($firstCategory["childs"]) && count($firstCategory["childs"]) > 0 ){
                         foreach ($firstCategory["childs"] as $secondCatogories) {
-                            $cate_second = $secondCatogories["category_name"];
-                            $categoryId  = $secondCatogories["category_id"];
+                            $second_cate_first  = $firstCategory["category_name"];
+                            $second_cate_second = $secondCatogories["category_name"];
+                            $second_cate_third  = null;
+                            $second_categoryId  = $secondCatogories["category_id"];
                             if( isset($secondCatogories["childs"]) && count($secondCatogories["childs"]) > 0 ){
                                 foreach ($secondCatogories["childs"] as $thirdCategory) {
-                                    $cate_third = $thirdCategory["category_name"];
-                                    $categoryId = $thirdCategory["category_id"];
-                                    $upsertWhere = [
-                                        "cate_first"  => $cate_first,
-                                        "cate_second" => $cate_second,
-                                        "cate_third"  => $cate_third,
+                                    $third_cate_first  = $firstCategory["category_name"];
+                                    $third_cate_second = $secondCatogories["category_name"];
+                                    $third_cate_third  = $thirdCategory["category_name"];
+                                    $third_categoryId  = $thirdCategory["category_id"];
+                                    $third_upsertWhere = [
+                                        "cate_first"  => $third_cate_first,
+                                        "cate_second" => $third_cate_second,
+                                        "cate_third"  => $third_cate_third,
                                     ];
                                     CategoryMapping::updateOrCreate(
-                                        ["category_id" => $categoryId],
-                                        $upsertWhere
+                                        ["category_id" => $third_categoryId],
+                                        $third_upsertWhere
                                     );
                                 }
-                            } else {
-                                $upsertWhere = [
-                                    "cate_first"  => $cate_first,
-                                    "cate_second" => $cate_second,
-                                    "cate_third"  => $cate_third,
-                                ];
-                                CategoryMapping::updateOrCreate(
-                                    ["category_id" => $categoryId],
-                                    $upsertWhere
-                                );
                             }
+                            $second_upsertWhere = [
+                                "cate_first"  => $second_cate_first,
+                                "cate_second" => $second_cate_second,
+                                "cate_third"  => $second_cate_third,
+                            ];
+                            CategoryMapping::updateOrCreate(
+                                ["category_id" => $second_categoryId],
+                                $second_upsertWhere
+                            );
                         }
-                    } else {
-                        $upsertWhere = [
-                            "cate_first"  => $cate_first,
-                            "cate_second" => $cate_second,
-                            "cate_third"  => $cate_third,
-                        ];
-                        CategoryMapping::updateOrCreate(
-                            ["category_id" => $categoryId],
-                            $upsertWhere
-                        );
                     }
+                    $first_upsertWhere = [
+                        "cate_first"  => $first_cate_first,
+                        "cate_second" => $first_cate_second,
+                        "cate_third"  => $first_cate_third,
+                    ];
+                    CategoryMapping::updateOrCreate(
+                        ["category_id" => $first_categoryId],
+                        $first_upsertWhere
+                    );
                 }
             }
         } catch (Exception $e) {
