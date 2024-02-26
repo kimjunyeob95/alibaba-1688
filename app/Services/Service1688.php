@@ -147,10 +147,11 @@ class Service1688 extends ApiModuleAbstract
                     }
 
                     $upsertWhere = [
-                        "category_name"  => $categoryData["translatedName"],
-                        "leaf"           => $leaf === false ? "N" : "Y",
-                        "level"          => $categoryData["level"],
-                        "parent_cate_id" => $categoryData["parentCateId"],
+                        "category_name"         => $categoryData["translatedName"],
+                        "category_chinese_name" => $categoryData["chineseName"],
+                        "leaf"                  => $leaf === false ? "N" : "Y",
+                        "level"                 => $categoryData["level"],
+                        "parent_cate_id"        => $categoryData["parentCateId"],
                     ];
                     Category::updateOrCreate(
                         ["category_id" => $categoryData["categoryId"]],
@@ -186,10 +187,11 @@ class Service1688 extends ApiModuleAbstract
                 $leaf = true;
             }
             $upsertWhere = [
-                "category_name"  => $childCategory["translatedName"],
-                "leaf"           => $leaf === false ? "N" : "Y",
-                "level"          => $childCategory["level"],
-                "parent_cate_id" => $childCategory["parentCateId"],
+                "category_name"         => $childCategory["translatedName"],
+                "category_chinese_name" => $childCategory["chineseName"],
+                "leaf"                  => $leaf === false ? "N" : "Y",
+                "level"                 => $childCategory["level"],
+                "parent_cate_id"        => $childCategory["parentCateId"],
             ];
             Category::updateOrCreate(
                 ["category_id" => $childCategory["categoryId"]],
@@ -220,10 +222,11 @@ class Service1688 extends ApiModuleAbstract
                     $this->saveCategoryRecursively($childCategoryData);
                 } else {
                     $upsertWhere = [
-                        "category_name"  => $childCategoryData["translatedName"],
-                        "leaf"           => $last_leaf === false ? "N" : "Y",
-                        "level"          => $childCategoryData["level"],
-                        "parent_cate_id" => $childCategoryData["parentCateId"],
+                        "category_name"         => $childCategoryData["translatedName"],
+                        "category_chinese_name" => $childCategoryData["chineseName"],
+                        "leaf"                  => $last_leaf === false ? "N" : "Y",
+                        "level"                 => $childCategoryData["level"],
+                        "parent_cate_id"        => $childCategoryData["parentCateId"],
                     ];
                     Category::updateOrCreate(
                         ["category_id" => $childCategoryData["categoryId"]],
