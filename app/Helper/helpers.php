@@ -147,7 +147,8 @@ if (!function_exists("helpers_json_response")) {
             "status" => $status,
             "meta" => [
                 "timestamp"  => Carbon::now()->format('Y-m-d H:i:s'),
-                "apiVersion" => $apiVersion
+                // "apiVersion" => $apiVersion,
+                "apiType" => $apiVersion,
             ]
         ];
         if( $status == HttpConstant::OK ){
