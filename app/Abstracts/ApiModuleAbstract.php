@@ -13,7 +13,8 @@ abstract class ApiModuleAbstract
         $this->apiDomain = $apiDomain;
     }
 
-    abstract function getAllCategory(int $categoryId): array;
+    abstract function getAllCategory(): array;
+    abstract function getTreeCategory(int $categoryId): array;
     abstract function get1688Category(int $categoryId): array;
     abstract function apiCurl(string $method, string $endPoint, array $payload, array $header): array;
 }
