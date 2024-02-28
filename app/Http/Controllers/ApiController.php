@@ -38,9 +38,9 @@ class ApiController extends Controller
         }
     }
 
-    public function get1688Category(int $categoryId = 1038378): JsonResponse
+    public function getMallCategory(int $categoryId = 1038378): JsonResponse
     {
-        $result = $this->apiModuleAbstract->get1688Category($categoryId);
+        $result = $this->apiModuleAbstract->getMallCategory($categoryId);
         if( $result["isSuccess"] == true ){
             return helpers_json_response(HttpConstant::OK, $result);
         } else {

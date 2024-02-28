@@ -80,6 +80,8 @@ if (!function_exists("debug_log")) {
 		$logfile  = $dir_path."/".$filename.date('Ymd').".log";
 		$logstr   = "[".date('Y-m-d H:i:s')."][$time_str] $str";
 
+        // 표준 출력으로 로그 출력
+        echo $logstr . PHP_EOL;
 
         // 경로가 존재하지 않으면 생성
         if (!Storage::disk('logs')->exists(dirname($dir_path))) {

@@ -252,11 +252,11 @@ class Service1688 extends ApiModuleAbstract
     }
 
     /**
-     * @func get1688Category
+     * @func getMallCategory
      * @description '1688 카테고리 endPoint 조회'
      * @param int $categoryId '카테고리 ID'
      */
-    public function get1688Category(int $categoryId): array
+    public function getMallCategory(int $categoryId): array
     {
         $returnMsg = $this->returnMsg;
 
@@ -272,6 +272,69 @@ class Service1688 extends ApiModuleAbstract
             $returnMsg = helpers_fail_message(false, $e->getMessage());
         }
         return $returnMsg;
+    }
+
+    /**
+     * @func saveMallProduct
+     * @description '1688 상품수집'
+     */
+    public function saveMallProduct(int $categoryId = null): void
+    {
+        $msg = "======================== 실행 시작 ========================";
+        debug_log($msg, "saveMallProduct", "saveMallProduct");
+        
+        $page     = 1;
+        $pageSize = 50;
+        try {
+            if( $categoryId == null ){
+                $getCategoryMappingObjs = CategoryMapping::orderBy("cate_first", "asc")->get();
+                $getCategoryMappingObjs = CategoryMapping::where("category_id", 1038378)->get();
+                foreach ($getCategoryMappingObjs as $getCategoryMappingObj) {
+                    $this->saveMallProductRecursively($getCategoryMappingObj->category_id, $page, $pageSize);
+                }
+            }
+        } catch (Exception $e) {
+            $msg = "======================== 에러 발생 ========================\r\n";
+            $msg .= "error: " . $e->getMessage();
+            debug_log($msg, "saveMallProduct", "saveMallProduct");
+        }
+
+        $msg = "======================== 실행 종료 ========================";
+        debug_log($msg, "saveMallProduct", "saveMallProduct");
+    }
+
+    public function saveMallProductRecursively(int $categoryId, int $page, int $pageSize): void
+    {
+        $errorMsg = "Error product.search.keywordQuery | categoryId: {$categoryId} | page: {$page}";
+        try {
+            $endPoint = $this->apiDomain . "param2/1/com.alibaba.fenxiao.crossborder/product.search.keywordQuery/" . $this->appKey;
+            $payload = [
+                'access_token'    => $this->accessToken,
+                'offerQueryParam' => [
+                    'keyword'    => '',
+                    'beginPage'  => $page,
+                    'pageSize'   => $pageSize,
+                    'country'    => 'en',
+                    'categoryId' => $categoryId,
+                ]
+            ];
+            $apiDatas = $this->apiCurl("POST", $endPoint, $payload);
+            if( $apiDatas["isSuccess"] != true ){
+                throw new Exception($apiDatas["msg"] . " | " . $errorMsg);
+            }
+            if( $apiDatas["data"]["result"]["success"] != true ){
+                throw new Exception($errorMsg);
+            }
+            $totalPage = $apiDatas["data"]["result"]["result"]["totalPage"];
+            if( $page <= $totalPage ){
+                $nextPage = $page + 1;
+                $this->saveMallProductRecursively($categoryId, $nextPage, $pageSize, $totalPage);
+            }
+        } catch (Exception $e) {
+            $msg = "======================== 에러 발생 ========================\r\n";
+            $msg .= "error: " . $e->getMessage();
+            debug_log($msg, "saveMallProduct", "saveMallProduct");
+        }
     }
 
     /**
@@ -366,15 +429,37 @@ class Service1688 extends ApiModuleAbstract
         $apiInfo = str_replace($this->apiDomain, "", $endPoint);
         $aliParams = [];
         foreach ($payload as $key => $val) {
-            $aliParams[] = $key . $val;
+            if( is_array($val) ){
+                $aliParams[] = $key . json_encode($val);
+            }else{
+                $aliParams[] = $key . $val;
+            }
         }
         sort($aliParams);
         $sign_str  = join('', $aliParams);
         $sign_str  = $apiInfo . $sign_str;
         $code_sign = strtoupper(bin2hex(hash_hmac("sha1", $sign_str, $this->appSecret, true)));
-
         $payload["_aop_signature"] = $code_sign;
 
+        $finalPayload = "";
+        $index = 0;
+        foreach ($payload as $key => $val) {
+            if( $index == 0 ){
+                if( is_array($val) ){
+                    $finalPayload .= $key . "=" . json_encode($val);
+                }else{
+                    $finalPayload .= $key . "=" . $val;
+                }
+            }else{
+                if( is_array($val) ){
+                    $finalPayload .= "&" . $key . "=" . json_encode($val);
+                }else{
+                    $finalPayload .= "&" . $key . "=" . $val;
+                }
+            }
+            $index++;
+        }
+        
 		$curl   = curl_init();
 		$method = strtoupper($method);
 		if($method == 'GET') {
@@ -396,7 +481,7 @@ class Service1688 extends ApiModuleAbstract
 				CURLOPT_RETURNTRANSFER => true,
 				CURLOPT_SSL_VERIFYPEER => false,
 				CURLOPT_CUSTOMREQUEST  => $method,
-				CURLOPT_POSTFIELDS     => http_build_query($payload),
+				CURLOPT_POSTFIELDS     => $finalPayload,
 				CURLOPT_HTTPHEADER     => $header
 			));
 		}

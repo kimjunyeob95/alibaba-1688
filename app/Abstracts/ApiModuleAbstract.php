@@ -27,11 +27,17 @@ abstract class ApiModuleAbstract
     abstract function getTreeCategory(int $categoryId): array;
     
     /**
-     * @func get1688Category
+     * @func getMallCategory
      * @description '오픈API 카테고리 endPoint 조회'
      * @param int $categoryId '카테고리 ID'
      */
-    abstract function get1688Category(int $categoryId): array;
+    abstract function getMallCategory(int $categoryId): array;
+
+    /**
+     * @func saveMallProduct
+     * @description '오픈API 상품수집'
+     */
+    abstract function saveMallProduct(int $categoryId = null): void;
     
     /**
      * @func apiCurl
