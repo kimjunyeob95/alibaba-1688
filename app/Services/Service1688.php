@@ -11,6 +11,7 @@ use Exception;
 use Illuminate\Database\Eloquent\Collection;
 use InvalidArgumentException;
 use JsonException;
+use Psr\Log\LogLevel;
 
 class Service1688 extends ApiModuleAbstract
 {
@@ -174,7 +175,7 @@ class Service1688 extends ApiModuleAbstract
                     }
                 } else {
                     $msg = "카테고리 에러 categoryId: {$categoryId}";
-                    debug_log($msg, "saveCategoryLog", "saveCategoryLog");
+                    debug_log($msg, "saveCategoryLog", "saveCategoryLog", LogLevel::DEBUG);
                 }    
             }
 
@@ -182,7 +183,7 @@ class Service1688 extends ApiModuleAbstract
         } catch (Exception $e) {
             $msg = "======================== 에러 발생 ========================\r\n";
             $msg .= $e->getMessage();
-            debug_log($msg, "saveCategoryLog", "saveCategoryLog");
+            debug_log($msg, "saveCategoryLog", "saveCategoryLog", LogLevel::ERROR);
 
             // DB::rollBack();
         }
@@ -229,8 +230,6 @@ class Service1688 extends ApiModuleAbstract
                 }
 
                 if ($last_hasChildren === true){
-                    $msg = json_encode($childCategoryData, JSON_UNESCAPED_UNICODE);
-                    debug_log($msg, "saveCategoryLog", "saveCategoryLog");
                     $this->saveCategoryRecursively($childCategoryData);
                 } else {
                     $upsertWhere = [
@@ -247,7 +246,7 @@ class Service1688 extends ApiModuleAbstract
                 }
             } else {
                 $msg = "카테고리 에러 categoryId: {$childCategory["categoryId"]}";
-                debug_log($msg, "saveCategoryLog", "saveCategoryLog");
+                debug_log($msg, "saveCategoryLog", "saveCategoryLog", LogLevel::DEBUG);
             }
         }
     }
@@ -297,7 +296,7 @@ class Service1688 extends ApiModuleAbstract
         } catch (Exception $e) {
             $msg = "======================== 에러 발생 ========================\r\n";
             $msg .= $e->getMessage();
-            debug_log($msg, "saveMallProduct", "saveMallProduct");
+            debug_log($msg, "saveMallProduct", "saveMallProduct", LogLevel::ERROR);
         }
 
         $msg = "======================== 실행 종료 ========================";
@@ -352,7 +351,7 @@ class Service1688 extends ApiModuleAbstract
                         $detailProduct = $detailResult["data"]["result"]["result"];
                     } catch (Exception $de) {
                         $msg = $de->getMessage();
-                        debug_log($msg, "saveMallProduct", "saveMallProduct");
+                        debug_log($msg, "saveMallProduct", "saveMallProduct", LogLevel::DEBUG);
                     }
                 }
             } else {
@@ -366,7 +365,7 @@ class Service1688 extends ApiModuleAbstract
             }
         } catch (Exception $e) {
             $msg = $e->getMessage();
-            debug_log($msg, "saveMallProduct", "saveMallProduct");
+            debug_log($msg, "saveMallProduct", "saveMallProduct", LogLevel::DEBUG);
 
             if( $page < $totalPage ){
                 $nextPage = $page + 1;
@@ -453,7 +452,7 @@ class Service1688 extends ApiModuleAbstract
         } catch (Exception $e) {
             $msg = "======================== 에러 발생 ========================\r\n";
             $msg .= $e->getMessage();
-            debug_log($msg, "saveCategoryMappingLog", "saveCategoryMappingLog");
+            debug_log($msg, "saveCategoryMappingLog", "saveCategoryMappingLog", LogLevel::ERROR);
         }
 
         $msg = "======================== 실행 종료 ========================";
