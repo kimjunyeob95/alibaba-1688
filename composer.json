@@ -12,7 +12,7 @@
         "laravel/framework": "^8.75",
         "laravel/sanctum": "^2.11",
         "laravel/tinker": "^2.5",
-        "rap2hpoutre/laravel-log-viewer": "^2.3"
+        "opcodesio/log-viewer": "^3.4"
     },
     "require-dev": {
         "barryvdh/laravel-debugbar": "^3.7",

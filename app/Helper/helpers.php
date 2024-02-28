@@ -3,8 +3,9 @@
 use App\Constants\HttpConstant;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
+use Psr\Log\LogLevel;
 
 if (!function_exists('helpers_curl')) {
     /**
@@ -67,35 +68,43 @@ if (!function_exists("debug_log")) {
 	global $debug_time;
 	$debug_time = microtime_float();
 
-    function debug_log($str, $dirname, $filename)
+    function debug_log($str, $dirname, $filename ,string $level = LogLevel::DEBUG)
 	{
 		global $debug_time;
 
-		$new_time   = microtime_float();
-		$time_gap   = $new_time - $debug_time;
-		$debug_time = $new_time;
-		$time_str   = ($time_gap > 1000000000) ? $time_str = "-.---" : $time_str = number_format($time_gap, 3);
+		$new_time   = microtime(true); // Laravel에서는 이 함수를 직접 사용할 수 있습니다.
+        $time_gap   = $new_time - $debug_time;
+        $debug_time = $new_time;
+        $time_str   = ($time_gap > 1000000000) ? "-.---" : number_format($time_gap, 3);
 
-		$dir_path = "/".$dirname;
-		$logfile  = $dir_path."/".$filename.date('Ymd').".log";
-		$logstr   = "[".date('Y-m-d H:i:s')."][$time_str] $str";
+        $logStr = "[excuteTime: $time_str] $str";
+        $cliLog = "[".date('Y-m-d H:i:s')."][excuteTime: $time_str] $str";
 
-        // 표준 출력으로 로그 출력
-        echo $logstr . PHP_EOL;
+        // 경로와 파일 이름을 사용하여 로그 채널 동적으로 생성
+        $logChannel = Log::build([
+            'driver' => 'single',
+            'path'   => storage_path('logs/'.$dirname.'/'.$filename.date('Ymd').'.log'),
+        ]);
 
-        // 경로가 존재하지 않으면 생성
-        if (!Storage::disk('logs')->exists(dirname($dir_path))) {
-            Storage::disk('logs')->makeDirectory(dirname($dir_path));
+        switch ($level) {
+            case LogLevel::DEBUG:
+                $logChannel->debug($logStr);
+                break;
+            case LogLevel::NOTICE:
+                $logChannel->notice($logStr);
+                break;
+            case LogLevel::WARNING:
+                $logChannel->warning($logStr);
+                break;
+            case LogLevel::ERROR:
+                $logChannel->error($logStr);
+                break;
+            case LogLevel::INFO:
+            default:
+                $logChannel->info($logStr);
         }
-
-        // 파일이 이미 존재하면 이어쓰기 작성
-        if (Storage::disk('logs')->exists($logfile)) {
-            Storage::disk('logs')->append($logfile, $logstr);
-        } else {
-            // 파일이 존재하지 않으면 새로 생성
-            Storage::disk('logs')->put($logfile, $logstr);
-        }
-	}
+        echo $cliLog . PHP_EOL;
+    }
 }
 
 if (!function_exists("helpers_default_message")) {
