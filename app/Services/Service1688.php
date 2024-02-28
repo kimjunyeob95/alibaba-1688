@@ -181,7 +181,7 @@ class Service1688 extends ApiModuleAbstract
             // DB::commit();
         } catch (Exception $e) {
             $msg = "======================== 에러 발생 ========================\r\n";
-            $msg .= "error: " . $e->getMessage();
+            $msg .= $e->getMessage();
             debug_log($msg, "saveCategoryLog", "saveCategoryLog");
 
             // DB::rollBack();
@@ -296,7 +296,7 @@ class Service1688 extends ApiModuleAbstract
             }
         } catch (Exception $e) {
             $msg = "======================== 에러 발생 ========================\r\n";
-            $msg .= "error: " . $e->getMessage();
+            $msg .= $e->getMessage();
             debug_log($msg, "saveMallProduct", "saveMallProduct");
         }
 
@@ -304,7 +304,7 @@ class Service1688 extends ApiModuleAbstract
         debug_log($msg, "saveMallProduct", "saveMallProduct");
     }
 
-    public function saveMallProductRecursively(int $categoryId, int $page, int $pageSize): void
+    public function saveMallProductRecursively(int $categoryId, int $page, int $pageSize, int $totalPage = 0): void
     {
         $errorMsg = ProductErrorMessageConstant::getFitErrorMessage("PRODUCT_SEARCH_KEYWORDQUERY") . " | categoryId: {$categoryId} | page: {$page}";
         try {
@@ -326,15 +326,52 @@ class Service1688 extends ApiModuleAbstract
             if( $apiDatas["data"]["result"]["success"] != true ){
                 throw new Exception($errorMsg);
             }
+
+            $apiResult = $apiDatas["data"]["result"]["result"];
+            if( isset($apiResult["data"]) ){
+                $productDatas = $apiResult["data"];
+                foreach ($productDatas as $key => $productData) {
+                    try {
+                        $offerId        = $productData["offerId"];
+                        $errorMsgDetail = ProductErrorMessageConstant::getFitErrorMessage("PRODUCT_SEARCH_QUERYPRODUCTDETAIL") . " | offerId: {$offerId} | categoryId: {$categoryId} | page: {$page}";
+                        $endPoint       = $this->apiDomain . "param2/1/com.alibaba.fenxiao.crossborder/product.search.queryProductDetail/" . $this->appKey;
+                        $payload        = [
+                            'access_token'     => $this->accessToken,
+                            'offerDetailParam' => [
+                                'offerId' => $offerId,
+                                'country' => 'en',
+                            ]
+                        ];
+                        $detailResult = $this->apiCurl("POST", $endPoint, $payload);
+                        if( $detailResult["isSuccess"] != true ){
+                            throw new Exception($detailResult["msg"] . " | " . $errorMsgDetail);
+                        }
+                        if( $detailResult["data"]["result"]["success"] != true ){
+                            throw new Exception($errorMsgDetail);
+                        }
+                        $detailProduct = $detailResult["data"]["result"]["result"];
+                    } catch (Exception $de) {
+                        $msg = $de->getMessage();
+                        debug_log($msg, "saveMallProduct", "saveMallProduct");
+                    }
+                }
+            } else {
+                throw new Exception(ProductErrorMessageConstant::getNotHaveErrorMessage("PRODUCT_SEARCH_KEYWORDQUERY") . " | categoryId: {$categoryId} | page: {$page}");
+            }
+
             $totalPage = $apiDatas["data"]["result"]["result"]["totalPage"];
-            if( $page <= $totalPage ){
+            if( $page < $totalPage ){
                 $nextPage = $page + 1;
                 $this->saveMallProductRecursively($categoryId, $nextPage, $pageSize, $totalPage);
             }
         } catch (Exception $e) {
-            $msg = "======================== 에러 발생 ========================\r\n";
-            $msg .= "error: " . $e->getMessage();
+            $msg = $e->getMessage();
             debug_log($msg, "saveMallProduct", "saveMallProduct");
+
+            if( $page < $totalPage ){
+                $nextPage = $page + 1;
+                $this->saveMallProductRecursively($categoryId, $nextPage, $pageSize, $totalPage);
+            }
         }
     }
 
@@ -415,7 +452,7 @@ class Service1688 extends ApiModuleAbstract
             }
         } catch (Exception $e) {
             $msg = "======================== 에러 발생 ========================\r\n";
-            $msg .= "error: " . $e->getMessage();
+            $msg .= $e->getMessage();
             debug_log($msg, "saveCategoryMappingLog", "saveCategoryMappingLog");
         }
 
