@@ -3,11 +3,12 @@
 namespace App\Services;
 
 use App\Abstracts\ApiModuleAbstract;
+use App\Constants\CategoryErrorMessageConstant;
+use App\Constants\ProductErrorMessageConstant;
 use App\Models\Category;
 use App\Models\CategoryMapping;
 use Exception;
 use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Support\Facades\DB;
 use InvalidArgumentException;
 use JsonException;
 
@@ -19,7 +20,7 @@ class Service1688 extends ApiModuleAbstract
 
     public function __construct()
     {
-        parent::__construct(env("1688_API_DOMAIN"));
+        parent::__construct(env("1688_API_DOMAIN", "https://gw.open.1688.com/openapi/"));
 
         $this->appKey      = env("1688_APP_KEY");
         $this->appSecret   = env("1688_APP_SECRET_KEY");
@@ -87,7 +88,7 @@ class Service1688 extends ApiModuleAbstract
         try {
             $getCategoryObjs = Category::where("parent_cate_id", 0)->where("category_id", $categoryId)->get();
             if( count($getCategoryObjs) == 0 ){
-                throw new Exception("최상위 카테고리가 아니거나 수집 된 최상위 카테고리가 없습니다.");
+                throw new Exception(CategoryErrorMessageConstant::getNotHaveErrorMessage("PARENT_CATEGORY"));
             }
             $result    = $this->getBuildTree($getCategoryObjs, 0);
             $returnMsg = helpers_success_message($result);
@@ -305,7 +306,7 @@ class Service1688 extends ApiModuleAbstract
 
     public function saveMallProductRecursively(int $categoryId, int $page, int $pageSize): void
     {
-        $errorMsg = "Error product.search.keywordQuery | categoryId: {$categoryId} | page: {$page}";
+        $errorMsg = ProductErrorMessageConstant::getFitErrorMessage("PRODUCT_SEARCH_KEYWORDQUERY") . " | categoryId: {$categoryId} | page: {$page}";
         try {
             $endPoint = $this->apiDomain . "param2/1/com.alibaba.fenxiao.crossborder/product.search.keywordQuery/" . $this->appKey;
             $payload = [
