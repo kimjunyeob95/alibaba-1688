@@ -278,7 +278,7 @@ class Service1688 extends ApiModuleAbstract
      * @func saveMallProduct
      * @description '1688 상품수집'
      */
-    public function saveMallProduct(int $categoryId = null): void
+    public function saveMallProduct(int $categoryId): void
     {
         $msg = "======================== 실행 시작 ========================";
         debug_log($msg, "saveMallProduct", "saveMallProduct");
@@ -286,13 +286,7 @@ class Service1688 extends ApiModuleAbstract
         $page     = 1;
         $pageSize = 50;
         try {
-            if( $categoryId == null ){
-                $getCategoryMappingObjs = CategoryMapping::orderBy("cate_first", "asc")->get();
-                $getCategoryMappingObjs = CategoryMapping::where("category_id", 1038378)->get();
-                foreach ($getCategoryMappingObjs as $getCategoryMappingObj) {
-                    $this->saveMallProductRecursively($getCategoryMappingObj->category_id, $page, $pageSize);
-                }
-            }
+            $this->saveMallProductRecursively($categoryId, $page, $pageSize);
         } catch (Exception $e) {
             $msg = "======================== 에러 발생 ========================\r\n";
             $msg .= $e->getMessage();

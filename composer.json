@@ -12,7 +12,8 @@
         "laravel/framework": "^8.75",
         "laravel/sanctum": "^2.11",
         "laravel/tinker": "^2.5",
-        "opcodesio/log-viewer": "^3.4"
+        "opcodesio/log-viewer": "^3.4",
+        "symfony/process": "^5.4"
     },
     "require-dev": {
         "barryvdh/laravel-debugbar": "^3.7",

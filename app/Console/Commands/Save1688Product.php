@@ -6,7 +6,7 @@ use App\Services\Service1688;
 
 class Save1688Product extends Command
 {
-    protected $signature   = 'save_1688_product';
+    protected $signature   = 'save_1688_product {--categoryid=}';
     protected $description = '1688 상품 수집';
 
     protected Service1688 $service1688;
@@ -23,6 +23,8 @@ class Save1688Product extends Command
     */
     public function handle()
     {
-        $this->service1688->saveMallProduct();
+        $categoryId = $this->option('categoryid', 1038378);
+
+        $this->service1688->saveMallProduct($categoryId);
     }
 }
