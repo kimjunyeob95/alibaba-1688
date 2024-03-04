@@ -280,20 +280,20 @@ class Service1688 extends ApiModuleAbstract
      */
     public function saveMallProduct(int $categoryId): void
     {
-        $msg = "======================== 실행 시작 ========================";
+        $msg = "======================== 실행 시작 (categoryId: {$categoryId}) ========================";
         debug_log($msg, "saveMallProduct", "saveMallProduct");
-        
+
         $page     = 1;
         $pageSize = 50;
         try {
             $this->saveMallProductRecursively($categoryId, $page, $pageSize);
         } catch (Exception $e) {
-            $msg = "======================== 에러 발생 ========================\r\n";
+            $msg = "======================== 에러 발생 (categoryId: {$categoryId}) ========================\r\n";
             $msg .= $e->getMessage();
             debug_log($msg, "saveMallProduct", "saveMallProduct", LogLevel::ERROR);
         }
 
-        $msg = "======================== 실행 종료 ========================";
+        $msg = "======================== 실행 종료 (categoryId: {$categoryId}) ========================";
         debug_log($msg, "saveMallProduct", "saveMallProduct");
     }
 
