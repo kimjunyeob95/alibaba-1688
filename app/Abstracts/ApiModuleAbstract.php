@@ -37,7 +37,7 @@ abstract class ApiModuleAbstract
      * @func saveMallProduct
      * @description '오픈API 상품수집'
      */
-    abstract function saveMallProduct(int $categoryId = null): void;
+    abstract function saveMallProduct(int $categoryId): void;
     
     /**
      * @func apiCurl

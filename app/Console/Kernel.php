@@ -2,6 +2,7 @@
 
 namespace App\Console;
 
+use App\Console\Commands\Save1688AllProducts;
 use App\Console\Commands\Save1688Category;
 use App\Console\Commands\Save1688CategoryMapping;
 use App\Console\Commands\Save1688Product;
@@ -14,6 +15,7 @@ class Kernel extends ConsoleKernel
         Save1688Category::class,
         Save1688CategoryMapping::class,
         Save1688Product::class,
+        Save1688AllProducts::class,
     ];
 
     protected function schedule(Schedule $schedule)
