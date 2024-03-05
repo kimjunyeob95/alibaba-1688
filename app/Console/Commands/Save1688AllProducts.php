@@ -39,6 +39,7 @@ class Save1688AllProducts extends Command
 
             // 2. 커맨드 실행
             $process = Process::fromShellCommandline($command);
+            $process->setTimeout(null); // 실행 시간 제한 없음
             $process->start();
             $processes[] = $process;
         }
@@ -59,9 +60,15 @@ class Save1688AllProducts extends Command
         foreach ($pids as $pid) {
             if (is_numeric($pid)) {
                 echo "Gracefully terminating process(categoryId {$categoryId}) with PID: $pid\n";
-                exec("kill $pid"); // SIGTERM 신호를 보냄
+                // SIGTERM 신호를 보냄
+                $process = new Process(['kill', $pid]);
+                $process->run();
+
                 sleep(1); // 프로세스가 종료될 시간을 줌
-                exec("kill -9 $pid"); // 여전히 실행 중인 경우 강제 종료
+
+                // 여전히 실행 중인 경우 강제 종료 (SIGKILL)
+                $process = new Process(['kill', '-9', $pid]);
+                $process->run();
             }
         }
     }
