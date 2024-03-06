@@ -5,7 +5,7 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
-class CreateCategoryMappingsTable extends Migration
+class CreateCategoryTreesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -14,7 +14,7 @@ class CreateCategoryMappingsTable extends Migration
      */
     public function up()
     {
-        Schema::create('category_mappings', function (Blueprint $table) {
+        Schema::create('category_trees', function (Blueprint $table) {
             $table->id();
             $table->unsignedInteger('category_id')->nullable(false)->comment('카테고리ID');
             $table->string('cate_first', 50)->nullable(true)->comment('카테고리 레벨 1');
@@ -33,7 +33,7 @@ class CreateCategoryMappingsTable extends Migration
             $table->index('cate_third');
         });
 
-        DB::statement('ALTER TABLE category_mappings COMMENT "1688 카테고리 맵핑 테이블"');
+        DB::statement('ALTER TABLE category_trees COMMENT "1688 카테고리 단계별 정리 테이블"');
     }
 
     /**
