@@ -33,7 +33,7 @@ class CreateCategoryMappingsTable extends Migration
             $table->index('cate_third');
         });
 
-        DB::statement('ALTER TABLE category_mappings COMMENT "1688 카테고리 정리 테이블"');
+        DB::statement('ALTER TABLE category_mappings COMMENT "1688 카테고리 맵핑 테이블"');
     }
 
     /**
