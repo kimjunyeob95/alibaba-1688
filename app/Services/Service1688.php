@@ -9,6 +9,7 @@ use App\Models\Category;
 use App\Models\CategoryMapping;
 use Exception;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\File;
 use InvalidArgumentException;
 use JsonException;
 use Psr\Log\LogLevel;
@@ -378,6 +379,23 @@ class Service1688 extends ApiModuleAbstract
         debug_log($msg, "saveCategoryMappingLog", "saveCategoryMappingLog");
 
         try {
+            $filePath          = public_path('app/oc_categories.txt');
+            $mappingCategories = [];
+            if (File::exists($filePath)) {
+                $lines = File::lines($filePath);
+                foreach ($lines as $line) {
+                    list($ali_code, $oc_code) = explode(' : ', $line);
+
+                    $ali_code = trim($ali_code);
+                    $oc_code  = trim($oc_code);
+                    if( $ali_code != "미 매핑" || $oc_code != "") {
+                        $mappingCategories[$ali_code] = (int)$oc_code;
+                    }
+                }
+            } else {
+                throw new Exception("파일이 존재하지 않습니다.");
+            }
+
             $parentCategoryObjs = Category::where("parent_cate_id", 0)->get();
             foreach ($parentCategoryObjs as $parentCategoryObj) {
                 $getTreeCategory = $this->getTreeCategory($parentCategoryObj->category_id);
@@ -385,6 +403,10 @@ class Service1688 extends ApiModuleAbstract
                     $first_cate_first          = $firstCategory["category_name"];
                     $first_chinese_cate_first  = $firstCategory["category_chinese_name"];
                     $first_categoryId          = $firstCategory["category_id"];
+                    $first_oc_category_code    = 0;
+                    if( isset($mappingCategories[$first_categoryId]) ){
+                        $first_oc_category_code = $mappingCategories[$first_categoryId];
+                    }
                     if( isset($firstCategory["childs"]) && count($firstCategory["childs"]) > 0 ){
                         foreach ($firstCategory["childs"] as $secondCatogories) {
                             $second_cate_first          = $firstCategory["category_name"];
@@ -392,6 +414,10 @@ class Service1688 extends ApiModuleAbstract
                             $second_chinese_cate_first  = $firstCategory["category_chinese_name"];
                             $second_chinese_cate_second = $secondCatogories["category_chinese_name"];
                             $second_categoryId          = $secondCatogories["category_id"];
+                            $second_oc_category_code    = 0;
+                            if( isset($mappingCategories[$second_categoryId]) ){
+                                $second_oc_category_code = $mappingCategories[$second_categoryId];
+                            }
                             if( isset($secondCatogories["childs"]) && count($secondCatogories["childs"]) > 0 ){
                                 foreach ($secondCatogories["childs"] as $thirdCategory) {
                                     $third_cate_first          = $firstCategory["category_name"];
@@ -401,7 +427,12 @@ class Service1688 extends ApiModuleAbstract
                                     $third_chinese_cate_second = $secondCatogories["category_chinese_name"];
                                     $third_chinese_cate_third  = $thirdCategory["category_chinese_name"];
                                     $third_categoryId          = $thirdCategory["category_id"];
+                                    $third_oc_category_code    = 0;
+                                    if( isset($mappingCategories[$third_categoryId]) ){
+                                        $third_oc_category_code = $mappingCategories[$third_categoryId];
+                                    }
                                     $third_upsertWhere         = [
+                                        "oc_category_code"    => $third_oc_category_code,
                                         "cate_first"          => $third_cate_first,
                                         "cate_second"         => $third_cate_second,
                                         "cate_third"          => $third_cate_third,
@@ -416,6 +447,7 @@ class Service1688 extends ApiModuleAbstract
                                 }
                             }
                             $second_upsertWhere = [
+                                "oc_category_code"    => $second_oc_category_code,
                                 "cate_first"          => $second_cate_first,
                                 "cate_second"         => $second_cate_second,
                                 "cate_third"          => null,
@@ -430,6 +462,7 @@ class Service1688 extends ApiModuleAbstract
                         }
                     }
                     $first_upsertWhere = [
+                        "oc_category_code"    => $first_oc_category_code,
                         "cate_first"          => $first_cate_first,
                         "cate_second"         => null,
                         "cate_third"          => null,
