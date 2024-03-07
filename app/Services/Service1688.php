@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Abstracts\ApiModuleAbstract;
+use App\Abstracts\UploadAbstract;
 use App\Constants\CategoryErrorMessageConstant;
 use App\Constants\ProductConstant;
 use App\Constants\ProductErrorMessageConstant;
@@ -31,14 +32,16 @@ class Service1688 extends ApiModuleAbstract
     private string $appKey;
     private string $appSecret;
     private string $accessToken;
+    private UploadAbstract $uploadAbstract;
 
-    public function __construct()
+    public function __construct(UploadAbstract $uploadAbstract)
     {
         parent::__construct(env("1688_API_DOMAIN", "https://gw.open.1688.com/openapi/"));
 
-        $this->appKey      = env("1688_APP_KEY");
-        $this->appSecret   = env("1688_APP_SECRET_KEY");
-        $this->accessToken = env("1688_ACCESS_TOKEN");
+        $this->appKey         = env("1688_APP_KEY");
+        $this->appSecret      = env("1688_APP_SECRET_KEY");
+        $this->accessToken    = env("1688_ACCESS_TOKEN");
+        $this->uploadAbstract = $uploadAbstract;
     }
     
     /**

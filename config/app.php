@@ -1,6 +1,7 @@
 <?php
 
 use App\Providers\ApiModuleProvider;
+use App\Providers\UploadProvider;
 
 return [
 
@@ -179,6 +180,7 @@ return [
         Barryvdh\Debugbar\ServiceProvider::class,
 
         ApiModuleProvider::class,
+        UploadProvider::class,
     ],
 
     /*
