@@ -16,7 +16,7 @@ class CreateProductExtendDatasTable extends Migration
     {
         Schema::create('product_extend_datas', function (Blueprint $table) {
             $table->id();
-            $table->unsignedInteger('offer_id')->nullable(false)->comment('제품ID');
+            $table->unsignedBigInteger('offer_id')->nullable(false)->comment('제품ID');
 
             $table->decimal('send_default_price', 8, 3)->nullable(false)->comment('기본 배송비');
             $table->decimal('send_jeju_price', 8, 3)->nullable(false)->comment('제주도 배송비');

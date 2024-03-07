@@ -16,7 +16,7 @@ class CreateProductNoticeDatasTable extends Migration
     {
         Schema::create('product_notice_datas', function (Blueprint $table) {
             $table->id();
-            $table->unsignedInteger('offer_id')->nullable(false)->comment('제품ID');
+            $table->unsignedBigInteger('offer_id')->nullable(false)->comment('제품ID');
             $table->unsignedInteger('attribute_id')->nullable(false)->comment('고시ID');
             $table->unsignedInteger('notice_type')->default(26)->nullable(false)->comment('상품고시구분');
             $table->string('attribute_name', 100)->nullable(false)->comment('고시이름');

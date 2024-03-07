@@ -16,9 +16,9 @@ class CreateProductDatasTable extends Migration
     {
         Schema::create('product_datas', function (Blueprint $table) {
             $table->id();
-            $table->unsignedInteger('offer_id')->nullable(false)->comment('제품ID');
-            $table->string('prd_name', 100)->nullable(false)->comment('제품명');
-            $table->string('prd_name_trans', 100)->nullable(false)->comment('제품명_번역');
+            $table->unsignedBigInteger('offer_id')->nullable(false)->comment('제품ID');
+            $table->text('prd_name')->nullable(false)->comment('제품명');
+            $table->text('prd_name_trans')->nullable(false)->comment('제품명_번역');
             $table->longText('prd_desc')->nullable(false)->comment('제품상세');
             $table->enum('tax_type', [1, 2])->default(1)->nullable(false)->comment('과세여부 1: 과세, 2: 비과세');
             $table->enum('minor_not_sale', ["Y", "N"])->default("N")->nullable(false)->comment('미성년자판매금지');
@@ -28,7 +28,8 @@ class CreateProductDatasTable extends Migration
             $table->enum('supply_type', [1, 2, 3])->default(2)->nullable(false)->comment('공급업체 분류 1: 제조사, 2: 벤더사, 3: 수입사');
             $table->unsignedInteger('prd_channel')->default(22)->nullable(false)->comment('제품채널');
             $table->unsignedInteger('prd_rule')->default(1)->nullable(false)->comment('판매가 준수여부');
-            $table->text('main_img')->nullable(false)->comment('제품 메인 이미지');
+            $table->text('main_img_origin')->nullable(false)->comment('제품 메인 이미지 원본');
+            $table->text('main_img_trans')->nullable(false)->comment('제품 메인 이미지 번역');
             $table->string('supply_code', 100)->nullable(false)->comment('공급사코드');
             $table->longText('response_json')->nullable(false)->comment('응답 전문');
 

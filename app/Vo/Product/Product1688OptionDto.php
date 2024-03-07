@@ -25,16 +25,16 @@ class Product1688OptionDto extends Vo
 
     public function bind(mixed $data): void
     {
-        $this->offer_id        = $data["offerId"];
-        $this->amount_on_sale  = $data["amountOnSale"];
-        $this->sku_id          = $data["skuId"];
-        $this->spec_id         = $data["specId"];
-        $this->sku_image_url   = $data["skuImageUrl"] ?? "";
-        $this->price_1688      = $data["price"];
-        $this->consign_price   = $data["consignPrice"];
-        $this->cargo_number    = $data["cargoNumber"];
-        $this->cus_price       = $data["cus_price"];
-        $this->recom_cus_price = $data["recom_cus_price"];
+        $this->offer_id          = $data["offerId"];
+        $this->amount_on_sale    = $data["amountOnSale"];
+        $this->sku_id            = $data["skuId"];
+        $this->spec_id           = $data["specId"];
+        $this->sku_image_url     = $data["skuImageUrl"];
+        $this->option_name       = $data["optionName"];
+        $this->option_name_trans = $data["optionNameTrans"];
+        $this->price_1688        = $data["price"];
+        $this->consign_price     = (float)$data["consignPrice"];
+        $this->cargo_number      = $data["cargoNumber"];
 
         $this->oc_bind();
     }

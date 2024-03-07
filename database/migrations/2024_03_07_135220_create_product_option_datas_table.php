@@ -16,9 +16,9 @@ class CreateProductOptionDatasTable extends Migration
     {
         Schema::create('product_option_datas', function (Blueprint $table) {
             $table->id();
-            $table->unsignedInteger('offer_id')->nullable(false)->comment('제품ID');
-            $table->unsignedInteger('sku_id')->nullable(false)->comment('제품skuID');
-            $table->unsignedInteger('spec_id')->nullable(false)->comment('제품specID');
+            $table->unsignedBigInteger('offer_id')->nullable(false)->comment('제품ID');
+            $table->unsignedBigInteger('sku_id')->nullable(false)->comment('제품skuID');
+            $table->text('spec_id')->nullable(false)->comment('제품specID');
             $table->enum('status', [1, 2, 3])->default(1)->nullable(false)->comment('상태값 1: 정상(재입고), 2: 단종, 3: 품절');
             $table->text('option_name')->nullable(false)->comment('옵션명');
             $table->text('option_name_trans')->nullable(false)->comment('옵션명(번역)');
@@ -37,7 +37,6 @@ class CreateProductOptionDatasTable extends Migration
 
             $table->index('offer_id');
             $table->index('sku_id');
-            $table->index('spec_id');
             $table->index('status');
             $table->index('amount_on_sale');
         });

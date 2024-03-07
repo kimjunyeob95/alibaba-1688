@@ -16,8 +16,9 @@ class CreateProductImageDatasTable extends Migration
     {
         Schema::create('product_image_datas', function (Blueprint $table) {
             $table->id();
-            $table->unsignedInteger('offer_id')->nullable(false)->comment('제품ID');
-            $table->text('img_url')->nullable(false)->comment('제품 이미지');
+            $table->unsignedBigInteger('offer_id')->nullable(false)->comment('제품ID');
+            $table->text('img_url_origin')->nullable(false)->comment('제품 이미지 원본');
+            $table->text('img_url_trans')->nullable(false)->comment('제품 이미지 번역');
 
             $table->timestamps();
             $table->softDeletes();

@@ -19,7 +19,6 @@ class Product1688NoticeDto extends Vo
     {
         $this->offer_id              = $data["offerId"];
         $this->attribute_id          = $data["attributeId"];
-        $this->notice_type           = $data["notice_type"];
         $this->attribute_name        = $data["attributeName"];
         $this->attribute_value       = $data["value"];
         $this->attribute_name_trans  = $data["attributeNameTrans"];

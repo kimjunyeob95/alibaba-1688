@@ -34,10 +34,10 @@ abstract class ApiModuleAbstract
     abstract function getMallCategory(int $categoryId): array;
 
     /**
-     * @func saveMallProduct
-     * @description '오픈API 상품수집'
+     * @func saveMallProductByCategotyId
+     * @description '오픈API 카테고리ID별 상품수집'
      */
-    abstract function saveMallProduct(int $categoryId): void;
+    abstract function saveMallProductByCategotyId(int $categoryId): void;
     
     /**
      * @func apiCurl

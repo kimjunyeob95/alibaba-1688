@@ -12,6 +12,7 @@ class ProductErrorMessageConstant
 
     public const ERROR_MESSAGE_PRODUCT_SEARCH_KEYWORDQUERY       = "product.search.keywordQuery";
     public const ERROR_MESSAGE_PRODUCT_SEARCH_QUERYPRODUCTDETAIL = "product.search.queryProductDetail";
+    public const ERROR_MESSAGE_PRODUCT_PRICE_1688                = "productSkuInfos price";
  
     public static function getErrorMessageNotDefault($constantName): string
     {
