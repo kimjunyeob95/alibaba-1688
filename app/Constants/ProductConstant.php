@@ -71,4 +71,23 @@ class ProductConstant
         self::SUPP_SEC_2 => "벤더사",
         self::SUPP_SEC_3 => "수입사",
     ];
+
+    // 옵션 상태
+    public const OPTION_SEC_ON_SALE_NUMBER      = 1;
+    public const OPTION_SEC_DISCONTINUED_NUMBER = 2;
+    public const OPTION_SEC_OUT_OF_STOCK_NUMBER = 3;
+    public const OPTION_SEC_ON_SALE             = "정상(재입고)";
+    public const OPTION_SEC_DISCONTINUED        = "단종";
+    public const OPTION_SEC_OUT_OF_STOCK        = "품절";
+    public const OPTION_STATUS = [
+        self::OPTION_SEC_ON_SALE_NUMBER      => self::OPTION_SEC_ON_SALE,
+        self::OPTION_SEC_DISCONTINUED_NUMBER => self::OPTION_SEC_DISCONTINUED,
+        self::OPTION_SEC_OUT_OF_STOCK_NUMBER => self::OPTION_SEC_OUT_OF_STOCK,
+    ];
+
+    public const MAPPING_CHANNEL = "onchannel";
+
+    public const CHANNE_FOREGIN_CHANNEL_RETURN_COMMENT = "- 해외직배송 상품 특성상 교환/반품 시 왕복 해외배송비는 고객 부담이므로 반드시 확인해주세요.<br>
+    - 본 상품은 해외직배송 상품으로 제품 출고 후 취소가 불가능합니다. 신중한 구매 부탁드립니다.<br>
+    - 상품 수령일로부터 7일 이내에 먼저 판매자와 연락하셔서 반품 사유, 택배사, 배송비, 반송처 등을 협의하신 후 상품을 반품하시기 바랍니다.";
 }

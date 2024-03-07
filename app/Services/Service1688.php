@@ -4,9 +4,11 @@ namespace App\Services;
 
 use App\Abstracts\ApiModuleAbstract;
 use App\Constants\CategoryErrorMessageConstant;
+use App\Constants\ProductConstant;
 use App\Constants\ProductErrorMessageConstant;
 use App\Models\Category;
 use App\Models\CategoryMapping;
+use App\Models\CategoryTree;
 use Exception;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\File;
@@ -431,8 +433,7 @@ class Service1688 extends ApiModuleAbstract
                                     if( isset($mappingCategories[$third_categoryId]) ){
                                         $third_oc_category_code = $mappingCategories[$third_categoryId];
                                     }
-                                    $third_upsertWhere         = [
-                                        "oc_category_code"    => $third_oc_category_code,
+                                    $third_upsertWhere = [
                                         "cate_first"          => $third_cate_first,
                                         "cate_second"         => $third_cate_second,
                                         "cate_third"          => $third_cate_third,
@@ -440,14 +441,20 @@ class Service1688 extends ApiModuleAbstract
                                         "cate_chinese_second" => $third_chinese_cate_second,
                                         "cate_chinese_third"  => $third_chinese_cate_third,
                                     ];
-                                    CategoryMapping::updateOrCreate(
+                                    CategoryTree::updateOrCreate(
                                         ["category_id" => $third_categoryId],
                                         $third_upsertWhere
+                                    );
+                                    CategoryMapping::updateOrCreate(
+                                        ["category_id" => $third_categoryId],
+                                        [
+                                            "mapping_channel" => ProductConstant::MAPPING_CHANNEL,
+                                            "mapping_code"    => $third_oc_category_code
+                                        ]
                                     );
                                 }
                             }
                             $second_upsertWhere = [
-                                "oc_category_code"    => $second_oc_category_code,
                                 "cate_first"          => $second_cate_first,
                                 "cate_second"         => $second_cate_second,
                                 "cate_third"          => null,
@@ -455,14 +462,20 @@ class Service1688 extends ApiModuleAbstract
                                 "cate_chinese_second" => $second_chinese_cate_second,
                                 "cate_chinese_third"  => null,
                             ];
-                            CategoryMapping::updateOrCreate(
+                            CategoryTree::updateOrCreate(
                                 ["category_id" => $second_categoryId],
                                 $second_upsertWhere
+                            );
+                            CategoryMapping::updateOrCreate(
+                                ["category_id" => $second_categoryId],
+                                [
+                                    "mapping_channel" => ProductConstant::MAPPING_CHANNEL,
+                                    "mapping_code"    => $second_oc_category_code
+                                ]
                             );
                         }
                     }
                     $first_upsertWhere = [
-                        "oc_category_code"    => $first_oc_category_code,
                         "cate_first"          => $first_cate_first,
                         "cate_second"         => null,
                         "cate_third"          => null,
@@ -470,9 +483,16 @@ class Service1688 extends ApiModuleAbstract
                         "cate_chinese_second" => null,
                         "cate_chinese_third"  => null,
                     ];
-                    CategoryMapping::updateOrCreate(
+                    CategoryTree::updateOrCreate(
                         ["category_id" => $first_categoryId],
                         $first_upsertWhere
+                    );
+                    CategoryMapping::updateOrCreate(
+                        ["category_id" => $first_categoryId],
+                        [
+                            "mapping_channel" => ProductConstant::MAPPING_CHANNEL,
+                            "mapping_code"    => $first_oc_category_code
+                        ]
                     );
                 }
             }
