@@ -1,5 +1,18 @@
 <?php
 
+$productLog["production"] = [];
+if( env('APP_ENV', 'local') != "production" ){
+    $productLog["production"] = [
+        'name' => 'Production',
+        'host' => 'https://task-1688.onch3.co.kr/logs',
+        'auth' => [
+            'token' => env('LOG_VIEWER_PRODUCTION_TOKEN', ""),
+        ],
+        'headers' => [
+            'X-Foo' => 'Bar',
+        ],
+    ];
+};
 return [
 
     /*
@@ -112,16 +125,7 @@ return [
         //     ],
         // ],
         //
-        'production' => [
-            'name' => 'Production',
-            'host' => 'https://task-1688.onch3.co.kr/logs',
-            'auth' => [      // Example of Bearer token auth
-                'token' => env('LOG_VIEWER_PRODUCTION_TOKEN', ""),
-            ],
-            'headers' => [
-                'X-Foo' => 'Bar',
-            ],
-        ],
+        'production' => $productLog["production"],
     ],
 
     /*
