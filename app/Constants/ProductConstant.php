@@ -73,9 +73,9 @@ class ProductConstant
     ];
 
     // 옵션 상태
-    public const OPTION_SEC_ON_SALE_NUMBER      = 1;
-    public const OPTION_SEC_DISCONTINUED_NUMBER = 2;
-    public const OPTION_SEC_OUT_OF_STOCK_NUMBER = 3;
+    public const OPTION_SEC_ON_SALE_NUMBER      = "Y";
+    public const OPTION_SEC_DISCONTINUED_NUMBER = "D";
+    public const OPTION_SEC_OUT_OF_STOCK_NUMBER = "N";
     public const OPTION_SEC_ON_SALE             = "정상(재입고)";
     public const OPTION_SEC_DISCONTINUED        = "단종";
     public const OPTION_SEC_OUT_OF_STOCK        = "품절";

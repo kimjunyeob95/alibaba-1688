@@ -23,6 +23,7 @@ class CreateProductImageDatasTable extends Migration
             $table->timestamps();
             $table->softDeletes();
 
+            $table->foreign('offer_id')->references('offer_id')->on('product_datas')->onDelete('cascade');
             $table->index('offer_id');
         });
 
