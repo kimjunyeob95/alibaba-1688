@@ -1,0 +1,19 @@
+자주 사용하는 cli 명령어 모음
+
+# 현재 사용 메모리 간략히 보기
+free -h
+
+# 실행중인 프로세스 추출
+ps aux | grep artisan
+
+# 프로세스 삭제
+kill -9 pid
+
+# 디스크 용량 체크
+df -h
+
+# 특정 디렉토리의 크기 확인
+du -sh storage/
+
+# 세션과 상관없이 백그라운드에서 실행
+nohup php artisan save_1688_product_by_category_id --categoryid=1037021 > /dev/null 2>&1 &
