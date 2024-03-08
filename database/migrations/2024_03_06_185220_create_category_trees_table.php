@@ -16,7 +16,7 @@ class CreateCategoryTreesTable extends Migration
     {
         Schema::create('category_trees', function (Blueprint $table) {
             $table->id();
-            $table->unsignedInteger('category_id')->nullable(false)->comment('카테고리ID');
+            $table->unsignedBigInteger('category_id')->nullable(false)->comment('카테고리ID');
             $table->string('cate_first', 50)->nullable(true)->comment('카테고리 레벨 1');
             $table->string('cate_second', 50)->nullable(true)->comment('카테고리 레벨 2');
             $table->string('cate_third', 50)->nullable(true)->comment('카테고리 레벨 3');

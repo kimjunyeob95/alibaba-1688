@@ -17,6 +17,7 @@ class CreateProductDatasTable extends Migration
         Schema::create('product_datas', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('offer_id')->nullable(false)->comment('제품ID');
+            $table->unsignedBigInteger('category_id')->nullable(false)->comment('카테고리ID');
             $table->text('prd_name')->nullable(false)->comment('제품명');
             $table->text('prd_name_trans')->nullable(false)->comment('제품명_번역');
             $table->longText('prd_desc')->nullable(false)->comment('제품상세');

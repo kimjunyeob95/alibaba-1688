@@ -53,33 +53,33 @@ class Service1688 extends ApiModuleAbstract
         $returnMsg = $this->returnMsg;
 
         try {
-            $getCategoryMappingObjs = CategoryMapping::orderBy("cate_first", "asc")->orderBy("cate_second", "asc")->orderBy("cate_third", "asc")->get();
+            $getCategoryTreeObjs = CategoryTree::orderBy("cate_first", "asc")->orderBy("cate_second", "asc")->orderBy("cate_third", "asc")->get();
             $result = [
-                "total" => count($getCategoryMappingObjs),
+                "total" => count($getCategoryTreeObjs),
             ];
-            foreach ($getCategoryMappingObjs as $getCategoryMappingObj) {
+            foreach ($getCategoryTreeObjs as $getCategoryTreeObj) {
                 $categoryFullPath = $categoryChineseFullPath = "";
-                if( $getCategoryMappingObj->cate_first ){
-                    $categoryFullPath = $getCategoryMappingObj->cate_first;
+                if( $getCategoryTreeObj->cate_first ){
+                    $categoryFullPath = $getCategoryTreeObj->cate_first;
                 }
-                if( $getCategoryMappingObj->cate_second ){
-                    $categoryFullPath .= " > " . $getCategoryMappingObj->cate_second;
+                if( $getCategoryTreeObj->cate_second ){
+                    $categoryFullPath .= " > " . $getCategoryTreeObj->cate_second;
                 }
-                if( $getCategoryMappingObj->cate_third ){
-                    $categoryFullPath .= " > " . $getCategoryMappingObj->cate_third;
+                if( $getCategoryTreeObj->cate_third ){
+                    $categoryFullPath .= " > " . $getCategoryTreeObj->cate_third;
                 }
-                if( $getCategoryMappingObj->cate_chinese_first ){
-                    $categoryChineseFullPath = $getCategoryMappingObj->cate_chinese_first;
+                if( $getCategoryTreeObj->cate_chinese_first ){
+                    $categoryChineseFullPath = $getCategoryTreeObj->cate_chinese_first;
                 }
-                if( $getCategoryMappingObj->cate_chinese_second ){
-                    $categoryChineseFullPath .= " > " . $getCategoryMappingObj->cate_chinese_second;
+                if( $getCategoryTreeObj->cate_chinese_second ){
+                    $categoryChineseFullPath .= " > " . $getCategoryTreeObj->cate_chinese_second;
                 }
-                if( $getCategoryMappingObj->cate_chinese_third ){
-                    $categoryChineseFullPath .= " > " . $getCategoryMappingObj->cate_chinese_third;
+                if( $getCategoryTreeObj->cate_chinese_third ){
+                    $categoryChineseFullPath .= " > " . $getCategoryTreeObj->cate_chinese_third;
                 }
 
                 $result["categories"][] = [
-                    "categoryId"              => $getCategoryMappingObj->category_id,
+                    "categoryId"              => $getCategoryTreeObj->category_id,
                     "categoryFullPath"        => $categoryFullPath,
                     "categoryChineseFullPath" => $categoryChineseFullPath,
                 ];
@@ -142,6 +142,39 @@ class Service1688 extends ApiModuleAbstract
         }
     
         return $result;
+    }
+
+    /**
+     * @func getMappingCategory
+     * @description '1688<->채널 카테고리 맵핑 조회'
+     * @param string $channel
+     */
+    public function getMappingCategory(string $channel): array
+    {
+        $returnMsg = $this->returnMsg;
+
+        try {
+            $getCategoryMappingObjs = CategoryMapping::where("mapping_channel", $channel)
+            ->where("mapping_code", "!=", 0)
+            ->orderBy("category_id", "asc")
+            ->get();
+
+            $result = [
+                "mapping_channel" => $channel,
+                "result"          => []
+            ];
+            foreach ($getCategoryMappingObjs as $getCategoryMappingObj) {
+                $result["result"][] = [
+                    "category_id"     => $getCategoryMappingObj->category_id,
+                    "mapping_code"    => $getCategoryMappingObj->mapping_code,
+                ];
+            }
+            $returnMsg = helpers_success_message($result);
+        } catch (Exception $e) {
+            $returnMsg = helpers_fail_message(false, $e->getMessage());
+        }
+
+        return $returnMsg;
     }
 
     /**
@@ -339,7 +372,11 @@ class Service1688 extends ApiModuleAbstract
             $apiResult = $apiDatas["data"]["result"]["result"];
             if( isset($apiResult["data"]) ){
                 $productDatas = $apiResult["data"];
+                $successCnt   = 0;
                 foreach ($productDatas as $productData) {
+                    if( $successCnt == 10 ){
+                        dd("끝");
+                    }
                     try {
                         $offerId        = $productData["offerId"];
                         $errorMsgDetail = ProductErrorMessageConstant::getFitErrorMessage("PRODUCT_SEARCH_QUERYPRODUCTDETAIL") . " | offerId: {$offerId} | categoryId: {$categoryId} | page: {$page}";
@@ -378,6 +415,7 @@ class Service1688 extends ApiModuleAbstract
                         $product1688Dto = new Product1688Dto();
                         $product1688Dto->bind([
                             "offerId"         => $offerId,
+                            "categoryId"      => $categoryId,
                             "subject"         => $detailProduct["subject"],
                             "subjectTrans"    => $detailProduct["subjectTrans"],
                             "description"     => $detailProduct["description"],
@@ -456,7 +494,10 @@ class Service1688 extends ApiModuleAbstract
                         }
 
                         $saveResult = $this->save1688ProductData($product1688Dto, $product1688ExtendDto, $product1688ImageDtoList, $product1688NoticeDtoList, $product1688OptionDtoList);
-                        if( $saveResult["isSuccess"] == false ){
+
+                        if( $saveResult["isSuccess"] == true ){
+                            $successCnt++;
+                        }else{
                             throw new Exception($saveResult["msg"]);
                         }
                     } catch (Exception $de) {
@@ -550,11 +591,9 @@ class Service1688 extends ApiModuleAbstract
                     $upsertWhere
                 );
             }
-
             $returnMsg = helpers_success_message();
         } catch (Exception $e) {
             $returnMsg = helpers_fail_message(false, $e->getMessage());
-            dd($returnMsg);
         }
         return $returnMsg;
     }

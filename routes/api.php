@@ -8,6 +8,8 @@ Route::name('category.')->prefix('category')->group(function () {
     Route::get('/all', [ApiController::class, 'getAllCategory'])->name('getAllCategory');
     // 1688에서 수집 한 최상위 카테고리 계층별 목록
     Route::get('/tree/{categoryId?}', [ApiController::class, 'getTreeCategory'])->name('getTreeCategory');
+    // 1688<->채널 카테고리 맵핑 조회
+    Route::get('/mapping/{channel?}', [ApiController::class, 'getMappingCategory'])->name('getTreeCategory');
 });
 
 Route::name('1688.')->prefix('1688')->group(function () {
