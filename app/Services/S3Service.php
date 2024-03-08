@@ -20,23 +20,20 @@ class S3Service extends UploadAbstract
 
     public function uploadFile(string $originFilePath, string $fileName): ?string
     {
-        $response = Http::get($originFilePath); // 외부 URL에서 이미지를 가져옴
-        
+        $response = Http::get($originFilePath);  // 외부 URL에서 이미지를 가져옴
+        $result   = null;
         if ($response->successful()) {
             $filePath = $this->appName . "/" . $this->appEnv . date('Y/m/d/') . $fileName . "." . pathinfo($originFilePath, PATHINFO_EXTENSION);
             try {
                 $result = $this->disk->put($filePath, $response->body()); // 이미지를 S3에 저장
                 if( $result === true ){
-                    return $this->disk->url($filePath);
-                } else return null;
+                    $result = $this->disk->url($filePath);
+                }
             } catch (Exception $e) {
-                dd($e->getMessage());
-                return null;
             }
-            return $this->getFile($filePath);
-        } else {
-            return null;
         }
+
+        return $result;
     }
 
     public function getFile(string $filePath): ?string
@@ -49,7 +46,8 @@ class S3Service extends UploadAbstract
 
     public function deleteFile(string $filePath): bool
     {
-        return $this->disk->delete($filePath);
+        $filterPath = str_replace(env("AWS_URL"), "", $filePath);
+        return $this->disk->delete($filterPath);
     }
 
     public function listFiles(string $directoryPath): array

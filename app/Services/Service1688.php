@@ -427,7 +427,6 @@ class Service1688 extends ApiModuleAbstract
                         ->where("mapping_code", "!=", 0)->first();
                         if( $getCategoryMappingObj == null ){
                             continue;
-                            // throw new Exception(CategoryErrorMessageConstant::getNotHaveErrorMessage("MAPPING_CATEGORY"));
                         }
 
                         // 1. 상품 기본정보
@@ -445,9 +444,6 @@ class Service1688 extends ApiModuleAbstract
                             "main_img_trans"  => $main_img_trans,
                             "response_json"   => json_encode($detailProduct, JSON_UNESCAPED_UNICODE),
                         ]);
-
-                        // $test = $this->uploadAbstract->uploadFile($main_img_origin, "test");
-                        // dd($test);
 
                         // 2. 상품 확장정보
                         $product1688ExtendDto = new Product1688ExtendDto();
