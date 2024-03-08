@@ -21,10 +21,14 @@ class S3Service extends UploadAbstract
     public function uploadFile(string $originFilePath, string $fileName): ?string
     {
         $response = Http::get($originFilePath); // 외부 URL에서 이미지를 가져옴
+        
         if ($response->successful()) {
             $filePath = $this->appName . "/" . $this->appEnv . date('Y/m/d/') . $fileName . "." . pathinfo($originFilePath, PATHINFO_EXTENSION);
             try {
-                Storage::disk('s3')->put($filePath, $response->body()); // 이미지를 S3에 저장
+                $result = $this->disk->put($filePath, $response->body()); // 이미지를 S3에 저장
+                if( $result === true ){
+                    return $this->disk->url($filePath);
+                } else return null;
             } catch (Exception $e) {
                 dd($e->getMessage());
                 return null;

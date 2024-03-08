@@ -324,6 +324,31 @@ class Service1688 extends ApiModuleAbstract
     }
 
     /**
+     * @func getProductData
+     * @description '1688 상품상세 endPoint 조회'
+     * @param int $offerId '제품ID'
+     */
+    public function getProductData(int $offerId): array
+    {
+        $returnMsg = $this->returnMsg;
+
+        try {
+            $endPoint = $this->apiDomain . "param2/1/com.alibaba.fenxiao.crossborder/product.search.queryProductDetail/" . $this->appKey;
+            $payload = [
+                'access_token'     => $this->accessToken,
+                'offerDetailParam' => [
+                    'country' => 'en',
+                    'offerId' => $offerId,
+                ]
+            ];
+            $returnMsg = $this->apiCurl("post", $endPoint, $payload);
+        } catch (Exception $e) {
+            $returnMsg = helpers_fail_message(false, $e->getMessage());
+        }
+        return $returnMsg;
+    }
+
+    /**
      * @func saveMallProductByCategotyId
      * @description '1688 카테고리ID별 상품수집'
      */
@@ -348,6 +373,9 @@ class Service1688 extends ApiModuleAbstract
 
     public function saveMallProductRecursively(int $categoryId, int $page, int $pageSize, int $totalPage = 0): void
     {
+        $msg = "start saveMallProductRecursively | page: {$page} | categoryId: {$categoryId}";
+        debug_log($msg, "saveMallProductByCategotyId", "saveMallProductByCategotyId");
+
         $errorMsg = ProductErrorMessageConstant::getFitErrorMessage("PRODUCT_SEARCH_KEYWORDQUERY") . " | categoryId: {$categoryId} | page: {$page}";
         try {
             $endPoint = $this->apiDomain . "param2/1/com.alibaba.fenxiao.crossborder/product.search.keywordQuery/" . $this->appKey;
@@ -374,12 +402,8 @@ class Service1688 extends ApiModuleAbstract
                 $productDatas = $apiResult["data"];
                 $successCnt   = 0;
                 foreach ($productDatas as $productData) {
-                    if( $successCnt == 10 ){
-                        dd("끝");
-                    }
                     try {
                         $offerId        = $productData["offerId"];
-                        $errorMsgDetail = ProductErrorMessageConstant::getFitErrorMessage("PRODUCT_SEARCH_QUERYPRODUCTDETAIL") . " | offerId: {$offerId} | categoryId: {$categoryId} | page: {$page}";
                         $endPoint       = $this->apiDomain . "param2/1/com.alibaba.fenxiao.crossborder/product.search.queryProductDetail/" . $this->appKey;
                         $payload        = [
                             'access_token'     => $this->accessToken,
@@ -389,23 +413,21 @@ class Service1688 extends ApiModuleAbstract
                             ]
                         ];
                         $detailResult = $this->apiCurl("POST", $endPoint, $payload);
-                        if( $detailResult["isSuccess"] != true ){
-                            throw new Exception($detailResult["msg"] . " | " . $errorMsgDetail);
+                        if( $detailResult["isSuccess"] != true || $detailResult["data"]["result"]["success"] != true ){
+                            throw new Exception(ProductErrorMessageConstant::getFitErrorMessage("PRODUCT_SEARCH_QUERYPRODUCTDETAIL"));
                         }
-                        if( $detailResult["data"]["result"]["success"] != true ){
-                            throw new Exception($errorMsgDetail);
-                        }
-                        $detailProduct = $detailResult["data"]["result"]["result"];
 
-                        $offerId    = $detailProduct["offerId"];
-                        $categoryId = $detailProduct["categoryId"];
+                        $detailProduct = $detailResult["data"]["result"]["result"];
+                        $offerId       = $detailProduct["offerId"];
+                        $prdCategoryId = $detailProduct["categoryId"];
 
                         $getCategoryMappingObj = CategoryMapping::select(["mapping_code"])
-                        ->where("category_id", $categoryId)
+                        ->where("category_id", $prdCategoryId)
                         ->where("mapping_channel", ProductConstant::MAPPING_OC_CHANNEL)
                         ->where("mapping_code", "!=", 0)->first();
                         if( $getCategoryMappingObj == null ){
-                            throw new Exception(CategoryErrorMessageConstant::getNotHaveErrorMessage("MAPPING_CATEGORY"));
+                            continue;
+                            // throw new Exception(CategoryErrorMessageConstant::getNotHaveErrorMessage("MAPPING_CATEGORY"));
                         }
 
                         // 1. 상품 기본정보
@@ -415,7 +437,7 @@ class Service1688 extends ApiModuleAbstract
                         $product1688Dto = new Product1688Dto();
                         $product1688Dto->bind([
                             "offerId"         => $offerId,
-                            "categoryId"      => $categoryId,
+                            "categoryId"      => $prdCategoryId,
                             "subject"         => $detailProduct["subject"],
                             "subjectTrans"    => $detailProduct["subjectTrans"],
                             "description"     => $detailProduct["description"],
@@ -463,14 +485,17 @@ class Service1688 extends ApiModuleAbstract
                         }
 
                         // 5. 상품 옵션정보
+                        if( !isset($detailProduct["productSkuInfos"]) ){
+                            throw new Exception(ProductErrorMessageConstant::getFitErrorMessage("PRODUCT_SKUINFOS"));
+                        }
                         $product1688OptionDtoList = [];
                         foreach ($detailProduct["productSkuInfos"] as $prdOptions) {
                             $skuImageUrl     = "";
                             $optionName      = "";
                             $optionNameTrans = "";
                             
-                            if( !isset($prdOptions["price"]) || empty($prdOptions["price"]) ){
-                                throw new Exception(ProductErrorMessageConstant::getNotHaveErrorMessage("PRODUCT_PRICE_1688"));
+                            if( !isset($prdOptions["consignPrice"]) || empty($prdOptions["consignPrice"]) ){
+                                throw new Exception(ProductErrorMessageConstant::getNotHaveErrorMessage("ERROR_MESSAGE_PRODUCT_CONSIGN_PRICE"));
                             }
 
                             foreach ($prdOptions["skuAttributes"] as $prdOption) {
@@ -486,8 +511,7 @@ class Service1688 extends ApiModuleAbstract
                                 "amountOnSale"    => $prdOptions["amountOnSale"],
                                 "skuId"           => $prdOptions["skuId"],
                                 "specId"          => $prdOptions["specId"],
-                                "price"           => $prdOptions["price"],
-                                "consignPrice"    => $prdOptions["consignPrice"] ?? 0.0,
+                                "consignPrice"    => $prdOptions["consignPrice"],
                                 "cargoNumber"     => $prdOptions["cargoNumber"] ?? "",
                                 "skuImageUrl"     => $skuImageUrl,
                                 "optionName"      => rtrim($optionName, "_"),
@@ -504,12 +528,12 @@ class Service1688 extends ApiModuleAbstract
                             throw new Exception($saveResult["msg"]);
                         }
                     } catch (Exception $de) {
-                        $msg = $de->getMessage() . " | page: {$page} | offerId: {$offerId} | categoryId: {$categoryId}";
+                        $msg = $de->getMessage() . " | page: {$page} | offerId: {$offerId} | categoryId: {$categoryId} | prdCategoryId: {$prdCategoryId}";
                         debug_log($msg, "saveMallProductByCategotyId", "saveMallProductByCategotyId", LogLevel::ERROR);
                     }
                 }
             } else {
-                throw new Exception(ProductErrorMessageConstant::getNotHaveErrorMessage("PRODUCT_SEARCH_KEYWORDQUERY") . " | categoryId: {$categoryId} | page: {$page}");
+                throw new Exception(ProductErrorMessageConstant::getNotHaveErrorMessage("PRODUCT_SEARCH_KEYWORDQUERY") . " | page: {$page} | categoryId: {$categoryId}");
             }
 
             $totalPage = $apiDatas["data"]["result"]["result"]["totalPage"];

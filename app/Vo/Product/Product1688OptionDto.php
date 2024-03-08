@@ -14,7 +14,6 @@ class Product1688OptionDto extends Vo
     protected string $sku_image_url     = "";
     protected string $option_name       = "";
     protected string $option_name_trans = "";
-    protected float $price_1688         = 0.0;
     protected float $consign_price      = 0.0;
     protected string $cargo_number      = "";
     protected float $option_price       = 0.0;
@@ -32,7 +31,6 @@ class Product1688OptionDto extends Vo
         $this->sku_image_url     = $data["skuImageUrl"];
         $this->option_name       = $data["optionName"];
         $this->option_name_trans = $data["optionNameTrans"];
-        $this->price_1688        = $data["price"];
         $this->consign_price     = (float)$data["consignPrice"];
         $this->cargo_number      = $data["cargoNumber"];
 
@@ -41,7 +39,7 @@ class Product1688OptionDto extends Vo
 
     public function oc_bind(): void
     {
-        $this->onch_price   = round( $this->price_1688 * env("1688_EXCHANGE_RATE", 190) , -1);  // 1의 자리 반올림
+        $this->onch_price   = round( $this->consign_price * env("1688_EXCHANGE_RATE", 190) , -1);  // 1의 자리 반올림
 
         $option_price_sum = (int)intval($this->onch_price) + intval($this->onch_price * env("OPTION_PRICE_RATE", 0.12));
         $option_price_cal = round($option_price_sum / 10) * 10;

@@ -9,6 +9,14 @@ use App\Console\Commands\Save1688ProductByCategotyId;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 
+/**
+ * cli 명령어 모음
+ * 
+ * 1. 세션과 상관없이 백그라운드에서 실행
+ * nohup php artisan save_1688_product_by_category_id --categoryid=1037021 > /dev/null 2>&1 &
+ * 
+ */
+
 class Kernel extends ConsoleKernel
 {
     protected $commands = [

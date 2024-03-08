@@ -19,10 +19,10 @@ class CreateProductNoticeDatasTable extends Migration
             $table->unsignedBigInteger('offer_id')->nullable(false)->comment('제품ID');
             $table->unsignedInteger('attribute_id')->nullable(false)->comment('고시ID');
             $table->unsignedInteger('notice_type')->default(26)->nullable(false)->comment('상품고시구분');
-            $table->string('attribute_name', 100)->nullable(false)->comment('고시이름');
-            $table->string('attribute_value', 100)->nullable(false)->comment('고시값');
-            $table->string('attribute_name_trans', 100)->nullable(false)->comment('고시이름_번역');
-            $table->string('attribute_value_trans', 100)->nullable(false)->comment('고시값_번역');
+            $table->text('attribute_name')->nullable(false)->comment('고시이름');
+            $table->text('attribute_value')->nullable(false)->comment('고시값');
+            $table->text('attribute_name_trans')->nullable(false)->comment('고시이름_번역');
+            $table->text('attribute_value_trans')->nullable(false)->comment('고시값_번역');
 
             $table->timestamps();
             $table->softDeletes();
