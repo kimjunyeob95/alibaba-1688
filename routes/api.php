@@ -13,6 +13,8 @@ Route::name('category.')->prefix('category')->group(function () {
 });
 
 Route::name('1688.')->prefix('1688')->group(function () {
+    // 1688에 상품ID 조회 endPoint를 호출 후 결과 반환
+    Route::get('/product/{offerId}', [ApiController::class, 'getProductData'])->name('getCategory');
     // 1688에 카테고리 조회 endPoint를 호출 후 결과 반환
     Route::get('/category/{categoryId?}', [ApiController::class, 'getMallCategory'])->name('getCategory');
 });
