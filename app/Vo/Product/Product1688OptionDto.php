@@ -21,7 +21,7 @@ class Product1688OptionDto extends Vo
     protected float $onch_price         = 0.0;
     protected float $cus_price          = 0.0;
     protected float $recom_cus_price    = 0.0;
-    protected int $status               = ProductConstant::OPTION_SEC_ON_SALE_NUMBER;
+    protected string $status               = ProductConstant::OPTION_SEC_ON_SALE_NUMBER;
 
     public function bind(mixed $data): void
     {

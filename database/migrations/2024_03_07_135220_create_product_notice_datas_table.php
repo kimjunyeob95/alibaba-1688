@@ -27,8 +27,10 @@ class CreateProductNoticeDatasTable extends Migration
             $table->timestamps();
             $table->softDeletes();
 
+            $table->foreign('offer_id')->references('offer_id')->on('product_datas')->onDelete('cascade');
             $table->index('offer_id');
             $table->index('attribute_id');
+            $table->index('notice_type');
         });
 
         DB::statement('ALTER TABLE product_notice_datas COMMENT "1688 상품 고시정보 데이터 테이블"');

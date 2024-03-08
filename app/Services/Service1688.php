@@ -424,6 +424,9 @@ class Service1688 extends ApiModuleAbstract
                             "response_json"   => json_encode($detailProduct, JSON_UNESCAPED_UNICODE),
                         ]);
 
+                        // $test = $this->uploadAbstract->uploadFile($main_img_origin, "test");
+                        // dd($test);
+
                         // 2. 상품 확장정보
                         $product1688ExtendDto = new Product1688ExtendDto();
                         $product1688ExtendDto->bind([

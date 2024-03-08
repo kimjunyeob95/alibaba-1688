@@ -18,13 +18,14 @@ class CreateProductExtendDatasTable extends Migration
             $table->id();
             $table->unsignedBigInteger('offer_id')->nullable(false)->comment('제품ID');
 
-            $table->decimal('send_default_price', 8, 3)->nullable(false)->comment('기본 배송비');
-            $table->decimal('send_jeju_price', 8, 3)->nullable(false)->comment('제주도 배송비');
-            $table->decimal('send_etc_price', 8, 3)->nullable(false)->comment('도서산간지역 배송비');
+            $table->decimal('send_default_price', 8, 2)->nullable(false)->comment('기본 배송비');
+            $table->decimal('send_jeju_price', 8, 2)->nullable(false)->comment('제주도 배송비');
+            $table->decimal('send_etc_price', 8, 2)->nullable(false)->comment('도서산간지역 배송비');
 
             $table->timestamps();
             $table->softDeletes();
 
+            $table->foreign('offer_id')->references('offer_id')->on('product_datas')->onDelete('cascade');
             $table->index('offer_id');
         });
 

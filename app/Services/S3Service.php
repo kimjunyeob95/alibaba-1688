@@ -26,6 +26,7 @@ class S3Service extends UploadAbstract
             try {
                 Storage::disk('s3')->put($filePath, $response->body()); // 이미지를 S3에 저장
             } catch (Exception $e) {
+                dd($e->getMessage());
                 return null;
             }
             return $this->getFile($filePath);
