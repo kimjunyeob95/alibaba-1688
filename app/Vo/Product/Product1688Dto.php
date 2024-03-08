@@ -8,6 +8,7 @@ use App\Vo\Vo;
 class Product1688Dto extends Vo
 {
     protected int $offer_id           = 0;
+    protected int $category_id        = 0;
     protected string $prd_name        = "";
     protected string $prd_name_trans  = "";
     protected string $prd_desc        = "";
@@ -27,6 +28,7 @@ class Product1688Dto extends Vo
     public function bind(mixed $data): void
     {
         $this->offer_id        = $data["offerId"];
+        $this->category_id     = $data["categoryId"];
         $this->prd_name        = $data["subject"];
         $this->prd_name_trans  = $data["subjectTrans"];
         $this->prd_desc        = $data["description"];

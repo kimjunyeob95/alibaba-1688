@@ -10,17 +10,19 @@ use Illuminate\Support\Facades\Storage;
 class S3Service extends UploadAbstract
 {
     private string $appEnv;
+    private string $appName;
     public function __construct()
     {
         parent::__construct(Storage::disk('s3'));
-        $this->appEnv = ( env("APP_ENV", "local") != "production" ) ? "dev/" : "";
+        $this->appEnv  = ( env("APP_ENV", "local") != "production" ) ? "dev/" : "";
+        $this->appName = env("APP_NAME", "1688");
     }
 
     public function uploadFile(string $originFilePath, string $fileName): ?string
     {
         $response = Http::get($originFilePath); // 외부 URL에서 이미지를 가져옴
         if ($response->successful()) {
-            $filePath = $this->appEnv . date('Y/m/d/') . $fileName;
+            $filePath = $this->appName . "/" . $this->appEnv . date('Y/m/d/') . $fileName . "." . pathinfo($originFilePath, PATHINFO_EXTENSION);
             try {
                 Storage::disk('s3')->put($filePath, $response->body()); // 이미지를 S3에 저장
             } catch (Exception $e) {
@@ -37,7 +39,6 @@ class S3Service extends UploadAbstract
         if ($this->disk->exists($filePath)) {
             return $this->disk->get($filePath);
         }
-
         return null;
     }
 

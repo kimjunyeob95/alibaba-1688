@@ -16,7 +16,7 @@ class CreateCategoryMappingsTable extends Migration
     {
         Schema::create('category_mappings', function (Blueprint $table) {
             $table->id();
-            $table->unsignedInteger('category_id')->nullable(false)->comment('카테고리ID');
+            $table->unsignedBigInteger('category_id')->nullable(false)->comment('카테고리ID');
             $table->string('mapping_channel', 50)->nullable(false)->default("onchannel")->comment('카테고리 맵핑 채널');
             $table->string('mapping_code', 50)->nullable(false)->comment('카테고리 맵핑 코드');
 

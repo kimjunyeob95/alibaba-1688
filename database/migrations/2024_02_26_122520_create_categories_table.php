@@ -16,7 +16,7 @@ class CreateCategoriesTable extends Migration
     {
         Schema::create('categories', function (Blueprint $table) {
             $table->id();
-            $table->unsignedInteger('category_id')->nullable(false)->comment('카테고리ID');
+            $table->unsignedBigInteger('category_id')->nullable(false)->comment('카테고리ID');
             $table->string('category_name', 100)->nullable(false)->comment('카테고리명');
             $table->string('category_chinese_name', 100)->nullable(false)->comment('중국 카테고리명');
             $table->enum('leaf', ["Y", "N"])->default("N")->comment('리프 카테고리 인지 여부 Y: true, N: false');

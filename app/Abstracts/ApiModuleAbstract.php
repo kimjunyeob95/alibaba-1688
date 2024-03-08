@@ -38,6 +38,12 @@ abstract class ApiModuleAbstract
      * @description '오픈API 카테고리ID별 상품수집'
      */
     abstract function saveMallProductByCategotyId(int $categoryId): void;
+
+    /**
+     * @func getMappingCategory
+     * @description '1688<->채널 카테고리 맵핑 조회'
+     */
+    abstract function getMappingCategory(string $channel): array;
     
     /**
      * @func apiCurl
