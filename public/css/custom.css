@@ -1,0 +1,45 @@
+/* Chrome, Safari, Edge, Opera */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox */
+input[type=number] {
+  -moz-appearance: textfield;
+}
+
+.preview-image{cursor: pointer;}
+
+.product_img {
+  position: relative;
+  width: 400px;
+  margin: 0 auto;
+}
+
+.product_img .icon_19 {
+  position: absolute;
+  width: 35px;
+  height: 35px;
+  top: 37px;
+  left: 12px;
+}
+
+.product_img_list {
+  position: relative;
+  margin: 0 auto;
+}
+
+.product_img_list .icon_19 {
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  top: 4px;
+  left: 4px;
+}
+
+a:link {text-decoration: none; color: rgb(22, 22, 23);}
+a:visited {text-decoration: none; color: rgb(22, 22, 23);}
+a:active {text-decoration: none; color: grey;}
+a:hover {text-decoration: underline; color: rgb(22, 22, 23);}

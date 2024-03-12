@@ -43,6 +43,10 @@ RUN groupadd -g 1000 www && useradd -u 1000 -ms /bin/bash -g www www
 ENV COMPOSER_ALLOW_SUPERUSER=1
 ENV TZ=Asia/Seoul
 
+# Node
+RUN curl -sL https://deb.nodesource.com/setup_lts.x | bash - && \
+    apt-get install -y nodejs
+
 RUN composer global require laravel/envoy && composer require guzzlehttp/guzzle
 
 # Copy everything into the work directory

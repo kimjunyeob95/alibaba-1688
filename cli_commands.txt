@@ -3,6 +3,9 @@
 # 현재 사용 메모리 간략히 보기
 free -h
 
+# 현재 시스템의 메모리 사용률
+free | grep Mem | awk '{print $3/$2 * 100.0}'
+
 # 실행중인 프로세스 추출
 ps aux | grep artisan
 
