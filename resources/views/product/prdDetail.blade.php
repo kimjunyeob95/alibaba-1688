@@ -47,7 +47,7 @@
                         <div class="col-md-8">{{ $prdObj->offer_id }}</div>
                     </div>
                     <div class="row mb-2">
-                        <div class="col-md-3 text-center">제풍명</div>
+                        <div class="col-md-3 text-center">제품명</div>
                         <div class="col-md-8">{{ $prdObj->prd_name }}</div>
                     </div>
                     <div class="row mb-2">
