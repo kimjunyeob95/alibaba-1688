@@ -30,4 +30,8 @@ class ProductData extends Model
     public function notices () {
         return $this->hasMany(ProductNoticeData::class, "offer_id", "offer_id")->oldest("id");
     }
+
+    public function category () {
+        return $this->hasOne(CategoryTree::class, "category_id", "category_id");
+    }
 }
