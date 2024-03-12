@@ -9,15 +9,16 @@
         <title>1688 Admin</title>
 
         <link href="/css/style.css" rel="stylesheet">        
-        <link href="/css/custom.css" rel="stylesheet">
         <link rel="stylesheet" href="//code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
         <link rel="stylesheet" href="/vendors/simplebar/css/simplebar.css">
         <link rel="stylesheet" href="/css/vendors/simplebar.css">
         <link href="/vendors/@coreui/chartjs/css/coreui-chartjs.css" rel="stylesheet">
-
+        <link rel="stylesheet" href="https://unpkg.com/swiper/swiper-bundle.min.css" />
+        
         <script src="https://code.jquery.com/jquery-3.6.0.js"></script>
         <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.js"></script>
         
+        <link href="/css/custom.css" rel="stylesheet">
         @yield('styles')
     </head>
     <body>
@@ -58,6 +59,9 @@
         <script src="/vendors/@coreui/chartjs/js/coreui-chartjs.js"></script>
         <script src="/vendors/@coreui/utils/js/coreui-utils.js"></script>
         <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jquery.lazy/1.7.9/jquery.lazy.min.js"></script>
+
+        <!-- Swiper JS -->
+        <script src="https://unpkg.com/swiper/swiper-bundle.min.js"></script>
 
         <script src="/js/common.js"></script>
     </body>

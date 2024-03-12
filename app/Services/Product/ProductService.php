@@ -35,7 +35,8 @@ class ProductService
                 "extends",
                 "options",
                 "notices",
-            ])->first();
+                "category"
+            ])->where("offer_id", $offerId)->first();
             if( $prdObj == null ){
                 throw new Exception("No Data");   
             }

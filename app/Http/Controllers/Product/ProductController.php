@@ -44,7 +44,7 @@ class ProductController extends Controller
             abort(404);
         } else {
             $viewParams = [
-                "datas"         => $result["data"]
+                "prdObj" => $result["data"]
             ];
         }
         return view("product.prdDetail")->with($viewParams);
