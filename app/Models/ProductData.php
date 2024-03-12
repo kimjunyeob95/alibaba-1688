@@ -14,4 +14,20 @@ class ProductData extends Model
     protected $table      = 'product_datas';
     protected $guarded    = [];
     protected $fillable   = [];
+
+    public function images () {
+        return $this->hasMany(ProductImageData::class, "offer_id", "offer_id")->oldest("id");
+    }
+
+    public function options () {
+        return $this->hasMany(ProductOptionData::class, "offer_id", "offer_id")->oldest("id");
+    }
+
+    public function extends () {
+        return $this->hasMany(ProductExtendData::class, "offer_id", "offer_id")->oldest("id");
+    }
+
+    public function notices () {
+        return $this->hasMany(ProductNoticeData::class, "offer_id", "offer_id")->oldest("id");
+    }
 }

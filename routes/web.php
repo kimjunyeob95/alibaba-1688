@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Product\ProductController as ProductProductController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -13,6 +14,5 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', function () {
-    abort(404);
-});
+Route::get("/", [ProductProductController::class, "getPrdList"])->name("getPrdList");
+Route::get("/product/{offerId}", [ProductProductController::class, "getPrdDetail"])->name("getPrdDetail");
