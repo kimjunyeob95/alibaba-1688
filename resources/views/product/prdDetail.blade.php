@@ -55,7 +55,7 @@
                         <div class="col-md-8">{{ $prdObj->prd_name_trans }}</div>
                     </div>
                     <div class="row mb-2">
-                        <div class="col-md-3 text-center">카테고리</div>
+                        <div class="col-md-3 text-center">맵핑 카테고리</div>
                         <div class="col-md-8">
                             {{ $prdObj->category->cate_first }}
                             @if($prdObj->category->cate_second)
@@ -66,10 +66,29 @@
                             @endif
                         </div>
                     </div>
+                    <div class="row mb-2">
+                        <div class="col-md-3 text-center">1688 카테고리</div>
+                        <div class="col-md-8">
+                            {{ $prdObj->category->cate_chinese_first }}
+                            @if($prdObj->category->cate_chinese_second)
+                                > {{ $prdObj->category->cate_chinese_second }}
+                            @endif
+                            @if($prdObj->category->cate_chinese_third)
+                                > {{ $prdObj->category->cate_chinese_third }}
+                            @endif
+                        </div>
+                    </div>
+                    <div class="row mb-2">
+                        <div class="col-md-3 text-center">배송비</div>
+                        <div class="col-md-8">
+                            기본 배송비: {{ number_format($prdObj->extends->send_default_price) }}(원)</br>
+                            제주도 배송비: {{ number_format($prdObj->extends->send_jeju_price) }}(원)</br>
+                            도서산간지역 배송비: {{ number_format($prdObj->extends->send_etc_price) }}(원)
+                        </div>
+                    </div>
                 </div>
 
                 <hr style="margin-top: 20px">
-
                 <div class="row mt-3">
                     <div class="col">
                         <h5>[옵션]</h5>
@@ -113,6 +132,58 @@
                                             {{ number_format($option->cus_price) }}(원)
                                         </td>
                                     </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <hr style="margin-top: 20px">
+                <div class="row mt-3">
+                    <div class="col">
+                        <h5>[고시정보(영문)]</h5>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="table table-white bg-white">
+                            <tbody>
+                                @foreach ($prdObj->notices as $gosiKey => $gosi)    
+                                    @if ( $gosiKey % 4 == 0)
+                                        <tr>
+                                    @endif
+
+                                        <th class="bg-light">{{ $gosi->attribute_name_trans }}</th>
+                                        <td>{{ $gosi->attribute_value_trans }}</td>
+
+                                    @if (($gosiKey + 1) % 4 == 0 || $loop->last)
+                                        </tr>
+                                    @endif
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <hr style="margin-top: 20px">
+                <div class="row mt-3">
+                    <div class="col">
+                        <h5>[고시정보]</h5>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="table table-white bg-white">
+                            <tbody>
+                                @foreach ($prdObj->notices as $gosiKey => $gosi)    
+                                    @if ( $gosiKey % 4 == 0)
+                                        <tr>
+                                    @endif
+
+                                        <th class="bg-light">{{ $gosi->attribute_name }}</th>
+                                        <td>{{ $gosi->attribute_value }}</td>
+
+                                    @if (($gosiKey + 1) % 4 == 0 || $loop->last)
+                                        </tr>
+                                    @endif
                                 @endforeach
                             </tbody>
                         </table>
