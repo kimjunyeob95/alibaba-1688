@@ -24,7 +24,7 @@ class ProductData extends Model
     }
 
     public function extends () {
-        return $this->hasMany(ProductExtendData::class, "offer_id", "offer_id")->oldest("id");
+        return $this->hasOne(ProductExtendData::class, "offer_id", "offer_id")->oldest("id");
     }
 
     public function notices () {
