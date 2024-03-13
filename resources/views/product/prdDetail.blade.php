@@ -190,6 +190,14 @@
                     </div>
                 </div>
 
+                <hr style="margin-top: 20px">
+                <div class="row mt-3">
+                    <h5>[제품상세]</h5>
+                    <div class="col text-center overflow-hidden w-100">
+                        {!! $prdObj->prd_desc !!}
+                    </div>
+                </div>
+
             </div>
         </div>
     </div>
