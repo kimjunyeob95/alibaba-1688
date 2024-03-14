@@ -1,6 +1,7 @@
 <?php
 
 use App\Providers\ApiModuleProvider;
+use App\Providers\OpenApiProvider;
 use App\Providers\UploadProvider;
 
 return [
@@ -168,6 +169,7 @@ return [
         /*
          * Package Service Providers...
          */
+        L5Swagger\L5SwaggerServiceProvider::class,
 
         /*
          * Application Service Providers...
@@ -181,6 +183,7 @@ return [
 
         ApiModuleProvider::class,
         UploadProvider::class,
+        OpenApiProvider::class,
     ],
 
     /*

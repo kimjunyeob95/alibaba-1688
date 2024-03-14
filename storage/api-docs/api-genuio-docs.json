@@ -1,0 +1,390 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "Genuio API",
+        "version": "1.0"
+    },
+    "paths": {
+        "/api/genuio/token/create": {
+            "post": {
+                "tags": [
+                    "회원"
+                ],
+                "summary": "토큰 생성",
+                "operationId": "a8879f73c264cc16be89b12b9e7328b2",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/TokenCreateSchema"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SuccessTokenResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/400ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/500ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/genuio/img/trans": {
+            "post": {
+                "tags": [
+                    "이미지"
+                ],
+                "summary": "번역 된 이미지 전송",
+                "operationId": "106a582b91e7e510422aad65ca4fc5eb",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ImgTransSchema"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SuccessResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Authorization Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/401ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/400ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/500ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "SuccessResponse": {
+                "properties": {
+                    "status": {
+                        "type": "integer",
+                        "example": 200
+                    },
+                    "meta": {
+                        "properties": {
+                            "timestamp": {
+                                "type": "string",
+                                "example": "2023-12-19 17:45:50"
+                            },
+                            "apiVersion": {
+                                "type": "string",
+                                "example": "v1"
+                            }
+                        },
+                        "type": "object"
+                    },
+                    "data": {
+                        "type": "object"
+                    }
+                },
+                "type": "object"
+            },
+            "400ErrorResponse": {
+                "properties": {
+                    "status": {
+                        "type": "integer",
+                        "example": 400
+                    },
+                    "meta": {
+                        "properties": {
+                            "timestamp": {
+                                "type": "string",
+                                "example": "2023-12-19 17:45:50"
+                            },
+                            "apiVersion": {
+                                "type": "string",
+                                "example": "v1"
+                            }
+                        },
+                        "type": "object"
+                    },
+                    "error": {
+                        "properties": {
+                            "code": {
+                                "type": "integer",
+                                "example": 400
+                            },
+                            "message": {
+                                "type": "string",
+                                "example": "비밀번호를 다시 확인해주세요."
+                            }
+                        },
+                        "type": "object"
+                    }
+                },
+                "type": "object"
+            },
+            "401ErrorResponse": {
+                "properties": {
+                    "status": {
+                        "type": "integer",
+                        "example": 401
+                    },
+                    "meta": {
+                        "properties": {
+                            "timestamp": {
+                                "type": "string",
+                                "example": "2023-12-19 17:45:50"
+                            },
+                            "apiVersion": {
+                                "type": "string",
+                                "example": "v1"
+                            }
+                        },
+                        "type": "object"
+                    },
+                    "error": {
+                        "properties": {
+                            "code": {
+                                "type": "integer",
+                                "example": 401
+                            },
+                            "message": {
+                                "type": "string",
+                                "example": "토큰을 전달해주세요."
+                            }
+                        },
+                        "type": "object"
+                    }
+                },
+                "type": "object"
+            },
+            "404ErrorResponse": {
+                "properties": {
+                    "status": {
+                        "type": "integer",
+                        "example": 404
+                    },
+                    "meta": {
+                        "properties": {
+                            "timestamp": {
+                                "type": "string",
+                                "example": "2023-12-19 17:45:50"
+                            },
+                            "apiVersion": {
+                                "type": "string",
+                                "example": "v1"
+                            }
+                        },
+                        "type": "object"
+                    },
+                    "error": {
+                        "properties": {
+                            "code": {
+                                "type": "integer",
+                                "example": 404
+                            },
+                            "message": {
+                                "type": "string",
+                                "example": "잘못된 접근입니다."
+                            }
+                        },
+                        "type": "object"
+                    }
+                },
+                "type": "object"
+            },
+            "500ErrorResponse": {
+                "properties": {
+                    "status": {
+                        "type": "integer",
+                        "example": 500
+                    },
+                    "meta": {
+                        "properties": {
+                            "timestamp": {
+                                "type": "string",
+                                "example": "2023-12-19 17:45:50"
+                            },
+                            "apiVersion": {
+                                "type": "string",
+                                "example": "v1"
+                            }
+                        },
+                        "type": "object"
+                    },
+                    "error": {
+                        "properties": {
+                            "code": {
+                                "type": "integer",
+                                "example": 500
+                            },
+                            "message": {
+                                "type": "string",
+                                "example": "Too many requests"
+                            }
+                        },
+                        "type": "object"
+                    }
+                },
+                "type": "object"
+            },
+            "TokenCreateSchema": {
+                "required": [
+                    "user_id"
+                ],
+                "properties": {
+                    "user_id": {
+                        "type": "string",
+                        "example": "genuio"
+                    }
+                },
+                "type": "object"
+            },
+            "SuccessTokenResponse": {
+                "properties": {
+                    "status": {
+                        "type": "integer",
+                        "example": 200
+                    },
+                    "meta": {
+                        "properties": {
+                            "timestamp": {
+                                "type": "string",
+                                "example": "2023-12-19 17:45:50"
+                            },
+                            "apiVersion": {
+                                "type": "string",
+                                "example": "v1"
+                            }
+                        },
+                        "type": "object"
+                    },
+                    "msg": {
+                        "type": "string",
+                        "example": "정상 처리 되었습니다."
+                    },
+                    "data": {
+                        "properties": {
+                            "token": {
+                                "type": "string",
+                                "example": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9..."
+                            },
+                            "expiresAt": {
+                                "type": "string",
+                                "example": "2023-12-19 18:45:50"
+                            }
+                        },
+                        "type": "object"
+                    }
+                },
+                "type": "object"
+            },
+            "ImgTransSchema": {
+                "required": [
+                    "jobId",
+                    "images"
+                ],
+                "properties": {
+                    "jobId": {
+                        "description": "작업 ID",
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "images": {
+                        "description": "번역 된 이미지 ID와 base64 인코딩된 이미지 데이터",
+                        "type": "array",
+                        "items": {
+                            "required": [
+                                "id",
+                                "imgTransBase64"
+                            ],
+                            "properties": {
+                                "id": {
+                                    "description": "이미지 ID",
+                                    "type": "integer",
+                                    "example": 1
+                                },
+                                "imgTransBase64": {
+                                    "description": "Base64로 인코딩된 이미지 데이터",
+                                    "type": "string",
+                                    "example": "~~"
+                                }
+                            },
+                            "type": "object"
+                        }
+                    }
+                },
+                "type": "object"
+            }
+        },
+        "securitySchemes": {
+            "BearerAuth": {
+                "type": "http",
+                "bearerFormat": "JWT",
+                "scheme": "bearer"
+            }
+        }
+    }
+}
