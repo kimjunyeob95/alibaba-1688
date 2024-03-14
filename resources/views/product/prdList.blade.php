@@ -74,13 +74,17 @@
                                         @endif
                                     </td>
                                     <td class="text-center">
-                                        @php
-                                            $option = $data->options[0];
-                                        @endphp
-                                        {{ $option->consign_price }}(元)<br>
-                                        {{ number_format($option->option_price) }}(원)<br>
-                                        {{ number_format($option->onch_price) }}(원)<br>
-                                        {{ number_format($option->cus_price) }}(원)<br>
+                                        @if (count($data->options) > 0)
+                                            @php
+                                                $option = $data->options[0];
+                                            @endphp
+                                                {{ $option->consign_price }}(元)<br>
+                                                {{ number_format($option->option_price) }}(원)<br>
+                                                {{ number_format($option->onch_price) }}(원)<br>
+                                                {{ number_format($option->cus_price) }}(원)<br>
+                                        @else
+                                            <p class="text-danger">옵션없음</p>
+                                        @endif
                                     </td>
                                     <td class="text-center">
                                         <button class="btn btn-outline-success btn-detail" offerid={{ $data->offer_id }}>상세</button>
