@@ -1,0 +1,376 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "mslabe API",
+        "version": "1.0"
+    },
+    "paths": {
+        "/api/v1/token/create": {
+            "post": {
+                "tags": [
+                    "회원"
+                ],
+                "summary": "토큰 생성",
+                "operationId": "f291100482910b6f308ef5df033d80dc",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/TokenCreateSchema"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SuccessTokenResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/400ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/500ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/product/list": {
+            "post": {
+                "tags": [
+                    "상품"
+                ],
+                "summary": "상품 리스트",
+                "operationId": "45a9b3989265d25300d7579b13a25c5e",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ProductListSchema"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SuccessResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Authorization Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/401ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/400ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/500ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "SuccessResponse": {
+                "properties": {
+                    "status": {
+                        "type": "integer",
+                        "example": 200
+                    },
+                    "meta": {
+                        "properties": {
+                            "timestamp": {
+                                "type": "string",
+                                "example": "2023-12-19 17:45:50"
+                            },
+                            "apiVersion": {
+                                "type": "string",
+                                "example": "v1"
+                            }
+                        },
+                        "type": "object"
+                    },
+                    "data": {
+                        "type": "object"
+                    }
+                },
+                "type": "object"
+            },
+            "400ErrorResponse": {
+                "properties": {
+                    "status": {
+                        "type": "integer",
+                        "example": 400
+                    },
+                    "meta": {
+                        "properties": {
+                            "timestamp": {
+                                "type": "string",
+                                "example": "2023-12-19 17:45:50"
+                            },
+                            "apiVersion": {
+                                "type": "string",
+                                "example": "v1"
+                            }
+                        },
+                        "type": "object"
+                    },
+                    "error": {
+                        "properties": {
+                            "code": {
+                                "type": "integer",
+                                "example": 400
+                            },
+                            "message": {
+                                "type": "string",
+                                "example": "비밀번호를 다시 확인해주세요."
+                            }
+                        },
+                        "type": "object"
+                    }
+                },
+                "type": "object"
+            },
+            "401ErrorResponse": {
+                "properties": {
+                    "status": {
+                        "type": "integer",
+                        "example": 401
+                    },
+                    "meta": {
+                        "properties": {
+                            "timestamp": {
+                                "type": "string",
+                                "example": "2023-12-19 17:45:50"
+                            },
+                            "apiVersion": {
+                                "type": "string",
+                                "example": "v1"
+                            }
+                        },
+                        "type": "object"
+                    },
+                    "error": {
+                        "properties": {
+                            "code": {
+                                "type": "integer",
+                                "example": 401
+                            },
+                            "message": {
+                                "type": "string",
+                                "example": "토큰을 전달해주세요."
+                            }
+                        },
+                        "type": "object"
+                    }
+                },
+                "type": "object"
+            },
+            "404ErrorResponse": {
+                "properties": {
+                    "status": {
+                        "type": "integer",
+                        "example": 404
+                    },
+                    "meta": {
+                        "properties": {
+                            "timestamp": {
+                                "type": "string",
+                                "example": "2023-12-19 17:45:50"
+                            },
+                            "apiVersion": {
+                                "type": "string",
+                                "example": "v1"
+                            }
+                        },
+                        "type": "object"
+                    },
+                    "error": {
+                        "properties": {
+                            "code": {
+                                "type": "integer",
+                                "example": 404
+                            },
+                            "message": {
+                                "type": "string",
+                                "example": "잘못된 접근입니다."
+                            }
+                        },
+                        "type": "object"
+                    }
+                },
+                "type": "object"
+            },
+            "500ErrorResponse": {
+                "properties": {
+                    "status": {
+                        "type": "integer",
+                        "example": 500
+                    },
+                    "meta": {
+                        "properties": {
+                            "timestamp": {
+                                "type": "string",
+                                "example": "2023-12-19 17:45:50"
+                            },
+                            "apiVersion": {
+                                "type": "string",
+                                "example": "v1"
+                            }
+                        },
+                        "type": "object"
+                    },
+                    "error": {
+                        "properties": {
+                            "code": {
+                                "type": "integer",
+                                "example": 500
+                            },
+                            "message": {
+                                "type": "string",
+                                "example": "Too many requests"
+                            }
+                        },
+                        "type": "object"
+                    }
+                },
+                "type": "object"
+            },
+            "TokenCreateSchema": {
+                "required": [
+                    "name",
+                    "password"
+                ],
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "example": "john_doe"
+                    },
+                    "password": {
+                        "type": "string",
+                        "example": "password123"
+                    }
+                },
+                "type": "object"
+            },
+            "SuccessTokenResponse": {
+                "properties": {
+                    "status": {
+                        "type": "integer",
+                        "example": 200
+                    },
+                    "meta": {
+                        "properties": {
+                            "timestamp": {
+                                "type": "string",
+                                "example": "2023-12-19 17:45:50"
+                            },
+                            "apiVersion": {
+                                "type": "string",
+                                "example": "v1"
+                            }
+                        },
+                        "type": "object"
+                    },
+                    "token": {
+                        "type": "string",
+                        "example": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9..."
+                    },
+                    "expires_at": {
+                        "type": "string",
+                        "example": "2023-12-19 18:45:50"
+                    }
+                },
+                "type": "object"
+            },
+            "ProductListSchema": {
+                "required": [
+                    "page",
+                    "pageSize",
+                    "orderBy",
+                    "direction"
+                ],
+                "properties": {
+                    "page": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "pageSize": {
+                        "type": "string",
+                        "example": 40
+                    },
+                    "orderBy": {
+                        "type": "string",
+                        "example": "prd_name"
+                    },
+                    "direction": {
+                        "type": "string",
+                        "example": "desc"
+                    }
+                },
+                "type": "object"
+            }
+        },
+        "securitySchemes": {
+            "BearerAuth": {
+                "type": "http",
+                "bearerFormat": "JWT",
+                "scheme": "bearer"
+            }
+        }
+    }
+}

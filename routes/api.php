@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ApiController;
+use App\Http\Controllers\GenuioController;
 use Illuminate\Support\Facades\Route;
 
 Route::name('category.')->prefix('category')->group(function () {
@@ -17,4 +18,12 @@ Route::name('1688.')->prefix('1688')->group(function () {
     Route::get('/product/{offerId}', [ApiController::class, 'getProductData'])->name('getCategory');
     // 1688에 카테고리 조회 endPoint를 호출 후 결과 반환
     Route::get('/category/{categoryId?}', [ApiController::class, 'getMallCategory'])->name('getCategory');
+});
+
+Route::name('genuio.')->prefix('genuio')->group(function () {
+    Route::post('/token/create', [GenuioController::class, "tokenCreate"])->name("tokenCreate");
+
+    Route::middleware(["oepnApi.jwt.verify"])->group(function () {
+        Route::post('/img/trans', [GenuioController::class, "imgTrans"])->name("imgTrans");
+    });
 });
