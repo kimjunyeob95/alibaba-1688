@@ -15,7 +15,8 @@
         "league/flysystem-aws-s3-v3": "^1.0",
         "opcodesio/log-viewer": "^3.4",
         "symfony/process": "^5.4",
-        "firebase/php-jwt": "^6.10"
+        "firebase/php-jwt": "^6.10",
+        "jdorn/sql-formatter": "^1.2"
     },
     "require-dev": {
         "barryvdh/laravel-debugbar": "^3.7",

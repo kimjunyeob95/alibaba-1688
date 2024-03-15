@@ -195,3 +195,22 @@ if (!function_exists("helpersGetOnlyNumbers")) {
         return preg_replace('/[^0-9]/', '', $string);
     }
 }
+
+if (!function_exists("printQuery")) {
+    function printQuery($model, bool $format = true, bool $returnOption = false)
+    {
+        $sql = $model->toSql();
+        $bindings = $model->getBindings();
+
+        foreach ($bindings as $binding) {
+            $value = is_numeric($binding) ? $binding : "'" . $binding . "'";
+            $sql = preg_replace('/\?/', $value, $sql, 1);
+        }
+        if($returnOption){
+            return $sql;
+        } else {
+            if ($format) echo SqlFormatter::format($sql);
+            else echo $sql;
+        }
+    }
+}
