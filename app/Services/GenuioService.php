@@ -5,9 +5,13 @@ namespace App\Services;
 use App\Abstracts\OpenApiAbstract;
 use App\Constants\OpenApiConstant;
 use App\Models\ApiUser;
+use App\Models\GenuioQueueData;
+use App\Models\GenuioQueueDetailData;
 use App\Packages\JwtPackage;
+use App\Vo\Product\QueueDto;
 use Carbon\Carbon;
 use Exception;
+use Illuminate\Validation\ValidationException;
 
 class GenuioService extends OpenApiAbstract
 {
@@ -57,10 +61,43 @@ class GenuioService extends OpenApiAbstract
     {
         $returnMsg = $this->returnMsg;
         try {
+            $jobId  = $params["jobId"];
+            $images = $params["images"];
+
+            $getGenuioObj = GenuioQueueData::where([
+                "id"           => $jobId,
+                "request_user" => OpenApiConstant::API_USER_COMPANY_OC
+            ])->first();
+            if( $getGenuioObj == null ) {
+                throw new Exception(OpenApiConstant::getNotHaveErrorMessage("QUEUE_ID"));
+            }
+
+            $getGenuioDetailObjs = GenuioQueueDetailData::where("queue_id", $jobId)->where("base64", "")->get();
+            if( count($images) != count($getGenuioDetailObjs) ){
+                throw new ValidationException(OpenApiConstant::getFitErrorMessage("NOT_EQUAL_COUNT_IMAGE"));
+            }
+
+            foreach ($images as $image) {
+                
+            }
+
             $returnMsg = helpers_success_message();
         } catch (Exception $e) {
             $returnMsg = helpers_fail_message(false, $e->getMessage());
+        } catch (ValidationException $e) {
+            $returnMsg = helpers_fail_message(false, $e->getMessage());
         }
+
+        $bindParam = [
+            "offerId"       => $getGenuioObj->offer_id,
+            "payload_json"  => "", // base64가 너무 길어 그냥 ""처리
+            "request_user"  => OpenApiConstant::API_USER_COMPANY_GENUIO,
+            "response_json" => $returnMsg["msg"],
+        ];
+        $queueDto = new QueueDto();
+        $queueDto->bind($bindParam);
+
+        GenuioQueueData::create($queueDto->getAllProperties());
 
         return $returnMsg;
     }
