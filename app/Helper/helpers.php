@@ -197,7 +197,7 @@ if (!function_exists("helpersGetOnlyNumbers")) {
 }
 
 if (!function_exists("printQuery")) {
-    function printQuery($model, bool $format = true, bool $returnOption = false)
+    function printQuery($model)
     {
         $sql = $model->toSql();
         $bindings = $model->getBindings();
@@ -206,11 +206,7 @@ if (!function_exists("printQuery")) {
             $value = is_numeric($binding) ? $binding : "'" . $binding . "'";
             $sql = preg_replace('/\?/', $value, $sql, 1);
         }
-        if($returnOption){
-            return $sql;
-        } else {
-            if ($format) echo SqlFormatter::format($sql);
-            else echo $sql;
-        }
+
+        dd($sql);
     }
 }

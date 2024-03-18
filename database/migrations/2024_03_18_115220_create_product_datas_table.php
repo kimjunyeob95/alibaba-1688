@@ -29,9 +29,7 @@ class CreateProductDatasTable extends Migration
             $table->enum('supply_type', [1, 2, 3])->default(2)->nullable(false)->comment('공급업체 분류 1: 제조사, 2: 벤더사, 3: 수입사');
             $table->unsignedInteger('prd_channel')->default(22)->nullable(false)->comment('제품채널');
             $table->unsignedInteger('prd_rule')->default(1)->nullable(false)->comment('판매가 준수여부');
-            $table->text('main_img_origin')->nullable(false)->comment('제품 메인 이미지 원본');
-            $table->text('main_img_trans')->nullable(false)->comment('제품 메인 이미지 번역');
-            $table->string('supply_code', 100)->nullable(false)->comment('공급사코드');
+            $table->enum('trans_status', ["N", "Y"])->default("N")->nullable(false)->comment('번역 완료 여부 N: 변역 미완료, Y: 번역 완료');
             $table->longText('response_json')->nullable(false)->comment('응답 전문');
 
             $table->timestamps();
@@ -40,7 +38,7 @@ class CreateProductDatasTable extends Migration
             $table->index('offer_id');
             $table->index('category_id');
             $table->index('supply_type');
-            $table->index('supply_code');
+            $table->index('trans_status');
         });
 
         DB::statement('ALTER TABLE product_datas COMMENT "1688 상품 데이터 테이블"');
