@@ -17,8 +17,10 @@ class CreateProductImageDatasTable extends Migration
         Schema::create('product_image_datas', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('offer_id')->nullable(false)->comment('제품ID');
+            $table->enum('img_type', ["main", "sub", "desc"])->nullable(false)->comment('이미지 타입 main: 제품 메인 이미지, sub: 제품 서브 이미지, desc: 제품 상세 이미지');
             $table->text('img_url_origin')->nullable(false)->comment('제품 이미지 원본');
             $table->text('img_url_trans')->nullable(false)->comment('제품 이미지 번역');
+            $table->timestamp('trans_dated_at')->nullable()->comment('번역 일자');
 
             $table->timestamps();
             $table->softDeletes();

@@ -25,7 +25,7 @@ abstract class UploadAbstract
      * @func uploadFile
      * @description '파일 업로드 후 url 반환'
      */
-    abstract function uploadFile(string $originFilePath, string $fileName): ?string;
+    abstract function uploadFile(string $originFilePath, string $fileName): bool;
 
     /**
      * @func deleteFile

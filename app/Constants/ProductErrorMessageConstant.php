@@ -15,6 +15,8 @@ class ProductErrorMessageConstant
     public const ERROR_MESSAGE_PRODUCT_SKUINFOS                  = "productSkuInfos";
     public const ERROR_MESSAGE_PRODUCT_PRICE_1688                = "productSkuInfos price";
     public const ERROR_MESSAGE_PRODUCT_CONSIGN_PRICE             = "productSkuInfos consignPrice";
+    public const ERROR_MESSAGE_PRODUCT_TRANS_IMG                 = "Genuio imageTranslate";
+    public const ERROR_MESSAGE_PRODUCT_S3_IMG_UPLOAD             = "S3 image Upload";
  
     public static function getErrorMessageNotDefault($constantName): string
     {

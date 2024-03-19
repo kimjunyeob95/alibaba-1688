@@ -12,6 +12,13 @@ abstract class OpenApiAbstract
         $this->returnMsg    = helpers_fail_message();
         $this->user_company = $user_company;
     }
+
+    /**
+     * @func translateImage
+     * @description '이미지 번역'
+     * @param string $imgPath
+     */
+    abstract function translateImage(string $imgPath): array;
     
     /**
      * @func tokenCreate

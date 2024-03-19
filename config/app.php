@@ -2,7 +2,6 @@
 
 use App\Providers\ApiModuleProvider;
 use App\Providers\OpenApiProvider;
-use App\Providers\UploadProvider;
 
 return [
 
@@ -182,7 +181,6 @@ return [
         Barryvdh\Debugbar\ServiceProvider::class,
 
         ApiModuleProvider::class,
-        UploadProvider::class,
         OpenApiProvider::class,
     ],
 
