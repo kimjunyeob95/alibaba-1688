@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Abstracts\ApiModuleAbstract;
+use App\Abstracts\OpenApiAbstract;
 use App\Abstracts\UploadAbstract;
 use App\Constants\CategoryErrorMessageConstant;
 use App\Constants\ProductConstant;
@@ -13,6 +14,7 @@ use App\Models\CategoryTree;
 use App\Models\ProductData;
 use App\Models\ProductExtendData;
 use App\Models\ProductImageData;
+use App\Models\ProductImageDetailData;
 use App\Models\ProductNoticeData;
 use App\Models\ProductOptionData;
 use App\Vo\Product\Product1688Dto;
@@ -32,16 +34,20 @@ class Service1688 extends ApiModuleAbstract
     private string $appKey;
     private string $appSecret;
     private string $accessToken;
+    private string $appEnv;
     private UploadAbstract $uploadAbstract;
+    private GenuioService $genuio;
 
-    public function __construct(UploadAbstract $uploadAbstract)
+    public function __construct(UploadAbstract $uploadAbstract, GenuioService $genuio)
     {
         parent::__construct(env("1688_API_DOMAIN", "https://gw.open.1688.com/openapi/"));
 
         $this->appKey         = env("1688_APP_KEY");
         $this->appSecret      = env("1688_APP_SECRET_KEY");
         $this->accessToken    = env("1688_ACCESS_TOKEN");
+        $this->appEnv         = ( env("APP_ENV", "local") != "production" ) ? "dev/" : "";
         $this->uploadAbstract = $uploadAbstract;
+        $this->genuio         = $genuio;
     }
     
     /**
@@ -433,6 +439,34 @@ class Service1688 extends ApiModuleAbstract
                         $main_img_origin = $detailProduct["productImage"]["images"][0];
                         $main_img_trans  = "";
 
+                        // 1-1. 메인 이미지 번역 후 s3 저장
+                        $isChangeImg = $this->isChangeImage($offerId, $main_img_origin);
+                        if( $isChangeImg == true ){
+                            $transMainImgResult = $this->genuio->translateImage($main_img_origin);
+                            if( $transMainImgResult["isSuccess"] == false || 
+                                ( isset($transMainImgResult["data"]) && $transMainImgResult["data"]["status"] != "success" )
+                            ){
+                                throw new Exception(ProductErrorMessageConstant::getFitErrorMessage("PRODUCT_TRANS_IMG"));
+                            } else {
+                                $mime           = pathinfo($main_img_origin, PATHINFO_EXTENSION);
+                                $mainImgName    = "/" . $this->appEnv . date('Y/m/d/') . $offerId . "_main." . $mime;
+                                $uploadResult   = $this->uploadAbstract->uploadFile($mainImgName, base64_decode($transMainImgResult["data"]["translated_image"]));
+
+                                if( $uploadResult == false ){
+                                    throw new Exception(ProductErrorMessageConstant::getFitErrorMessage("PRODUCT_S3MG_UPLOAD"));
+                                } else {
+                                    $main_img_trans = env("AWS_URL") . $mainImgName;
+                                }
+                            }
+                        }
+
+                        // 1-2. 상세내용 이미지 번역 후 s3 저장
+                        $prdDescription = $detailProduct["description"];
+                        // 모든 <img> 태그의 src 속성 값 찾기
+                        preg_match_all('/<img[^>]+src="([^">]+)"/', $prdDescription, $matches);
+                        $imageSrcs = $matches[1];
+                        dd($imageSrcs);
+
                         $product1688Dto = new Product1688Dto();
                         $product1688Dto->bind([
                             "offerId"         => $offerId,
@@ -562,6 +596,10 @@ class Service1688 extends ApiModuleAbstract
             // 1. product_datas upsert
             $upsertWhere = $product1688Dto->getAllProperties();
             unset($upsertWhere["offer_id"]);
+            if( $product1688Dto->is_change_img == false ){
+                unset($upsertWhere["main_img_origin"]);
+                unset($upsertWhere["main_img_trans"]);
+            }
             ProductData::updateOrCreate(
                 ["offer_id" => $product1688Dto->offer_id],
                 $upsertWhere
@@ -619,6 +657,37 @@ class Service1688 extends ApiModuleAbstract
             $returnMsg = helpers_fail_message(false, $e->getMessage());
         }
         return $returnMsg;
+    }
+
+    /**
+     * @func isChangeImage
+     * @description '이미지 변화 여부 검사 메소드'
+     * @param int $offerId
+     * @param string $imagePath
+     */
+    public function isChangeImage(int $offerId, string $imagePath): bool
+    {
+        $isChange = false;
+
+        $getOriginImgObj = ProductImageDetailData::where("offer_id", $offerId)
+        ->where("img_url_origin", $imagePath)->first();
+
+        if( $getOriginImgObj == null ){
+            $isChange = true;
+        } else {
+            $imageInfo = getimagesize($imagePath);
+            $imgWidth  = $imageInfo[0];
+            $imgHeight = $imageInfo[1];
+            $imgByte   = $imageInfo["bits"];
+            $imgMime   = $imageInfo["mime"];
+
+            if( $getOriginImgObj->width != $imgWidth || $getOriginImgObj->height != $imgHeight 
+            && $getOriginImgObj->byte != $imgByte && $getOriginImgObj->mime != $imgMime){
+                $isChange = true;
+            }
+        }
+
+        return $isChange;
     }
 
     /**

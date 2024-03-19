@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Vo\Product;
+namespace App\Vo\Genuio;
 
 use App\Vo\Vo;
 

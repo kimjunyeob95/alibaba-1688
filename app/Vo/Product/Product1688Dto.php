@@ -24,6 +24,7 @@ class Product1688Dto extends Vo
     protected string $main_img_trans  = "";
     protected string $supply_code     = "";
     protected string $response_json   = "";
+    protected bool $is_change_img     = false;
 
     public function bind(mixed $data): void
     {
@@ -36,5 +37,6 @@ class Product1688Dto extends Vo
         $this->main_img_trans  = $data["main_img_trans"];
         $this->supply_code     = $data["offerId"];
         $this->response_json   = $data["response_json"];
+        $this->is_change_img   = $data["isChangeImg"];
     }
 }
