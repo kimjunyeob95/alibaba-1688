@@ -36,18 +36,18 @@ class Service1688 extends ApiModuleAbstract
     private string $accessToken;
     private string $appEnv;
     private UploadAbstract $uploadAbstract;
-    private GenuioService $genuio;
+    private OpenApiAbstract $openApiAbstract;
 
-    public function __construct(UploadAbstract $uploadAbstract, GenuioService $genuio)
+    public function __construct(UploadAbstract $uploadAbstract, OpenApiAbstract $openApiAbstract)
     {
         parent::__construct(env("1688_API_DOMAIN", "https://gw.open.1688.com/openapi/"));
 
-        $this->appKey         = env("1688_APP_KEY");
-        $this->appSecret      = env("1688_APP_SECRET_KEY");
-        $this->accessToken    = env("1688_ACCESS_TOKEN");
-        $this->appEnv         = ( env("APP_ENV", "local") != "production" ) ? "dev/" : "";
-        $this->uploadAbstract = $uploadAbstract;
-        $this->genuio         = $genuio;
+        $this->appKey          = env("1688_APP_KEY");
+        $this->appSecret       = env("1688_APP_SECRET_KEY");
+        $this->accessToken     = env("1688_ACCESS_TOKEN");
+        $this->appEnv          = ( env("APP_ENV", "local") != "production" ) ? "dev/" : "";
+        $this->uploadAbstract  = $uploadAbstract;
+        $this->openApiAbstract = $openApiAbstract;
     }
     
     /**
@@ -442,7 +442,7 @@ class Service1688 extends ApiModuleAbstract
                         // 1-1. 메인 이미지 번역 후 s3 저장
                         $isChangeImg = $this->isChangeImage($offerId, $main_img_origin);
                         if( $isChangeImg == true ){
-                            $transMainImgResult = $this->genuio->translateImage($main_img_origin);
+                            $transMainImgResult = $this->openApiAbstract->translateImage($main_img_origin);
                             if( $transMainImgResult["isSuccess"] == false || 
                                 ( isset($transMainImgResult["data"]) && $transMainImgResult["data"]["status"] != "success" )
                             ){

@@ -1,6 +1,7 @@
 <?php
 
 use App\Providers\ApiModuleProvider;
+use App\Providers\OpenApiProvider;
 
 return [
 
@@ -180,6 +181,7 @@ return [
         Barryvdh\Debugbar\ServiceProvider::class,
 
         ApiModuleProvider::class,
+        OpenApiProvider::class,
     ],
 
     /*
