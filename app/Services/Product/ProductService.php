@@ -19,7 +19,7 @@ class ProductService
     {
         $pageSize  = $params["pageSize"];
 
-        $prdBuilder = ProductData::with(["options"])->orderBy("created_at", "desc");
+        $prdBuilder = ProductData::with(["main_img", "options"])->orderBy("created_at", "desc");
         $lists = $prdBuilder->paginate($pageSize)->appends($params);
 
         return $lists;

@@ -14,5 +14,5 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-// Route::get("/", [ProductProductController::class, "getPrdList"])->name("getPrdList");
-// Route::get("/product/{offerId}", [ProductProductController::class, "getPrdDetail"])->name("getPrdDetail");
+Route::get("/", [ProductProductController::class, "getPrdList"])->name("getPrdList");
+Route::get("/product/{offerId}", [ProductProductController::class, "getPrdDetail"])->name("getPrdDetail");

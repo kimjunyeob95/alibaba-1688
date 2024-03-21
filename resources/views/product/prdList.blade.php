@@ -64,11 +64,11 @@
                                         {{ $data->prd_name_trans }}
                                     </td>
                                     <td>
-                                        <img class="lazy-img preview-image" data-src="{{ $data->main_img_origin }}" width=60 height=60/>
+                                        <img class="lazy-img preview-image" data-src="{{ $data->main_img->img_url_origin }}" width=60 height=60/>
                                     </td>
                                     <td>
-                                        @if( $data->main_img_trans )
-                                            <img class="lazy-img preview-image" data-src="{{ $data->main_img_trans }}" width=60 height=60/>
+                                        @if( $data->main_img->img_url_trans )
+                                            <img class="lazy-img preview-image" data-src="{{ $data->main_img->img_url_trans }}" width=60 height=60/>
                                         @else
                                             <img class="lazy-img preview-image" data-src='/assets/img/no_img.png'width=60 height=60>
                                         @endif
@@ -78,7 +78,7 @@
                                             @php
                                                 $option = $data->options[0];
                                             @endphp
-                                                {{ $option->consign_price }}(元)<br>
+                                                {{ $option->price_1688 }}(元)<br>
                                                 {{ number_format($option->option_price) }}(원)<br>
                                                 {{ number_format($option->onch_price) }}(원)<br>
                                                 {{ number_format($option->cus_price) }}(원)<br>

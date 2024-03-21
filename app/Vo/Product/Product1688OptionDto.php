@@ -8,30 +8,28 @@ use App\Vo\Vo;
 class Product1688OptionDto extends Vo
 {
     protected int $offer_id             = 0;
-    protected int $amount_on_sale       = 0;
     protected int $sku_id               = 0;
     protected string $spec_id           = "";
-    protected string $sku_image_url     = "";
+    protected string $status            = ProductConstant::OPTION_SEC_ON_SALE_NUMBER;
     protected string $option_name       = "";
     protected string $option_name_trans = "";
-    protected float $consign_price      = 0.0;
-    protected string $cargo_number      = "";
+    protected float $price_1688         = 0.0;
     protected float $option_price       = 0.0;
     protected float $onch_price         = 0.0;
     protected float $cus_price          = 0.0;
     protected float $recom_cus_price    = 0.0;
-    protected string $status               = ProductConstant::OPTION_SEC_ON_SALE_NUMBER;
+    protected int $amount_on_sale       = 0;
+    protected string $cargo_number      = "";
 
     public function bind(mixed $data): void
     {
         $this->offer_id          = $data["offerId"];
-        $this->amount_on_sale    = $data["amountOnSale"];
         $this->sku_id            = $data["skuId"];
         $this->spec_id           = $data["specId"];
-        $this->sku_image_url     = $data["skuImageUrl"];
         $this->option_name       = $data["optionName"];
         $this->option_name_trans = $data["optionNameTrans"];
-        $this->consign_price     = (float)$data["consignPrice"];
+        $this->price_1688        = (float)$data["price_1688"];
+        $this->amount_on_sale    = $data["amountOnSale"];
         $this->cargo_number      = $data["cargoNumber"];
 
         $this->oc_bind();
@@ -39,7 +37,7 @@ class Product1688OptionDto extends Vo
 
     public function oc_bind(): void
     {
-        $this->onch_price   = round( $this->consign_price * env("1688_EXCHANGE_RATE", 190) , -1);  // 1의 자리 반올림
+        $this->onch_price   = round( $this->price_1688 * env("1688_EXCHANGE_RATE", 190) , -1);  // 1의 자리 반올림
 
         $option_price_sum = (int)intval($this->onch_price) + intval($this->onch_price * env("OPTION_PRICE_RATE", 0.12));
         $option_price_cal = round($option_price_sum / 10) * 10;

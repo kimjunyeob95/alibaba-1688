@@ -27,6 +27,7 @@ class CreateProductImageDatasTable extends Migration
 
             $table->foreign('offer_id')->references('offer_id')->on('product_datas')->onDelete('cascade');
             $table->index('offer_id');
+            $table->index('img_type');
         });
 
         DB::statement('ALTER TABLE product_image_datas COMMENT "1688 상품 이미지 데이터 테이블"');

@@ -15,6 +15,10 @@ class ProductData extends Model
     protected $guarded    = [];
     protected $fillable   = [];
 
+    public function main_img () {
+        return $this->hasOne(ProductImageData::class, "offer_id", "offer_id")->where("img_type", "main");
+    }
+
     public function images () {
         return $this->hasMany(ProductImageData::class, "offer_id", "offer_id")->oldest("id");
     }
