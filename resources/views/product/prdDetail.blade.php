@@ -27,13 +27,19 @@
                 <div class="col-md-4" style="text-align: -webkit-center; position: relative;">
                     <div class="swiper-container">
                         <div class="swiper-wrapper">
-                            <div class="swiper-slide">
-                                <img src={{ $prdObj->main_img_origin}} >
-                            </div>
                             @foreach ($prdObj->images as $prdImg)
-                            <div class="swiper-slide">
-                                <img src={{ $prdImg->img_url_origin}}>
-                            </div>
+                            @if ($prdImg->img_type == "main")
+                                <div class="swiper-slide">
+                                    <img src={{ $prdImg->img_url_origin}}>
+                                </div>
+                            @endif
+                            @endforeach
+                            @foreach ($prdObj->images as $prdImg)
+                            @if ($prdImg->img_type == "sub")
+                                <div class="swiper-slide">
+                                    <img src={{ $prdImg->img_url_origin}}>
+                                </div>
+                            @endif
                             @endforeach
                         </div>
                     </div>
@@ -120,7 +126,7 @@
                                             {{ $option->option_name_trans }}
                                         </td>
                                         <td>
-                                            {{ $option->consign_price }}(元)
+                                            {{ $option->price_1688 }}(元)
                                         </td>
                                         <td>
                                             {{ number_format($option->option_price) }}(원)
