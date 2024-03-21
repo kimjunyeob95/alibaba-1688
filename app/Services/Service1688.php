@@ -671,12 +671,35 @@ class Service1688 extends ApiModuleAbstract
 
             // 3. product_image_datas, product_image_detail_datas upsert
             foreach ($product1688ImageDtoList as $product1688ImageDto) {
-                $upsertWhere       = [];
+                // 메인 이미지
+                if( $product1688ImageDto->is_change_img == true && $product1688ImageDto->img_type == ImageConstant::IMAGE_TYPE_MAIN ){
+                    ProductImageData::updateOrCreate(
+                        [
+                            "offer_id" => $product1688ImageDto->offer_id,
+                            "img_type" => ImageConstant::IMAGE_TYPE_MAIN,
+                        ],
+                        [
+                            "img_url_origin" => $product1688ImageDto->img_url_origin,
+                            "img_url_trans"  => ""
+                        ]
+                    );
+                }
+                // 서브 이미지 or 상세 이미지
+                if( $product1688ImageDto->is_change_img == true && $product1688ImageDto->img_type != ImageConstant::IMAGE_TYPE_MAIN ){
+                    ProductImageData::updateOrCreate(
+                        [
+                            "offer_id"       => $product1688ImageDto->offer_id,
+                            "img_type"       => $product1688ImageDto->img_type,
+                            "img_url_origin" => $product1688ImageDto->img_url_origin,
+                        ],
+                        [
+                            "img_url_trans" => ""
+                        ]
+                    );
+                }
+
                 $upsertDetailWhere = [];
                 if( $product1688ImageDto->is_change_img == true ){
-                    $upsertWhere = [
-                        "img_url_trans" => ""
-                    ];
                     $upsertDetailWhere = [
                         "width"  => $product1688ImageDto->width,
                         "height" => $product1688ImageDto->height,
@@ -690,22 +713,16 @@ class Service1688 extends ApiModuleAbstract
                         "img_url_origin" => $product1688ImageDto->img_url_origin,
                     ];
                 }
-                ProductImageData::updateOrCreate(
-                    [
-                        "offer_id"       => $product1688ImageDto->offer_id,
-                        "img_type"       => $product1688ImageDto->img_type,
-                        "img_url_origin" => $product1688ImageDto->img_url_origin,
-                    ],
-                    $upsertWhere
-                );
-                ProductImageDetailData::updateOrCreate(
-                    [
-                        "offer_id"       => $product1688ImageDto->offer_id,
-                        "img_type"       => $product1688ImageDto->img_type,
-                        "img_url_origin" => $product1688ImageDto->img_url_origin,
-                    ],
-                    $upsertDetailWhere
-                );
+                if( !empty($upsertDetailWhere) ){
+                    ProductImageDetailData::updateOrCreate(
+                        [
+                            "offer_id"       => $product1688ImageDto->offer_id,
+                            "img_type"       => $product1688ImageDto->img_type,
+                            "img_url_origin" => $product1688ImageDto->img_url_origin,
+                        ],
+                        $upsertDetailWhere
+                    );
+                }
             }
 
             // 4. product_notice_datas upsert
