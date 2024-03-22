@@ -87,6 +87,10 @@ class ProductConstant
 
     public const MAPPING_OC_CHANNEL = "onchannel";
 
+    // 번역 여부
+    public const TRANS_STATUE_Y = "Y"; // 번역 완료
+    public const TRANS_STATUE_N = "N"; // 번역 미완료
+
     public const CHANNE_FOREGIN_CHANNEL_RETURN_COMMENT = "- 해외직배송 상품 특성상 교환/반품 시 왕복 해외배송비는 고객 부담이므로 반드시 확인해주세요.\r\n
     - 본 상품은 해외직배송 상품으로 제품 출고 후 취소가 불가능합니다. 신중한 구매 부탁드립니다.<br>
     - 상품 수령일로부터 7일 이내에 먼저 판매자와 연락하셔서 반품 사유, 택배사, 배송비, 반송처 등을 협의하신 후 상품을 반품하시기 바랍니다.";

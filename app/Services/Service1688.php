@@ -8,20 +8,16 @@ use App\Abstracts\ProductAbstract;
 
 class Service1688
 {
-    private string $appEnv;
     private CategoryAbstract $categoryAbstract;
     private ProductAbstract $productAbstract;
-    private OpenApiAbstract $openApiAbstract;
 
     public function __construct(
         CategoryAbstract $categoryAbstract,
-        ProductAbstract $productAbstract,
-        OpenApiAbstract $openApiAbstract)
+        ProductAbstract $productAbstract
+    )
     {
-        $this->appEnv           = ( env("APP_ENV", "local") != "production" ) ? "dev/" : "";
         $this->categoryAbstract = $categoryAbstract;
         $this->productAbstract  = $productAbstract;
-        $this->openApiAbstract  = $openApiAbstract;
     }
     
     /**
