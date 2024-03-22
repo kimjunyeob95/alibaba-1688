@@ -345,7 +345,7 @@ class Service1688 extends ApiModuleAbstract
             $payload = [
                 'access_token'     => $this->accessToken,
                 'offerDetailParam' => [
-                    'country' => 'en',
+                    'country' => 'ko',
                     'offerId' => $offerId,
                 ]
             ];
@@ -393,7 +393,7 @@ class Service1688 extends ApiModuleAbstract
                     'keyword'    => '',
                     'beginPage'  => $page,
                     'pageSize'   => $pageSize,
-                    'country'    => 'en',
+                    'country'    => 'ko',
                     'categoryId' => $categoryId,
                 ]
             ];
@@ -417,7 +417,7 @@ class Service1688 extends ApiModuleAbstract
                             'access_token'     => $this->accessToken,
                             'offerDetailParam' => [
                                 'offerId' => $offerId,
-                                'country' => 'en',
+                                'country' => 'ko',
                             ]
                         ];
                         $detailResult = $this->apiCurl("POST", $endPoint, $payload);
@@ -509,25 +509,6 @@ class Service1688 extends ApiModuleAbstract
                             ]);
                             $product1688ImageDtoList[] = $product1688ImageDto;
                         }
-
-                        // if( $isChangeImg == true ){
-                        //     $transMainImgResult = $this->openApiAbstract->translateImage($main_img_origin);
-                        //     if( $transMainImgResult["isSuccess"] == false || 
-                        //         ( isset($transMainImgResult["data"]) && $transMainImgResult["data"]["status"] != "success" )
-                        //     ){
-                        //         throw new Exception(ProductErrorMessageConstant::getFitErrorMessage("PRODUCT_TRANS_IMG"));
-                        //     } else {
-                        //         $mime           = pathinfo($main_img_origin, PATHINFO_EXTENSION);
-                        //         $mainImgName    = "/" . $this->appEnv . date('Y/m/d/') . $offerId . "_main." . $mime;
-                        //         $uploadResult   = $this->uploadAbstract->uploadFile($mainImgName, base64_decode($transMainImgResult["data"]["translated_image"]));
-
-                        //         if( $uploadResult == false ){
-                        //             throw new Exception(ProductErrorMessageConstant::getFitErrorMessage("PRODUCT_S3MG_UPLOAD"));
-                        //         } else {
-                        //             $main_img_trans = env("AWS_URL") . $mainImgName;
-                        //         }
-                        //     }
-                        // }
 
                         // 2. 상품 기본정보
                         $startQuantity = $detailProduct["productSaleInfo"]["priceRangeList"][0]["startQuantity"];
@@ -671,12 +652,35 @@ class Service1688 extends ApiModuleAbstract
 
             // 3. product_image_datas, product_image_detail_datas upsert
             foreach ($product1688ImageDtoList as $product1688ImageDto) {
-                $upsertWhere       = [];
+                // 메인 이미지
+                if( $product1688ImageDto->is_change_img == true && $product1688ImageDto->img_type == ImageConstant::IMAGE_TYPE_MAIN ){
+                    ProductImageData::updateOrCreate(
+                        [
+                            "offer_id" => $product1688ImageDto->offer_id,
+                            "img_type" => ImageConstant::IMAGE_TYPE_MAIN,
+                        ],
+                        [
+                            "img_url_origin" => $product1688ImageDto->img_url_origin,
+                            "img_url_trans"  => ""
+                        ]
+                    );
+                }
+                // 서브 이미지 or 상세 이미지
+                if( $product1688ImageDto->is_change_img == true && $product1688ImageDto->img_type != ImageConstant::IMAGE_TYPE_MAIN ){
+                    ProductImageData::updateOrCreate(
+                        [
+                            "offer_id"       => $product1688ImageDto->offer_id,
+                            "img_type"       => $product1688ImageDto->img_type,
+                            "img_url_origin" => $product1688ImageDto->img_url_origin,
+                        ],
+                        [
+                            "img_url_trans" => ""
+                        ]
+                    );
+                }
+
                 $upsertDetailWhere = [];
                 if( $product1688ImageDto->is_change_img == true ){
-                    $upsertWhere = [
-                        "img_url_trans" => ""
-                    ];
                     $upsertDetailWhere = [
                         "width"  => $product1688ImageDto->width,
                         "height" => $product1688ImageDto->height,
@@ -690,22 +694,16 @@ class Service1688 extends ApiModuleAbstract
                         "img_url_origin" => $product1688ImageDto->img_url_origin,
                     ];
                 }
-                ProductImageData::updateOrCreate(
-                    [
-                        "offer_id"       => $product1688ImageDto->offer_id,
-                        "img_type"       => $product1688ImageDto->img_type,
-                        "img_url_origin" => $product1688ImageDto->img_url_origin,
-                    ],
-                    $upsertWhere
-                );
-                ProductImageDetailData::updateOrCreate(
-                    [
-                        "offer_id"       => $product1688ImageDto->offer_id,
-                        "img_type"       => $product1688ImageDto->img_type,
-                        "img_url_origin" => $product1688ImageDto->img_url_origin,
-                    ],
-                    $upsertDetailWhere
-                );
+                if( !empty($upsertDetailWhere) ){
+                    ProductImageDetailData::updateOrCreate(
+                        [
+                            "offer_id"       => $product1688ImageDto->offer_id,
+                            "img_type"       => $product1688ImageDto->img_type,
+                            "img_url_origin" => $product1688ImageDto->img_url_origin,
+                        ],
+                        $upsertDetailWhere
+                    );
+                }
             }
 
             // 4. product_notice_datas upsert
@@ -721,7 +719,8 @@ class Service1688 extends ApiModuleAbstract
                     $upsertWhere
                 );
             }
-            // 4. product_option_datas upsert
+
+            // 5. product_option_datas upsert
             foreach ($product1688OptionDtoList as $product1688OptionDto) {
                 $upsertWhere = $product1688OptionDto->getAllProperties();
                 unset($upsertWhere["offer_id"]);
@@ -736,11 +735,89 @@ class Service1688 extends ApiModuleAbstract
                     $upsertWhere
                 );
             }
+
+            // 6. 이미지 Genuio 통신 및 기존 이미지 삭제
+            $this->delProductImage($product1688ImageDtoList);
+
             $returnMsg = helpers_success_message();
         } catch (Exception $e) {
             $returnMsg = helpers_fail_message(false, $e->getMessage());
         }
         return $returnMsg;
+    }
+
+    /**
+     * @func createProductImage
+     * @description '제품 이미지 생성'
+     * @param array $product1688ImageDtoList
+     */
+    public function createProductImage(array $product1688ImageDtoList): void
+    {
+        // if( $isChangeImg == true ){
+        //     $transMainImgResult = $this->openApiAbstract->translateImage($main_img_origin);
+        //     if( $transMainImgResult["isSuccess"] == false || 
+        //         ( isset($transMainImgResult["data"]) && $transMainImgResult["data"]["status"] != "success" )
+        //     ){
+        //         throw new Exception(ProductErrorMessageConstant::getFitErrorMessage("PRODUCT_TRANS_IMG"));
+        //     } else {
+        //         $mime           = pathinfo($main_img_origin, PATHINFO_EXTENSION);
+        //         $mainImgName    = "/" . $this->appEnv . date('Y/m/d/') . $offerId . "_main." . $mime;
+        //         $uploadResult   = $this->uploadAbstract->uploadFile($mainImgName, base64_decode($transMainImgResult["data"]["translated_image"]));
+
+        //         if( $uploadResult == false ){
+        //             throw new Exception(ProductErrorMessageConstant::getFitErrorMessage("PRODUCT_S3MG_UPLOAD"));
+        //         } else {
+        //             $main_img_trans = env("AWS_URL") . $mainImgName;
+        //         }
+        //     }
+        // }
+    }
+
+    /**
+     * @func delProductImage
+     * @description '불핑요 제품 이미지 삭제'
+     * @param array $product1688ImageDtoList
+     */
+    public function delProductImage(array $product1688ImageDtoList): void
+    {
+        $mainImgs = [];
+        $subImgs  = [];
+        $descImgs = [];
+        foreach ($product1688ImageDtoList as $product1688ImageDto) {
+            if( $product1688ImageDto->img_type == ImageConstant::IMAGE_TYPE_MAIN ){
+                $mainImgs[$product1688ImageDto->offer_id][] = $product1688ImageDto->img_url_origin;
+            }
+            if( $product1688ImageDto->img_type == ImageConstant::IMAGE_TYPE_SUB ){
+                $subImgs[$product1688ImageDto->offer_id][] = $product1688ImageDto->img_url_origin;
+            }
+            if( $product1688ImageDto->img_type == ImageConstant::IMAGE_TYPE_DESC ){
+                $descImgs[$product1688ImageDto->offer_id][] = $product1688ImageDto->img_url_origin;
+            }
+        }
+
+        // 1. 메인 이미지 삭제
+        foreach ($mainImgs as $offer_id => $mainImg) {
+            ProductImageData::where('img_type', ImageConstant::IMAGE_TYPE_MAIN)
+            ->where('offer_id', $offer_id)
+            ->where('img_url_origin', '!=', $mainImg)
+            ->delete();
+        }
+
+        // 2. 서브 이미지 삭제
+        foreach ($subImgs as $offer_id => $subImg) {
+            ProductImageData::where('img_type', ImageConstant::IMAGE_TYPE_SUB)
+            ->where('offer_id', $offer_id)
+            ->whereNotIn('img_url_origin', $subImg)
+            ->delete();
+        }
+
+        // 3. 상세 이미지 삭제
+        foreach ($descImgs as $offer_id => $descImg) {
+            ProductImageData::where('img_type', ImageConstant::IMAGE_TYPE_DESC)
+            ->where('offer_id', $offer_id)
+            ->whereNotIn('img_url_origin', $descImg)
+            ->delete();
+        }
     }
 
     /**

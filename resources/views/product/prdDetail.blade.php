@@ -57,7 +57,7 @@
                         <div class="col-md-8">{{ $prdObj->prd_name }}</div>
                     </div>
                     <div class="row mb-2">
-                        <div class="col-md-3 text-center">제품명(영문)</div>
+                        <div class="col-md-3 text-center">제품명(번역)</div>
                         <div class="col-md-8">{{ $prdObj->prd_name_trans }}</div>
                     </div>
                     <div class="row mb-2">
@@ -106,7 +106,7 @@
                                 <tr class="text-center">
                                     <th scope="col">skuID</th>
                                     <th scope="col">옵션명</th>
-                                    <th scope="col">옵션명(영문)</th>
+                                    <th scope="col">옵션명(번역)</th>
                                     <th scope="col">1688 소비자가</th>
                                     <th scope="col">옵션가격</th>
                                     <th scope="col">온채널가</th>
@@ -147,7 +147,7 @@
                 <hr style="margin-top: 20px">
                 <div class="row mt-3">
                     <div class="col">
-                        <h5>[고시정보(영문)]</h5>
+                        <h5>[고시정보(번역)]</h5>
                     </div>
 
                     <div class="table-responsive">

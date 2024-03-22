@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Constants\ProductConstant;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -17,6 +18,10 @@ class ProductData extends Model
 
     public function main_img () {
         return $this->hasOne(ProductImageData::class, "offer_id", "offer_id")->where("img_type", "main");
+    }
+
+    public function sub_imgs () {
+        return $this->hasMany(ProductImageData::class, "offer_id", "offer_id")->where("img_type", "sub");
     }
 
     public function images () {
@@ -37,5 +42,9 @@ class ProductData extends Model
 
     public function category () {
         return $this->hasOne(CategoryTree::class, "category_id", "category_id");
+    }
+
+    public function oc_mapping () {
+        return $this->hasOne(CategoryMapping::class, "category_id", "category_id")->where("mapping_channel", ProductConstant::MAPPING_OC_CHANNEL);
     }
 }
