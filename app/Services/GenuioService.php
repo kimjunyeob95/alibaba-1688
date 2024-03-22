@@ -197,6 +197,10 @@ class GenuioService extends OpenApiAbstract
                 ProductData::where("offer_id", $getGenuioObj->offer_id)->update([
                     "trans_status" => ProductConstant::TRANS_STATUE_Y
                 ]);
+            } else {
+                ProductData::where("offer_id", $getGenuioObj->offer_id)->update([
+                    "trans_status" => ProductConstant::TRANS_STATUE_N
+                ]);
             }
 
             $returnMsg = helpers_success_message();
