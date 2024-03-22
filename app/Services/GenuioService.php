@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Abstracts\OpenApiAbstract;
+use App\Abstracts\UploadAbstract;
 use App\Constants\OpenApiConstant;
 use App\Models\ApiUser;
 use App\Models\GenuioQueueData;
@@ -18,17 +19,22 @@ use JsonException;
 class GenuioService extends OpenApiAbstract
 {
     private JwtPackage $jwtPackage;
+    private UploadAbstract $uploadAbstract;
     private string $domain;
     private string $token;
     protected array $returnMsg;
 
-    public function __construct(JwtPackage $jwtPackage)
+    public function __construct(
+        JwtPackage $jwtPackage,
+        UploadAbstract $uploadAbstract
+    )
     {
         parent::__construct(OpenApiConstant::API_USER_COMPANY_GENUIO);
-        $this->jwtPackage = $jwtPackage;
-        $this->domain     = env("GENUIO_DOMAIN");
-        $this->token      = env("GENUIO_TOKEN");
-        $this->returnMsg  = helpers_fail_message();
+        $this->jwtPackage     = $jwtPackage;
+        $this->uploadAbstract = $uploadAbstract;
+        $this->domain         = env("GENUIO_DOMAIN");
+        $this->token          = env("GENUIO_TOKEN");
+        $this->returnMsg      = helpers_fail_message();
     }
 
     public function translateImage(string $imgPath): array

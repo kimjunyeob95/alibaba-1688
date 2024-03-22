@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Abstracts\OpenApiAbstract;
 use App\Constants\HttpConstant;
+use App\Services\GenuioService;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -12,12 +12,12 @@ use Illuminate\Support\Facades\Validator;
 class GenuioController extends Controller
 {
     private Request $request;
-    private OpenApiAbstract $openApiAbstract;
+    private GenuioService $genuioService;
 
-    function __construct(Request $request, OpenApiAbstract $openApiAbstract)
+    function __construct(Request $request, GenuioService $genuioService)
     {
-        $this->request         = $request;
-        $this->openApiAbstract = $openApiAbstract;
+        $this->request       = $request;
+        $this->genuioService = $genuioService;
     }
 
     public function tokenCreate(): JsonResponse
@@ -36,7 +36,7 @@ class GenuioController extends Controller
             $params = [
                 "user_id" => $credentials["user_id"]
             ];
-            $result = $this->openApiAbstract->tokenCreate($params);
+            $result = $this->genuioService->tokenCreate($params);
             if( $result["isSuccess"] == true ){
                 return helpers_json_response(HttpConstant::OK, $result);
             } else {
@@ -64,7 +64,7 @@ class GenuioController extends Controller
             if ($validator->fails()) {
                 throw new Exception($validator->errors()->first());
             }
-            $result = $this->openApiAbstract->imgTrans($this->request->all());
+            $result = $this->genuioService->imgTrans($this->request->all());
             if( $result["isSuccess"] == true ){
                 return helpers_json_response(HttpConstant::OK, $result);
             } else {

@@ -3,16 +3,16 @@
 namespace App\Http\Controllers\Product;
 
 use App\Http\Controllers\Controller;
-use App\Services\Product\ProductService;
+use App\Services\Product\ProductV1;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 class ProductController extends Controller
 {
     private Request $request;
-    private ProductService $productService;
+    private ProductV1 $productService;
 
-    function __construct(Request $request, ProductService $productService)
+    function __construct(Request $request, ProductV1 $productService)
     {
         $this->request        = $request;
         $this->productService = $productService;

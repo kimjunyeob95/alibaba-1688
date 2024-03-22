@@ -1,21 +1,21 @@
 <?php
 namespace App\Console\Commands;
 
+use App\Services\Category\CategoryV1;
 use Illuminate\Console\Command;
-use App\Services\Service1688;
 
 class Save1688Category extends Command
 {
     protected $signature   = 'save_1688_category';
     protected $description = '1688 카테고리 수집';
 
-    protected Service1688 $service1688;
+    protected CategoryV1 $categoryV1;
 
-    public function __construct(Service1688 $service1688)
+    public function __construct(CategoryV1 $categoryV1)
     {
         parent::__construct();
 
-        $this->service1688 = $service1688;
+        $this->categoryV1 = $categoryV1;
     }
     /*
      * 실행 구문 
@@ -23,6 +23,6 @@ class Save1688Category extends Command
     */
     public function handle()
     {
-        $this->service1688->saveCategory();
+        $this->categoryV1->saveCategory();
     }
 }
