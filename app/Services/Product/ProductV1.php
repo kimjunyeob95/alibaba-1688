@@ -2,6 +2,7 @@
 
 namespace App\Services\Product;
 
+use App\Abstracts\OpenApiAbstract;
 use App\Abstracts\ProductAbstract;
 use App\Constants\Constant1688;
 use App\Constants\ImageConstant;
@@ -28,11 +29,13 @@ class ProductV1 extends ProductAbstract
 {
     private array $returnMsg;
     private string $accessToken;
+    private OpenApiAbstract $openApiAbstract;
 
-    public function __construct()
+    public function __construct(OpenApiAbstract $openApiAbstract)
     {
-        $this->returnMsg   = helpers_fail_message();
-        $this->accessToken = env("1688_ACCESS_TOKEN");
+        $this->returnMsg       = helpers_fail_message();
+        $this->accessToken     = env("1688_ACCESS_TOKEN");
+        $this->openApiAbstract = $openApiAbstract;
     }
 
     public function getPrdList(array $params): LengthAwarePaginator
@@ -369,8 +372,6 @@ class ProductV1 extends ProductAbstract
         array $product1688NoticeDtoList, array $product1688OptionDtoList): array
     {
         $returnMsg = helpers_fail_message();
-
-        $transImgList = [];
         try {
             // 1. product_datas upsert
             $upsertWhere = $product1688Dto->getAllProperties();
@@ -399,7 +400,8 @@ class ProductV1 extends ProductAbstract
                         ],
                         [
                             "img_url_origin" => $product1688ImageDto->img_url_origin,
-                            "img_url_trans"  => ""
+                            "img_url_trans"  => "",
+                            "trans_dated_at" => null
                         ]
                     );
                 }
@@ -412,7 +414,8 @@ class ProductV1 extends ProductAbstract
                             "img_url_origin" => $product1688ImageDto->img_url_origin,
                         ],
                         [
-                            "img_url_trans" => ""
+                            "img_url_trans" => "",
+                            "trans_dated_at" => null
                         ]
                     );
                 }
@@ -424,12 +427,6 @@ class ProductV1 extends ProductAbstract
                         "height" => $product1688ImageDto->height,
                         "byte"   => $product1688ImageDto->byte,
                         "mime"   => $product1688ImageDto->mime,
-                    ];
-
-                    $transImgList[] = [
-                        "offer_id"       => $product1688ImageDto->offer_id,
-                        "img_type"       => $product1688ImageDto->img_type,
-                        "img_url_origin" => $product1688ImageDto->img_url_origin,
                     ];
                 }
                 if( !empty($upsertDetailWhere) ){
@@ -474,7 +471,13 @@ class ProductV1 extends ProductAbstract
                 );
             }
 
-            // 6. 이미지 Genuio 통신 및 기존 이미지 삭제
+            // 6. 이미지 번역 요청 통신 
+            $transResult = $this->openApiAbstract->createTransProductImg($product1688ImageDtoList, $product1688Dto->offerId);
+            if( $transResult["isSuccess"] == false ){
+                throw new Exception($transResult["msg"]);
+            }
+
+            // 7. 기존 이미지 삭제
             $this->delProductImage($product1688ImageDtoList);
 
             $returnMsg = helpers_success_message();
@@ -601,7 +604,7 @@ class ProductV1 extends ProductAbstract
         try {
             $imageInfo = getimagesize($imagePath);
         } catch (Exception $e) {
-            $errorMsg = ProductErrorMessageConstant::getFitErrorMessage("PRODUCT_CHECK_IMG_SIZE") . " {$imagePath}";
+            $errorMsg = ProductErrorMessageConstant::getFitErrorMessage("PRODUCT_CHECK_IMG_SIZE") . " {$imagePath}" . " | error: " . $e->getMessage();
             throw new UnexpectedValueException($errorMsg);
         }
 

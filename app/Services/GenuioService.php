@@ -4,20 +4,24 @@ namespace App\Services;
 
 use App\Abstracts\OpenApiAbstract;
 use App\Abstracts\UploadAbstract;
+use App\Constants\ImageConstant;
 use App\Constants\OpenApiConstant;
+use App\Constants\ProductConstant;
 use App\Models\ApiUser;
 use App\Models\GenuioQueueData;
 use App\Models\GenuioQueueDetailData;
+use App\Models\ProductData;
+use App\Models\ProductImageData;
 use App\Packages\JwtPackage;
 use App\Vo\Genuio\QueueDto;
 use Carbon\Carbon;
 use Exception;
-use Illuminate\Validation\ValidationException;
 use InvalidArgumentException;
 use JsonException;
 
 class GenuioService extends OpenApiAbstract
 {
+    private string $appEnv;
     private JwtPackage $jwtPackage;
     private UploadAbstract $uploadAbstract;
     private string $domain;
@@ -30,6 +34,7 @@ class GenuioService extends OpenApiAbstract
     )
     {
         parent::__construct(OpenApiConstant::API_USER_COMPANY_GENUIO);
+        $this->appEnv         = ( env("APP_ENV", "local") != "production" ) ? "dev/" : "";
         $this->jwtPackage     = $jwtPackage;
         $this->uploadAbstract = $uploadAbstract;
         $this->domain         = env("GENUIO_DOMAIN");
@@ -74,6 +79,63 @@ class GenuioService extends OpenApiAbstract
     }
 
     /**
+     * @func createTransProductImg
+     * @description '이미지 번역 통신'
+     * @param array $product1688ImageDtoList
+     */
+    public function createTransProductImg(array $product1688ImageDtoList, int $offerId): array
+    {
+        $returnMsg = $this->returnMsg;
+        try {
+            $lastId = GenuioQueueData::max('id');
+            $nextId = $lastId + 1;
+
+            $payload = [
+                "jobId"  => $nextId,
+                "images" => []
+            ];
+            foreach ($product1688ImageDtoList as $product1688ImageDto) {
+                if( $product1688ImageDto->is_change_img == true ){
+                    $imgId = ProductImageData::where([
+                        "offer_id"       => $product1688ImageDto->offer_id,
+                        "img_type"       => $product1688ImageDto->img_type,
+                        "img_url_origin" => $product1688ImageDto->img_url_origin,
+                    ])->value('id');
+                    $payload["images"][] = [
+                        "id"      => $imgId,
+                        "imgPath" => $product1688ImageDto->img_url_origin,
+                    ];
+
+                    $insWhere = [
+                        "queue_id"     => $nextId,
+                        "img_id"       => $imgId,
+                        "trans_status" => OpenApiConstant::QUEUE_STAY,
+                        "base64"       => "",
+                    ];
+                    GenuioQueueDetailData::insert($insWhere);
+                }
+            }
+
+            $insWhere = [
+                "id"            => $nextId,
+                "offer_id"      => $offerId,
+                "payload_json"  => json_encode($payload, JSON_UNESCAPED_UNICODE),
+                "request_user"  => OpenApiConstant::API_USER_COMPANY_OC,
+                "response_json" => "",
+                "created_at"    => Carbon::now()
+            ];
+            GenuioQueueData::insertGetId($insWhere);
+
+            $returnMsg = helpers_success_message();
+        } catch (Exception $e) {
+            $errorMsg  = "offerId: {$offerId} | errorTitle: " . OpenApiConstant::getFitErrorMessage("TRANS_REQUEST_IMAGE") . "errorDesc: " . $e->getMessage();
+            $returnMsg = helpers_fail_message(false, $errorMsg);
+        }
+
+        return $returnMsg;
+    }
+
+    /**
      * @func imgTrans
      * @description '번역된 이미지 처리'
      */
@@ -92,19 +154,53 @@ class GenuioService extends OpenApiAbstract
                 throw new Exception(OpenApiConstant::getNotHaveErrorMessage("QUEUE_ID"));
             }
 
-            $getGenuioDetailObjs = GenuioQueueDetailData::where("queue_id", $jobId)->where("base64", "")->get();
+            $getGenuioDetailObjs = GenuioQueueDetailData::where("queue_id", $jobId)
+            ->where("trans_status", OpenApiConstant::QUEUE_STAY)
+            ->where("base64", "")
+            ->get();
             if( count($images) != count($getGenuioDetailObjs) ){
-                throw new ValidationException(OpenApiConstant::getFitErrorMessage("NOT_EQUAL_COUNT_IMAGE"));
+                throw new Exception(OpenApiConstant::getFitErrorMessage("NOT_EQUAL_COUNT_IMAGE"));
             }
 
             foreach ($images as $image) {
-                
+                $imgObj       = ProductImageData::where("id", $image["id"])->first();
+                $mime         = pathinfo($imgObj->img_url_origin, PATHINFO_EXTENSION);
+                if( $imgObj->img_type == ImageConstant::IMAGE_TYPE_MAIN ){
+                    $imgName  = "/" . $this->appEnv . date('Y/m/d/') . $imgObj->offer_id . "_" . $imgObj->img_type . "." . $mime;
+                } else {
+                    $imgName  = "/" . $this->appEnv . date('Y/m/d/') . $imgObj->offer_id . "_" . $imgObj->id . "_" . $imgObj->img_type . "." . $mime;
+                }
+                $uploadResult = $this->uploadAbstract->uploadFile($imgName, base64_decode($image["imgTransBase64"]));
+                if( $uploadResult == true ) {
+                    ProductImageData::where("id", $image["id"])->update([
+                        "img_url_trans"  => env("AWS_URL") . $imgName,
+                        "trans_dated_at" => Carbon::now(),
+                    ]);
+                }
+
+                GenuioQueueDetailData::where([
+                    "queue_id"     => $jobId,
+                    "img_id"       => $image["id"],
+                    "trans_status" => OpenApiConstant::QUEUE_STAY,
+                ])->update([
+                    "trans_status" => $uploadResult == true ? OpenApiConstant::QUEUE_SUCCESS : OpenApiConstant::QUEUE_FAIL,
+                    "base64"       => $image["imgTransBase64"],
+                ]);
+            }
+
+            $noTransCnt = ProductImageData::where("offer_id", $getGenuioObj->offer_id)
+            ->where("img_url_trans", "")
+            ->whereNull("trans_dated_at")
+            ->count();
+
+            if( $noTransCnt == 0 ){
+                ProductData::where("offer_id", $getGenuioObj->offer_id)->update([
+                    "trans_status" => ProductConstant::TRANS_STATUE_Y
+                ]);
             }
 
             $returnMsg = helpers_success_message();
         } catch (Exception $e) {
-            $returnMsg = helpers_fail_message(false, $e->getMessage());
-        } catch (ValidationException $e) {
             $returnMsg = helpers_fail_message(false, $e->getMessage());
         }
 
@@ -116,7 +212,6 @@ class GenuioService extends OpenApiAbstract
         ];
         $queueDto = new QueueDto();
         $queueDto->bind($bindParam);
-
         GenuioQueueData::create($queueDto->getAllProperties());
 
         return $returnMsg;
