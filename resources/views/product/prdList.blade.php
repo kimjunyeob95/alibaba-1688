@@ -36,7 +36,7 @@
                                 <th scope="col" style="width: 100px">No</th>
                                 <th scope="col" style="width: 150px">제품ID</th>
                                 <th scope="col">제품명</th>
-                                <th scope="col">제품명(영문)</th>
+                                <th scope="col">제품명(번역)</th>
                                 <th scope="col" style="width: 100px">원본이미지</th>
                                 <th scope="col" style="width: 100px">번역이미지</th>
                                 <th scope="col" style="width: 150px" class="text-center">
