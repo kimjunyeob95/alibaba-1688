@@ -19,8 +19,7 @@ if (!function_exists('helpers_curl')) {
 	 */
 	function helpers_curl($method, $url, $header, $data = '') : array
 	{
-
-		$curl = curl_init();
+		$curl   = curl_init();
 		$method = strtoupper($method);
 		if($method == 'GET') {
 			$queryString = (($data)? http_build_query( $data ) : '');
@@ -41,7 +40,7 @@ if (!function_exists('helpers_curl')) {
 				CURLOPT_RETURNTRANSFER => true,
 				CURLOPT_SSL_VERIFYPEER => false,
 				CURLOPT_CUSTOMREQUEST  => $method,
-				CURLOPT_POSTFIELDS     => json_encode($data),
+				CURLOPT_POSTFIELDS     => json_encode($data, JSON_UNESCAPED_UNICODE),
 				CURLOPT_HTTPHEADER     => $header
 			));
 		}
