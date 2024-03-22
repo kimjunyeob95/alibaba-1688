@@ -472,46 +472,25 @@ class ProductV1 extends ProductAbstract
             }
 
             // 6. 이미지 번역 요청 통신 
-            $transResult = $this->openApiAbstract->createTransProductImg($product1688ImageDtoList, $product1688Dto->offerId);
-            if( $transResult["isSuccess"] == false ){
-                throw new Exception($transResult["msg"]);
-            }
+            $this->openApiAbstract->createTransProductImg($product1688ImageDtoList, $product1688Dto->offerId);
 
             // 7. 기존 이미지 삭제
             $this->delProductImage($product1688ImageDtoList);
+
+            // 8. 변역 완료 여부 체크
+            $noTransCnt = ProductImageData::where("offer_id", $product1688Dto->offerId)
+            ->where("img_url_trans", "")
+            ->whereNull("trans_dated_at")
+            ->count();
+            ProductData::where("offer_id", $product1688Dto->offerId)->update([
+                "trans_status" => $noTransCnt == 0 ? ProductConstant::TRANS_STATUE_Y : ProductConstant::TRANS_STATUE_N
+            ]);
 
             $returnMsg = helpers_success_message();
         } catch (Exception $e) {
             $returnMsg = helpers_fail_message(false, $e->getMessage());
         }
         return $returnMsg;
-    }
-
-    /**
-     * @func createProductImage
-     * @description '제품 이미지 생성'
-     * @param array $product1688ImageDtoList
-     */
-    public function createProductImage(array $product1688ImageDtoList): void
-    {
-        // if( $isChangeImg == true ){
-        //     $transMainImgResult = $this->openApiAbstract->translateImage($main_img_origin);
-        //     if( $transMainImgResult["isSuccess"] == false || 
-        //         ( isset($transMainImgResult["data"]) && $transMainImgResult["data"]["status"] != "success" )
-        //     ){
-        //         throw new Exception(ProductErrorMessageConstant::getFitErrorMessage("PRODUCT_TRANS_IMG"));
-        //     } else {
-        //         $mime           = pathinfo($main_img_origin, PATHINFO_EXTENSION);
-        //         $mainImgName    = "/" . $this->appEnv . date('Y/m/d/') . $offerId . "_main." . $mime;
-        //         $uploadResult   = $this->uploadAbstract->uploadFile($mainImgName, base64_decode($transMainImgResult["data"]["translated_image"]));
-
-        //         if( $uploadResult == false ){
-        //             throw new Exception(ProductErrorMessageConstant::getFitErrorMessage("PRODUCT_S3MG_UPLOAD"));
-        //         } else {
-        //             $main_img_trans = env("AWS_URL") . $mainImgName;
-        //         }
-        //     }
-        // }
     }
 
     /**

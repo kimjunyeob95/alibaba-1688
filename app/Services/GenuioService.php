@@ -187,22 +187,6 @@ class GenuioService extends OpenApiAbstract
                     "base64"       => $image["imgTransBase64"],
                 ]);
             }
-
-            $noTransCnt = ProductImageData::where("offer_id", $getGenuioObj->offer_id)
-            ->where("img_url_trans", "")
-            ->whereNull("trans_dated_at")
-            ->count();
-
-            if( $noTransCnt == 0 ){
-                ProductData::where("offer_id", $getGenuioObj->offer_id)->update([
-                    "trans_status" => ProductConstant::TRANS_STATUE_Y
-                ]);
-            } else {
-                ProductData::where("offer_id", $getGenuioObj->offer_id)->update([
-                    "trans_status" => ProductConstant::TRANS_STATUE_N
-                ]);
-            }
-
             $returnMsg = helpers_success_message();
         } catch (Exception $e) {
             $returnMsg = helpers_fail_message(false, $e->getMessage());
