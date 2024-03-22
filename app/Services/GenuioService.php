@@ -191,16 +191,18 @@ class GenuioService extends OpenApiAbstract
         } catch (Exception $e) {
             $returnMsg = helpers_fail_message(false, $e->getMessage());
         }
-
-        $bindParam = [
-            "offerId"       => $getGenuioObj->offer_id,
-            "payload_json"  => "", // base64가 너무 길어 그냥 ""처리
-            "request_user"  => OpenApiConstant::API_USER_COMPANY_GENUIO,
-            "response_json" => $returnMsg["msg"],
-        ];
-        $queueDto = new QueueDto();
-        $queueDto->bind($bindParam);
-        GenuioQueueData::create($queueDto->getAllProperties());
+        
+        if( $returnMsg["isSuccess"] == true ){
+            $bindParam = [
+                "offerId"       => $getGenuioObj->offer_id,
+                "payload_json"  => "", // base64가 너무 길어 그냥 ""처리
+                "request_user"  => OpenApiConstant::API_USER_COMPANY_GENUIO,
+                "response_json" => $returnMsg["msg"],
+            ];
+            $queueDto = new QueueDto();
+            $queueDto->bind($bindParam);
+            GenuioQueueData::create($queueDto->getAllProperties());
+        }
 
         return $returnMsg;
     }
