@@ -209,3 +209,93 @@ if (!function_exists("printQuery")) {
         dd($sql);
     }
 }
+
+if (!function_exists("curl_1688")) {
+    function curl_1688(string $method, string $endPoint, array $payload, array $header = ["Content-Type: application/x-www-form-urlencoded"]): array
+    {
+        $returnMsg = helpers_fail_message();
+        $apiDomain = env("1688_API_DOMAIN", "https://gw.open.1688.com/openapi/");
+        $appSecret = env("1688_APP_SECRET_KEY");
+        $appKey    = env("1688_APP_KEY");
+
+        $endPoint = $endPoint . $appKey;
+        $curlUrl  = $apiDomain . $endPoint;
+        $apiInfo  = str_replace($apiDomain, "", $endPoint);
+
+        $aliParams = [];
+        foreach ($payload as $key => $val) {
+            if( is_array($val) ){
+                $aliParams[] = $key . json_encode($val);
+            }else{
+                $aliParams[] = $key . $val;
+            }
+        }
+        sort($aliParams);
+        $sign_str  = join('', $aliParams);
+        $sign_str  = $apiInfo . $sign_str;
+        $code_sign = strtoupper(bin2hex(hash_hmac("sha1", $sign_str, $appSecret, true)));
+        $payload["_aop_signature"] = $code_sign;
+
+        $finalPayload = "";
+        $index = 0;
+        foreach ($payload as $key => $val) {
+            if( $index == 0 ){
+                if( is_array($val) ){
+                    $finalPayload .= $key . "=" . json_encode($val);
+                }else{
+                    $finalPayload .= $key . "=" . $val;
+                }
+            }else{
+                if( is_array($val) ){
+                    $finalPayload .= "&" . $key . "=" . json_encode($val);
+                }else{
+                    $finalPayload .= "&" . $key . "=" . $val;
+                }
+            }
+            $index++;
+        }
+
+		$curl   = curl_init();
+		$method = strtoupper($method);
+		if($method == 'GET') {
+			$queryString = (($payload)? http_build_query( $payload ) : '');
+			curl_setopt_array($curl, array(
+				CURLOPT_URL            => $curlUrl.(($queryString)? '?'.$queryString : ''),
+				CURLOPT_RETURNTRANSFER => true,
+				CURLOPT_MAXREDIRS      => 10,
+				CURLOPT_TIMEOUT        => 0,
+				CURLOPT_FOLLOWLOCATION => true,
+				CURLOPT_HTTP_VERSION   => CURL_HTTP_VERSION_1_1,
+				CURLOPT_CUSTOMREQUEST  => $method,
+				CURLOPT_HTTPHEADER     => $header
+			));
+		} else if($method == 'POST'){
+			curl_setopt_array($curl, array(
+				CURLOPT_URL            => $curlUrl,
+				CURLOPT_POST           => true,
+				CURLOPT_RETURNTRANSFER => true,
+				CURLOPT_SSL_VERIFYPEER => false,
+				CURLOPT_CUSTOMREQUEST  => $method,
+				CURLOPT_POSTFIELDS     => $finalPayload,
+				CURLOPT_HTTPHEADER     => $header
+			));
+		}
+		$result = curl_exec($curl);
+		curl_close($curl);
+
+        try {
+            $apiResult = json_decode($result, JSON_UNESCAPED_UNICODE);
+            if(!is_array($apiResult)) throw new InvalidArgumentException("결과가 배열이 아닙니다.");
+
+            $returnMsg = helpers_success_message($apiResult);
+        } catch (JsonException $e) {
+            $returnMsg = helpers_fail_message(false, "결과가 Json이 아닙니다.");
+        } catch (InvalidArgumentException $e) {
+            $returnMsg = helpers_fail_message(false, $e->getMessage());
+        } catch (Exception $e) {
+            $returnMsg = helpers_fail_message(false, $e->getMessage());
+        }
+
+        return $returnMsg;
+    }
+}

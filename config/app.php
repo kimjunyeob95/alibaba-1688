@@ -1,6 +1,6 @@
 <?php
 
-use App\Providers\ApiModuleProvider;
+use App\Providers\App1688Provider;
 use App\Providers\OpenApiProvider;
 
 return [
@@ -180,7 +180,7 @@ return [
         App\Providers\RouteServiceProvider::class,
         Barryvdh\Debugbar\ServiceProvider::class,
 
-        ApiModuleProvider::class,
+        App1688Provider::class,
         OpenApiProvider::class,
     ],
 
