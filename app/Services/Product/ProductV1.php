@@ -2,8 +2,8 @@
 
 namespace App\Services\Product;
 
-use App\Abstracts\OpenApiAbstract;
 use App\Abstracts\ProductAbstract;
+use App\Abstracts\TransApiAbstract;
 use App\Constants\Constant1688;
 use App\Constants\ImageConstant;
 use App\Constants\ProductConstant;
@@ -29,13 +29,13 @@ class ProductV1 extends ProductAbstract
 {
     private array $returnMsg;
     private string $accessToken;
-    private OpenApiAbstract $openApiAbstract;
+    private TransApiAbstract $transApiAbstract;
 
-    public function __construct(OpenApiAbstract $openApiAbstract)
+    public function __construct(TransApiAbstract $transApiAbstract)
     {
         $this->returnMsg       = helpers_fail_message();
         $this->accessToken     = env("1688_ACCESS_TOKEN");
-        $this->openApiAbstract = $openApiAbstract;
+        $this->transApiAbstract = $transApiAbstract;
     }
 
     public function getPrdList(array $params): LengthAwarePaginator
@@ -631,7 +631,7 @@ class ProductV1 extends ProductAbstract
             }
 
             // 6. 이미지 번역 요청 통신 
-            $transResult = $this->openApiAbstract->createTransProductImg($product1688ImageDtoList, (int)$product1688Dto->offer_id);
+            $transResult = $this->transApiAbstract->createTransProductImg($product1688ImageDtoList, (int)$product1688Dto->offer_id);
             if( $transResult["isSuccess"] == false ){
                 throw new Exception($transResult["msg"]);
             }

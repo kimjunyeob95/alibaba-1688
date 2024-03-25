@@ -2,8 +2,8 @@
 
 namespace App\Providers;
 
-use App\Abstracts\OpenApiAbstract;
-use App\Constants\OpenApiConstant;
+use App\Abstracts\TransApiAbstract;
+use App\Constants\TransApiConstant;
 use App\Packages\JwtPackage;
 use App\Packages\S3;
 use App\Services\GenuioService;
@@ -35,10 +35,10 @@ class OpenApiProvider extends ServiceProvider
             );
         });
 
-        $this->app->bind(OpenApiAbstract::class, function () {
+        $this->app->bind(TransApiAbstract::class, function () {
             $routeName = Route::currentRouteName();
 
-            if(strpos($routeName, OpenApiConstant::API_USER_COMPANY_GENUIO) !== false){
+            if(strpos($routeName, TransApiConstant::API_USER_COMPANY_GENUIO) !== false){
                 return app(GenuioService::class);
             }
         });

@@ -2,10 +2,10 @@
 
 namespace App\Services;
 
-use App\Abstracts\OpenApiAbstract;
+use App\Abstracts\TransApiAbstract;
 use App\Abstracts\UploadAbstract;
 use App\Constants\ImageConstant;
-use App\Constants\OpenApiConstant;
+use App\Constants\TransApiConstant;
 use App\Models\ApiUser;
 use App\Models\GenuioQueueData;
 use App\Models\GenuioQueueDetailData;
@@ -17,7 +17,7 @@ use Exception;
 use InvalidArgumentException;
 use JsonException;
 
-class GenuioService extends OpenApiAbstract
+class GenuioService extends TransApiAbstract
 {
     private string $appEnv;
     private JwtPackage $jwtPackage;
@@ -31,7 +31,7 @@ class GenuioService extends OpenApiAbstract
         UploadAbstract $uploadAbstract
     )
     {
-        parent::__construct(OpenApiConstant::API_USER_COMPANY_GENUIO);
+        parent::__construct(TransApiConstant::API_USER_COMPANY_GENUIO);
         $this->appEnv         = ( env("APP_ENV", "local") != "production" ) ? "dev/" : "";
         $this->jwtPackage     = $jwtPackage;
         $this->uploadAbstract = $uploadAbstract;
@@ -110,7 +110,7 @@ class GenuioService extends OpenApiAbstract
                     $queueDetailInsList[] = [
                         "queue_id"     => $nextId,
                         "img_id"       => $imgId,
-                        "trans_status" => OpenApiConstant::QUEUE_STAY,
+                        "trans_status" => TransApiConstant::QUEUE_STAY,
                         "base64"       => "",
                     ];
                 }
@@ -120,7 +120,7 @@ class GenuioService extends OpenApiAbstract
                 "id"            => $nextId,
                 "offer_id"      => $offerId,
                 "payload_json"  => json_encode($payload, JSON_UNESCAPED_UNICODE),
-                "request_user"  => OpenApiConstant::API_USER_COMPANY_OC,
+                "request_user"  => TransApiConstant::API_USER_COMPANY_OC,
                 "response_json" => "",
                 "created_at"    => Carbon::now()
             ];
@@ -132,7 +132,7 @@ class GenuioService extends OpenApiAbstract
 
             $returnMsg = helpers_success_message();
         } catch (Exception $e) {
-            $errorMsg  = "offerId: {$offerId} | errorTitle: " . OpenApiConstant::getFitErrorMessage("TRANS_REQUEST_IMAGE") . "errorDesc: " . $e->getMessage();
+            $errorMsg  = "offerId: {$offerId} | errorTitle: " . TransApiConstant::getFitErrorMessage("TRANS_REQUEST_IMAGE") . "errorDesc: " . $e->getMessage();
             $returnMsg = helpers_fail_message(false, $errorMsg);
         }
 
@@ -152,18 +152,18 @@ class GenuioService extends OpenApiAbstract
 
             $getGenuioObj = GenuioQueueData::where([
                 "id"           => $jobId,
-                "request_user" => OpenApiConstant::API_USER_COMPANY_OC
+                "request_user" => TransApiConstant::API_USER_COMPANY_OC
             ])->first();
             if( $getGenuioObj == null ) {
-                throw new Exception(OpenApiConstant::getNotHaveErrorMessage("QUEUE_ID"));
+                throw new Exception(TransApiConstant::getNotHaveErrorMessage("QUEUE_ID"));
             }
 
             $getGenuioDetailObjs = GenuioQueueDetailData::where("queue_id", $jobId)
-            ->where("trans_status", OpenApiConstant::QUEUE_STAY)
+            ->where("trans_status", TransApiConstant::QUEUE_STAY)
             ->where("base64", "")
             ->get();
             if( count($images) != count($getGenuioDetailObjs) ){
-                throw new Exception(OpenApiConstant::getFitErrorMessage("NOT_EQUAL_COUNT_IMAGE"));
+                throw new Exception(TransApiConstant::getFitErrorMessage("NOT_EQUAL_COUNT_IMAGE"));
             }
 
             foreach ($images as $image) {
@@ -185,9 +185,9 @@ class GenuioService extends OpenApiAbstract
                 GenuioQueueDetailData::where([
                     "queue_id"     => $jobId,
                     "img_id"       => $image["id"],
-                    "trans_status" => OpenApiConstant::QUEUE_STAY,
+                    "trans_status" => TransApiConstant::QUEUE_STAY,
                 ])->update([
-                    "trans_status" => $uploadResult == true ? OpenApiConstant::QUEUE_SUCCESS : OpenApiConstant::QUEUE_FAIL,
+                    "trans_status" => $uploadResult == true ? TransApiConstant::QUEUE_SUCCESS : TransApiConstant::QUEUE_FAIL,
                     "base64"       => $image["imgTransBase64"],
                 ]);
             }
@@ -200,7 +200,7 @@ class GenuioService extends OpenApiAbstract
             $bindParam = [
                 "offerId"       => $getGenuioObj->offer_id,
                 "payload_json"  => "", // base64가 너무 길어 그냥 ""처리
-                "request_user"  => OpenApiConstant::API_USER_COMPANY_GENUIO,
+                "request_user"  => TransApiConstant::API_USER_COMPANY_GENUIO,
                 "response_json" => $returnMsg["msg"],
             ];
             $queueDto = new QueueDto();

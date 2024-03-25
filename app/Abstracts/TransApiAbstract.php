@@ -2,7 +2,7 @@
 
 namespace App\Abstracts;
 
-abstract class OpenApiAbstract
+abstract class TransApiAbstract
 {
     protected array $returnMsg;
     protected string $user_company;
