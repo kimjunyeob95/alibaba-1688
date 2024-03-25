@@ -120,6 +120,14 @@ class ProductV1 extends ProductAbstract
         debug_log($msg, "saveMallProductByCategotyId", "saveMallProductByCategotyId");
     }
 
+    /**
+     * @func saveMallProductRecursively
+     * @description '1688 카테고리ID별 상품수집 재귀 메소드'
+     * @param int $categoryId
+     * @param int $page
+     * @param int $pageSize
+     * @param int $totalPage
+     */
     public function saveMallProductRecursively(int $categoryId, int $page, int $pageSize, int $totalPage = 0): void
     {
         $msg = "start saveMallProductRecursively | page: {$page} | categoryId: {$categoryId}";
@@ -174,159 +182,15 @@ class ProductV1 extends ProductAbstract
                         ->where("mapping_channel", ProductConstant::MAPPING_OC_CHANNEL)
                         ->where("mapping_code", "!=", 0)->first();
                         if( $getCategoryMappingObj == null ){
-                            continue;
+                            throw new Exception("카테고리 미맵핑");
                         }
 
-                        $trans_status = "Y"; // 상품 번역 완료 여부
-
-                        // 1. 상품 이미지
-                        $product1688ImageDtoList = [];
-                        foreach ($detailProduct["productImage"]["images"] as $imgKey => $prdImage) {
-                            if( $imgKey == 0 ) {
-                                $imgType = ImageConstant::IMAGE_TYPE_MAIN;
-                            } else {
-                                $imgType = ImageConstant::IMAGE_TYPE_SUB;
-                            }
-                            $isChangeImg = $this->isChangeImage($offerId, $prdImage, $imgType);
-                            $imgWidth    = 0;
-                            $imgHeight   = 0;
-                            $imgByte     = 0;
-                            $imgMime     = "";
-                            if( $isChangeImg == true ){
-                                $imageInfo = $this->checkImageSize($prdImage);
-                                $imgWidth  = $imageInfo["width"];
-                                $imgHeight = $imageInfo["height"];
-                                $imgByte   = $imageInfo["byte"];
-                                $imgMime   = $imageInfo["mime"];
-
-                                $trans_status = "N";
-                            }
-                            $product1688ImageDto = new Product1688ImageDto();
-                            $product1688ImageDto->bind([
-                                "offerId"        => $offerId,
-                                "imgType"        => $imgType,
-                                "img_url_origin" => $prdImage,
-                                "img_url_trans"  => "",
-                                "isChangeImg"    => $isChangeImg,
-                                "width"          => $imgWidth,
-                                "height"         => $imgHeight,
-                                "byte"           => $imgByte,
-                                "mime"           => $imgMime
-                            ]);
-                            $product1688ImageDtoList[] = $product1688ImageDto;
-                        }
-
-                        // 1-1. 상품 상세 이미지
-                        $prdDescription = $detailProduct["description"];
-                        preg_match_all('/<img[^>]+src="([^">]+)"/', $prdDescription, $matches);
-                        $imageSrcs = $matches[1];
-                        foreach ($imageSrcs as $imageSrc) {
-                            $imgType     = ImageConstant::IMAGE_TYPE_DESC;
-                            $isChangeImg = $this->isChangeImage($offerId, $imageSrc, $imgType);
-                            $imgWidth    = 0;
-                            $imgHeight   = 0;
-                            $imgByte     = 0;
-                            $imgMime     = "";
-                            if( $isChangeImg == true ){
-                                $imageInfo = $this->checkImageSize($imageSrc);
-                                $imgWidth  = $imageInfo["width"];
-                                $imgHeight = $imageInfo["height"];
-                                $imgByte   = $imageInfo["byte"];
-                                $imgMime   = $imageInfo["mime"];
-
-                                $trans_status = "N";
-                            }
-                            $product1688ImageDto = new Product1688ImageDto();
-                            $product1688ImageDto->bind([
-                                "offerId"        => $offerId,
-                                "imgType"        => $imgType,
-                                "img_url_origin" => $imageSrc,
-                                "img_url_trans"  => "",
-                                "isChangeImg"    => $isChangeImg,
-                                "width"          => $imgWidth,
-                                "height"         => $imgHeight,
-                                "byte"           => $imgByte,
-                                "mime"           => $imgMime
-                            ]);
-                            $product1688ImageDtoList[] = $product1688ImageDto;
-                        }
-
-                        // 2. 상품 기본정보
-                        $startQuantity = $detailProduct["productSaleInfo"]["priceRangeList"][0]["startQuantity"];
-                        $product1688Dto = new Product1688Dto();
-                        $product1688Dto->bind([
-                            "offerId"       => $offerId,
-                            "categoryId"    => $prdCategoryId,
-                            "subject"       => $detailProduct["subject"],
-                            "subjectTrans"  => $detailProduct["subjectTrans"],
-                            "startQuantity" => $startQuantity,
-                            "trans_status"  => $trans_status,
-                            "description"   => $detailProduct["description"],
-                            "response_json" => json_encode($detailProduct, JSON_UNESCAPED_UNICODE),
-                        ]);
-
-                        // 2. 상품 확장정보
-                        $product1688ExtendDto = new Product1688ExtendDto();
-                        $product1688ExtendDto->bind([
-                            "offerId" => $offerId,
-                        ]);
-
-                        // 4. 상품 고시정보
-                        $product1688NoticeDtoList = [];
-                        foreach ($detailProduct["productAttribute"] as $prdNotice) {
-                            $product1688NoticeDto = new Product1688NoticeDto();
-                            $product1688NoticeDto->bind([
-                                "offerId"            => $offerId,
-                                "attributeId"        => $prdNotice["attributeId"],
-                                "attributeName"      => $prdNotice["attributeName"],
-                                "value"              => $prdNotice["value"],
-                                "attributeNameTrans" => $prdNotice["attributeNameTrans"],
-                                "valueTrans"         => $prdNotice["valueTrans"]
-                            ]);
-                            $product1688NoticeDtoList[] = $product1688NoticeDto;
-                        }
-
-                        // 5. 상품 옵션정보
-                        $product1688OptionDtoList = [];
-
-                        $price_1688 = 0;
-                        // 5-1. price 컬럼이 있을 경우
-                        if( isset($detailProduct["productSkuInfos"][0]["price"]) ){
-                            foreach ($detailProduct["productSkuInfos"] as $prdOptions) {
-                                if( $prdOptions["price"] > $price_1688 ){
-                                    $price_1688 = $prdOptions["price"];
-                                }
-                            }
-                        } else if( !isset($detailProduct["productSkuInfos"][0]["price"]) && 
-                            isset($detailProduct["productSaleInfo"]["priceRangeList"])
-                        ) {
-                            $price_1688 = $detailProduct["productSaleInfo"]["priceRangeList"][0]["price"];
-                        } 
-                        
-                        if( $price_1688 == 0 ){
-                            throw new Exception(ProductErrorMessageConstant::getFitErrorMessage("PRICE_1688"));
-                        }
-
-                        foreach ($detailProduct["productSkuInfos"] as $prdOptions) {
-                            $optionName      = "";
-                            $optionNameTrans = "";
-                            foreach ($prdOptions["skuAttributes"] as $prdOption) {
-                                $optionName      .= $prdOption["value"] .  "_";
-                                $optionNameTrans .= $prdOption["valueTrans"] .  "_";
-                            }
-                            $product1688OptionDto = new Product1688OptionDto();
-                            $product1688OptionDto->bind([
-                                "offerId"         => $offerId,
-                                "skuId"           => $prdOptions["skuId"],
-                                "specId"          => $prdOptions["specId"],
-                                "price_1688"      => $price_1688,
-                                "optionName"      => rtrim($optionName, "_"),
-                                "optionNameTrans" => rtrim($optionNameTrans, "_"),
-                                "amountOnSale"    => $prdOptions["amountOnSale"],
-                                "cargoNumber"     => $prdOptions["cargoNumber"] ?? "",
-                            ]);
-                            $product1688OptionDtoList[] = $product1688OptionDto;
-                        }
+                        $prdDto                   = $this->get1688ProductDto($detailResult);
+                        $product1688Dto           = $prdDto["product1688Dto"];
+                        $product1688ExtendDto     = $prdDto["product1688ExtendDto"];
+                        $product1688ImageDtoList  = $prdDto["product1688ImageDtoList"];
+                        $product1688NoticeDtoList = $prdDto["product1688NoticeDtoList"];
+                        $product1688OptionDtoList = $prdDto["product1688OptionDtoList"];
 
                         $saveResult = $this->save1688ProductData($product1688Dto, $product1688ExtendDto, $product1688ImageDtoList, $product1688NoticeDtoList, $product1688OptionDtoList);
 
@@ -361,6 +225,301 @@ class ProductV1 extends ProductAbstract
                 $this->saveMallProductRecursively($categoryId, $nextPage, $pageSize, $totalPage);
             }
         }
+    }
+
+    /**
+     * @func saveMallProductByImageId
+     * @description '1688 이미지ID별 상품수집'
+     * @param string $imageId
+     */
+    public function saveMallProductByImageId(string $imageId): void
+    {
+        $msg = "======================== 실행 시작 (imageId: {$imageId}) ========================";
+        debug_log($msg, "saveMallProductByImageId", "saveMallProductByImageId");
+
+        $page     = 1;
+        $pageSize = 50;
+        try {
+            $this->saveMallProductByImageIdRecursively($imageId, $page, $pageSize);
+        } catch (Exception $e) {
+            $msg = "======================== 에러 발생 (imageId: {$imageId}) ========================\r\n";
+            $msg .= $e->getMessage();
+            debug_log($msg, "saveMallProductByImageId", "saveMallProductByImageId", LogLevel::ERROR);
+        }
+
+        $msg = "======================== 실행 종료 (imageId: {$imageId}) ========================";
+        debug_log($msg, "saveMallProductByImageId", "saveMallProductByImageId");
+    }
+
+    /**
+     * @func saveMallProductByImageIdRecursively
+     * @description '1688 이미지ID별 상품수집 재귀 메소드'
+     * @param string $imageId
+     * @param int $page
+     * @param int $pageSize
+     * @param int $totalPage
+     */
+    public function saveMallProductByImageIdRecursively(string $imageId, int $page, int $pageSize, int $totalPage = 0): void
+    {
+        $msg = "start saveMallProductByImageIdRecursively | page: {$page} | imageId: {$imageId}";
+        debug_log($msg, "saveMallProductByImageId", "saveMallProductByImageId");
+
+        $errorMsg = ProductErrorMessageConstant::getFitErrorMessage("PRODUCT_SEARCH_IMAGEQUERY") . " | imageId: {$imageId} | page: {$page}";
+        try {
+            $endPoint = "param2/1/com.alibaba.fenxiao.crossborder/product.search.imageQuery/";
+            $payload = [
+                'access_token'    => $this->accessToken,
+                'offerQueryParam' => [
+                    'beginPage' => $page,
+                    'pageSize'  => $pageSize,
+                    'country'   => Constant1688::LANGUAGE_KO,
+                    'imageId'   => $imageId,
+                ]
+            ];
+
+            $apiDatas = curl_1688("POST", $endPoint, $payload);
+            if( $apiDatas["isSuccess"] != true ){
+                throw new Exception($apiDatas["msg"] . " | " . $errorMsg);
+            }
+            if( $apiDatas["data"]["result"]["success"] != "true" ){
+                throw new Exception($errorMsg);
+            }
+
+            $apiResult = $apiDatas["data"]["result"]["result"];
+            if( isset($apiResult["data"]) ){
+                $productDatas = $apiResult["data"];
+                $successCnt   = 0;
+                foreach ($productDatas as $productData) {
+                    try {
+                        $offerId        = $productData["offerId"];
+                        $endPoint       = "param2/1/com.alibaba.fenxiao.crossborder/product.search.queryProductDetail/";
+                        $payload        = [
+                            'access_token'     => $this->accessToken,
+                            'offerDetailParam' => [
+                                'offerId' => $offerId,
+                                'country' => Constant1688::LANGUAGE_KO,
+                            ]
+                        ];
+                        $detailResult = curl_1688("POST", $endPoint, $payload);
+                        if( $detailResult["isSuccess"] != true || $detailResult["data"]["result"]["success"] != true ){
+                            throw new Exception(ProductErrorMessageConstant::getFitErrorMessage("PRODUCT_SEARCH_QUERYPRODUCTDETAIL"));
+                        }
+
+                        $detailProduct = $detailResult["data"]["result"]["result"];
+                        $prdCategoryId = $detailProduct["categoryId"];
+
+                        $getCategoryMappingObj = CategoryMapping::select(["mapping_code"])
+                        ->where("category_id", $prdCategoryId)
+                        ->where("mapping_channel", ProductConstant::MAPPING_OC_CHANNEL)
+                        ->where("mapping_code", "!=", 0)->first();
+                        if( $getCategoryMappingObj == null ){
+                            throw new Exception("카테고리 미맵핑");
+                        }
+
+                        $prdDto                   = $this->get1688ProductDto($detailResult);
+                        $product1688Dto           = $prdDto["product1688Dto"];
+                        $product1688ExtendDto     = $prdDto["product1688ExtendDto"];
+                        $product1688ImageDtoList  = $prdDto["product1688ImageDtoList"];
+                        $product1688NoticeDtoList = $prdDto["product1688NoticeDtoList"];
+                        $product1688OptionDtoList = $prdDto["product1688OptionDtoList"];
+
+                        $saveResult = $this->save1688ProductData($product1688Dto, $product1688ExtendDto, $product1688ImageDtoList, $product1688NoticeDtoList, $product1688OptionDtoList);
+
+                        if( $saveResult["isSuccess"] == true ){
+                            $successCnt++;
+                        }else{
+                            throw new Exception($saveResult["msg"]);
+                        }
+                    } catch (Exception $de) {
+                        $msg = $de->getMessage() . " | page: {$page} | offerId: {$offerId} | imageId: {$imageId} | prdCategoryId: {$prdCategoryId}";
+                        debug_log($msg, "saveMallProductByImageId", "saveMallProductByImageId", LogLevel::ERROR);
+                    } catch (UnexpectedValueException $ue) {
+                        $msg = $ue->getMessage() . " | page: {$page} | offerId: {$offerId} | imageId: {$imageId} | prdCategoryId: {$prdCategoryId}";
+                        debug_log($msg, "saveMallProductByImageId", "saveMallProductByImageId", LogLevel::ERROR);
+                    }
+                }
+            } else {
+                throw new Exception(ProductErrorMessageConstant::getNotHaveErrorMessage("PRODUCT_SEARCH_IMAGEQUERY") . " | page: {$page} | imageId: {$imageId}");
+            }
+
+            $totalPage = $apiDatas["data"]["result"]["result"]["totalPage"];
+            if( $page < $totalPage ){
+                $nextPage = $page + 1;
+                $this->saveMallProductByImageIdRecursively($imageId, $nextPage, $pageSize, $totalPage);
+            }
+        } catch (Exception $e) {
+            $msg = $e->getMessage();
+            debug_log($msg, "saveMallProductByImageId", "saveMallProductByImageId", LogLevel::ERROR);
+
+            if( $page < $totalPage ){
+                $nextPage = $page + 1;
+                $this->saveMallProductByImageIdRecursively($imageId, $nextPage, $pageSize, $totalPage);
+            }
+        }
+    }
+
+    /**
+     * @func get1688ProductDto
+     * @description '제품 DTO 바인딩'
+     * @param array $detailResult
+     */
+    public function get1688ProductDto(array $detailResult): array
+    {
+        $detailProduct = $detailResult["data"]["result"]["result"];
+        $offerId       = $detailProduct["offerId"];
+        $prdCategoryId = $detailProduct["categoryId"];
+
+        // 1. 상품 이미지
+        $product1688ImageDtoList = [];
+        foreach ($detailProduct["productImage"]["images"] as $imgKey => $prdImage) {
+            if( $imgKey == 0 ) {
+                $imgType = ImageConstant::IMAGE_TYPE_MAIN;
+            } else {
+                $imgType = ImageConstant::IMAGE_TYPE_SUB;
+            }
+            $isChangeImg = $this->isChangeImage($offerId, $prdImage, $imgType);
+            $imgWidth    = 0;
+            $imgHeight   = 0;
+            $imgByte     = 0;
+            $imgMime     = "";
+            if( $isChangeImg == true ){
+                $imageInfo = $this->checkImageSize($prdImage);
+                $imgWidth  = $imageInfo["width"];
+                $imgHeight = $imageInfo["height"];
+                $imgByte   = $imageInfo["byte"];
+                $imgMime   = $imageInfo["mime"];
+            }
+            $product1688ImageDto = new Product1688ImageDto();
+            $product1688ImageDto->bind([
+                "offerId"        => $offerId,
+                "imgType"        => $imgType,
+                "img_url_origin" => $prdImage,
+                "img_url_trans"  => "",
+                "isChangeImg"    => $isChangeImg,
+                "width"          => $imgWidth,
+                "height"         => $imgHeight,
+                "byte"           => $imgByte,
+                "mime"           => $imgMime
+            ]);
+            $product1688ImageDtoList[] = $product1688ImageDto;
+        }
+
+        // 1-1. 상품 상세 이미지
+        $prdDescription = $detailProduct["description"];
+        preg_match_all('/<img[^>]+src="([^">]+)"/', $prdDescription, $matches);
+        $imageSrcs = $matches[1];
+        foreach ($imageSrcs as $imageSrc) {
+            $imgType     = ImageConstant::IMAGE_TYPE_DESC;
+            $isChangeImg = $this->isChangeImage($offerId, $imageSrc, $imgType);
+            $imgWidth    = 0;
+            $imgHeight   = 0;
+            $imgByte     = 0;
+            $imgMime     = "";
+            if( $isChangeImg == true ){
+                $imageInfo = $this->checkImageSize($imageSrc);
+                $imgWidth  = $imageInfo["width"];
+                $imgHeight = $imageInfo["height"];
+                $imgByte   = $imageInfo["byte"];
+                $imgMime   = $imageInfo["mime"];
+            }
+            $product1688ImageDto = new Product1688ImageDto();
+            $product1688ImageDto->bind([
+                "offerId"        => $offerId,
+                "imgType"        => $imgType,
+                "img_url_origin" => $imageSrc,
+                "img_url_trans"  => "",
+                "isChangeImg"    => $isChangeImg,
+                "width"          => $imgWidth,
+                "height"         => $imgHeight,
+                "byte"           => $imgByte,
+                "mime"           => $imgMime
+            ]);
+            $product1688ImageDtoList[] = $product1688ImageDto;
+        }
+
+        // 2. 상품 기본정보
+        $startQuantity = $detailProduct["productSaleInfo"]["priceRangeList"][0]["startQuantity"];
+        $product1688Dto = new Product1688Dto();
+        $product1688Dto->bind([
+            "offerId"       => $offerId,
+            "categoryId"    => $prdCategoryId,
+            "subject"       => $detailProduct["subject"],
+            "subjectTrans"  => $detailProduct["subjectTrans"],
+            "startQuantity" => $startQuantity,
+            "description"   => $detailProduct["description"],
+            "response_json" => json_encode($detailProduct, JSON_UNESCAPED_UNICODE),
+        ]);
+
+        // 2. 상품 확장정보
+        $product1688ExtendDto = new Product1688ExtendDto();
+        $product1688ExtendDto->bind([
+            "offerId" => $offerId,
+        ]);
+
+        // 4. 상품 고시정보
+        $product1688NoticeDtoList = [];
+        foreach ($detailProduct["productAttribute"] as $prdNotice) {
+            $product1688NoticeDto = new Product1688NoticeDto();
+            $product1688NoticeDto->bind([
+                "offerId"            => $offerId,
+                "attributeId"        => $prdNotice["attributeId"],
+                "attributeName"      => $prdNotice["attributeName"],
+                "value"              => $prdNotice["value"],
+                "attributeNameTrans" => $prdNotice["attributeNameTrans"],
+                "valueTrans"         => $prdNotice["valueTrans"]
+            ]);
+            $product1688NoticeDtoList[] = $product1688NoticeDto;
+        }
+
+        // 5. 상품 옵션정보
+        $product1688OptionDtoList = [];
+
+        $price_1688 = 0;
+        // 5-1. price 컬럼이 있을 경우
+        if( isset($detailProduct["productSkuInfos"][0]["price"]) ){
+            foreach ($detailProduct["productSkuInfos"] as $prdOptions) {
+                if( $prdOptions["price"] > $price_1688 ){
+                    $price_1688 = $prdOptions["price"];
+                }
+            }
+        } else if( !isset($detailProduct["productSkuInfos"][0]["price"]) && 
+            isset($detailProduct["productSaleInfo"]["priceRangeList"])
+        ) {
+            $price_1688 = $detailProduct["productSaleInfo"]["priceRangeList"][0]["price"];
+        } 
+        
+        if( $price_1688 == 0 ){
+            throw new Exception(ProductErrorMessageConstant::getFitErrorMessage("PRICE_1688"));
+        }
+
+        foreach ($detailProduct["productSkuInfos"] as $prdOptions) {
+            $optionName      = "";
+            $optionNameTrans = "";
+            foreach ($prdOptions["skuAttributes"] as $prdOption) {
+                $optionName      .= $prdOption["value"] .  "_";
+                $optionNameTrans .= $prdOption["valueTrans"] .  "_";
+            }
+            $product1688OptionDto = new Product1688OptionDto();
+            $product1688OptionDto->bind([
+                "offerId"         => $offerId,
+                "skuId"           => $prdOptions["skuId"],
+                "specId"          => $prdOptions["specId"],
+                "price_1688"      => $price_1688,
+                "optionName"      => rtrim($optionName, "_"),
+                "optionNameTrans" => rtrim($optionNameTrans, "_"),
+                "amountOnSale"    => $prdOptions["amountOnSale"],
+                "cargoNumber"     => $prdOptions["cargoNumber"] ?? "",
+            ]);
+            $product1688OptionDtoList[] = $product1688OptionDto;
+        }
+
+        return [
+            "product1688Dto"           => $product1688Dto,
+            "product1688ImageDtoList"  => $product1688ImageDtoList,
+            "product1688ExtendDto"     => $product1688ExtendDto,
+            "product1688NoticeDtoList" => $product1688NoticeDtoList,
+            "product1688OptionDtoList" => $product1688OptionDtoList,
+        ];
     }
 
     /**
@@ -472,17 +631,20 @@ class ProductV1 extends ProductAbstract
             }
 
             // 6. 이미지 번역 요청 통신 
-            $this->openApiAbstract->createTransProductImg($product1688ImageDtoList, $product1688Dto->offerId);
+            $transResult = $this->openApiAbstract->createTransProductImg($product1688ImageDtoList, (int)$product1688Dto->offer_id);
+            if( $transResult["isSuccess"] == false ){
+                throw new Exception($transResult["msg"]);
+            }
 
             // 7. 기존 이미지 삭제
             $this->delProductImage($product1688ImageDtoList);
 
             // 8. 변역 완료 여부 체크
-            $noTransCnt = ProductImageData::where("offer_id", $product1688Dto->offerId)
+            $noTransCnt = ProductImageData::where("offer_id", $product1688Dto->offer_id)
             ->where("img_url_trans", "")
             ->whereNull("trans_dated_at")
             ->count();
-            ProductData::where("offer_id", $product1688Dto->offerId)->update([
+            ProductData::where("offer_id", $product1688Dto->offer_id)->update([
                 "trans_status" => $noTransCnt == 0 ? ProductConstant::TRANS_STATUE_Y : ProductConstant::TRANS_STATUE_N
             ]);
 

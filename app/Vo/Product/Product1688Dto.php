@@ -32,7 +32,6 @@ class Product1688Dto extends Vo
         $this->prd_name_trans = $data["subjectTrans"];
         $this->start_quantity = $data["startQuantity"];
         $this->prd_desc       = $data["description"];
-        $this->trans_status   = $data["trans_status"];
         $this->response_json  = $data["response_json"];
     }
 }

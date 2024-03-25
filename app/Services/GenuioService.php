@@ -6,11 +6,9 @@ use App\Abstracts\OpenApiAbstract;
 use App\Abstracts\UploadAbstract;
 use App\Constants\ImageConstant;
 use App\Constants\OpenApiConstant;
-use App\Constants\ProductConstant;
 use App\Models\ApiUser;
 use App\Models\GenuioQueueData;
 use App\Models\GenuioQueueDetailData;
-use App\Models\ProductData;
 use App\Models\ProductImageData;
 use App\Packages\JwtPackage;
 use App\Vo\Genuio\QueueDto;
@@ -82,6 +80,7 @@ class GenuioService extends OpenApiAbstract
      * @func createTransProductImg
      * @description '이미지 번역 통신'
      * @param array $product1688ImageDtoList
+     * @param int $offerId
      */
     public function createTransProductImg(array $product1688ImageDtoList, int $offerId): array
     {
@@ -94,6 +93,8 @@ class GenuioService extends OpenApiAbstract
                 "jobId"  => $nextId,
                 "images" => []
             ];
+
+            $queueDetailInsList = [];
             foreach ($product1688ImageDtoList as $product1688ImageDto) {
                 if( $product1688ImageDto->is_change_img == true ){
                     $imgId = ProductImageData::where([
@@ -106,13 +107,12 @@ class GenuioService extends OpenApiAbstract
                         "imgPath" => $product1688ImageDto->img_url_origin,
                     ];
 
-                    $insWhere = [
+                    $queueDetailInsList[] = [
                         "queue_id"     => $nextId,
                         "img_id"       => $imgId,
                         "trans_status" => OpenApiConstant::QUEUE_STAY,
                         "base64"       => "",
                     ];
-                    GenuioQueueDetailData::insert($insWhere);
                 }
             }
 
@@ -125,6 +125,10 @@ class GenuioService extends OpenApiAbstract
                 "created_at"    => Carbon::now()
             ];
             GenuioQueueData::insertGetId($insWhere);
+
+            foreach ($queueDetailInsList as $queueDetailIns) {
+                GenuioQueueDetailData::insert($queueDetailIns);
+            }
 
             $returnMsg = helpers_success_message();
         } catch (Exception $e) {
