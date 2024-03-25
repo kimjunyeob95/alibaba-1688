@@ -168,18 +168,21 @@ class GenuioService extends TransApiAbstract
 
             foreach ($images as $image) {
                 $imgObj       = ProductImageData::where("id", $image["id"])->first();
-                $mime         = pathinfo($imgObj->img_url_origin, PATHINFO_EXTENSION);
-                if( $imgObj->img_type == ImageConstant::IMAGE_TYPE_MAIN ){
-                    $imgName  = "/" . $this->appEnv . date('Y/m/d/') . $imgObj->offer_id . "_" . $imgObj->img_type . "." . $mime;
-                } else {
-                    $imgName  = "/" . $this->appEnv . date('Y/m/d/') . $imgObj->offer_id . "_" . $imgObj->id . "_" . $imgObj->img_type . "." . $mime;
-                }
-                $uploadResult = $this->uploadAbstract->uploadFile($imgName, base64_decode($image["imgTransBase64"]));
-                if( $uploadResult == true ) {
-                    ProductImageData::where("id", $image["id"])->update([
-                        "img_url_trans"  => env("AWS_URL") . $imgName,
-                        "trans_dated_at" => Carbon::now(),
-                    ]);
+                $uploadResult = false;
+                if( $imgObj != null ){
+                    $mime = pathinfo($imgObj->img_url_origin, PATHINFO_EXTENSION);
+                    if( $imgObj->img_type == ImageConstant::IMAGE_TYPE_MAIN ){
+                        $imgName  = "/" . $this->appEnv . date('Y/m/d/') . $imgObj->offer_id . "_" . $imgObj->img_type . "." . $mime;
+                    } else {
+                        $imgName  = "/" . $this->appEnv . date('Y/m/d/') . $imgObj->offer_id . "_" . $imgObj->id . "_" . $imgObj->img_type . "." . $mime;
+                    }
+                    $uploadResult = $this->uploadAbstract->uploadFile($imgName, base64_decode($image["imgTransBase64"]));
+                    if( $uploadResult == true ) {
+                        ProductImageData::where("id", $image["id"])->update([
+                            "img_url_trans"  => env("AWS_URL") . $imgName,
+                            "trans_dated_at" => Carbon::now(),
+                        ]);
+                    }
                 }
 
                 GenuioQueueDetailData::where([
@@ -196,17 +199,15 @@ class GenuioService extends TransApiAbstract
             $returnMsg = helpers_fail_message(false, $e->getMessage());
         }
         
-        if( $returnMsg["isSuccess"] == true ){
-            $bindParam = [
-                "offerId"       => $getGenuioObj->offer_id,
-                "payload_json"  => "", // base64가 너무 길어 그냥 ""처리
-                "request_user"  => TransApiConstant::API_USER_COMPANY_GENUIO,
-                "response_json" => $returnMsg["msg"],
-            ];
-            $queueDto = new QueueDto();
-            $queueDto->bind($bindParam);
-            GenuioQueueData::create($queueDto->getAllProperties());
-        }
+        $bindParam = [
+            "offerId"       => $getGenuioObj->offer_id,
+            "payload_json"  => "", // base64가 너무 길어 그냥 ""처리
+            "request_user"  => TransApiConstant::API_USER_COMPANY_GENUIO,
+            "response_json" => json_encode($returnMsg["msg"], JSON_UNESCAPED_UNICODE),
+        ];
+        $queueDto = new QueueDto();
+        $queueDto->bind($bindParam);
+        GenuioQueueData::create($queueDto->getAllProperties());
 
         return $returnMsg;
     }
