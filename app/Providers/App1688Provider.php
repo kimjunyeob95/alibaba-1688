@@ -16,19 +16,19 @@ class App1688Provider extends ServiceProvider
     public function register(): void
     {
         $this->app->bind(ProductV1::class, function ($app) {
-            $openApiAbstract  = $app->make(GenuioService::class);
+            $transApiAbstract  = $app->make(GenuioService::class);
 
             // ProductV1 인스턴스 생성 시, GenuioService 구현체를 주입
-            return new ProductV1($openApiAbstract);
+            return new ProductV1($transApiAbstract);
         });
 
         $this->app->bind(Service1688::class, function ($app) {
             $categoryAbstract = $app->make(CategoryV1::class);
             $productAbstract  = $app->make(ProductV1::class);
-            $openApiAbstract  = $app->make(GenuioService::class);
+            $transApiAbstract = $app->make(GenuioService::class);
 
             // Service1688 인스턴스 생성 시, 구현체를 주입
-            return new Service1688($categoryAbstract, $productAbstract, $openApiAbstract);
+            return new Service1688($categoryAbstract, $productAbstract, $transApiAbstract);
         });
     }
 

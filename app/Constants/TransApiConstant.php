@@ -3,16 +3,16 @@
 namespace App\Constants;
 
 
-class OpenApiConstant
+class TransApiConstant
 {
     // 회사 리스트
     public const API_USER_COMPANY_GENUIO = "genuio";
     public const API_USER_COMPANY_OC     = "onchannel";
 
     // queue 상태
-    public const QUEUE_STAY = "S";     // 대기중
+    public const QUEUE_STAY    = "S";  // 대기중
     public const QUEUE_SUCCESS = "Y";  // 성공
-    public const QUEUE_FAIL = "N";     // 실패
+    public const QUEUE_FAIL    = "N";  // 실패
 
 
     private static $defaultMsg         = "(을)를 입력해주세요.";

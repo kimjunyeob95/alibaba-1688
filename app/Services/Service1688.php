@@ -3,7 +3,6 @@
 namespace App\Services;
 
 use App\Abstracts\CategoryAbstract;
-use App\Abstracts\OpenApiAbstract;
 use App\Abstracts\ProductAbstract;
 
 class Service1688
