@@ -11,6 +11,7 @@ class ProductErrorMessageConstant
     private static $defaultFitErrorMsg = "Error";
 
     public const ERROR_MESSAGE_PRODUCT_SEARCH_KEYWORDQUERY       = "product.search.keywordQuery";
+    public const ERROR_MESSAGE_PRODUCT_SEARCH_IMAGEQUERY         = "product.search.imageQuery";
     public const ERROR_MESSAGE_PRODUCT_SEARCH_QUERYPRODUCTDETAIL = "product.search.queryProductDetail";
     public const ERROR_MESSAGE_PRODUCT_SKUINFOS                  = "productSkuInfos";
     public const ERROR_MESSAGE_PRODUCT_PRICE_1688                = "1688 Price";
