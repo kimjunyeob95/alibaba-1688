@@ -182,7 +182,7 @@ class ProductV1 extends ProductAbstract
                         ->where("mapping_channel", ProductConstant::MAPPING_OC_CHANNEL)
                         ->where("mapping_code", "!=", 0)->first();
                         if( $getCategoryMappingObj == null ){
-                            continue;
+                            throw new Exception("카테고리 미맵핑");
                         }
 
                         $prdDto                   = $this->get1688ProductDto($detailResult);
@@ -230,8 +230,9 @@ class ProductV1 extends ProductAbstract
     /**
      * @func saveMallProductByImageId
      * @description '1688 이미지ID별 상품수집'
+     * @param string $imageId
      */
-    public function saveMallProductByImageId(int $imageId): void
+    public function saveMallProductByImageId(string $imageId): void
     {
         $msg = "======================== 실행 시작 (imageId: {$imageId}) ========================";
         debug_log($msg, "saveMallProductByImageId", "saveMallProductByImageId");
@@ -253,12 +254,12 @@ class ProductV1 extends ProductAbstract
     /**
      * @func saveMallProductByImageIdRecursively
      * @description '1688 이미지ID별 상품수집 재귀 메소드'
-     * @param int $imageId
+     * @param string $imageId
      * @param int $page
      * @param int $pageSize
      * @param int $totalPage
      */
-    public function saveMallProductByImageIdRecursively(int $imageId, int $page, int $pageSize, int $totalPage = 0): void
+    public function saveMallProductByImageIdRecursively(string $imageId, int $page, int $pageSize, int $totalPage = 0): void
     {
         $msg = "start saveMallProductByImageIdRecursively | page: {$page} | imageId: {$imageId}";
         debug_log($msg, "saveMallProductByImageId", "saveMallProductByImageId");
@@ -269,18 +270,18 @@ class ProductV1 extends ProductAbstract
             $payload = [
                 'access_token'    => $this->accessToken,
                 'offerQueryParam' => [
-                    'keyword'   => '',
                     'beginPage' => $page,
                     'pageSize'  => $pageSize,
                     'country'   => Constant1688::LANGUAGE_KO,
                     'imageId'   => $imageId,
                 ]
             ];
+
             $apiDatas = curl_1688("POST", $endPoint, $payload);
             if( $apiDatas["isSuccess"] != true ){
                 throw new Exception($apiDatas["msg"] . " | " . $errorMsg);
             }
-            if( $apiDatas["data"]["result"]["success"] != true ){
+            if( $apiDatas["data"]["result"]["success"] != "true" ){
                 throw new Exception($errorMsg);
             }
 
@@ -312,7 +313,7 @@ class ProductV1 extends ProductAbstract
                         ->where("mapping_channel", ProductConstant::MAPPING_OC_CHANNEL)
                         ->where("mapping_code", "!=", 0)->first();
                         if( $getCategoryMappingObj == null ){
-                            continue;
+                            throw new Exception("카테고리 미맵핑");
                         }
 
                         $prdDto                   = $this->get1688ProductDto($detailResult);
@@ -330,15 +331,15 @@ class ProductV1 extends ProductAbstract
                             throw new Exception($saveResult["msg"]);
                         }
                     } catch (Exception $de) {
-                        $msg = $de->getMessage() . " | page: {$page} | offerId: {$offerId} | categoryId: {$imageId} | prdCategoryId: {$prdCategoryId}";
+                        $msg = $de->getMessage() . " | page: {$page} | offerId: {$offerId} | imageId: {$imageId} | prdCategoryId: {$prdCategoryId}";
                         debug_log($msg, "saveMallProductByImageId", "saveMallProductByImageId", LogLevel::ERROR);
                     } catch (UnexpectedValueException $ue) {
-                        $msg = $ue->getMessage() . " | page: {$page} | offerId: {$offerId} | categoryId: {$imageId} | prdCategoryId: {$prdCategoryId}";
+                        $msg = $ue->getMessage() . " | page: {$page} | offerId: {$offerId} | imageId: {$imageId} | prdCategoryId: {$prdCategoryId}";
                         debug_log($msg, "saveMallProductByImageId", "saveMallProductByImageId", LogLevel::ERROR);
                     }
                 }
             } else {
-                throw new Exception(ProductErrorMessageConstant::getNotHaveErrorMessage("PRODUCT_SEARCH_KEYWORDQUERY") . " | page: {$page} | imageId: {$imageId}");
+                throw new Exception(ProductErrorMessageConstant::getNotHaveErrorMessage("PRODUCT_SEARCH_IMAGEQUERY") . " | page: {$page} | imageId: {$imageId}");
             }
 
             $totalPage = $apiDatas["data"]["result"]["result"]["totalPage"];
@@ -630,17 +631,20 @@ class ProductV1 extends ProductAbstract
             }
 
             // 6. 이미지 번역 요청 통신 
-            $this->openApiAbstract->createTransProductImg($product1688ImageDtoList, $product1688Dto->offerId);
+            $transResult = $this->openApiAbstract->createTransProductImg($product1688ImageDtoList, (int)$product1688Dto->offer_id);
+            if( $transResult["isSuccess"] == false ){
+                throw new Exception($transResult["msg"]);
+            }
 
             // 7. 기존 이미지 삭제
             $this->delProductImage($product1688ImageDtoList);
 
             // 8. 변역 완료 여부 체크
-            $noTransCnt = ProductImageData::where("offer_id", $product1688Dto->offerId)
+            $noTransCnt = ProductImageData::where("offer_id", $product1688Dto->offer_id)
             ->where("img_url_trans", "")
             ->whereNull("trans_dated_at")
             ->count();
-            ProductData::where("offer_id", $product1688Dto->offerId)->update([
+            ProductData::where("offer_id", $product1688Dto->offer_id)->update([
                 "trans_status" => $noTransCnt == 0 ? ProductConstant::TRANS_STATUE_Y : ProductConstant::TRANS_STATUE_N
             ]);
 

@@ -6,6 +6,7 @@ use App\Console\Commands\Save1688AllProducts;
 use App\Console\Commands\Save1688Category;
 use App\Console\Commands\Save1688CategoryMapping;
 use App\Console\Commands\Save1688ProductByCategotyId;
+use App\Console\Commands\Save1688ProductByImageId;
 use App\Console\Commands\TestCommands;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
@@ -16,6 +17,7 @@ class Kernel extends ConsoleKernel
         Save1688Category::class,
         Save1688CategoryMapping::class,
         Save1688ProductByCategotyId::class,
+        Save1688ProductByImageId::class,
         Save1688AllProducts::class,
         TestCommands::class,
     ];

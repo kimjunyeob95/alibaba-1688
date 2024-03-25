@@ -23,7 +23,7 @@ class Save1688ProductByImageId extends Command
     */
     public function handle()
     {
-        $imgid = $this->option('imgid') ?? 1057508044606605771;
+        $imgid = $this->option('imgid') ?? "1057508044606605771";
 
         $this->productV1->saveMallProductByImageId($imgid);
     }
