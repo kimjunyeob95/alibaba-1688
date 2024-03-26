@@ -97,22 +97,25 @@
                             @foreach ($datas as $index => $data)
                                 <tr>
                                     <td>
-                                        {{ number_format(($totalCnt - $offset) - $index) }}
+                                        {{ number_format(($totalRecords - $offset) - $index) }}
                                     </td>
                                     <td>
-                                        {{ $data->offer_id }}
+                                        {{ $data["offerId"] }}
                                     </td>
                                     <td>
-                                        {{ $data->prd_name }}
+                                        {{ $data["subject"] }}
                                     </td>
                                     <td>
-                                        {{ $data->prd_name_trans }}
+                                        {{ $data["subjectTrans"] }}
                                     </td>
                                     <td>
-                                        <img class="lazy-img preview-image" data-src="{{ $data->main_img->img_url_origin }}" width=60 height=60/>
+                                        <img class="lazy-img preview-image" data-src="{{ $data["imageUrl"] }}" width=60 height=60/>
+                                    </td>
+                                    <td>
+                                        {{ number_format($data["monthSold"]) }}
                                     </td>
                                     <td class="text-center">
-                                        @if (count($data->options) > 0)
+                                        {{-- @if (count($data->options) > 0)
                                             @php
                                                 $option = $data->options[0];
                                             @endphp
@@ -122,7 +125,7 @@
                                                 {{ number_format($option->cus_price) }}(원)<br>
                                         @else
                                             <p class="text-danger">옵션없음</p>
-                                        @endif
+                                        @endif --}}
                                     </td>
                                 </tr>
                             @endforeach

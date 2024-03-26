@@ -57,6 +57,7 @@ class ProductController extends Controller
         $sort       = $this->request->get("sort", "monthSold|desc");
         $page       = $this->request->get("page", 1);
         $pageSize   = $this->request->get("pageSize", 50);
+        $offset     = ($page - 1) * $pageSize;
         
         $params = [
             "search_cls" => $search_cls,
@@ -70,8 +71,9 @@ class ProductController extends Controller
             "datas"        => $result["data"]["result"]["result"]["data"],
             "totalRecords" => $result["data"]["result"]["result"]["totalRecords"],
             "totalPage"    => $result["data"]["result"]["result"]["totalPage"],
+            "offset"       => $offset
         ];
-        dd($viewParams);
+        // dd($viewParams);
         return view("product.prdKeywordQuery")->with($viewParams);
     }
 }
