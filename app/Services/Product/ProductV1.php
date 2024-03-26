@@ -756,4 +756,29 @@ class ProductV1 extends ProductAbstract
             "mime"   => $imageInfo["mime"],
         ];
     }
+
+    public function getKeywordQuery(array $params): array
+    {
+        $endPoint = "param2/1/com.alibaba.fenxiao.crossborder/product.search.keywordQuery/";
+        $sortArr = explode("|", $params["sort"]);
+        $sort = [
+            $sortArr[0] => $sortArr[1]
+        ];
+        $payload = [
+            'access_token'    => $this->accessToken,
+            'offerQueryParam' => [
+                'keyword'    => '',
+                'sort'       => json_encode($sort),
+                'beginPage'  => $params["page"],
+                'pageSize'   => $params["pageSize"],
+                'country'    => Constant1688::LANGUAGE_KO,
+            ]
+        ];
+        if( !empty($params["search_cls"]) && !empty($params["keyword"]) ){
+            $payload["offerQueryParam"][$params["search_cls"]] = $params["keyword"];
+        }
+
+        $apiDatas = curl_1688("POST", $endPoint, $payload);
+        return $apiDatas;
+    }
 }

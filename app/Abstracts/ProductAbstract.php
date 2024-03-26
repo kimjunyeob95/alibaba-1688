@@ -16,4 +16,10 @@ abstract class ProductAbstract
      * @description '오픈API 카테고리ID별 상품수집'
      */
     abstract function saveMallProductByCategotyId(int $categoryId): void;
+
+    /**
+     * @func getKeywordQuery
+     * @description '오픈API 상품 기본 조회'
+     */
+    abstract function getKeywordQuery(array $params): array;
 }

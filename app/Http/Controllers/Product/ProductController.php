@@ -49,4 +49,29 @@ class ProductController extends Controller
         }
         return view("product.prdDetail")->with($viewParams);
     }
+
+    public function keywordQuery(): View
+    {
+        $search_cls = $this->request->get("search_cls", "");
+        $keyword    = $this->request->get("keyword", "");
+        $sort       = $this->request->get("sort", "monthSold|desc");
+        $page       = $this->request->get("page", 1);
+        $pageSize   = $this->request->get("pageSize", 50);
+        
+        $params = [
+            "search_cls" => $search_cls,
+            "keyword"    => $keyword,
+            "sort"       => $sort,
+            "page"       => $page,
+            "pageSize"   => $pageSize,
+        ];
+        $result = $this->productService->getKeywordQuery($params);
+        $viewParams = [
+            "datas"        => $result["data"]["result"]["result"]["data"],
+            "totalRecords" => $result["data"]["result"]["result"]["totalRecords"],
+            "totalPage"    => $result["data"]["result"]["result"]["totalPage"],
+        ];
+        dd($viewParams);
+        return view("product.prdKeywordQuery")->with($viewParams);
+    }
 }

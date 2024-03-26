@@ -1,6 +1,6 @@
 <?php
 
-use App\Http\Controllers\Product\ProductController as ProductProductController;
+use App\Http\Controllers\Product\ProductController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -14,5 +14,16 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get("/", [ProductProductController::class, "getPrdList"])->name("getPrdList");
-Route::get("/product/{offerId}", [ProductProductController::class, "getPrdDetail"])->name("getPrdDetail");
+Route::get("/", [ProductController::class, "getPrdList"]);
+
+Route::prefix("product")->name("product.")->group(function(){
+    // 상품 수집 관리
+    Route::get("/keywordQuery", [ProductController::class, "keywordQuery"])->name("keywordQuery");
+    Route::get("/imageQuery", [ProductController::class, "getPrdList"])->name("imageQuery");
+    Route::get("/logs", [ProductController::class, "getPrdList"])->name("logs");
+
+    // 상품 리스트
+    Route::get("/list", [ProductController::class, "getPrdList"])->name("list");
+    Route::get("/{offerId}", [ProductController::class, "getPrdDetail"])->name("detail");
+});
+
