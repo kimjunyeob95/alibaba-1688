@@ -112,6 +112,7 @@ class GenuioService extends TransApiAbstract
                         "img_id"       => $imgId,
                         "trans_status" => TransApiConstant::QUEUE_STAY,
                         "base64"       => "",
+                        "created_at"   => Carbon::now()
                     ];
                 }
             }
