@@ -39,6 +39,7 @@ class Save1688AllProducts extends Command
 
             // 2. 커맨드 실행
             $process = Process::fromShellCommandline($command);
+            $process->setWorkingDirectory(env("WORK_DIRECTORY", "/web1/1688"));
             $process->setTimeout(null); // 실행 시간 제한 없음
             $process->start();
             $processes[] = $process;

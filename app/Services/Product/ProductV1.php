@@ -358,6 +358,47 @@ class ProductV1 extends ProductAbstract
         }
     }
 
+    public function collectProduct(array $offerIds): void
+    {
+        foreach ($offerIds as $offerId) {
+            debug_log($offerId, "collectProduct", "collectProduct");
+        }
+        // foreach ($offerIds as $offerId) {
+        //     $endPoint = "param2/1/com.alibaba.fenxiao.crossborder/product.search.queryProductDetail/";
+        //     $payload  = [
+        //         'access_token'     => $this->accessToken,
+        //         'offerDetailParam' => [
+        //             'offerId' => $offerId,
+        //             'country' => Constant1688::LANGUAGE_KO,
+        //         ]
+        //     ];
+        //     $detailResult = curl_1688("POST", $endPoint, $payload);
+        //     if( $detailResult["isSuccess"] != true || $detailResult["data"]["result"]["success"] != true ){
+        //         throw new Exception(ProductErrorMessageConstant::getFitErrorMessage("PRODUCT_SEARCH_QUERYPRODUCTDETAIL"));
+        //     }
+
+        //     $detailProduct = $detailResult["data"]["result"]["result"];
+        //     $prdCategoryId = $detailProduct["categoryId"];
+
+        //     $getCategoryMappingObj = CategoryMapping::select(["mapping_code"])
+        //     ->where("category_id", $prdCategoryId)
+        //     ->where("mapping_channel", ProductConstant::MAPPING_OC_CHANNEL)
+        //     ->where("mapping_code", "!=", 0)->first();
+        //     if( $getCategoryMappingObj == null ){
+        //         throw new Exception("카테고리 미맵핑");
+        //     }
+
+        //     $prdDto                   = $this->get1688ProductDto($detailResult);
+        //     $product1688Dto           = $prdDto["product1688Dto"];
+        //     $product1688ExtendDto     = $prdDto["product1688ExtendDto"];
+        //     $product1688ImageDtoList  = $prdDto["product1688ImageDtoList"];
+        //     $product1688NoticeDtoList = $prdDto["product1688NoticeDtoList"];
+        //     $product1688OptionDtoList = $prdDto["product1688OptionDtoList"];
+
+        //     $saveResult = $this->save1688ProductData($product1688Dto, $product1688ExtendDto, $product1688ImageDtoList, $product1688NoticeDtoList, $product1688OptionDtoList);
+        // }
+    }
+
     /**
      * @func get1688ProductDto
      * @description '제품 DTO 바인딩'
@@ -767,7 +808,6 @@ class ProductV1 extends ProductAbstract
         $payload = [
             'access_token'    => $this->accessToken,
             'offerQueryParam' => [
-                'keyword'    => '',
                 'sort'       => json_encode($sort),
                 'beginPage'  => $params["page"],
                 'pageSize'   => $params["pageSize"],
@@ -779,6 +819,24 @@ class ProductV1 extends ProductAbstract
         }
 
         $apiDatas = curl_1688("POST", $endPoint, $payload);
-        return $apiDatas;
+
+        $resultData   = $apiDatas["data"]["result"]["result"];
+        $datas        = $resultData["data"] ?? [];
+        $totalRecords = $resultData["totalRecords"];
+        $totalPage    = $resultData["totalPage"];
+        foreach ($datas as &$data) {
+            $ocPrice                 = ocPrice((float)$data["priceInfo"]["price"]);
+            $data["price_1688"]      = (float)$data["priceInfo"]["price"];
+            $data["onch_price"]      = $ocPrice["onch_price"];
+            $data["option_price"]    = $ocPrice["option_price"];
+            $data["cus_price"]       = $ocPrice["cus_price"];
+            $data["recom_cus_price"] = $ocPrice["recom_cus_price"];
+        }
+
+        return [
+            "datas"        => $datas,
+            "totalRecords" => $totalRecords,
+            "totalPage"    => $totalPage,
+        ];
     }
 }

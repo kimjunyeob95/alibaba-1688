@@ -5,6 +5,11 @@ $(document).ready(function(){
         $('#imagePreviewModal').modal('show');
     });
 
+    $('#allCheckbox').click(function(){
+        let checked = $(this).is(":checked");
+        $(".chk-inp").prop("checked", checked);
+    });
+
     $(".lazy-img").lazy();
 
     var mySwiper = new Swiper('.swiper-container', {

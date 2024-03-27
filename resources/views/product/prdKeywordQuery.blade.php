@@ -30,22 +30,22 @@
                                     <th style="width: 120px">상품 검색</th>
                                     <td style="width: 200px">
                                         <select class="form-select" name="search_cls">
-                                            <option value="productCollectionId">Paller ID</option>
-                                            <option value="categoryId">Category ID</option>
+                                            <option value="productCollectionId" @if($search_cls == "productCollectionId") selected @endif>Paller ID</option>
+                                            <option value="categoryId" @if($search_cls == "categoryId") selected @endif>Category ID</option>
                                         </select>
                                     </td>
                                     <td colspan="2">
-                                        <input type="text" class="form-control" id="keyword" name="keyword" placeholder="검색어 입력" value="">
+                                        <input type="text" class="form-control" id="keyword" name="keyword" placeholder="검색어 입력" value="{{ $keyword }}">
                                     </td>
                                 </tr>
                                 <tr class="align-middle">
                                     <th style="width: 120px">정렬</th>
                                     <td style="width: 200px">
                                         <select class="form-select" name="sort">
-                                            <option value="monthSold|desc">판매량 내림차순</option>
-                                            <option value="monthSold|asc">판매량 오름차순</option>
-                                            <option value="price|desc">가격 내림차순</option>
-                                            <option value="price|asc">가격 오름차순</option>
+                                            <option value="monthSold|desc" @if($sort == "monthSold|desc") selected @endif>판매량 내림차순</option>
+                                            <option value="monthSold|asc" @if($sort == "monthSold|asc") selected @endif>판매량 오름차순</option>
+                                            <option value="price|desc" @if($sort == "price|desc") selected @endif>가격 내림차순</option>
+                                            <option value="price|asc" @if($sort == "price|asc") selected @endif>가격 오름차순</option>
                                         </select>
                                     </td>
                                     <td colspan="2">
@@ -55,10 +55,10 @@
                                     <th style="width: 120px">노출 수</th>
                                     <td style="width: 200px">
                                         <select class="form-select" name="pageSize">
-                                            <option value=50>50개 노출</option>
-                                            <option value=30>30개 노출</option>
-                                            <option value=20>20개 노출</option>
-                                            <option value=10>10개 노출</option>
+                                            <option value=50 @if($pageSize == 50) selected @endif>50개 노출</option>
+                                            <option value=30 @if($pageSize == 30) selected @endif>30개 노출</option>
+                                            <option value=20 @if($pageSize == 20) selected @endif>20개 노출</option>
+                                            <option value=10 @if($pageSize == 10) selected @endif>10개 노출</option>
                                         </select>
                                     </td>
                                     <td colspan="2">
@@ -74,12 +74,21 @@
                         </div>
                     </div>
                 </form>
-    
+                
+                <div class="mt-3 d-flex justify-content-end">
+                    <button class="btn btn-md btn-outline-dark me-2" id="btn-select">선택상품 수집</button>
+                    <button class="btn btn-md btn-outline-success" id="btn-all">전체상품 수집</button>
+                </div>
+
                 <div class="table-responsive mt-3">
                     <table class="table table-white bg-white">
                         <thead class="table-light">
                             <tr>
-                                <th scope="col" style="width: 100px">No</th>
+                                <th class="text-center">
+                                    <label class="form-check-label" for="allCheckbox">선택</label>
+                                    <input class="form-check-input" type="checkbox" id="allCheckbox">
+                                </th>
+                                <th scope="col" style="width: 50px">No</th>
                                 <th scope="col" style="width: 150px">제품ID</th>
                                 <th scope="col">제품명</th>
                                 <th scope="col">제품명(번역)</th>
@@ -96,6 +105,9 @@
                         <tbody>
                             @foreach ($datas as $index => $data)
                                 <tr>
+                                    <td class="text-center">
+                                        <input class="form-check-input chk-inp" type="checkbox" value="{{ $data["offerId"] }}">
+                                    </td>
                                     <td>
                                         {{ number_format(($totalRecords - $offset) - $index) }}
                                     </td>
@@ -115,17 +127,10 @@
                                         {{ number_format($data["monthSold"]) }}
                                     </td>
                                     <td class="text-center">
-                                        {{-- @if (count($data->options) > 0)
-                                            @php
-                                                $option = $data->options[0];
-                                            @endphp
-                                                {{ $option->price_1688 }}(元)<br>
-                                                {{ number_format($option->option_price) }}(원)<br>
-                                                {{ number_format($option->onch_price) }}(원)<br>
-                                                {{ number_format($option->cus_price) }}(원)<br>
-                                        @else
-                                            <p class="text-danger">옵션없음</p>
-                                        @endif --}}
+                                        {{ $data["price_1688"] }}(元)<br>
+                                        {{ number_format($data["option_price"]) }}(원)<br>
+                                        {{ number_format($data["onch_price"]) }}(원)<br>
+                                        {{ number_format($data["cus_price"]) }}(원)<br>
                                     </td>
                                 </tr>
                             @endforeach
@@ -135,7 +140,7 @@
             </div>
 
             <div class="d-flex justify-content-center">
-                {{-- {{ $datas->links("vendor.pagination.bootstrap-4") }} --}}
+                {{ $paginator->links("vendor.pagination.bootstrap-4") }}
             </div>
         </div>
 
@@ -146,7 +151,44 @@
         $(".btn-detail").click(function(){
             let offer_id = $(this).attr("offerid");
             location.href = `/product/${offer_id}`;
-        })
+        });
+
+        $("#form-submit").click(function(){
+            $("#searchFrm").submit();
+        });
+
+        $("#btn-select").click(function(){
+            let offer_ids = [];
+
+            $(".chk-inp:checked").each(function(index, element){
+                offer_ids.push($(this).val());
+            });
+
+            if(offer_ids.length < 1){
+                return alert("선택 된 상품이 없습니다.");
+            }
+
+            if(confirm(`${offer_ids.length}건의 상품을 수집 하시겠습니까?`)){
+                $.ajax({
+                    "headers"    : {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
+                    "type"       : "POST",
+                    "url"        : "{{ route('product.collectProduct') }}",
+                    "data"       : { offer_ids },
+                    beforeSend: function () {},
+                    complete: function () {},
+                    success: function (resp) {
+                        console.log(resp);
+                    },
+                    error: function error(request, status, _error) {
+                        alert(_error);
+                    }
+                });
+            }
+        });
+
+        $("#btn-all").click(function(){
+
+        });
     })
 </script>
 
