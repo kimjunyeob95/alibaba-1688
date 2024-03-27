@@ -1,0 +1,195 @@
+@extends('dashboard.base')
+
+@section('styles')
+@endsection
+
+@section('scripts')
+@endsection
+
+@section('content')
+    <div class="container-fluid">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb my-0 ms-2">
+                <li class="breadcrumb-item">
+                    <a href="/">
+                        <span>Home</span>
+                    </a>
+                </li>
+                <li class="breadcrumb-item">상품 수집 관리</li>
+                <li class="breadcrumb-item active" aria-current="page">기본 정보로 수집</li>
+            </ol>
+        </nav>
+
+        <div class="row my-4 bg-white py-3">
+            <div class="col-12 mb-3">
+                <form id="searchFrm">
+                    <div class="card">
+                        <div class="card-header">
+                            <table class="table">
+                                <tr class="align-middle">
+                                    <th style="width: 120px">상품 검색</th>
+                                    <td style="width: 200px">
+                                        <select class="form-select" name="search_cls">
+                                            <option value="productCollectionId" @if($search_cls == "productCollectionId") selected @endif>Paller ID</option>
+                                            <option value="categoryId" @if($search_cls == "categoryId") selected @endif>Category ID</option>
+                                        </select>
+                                    </td>
+                                    <td colspan="2">
+                                        <input type="text" class="form-control" id="keyword" name="keyword" placeholder="검색어 입력" value="{{ $keyword }}">
+                                    </td>
+                                </tr>
+                                <tr class="align-middle">
+                                    <th style="width: 120px">정렬</th>
+                                    <td style="width: 200px">
+                                        <select class="form-select" name="sort">
+                                            <option value="monthSold|desc" @if($sort == "monthSold|desc") selected @endif>판매량 내림차순</option>
+                                            <option value="monthSold|asc" @if($sort == "monthSold|asc") selected @endif>판매량 오름차순</option>
+                                            <option value="price|desc" @if($sort == "price|desc") selected @endif>가격 내림차순</option>
+                                            <option value="price|asc" @if($sort == "price|asc") selected @endif>가격 오름차순</option>
+                                        </select>
+                                    </td>
+                                    <td colspan="2">
+                                    </td>
+                                </tr>
+                                <tr class="align-middle">
+                                    <th style="width: 120px">노출 수</th>
+                                    <td style="width: 200px">
+                                        <select class="form-select" name="pageSize">
+                                            <option value=50 @if($pageSize == 50) selected @endif>50개 노출</option>
+                                            <option value=30 @if($pageSize == 30) selected @endif>30개 노출</option>
+                                            <option value=20 @if($pageSize == 20) selected @endif>20개 노출</option>
+                                            <option value=10 @if($pageSize == 10) selected @endif>10개 노출</option>
+                                        </select>
+                                    </td>
+                                    <td colspan="2">
+                                    </td>
+                                </tr>
+                                <tr class="align-middle text-left">
+                                    <td colspan="6">
+                                        <button type="button" class="btn btn-md btn-primary" id="form-submit">검색</button>
+                                        <button type="button" onclick="location.href='/product/keywordQuery'" class="btn btn-md btn-light btn-reset">초기화</button>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </form>
+                
+                <div class="mt-3 d-flex justify-content-end">
+                    <button class="btn btn-md btn-outline-dark me-2" id="btn-select">선택상품 수집</button>
+                    <button class="btn btn-md btn-outline-success" id="btn-all">전체상품 수집</button>
+                </div>
+
+                <div class="table-responsive mt-3">
+                    <table class="table table-white bg-white">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="text-center">
+                                    <label class="form-check-label" for="allCheckbox">선택</label>
+                                    <input class="form-check-input" type="checkbox" id="allCheckbox">
+                                </th>
+                                <th scope="col" style="width: 50px">No</th>
+                                <th scope="col" style="width: 150px">제품ID</th>
+                                <th scope="col">제품명</th>
+                                <th scope="col">제품명(번역)</th>
+                                <th scope="col" style="width: 100px">원본이미지</th>
+                                <th scope="col" style="width: 100px">판매량(월)</th>
+                                <th scope="col" style="width: 150px" class="text-center">
+                                    1688 소비자가<br>
+                                    옵션가격<br>
+                                    온채널가<br>
+                                    소비자가
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach ($datas as $index => $data)
+                                <tr>
+                                    <td class="text-center">
+                                        <input class="form-check-input chk-inp" type="checkbox" value="{{ $data["offerId"] }}">
+                                    </td>
+                                    <td>
+                                        {{ number_format(($totalRecords - $offset) - $index) }}
+                                    </td>
+                                    <td>
+                                        {{ $data["offerId"] }}
+                                    </td>
+                                    <td>
+                                        {{ $data["subject"] }}
+                                    </td>
+                                    <td>
+                                        {{ $data["subjectTrans"] }}
+                                    </td>
+                                    <td>
+                                        <img class="lazy-img preview-image" data-src="{{ $data["imageUrl"] }}" width=60 height=60/>
+                                    </td>
+                                    <td>
+                                        {{ number_format($data["monthSold"]) }}
+                                    </td>
+                                    <td class="text-center">
+                                        {{ $data["price_1688"] }}(元)<br>
+                                        {{ number_format($data["option_price"]) }}(원)<br>
+                                        {{ number_format($data["onch_price"]) }}(원)<br>
+                                        {{ number_format($data["cus_price"]) }}(원)<br>
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="d-flex justify-content-center">
+                {{ $paginator->links("vendor.pagination.bootstrap-4") }}
+            </div>
+        </div>
+
+    </div>
+<script type="text/javascript">
+
+    $(document).ready(function(){
+        $(".btn-detail").click(function(){
+            let offer_id = $(this).attr("offerid");
+            location.href = `/product/${offer_id}`;
+        });
+
+        $("#form-submit").click(function(){
+            $("#searchFrm").submit();
+        });
+
+        $("#btn-select").click(function(){
+            let offer_ids = [];
+
+            $(".chk-inp:checked").each(function(index, element){
+                offer_ids.push($(this).val());
+            });
+
+            if(offer_ids.length < 1){
+                return alert("선택 된 상품이 없습니다.");
+            }
+
+            if(confirm(`${offer_ids.length}건의 상품을 수집 하시겠습니까?`)){
+                $.ajax({
+                    "headers"    : {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
+                    "type"       : "POST",
+                    "url"        : "{{ route('product.collectProduct') }}",
+                    "data"       : { offer_ids },
+                    beforeSend: function () {},
+                    complete: function () {},
+                    success: function (resp) {
+                        console.log(resp);
+                    },
+                    error: function error(request, status, _error) {
+                        alert(_error);
+                    }
+                });
+            }
+        });
+
+        $("#btn-all").click(function(){
+
+        });
+    })
+</script>
+
+@endsection

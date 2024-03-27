@@ -17,11 +17,36 @@
                 <svg class="nav-icon">
                     <use xlink:href="/vendors/@coreui/icons/svg/free.svg#cil-3d"></use>
                 </svg>
+                상품 수집 관리
+            </a>
+            <ul class="nav-group-items">
+                <li class="nav-item">
+                    <a class="nav-link" href="/product/keywordQuery">
+                        기본 정보로 수집
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/product/imageQuery">
+                        상품 Image로 수집
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/product/logs">
+                        상품 수집 현황
+                    </a>
+                </li>
+            </ul>
+        </li>
+        <li class="nav-group">
+            <a class="nav-link nav-group-toggle" href="javascript:;">
+                <svg class="nav-icon">
+                    <use xlink:href="/vendors/@coreui/icons/svg/free.svg#cil-3d"></use>
+                </svg>
                 상품 리스트
             </a>
             <ul class="nav-group-items">
                 <li class="nav-item">
-                    <a class="nav-link" href="/">
+                    <a class="nav-link" href="/product/list">
                         1688 수집 상품 리스트
                     </a>
                 </li>

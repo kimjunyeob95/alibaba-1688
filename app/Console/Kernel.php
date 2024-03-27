@@ -5,6 +5,7 @@ namespace App\Console;
 use App\Console\Commands\Save1688AllProducts;
 use App\Console\Commands\Save1688Category;
 use App\Console\Commands\Save1688CategoryMapping;
+use App\Console\Commands\Save1688CollectProduct;
 use App\Console\Commands\Save1688ProductByCategotyId;
 use App\Console\Commands\Save1688ProductByImageId;
 use App\Console\Commands\TestCommands;
@@ -19,6 +20,7 @@ class Kernel extends ConsoleKernel
         Save1688ProductByCategotyId::class,
         Save1688ProductByImageId::class,
         Save1688AllProducts::class,
+        Save1688CollectProduct::class,
         TestCommands::class,
     ];
 

@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ApiController;
 use App\Http\Controllers\GenuioController;
+use App\Http\Controllers\Product\ProductController;
 use Illuminate\Support\Facades\Route;
 
 Route::name('category.')->prefix('category')->group(function () {
@@ -11,6 +12,11 @@ Route::name('category.')->prefix('category')->group(function () {
     Route::get('/tree/{categoryId?}', [ApiController::class, 'getTreeCategory'])->name('getTreeCategory');
     // 1688<->채널 카테고리 맵핑 조회
     Route::get('/mapping/{channel?}', [ApiController::class, 'getMappingCategory'])->name('getTreeCategory');
+});
+
+Route::name('product.')->prefix('product')->group(function () {
+    // 1688 상품ID 별 수집
+    Route::post('/collect', [ProductController::class, 'collectProduct'])->name('collectProduct');
 });
 
 Route::name('1688.')->prefix('1688')->group(function () {
