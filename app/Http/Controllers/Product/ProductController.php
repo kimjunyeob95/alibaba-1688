@@ -177,7 +177,7 @@ class ProductController extends Controller
             $process->start();
 
             sleep(1);
-            
+
             return helpers_json_response(HttpConstant::OK, helpers_success_message([], "수집 요청 완료"));
         } catch (Exception $e) {
             return helpers_json_response(HttpConstant::BAD_REQUEST, [], $e->getMessage());
@@ -192,11 +192,13 @@ class ProductController extends Controller
             $sort      = $this->request->post("sort", "monthSold|desc");
 
             $options = "--search_cls=" . escapeshellarg($searchCls) . " --keyword=" . escapeshellarg($keyword) . " --sort=" . escapeshellarg($sort);
-            $command = "php artisan save_1688_product_keyword_query " . $options;
+            $command = "nohup php artisan save_1688_product_keyword_query " . $options;
             $process = Process::fromShellCommandline($command);
             $process->setWorkingDirectory(env("WORK_DIRECTORY", "/web1/1688"));
             $process->setTimeout(null); // 실행 시간 제한 없음
             $process->start();
+
+            sleep(1);
             
             return helpers_json_response(HttpConstant::OK, helpers_success_message([], "수집 요청 완료"));
         } catch (Exception $e) {
@@ -263,11 +265,13 @@ class ProductController extends Controller
             $offerIds = $this->request->post("offer_ids");
 
             $options = "--offerids=" . escapeshellarg(implode(",", $offerIds)) . " --type=" . escapeshellarg(LogConstant::COLLECT_API_IMAGEQUERY);
-            $command = "php artisan save_1688_collect_product " . $options;
+            $command = "nohup php artisan save_1688_collect_product " . $options;
             $process = Process::fromShellCommandline($command);
             $process->setWorkingDirectory(env("WORK_DIRECTORY", "/web1/1688"));
             $process->setTimeout(null); // 실행 시간 제한 없음
             $process->start();
+
+            sleep(1);
             
             return helpers_json_response(HttpConstant::OK, helpers_success_message([], "수집 요청 완료"));
         } catch (Exception $e) {
@@ -286,11 +290,13 @@ class ProductController extends Controller
             }
 
             $options = "--imageid=" . $imageId . " --sort=" . escapeshellarg($sort);
-            $command = "php artisan save_1688_product_image_query " . $options;
+            $command = "nohup php artisan save_1688_product_image_query " . $options;
             $process = Process::fromShellCommandline($command);
             $process->setWorkingDirectory(env("WORK_DIRECTORY", "/web1/1688"));
             $process->setTimeout(null); // 실행 시간 제한 없음
             $process->start();
+
+            sleep(1);
             
             return helpers_json_response(HttpConstant::OK, helpers_success_message([], "수집 요청 완료"));
         } catch (Exception $e) {

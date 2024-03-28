@@ -169,13 +169,18 @@
             }
 
             if(confirm(`${offer_ids.length}건의 상품을 수집 하시겠습니까?`)){
+
+                $("#loadingOverlay").show();
+
                 $.ajax({
                     "headers"    : {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
                     "type"       : "POST",
                     "url"        : "{{ route('product.collectProduct') }}",
                     "data"       : { offer_ids },
                     beforeSend: function () {},
-                    complete: function () {},
+                    complete: function () {
+                        $("#loadingOverlay").hide();
+                    },
                     success: function (resp) {
                         alert(resp.msg);
                     },
@@ -191,13 +196,18 @@
             let totalRecords = "{{ $totalRecords }}";
             let formData     = $("#searchFrm").serialize();
             if(confirm(`${totalRecords}건의 상품을 수집 하시겠습니까?`)){
+
+                $("#loadingOverlay").show();
+
                 $.ajax({
                     "headers"    : {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
                     "type"       : "POST",
                     "url"        : "{{ route('product.collectKeywordQuery') }}",
                     "data"       : formData,
                     beforeSend: function () {},
-                    complete: function () {},
+                    complete: function () {
+                        $("#loadingOverlay").hide();
+                    },
                     success: function (resp) {
                         alert(resp.msg);
                     },
