@@ -118,9 +118,48 @@ class ProductController extends Controller
             $process->setTimeout(null); // 실행 시간 제한 없음
             $process->start();
             
-            return helpers_json_response(HttpConstant::OK);
+            return helpers_json_response(HttpConstant::OK, helpers_success_message([], "수집 요청 완료"));
         } catch (Exception $e) {
             return helpers_json_response(HttpConstant::BAD_REQUEST, [], $e->getMessage());
         }
+    }
+
+    public function collectKeywordQuery(): JsonResponse
+    {
+        try {
+            $searchCls = $this->request->post("search_cls", "productCollectionId");
+            $keyword   = $this->request->post("keyword", "");
+            $sort      = $this->request->post("sort", "monthSold|desc");
+
+            $options = "--search_cls=" . escapeshellarg($searchCls) . " --keyword=" . escapeshellarg($keyword) . " --sort=" . escapeshellarg($sort);
+            $command = "php artisan save_1688_product_keyword_query " . $options;
+            $process = Process::fromShellCommandline($command);
+            $process->setWorkingDirectory(env("WORK_DIRECTORY", "/web1/1688"));
+            $process->setTimeout(null); // 실행 시간 제한 없음
+            $process->start();
+            
+            return helpers_json_response(HttpConstant::OK, helpers_success_message([], "수집 요청 완료"));
+        } catch (Exception $e) {
+            return helpers_json_response(HttpConstant::BAD_REQUEST, [], $e->getMessage());
+        }
+    }
+
+    public function prdCollectLogs(): View
+    {
+        $page     = $this->request->get("page", 1);
+        $pageSize = $this->request->get("pageSize", 100);
+        $offset   = ($page - 1) * $pageSize;
+        
+        $params = [
+            "page"     => $page,
+            "pageSize" => $pageSize,
+        ];
+        $result = $this->productService->getPrdCollectLogList($params);
+        $viewParams = [
+            "datas"    => $result,
+            "offset"   => (int) $offset,
+            "totalCnt" => (int) $result->total(),
+        ];
+        return view("product.prdCollectLogs")->with($viewParams);
     }
 }

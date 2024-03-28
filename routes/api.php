@@ -17,6 +17,8 @@ Route::name('category.')->prefix('category')->group(function () {
 Route::name('product.')->prefix('product')->group(function () {
     // 1688 상품ID 별 수집
     Route::post('/collect', [ProductController::class, 'collectProduct'])->name('collectProduct');
+    // 1688 keywordQuery 수집
+    Route::post('/collectKeywordQuery', [ProductController::class, 'collectKeywordQuery'])->name('collectKeywordQuery');
 });
 
 Route::name('1688.')->prefix('1688')->group(function () {

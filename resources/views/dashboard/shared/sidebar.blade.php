@@ -31,7 +31,7 @@
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="/product/logs">
+                    <a class="nav-link" href="/product/collectLogs">
                         상품 수집 현황
                     </a>
                 </li>

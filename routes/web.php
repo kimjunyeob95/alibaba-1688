@@ -20,7 +20,7 @@ Route::prefix("product")->name("product.")->group(function(){
     // 상품 수집 관리
     Route::get("/keywordQuery", [ProductController::class, "keywordQuery"])->name("keywordQuery");
     Route::get("/imageQuery", [ProductController::class, "getPrdList"])->name("imageQuery");
-    Route::get("/logs", [ProductController::class, "getPrdList"])->name("logs");
+    Route::get("/collectLogs", [ProductController::class, "prdCollectLogs"])->name("prdCollectLogs");
 
     // 상품 리스트
     Route::get("/list", [ProductController::class, "getPrdList"])->name("list");

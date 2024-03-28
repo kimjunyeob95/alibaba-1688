@@ -177,7 +177,7 @@
                     beforeSend: function () {},
                     complete: function () {},
                     success: function (resp) {
-                        console.log(resp);
+                        alert(resp.msg);
                     },
                     error: function error(request, status, _error) {
                         alert(_error);
@@ -187,7 +187,24 @@
         });
 
         $("#btn-all").click(function(){
-
+            let totalRecords = "{{ $totalRecords }}";
+            let formData     = $("#searchFrm").serialize();
+            if(confirm(`${totalRecords}건의 상품을 수집 하시겠습니까?`)){
+                $.ajax({
+                    "headers"    : {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
+                    "type"       : "POST",
+                    "url"        : "{{ route('product.collectKeywordQuery') }}",
+                    "data"       : formData,
+                    beforeSend: function () {},
+                    complete: function () {},
+                    success: function (resp) {
+                        alert(resp.msg);
+                    },
+                    error: function error(request, status, _error) {
+                        alert(_error);
+                    }
+                });
+            }
         });
     })
 </script>

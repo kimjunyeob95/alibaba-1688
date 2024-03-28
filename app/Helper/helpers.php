@@ -127,7 +127,7 @@ if (!function_exists("helpers_fail_message")) {
 }
 
 if (!function_exists("helpers_success_message")) {
-    function helpers_success_message($data = [], int $affectRows = 0, string $message = "정상 처리 되었습니다."): array
+    function helpers_success_message($data = [], string $message = "정상 처리 되었습니다.", int $affectRows = 0): array
     {
         if( $affectRows > 0){
             return [

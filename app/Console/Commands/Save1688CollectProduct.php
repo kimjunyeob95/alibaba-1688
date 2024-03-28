@@ -25,6 +25,8 @@ class Save1688CollectProduct extends Command
     {
         $offerids = explode(",", $this->option('offerids'));
         
-        $this->productV1->collectProduct($offerids);
+        if( !empty($offerids) ){
+            $this->productV1->collectProduct($offerids);
+        }
     }
 }

@@ -22,4 +22,10 @@ abstract class ProductAbstract
      * @description '오픈API 상품 기본 조회'
      */
     abstract function getKeywordQuery(array $params): array;
+
+    /**
+     * @func saveKeywordQuery
+     * @description '오픈API 상품 keywordQueryAPI로 수집'
+     */
+    abstract function saveKeywordQuery(array $params): array;
 }
