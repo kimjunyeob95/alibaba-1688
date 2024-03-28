@@ -127,7 +127,7 @@ if (!function_exists("helpers_fail_message")) {
 }
 
 if (!function_exists("helpers_success_message")) {
-    function helpers_success_message($data = [], int $affectRows = 0, string $message = "정상 처리 되었습니다."): array
+    function helpers_success_message($data = [], string $message = "정상 처리 되었습니다.", int $affectRows = 0): array
     {
         if( $affectRows > 0){
             return [
@@ -239,13 +239,15 @@ if (!function_exists("curl_1688")) {
         foreach ($payload as $key => $val) {
             if( $index == 0 ){
                 if( is_array($val) ){
-                    $finalPayload .= $key . "=" . json_encode($val);
+                    $jsonValue     = json_encode($val);
+                    $finalPayload .= "&" . $key . "=" . urlencode($jsonValue);
                 }else{
                     $finalPayload .= $key . "=" . $val;
                 }
             }else{
                 if( is_array($val) ){
-                    $finalPayload .= "&" . $key . "=" . json_encode($val);
+                    $jsonValue     = json_encode($val);
+                    $finalPayload .= "&" . $key . "=" . urlencode($jsonValue);
                 }else{
                     $finalPayload .= "&" . $key . "=" . $val;
                 }

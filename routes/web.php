@@ -19,8 +19,9 @@ Route::get("/", [ProductController::class, "getPrdList"]);
 Route::prefix("product")->name("product.")->group(function(){
     // 상품 수집 관리
     Route::get("/keywordQuery", [ProductController::class, "keywordQuery"])->name("keywordQuery");
-    Route::get("/imageQuery", [ProductController::class, "getPrdList"])->name("imageQuery");
-    Route::get("/logs", [ProductController::class, "getPrdList"])->name("logs");
+    Route::get("/imageQuery", [ProductController::class, "imageQuery"])->name("imageQuery");
+    Route::get("/collectLogs", [ProductController::class, "prdCollectLogs"])->name("prdCollectLogs");
+    Route::get("/collect/log/{logId}", [ProductController::class, "prdCollectLogDetail"])->name("prdCollectLogDetail");
 
     // 상품 리스트
     Route::get("/list", [ProductController::class, "getPrdList"])->name("list");

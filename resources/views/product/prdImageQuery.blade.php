@@ -16,26 +16,28 @@
                     </a>
                 </li>
                 <li class="breadcrumb-item">상품 수집 관리</li>
-                <li class="breadcrumb-item active" aria-current="page">기본 정보로 수집</li>
+                <li class="breadcrumb-item active" aria-current="page">상품 Image로 수집</li>
             </ol>
         </nav>
 
         <div class="row my-4 bg-white py-3">
             <div class="col-12 mb-3">
                 <form id="searchFrm">
+                    <input type="hidden" id="imageId" name="imageId" value={{ $imageId }}>
+
                     <div class="card">
                         <div class="card-header">
                             <table class="table">
                                 <tr class="align-middle">
-                                    <th style="width: 120px">상품 검색</th>
-                                    <td style="width: 200px">
-                                        <select class="form-select" name="search_cls">
-                                            <option value="productCollectionId" @if($search_cls == "productCollectionId") selected @endif>Paller ID</option>
-                                            <option value="categoryId" @if($search_cls == "categoryId") selected @endif>Category ID</option>
-                                        </select>
-                                    </td>
+                                    <th style="width: 120px">Image 등록</th>
                                     <td colspan="2">
-                                        <input type="text" class="form-control" id="keyword" name="keyword" placeholder="검색어 입력" value="{{ $keyword }}">
+                                        <input type="file" class="form-control" id="imgFile" accept="image/*">
+                                    </td>
+                                </tr>
+                                <tr class="align-middle">
+                                    <th style="width: 120px">Image ID</th>
+                                    <td colspan="2">
+                                        <span id="span-imgId">{{ $imageId }}</span>
                                     </td>
                                 </tr>
                                 <tr class="align-middle">
@@ -67,7 +69,7 @@
                                 <tr class="align-middle text-left">
                                     <td colspan="6">
                                         <button type="button" class="btn btn-md btn-primary" id="form-submit">검색</button>
-                                        <button type="button" onclick="location.href='/product/keywordQuery'" class="btn btn-md btn-light btn-reset">초기화</button>
+                                        <button type="button" onclick="location.href='/product/imageQuery'" class="btn btn-md btn-light btn-reset">초기화</button>
                                     </td>
                                 </tr>
                             </table>
@@ -140,7 +142,9 @@
             </div>
 
             <div class="d-flex justify-content-center">
-                {{ $paginator->links("vendor.pagination.bootstrap-4") }}
+                @if ($paginator)
+                    {{ $paginator->links("vendor.pagination.bootstrap-4") }}
+                @endif
             </div>
         </div>
 
@@ -148,18 +152,60 @@
 <script type="text/javascript">
 
     $(document).ready(function(){
-        $(".btn-detail").click(function(){
-            let offer_id = $(this).attr("offerid");
-            location.href = `/product/${offer_id}`;
+        $("#form-submit").click(function(){
+            let imageId = $("#imageId").val();
+            if( !imageId ){
+                return alert("파일을 먼저 등록해주세요.");
+            }
+
+            $("#searchFrm").submit();
         });
 
-        $("#form-submit").click(function(){
-            $("#searchFrm").submit();
+        $("#imgFile").change(function(){
+            $("#loadingOverlay").show();
+
+            let file = this.files[0];
+
+            // 파일 타입 검사 (이미지 파일인지 확인)
+            if (file.type.indexOf('image') == -1) {
+                this.value = '';
+                $("#imageId").val('');
+                return alert('이미지 파일만 업로드 가능합니다.');
+            } else if (file.size > 300000) { // 파일 크기 검사 (300KB 이하인지 확인)
+                this.value = '';
+                $("#imageId").val('');
+                return alert('파일 크기는 300KB 이하로 업로드 가능합니다.');
+            }
+
+            let formData = new FormData();
+            formData.append('imgFile', file);
+
+            $.ajax({
+                "headers"    : {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
+                "type"       : "POST",
+                "url"        : "{{ route('product.createImgId') }}",
+                "data"       : formData,
+                "processData": false,
+                "contentType": false,
+                beforeSend   : function () {},
+                complete     : function () {},
+                success      : function (resp) {
+                    $("#imageId").val(resp.data.result);
+                    $("#span-imgId").text(resp.data.result);
+                },
+                error: function (request) {
+                    let { error } = JSON.parse(request.responseText);
+                    alert(error.message);
+                },
+                complete: function(xhr, status) {
+                    $("#loadingOverlay").hide();
+                }
+            });
         });
 
         $("#btn-select").click(function(){
             let offer_ids = [];
-
+            
             $(".chk-inp:checked").each(function(index, element){
                 offer_ids.push($(this).val());
             });
@@ -172,7 +218,7 @@
                 $.ajax({
                     "headers"    : {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
                     "type"       : "POST",
-                    "url"        : "{{ route('product.collectProduct') }}",
+                    "url"        : "{{ route('product.collectProductImage') }}",
                     "data"       : { offer_ids },
                     beforeSend: function () {},
                     complete: function () {},
@@ -189,12 +235,21 @@
 
         $("#btn-all").click(function(){
             let totalRecords = "{{ $totalRecords }}";
+            let imageId      = "{{ $imageId }}";
             let formData     = $("#searchFrm").serialize();
+
+            if( totalRecords < 1 ){
+                return alert("수집 할 상품이 없습니다.");
+            }
+            if( !imageId ){
+                return alert("이미지 ID가 없습니다. 이미지를 등록하세요.");
+            }
+
             if(confirm(`${totalRecords}건의 상품을 수집 하시겠습니까?`)){
                 $.ajax({
                     "headers"    : {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
                     "type"       : "POST",
-                    "url"        : "{{ route('product.collectKeywordQuery') }}",
+                    "url"        : "{{ route('product.collectImageQuery') }}",
                     "data"       : formData,
                     beforeSend: function () {},
                     complete: function () {},

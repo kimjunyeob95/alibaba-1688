@@ -17,6 +17,14 @@ Route::name('category.')->prefix('category')->group(function () {
 Route::name('product.')->prefix('product')->group(function () {
     // 1688 상품ID 별 수집
     Route::post('/collect', [ProductController::class, 'collectProduct'])->name('collectProduct');
+    // 1688 keywordQuery 수집
+    Route::post('/collectKeywordQuery', [ProductController::class, 'collectKeywordQuery'])->name('collectKeywordQuery');
+    // 1688 이미지ID 생성
+    Route::post('/create/imgId', [ProductController::class, 'createImgId'])->name('createImgId');
+    // 1688 이미지->상품ID 별 수집
+    Route::post('/collect/img', [ProductController::class, 'collectProductImage'])->name('collectProductImage');
+    // 1688 imageQuery 수집
+    Route::post('/collectImageQuery', [ProductController::class, 'collectImageQuery'])->name('collectImageQuery');
 });
 
 Route::name('1688.')->prefix('1688')->group(function () {

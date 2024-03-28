@@ -6,9 +6,13 @@ use App\Abstracts\ProductAbstract;
 use App\Abstracts\TransApiAbstract;
 use App\Constants\Constant1688;
 use App\Constants\ImageConstant;
+use App\Constants\ImageErrorMessageConstant;
+use App\Constants\LogConstant;
 use App\Constants\ProductConstant;
 use App\Constants\ProductErrorMessageConstant;
 use App\Models\CategoryMapping;
+use App\Models\ProductCollectDetailLog;
+use App\Models\ProductCollectLog;
 use App\Models\ProductData;
 use App\Models\ProductExtendData;
 use App\Models\ProductImageData;
@@ -20,7 +24,9 @@ use App\Vo\Product\Product1688ExtendDto;
 use App\Vo\Product\Product1688ImageDto;
 use App\Vo\Product\Product1688NoticeDto;
 use App\Vo\Product\Product1688OptionDto;
+use Carbon\Carbon;
 use Exception;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Psr\Log\LogLevel;
 use UnexpectedValueException;
@@ -33,8 +39,8 @@ class ProductV1 extends ProductAbstract
 
     public function __construct(TransApiAbstract $transApiAbstract)
     {
-        $this->returnMsg       = helpers_fail_message();
-        $this->accessToken     = env("1688_ACCESS_TOKEN");
+        $this->returnMsg        = helpers_fail_message();
+        $this->accessToken      = env("1688_ACCESS_TOKEN");
         $this->transApiAbstract = $transApiAbstract;
     }
 
@@ -43,6 +49,16 @@ class ProductV1 extends ProductAbstract
         $pageSize  = $params["pageSize"];
 
         $prdBuilder = ProductData::with(["main_img", "options"])->orderBy("created_at", "desc");
+        $lists = $prdBuilder->paginate($pageSize)->appends($params);
+
+        return $lists;
+    }
+
+    public function getPrdCollectLogList(array $params): LengthAwarePaginator
+    {
+        $pageSize  = $params["pageSize"];
+
+        $prdBuilder = ProductCollectLog::orderBy("created_at", "desc");
         $lists = $prdBuilder->paginate($pageSize)->appends($params);
 
         return $lists;
@@ -60,6 +76,26 @@ class ProductV1 extends ProductAbstract
                 "notices",
                 "category"
             ])->where("offer_id", $offerId)->first();
+            if( $prdObj == null ){
+                throw new Exception("No Data");   
+            }
+
+            $returnMsg = helpers_success_message($prdObj);
+        } catch (Exception $e) {
+            $returnMsg = helpers_fail_message($e->getMessage());
+        }
+
+        return $returnMsg;
+    }
+
+    public function prdCollectLogDetail(int $logId): array
+    {
+        $returnMsg = $this->returnMsg;
+
+        try {
+            $prdObj = ProductCollectLog::with([
+                "details"
+            ])->where("id", $logId)->first();
             if( $prdObj == null ){
                 throw new Exception("No Data");   
             }
@@ -358,45 +394,148 @@ class ProductV1 extends ProductAbstract
         }
     }
 
-    public function collectProduct(array $offerIds): void
+    public function collectProduct(array $offerIds, $type = LogConstant::COLLECT_API_KEYWORDQUERY): void
     {
+        $logId = ProductCollectLog::insertGetId([
+            "type"       => $type,
+            "status"     => LogConstant::COLLECT_RUNNING,
+            "payload"    => implode(", ", $offerIds),
+            "log_count"  => count($offerIds),
+            "created_at" => Carbon::now()
+        ]);
         foreach ($offerIds as $offerId) {
-            debug_log($offerId, "collectProduct", "collectProduct");
+            try {
+                $endPoint = "param2/1/com.alibaba.fenxiao.crossborder/product.search.queryProductDetail/";
+                $payload  = [
+                    'access_token'     => $this->accessToken,
+                    'offerDetailParam' => [
+                        'offerId' => $offerId,
+                        'country' => Constant1688::LANGUAGE_KO,
+                    ]
+                ];
+                $detailResult = curl_1688("POST", $endPoint, $payload);
+                if( $detailResult["isSuccess"] != true || $detailResult["data"]["result"]["success"] != true ){
+                    throw new Exception(ProductErrorMessageConstant::getFitErrorMessage("PRODUCT_SEARCH_QUERYPRODUCTDETAIL"));
+                }
+
+                $detailProduct = $detailResult["data"]["result"]["result"];
+                $prdCategoryId = $detailProduct["categoryId"];
+
+                $getCategoryMappingObj = CategoryMapping::select(["mapping_code"])
+                ->where("category_id", $prdCategoryId)
+                ->where("mapping_channel", ProductConstant::MAPPING_OC_CHANNEL)
+                ->where("mapping_code", "!=", 0)->first();
+                if( $getCategoryMappingObj == null ){
+                    throw new Exception("카테고리 미맵핑");
+                }
+
+                $prdDto                   = $this->get1688ProductDto($detailResult);
+                $product1688Dto           = $prdDto["product1688Dto"];
+                $product1688ExtendDto     = $prdDto["product1688ExtendDto"];
+                $product1688ImageDtoList  = $prdDto["product1688ImageDtoList"];
+                $product1688NoticeDtoList = $prdDto["product1688NoticeDtoList"];
+                $product1688OptionDtoList = $prdDto["product1688OptionDtoList"];
+
+                $saveResult = $this->save1688ProductData($product1688Dto, $product1688ExtendDto, $product1688ImageDtoList, $product1688NoticeDtoList, $product1688OptionDtoList);
+                if( $saveResult["isSuccess"] != true ){
+                    throw new Exception($saveResult["msg"]);
+                }
+
+                ProductCollectDetailLog::create([
+                    "log_id"     => $logId,
+                    "offer_id"   => $offerId,
+                    "is_collect" => LogConstant::COLLECT_DETAIL_Y,
+                    "msg"        => ""
+                ]);
+            } catch (Exception $e) {
+                $msg = "offerId: {$offerId} | error: " . $e->getMessage();
+                debug_log($msg, "collectProduct/".$type, $type, LogLevel::ERROR);
+
+                ProductCollectDetailLog::create([
+                    "log_id"     => $logId,
+                    "offer_id"   => $offerId,
+                    "is_collect" => LogConstant::COLLECT_DETAIL_N,
+                    "msg"        => $e->getMessage()
+                ]);
+            }
         }
-        // foreach ($offerIds as $offerId) {
-        //     $endPoint = "param2/1/com.alibaba.fenxiao.crossborder/product.search.queryProductDetail/";
-        //     $payload  = [
-        //         'access_token'     => $this->accessToken,
-        //         'offerDetailParam' => [
-        //             'offerId' => $offerId,
-        //             'country' => Constant1688::LANGUAGE_KO,
-        //         ]
-        //     ];
-        //     $detailResult = curl_1688("POST", $endPoint, $payload);
-        //     if( $detailResult["isSuccess"] != true || $detailResult["data"]["result"]["success"] != true ){
-        //         throw new Exception(ProductErrorMessageConstant::getFitErrorMessage("PRODUCT_SEARCH_QUERYPRODUCTDETAIL"));
-        //     }
 
-        //     $detailProduct = $detailResult["data"]["result"]["result"];
-        //     $prdCategoryId = $detailProduct["categoryId"];
+        ProductCollectLog::where("id", $logId)->update([
+            "status"       => LogConstant::COLLECT_COMPLETE,
+            "completed_at" => Carbon::now()
+        ]);
+    }
 
-        //     $getCategoryMappingObj = CategoryMapping::select(["mapping_code"])
-        //     ->where("category_id", $prdCategoryId)
-        //     ->where("mapping_channel", ProductConstant::MAPPING_OC_CHANNEL)
-        //     ->where("mapping_code", "!=", 0)->first();
-        //     if( $getCategoryMappingObj == null ){
-        //         throw new Exception("카테고리 미맵핑");
-        //     }
+    public function collectProductImage(array $offerIds): void
+    {
+        $logId = ProductCollectLog::insertGetId([
+            "type"       => LogConstant::COLLECT_API_KEYWORDQUERY,
+            "status"     => LogConstant::COLLECT_RUNNING,
+            "payload"    => implode(", ", $offerIds),
+            "log_count"  => count($offerIds),
+            "created_at" => Carbon::now()
+        ]);
+        foreach ($offerIds as $offerId) {
+            try {
+                $endPoint = "param2/1/com.alibaba.fenxiao.crossborder/product.search.queryProductDetail/";
+                $payload  = [
+                    'access_token'     => $this->accessToken,
+                    'offerDetailParam' => [
+                        'offerId' => $offerId,
+                        'country' => Constant1688::LANGUAGE_KO,
+                    ]
+                ];
+                $detailResult = curl_1688("POST", $endPoint, $payload);
+                if( $detailResult["isSuccess"] != true || $detailResult["data"]["result"]["success"] != true ){
+                    throw new Exception(ProductErrorMessageConstant::getFitErrorMessage("PRODUCT_SEARCH_QUERYPRODUCTDETAIL"));
+                }
 
-        //     $prdDto                   = $this->get1688ProductDto($detailResult);
-        //     $product1688Dto           = $prdDto["product1688Dto"];
-        //     $product1688ExtendDto     = $prdDto["product1688ExtendDto"];
-        //     $product1688ImageDtoList  = $prdDto["product1688ImageDtoList"];
-        //     $product1688NoticeDtoList = $prdDto["product1688NoticeDtoList"];
-        //     $product1688OptionDtoList = $prdDto["product1688OptionDtoList"];
+                $detailProduct = $detailResult["data"]["result"]["result"];
+                $prdCategoryId = $detailProduct["categoryId"];
 
-        //     $saveResult = $this->save1688ProductData($product1688Dto, $product1688ExtendDto, $product1688ImageDtoList, $product1688NoticeDtoList, $product1688OptionDtoList);
-        // }
+                $getCategoryMappingObj = CategoryMapping::select(["mapping_code"])
+                ->where("category_id", $prdCategoryId)
+                ->where("mapping_channel", ProductConstant::MAPPING_OC_CHANNEL)
+                ->where("mapping_code", "!=", 0)->first();
+                if( $getCategoryMappingObj == null ){
+                    throw new Exception("카테고리 미맵핑");
+                }
+
+                $prdDto                   = $this->get1688ProductDto($detailResult);
+                $product1688Dto           = $prdDto["product1688Dto"];
+                $product1688ExtendDto     = $prdDto["product1688ExtendDto"];
+                $product1688ImageDtoList  = $prdDto["product1688ImageDtoList"];
+                $product1688NoticeDtoList = $prdDto["product1688NoticeDtoList"];
+                $product1688OptionDtoList = $prdDto["product1688OptionDtoList"];
+
+                $saveResult = $this->save1688ProductData($product1688Dto, $product1688ExtendDto, $product1688ImageDtoList, $product1688NoticeDtoList, $product1688OptionDtoList);
+                if( $saveResult["isSuccess"] != true ){
+                    throw new Exception($saveResult["msg"]);
+                }
+
+                ProductCollectDetailLog::create([
+                    "log_id"     => $logId,
+                    "offer_id"   => $offerId,
+                    "is_collect" => LogConstant::COLLECT_DETAIL_Y,
+                    "msg"        => ""
+                ]);
+            } catch (Exception $e) {
+                $msg = "offerId: {$offerId} | error: " . $e->getMessage();
+                debug_log($msg, "collectProduct", "collectProduct", LogLevel::ERROR);
+
+                ProductCollectDetailLog::create([
+                    "log_id"     => $logId,
+                    "offer_id"   => $offerId,
+                    "is_collect" => LogConstant::COLLECT_DETAIL_N,
+                    "msg"        => $e->getMessage()
+                ]);
+            }
+        }
+
+        ProductCollectLog::where("id", $logId)->update([
+            "status"       => LogConstant::COLLECT_COMPLETE,
+            "completed_at" => Carbon::now()
+        ]);
     }
 
     /**
@@ -798,6 +937,11 @@ class ProductV1 extends ProductAbstract
         ];
     }
 
+    /**
+     * @func getKeywordQuery
+     * @description '오픈API 상품 기본 조회'
+     * @param array $params
+     */
     public function getKeywordQuery(array $params): array
     {
         $endPoint = "param2/1/com.alibaba.fenxiao.crossborder/product.search.keywordQuery/";
@@ -838,5 +982,441 @@ class ProductV1 extends ProductAbstract
             "totalRecords" => $totalRecords,
             "totalPage"    => $totalPage,
         ];
+    }
+
+    /**
+     * @func saveKeywordQuery
+     * @description '오픈API keywordQueryAPI로 상품 수집'
+     */
+    public function saveKeywordQuery(array $params): array
+    {
+        $returnMsg = $this->returnMsg;
+
+        $params_json = json_encode($params, JSON_UNESCAPED_UNICODE);
+        $msg = "======================== 실행 시작 (params_json: {$params_json}) ========================";
+        debug_log($msg, "saveKeywordQuery", "saveKeywordQuery");
+
+        $sortArr = explode("|", $params["sort"]);
+        $sort = [
+            $sortArr[0] => $sortArr[1]
+        ];
+        $page     = $params["page"];
+        $pageSize = $params["pageSize"];
+        $payload  = [
+            'access_token'    => $this->accessToken,
+            'offerQueryParam' => [
+                'sort'      => json_encode($sort),
+                'country'   => Constant1688::LANGUAGE_KO,
+            ]
+        ];
+        if( !empty($params["search_cls"]) && !empty($params["keyword"]) ){
+            $payload["offerQueryParam"][$params["search_cls"]] = $params["keyword"];
+        }
+
+        try {
+            $endPoint = "param2/1/com.alibaba.fenxiao.crossborder/product.search.keywordQuery/";
+            
+            $payload["offerQueryParam"]["beginPage"] = $page;
+            $payload["offerQueryParam"]["pageSize"]  = $pageSize;
+
+            $apiDatas     = curl_1688("POST", $endPoint, $payload);
+            $totalRecords = $apiDatas["data"]["result"]["result"]["totalRecords"];
+
+            $payload_json = json_encode($payload["offerQueryParam"], JSON_UNESCAPED_UNICODE);
+            $logId = ProductCollectLog::insertGetId([
+                "type"       => LogConstant::COLLECT_API_KEYWORDQUERY_ALL,
+                "status"     => LogConstant::COLLECT_RUNNING,
+                "payload"    => $payload_json,
+                "log_count"  => (int)$totalRecords,
+                "created_at" => Carbon::now()
+            ]);
+
+            $this->saveKeywordQueryRecursively($logId, $payload, $page, $pageSize);
+        } catch (Exception $e) {
+            $msg = "======================== 에러 발생 (params_json: {$params_json}) ========================\r\n";
+            $msg .= $e->getMessage();
+            debug_log($msg, "saveKeywordQuery", "saveKeywordQuery", LogLevel::ERROR);
+        }
+
+        ProductCollectLog::where("id", $logId)->update([
+            "status"       => LogConstant::COLLECT_COMPLETE,
+            "completed_at" => Carbon::now()
+        ]);
+
+        $msg = "======================== 실행 종료 (params_json: {$params_json}) ========================";
+        debug_log($msg, "saveKeywordQuery", "saveKeywordQuery");
+
+        return $returnMsg;
+    }
+
+    /**
+     * @func saveKeywordQueryRecursively
+     * @description '1688 keywordQueryAPI로 상품수집 재귀 메소드'
+     * @param int $logId
+     * @param array $payload
+     * @param int $page
+     * @param int $pageSize
+     * @param int $totalPage
+     */
+    public function saveKeywordQueryRecursively(int $logId, array $payload, int $page, int $pageSize, int $totalPage = 0): void
+    {
+        try {
+            $endPoint = "param2/1/com.alibaba.fenxiao.crossborder/product.search.keywordQuery/";
+            
+            $payload["offerQueryParam"]["beginPage"] = $page;
+            $payload["offerQueryParam"]["pageSize"]  = $pageSize;
+
+            $payload_json = json_encode($payload, JSON_UNESCAPED_UNICODE);
+            $errorMsg     = ProductErrorMessageConstant::getFitErrorMessage("PRODUCT_SEARCH_KEYWORDQUERY") . " | payload: {$payload_json}";
+
+            $apiDatas = curl_1688("POST", $endPoint, $payload);
+            if( $apiDatas["isSuccess"] != true ){
+                throw new Exception($apiDatas["msg"] . " | " . $errorMsg);
+            }
+            if( $apiDatas["data"]["result"]["success"] != true ){
+                throw new Exception($errorMsg);
+            }
+
+            $apiResult = $apiDatas["data"]["result"]["result"];
+            if( isset($apiResult["data"]) ){
+                $productDatas = $apiResult["data"];
+                $successCnt   = 0;
+                foreach ($productDatas as $productData) {
+                    try {
+                        $offerId        = $productData["offerId"];
+                        $endPoint       = "param2/1/com.alibaba.fenxiao.crossborder/product.search.queryProductDetail/";
+                        $payload_detail = [
+                            'access_token'     => $this->accessToken,
+                            'offerDetailParam' => [
+                                'offerId' => $offerId,
+                                'country' => Constant1688::LANGUAGE_KO,
+                            ]
+                        ];
+                        $detailResult = curl_1688("POST", $endPoint, $payload_detail);
+                        if( $detailResult["isSuccess"] != true || $detailResult["data"]["result"]["success"] != true ){
+                            throw new Exception(ProductErrorMessageConstant::getFitErrorMessage("PRODUCT_SEARCH_QUERYPRODUCTDETAIL"));
+                        }
+
+                        $detailProduct = $detailResult["data"]["result"]["result"];
+                        $prdCategoryId = $detailProduct["categoryId"];
+
+                        $getCategoryMappingObj = CategoryMapping::select(["mapping_code"])
+                        ->where("category_id", $prdCategoryId)
+                        ->where("mapping_channel", ProductConstant::MAPPING_OC_CHANNEL)
+                        ->where("mapping_code", "!=", 0)->first();
+                        if( $getCategoryMappingObj == null ){
+                            throw new Exception("카테고리 미맵핑");
+                        }
+
+                        $prdDto                   = $this->get1688ProductDto($detailResult);
+                        $product1688Dto           = $prdDto["product1688Dto"];
+                        $product1688ExtendDto     = $prdDto["product1688ExtendDto"];
+                        $product1688ImageDtoList  = $prdDto["product1688ImageDtoList"];
+                        $product1688NoticeDtoList = $prdDto["product1688NoticeDtoList"];
+                        $product1688OptionDtoList = $prdDto["product1688OptionDtoList"];
+
+                        $saveResult = $this->save1688ProductData($product1688Dto, $product1688ExtendDto, $product1688ImageDtoList, $product1688NoticeDtoList, $product1688OptionDtoList);
+
+                        if( $saveResult["isSuccess"] == true ){
+                            $successCnt++;
+                        }else{
+                            throw new Exception($saveResult["msg"]);
+                        }
+                        
+                        ProductCollectDetailLog::create([
+                            "log_id"     => $logId,
+                            "offer_id"   => $offerId,
+                            "is_collect" => LogConstant::COLLECT_DETAIL_Y,
+                            "msg"        => ""
+                        ]);
+                    } catch (Exception $de) {
+                        $msg = $de->getMessage() . " | page: {$page} | offerId: {$offerId}";
+                        debug_log($msg, "saveKeywordQuery", "saveKeywordQuery", LogLevel::ERROR);
+
+                        ProductCollectDetailLog::create([
+                            "log_id"     => $logId,
+                            "offer_id"   => $offerId,
+                            "is_collect" => LogConstant::COLLECT_DETAIL_N,
+                            "msg"        => $de->getMessage()
+                        ]);
+                    }
+                }
+            } else {
+                throw new Exception($errorMsg);
+            }
+
+            $totalPage = $apiDatas["data"]["result"]["result"]["totalPage"];
+            if( $page < $totalPage ){
+                $nextPage = $page + 1;
+                $this->saveKeywordQueryRecursively($logId, $payload, $nextPage, $pageSize, $totalPage);
+            }
+        } catch (Exception $e) {
+            $msg = $e->getMessage();
+            debug_log($msg, "saveKeywordQuery", "saveKeywordQuery", LogLevel::ERROR);
+
+            if( $page < $totalPage ){
+                $nextPage = $page + 1;
+                $this->saveKeywordQueryRecursively($logId, $payload, $nextPage, $pageSize, $totalPage);
+            }
+        }
+    }
+
+    /**
+     * @func createImgId
+     * @description '오픈API 이미지ID 생성'
+     */
+    public function createImgId(UploadedFile $file): array
+    {
+        $returnMsg = $this->returnMsg;
+
+        try {
+            $filePath      = $file->getRealPath();
+            $fileContent   = file_get_contents($filePath);
+            $base64Encoded = base64_encode($fileContent);
+            $mimeType      = $file->getMimeType();
+            $dataUrlScheme = "data:" . $mimeType . ";base64," . $base64Encoded;
+            
+            $endPoint = "param2/1/com.alibaba.fenxiao.crossborder/product.image.upload/";
+            $payload = [
+                'access_token'    => $this->accessToken,
+                'uploadImageParam' => [
+                    "imageBase64" => $dataUrlScheme
+                ]
+            ];
+            $apiDatas = curl_1688("POST", $endPoint, $payload);
+
+            if( $apiDatas["isSuccess"] != true || $apiDatas["data"]["result"]["success"] != "true" || !isset($apiDatas["data"]["result"]["result"]) ){
+                throw new Exception(ImageErrorMessageConstant::getNotHaveErrorMessage("IMG_ID"));
+            }
+
+            $returnMsg = helpers_success_message($apiDatas["data"]["result"]);
+        } catch (Exception $e) {
+            $returnMsg = helpers_fail_message($e->getMessage());
+        }
+
+        return $returnMsg;
+    }
+
+    /**
+     * @func getImageQuery
+     * @description '오픈API 상품 이미지 조회'
+     * @param array $params
+     */
+    public function getImageQuery(array $params): array
+    {
+        $endPoint = "param2/1/com.alibaba.fenxiao.crossborder/product.search.imageQuery/";
+        $sortArr = explode("|", $params["sort"]);
+        $sort = [
+            $sortArr[0] => $sortArr[1]
+        ];
+        $payload = [
+            'access_token'    => $this->accessToken,
+            'offerQueryParam' => [
+                'imageId'    => $params["imageId"],
+                'sort'       => json_encode($sort),
+                'beginPage'  => $params["page"],
+                'pageSize'   => $params["pageSize"],
+                'country'    => Constant1688::LANGUAGE_KO,
+            ]
+        ];
+        if( !empty($params["search_cls"]) && !empty($params["keyword"]) ){
+            $payload["offerQueryParam"][$params["search_cls"]] = $params["keyword"];
+        }
+
+        $apiDatas = curl_1688("POST", $endPoint, $payload);
+
+        $resultData   = $apiDatas["data"]["result"]["result"];
+        $datas        = $resultData["data"] ?? [];
+        $totalRecords = $resultData["totalRecords"];
+        $totalPage    = $resultData["totalPage"];
+        foreach ($datas as &$data) {
+            $ocPrice                 = ocPrice((float)$data["priceInfo"]["price"]);
+            $data["price_1688"]      = (float)$data["priceInfo"]["price"];
+            $data["onch_price"]      = $ocPrice["onch_price"];
+            $data["option_price"]    = $ocPrice["option_price"];
+            $data["cus_price"]       = $ocPrice["cus_price"];
+            $data["recom_cus_price"] = $ocPrice["recom_cus_price"];
+        }
+
+        return [
+            "datas"        => $datas,
+            "totalRecords" => $totalRecords,
+            "totalPage"    => $totalPage,
+        ];
+    }
+
+    /**
+     * @func saveImageQuery
+     * @description '오픈API imageQueryAPI로 상품 수집'
+     */
+    public function saveImageQuery(array $params): array
+    {
+        $returnMsg = $this->returnMsg;
+
+        $params_json = json_encode($params, JSON_UNESCAPED_UNICODE);
+        $msg = "======================== 실행 시작 (params_json: {$params_json}) ========================";
+        debug_log($msg, "saveImageQuery", "saveImageQuery");
+
+        $sortArr = explode("|", $params["sort"]);
+        $sort = [
+            $sortArr[0] => $sortArr[1]
+        ];
+        $page     = $params["page"];
+        $pageSize = $params["pageSize"];
+        $payload  = [
+            'access_token'    => $this->accessToken,
+            'offerQueryParam' => [
+                'sort'      => json_encode($sort),
+                'country'   => Constant1688::LANGUAGE_KO,
+                'imageId'   => $params["imageId"]
+            ]
+        ];
+
+        try {
+            $endPoint = "param2/1/com.alibaba.fenxiao.crossborder/product.search.imageQuery/";
+            
+            $payload["offerQueryParam"]["beginPage"] = $page;
+            $payload["offerQueryParam"]["pageSize"]  = $pageSize;
+
+            $apiDatas     = curl_1688("POST", $endPoint, $payload);
+            $totalRecords = $apiDatas["data"]["result"]["result"]["totalRecords"];
+
+            $payload_json = json_encode($payload["offerQueryParam"], JSON_UNESCAPED_UNICODE);
+            $logId = ProductCollectLog::insertGetId([
+                "type"       => LogConstant::COLLECT_API_IMAGEQUERY_ALL,
+                "status"     => LogConstant::COLLECT_RUNNING,
+                "payload"    => $payload_json,
+                "log_count"  => (int)$totalRecords,
+                "created_at" => Carbon::now()
+            ]);
+
+            $this->saveImageQueryRecursively($logId, $payload, $page, $pageSize);
+        } catch (Exception $e) {
+            $msg = "======================== 에러 발생 (params_json: {$params_json}) ========================\r\n";
+            $msg .= $e->getMessage();
+            debug_log($msg, "saveImageQuery", "saveImageQuery", LogLevel::ERROR);
+        }
+
+        ProductCollectLog::where("id", $logId)->update([
+            "status"       => LogConstant::COLLECT_COMPLETE,
+            "completed_at" => Carbon::now()
+        ]);
+
+        $msg = "======================== 실행 종료 (params_json: {$params_json}) ========================";
+        debug_log($msg, "saveImageQuery", "saveImageQuery");
+
+        return $returnMsg;
+    }
+
+    /**
+     * @func saveImageQueryRecursively
+     * @description '1688 imageQueryAPI로 상품수집 재귀 메소드'
+     * @param int $logId
+     * @param array $payload
+     * @param int $page
+     * @param int $pageSize
+     * @param int $totalPage
+     */
+    public function saveImageQueryRecursively(int $logId, array $payload, int $page, int $pageSize, int $totalPage = 0): void
+    {
+        try {
+            $endPoint = "param2/1/com.alibaba.fenxiao.crossborder/product.search.imageQuery/";
+            
+            $payload["offerQueryParam"]["beginPage"] = $page;
+            $payload["offerQueryParam"]["pageSize"]  = $pageSize;
+
+            $payload_json = json_encode($payload, JSON_UNESCAPED_UNICODE);
+            $errorMsg     = ProductErrorMessageConstant::getFitErrorMessage("PRODUCT_SEARCH_IMAGEQUERY") . " | payload: {$payload_json}";
+
+            $apiDatas = curl_1688("POST", $endPoint, $payload);
+            if( $apiDatas["isSuccess"] != true ){
+                throw new Exception($apiDatas["msg"] . " | " . $errorMsg);
+            }
+            if( $apiDatas["data"]["result"]["success"] != true ){
+                throw new Exception($errorMsg);
+            }
+
+            $apiResult = $apiDatas["data"]["result"]["result"];
+            if( isset($apiResult["data"]) ){
+                $productDatas = $apiResult["data"];
+                $successCnt   = 0;
+                foreach ($productDatas as $productData) {
+                    try {
+                        $offerId        = $productData["offerId"];
+                        $endPoint       = "param2/1/com.alibaba.fenxiao.crossborder/product.search.queryProductDetail/";
+                        $payload_detail = [
+                            'access_token'     => $this->accessToken,
+                            'offerDetailParam' => [
+                                'offerId' => $offerId,
+                                'country' => Constant1688::LANGUAGE_KO,
+                            ]
+                        ];
+                        $detailResult = curl_1688("POST", $endPoint, $payload_detail);
+                        if( $detailResult["isSuccess"] != true || $detailResult["data"]["result"]["success"] != true ){
+                            throw new Exception(ProductErrorMessageConstant::getFitErrorMessage("PRODUCT_SEARCH_QUERYPRODUCTDETAIL"));
+                        }
+
+                        $detailProduct = $detailResult["data"]["result"]["result"];
+                        $prdCategoryId = $detailProduct["categoryId"];
+
+                        $getCategoryMappingObj = CategoryMapping::select(["mapping_code"])
+                        ->where("category_id", $prdCategoryId)
+                        ->where("mapping_channel", ProductConstant::MAPPING_OC_CHANNEL)
+                        ->where("mapping_code", "!=", 0)->first();
+                        if( $getCategoryMappingObj == null ){
+                            throw new Exception("카테고리 미맵핑");
+                        }
+
+                        $prdDto                   = $this->get1688ProductDto($detailResult);
+                        $product1688Dto           = $prdDto["product1688Dto"];
+                        $product1688ExtendDto     = $prdDto["product1688ExtendDto"];
+                        $product1688ImageDtoList  = $prdDto["product1688ImageDtoList"];
+                        $product1688NoticeDtoList = $prdDto["product1688NoticeDtoList"];
+                        $product1688OptionDtoList = $prdDto["product1688OptionDtoList"];
+
+                        $saveResult = $this->save1688ProductData($product1688Dto, $product1688ExtendDto, $product1688ImageDtoList, $product1688NoticeDtoList, $product1688OptionDtoList);
+
+                        if( $saveResult["isSuccess"] == true ){
+                            $successCnt++;
+                        }else{
+                            throw new Exception($saveResult["msg"]);
+                        }
+                        
+                        ProductCollectDetailLog::create([
+                            "log_id"     => $logId,
+                            "offer_id"   => $offerId,
+                            "is_collect" => LogConstant::COLLECT_DETAIL_Y,
+                            "msg"        => ""
+                        ]);
+                    } catch (Exception $de) {
+                        $msg = $de->getMessage() . " | page: {$page} | offerId: {$offerId}";
+                        debug_log($msg, "saveImageQuery", "saveImageQuery", LogLevel::ERROR);
+
+                        ProductCollectDetailLog::create([
+                            "log_id"     => $logId,
+                            "offer_id"   => $offerId,
+                            "is_collect" => LogConstant::COLLECT_DETAIL_N,
+                            "msg"        => $de->getMessage()
+                        ]);
+                    }
+                }
+            } else {
+                throw new Exception($errorMsg);
+            }
+
+            $totalPage = $apiDatas["data"]["result"]["result"]["totalPage"];
+            if( $page < $totalPage ){
+                $nextPage = $page + 1;
+                $this->saveImageQueryRecursively($logId, $payload, $nextPage, $pageSize, $totalPage);
+            }
+        } catch (Exception $e) {
+            $msg = $e->getMessage();
+            debug_log($msg, "saveImageQuery", "saveImageQuery", LogLevel::ERROR);
+
+            if( $page < $totalPage ){
+                $nextPage = $page + 1;
+                $this->saveImageQueryRecursively($logId, $payload, $nextPage, $pageSize, $totalPage);
+            }
+        }
     }
 }
