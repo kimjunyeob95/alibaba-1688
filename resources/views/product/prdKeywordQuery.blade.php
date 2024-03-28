@@ -169,24 +169,19 @@
             }
 
             if(confirm(`${offer_ids.length}건의 상품을 수집 하시겠습니까?`)){
-
-                $("#loadingOverlay").show();
-
                 $.ajax({
                     "headers"    : {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
                     "type"       : "POST",
                     "url"        : "{{ route('product.collectProduct') }}",
                     "data"       : { offer_ids },
-                    beforeSend: function () {},
+                    beforeSend: function () {
+                        alert("수집 요청 완료");
+                    },
                     complete: function () {
-                        $("#loadingOverlay").hide();
                     },
                     success: function (resp) {
-                        alert(resp.msg);
                     },
                     error: function error(request, status, _error) {
-                        let { error } = JSON.parse(request.responseText);
-                        alert(error.message);
                     }
                 });
             }
@@ -196,24 +191,19 @@
             let totalRecords = "{{ $totalRecords }}";
             let formData     = $("#searchFrm").serialize();
             if(confirm(`${totalRecords}건의 상품을 수집 하시겠습니까?`)){
-
-                $("#loadingOverlay").show();
-
                 $.ajax({
                     "headers"    : {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
                     "type"       : "POST",
                     "url"        : "{{ route('product.collectKeywordQuery') }}",
                     "data"       : formData,
-                    beforeSend: function () {},
+                    beforeSend: function () {
+                        alert("수집 요청 완료");
+                    },
                     complete: function () {
-                        $("#loadingOverlay").hide();
                     },
                     success: function (resp) {
-                        alert(resp.msg);
                     },
                     error: function error(request, status, _error) {
-                        let { error } = JSON.parse(request.responseText);
-                        alert(error.message);
                     }
                 });
             }
