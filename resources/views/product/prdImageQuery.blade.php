@@ -181,24 +181,23 @@
             formData.append('imgFile', file);
 
             $.ajax({
-                "headers"    : {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
-                "type"       : "POST",
-                "url"        : "{{ route('product.createImgId') }}",
-                "data"       : formData,
+                "headers" : {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
+                "type" : "POST",
+                "url" : "{{ route('product.createImgId') }}",
+                "data" : formData,
                 "processData": false,
                 "contentType": false,
-                beforeSend   : function () {},
-                complete     : function () {},
-                success      : function (resp) {
+                beforeSend : function () {},
+                complete: function(xhr, status) {
+                    $("#loadingOverlay").hide();
+                },
+                success : function (resp) {
                     $("#imageId").val(resp.data.result);
                     $("#span-imgId").text(resp.data.result);
                 },
                 error: function (request) {
                     let { error } = JSON.parse(request.responseText);
                     alert(error.message);
-                },
-                complete: function(xhr, status) {
-                    $("#loadingOverlay").hide();
                 }
             });
         });
@@ -220,10 +219,12 @@
                     "type"       : "POST",
                     "url"        : "{{ route('product.collectProductImage') }}",
                     "data"       : { offer_ids },
-                    beforeSend: function () {},
-                    complete: function () {},
+                    beforeSend: function () {
+                        alert("수집 요청 완료");
+                    },
+                    complete: function () {
+                    },
                     success: function (resp) {
-                        alert(resp.msg);
                     },
                     error: function error(request, status, _error) {
                         let { error } = JSON.parse(request.responseText);
@@ -251,14 +252,14 @@
                     "type"       : "POST",
                     "url"        : "{{ route('product.collectImageQuery') }}",
                     "data"       : formData,
-                    beforeSend: function () {},
-                    complete: function () {},
+                    beforeSend: function () {
+                        alert("수집 요청 완료");
+                    },
+                    complete: function () {
+                    },
                     success: function (resp) {
-                        alert(resp.msg);
                     },
                     error: function error(request, status, _error) {
-                        let { error } = JSON.parse(request.responseText);
-                        alert(error.message);
                     }
                 });
             }

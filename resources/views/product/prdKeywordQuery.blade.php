@@ -174,14 +174,14 @@
                     "type"       : "POST",
                     "url"        : "{{ route('product.collectProduct') }}",
                     "data"       : { offer_ids },
-                    beforeSend: function () {},
-                    complete: function () {},
+                    beforeSend: function () {
+                        alert("수집 요청 완료");
+                    },
+                    complete: function () {
+                    },
                     success: function (resp) {
-                        alert(resp.msg);
                     },
                     error: function error(request, status, _error) {
-                        let { error } = JSON.parse(request.responseText);
-                        alert(error.message);
                     }
                 });
             }
@@ -196,14 +196,14 @@
                     "type"       : "POST",
                     "url"        : "{{ route('product.collectKeywordQuery') }}",
                     "data"       : formData,
-                    beforeSend: function () {},
-                    complete: function () {},
+                    beforeSend: function () {
+                        alert("수집 요청 완료");
+                    },
+                    complete: function () {
+                    },
                     success: function (resp) {
-                        alert(resp.msg);
                     },
                     error: function error(request, status, _error) {
-                        let { error } = JSON.parse(request.responseText);
-                        alert(error.message);
                     }
                 });
             }
