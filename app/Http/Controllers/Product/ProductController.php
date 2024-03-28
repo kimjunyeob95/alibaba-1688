@@ -11,7 +11,6 @@ use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
-use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
 use Illuminate\Support\Facades\Validator;
 use Symfony\Component\Process\Process;
@@ -176,14 +175,6 @@ class ProductController extends Controller
             $process->setWorkingDirectory(env("WORK_DIRECTORY", "/web1/1688"));
             $process->setTimeout(null); // 실행 시간 제한 없음
             $process->start();
-
-            $process->wait(function ($type, $buffer) use ($process) {
-                if ($process->isSuccessful()) {
-                    Log::info("비동기 프로세스 성공: " . $buffer);
-                } else {
-                    Log::error("비동기 프로세스 실패: " . $process->getErrorOutput());
-                }
-            });
             
             return helpers_json_response(HttpConstant::OK, helpers_success_message([], "수집 요청 완료"));
         } catch (Exception $e) {
