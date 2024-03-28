@@ -176,9 +176,7 @@ class ProductController extends Controller
             $process->setTimeout(null); // 실행 시간 제한 없음
             $process->start();
 
-            
-            dd($process->getErrorOutput());
-            print_r($process->getErrorOutput());
+            sleep(1);
             
             return helpers_json_response(HttpConstant::OK, helpers_success_message([], "수집 요청 완료"));
         } catch (Exception $e) {
