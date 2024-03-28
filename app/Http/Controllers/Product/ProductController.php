@@ -13,7 +13,6 @@ use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\View\View;
 use Illuminate\Support\Facades\Validator;
-use Psr\Log\LogLevel;
 use Symfony\Component\Process\Process;
 
 class ProductController extends Controller
@@ -175,11 +174,6 @@ class ProductController extends Controller
             $process = Process::fromShellCommandline($command);
             $process->setWorkingDirectory(env("WORK_DIRECTORY", "/web1/1688"));
             $process->setTimeout(null); // 실행 시간 제한 없음
-            try {
-                $process->mustRun(); // mustRun()을 사용하면 프로세스 실행 실패 시 예외를 던집니다.
-            } catch (Exception $exception) {
-                debug_log($exception->getMessage(), "test", "test", LogLevel::ERROR);
-            }
             $process->start();
             
             return helpers_json_response(HttpConstant::OK, helpers_success_message([], "수집 요청 완료"));
