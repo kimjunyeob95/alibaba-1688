@@ -175,6 +175,9 @@ class ProductController extends Controller
             $process->setWorkingDirectory(env("WORK_DIRECTORY", "/web1/1688"));
             $process->setTimeout(null); // 실행 시간 제한 없음
             $process->start();
+
+            return helpers_json_response(HttpConstant::OK, helpers_success_message([], $process->getErrorOutput()));
+            print_r($process->getErrorOutput());
             
             return helpers_json_response(HttpConstant::OK, helpers_success_message([], "수집 요청 완료"));
         } catch (Exception $e) {
