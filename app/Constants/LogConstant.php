@@ -24,10 +24,14 @@ class LogConstant
     ];
 
     // 수집 API 분류
-    public const COLLECT_API_KEYWORDQUERY = "keywordQuery";
-    public const COLLECT_API_IMAGEQUERY   = "imageQuery";
-    public const COLLECT_API = [
-        self::COLLECT_API_KEYWORDQUERY => "기본 정보 수집",
-        self::COLLECT_API_IMAGEQUERY   => "Image 수집",
+    public const COLLECT_API_KEYWORDQUERY     = "keywordQuery";
+    public const COLLECT_API_IMAGEQUERY       = "imageQuery";
+    public const COLLECT_API_KEYWORDQUERY_ALL = "keywordQueryAll";
+    public const COLLECT_API_IMAGEQUERY_ALL   = "imageQueryAll";
+    public const COLLECT_API                  = [
+        self::COLLECT_API_KEYWORDQUERY     => "기본 정보 수집",
+        self::COLLECT_API_IMAGEQUERY       => "Image 수집",
+        self::COLLECT_API_KEYWORDQUERY_ALL => "기본 정보 전체 수집",
+        self::COLLECT_API_IMAGEQUERY_ALL   => "Image 전체 수집",
     ];
 }

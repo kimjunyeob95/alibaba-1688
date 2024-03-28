@@ -16,7 +16,7 @@ class CreateProductCollectLogsTable extends Migration
     {
         Schema::create('product_collect_logs', function (Blueprint $table) {
             $table->id();
-            $table->enum('type', ["keywordQuery", "imageQuery"])->nullable(false)->comment('수집 API 타입');
+            $table->enum('type', ["keywordQuery", "keywordQueryAll", "imageQuery", "imageQueryAll"])->nullable(false)->comment('수집 API 타입');
             $table->enum('status', ["S", "R", "C"])->default("S")->nullable(false)->comment('수집 진행 단계 S: 대기, R: 수집중, C: 완료');
             $table->text('payload')->nullable(false)->comment('요청 payload');
             $table->unsignedInteger('log_count')->nullable(false)->comment('수집 수');

@@ -1,12 +1,13 @@
 <?php
 namespace App\Console\Commands;
 
+use App\Constants\LogConstant;
 use App\Services\Product\ProductV1;
 use Illuminate\Console\Command;
 
 class Save1688CollectProduct extends Command
 {
-    protected $signature   = 'save_1688_collect_product {--offerids=}';
+    protected $signature   = 'save_1688_collect_product {--offerids=} {--type=}';
     protected $description = '1688 상품 제품ID별 수집';
 
     protected ProductV1 $productV1;
@@ -24,9 +25,10 @@ class Save1688CollectProduct extends Command
     public function handle()
     {
         $offerids = explode(",", $this->option('offerids'));
+        $type     = $this->option('type') ?? LogConstant::COLLECT_API_KEYWORDQUERY;
         
         if( !empty($offerids) ){
-            $this->productV1->collectProduct($offerids);
+            $this->productV1->collectProduct($offerids, $type);
         }
     }
 }

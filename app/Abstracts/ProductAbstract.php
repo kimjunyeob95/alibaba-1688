@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Abstracts;
+use Illuminate\Http\UploadedFile;
 
 abstract class ProductAbstract
 {
@@ -24,8 +25,26 @@ abstract class ProductAbstract
     abstract function getKeywordQuery(array $params): array;
 
     /**
+     * @func getImageQuery
+     * @description '오픈API 상품 이미지 조회'
+     */
+    abstract function getImageQuery(array $params): array;
+
+    /**
      * @func saveKeywordQuery
-     * @description '오픈API 상품 keywordQueryAPI로 수집'
+     * @description '오픈API keywordQueryAPI로 상품 수집'
      */
     abstract function saveKeywordQuery(array $params): array;
+
+    /**
+     * @func createImgId
+     * @description '오픈API 이미지ID 생성'
+     */
+    abstract function createImgId(UploadedFile $file): array;
+
+    /**
+     * @func saveImageQuery
+     * @description '오픈API imageQueryAPI로 상품 수집'
+     */
+    abstract function saveImageQuery(array $params): array;
 }

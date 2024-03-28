@@ -31,12 +31,13 @@
                         <thead class="table-light">
                             <tr>
                                 <th scope="col" style="width: 50px">No</th>
-                                <th scope="col" style="width: 70px">요청</th>
-                                <th scope="col" style="width: 150px;">요청정보</th>
-                                <th scope="col" style="width: 50px">상세내역</th>
-                                <th scope="col" style="width: 50px">현황</th>
-                                <th scope="col" style="width: 100px">요청일자</th>
-                                <th scope="col" style="width: 100px">완료일자</th>
+                                <th scope="col" style="width: 150px">요청</th>
+                                <th scope="col" style="width: *">요청정보</th>
+                                <th scope="col" style="width: 150px">상세내역</th>
+                                <th scope="col" style="width: 100px">현황</th>
+                                <th scope="col" style="width: 150px">요청일자</th>
+                                <th scope="col" style="width: 150px">완료일자</th>
+                                <th scope="col" style="width: 100px" class="text-center">관리</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -63,6 +64,9 @@
                                     <td>
                                         {{ $data->completed_at }}
                                     </td>
+                                    <td class="text-center">
+                                        <button class="btn btn-outline-success btn-detail" logid={{ $data->id }}>상세</button>
+                                    </td>
                                 </tr>
                             @endforeach
                         </tbody>
@@ -79,7 +83,10 @@
 <script type="text/javascript">
 
     $(document).ready(function(){
-        
+        $(".btn-detail").click(function(){
+            let logid = $(this).attr("logid");
+            location.href = `/product/collect/log/${logid}`;
+        })
     })
 </script>
 

@@ -22,6 +22,15 @@
         @yield('styles')
     </head>
     <body>
+        <div id="loadingOverlay" style="display: none">
+            <div id="loadingButtonContainer">
+                <button class="btn btn-primary" type="button" disabled>
+                    <span class="spinner-border spinner-border-sm" aria-hidden="false"></span>
+                    Loading...
+                </button>
+            </div>
+        </div>
+
         @include('dashboard.shared.sidebar')
 
         <div class="wrapper d-flex flex-column min-vh-100 bg-light">
