@@ -205,7 +205,7 @@ class GenuioService extends TransApiAbstract
                 "offerId"       => $getGenuioObj->offer_id,
                 "payload_json"  => "", // base64가 너무 길어 그냥 ""처리
                 "request_user"  => TransApiConstant::API_USER_COMPANY_GENUIO,
-                "response_json" => json_encode($returnMsg["msg"], JSON_UNESCAPED_UNICODE),
+                "response_json" => json_encode($returnMsg, JSON_UNESCAPED_UNICODE),
             ];
             $queueDto = new QueueDto();
             $queueDto->bind($bindParam);
