@@ -225,11 +225,11 @@
                     "url"        : "{{ route('product.collectProductImage') }}",
                     "data"       : { offer_ids },
                     beforeSend: function () {
-                        alert("수집 요청 완료");
                     },
                     complete: function () {
                     },
                     success: function (resp) {
+                        alert(resp.msg);
                     },
                     error: function error(request, status, _error) {
                         let { error } = JSON.parse(request.responseText);
@@ -258,13 +258,15 @@
                     "url"        : "{{ route('product.collectImageQuery') }}",
                     "data"       : formData,
                     beforeSend: function () {
-                        alert("수집 요청 완료");
                     },
                     complete: function () {
                     },
                     success: function (resp) {
+                        alert(resp.msg);
                     },
                     error: function error(request, status, _error) {
+                        let { error } = JSON.parse(request.responseText);
+                        alert(error.message);
                     }
                 });
             }

@@ -197,6 +197,10 @@
         $("#btn-all").click(function(){
             let totalRecords = "{{ $totalRecords }}";
             let formData     = $("#searchFrm").serialize();
+
+            if(totalRecords < 1){
+                return alert("검색 된 상품이 없습니다.");
+            }
             if(confirm(`${totalRecords}건의 상품을 수집 하시겠습니까?`)){
                 $.ajax({
                     "headers"    : {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
