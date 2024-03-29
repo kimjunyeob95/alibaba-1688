@@ -19,6 +19,7 @@ class ProductErrorMessageConstant
     public const ERROR_MESSAGE_PRODUCT_TRANS_IMG                 = "Genuio imageTranslate";
     public const ERROR_MESSAGE_PRODUCT_S3_IMG_UPLOAD             = "S3 image Upload";
     public const ERROR_MESSAGE_PRODUCT_CHECK_IMG_SIZE            = "check img size";
+    public const ERROR_MESSAGE_PRODUCT_KEYWORD                   = "keyword";
  
     public static function getErrorMessageNotDefault($constantName): string
     {
