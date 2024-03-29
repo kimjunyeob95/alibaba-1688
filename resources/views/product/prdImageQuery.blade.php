@@ -70,6 +70,9 @@
                                     <td colspan="6">
                                         <button type="button" class="btn btn-md btn-primary" id="form-submit">검색</button>
                                         <button type="button" onclick="location.href='/product/imageQuery'" class="btn btn-md btn-light btn-reset">초기화</button>
+                                        @if ( $payload )
+                                            <div class="mt-3">payload: {{ $payload }}</div>
+                                        @endif
                                     </td>
                                 </tr>
                             </table>
@@ -170,10 +173,12 @@
             if (file.type.indexOf('image') == -1) {
                 this.value = '';
                 $("#imageId").val('');
+                $("#loadingOverlay").hide();
                 return alert('이미지 파일만 업로드 가능합니다.');
             } else if (file.size > 300000) { // 파일 크기 검사 (300KB 이하인지 확인)
                 this.value = '';
                 $("#imageId").val('');
+                $("#loadingOverlay").hide();
                 return alert('파일 크기는 300KB 이하로 업로드 가능합니다.');
             }
 
@@ -220,11 +225,11 @@
                     "url"        : "{{ route('product.collectProductImage') }}",
                     "data"       : { offer_ids },
                     beforeSend: function () {
-                        alert("수집 요청 완료");
                     },
                     complete: function () {
                     },
                     success: function (resp) {
+                        alert(resp.msg);
                     },
                     error: function error(request, status, _error) {
                         let { error } = JSON.parse(request.responseText);
@@ -253,13 +258,15 @@
                     "url"        : "{{ route('product.collectImageQuery') }}",
                     "data"       : formData,
                     beforeSend: function () {
-                        alert("수집 요청 완료");
                     },
                     complete: function () {
                     },
                     success: function (resp) {
+                        alert(resp.msg);
                     },
                     error: function error(request, status, _error) {
+                        let { error } = JSON.parse(request.responseText);
+                        alert(error.message);
                     }
                 });
             }

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Product;
 use App\Constants\HttpConstant;
 use App\Constants\ImageErrorMessageConstant;
 use App\Constants\LogConstant;
+use App\Constants\ProductErrorMessageConstant;
 use App\Http\Controllers\Controller;
 use App\Services\Product\ProductV1;
 use Exception;
@@ -67,25 +68,33 @@ class ProductController extends Controller
         $pageSize   = $this->request->get("pageSize", 50);
         $offset     = ($page - 1) * $pageSize;
         
-        $params = [
-            "search_cls" => $search_cls,
-            "keyword"    => $keyword,
-            "sort"       => $sort,
-            "page"       => $page,
-            "pageSize"   => $pageSize,
-        ];
-        $result       = $this->productService->getKeywordQuery($params);
-        $datas        = $result["datas"] ?? [];
-        $totalRecords = $result["totalRecords"];
-        $totalPage    = $result["totalPage"];
-        $paginator    = new LengthAwarePaginator(
-            collect($datas)->forPage($page, $pageSize), // 현재 페이지의 아이템들
-            $totalRecords, // 총 아이템 수
-            $pageSize, // 페이지 당 아이템 수
-            $page, // 현재 페이지
-            ['path' => LengthAwarePaginator::resolveCurrentPath()] // 현재 URL 경로
-        );
-        $paginator->appends($this->request->query());
+        $datas        = [];
+        $totalRecords = 0;
+        $totalPage    = 0;
+        $paginator    = null;
+        $payload      = "";
+        if( $keyword ){
+            $params = [
+                "search_cls" => $search_cls,
+                "keyword"    => $keyword,
+                "sort"       => $sort,
+                "page"       => $page,
+                "pageSize"   => $pageSize,
+            ];
+            $result       = $this->productService->getKeywordQuery($params);
+            $datas        = $result["datas"] ?? [];
+            $totalRecords = $result["totalRecords"];
+            $totalPage    = $result["totalPage"];
+            $payload      = $result["payload"];
+            $paginator    = new LengthAwarePaginator(
+                collect($datas)->forPage($page, $pageSize), // 현재 페이지의 아이템들
+                $totalRecords, // 총 아이템 수
+                $pageSize, // 페이지 당 아이템 수
+                $page, // 현재 페이지
+                ['path' => LengthAwarePaginator::resolveCurrentPath()] // 현재 URL 경로
+            );
+            $paginator->appends($this->request->query());
+        }
 
         $viewParams = [
             "datas"        => $datas,
@@ -97,7 +106,8 @@ class ProductController extends Controller
             "sort"         => $sort,
             "page"         => $page,
             "pageSize"     => $pageSize,
-            "paginator"    => $paginator
+            "paginator"    => $paginator,
+            "payload"      => $payload,
         ];
         return view("product.prdKeywordQuery")->with($viewParams);
     }
@@ -116,6 +126,7 @@ class ProductController extends Controller
         $totalRecords = 0;
         $totalPage    = 0;
         $paginator    = null;
+        $payload      = "";
         if( $imageId ){
             $params = [
                 "imageId"    => $imageId,
@@ -129,6 +140,7 @@ class ProductController extends Controller
             $datas        = $result["datas"] ?? [];
             $totalRecords = $result["totalRecords"];
             $totalPage    = $result["totalPage"];
+            $payload      = $result["payload"];
             $paginator    = new LengthAwarePaginator(
                 collect($datas)->forPage($page, $pageSize), // 현재 페이지의 아이템들
                 $totalRecords, // 총 아이템 수
@@ -151,45 +163,60 @@ class ProductController extends Controller
             "pageSize"     => $pageSize,
             "paginator"    => $paginator,
             "imageId"      => $imageId,
+            "payload"      => $payload,
         ];
         return view("product.prdImageQuery")->with($viewParams);
     }
 
-    public function collectProduct(): void
+    public function collectProduct(): JsonResponse
     {
-        $validator = Validator::make($this->request->all(), [
-            'offer_ids' => 'required|array',
-        ], [
-            'offer_ids.required' => 'offer_ids를 입력하세요.',
-        ]);
-        if ($validator->fails()) {
-            throw new Exception($validator->errors()->first());
+        try {
+            $validator = Validator::make($this->request->all(), [
+                'offer_ids' => 'required|array',
+            ], [
+                'offer_ids.required' => 'offer_ids를 입력하세요.',
+            ]);
+            if ($validator->fails()) {
+                throw new Exception($validator->errors()->first());
+            }
+
+            $offerIds = $this->request->post("offer_ids");
+
+            $options = "--offerids=" . escapeshellarg(implode(",", $offerIds)) . " --type=" . escapeshellarg(LogConstant::COLLECT_API_KEYWORDQUERY);
+            $command = "nohup php artisan save_1688_collect_product " . $options . " > /dev/null 2>&1 &";
+            $process = Process::fromShellCommandline($command);
+            $process->setWorkingDirectory(env("WORK_DIRECTORY", "/web1/1688"));
+            $process->setTimeout(null); // 실행 시간 제한 없음
+            $process->start();
+
+            return helpers_json_response(HttpConstant::OK, helpers_success_message([], "수집 요청 완료"));
+        } catch (Exception $e) {
+            return helpers_json_response(HttpConstant::BAD_REQUEST, [], $e->getMessage());
         }
-
-        $offerIds = $this->request->post("offer_ids");
-
-        $options = "--offerids=" . escapeshellarg(implode(",", $offerIds)) . " --type=" . escapeshellarg(LogConstant::COLLECT_API_KEYWORDQUERY);
-        $command = "nohup php artisan save_1688_collect_product " . $options;
-        $process = Process::fromShellCommandline($command);
-        $process->setWorkingDirectory(env("WORK_DIRECTORY", "/web1/1688"));
-        $process->setTimeout(null); // 실행 시간 제한 없음
-        $process->start();
-        $process->wait();
     }
 
-    public function collectKeywordQuery(): void
+    public function collectKeywordQuery(): JsonResponse
     {
-        $searchCls = $this->request->post("search_cls", "productCollectionId");
-        $keyword   = $this->request->post("keyword", "");
-        $sort      = $this->request->post("sort", "monthSold|desc");
+        try {
+            $searchCls = $this->request->post("search_cls", "productCollectionId");
+            $keyword   = $this->request->post("keyword", "");
+            $sort      = $this->request->post("sort", "monthSold|desc");
 
-        $options = "--search_cls=" . escapeshellarg($searchCls) . " --keyword=" . escapeshellarg($keyword) . " --sort=" . escapeshellarg($sort);
-        $command = "nohup php artisan save_1688_product_keyword_query " . $options;
-        $process = Process::fromShellCommandline($command);
-        $process->setWorkingDirectory(env("WORK_DIRECTORY", "/web1/1688"));
-        $process->setTimeout(null); // 실행 시간 제한 없음
-        $process->start();
-        $process->wait();
+            if( $keyword == "" ){
+                throw new Exception(ProductErrorMessageConstant::getNotHaveErrorMessage("PRODUCT_KEYWORD"));
+            }
+
+            $options = "--search_cls=" . escapeshellarg($searchCls) . " --keyword=" . escapeshellarg($keyword) . " --sort=" . escapeshellarg($sort);
+            $command = "nohup php artisan save_1688_product_keyword_query " . $options . " > /dev/null 2>&1 &";
+            $process = Process::fromShellCommandline($command);
+            $process->setWorkingDirectory(env("WORK_DIRECTORY", "/web1/1688"));
+            $process->setTimeout(null); // 실행 시간 제한 없음
+            $process->start();
+            
+            return helpers_json_response(HttpConstant::OK, helpers_success_message([], "수집 요청 완료"));
+        } catch (Exception $e) {
+            return helpers_json_response(HttpConstant::BAD_REQUEST, [], $e->getMessage());
+        }
     }
 
     public function prdCollectLogs(): View
@@ -236,44 +263,54 @@ class ProductController extends Controller
         }
     }
 
-    public function collectProductImage(): void
+    public function collectProductImage(): JsonResponse
     {
-        $validator = Validator::make($this->request->all(), [
-            'offer_ids' => 'required|array',
-        ], [
-            'offer_ids.required' => 'offer_ids를 입력하세요.'
-        ]);
-        if ($validator->fails()) {
-            throw new Exception($validator->errors()->first());
+        try {
+            $validator = Validator::make($this->request->all(), [
+                'offer_ids' => 'required|array',
+            ], [
+                'offer_ids.required' => 'offer_ids를 입력하세요.'
+            ]);
+            if ($validator->fails()) {
+                throw new Exception($validator->errors()->first());
+            }
+    
+            $offerIds = $this->request->post("offer_ids");
+            
+            $options = "--offerids=" . escapeshellarg(implode(",", $offerIds)) . " --type=" . escapeshellarg(LogConstant::COLLECT_API_IMAGEQUERY);
+            $command = "nohup php artisan save_1688_collect_product " . $options . " > /dev/null 2>&1 &";
+            $process = Process::fromShellCommandline($command);
+            $process->setWorkingDirectory(env("WORK_DIRECTORY", "/web1/1688"));
+            $process->setTimeout(null); // 실행 시간 제한 없음
+            $process->start();
+
+            return helpers_json_response(HttpConstant::OK, helpers_success_message([], "수집 요청 완료"));
+        } catch (Exception $e) {
+            return helpers_json_response(HttpConstant::BAD_REQUEST, [], $e->getMessage());
         }
-
-        $offerIds = $this->request->post("offer_ids");
-
-        $options = "--offerids=" . escapeshellarg(implode(",", $offerIds)) . " --type=" . escapeshellarg(LogConstant::COLLECT_API_IMAGEQUERY);
-        $command = "nohup php artisan save_1688_collect_product " . $options;
-        $process = Process::fromShellCommandline($command);
-        $process->setWorkingDirectory(env("WORK_DIRECTORY", "/web1/1688"));
-        $process->setTimeout(null); // 실행 시간 제한 없음
-        $process->start();
-        $process->wait();
     }
 
-    public function collectImageQuery(): void
+    public function collectImageQuery(): JsonResponse
     {
-        $imageId = $this->request->post("imageId");
-        $sort    = $this->request->post("sort", "monthSold|desc");
+        try {
+            $imageId = $this->request->post("imageId");
+            $sort    = $this->request->post("sort", "monthSold|desc");
 
-        if( !$imageId ){
-            throw new Exception(ImageErrorMessageConstant::getNotHaveErrorMessage("IMG_ID"));   
+            if( !$imageId ){
+                throw new Exception(ImageErrorMessageConstant::getNotHaveErrorMessage("IMG_ID"));   
+            }
+
+            $options = "--imageid=" . $imageId . " --sort=" . escapeshellarg($sort);
+            $command = "nohup php artisan save_1688_product_image_query " . $options . " > /dev/null 2>&1 &";
+            $process = Process::fromShellCommandline($command);
+            $process->setWorkingDirectory(env("WORK_DIRECTORY", "/web1/1688"));
+            $process->setTimeout(null); // 실행 시간 제한 없음
+            $process->start();
+
+            return helpers_json_response(HttpConstant::OK, helpers_success_message([], "수집 요청 완료"));
+        } catch (Exception $e) {
+            return helpers_json_response(HttpConstant::BAD_REQUEST, [], $e->getMessage());
         }
-
-        $options = "--imageid=" . $imageId . " --sort=" . escapeshellarg($sort);
-        $command = "nohup php artisan save_1688_product_image_query " . $options;
-        $process = Process::fromShellCommandline($command);
-        $process->setWorkingDirectory(env("WORK_DIRECTORY", "/web1/1688"));
-        $process->setTimeout(null); // 실행 시간 제한 없음
-        $process->start();
-        $process->wait();
     }
 
     public function prdCollectLogDetail(int $logId): View
