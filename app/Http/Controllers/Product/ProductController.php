@@ -67,25 +67,33 @@ class ProductController extends Controller
         $pageSize   = $this->request->get("pageSize", 50);
         $offset     = ($page - 1) * $pageSize;
         
-        $params = [
-            "search_cls" => $search_cls,
-            "keyword"    => $keyword,
-            "sort"       => $sort,
-            "page"       => $page,
-            "pageSize"   => $pageSize,
-        ];
-        $result       = $this->productService->getKeywordQuery($params);
-        $datas        = $result["datas"] ?? [];
-        $totalRecords = $result["totalRecords"];
-        $totalPage    = $result["totalPage"];
-        $paginator    = new LengthAwarePaginator(
-            collect($datas)->forPage($page, $pageSize), // 현재 페이지의 아이템들
-            $totalRecords, // 총 아이템 수
-            $pageSize, // 페이지 당 아이템 수
-            $page, // 현재 페이지
-            ['path' => LengthAwarePaginator::resolveCurrentPath()] // 현재 URL 경로
-        );
-        $paginator->appends($this->request->query());
+        $datas        = [];
+        $totalRecords = 0;
+        $totalPage    = 0;
+        $paginator    = null;
+        $payload      = "";
+        if( $keyword ){
+            $params = [
+                "search_cls" => $search_cls,
+                "keyword"    => $keyword,
+                "sort"       => $sort,
+                "page"       => $page,
+                "pageSize"   => $pageSize,
+            ];
+            $result       = $this->productService->getKeywordQuery($params);
+            $datas        = $result["datas"] ?? [];
+            $totalRecords = $result["totalRecords"];
+            $totalPage    = $result["totalPage"];
+            $payload      = $result["payload"];
+            $paginator    = new LengthAwarePaginator(
+                collect($datas)->forPage($page, $pageSize), // 현재 페이지의 아이템들
+                $totalRecords, // 총 아이템 수
+                $pageSize, // 페이지 당 아이템 수
+                $page, // 현재 페이지
+                ['path' => LengthAwarePaginator::resolveCurrentPath()] // 현재 URL 경로
+            );
+            $paginator->appends($this->request->query());
+        }
 
         $viewParams = [
             "datas"        => $datas,
@@ -97,7 +105,8 @@ class ProductController extends Controller
             "sort"         => $sort,
             "page"         => $page,
             "pageSize"     => $pageSize,
-            "paginator"    => $paginator
+            "paginator"    => $paginator,
+            "payload"      => $payload,
         ];
         return view("product.prdKeywordQuery")->with($viewParams);
     }
@@ -116,6 +125,7 @@ class ProductController extends Controller
         $totalRecords = 0;
         $totalPage    = 0;
         $paginator    = null;
+        $payload      = "";
         if( $imageId ){
             $params = [
                 "imageId"    => $imageId,
@@ -129,6 +139,7 @@ class ProductController extends Controller
             $datas        = $result["datas"] ?? [];
             $totalRecords = $result["totalRecords"];
             $totalPage    = $result["totalPage"];
+            $payload      = $result["payload"];
             $paginator    = new LengthAwarePaginator(
                 collect($datas)->forPage($page, $pageSize), // 현재 페이지의 아이템들
                 $totalRecords, // 총 아이템 수
@@ -151,30 +162,37 @@ class ProductController extends Controller
             "pageSize"     => $pageSize,
             "paginator"    => $paginator,
             "imageId"      => $imageId,
+            "payload"      => $payload,
         ];
         return view("product.prdImageQuery")->with($viewParams);
     }
 
-    public function collectProduct(): void
+    public function collectProduct(): JsonResponse
     {
-        $validator = Validator::make($this->request->all(), [
-            'offer_ids' => 'required|array',
-        ], [
-            'offer_ids.required' => 'offer_ids를 입력하세요.',
-        ]);
-        if ($validator->fails()) {
-            throw new Exception($validator->errors()->first());
+        try {
+            $validator = Validator::make($this->request->all(), [
+                'offer_ids' => 'required|array',
+            ], [
+                'offer_ids.required' => 'offer_ids를 입력하세요.',
+            ]);
+            if ($validator->fails()) {
+                throw new Exception($validator->errors()->first());
+            }
+
+            $offerIds = $this->request->post("offer_ids");
+
+            $options = "--offerids=" . escapeshellarg(implode(",", $offerIds)) . " --type=" . escapeshellarg(LogConstant::COLLECT_API_KEYWORDQUERY);
+            $command = "nohup php artisan save_1688_collect_product " . $options . " > /dev/null 2>&1 &";
+            $process = Process::fromShellCommandline($command);
+            $process->setWorkingDirectory(env("WORK_DIRECTORY", "/web1/1688"));
+            $process->setTimeout(null); // 실행 시간 제한 없음
+            $process->start();
+            // $process->wait();
+
+            return helpers_json_response(HttpConstant::OK, helpers_success_message());
+        } catch (Exception $e) {
+            return helpers_json_response(HttpConstant::BAD_REQUEST, [], $e->getMessage());
         }
-
-        $offerIds = $this->request->post("offer_ids");
-
-        $options = "--offerids=" . escapeshellarg(implode(",", $offerIds)) . " --type=" . escapeshellarg(LogConstant::COLLECT_API_KEYWORDQUERY);
-        $command = "nohup php artisan save_1688_collect_product " . $options;
-        $process = Process::fromShellCommandline($command);
-        $process->setWorkingDirectory(env("WORK_DIRECTORY", "/web1/1688"));
-        $process->setTimeout(null); // 실행 시간 제한 없음
-        $process->start();
-        $process->wait();
     }
 
     public function collectKeywordQuery(): void
@@ -236,26 +254,32 @@ class ProductController extends Controller
         }
     }
 
-    public function collectProductImage(): void
+    public function collectProductImage()
     {
-        $validator = Validator::make($this->request->all(), [
-            'offer_ids' => 'required|array',
-        ], [
-            'offer_ids.required' => 'offer_ids를 입력하세요.'
-        ]);
-        if ($validator->fails()) {
-            throw new Exception($validator->errors()->first());
+        try {
+            $validator = Validator::make($this->request->all(), [
+                'offer_ids' => 'required|array',
+            ], [
+                'offer_ids.required' => 'offer_ids를 입력하세요.'
+            ]);
+            if ($validator->fails()) {
+                throw new Exception($validator->errors()->first());
+            }
+    
+            $offerIds = $this->request->post("offer_ids");
+            
+            $options = "--offerids=" . escapeshellarg(implode(",", $offerIds)) . " --type=" . escapeshellarg(LogConstant::COLLECT_API_IMAGEQUERY);
+            $command = "nohup php artisan save_1688_collect_product " . $options;
+            $process = Process::fromShellCommandline($command);
+            $process->setWorkingDirectory(env("WORK_DIRECTORY", "/web1/1688"));
+            $process->setTimeout(null); // 실행 시간 제한 없음
+            $process->start();
+            $process->wait();
+
+            return helpers_json_response(HttpConstant::OK);
+        } catch (Exception $e) {
+            return helpers_json_response(HttpConstant::BAD_REQUEST, [], $e->getMessage());
         }
-
-        $offerIds = $this->request->post("offer_ids");
-
-        $options = "--offerids=" . escapeshellarg(implode(",", $offerIds)) . " --type=" . escapeshellarg(LogConstant::COLLECT_API_IMAGEQUERY);
-        $command = "nohup php artisan save_1688_collect_product " . $options;
-        $process = Process::fromShellCommandline($command);
-        $process->setWorkingDirectory(env("WORK_DIRECTORY", "/web1/1688"));
-        $process->setTimeout(null); // 실행 시간 제한 없음
-        $process->start();
-        $process->wait();
     }
 
     public function collectImageQuery(): void

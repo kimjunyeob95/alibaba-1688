@@ -30,7 +30,7 @@
                                     <th style="width: 120px">상품 검색</th>
                                     <td style="width: 200px">
                                         <select class="form-select" name="search_cls">
-                                            <option value="productCollectionId" @if($search_cls == "productCollectionId") selected @endif>Paller ID</option>
+                                            <option value="productCollectionId" @if($search_cls == "productCollectionId") selected @endif>PALLET ID</option>
                                             <option value="categoryId" @if($search_cls == "categoryId") selected @endif>Category ID</option>
                                         </select>
                                     </td>
@@ -68,6 +68,9 @@
                                     <td colspan="6">
                                         <button type="button" class="btn btn-md btn-primary" id="form-submit">검색</button>
                                         <button type="button" onclick="location.href='/product/keywordQuery'" class="btn btn-md btn-light btn-reset">초기화</button>
+                                        @if ( $payload )
+                                            <div class="mt-3">payload: {{ $payload }}</div>
+                                        @endif
                                     </td>
                                 </tr>
                             </table>
@@ -140,7 +143,9 @@
             </div>
 
             <div class="d-flex justify-content-center">
-                {{ $paginator->links("vendor.pagination.bootstrap-4") }}
+                @if ($paginator)
+                    {{ $paginator->links("vendor.pagination.bootstrap-4") }}
+                @endif
             </div>
         </div>
 

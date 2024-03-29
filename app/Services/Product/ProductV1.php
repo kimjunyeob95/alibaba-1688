@@ -981,6 +981,7 @@ class ProductV1 extends ProductAbstract
             "datas"        => $datas,
             "totalRecords" => $totalRecords,
             "totalPage"    => $totalPage,
+            "payload"      => json_encode($payload, JSON_UNESCAPED_UNICODE),
         ];
     }
 
@@ -1242,6 +1243,7 @@ class ProductV1 extends ProductAbstract
             "datas"        => $datas,
             "totalRecords" => $totalRecords,
             "totalPage"    => $totalPage,
+            "payload"      => json_encode($payload, JSON_UNESCAPED_UNICODE),
         ];
     }
 

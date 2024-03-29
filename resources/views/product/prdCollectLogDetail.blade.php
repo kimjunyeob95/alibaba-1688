@@ -36,6 +36,7 @@
                         <table class="table table-white bg-white">
                             <thead class="table-light">
                                 <tr class="text-center">
+                                    <th scope="col" style="width: 50px">No</th>
                                     <th scope="col" style="width: 150px">제품ID</th>
                                     <th scope="col" style="width: 150px">수집 성공 여부</th>
                                     <th scope="col" style="width: *">에러 메세지</th>
@@ -43,8 +44,11 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach ($data->details as $detail)
+                                @foreach ($data->details as $key => $detail)
                                     <tr class="text-center">
+                                        <td>
+                                            {{ count($data->details) - $key }}
+                                        </td>
                                         <td>
                                             {{ $detail->offer_id }}
                                         </td>
