@@ -49,7 +49,7 @@ class ProductV1 extends ProductAbstract
         $pageSize  = $params["pageSize"];
 
         $prdBuilder = ProductData::with(["main_img", "options"])->orderBy("created_at", "desc");
-        $lists = $prdBuilder->paginate($pageSize)->appends($params);
+        $lists      = $prdBuilder->paginate($pageSize)->appends($params);
 
         return $lists;
     }
@@ -108,11 +108,6 @@ class ProductV1 extends ProductAbstract
         return $returnMsg;
     }
 
-    /**
-     * @func getProductData
-     * @description '1688 상품상세 endPoint 조회'
-     * @param int $offerId '제품ID'
-     */
     public function getProductData(int $offerId): array
     {
         $returnMsg = $this->returnMsg;
@@ -133,10 +128,6 @@ class ProductV1 extends ProductAbstract
         return $returnMsg;
     }
 
-    /**
-     * @func saveMallProductByCategotyId
-     * @description '1688 카테고리ID별 상품수집'
-     */
     public function saveMallProductByCategotyId(int $categoryId): void
     {
         $msg = "======================== 실행 시작 (categoryId: {$categoryId}) ========================";
@@ -156,14 +147,6 @@ class ProductV1 extends ProductAbstract
         debug_log($msg, "saveMallProductByCategotyId", "saveMallProductByCategotyId");
     }
 
-    /**
-     * @func saveMallProductRecursively
-     * @description '1688 카테고리ID별 상품수집 재귀 메소드'
-     * @param int $categoryId
-     * @param int $page
-     * @param int $pageSize
-     * @param int $totalPage
-     */
     public function saveMallProductRecursively(int $categoryId, int $page, int $pageSize, int $totalPage = 0): void
     {
         $msg = "start saveMallProductRecursively | page: {$page} | categoryId: {$categoryId}";
@@ -263,11 +246,6 @@ class ProductV1 extends ProductAbstract
         }
     }
 
-    /**
-     * @func saveMallProductByImageId
-     * @description '1688 이미지ID별 상품수집'
-     * @param string $imageId
-     */
     public function saveMallProductByImageId(string $imageId): void
     {
         $msg = "======================== 실행 시작 (imageId: {$imageId}) ========================";
@@ -287,14 +265,6 @@ class ProductV1 extends ProductAbstract
         debug_log($msg, "saveMallProductByImageId", "saveMallProductByImageId");
     }
 
-    /**
-     * @func saveMallProductByImageIdRecursively
-     * @description '1688 이미지ID별 상품수집 재귀 메소드'
-     * @param string $imageId
-     * @param int $page
-     * @param int $pageSize
-     * @param int $totalPage
-     */
     public function saveMallProductByImageIdRecursively(string $imageId, int $page, int $pageSize, int $totalPage = 0): void
     {
         $msg = "start saveMallProductByImageIdRecursively | page: {$page} | imageId: {$imageId}";
@@ -394,7 +364,7 @@ class ProductV1 extends ProductAbstract
         }
     }
 
-    public function collectProduct(array $offerIds, $type = LogConstant::COLLECT_API_KEYWORDQUERY): void
+    public function collectProduct(array $offerIds, string $type = LogConstant::COLLECT_API_KEYWORDQUERY): void
     {
         $logId = ProductCollectLog::insertGetId([
             "type"       => $type,
@@ -538,11 +508,6 @@ class ProductV1 extends ProductAbstract
         ]);
     }
 
-    /**
-     * @func get1688ProductDto
-     * @description '제품 DTO 바인딩'
-     * @param array $detailResult
-     */
     public function get1688ProductDto(array $detailResult): array
     {
         $detailProduct = $detailResult["data"]["result"]["result"];
@@ -702,10 +667,6 @@ class ProductV1 extends ProductAbstract
         ];
     }
 
-    /**
-     * @func save1688ProductData
-     * @description '1688 상품 DB저장'
-     */
     public function save1688ProductData(
         Product1688Dto $product1688Dto, Product1688ExtendDto $product1688ExtendDto, array $product1688ImageDtoList,
         array $product1688NoticeDtoList, array $product1688OptionDtoList): array
@@ -835,11 +796,6 @@ class ProductV1 extends ProductAbstract
         return $returnMsg;
     }
 
-    /**
-     * @func delProductImage
-     * @description '불핑요 제품 이미지 삭제'
-     * @param array $product1688ImageDtoList
-     */
     public function delProductImage(array $product1688ImageDtoList): void
     {
         $mainImgs = [];
@@ -882,13 +838,6 @@ class ProductV1 extends ProductAbstract
         }
     }
 
-    /**
-     * @func isChangeImage
-     * @description '이미지 변화 여부 검사 메소드'
-     * @param int $offerId
-     * @param string $imagePath
-     * @param string $imgType
-     */
     public function isChangeImage(int $offerId, string $imagePath, string $imgType): bool
     {
         $isChange = false;
@@ -915,11 +864,6 @@ class ProductV1 extends ProductAbstract
         return $isChange;
     }
 
-    /**
-     * @func checkImageSize
-     * @description '이미지 사이즈 검사 메소드'
-     * @param string $imagePath
-     */
     public function checkImageSize(string $imagePath): array
     {
         try {
@@ -937,11 +881,6 @@ class ProductV1 extends ProductAbstract
         ];
     }
 
-    /**
-     * @func getKeywordQuery
-     * @description '오픈API 상품 기본 조회'
-     * @param array $params
-     */
     public function getKeywordQuery(array $params): array
     {
         $endPoint = "param2/1/com.alibaba.fenxiao.crossborder/product.search.keywordQuery/";
@@ -985,10 +924,6 @@ class ProductV1 extends ProductAbstract
         ];
     }
 
-    /**
-     * @func saveKeywordQuery
-     * @description '오픈API keywordQueryAPI로 상품 수집'
-     */
     public function saveKeywordQuery(array $params): array
     {
         $returnMsg = $this->returnMsg;
@@ -1050,15 +985,6 @@ class ProductV1 extends ProductAbstract
         return $returnMsg;
     }
 
-    /**
-     * @func saveKeywordQueryRecursively
-     * @description '1688 keywordQueryAPI로 상품수집 재귀 메소드'
-     * @param int $logId
-     * @param array $payload
-     * @param int $page
-     * @param int $pageSize
-     * @param int $totalPage
-     */
     public function saveKeywordQueryRecursively(int $logId, array $payload, int $page, int $pageSize, int $totalPage = 0): void
     {
         try {
@@ -1162,10 +1088,6 @@ class ProductV1 extends ProductAbstract
         }
     }
 
-    /**
-     * @func createImgId
-     * @description '오픈API 이미지ID 생성'
-     */
     public function createImgId(UploadedFile $file): array
     {
         $returnMsg = $this->returnMsg;
@@ -1198,11 +1120,6 @@ class ProductV1 extends ProductAbstract
         return $returnMsg;
     }
 
-    /**
-     * @func getImageQuery
-     * @description '오픈API 상품 이미지 조회'
-     * @param array $params
-     */
     public function getImageQuery(array $params): array
     {
         $endPoint = "param2/1/com.alibaba.fenxiao.crossborder/product.search.imageQuery/";
@@ -1247,10 +1164,6 @@ class ProductV1 extends ProductAbstract
         ];
     }
 
-    /**
-     * @func saveImageQuery
-     * @description '오픈API imageQueryAPI로 상품 수집'
-     */
     public function saveImageQuery(array $params): array
     {
         $returnMsg = $this->returnMsg;
@@ -1310,15 +1223,6 @@ class ProductV1 extends ProductAbstract
         return $returnMsg;
     }
 
-    /**
-     * @func saveImageQueryRecursively
-     * @description '1688 imageQueryAPI로 상품수집 재귀 메소드'
-     * @param int $logId
-     * @param array $payload
-     * @param int $page
-     * @param int $pageSize
-     * @param int $totalPage
-     */
     public function saveImageQueryRecursively(int $logId, array $payload, int $page, int $pageSize, int $totalPage = 0): void
     {
         try {

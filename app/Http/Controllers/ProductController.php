@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Http\Controllers\Product;
+namespace App\Http\Controllers;
 
 use App\Constants\HttpConstant;
 use App\Constants\ImageErrorMessageConstant;
 use App\Constants\LogConstant;
 use App\Constants\ProductErrorMessageConstant;
 use App\Http\Controllers\Controller;
-use App\Services\Product\ProductV1;
+use App\Services\Service1688Product;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -19,12 +19,12 @@ use Symfony\Component\Process\Process;
 class ProductController extends Controller
 {
     private Request $request;
-    private ProductV1 $productService;
+    private Service1688Product $service1688Product;
 
-    function __construct(Request $request, ProductV1 $productService)
+    function __construct(Request $request, Service1688Product $service1688Product)
     {
-        $this->request        = $request;
-        $this->productService = $productService;
+        $this->request            = $request;
+        $this->service1688Product = $service1688Product;
     }
 
     public function getPrdList(): View
@@ -37,7 +37,7 @@ class ProductController extends Controller
             "page"     => $page,
             "pageSize" => $pageSize,
         ];
-        $result = $this->productService->getPrdList($params);
+        $result = $this->service1688Product->getPrdList($params);
         $viewParams = [
             "datas"         => $result,
             "offset"        => (int) $offset,
@@ -48,7 +48,7 @@ class ProductController extends Controller
 
     public function getPrdDetail(int $offerId): View
     {
-        $result = $this->productService->getPrdDetail($offerId);
+        $result = $this->service1688Product->getPrdDetail($offerId);
         if( $result["isSuccess"] == false ){
             abort(404);
         } else {
@@ -81,7 +81,7 @@ class ProductController extends Controller
                 "page"       => $page,
                 "pageSize"   => $pageSize,
             ];
-            $result       = $this->productService->getKeywordQuery($params);
+            $result       = $this->service1688Product->getKeywordQuery($params);
             $datas        = $result["datas"] ?? [];
             $totalRecords = $result["totalRecords"];
             $totalPage    = $result["totalPage"];
@@ -136,7 +136,7 @@ class ProductController extends Controller
                 "page"       => $page,
                 "pageSize"   => $pageSize,
             ];
-            $result       = $this->productService->getImageQuery($params);
+            $result       = $this->service1688Product->getImageQuery($params);
             $datas        = $result["datas"] ?? [];
             $totalRecords = $result["totalRecords"];
             $totalPage    = $result["totalPage"];
@@ -229,7 +229,7 @@ class ProductController extends Controller
             "page"     => $page,
             "pageSize" => $pageSize,
         ];
-        $result = $this->productService->getPrdCollectLogList($params);
+        $result = $this->service1688Product->getPrdCollectLogList($params);
         $viewParams = [
             "datas"    => $result,
             "offset"   => (int) $offset,
@@ -252,7 +252,7 @@ class ProductController extends Controller
                     throw new Exception(ImageErrorMessageConstant::getFitErrorMessage("SIZE"));
                 }
 
-                $result = $this->productService->createImgId($imgFile);
+                $result = $this->service1688Product->createImgId($imgFile);
             } else {
                 throw new Exception(ImageErrorMessageConstant::getNotHaveErrorMessage("FILE"));
             }
@@ -315,7 +315,7 @@ class ProductController extends Controller
 
     public function prdCollectLogDetail(int $logId): View
     {
-        $result = $this->productService->prdCollectLogDetail($logId);
+        $result = $this->service1688Product->prdCollectLogDetail($logId);
         if( $result["isSuccess"] == false ){
             abort(404);
         } else {

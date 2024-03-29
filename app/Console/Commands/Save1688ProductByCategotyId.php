@@ -1,21 +1,21 @@
 <?php
 namespace App\Console\Commands;
 
-use App\Services\Product\ProductV1;
+use App\Services\Service1688Product;
 use Illuminate\Console\Command;
 
 class Save1688ProductByCategotyId extends Command
 {
     protected $signature   = 'save_1688_product_by_category_id {--categoryid=}';
-    protected $description = '1688 상품 카테고리ID별 수집';
+    protected $description = '1688API 카테고리ID별 상품수집';
 
-    protected ProductV1 $productV1;
+    protected Service1688Product $service1688Product;
 
-    public function __construct(ProductV1 $productV1)
+    public function __construct(Service1688Product $service1688Product)
     {
         parent::__construct();
 
-        $this->productV1 = $productV1;
+        $this->service1688Product = $service1688Product;
     }
     /*
      * 실행 구문 
@@ -25,6 +25,6 @@ class Save1688ProductByCategotyId extends Command
     {
         $categoryId = $this->option('categoryid') ?? 10166;
 
-        $this->productV1->saveMallProductByCategotyId($categoryId);
+        $this->service1688Product->saveMallProductByCategotyId((int)$categoryId);
     }
 }

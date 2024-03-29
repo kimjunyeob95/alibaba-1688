@@ -1,22 +1,23 @@
 <?php
 namespace App\Console\Commands;
 
-use App\Services\Product\ProductV1;
+use App\Services\Service1688Product;
 use Illuminate\Console\Command;
 
 class Save1688ProductKeywordQuery extends Command
 {
     protected $signature   = 'save_1688_product_keyword_query {--search_cls=} {--keyword=} {--sort=}';
-    protected $description = '1688 상품 keywordQueryAPI로 수집';
+    protected $description = '1688API keywordQueryAPI로 상품 수집';
 
-    protected ProductV1 $productV1;
+    protected Service1688Product $service1688Product;
 
-    public function __construct(ProductV1 $productV1)
+    public function __construct(Service1688Product $service1688Product)
     {
         parent::__construct();
 
-        $this->productV1 = $productV1;
+        $this->service1688Product = $service1688Product;
     }
+
     /*
      * 실행 구문 
      * php artisan save_1688_product_keyword_query
@@ -27,13 +28,15 @@ class Save1688ProductKeywordQuery extends Command
         $keyword    = $this->option('keyword') ?? "";
         $sort       = $this->option('sort') ?? "";
         
-        $params = [
-            "search_cls" => $search_cls,
-            "keyword"    => $keyword,
-            "sort"       => $sort,
-            "page"       => 1,
-            "pageSize"   => 50,
-        ];
-        $this->productV1->saveKeywordQuery($params);
+        if( $keyword != "" ){
+            $params = [
+                "search_cls" => $search_cls,
+                "keyword"    => $keyword,
+                "sort"       => $sort,
+                "page"       => 1,
+                "pageSize"   => 50,
+            ];
+            $this->service1688Product->saveKeywordQuery($params);
+        }
     }
 }

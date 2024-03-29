@@ -6,7 +6,7 @@ use App\Services\Category\CategoryV1;
 use App\Services\GenuioService;
 use App\Services\Product\ProductV1;
 use Illuminate\Support\ServiceProvider;
-use App\Services\Service1688;
+use App\Services\Service1688Product;
 
 class App1688Provider extends ServiceProvider
 {
@@ -22,13 +22,13 @@ class App1688Provider extends ServiceProvider
             return new ProductV1($transApiAbstract);
         });
 
-        $this->app->bind(Service1688::class, function ($app) {
+        $this->app->bind(Service1688Product::class, function ($app) {
             $categoryAbstract = $app->make(CategoryV1::class);
             $productAbstract  = $app->make(ProductV1::class);
             $transApiAbstract = $app->make(GenuioService::class);
 
-            // Service1688 인스턴스 생성 시, 구현체를 주입
-            return new Service1688($categoryAbstract, $productAbstract, $transApiAbstract);
+            // Service1688Product 인스턴스 생성 시, 구현체를 주입
+            return new Service1688Product($categoryAbstract, $productAbstract, $transApiAbstract);
         });
     }
 
