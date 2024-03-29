@@ -1,22 +1,21 @@
 <?php
 namespace App\Console\Commands;
 
-use App\Services\Category\CategoryV1;
+use App\Services\Service1688Product;
 use Illuminate\Console\Command;
-use App\Services\Service1688;
 
 class Save1688CategoryMapping extends Command
 {
     protected $signature   = 'save_1688_category_mapping';
-    protected $description = '수집 된 1688 카테고리 정규화';
+    protected $description = 'categories 테이블의 데이터들을 category_mappings 테이블로 정리';
 
-    protected CategoryV1 $categoryV1;
+    protected Service1688Product $service1688Product;
 
-    public function __construct(CategoryV1 $categoryV1)
+    public function __construct(Service1688Product $service1688Product)
     {
         parent::__construct();
 
-        $this->categoryV1 = $categoryV1;
+        $this->service1688Product = $service1688Product;
     }
     /*
      * 실행 구문 
@@ -24,6 +23,6 @@ class Save1688CategoryMapping extends Command
     */
     public function handle()
     {
-        $this->categoryV1->saveCategoryMapping();
+        $this->service1688Product->saveCategoryMapping();
     }
 }

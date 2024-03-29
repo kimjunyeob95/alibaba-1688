@@ -158,10 +158,6 @@ class CategoryV1 extends CategoryAbstract
         return $returnMsg;
     }
 
-    /**
-     * @func saveCategory
-     * @description '1688 카테고리 endPoint 조회 후 저장'
-     */
     public function saveCategory(): void
     {
         $msg = "======================== 실행 시작 ========================";
@@ -304,10 +300,6 @@ class CategoryV1 extends CategoryAbstract
         return $returnMsg;
     }
 
-    /**
-     * @func saveCategoryMapping
-     * @description 'categories 테이블의 데이터들을 category_mappings 테이블로 정리'
-     */
     public function saveCategoryMapping(): void
     {
         $msg = "======================== 실행 시작 ========================";

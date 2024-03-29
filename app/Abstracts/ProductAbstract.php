@@ -1,50 +1,115 @@
 <?php
 
 namespace App\Abstracts;
+
+use App\Constants\LogConstant;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 abstract class ProductAbstract
 {
     /**
+    * @func getPrdList
+    * @description '1688 수집 상품 리스트'
+    * @param array $params
+    * @return LengthAwarePaginator
+    */
+    abstract function getPrdList(array $params): LengthAwarePaginator;
+
+    /**
      * @func getMallCategory
-     * @description '오픈API 상품상세 endPoint 조회'
+     * @description '1688API 수집 상품 디테일'
      * @param int $offerId '제품ID'
+     * @return array
+     */
+    abstract function getPrdDetail(int $offerId): array;
+
+    /**
+     * @func getMallCategory
+     * @description '1688API 상품상세 endPoint 조회'
+     * @param int $offerId '제품ID'
+     * @return array
      */
     abstract function getProductData(int $offerId): array;
 
     /**
      * @func saveMallProductByCategotyId
-     * @description '오픈API 카테고리ID별 상품수집'
+     * @description '1688API 카테고리ID별 상품수집'
+     * @param int $categoryId '카테고리ID'
+     * @return void
      */
     abstract function saveMallProductByCategotyId(int $categoryId): void;
+    
+    /**
+     * @func saveMallProductByImageId
+     * @description '1688API 이미지ID로 상품 수집'
+     * @param int $string 'imageId'
+     * @return void
+     */
+    abstract function saveMallProductByImageId(string $imageId): void;
 
     /**
      * @func getKeywordQuery
-     * @description '오픈API 상품 기본 조회'
+     * @description '상품 기본 정보로 조회'
+     * @param array $params
+     * @return array
      */
     abstract function getKeywordQuery(array $params): array;
 
     /**
      * @func getImageQuery
-     * @description '오픈API 상품 이미지 조회'
+     * @description '상품 이미지로 조회'
+     * @param array $params
+     * @return array
      */
     abstract function getImageQuery(array $params): array;
 
     /**
+     * @func getPrdCollectLogList
+     * @description '상품 수집현황 조회'
+     * @param array $params
+     * @return LengthAwarePaginator
+     */
+    abstract function getPrdCollectLogList(array $params): LengthAwarePaginator;
+
+    /**
      * @func saveKeywordQuery
-     * @description '오픈API keywordQueryAPI로 상품 수집'
+     * @description '1688API keywordQueryAPI로 상품 수집'
+     * @param array $params
+     * @return array
      */
     abstract function saveKeywordQuery(array $params): array;
 
     /**
      * @func createImgId
-     * @description '오픈API 이미지ID 생성'
+     * @description '1688API 이미지ID 생성'
+     * @param UploadedFile $file
+     * @return array
      */
     abstract function createImgId(UploadedFile $file): array;
 
     /**
      * @func saveImageQuery
-     * @description '오픈API imageQueryAPI로 상품 수집'
+     * @description '1688API imageQueryAPI로 상품 수집'
+     * @param array $params
+     * @return array
      */
     abstract function saveImageQuery(array $params): array;
+
+    /**
+     * @func prdCollectLogDetail
+     * @description '상품 수집 현황 조회'
+     * @param int $logId
+     * @return array
+     */
+    abstract function prdCollectLogDetail(int $logId): array;
+
+    /**
+     * @func collectProduct
+     * @description '1688API 제품ID로 조회 후 DB저장'
+     * @param array $offerIds '제품ID'
+     * @param string $type '요청 페이지'
+     * @return void
+     */
+    abstract function collectProduct(array $offerIds, string $type = LogConstant::COLLECT_API_KEYWORDQUERY): void;
 }

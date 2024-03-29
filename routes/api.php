@@ -2,7 +2,7 @@
 
 use App\Http\Controllers\ApiController;
 use App\Http\Controllers\GenuioController;
-use App\Http\Controllers\Product\ProductController;
+use App\Http\Controllers\ProductController;
 use Illuminate\Support\Facades\Route;
 
 Route::name('category.')->prefix('category')->group(function () {

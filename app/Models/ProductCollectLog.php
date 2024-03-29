@@ -16,6 +16,6 @@ class ProductCollectLog extends Model
     protected $fillable   = [];
 
     public function details () {
-        return $this->hasMany(ProductCollectDetailLog::class, "log_id", "id")->oldest("updated_at");
+        return $this->hasMany(ProductCollectDetailLog::class, "log_id", "id")->orderBy("created_at", "desc");
     }
 }

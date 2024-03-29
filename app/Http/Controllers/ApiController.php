@@ -4,24 +4,24 @@ namespace App\Http\Controllers;
 
 use App\Constants\HttpConstant;
 use App\Constants\ProductConstant;
-use App\Services\Service1688;
+use App\Services\Service1688Product;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class ApiController extends Controller
 {
     private Request $request;
-    private Service1688 $service1688;
+    private Service1688Product $service1688Product;
 
-    function __construct(Request $request, Service1688 $service1688)
+    function __construct(Request $request, Service1688Product $service1688Product)
     {
-        $this->request           = $request;
-        $this->service1688 = $service1688;
+        $this->request            = $request;
+        $this->service1688Product = $service1688Product;
     }
 
     public function getAllCategory(): JsonResponse
     {
-        $result = $this->service1688->getAllCategory();
+        $result = $this->service1688Product->getAllCategory();
         if( $result["isSuccess"] == true ){
             return helpers_json_response(HttpConstant::OK, $result);
         } else {
@@ -31,7 +31,7 @@ class ApiController extends Controller
 
     public function getTreeCategory(int $categoryId = 1038378): JsonResponse
     {
-        $result = $this->service1688->getTreeCategory($categoryId);
+        $result = $this->service1688Product->getTreeCategory($categoryId);
         if( $result["isSuccess"] == true ){
             return helpers_json_response(HttpConstant::OK, $result);
         } else {
@@ -41,7 +41,7 @@ class ApiController extends Controller
 
     public function getMallCategory(int $categoryId = 1038378): JsonResponse
     {
-        $result = $this->service1688->getMallCategory($categoryId);
+        $result = $this->service1688Product->getMallCategory($categoryId);
         if( $result["isSuccess"] == true ){
             return helpers_json_response(HttpConstant::OK, $result);
         } else {
@@ -51,7 +51,7 @@ class ApiController extends Controller
 
     public function getMappingCategory(string $channel = ProductConstant::MAPPING_OC_CHANNEL): JsonResponse
     {
-        $result = $this->service1688->getMappingCategory($channel);
+        $result = $this->service1688Product->getMappingCategory($channel);
         if( $result["isSuccess"] == true ){
             return helpers_json_response(HttpConstant::OK, $result);
         } else {
@@ -61,7 +61,7 @@ class ApiController extends Controller
 
     public function getProductData(int $offerId): JsonResponse
     {
-        $result = $this->service1688->getProductData($offerId);
+        $result = $this->service1688Product->getProductData($offerId);
         if( $result["isSuccess"] == true ){
             return helpers_json_response(HttpConstant::OK, $result);
         } else {
