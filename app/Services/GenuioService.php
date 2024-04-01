@@ -186,10 +186,10 @@ class GenuioService extends TransApiAbstract
                     } else {
                         $imgName  = "/" . $this->appEnv . date('Y/m/d/') . $imgObj->offer_id . "_" . $imgObj->id . "_" . $imgObj->img_type . "." . $mime;
                     }
-                    if( isset($image["translated_image"]) && !empty($image["translated_image"]) && $image["status"] == TransApiConstant::TRANS_IMG_SUCCESS ){
-                        $imgTransBase64 = $image["translated_image"];
+                    if( isset($image["imgTransBase64"]) && !empty($image["imgTransBase64"]) && $image["status"] == TransApiConstant::TRANS_IMG_SUCCESS ){
+                        $imgTransBase64 = $image["imgTransBase64"];
                         $uploadResult   = $this->uploadAbstract->uploadFile($imgName, base64_decode($imgTransBase64));
-                    } else if( !isset($image["translated_image"]) || $image["status"] == TransApiConstant::TRANS_IMG_NO_TRANSLATE ){
+                    } else if( $image["status"] == TransApiConstant::TRANS_IMG_NO_TRANSLATE ){
                         $fileContent     = file_get_contents($imgObj->img_url_origin);
                         $imgTransBase64  = TransApiConstant::TRANS_IMG_NO_TRANSLATE;
                         $imgEncodeBase64 = base64_encode($fileContent);
