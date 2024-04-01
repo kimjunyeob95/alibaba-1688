@@ -117,18 +117,20 @@ class GenuioService extends TransApiAbstract
                 }
             }
 
-            $insWhere = [
-                "id"            => $nextId,
-                "offer_id"      => $offerId,
-                "payload_json"  => json_encode($payload, JSON_UNESCAPED_UNICODE),
-                "request_user"  => TransApiConstant::API_USER_COMPANY_OC,
-                "response_json" => "",
-                "created_at"    => Carbon::now()
-            ];
-            GenuioQueueData::insertGetId($insWhere);
-
-            foreach ($queueDetailInsList as $queueDetailIns) {
-                GenuioQueueDetailData::insert($queueDetailIns);
+            if( count($payload["images"]) > 0 ){
+                $insWhere = [
+                    "id"            => $nextId,
+                    "offer_id"      => $offerId,
+                    "payload_json"  => json_encode($payload, JSON_UNESCAPED_UNICODE),
+                    "request_user"  => TransApiConstant::API_USER_COMPANY_OC,
+                    "response_json" => "",
+                    "created_at"    => Carbon::now()
+                ];
+                GenuioQueueData::insertGetId($insWhere);
+    
+                foreach ($queueDetailInsList as $queueDetailIns) {
+                    GenuioQueueDetailData::insert($queueDetailIns);
+                }
             }
 
             $returnMsg = helpers_success_message();

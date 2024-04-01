@@ -1,3 +1,6 @@
+@php
+    use App\Constants\ProductConstant;
+@endphp
 @extends('dashboard.base')
 
 @section('styles')
@@ -45,6 +48,7 @@
                                     온채널가<br>
                                     소비자가
                                 </th>
+                                <th scope="col" style="width: 100px">이미지<br>번역여부</th>
                                 <th style="width: 100px" class="text-center">관리</th> 
                             </tr>
                         </thead>
@@ -85,6 +89,9 @@
                                         @else
                                             <p class="text-danger">옵션없음</p>
                                         @endif
+                                    </td>
+                                    <td class="text-center">
+                                        {{ ProductConstant::IMG_TRANS_STATUS[$data->trans_status] }}
                                     </td>
                                     <td class="text-center">
                                         <button class="btn btn-outline-success btn-detail" offerid={{ $data->offer_id }}>상세</button>
