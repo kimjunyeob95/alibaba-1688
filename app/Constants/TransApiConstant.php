@@ -15,7 +15,6 @@ class TransApiConstant
     public const QUEUE_FAIL    = "N";  // 실패
 
     // 번역 결과
-    public const TRANS_IMG_SUCCESS      = "success";
     public const TRANS_IMG_NO_TRANSLATE = "no_translate";
 
     private static $defaultMsg         = "(을)를 입력해주세요.";
