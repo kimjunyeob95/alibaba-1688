@@ -152,6 +152,9 @@ class GenuioService extends TransApiAbstract
     {
         $returnMsg = $this->returnMsg;
         try {
+            $payload_json = json_encode($params, JSON_UNESCAPED_UNICODE);
+            debug_log($payload_json, "test", "test");
+
             $jobId  = (int)$params["jobId"];
             $images = $params["images"];
 
@@ -183,12 +186,17 @@ class GenuioService extends TransApiAbstract
                     } else {
                         $imgName  = "/" . $this->appEnv . date('Y/m/d/') . $imgObj->offer_id . "_" . $imgObj->id . "_" . $imgObj->img_type . "." . $mime;
                     }
-                    if( isset($image["imgTransBase64"]) && !empty($image["imgTransBase64"]) ){
-                        $imgTransBase64 = $image["imgTransBase64"];
+                    if( isset($image["translated_image"]) && !empty($image["translated_image"]) && $image["status"] == TransApiConstant::TRANS_IMG_SUCCESS ){
+                        $imgTransBase64 = $image["translated_image"];
                         $uploadResult   = $this->uploadAbstract->uploadFile($imgName, base64_decode($imgTransBase64));
-                    } else if( !isset($image["imgTransBase64"]) ){
+                    } else if( !isset($image["translated_image"]) || $image["status"] == TransApiConstant::TRANS_IMG_NO_TRANSLATE ){
                         $fileContent     = file_get_contents($imgObj->img_url_origin);
-                        $imgTransBase64  = $image["message"];
+                        $imgTransBase64  = TransApiConstant::TRANS_IMG_NO_TRANSLATE;
+                        $imgEncodeBase64 = base64_encode($fileContent);
+                        $uploadResult    = $this->uploadAbstract->uploadFile($imgName, base64_decode($imgEncodeBase64));
+                    } else {
+                        $fileContent     = file_get_contents($imgObj->img_url_origin);
+                        $imgTransBase64  = $image["status"];
                         $imgEncodeBase64 = base64_encode($fileContent);
                         $uploadResult    = $this->uploadAbstract->uploadFile($imgName, base64_decode($imgEncodeBase64));
                     }
