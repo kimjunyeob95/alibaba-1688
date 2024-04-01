@@ -3,9 +3,12 @@
 namespace Tests\Feature;
 
 use App\Models\ProductData;
+use App\Models\ProductImageData;
 use App\Packages\Connect\Connect;
+use App\Services\GenuioService;
 use App\Services\OrderService;
 use App\Vo\Connect\Order\OrderSubJobDto;
+use App\Vo\Product\Product1688ImageDto;
 use Carbon\Carbon;
 use Exception;
 use Tests\TestCase;
@@ -108,6 +111,33 @@ class ProductTest extends TestCase
         // } catch (Exception $e) {
         //     dd($result);
         // }
+    }
+
+    # Genuio img queue create
+    # php artisan test --filter testGenuioImgCreate
+    public function testGenuioImgCreate()
+    {
+        $offerId                 = 773387095350;
+        $product1688ImageDtoList = [];
+        $imgObjs                 = ProductImageData::where("offer_id", $offerId)->get();
+        foreach ($imgObjs as $imgObj) {
+            $product1688ImageDto = new Product1688ImageDto();
+            $product1688ImageDto->bind([
+                "offerId"        => $offerId,
+                "imgType"        => $imgObj->img_type,
+                "img_url_origin" => $imgObj->img_url_origin,
+                "img_url_trans"  => "",
+                "isChangeImg"    => true,
+                "width"          => 800,
+                "height"         => 800,
+                "byte"           => 8,
+                "mime"           => "image/jpeg"
+            ]);
+            $product1688ImageDtoList[] = $product1688ImageDto;
+        }
+
+        $geService = app(GenuioService::class);
+        $geService->createTransProductImg($product1688ImageDtoList, $offerId);
     }
 
 }

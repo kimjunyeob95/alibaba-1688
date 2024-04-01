@@ -1,6 +1,9 @@
 <?php
 
 use App\Constants\HttpConstant;
+use App\Constants\ProductConstant;
+use App\Models\ProductData;
+use App\Models\ProductImageData;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
@@ -319,5 +322,18 @@ if (!function_exists("ocPrice")) {
             "cus_price"       => $cus_price,
             "recom_cus_price" => $recom_cus_price,
         ];
+    }
+}
+
+if (!function_exists("chkTransStatus")) {
+    function chkTransStatus(int $offerId): void
+    {
+       $noTransCnt = ProductImageData::where("offer_id", $offerId)
+       ->where("img_url_trans", "")
+       ->whereNull("trans_dated_at")
+       ->count();
+       ProductData::where("offer_id", $offerId)->update([
+           "trans_status" => $noTransCnt == 0 ? ProductConstant::TRANS_STATUE_Y : ProductConstant::TRANS_STATUE_N
+       ]);
     }
 }

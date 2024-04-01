@@ -172,7 +172,7 @@ class GenuioService extends TransApiAbstract
             foreach ($images as $image) {
                 $imgObj       = ProductImageData::where("id", $image["id"])->first();
                 $uploadResult = false;
-                if( $imgObj != null ){
+                if( $imgObj != null && $image["imgTransBase64"] ){
                     $mime = pathinfo($imgObj->img_url_origin, PATHINFO_EXTENSION);
                     if( $imgObj->img_type == ImageConstant::IMAGE_TYPE_MAIN ){
                         $imgName  = "/" . $this->appEnv . date('Y/m/d/') . $imgObj->offer_id . "_" . $imgObj->img_type . "." . $mime;
@@ -194,7 +194,7 @@ class GenuioService extends TransApiAbstract
                     "trans_status" => TransApiConstant::QUEUE_STAY,
                 ])->update([
                     "trans_status" => $uploadResult == true ? TransApiConstant::QUEUE_SUCCESS : TransApiConstant::QUEUE_FAIL,
-                    "base64"       => $image["imgTransBase64"],
+                    "base64"       => $image["imgTransBase64"] ?? "",
                 ]);
             }
             $returnMsg = helpers_success_message();
@@ -212,6 +212,9 @@ class GenuioService extends TransApiAbstract
             $queueDto = new QueueDto();
             $queueDto->bind($bindParam);
             GenuioQueueData::create($queueDto->getAllProperties());
+
+            // 변역 완료 여부 체크
+            chkTransStatus($getGenuioObj->offer_id);
         }
 
         return $returnMsg;

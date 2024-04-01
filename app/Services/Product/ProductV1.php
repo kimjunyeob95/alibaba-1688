@@ -781,13 +781,7 @@ class ProductV1 extends ProductAbstract
             $this->delProductImage($product1688ImageDtoList);
 
             // 8. 변역 완료 여부 체크
-            $noTransCnt = ProductImageData::where("offer_id", $product1688Dto->offer_id)
-            ->where("img_url_trans", "")
-            ->whereNull("trans_dated_at")
-            ->count();
-            ProductData::where("offer_id", $product1688Dto->offer_id)->update([
-                "trans_status" => $noTransCnt == 0 ? ProductConstant::TRANS_STATUE_Y : ProductConstant::TRANS_STATUE_N
-            ]);
+            chkTransStatus((int)$product1688Dto->offer_id);
 
             $returnMsg = helpers_success_message();
         } catch (Exception $e) {
