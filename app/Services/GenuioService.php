@@ -201,16 +201,18 @@ class GenuioService extends TransApiAbstract
         } catch (Exception $e) {
             $returnMsg = helpers_fail_message(false, $e->getMessage());
         }
-        
-        $bindParam = [
-            "offerId"       => $getGenuioObj->offer_id,
-            "payload_json"  => "", // base64가 너무 길어 그냥 ""처리
-            "request_user"  => TransApiConstant::API_USER_COMPANY_GENUIO,
-            "response_json" => json_encode($returnMsg["msg"], JSON_UNESCAPED_UNICODE),
-        ];
-        $queueDto = new QueueDto();
-        $queueDto->bind($bindParam);
-        GenuioQueueData::create($queueDto->getAllProperties());
+
+        if( $getGenuioObj != null ){
+            $bindParam = [
+                "offerId"       => $getGenuioObj->offer_id,
+                "payload_json"  => "", // base64가 너무 길어 그냥 ""처리
+                "request_user"  => TransApiConstant::API_USER_COMPANY_GENUIO,
+                "response_json" => json_encode($returnMsg, JSON_UNESCAPED_UNICODE),
+            ];
+            $queueDto = new QueueDto();
+            $queueDto->bind($bindParam);
+            GenuioQueueData::create($queueDto->getAllProperties());
+        }
 
         return $returnMsg;
     }
