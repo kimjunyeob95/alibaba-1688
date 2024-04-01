@@ -103,8 +103,8 @@ class GenuioService extends TransApiAbstract
                         "img_url_origin" => $product1688ImageDto->img_url_origin,
                     ])->value('id');
                     $payload["images"][] = [
-                        "id"      => $imgId,
-                        "imgPath" => $product1688ImageDto->img_url_origin,
+                        "id"        => $imgId,
+                        "imagePath" => $product1688ImageDto->img_url_origin,
                     ];
 
                     $queueDetailInsList[] = [
@@ -118,12 +118,14 @@ class GenuioService extends TransApiAbstract
             }
 
             if( count($payload["images"]) > 0 ){
-                $insWhere = [
+                $apiResult = $this->apiCurl("post", "/translate-img", $payload);
+
+                $insWhere  = [
                     "id"            => $nextId,
                     "offer_id"      => $offerId,
                     "payload_json"  => json_encode($payload, JSON_UNESCAPED_UNICODE),
                     "request_user"  => TransApiConstant::API_USER_COMPANY_OC,
-                    "response_json" => "",
+                    "response_json" => json_encode($apiResult, JSON_UNESCAPED_UNICODE),
                     "created_at"    => Carbon::now()
                 ];
                 GenuioQueueData::insertGetId($insWhere);
@@ -150,7 +152,7 @@ class GenuioService extends TransApiAbstract
     {
         $returnMsg = $this->returnMsg;
         try {
-            $jobId  = $params["jobId"];
+            $jobId  = (int)$params["jobId"];
             $images = $params["images"];
 
             $getGenuioObj = GenuioQueueData::where([
@@ -170,31 +172,47 @@ class GenuioService extends TransApiAbstract
             }
 
             foreach ($images as $image) {
-                $imgObj       = ProductImageData::where("id", $image["id"])->first();
-                $uploadResult = false;
-                if( $imgObj != null && $image["imgTransBase64"] ){
+                $imgId          = (int)$image["id"];
+                $imgObj         = ProductImageData::where("id", $imgId)->first();
+                $uploadResult   = false;
+                $imgTransBase64 = "";
+                if( $imgObj != null ){
                     $mime = pathinfo($imgObj->img_url_origin, PATHINFO_EXTENSION);
                     if( $imgObj->img_type == ImageConstant::IMAGE_TYPE_MAIN ){
                         $imgName  = "/" . $this->appEnv . date('Y/m/d/') . $imgObj->offer_id . "_" . $imgObj->img_type . "." . $mime;
                     } else {
                         $imgName  = "/" . $this->appEnv . date('Y/m/d/') . $imgObj->offer_id . "_" . $imgObj->id . "_" . $imgObj->img_type . "." . $mime;
                     }
-                    $uploadResult = $this->uploadAbstract->uploadFile($imgName, base64_decode($image["imgTransBase64"]));
+                    if( isset($image["imgTransBase64"]) && !empty($image["imgTransBase64"]) ){
+                        $imgTransBase64 = $image["imgTransBase64"];
+                        $uploadResult   = $this->uploadAbstract->uploadFile($imgName, base64_decode($imgTransBase64));
+                    } else if( !isset($image["imgTransBase64"]) ){
+                        $fileContent     = file_get_contents($imgObj->img_url_origin);
+                        $imgTransBase64  = $image["message"];
+                        $imgEncodeBase64 = base64_encode($fileContent);
+                        $uploadResult    = $this->uploadAbstract->uploadFile($imgName, base64_decode($imgEncodeBase64));
+                    }
+
                     if( $uploadResult == true ) {
-                        ProductImageData::where("id", $image["id"])->update([
+                        ProductImageData::where("id", $imgId)->update([
                             "img_url_trans"  => env("AWS_URL") . $imgName,
                             "trans_dated_at" => Carbon::now(),
+                        ]);
+                    } else {
+                        ProductImageData::where("id", $imgId)->update([
+                            "img_url_trans"  => "",
+                            "trans_dated_at" => null,
                         ]);
                     }
                 }
 
                 GenuioQueueDetailData::where([
                     "queue_id"     => $jobId,
-                    "img_id"       => $image["id"],
+                    "img_id"       => $imgId,
                     "trans_status" => TransApiConstant::QUEUE_STAY,
                 ])->update([
                     "trans_status" => $uploadResult == true ? TransApiConstant::QUEUE_SUCCESS : TransApiConstant::QUEUE_FAIL,
-                    "base64"       => $image["imgTransBase64"] ?? "",
+                    "base64"       => $imgTransBase64,
                 ]);
             }
             $returnMsg = helpers_success_message();
@@ -220,7 +238,7 @@ class GenuioService extends TransApiAbstract
         return $returnMsg;
     }
 
-    function apiCurl(string $method, string $endPoint): array
+    function apiCurl(string $method, string $endPoint, array $payload = []): array
     {
 		$returnMsg = $this->returnMsg;
 		$callApi   = $this->domain . $endPoint;
@@ -240,6 +258,16 @@ class GenuioService extends TransApiAbstract
 				CURLOPT_CUSTOMREQUEST  => $method,
 				CURLOPT_HTTPHEADER     => $header
 			));
+		} else if($method == 'POST'){
+			curl_setopt_array($curl, array(
+				CURLOPT_URL            => $callApi,
+				CURLOPT_POST           => true,
+				CURLOPT_RETURNTRANSFER => true,
+				CURLOPT_SSL_VERIFYPEER => false,
+				CURLOPT_CUSTOMREQUEST  => $method,
+				CURLOPT_POSTFIELDS     => json_encode($payload, JSON_UNESCAPED_UNICODE),
+				CURLOPT_HTTPHEADER     => $header
+			));
 		}
 		$result = curl_exec($curl);
         $status = curl_getinfo($curl, CURLINFO_HTTP_CODE);
@@ -249,7 +277,7 @@ class GenuioService extends TransApiAbstract
             $apiResult = json_decode($result, JSON_UNESCAPED_UNICODE);
             if(!is_array($apiResult)) throw new InvalidArgumentException("결과가 배열이 아닙니다.");
 
-            $returnMsg = helpers_success_message($apiResult);
+            return $apiResult;
         } catch (JsonException $e) {
             $returnMsg = helpers_fail_message(false, "결과가 Json이 아닙니다.");
         } catch (InvalidArgumentException $e) {

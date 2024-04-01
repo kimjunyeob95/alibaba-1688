@@ -51,15 +51,13 @@ class GenuioController extends Controller
     {
         try {
             $validator = Validator::make($this->request->all(), [
-                'jobId'                   => 'required|int',
-                'images'                  => 'required|array',
-                'images.*.id'             => 'required|int',
-                'images.*.imgTransBase64' => 'required|string',
+                'jobId'       => 'required|string',
+                'images'      => 'required|array',
+                'images.*.id' => 'required|string',
             ], [
-                'jobId.required'                   => 'jobId를 입력하세요.',
-                'images.required'                  => 'images를 입력하세요.',
-                'images.*.id.required'             => "image id를 입력하세요.",
-                'images.*.imgTransBase64.required' => "image imgTransBase64를 입력하세요.",
+                'jobId.required'       => 'jobId를 입력하세요.',
+                'images.required'      => 'images를 입력하세요.',
+                'images.*.id.required' => "image id를 입력하세요.",
             ]);
             if ($validator->fails()) {
                 throw new Exception($validator->errors()->first());
