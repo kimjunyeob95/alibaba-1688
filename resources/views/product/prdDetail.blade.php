@@ -1,3 +1,6 @@
+@php
+    use App\Constants\ProductConstant;
+@endphp
 @extends('dashboard.base')
 
 @section('styles')
@@ -7,7 +10,12 @@
     }
     .prd-desc img{
         max-width: 100%; /* 이미지가 부모 요소 너비를 넘지 않게 함 */
-    height: auto; /* 이미지의 높이를 비율에 맞게 조정 */
+        height: auto; /* 이미지의 높이를 비율에 맞게 조정 */
+    }
+    .untranslated-text {
+        color: red;
+        font-size: 20px;
+        font-weight: bold;
     }
 </style>
 @endsection
@@ -63,27 +71,35 @@
                     <div class="col">
                         <h5>[번역 이미지]</h5>
                     </div>
-                    <div id="swiper-container2" class="swiper-container">
-                        <div class="swiper-wrapper">
-                            @foreach ($prdObj->images as $prdImg)
-                            @if ($prdImg->img_type == "main")
-                                <div class="swiper-slide">
-                                    <img src={{ $prdImg->img_url_trans}}>
-                                </div>
-                            @endif
-                            @endforeach
-                            @foreach ($prdObj->images as $prdImg)
-                            @if ($prdImg->img_type == "sub")
-                                <div class="swiper-slide">
-                                    <img src={{ $prdImg->img_url_trans}}>
-                                </div>
-                            @endif
-                            @endforeach
+                    @if ($prdObj->trans_status == ProductConstant::IMG_TRANS_Y)
+                        <div id="swiper-container2" class="swiper-container">
+                            <div class="swiper-wrapper">
+                                @foreach ($prdObj->images as $prdImg)
+                                @if ($prdImg->img_type == "main")
+                                    <div class="swiper-slide">
+                                        <img src={{ $prdImg->img_url_trans}}>
+                                    </div>
+                                @endif
+                                @endforeach
+                                @foreach ($prdObj->images as $prdImg)
+                                @if ($prdImg->img_type == "sub")
+                                    <div class="swiper-slide">
+                                        <img src={{ $prdImg->img_url_trans}}>
+                                    </div>
+                                @endif
+                                @endforeach
+                            </div>
                         </div>
-                    </div>
-                    <div class="swiper-pagination swiper-pagination2"></div>
-                    <div class="swiper-button-next swiper-button-next2"></div>
-                    <div class="swiper-button-prev swiper-button-prev2"></div>
+                        <div class="swiper-pagination swiper-pagination2"></div>
+                        <div class="swiper-button-next swiper-button-next2"></div>
+                        <div class="swiper-button-prev swiper-button-prev2"></div>
+                    @else
+                        <div class="d-flex justify-content-center align-items-center" style="height: 100%;">
+                            <span class="untranslated-text">
+                                미변역
+                            </span>
+                        </div>
+                    @endif
                 </div>
 
                 <hr style="margin-top: 20px">
@@ -251,11 +267,19 @@
                     </div>
                     <div class="col-md-6">
                         <h5>[제품상세 번역]</h5>
-                        <div class="d-flex justify-content-center">
-                            <div class="text-center prd-desc" >
-                                {!! $prdObj->prd_desc_trans !!}
+                        @if ($prdObj->trans_status == ProductConstant::IMG_TRANS_Y)
+                            <div class="d-flex justify-content-center">
+                                <div class="text-center prd-desc" >
+                                    {!! $prdObj->prd_desc_trans !!}
+                                </div>
                             </div>
-                        </div>
+                        @else
+                            <div class="text-center mt-3">
+                                <span class="untranslated-text">
+                                    미변역
+                                </span>
+                            </div>
+                        @endif
                     </div>
                 </div>
 
