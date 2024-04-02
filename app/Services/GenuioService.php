@@ -194,6 +194,7 @@ class GenuioService extends TransApiAbstract
                     $img_url_origin = $imgObj->img_url_origin;
 
                     $uploadResult   = false;
+                    $errorImgFlag   = false;
                     $imgTransBase64 = "";
                     $mime           = pathinfo($img_url_origin, PATHINFO_EXTENSION);
                     if (preg_match('/^(jpg|jpeg|png|gif)/i', $mime, $matches)) {
@@ -208,18 +209,24 @@ class GenuioService extends TransApiAbstract
                         $imgTransBase64 = $image["imgTransBase64"];
                         $uploadResult   = $this->uploadAbstract->uploadFile($imgName, base64_decode($imgTransBase64));
                     } else {
-                        $fileContent = file_get_contents($img_url_origin);
-                        $status = "";
-                        if( isset($image["status"]) ) {
-                            $status = $image["status"];
+                        try {
+                            $fileContent = file_get_contents($img_url_origin);
+                            $status      = "";
+                            if( isset($image["status"]) ) {
+                                $status = $image["status"];
+                            }
+                            $message = "";
+                            if( isset($image["message"]) ) {
+                                $message = $image["message"];
+                            }
+                            $imgTransBase64  = "status: {$status} / message: {$message}";
+                            $imgEncodeBase64 = base64_encode($fileContent);
+                            $uploadResult    = $this->uploadAbstract->uploadFile($imgName, base64_decode($imgEncodeBase64));
+                        } catch (Exception $th) {
+                            $errorImgFlag   = true;
+                            $imgTransBase64 = TransApiConstant::getFitErrorMessage("1688_IMG");
                         }
-                        $message = "";
-                        if( isset($image["message"]) ) {
-                            $message = $image["message"];
-                        }
-                        $imgTransBase64  = "status: {$status} / message: {$message}";
-                        $imgEncodeBase64 = base64_encode($fileContent);
-                        $uploadResult    = $this->uploadAbstract->uploadFile($imgName, base64_decode($imgEncodeBase64));
+
                     }
 
                     if( $uploadResult == true ) {
@@ -240,6 +247,11 @@ class GenuioService extends TransApiAbstract
                             "img_url_trans"  => "",
                             "trans_dated_at" => null,
                         ]);
+                    }
+
+                    if( $errorImgFlag == true ) {
+                        // 1688 측 이미지 자체가 유효하지 않은 상태 softDelete
+                        ProductImageData::where("id", $imgId)->delete();
                     }
     
                     GenuioQueueDetailData::where([

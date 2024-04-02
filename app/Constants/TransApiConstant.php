@@ -28,6 +28,7 @@ class TransApiConstant
     public const ERROR_MESSAGE_TRANS_REQUEST_IMAGE   = "Trans Request Image";
     public const ERROR_MESSAGE_IMG_ID                = "Image ID";
     public const ERROR_MESSAGE_PRODUCT               = "Product";
+    public const ERROR_MESSAGE_1688_IMG              = "1688 원본 이미지";
  
     public static function getErrorMessageNotDefault($constantName): string
     {

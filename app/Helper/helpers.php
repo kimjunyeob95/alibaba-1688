@@ -328,12 +328,13 @@ if (!function_exists("ocPrice")) {
 if (!function_exists("chkTransStatus")) {
     function chkTransStatus(int $offerId): void
     {
-       $noTransCnt = ProductImageData::where("offer_id", $offerId)
-       ->where("img_url_trans", "")
-       ->whereNull("trans_dated_at")
+       $TransCnt = ProductImageData::where("offer_id", $offerId)
+       ->where("img_url_trans", "!=", "")
+       ->whereNotNull("trans_dated_at")
+       ->whereNull("deleted_at")
        ->count();
        ProductData::where("offer_id", $offerId)->update([
-           "trans_status" => $noTransCnt == 0 ? ProductConstant::TRANS_STATUE_Y : ProductConstant::TRANS_STATUE_N
+           "trans_status" => $TransCnt > 0 ? ProductConstant::TRANS_STATUE_Y : ProductConstant::TRANS_STATUE_N
        ]);
     }
 }
