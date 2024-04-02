@@ -181,6 +181,8 @@ class GenuioService extends TransApiAbstract
                         throw new ValueError(TransApiConstant::getNotHaveErrorMessage("IMG_ID"));
                     }
 
+                    $img_url_origin = $imgObj->img_url_origin;
+
                     $offerId = $imgObj->offer_id;
                     $prdObj  = ProductData::where("offer_id", $offerId)->first();
                     if( $prdObj == null ){
@@ -189,7 +191,7 @@ class GenuioService extends TransApiAbstract
 
                     $uploadResult   = false;
                     $imgTransBase64 = "";
-                    $mime           = pathinfo($imgObj->img_url_origin, PATHINFO_EXTENSION);
+                    $mime           = pathinfo($img_url_origin, PATHINFO_EXTENSION);
                     if (preg_match('/^(jpg|jpeg|png|gif)/i', $mime, $matches)) {
                         $mime = $matches[0];
                     }
@@ -202,7 +204,7 @@ class GenuioService extends TransApiAbstract
                         $imgTransBase64 = $image["imgTransBase64"];
                         $uploadResult   = $this->uploadAbstract->uploadFile($imgName, base64_decode($imgTransBase64));
                     } else {
-                        $fileContent = file_get_contents($imgObj->img_url_origin);
+                        $fileContent = file_get_contents($img_url_origin);
                         $status = "";
                         if( isset($image["status"]) ) {
                             $status = $image["status"];
@@ -223,10 +225,11 @@ class GenuioService extends TransApiAbstract
                             "trans_dated_at" => Carbon::now(),
                         ]);
 
-                        $prd_desc_trans = str_replace($imgObj->img_url_origin, $img_url_trans, $prdObj->prd_desc);
+                        $prd_desc_trans = str_replace($img_url_origin, $img_url_trans, $prdObj->prd_desc);
                         ProductData::where("offer_id", $offerId)->update([
-                            "prd_desc_trans"  => $prd_desc_trans
+                            "prd_desc_trans" => $prd_desc_trans
                         ]);
+                        debug_log(json_encode($prd_desc_trans, JSON_UNESCAPED_UNICODE), "genuio", "genuio-img");
                     } else {
                         ProductImageData::where("id", $imgId)->update([
                             "img_url_trans"  => "",
@@ -247,7 +250,7 @@ class GenuioService extends TransApiAbstract
                         "img"   => $image,
                         "error" => $ve->getMessage()
                     ];
-                    debug_log(json_encode($errMsg, JSON_UNESCAPED_UNICODE), "genuio", "genuio-img");                    
+                    debug_log(json_encode($errMsg, JSON_UNESCAPED_UNICODE), "genuio", "genuio-img");
                 }
             }
             $returnMsg = helpers_success_message();
