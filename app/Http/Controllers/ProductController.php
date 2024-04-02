@@ -33,7 +33,7 @@ class ProductController extends Controller
         $page           = $this->request->post("page", 1);
         $pageSize       = $this->request->post("pageSize", 50);
         $search_cls     = $this->request->get("search_cls", "offer_id");
-        $keyword        = $this->request->get("keyword", "");
+        $keyword        = $this->request->get("keyword", "737834654023");
         $trans_status   = $this->request->get("trans_status", ProductConstant::TRANS_STATUE_Y);
         $offset         = ($page - 1) * $pageSize;
 
@@ -58,6 +58,7 @@ class ProductController extends Controller
             "keyword"      => $keyword,
             "trans_status" => $trans_status,
         ];
+
         return view("product.prdList")->with($viewParams);
     }
 

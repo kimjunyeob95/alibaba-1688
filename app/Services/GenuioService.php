@@ -230,7 +230,6 @@ class GenuioService extends TransApiAbstract
                             $errorImgFlag   = true;
                             $imgTransBase64 = TransApiConstant::getFitErrorMessage("1688_IMG");
                         }
-
                     }
 
                     if( $uploadResult == true ) {
@@ -255,7 +254,9 @@ class GenuioService extends TransApiAbstract
 
                     if( $errorImgFlag == true ) {
                         // 1688 측 이미지 자체가 유효하지 않은 상태 softDelete
-                        ProductImageData::where("id", $imgId)->delete();
+                        // ProductImageData::where("id", $imgId)->delete();
+                        $errMsg = "원본 이미지 upload error | img: " . $img_url_origin;
+                        debug_log(json_encode($errMsg, JSON_UNESCAPED_UNICODE), "genuio", "genuio-img");
                     }
     
                     GenuioQueueDetailData::where([
