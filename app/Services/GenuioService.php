@@ -173,6 +173,16 @@ class GenuioService extends TransApiAbstract
                 throw new Exception(TransApiConstant::getFitErrorMessage("NOT_EQUAL_COUNT_IMAGE"));
             }
 
+            $offerId = $getGenuioObj->offer_id;
+
+            $descTransImgs = [];
+            $prdObj  = ProductData::where("offer_id", $offerId)->first();
+            if( $prdObj == null ){
+                throw new ValueError(TransApiConstant::getNotHaveErrorMessage("PRODUCT"));
+            }
+            $prd_desc = $prdObj->prd_desc;
+
+            // 1. product_image_datas update
             foreach ($images as $image) {
                 try {
                     $imgId  = (int)$image["id"];
@@ -182,12 +192,6 @@ class GenuioService extends TransApiAbstract
                     }
 
                     $img_url_origin = $imgObj->img_url_origin;
-
-                    $offerId = $imgObj->offer_id;
-                    $prdObj  = ProductData::where("offer_id", $offerId)->first();
-                    if( $prdObj == null ){
-                        throw new ValueError(TransApiConstant::getNotHaveErrorMessage("PRODUCT"));
-                    }
 
                     $uploadResult   = false;
                     $imgTransBase64 = "";
@@ -225,11 +229,12 @@ class GenuioService extends TransApiAbstract
                             "trans_dated_at" => Carbon::now(),
                         ]);
 
-                        $prd_desc_trans = str_replace($img_url_origin, $img_url_trans, $prdObj->prd_desc);
-                        ProductData::where("offer_id", $offerId)->update([
-                            "prd_desc_trans" => $prd_desc_trans
-                        ]);
-                        debug_log(json_encode($prd_desc_trans, JSON_UNESCAPED_UNICODE), "genuio", "genuio-img");
+                        if( $imgObj->img_type == ImageConstant::IMAGE_TYPE_DESC ){
+                            $descTransImgs[] = [
+                                "img_url_origin" => $img_url_origin,
+                                "img_url_trans"  => $img_url_trans
+                            ];
+                        }
                     } else {
                         ProductImageData::where("id", $imgId)->update([
                             "img_url_trans"  => "",
@@ -252,6 +257,15 @@ class GenuioService extends TransApiAbstract
                     ];
                     debug_log(json_encode($errMsg, JSON_UNESCAPED_UNICODE), "genuio", "genuio-img");
                 }
+            }
+
+            // 2. product_datas prd_desc_trans update
+            foreach ($descTransImgs as $descTransImg) {
+                $prd_desc_trans = str_replace($descTransImg["img_url_origin"], $descTransImg["img_url_trans"], $prd_desc);
+                $prd_desc       = $prd_desc_trans;
+                ProductData::where("offer_id", $offerId)->update([
+                    "prd_desc_trans" => $prd_desc_trans
+                ]);
             }
             $returnMsg = helpers_success_message();
         } catch (Exception $e) {
