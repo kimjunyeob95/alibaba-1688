@@ -31,12 +31,21 @@ abstract class TransApiAbstract
     /**
      * @func tokenCreate
      * @description '토큰 생성'
+     * @param array $params
      */
     abstract function tokenCreate(array $params): array;
 
     /**
      * @func imgTrans
      * @description '번역된 이미지 처리'
+     * @param array $params
      */
     abstract function imgTrans(array $params): array;
+
+    /**
+     * @func imgTransRequest
+     * @description '상품 이미지 번역 요청'
+     * @param array $offerIds
+     */
+    abstract function imgTransRequest(array $offerIds): array;
 }

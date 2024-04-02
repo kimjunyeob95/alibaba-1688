@@ -21,6 +21,11 @@
             </a>
             <ul class="nav-group-items">
                 <li class="nav-item">
+                    <a class="nav-link" href="/product/queryProductDetail">
+                        상품 ID로 수집
+                    </a>
+                </li>
+                <li class="nav-item">
                     <a class="nav-link" href="/product/keywordQuery">
                         기본 정보로 수집
                     </a>

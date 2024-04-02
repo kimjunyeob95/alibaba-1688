@@ -325,6 +325,26 @@ if (!function_exists("ocPrice")) {
     }
 }
 
+if (!function_exists("getPrice1688")) {
+    function getPrice1688(array $detailProduct): float
+    {
+        $price_1688 = 0;
+        if( isset($detailProduct["productSkuInfos"][0]["price"]) ){
+            foreach ($detailProduct["productSkuInfos"] as $prdOptions) {
+                if( $prdOptions["price"] > $price_1688 ){
+                    $price_1688 = $prdOptions["price"];
+                }
+            }
+        } else if( !isset($detailProduct["productSkuInfos"][0]["price"]) && 
+            isset($detailProduct["productSaleInfo"]["priceRangeList"])
+        ) {
+            $price_1688 = $detailProduct["productSaleInfo"]["priceRangeList"][0]["price"];
+        }
+
+        return (float)$price_1688;
+    }
+}
+
 if (!function_exists("chkTransStatus")) {
     function chkTransStatus(int $offerId): void
     {

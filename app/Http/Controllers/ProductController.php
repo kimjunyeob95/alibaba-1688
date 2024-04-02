@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Constants\HttpConstant;
 use App\Constants\ImageErrorMessageConstant;
 use App\Constants\LogConstant;
+use App\Constants\ProductConstant;
 use App\Constants\ProductErrorMessageConstant;
 use App\Http\Controllers\Controller;
 use App\Services\Service1688Product;
@@ -29,19 +30,33 @@ class ProductController extends Controller
 
     public function getPrdList(): View
     {
-        $page     = $this->request->post("page", 1);
-        $pageSize = $this->request->post("pageSize", 30);
-        $offset   = ($page - 1) * $pageSize;
+        $page           = $this->request->post("page", 1);
+        $pageSize       = $this->request->post("pageSize", 50);
+        $search_cls     = $this->request->get("search_cls", "offer_id");
+        $keyword        = $this->request->get("keyword", "");
+        $trans_status   = $this->request->get("trans_status", ProductConstant::TRANS_STATUE_Y);
+        $offset         = ($page - 1) * $pageSize;
 
         $params = [
-            "page"     => $page,
-            "pageSize" => $pageSize,
+            "page"         => $page,
+            "pageSize"     => $pageSize,
+            "search_cls"   => $search_cls,
+            "keyword"      => $keyword,
+            "trans_status" => $trans_status,
         ];
         $result = $this->service1688Product->getPrdList($params);
+
         $viewParams = [
-            "datas"         => $result,
-            "offset"        => (int) $offset,
-            "totalCnt"      => (int) $result->total(),
+            "datas"        => $result["paginator"],
+            "transYCnt"    => $result["transYCnt"],
+            "transNCnt"    => $result["transNCnt"],
+            "totalCnt"     => $result["totalCnt"],
+            "totalCnt"     => $result["totalCnt"],
+            "offset"       => (int) $offset,
+            "pageSize"     => (int) $pageSize,
+            "search_cls"   => $search_cls,
+            "keyword"      => $keyword,
+            "trans_status" => $trans_status,
         ];
         return view("product.prdList")->with($viewParams);
     }
@@ -57,6 +72,34 @@ class ProductController extends Controller
             ];
         }
         return view("product.prdDetail")->with($viewParams);
+    }
+
+    public function queryProductDetail(): View
+    {
+        $keyword = $this->request->get("keyword", "");
+        $datas   = [];
+
+        if( $keyword ){
+            $offerIds = preg_replace("/(\r\n|\r|\n)/", ",", trim($keyword));
+            $offerIds = explode(",", $offerIds);
+            // 각 배열 요소의 앞뒤 공백 제거
+            $offerIds = array_map('trim', $offerIds);
+            // 빈 값을 제거
+            $offerIds = array_filter($offerIds);
+            // 중복 제거
+            $offerIds = array_unique($offerIds);
+
+            $result = $this->service1688Product->getQueryProductDetail($offerIds);
+            $datas  = $result;
+        }
+
+        $viewParams = [
+            "datas"        => $datas,
+            "totalRecords" => count($datas),
+            "keyword"      => $keyword,
+        ];
+
+        return view("product.prdQueryProductDetail")->with($viewParams);
     }
 
     public function keywordQuery(): View

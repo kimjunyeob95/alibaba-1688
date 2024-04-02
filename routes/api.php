@@ -41,6 +41,9 @@ Route::name('genuio.')->prefix('genuio')->group(function () {
     Route::middleware(["oepnApi.jwt.verify"])->group(function () {
         Route::post('/img/trans', [GenuioController::class, "imgTrans"])->name("imgTrans");
     });
+
+    // 상품 이미지 번역 요청
+    Route::post('/img/trans/request', [GenuioController::class, 'imgTransRequest'])->name('imgTransRequest');
 });
 
 Route::name('mall.')->prefix('mall')->group(function () {
