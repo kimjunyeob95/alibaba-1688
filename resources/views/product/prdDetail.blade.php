@@ -7,10 +7,14 @@
 <style>
     .prd-desc {
         padding: 10px;
+        width: 100% !important;
     }
-    .prd-desc img{
-        max-width: 100%; /* 이미지가 부모 요소 너비를 넘지 않게 함 */
-        height: auto; /* 이미지의 높이를 비율에 맞게 조정 */
+    .prd-desc img,
+    .prd-desc table,
+    .prd-desc table td div{
+        width: 100% !important;
+        max-width: 100% !important;
+        height: auto !important;
     }
     .untranslated-text {
         color: red;
