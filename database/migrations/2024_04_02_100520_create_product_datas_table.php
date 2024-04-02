@@ -22,6 +22,7 @@ class CreateProductDatasTable extends Migration
             $table->text('prd_name_trans')->nullable(false)->comment('제품명_번역');
             $table->unsignedInteger('start_quantity')->default(1)->nullable(false)->comment('최소 주문 수량');
             $table->longText('prd_desc')->nullable(false)->comment('제품상세');
+            $table->longText('prd_desc_trans')->nullable(false)->comment('제품상세_번역');
             $table->enum('tax_type', [1, 2])->default(1)->nullable(false)->comment('과세여부 1: 과세, 2: 비과세');
             $table->enum('minor_not_sale', ["Y", "N"])->default("N")->nullable(false)->comment('미성년자판매금지');
             $table->string('delivery_name', 50)->nullable(false)->comment('택배사');

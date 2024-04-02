@@ -9,6 +9,7 @@ use App\Constants\TransApiConstant;
 use App\Models\ApiUser;
 use App\Models\GenuioQueueData;
 use App\Models\GenuioQueueDetailData;
+use App\Models\ProductData;
 use App\Models\ProductImageData;
 use App\Packages\JwtPackage;
 use App\Vo\Genuio\QueueDto;
@@ -16,6 +17,7 @@ use Carbon\Carbon;
 use Exception;
 use InvalidArgumentException;
 use JsonException;
+use ValueError;
 
 class GenuioService extends TransApiAbstract
 {
@@ -152,9 +154,6 @@ class GenuioService extends TransApiAbstract
     {
         $returnMsg = $this->returnMsg;
         try {
-            $payload_json = json_encode($params, JSON_UNESCAPED_UNICODE);
-            debug_log($payload_json, "test", "test");
-
             $jobId  = (int)$params["jobId"];
             $images = $params["images"];
 
@@ -175,16 +174,27 @@ class GenuioService extends TransApiAbstract
             }
 
             foreach ($images as $image) {
-                $imgId          = (int)$image["id"];
-                $imgObj         = ProductImageData::where("id", $imgId)->first();
-                $uploadResult   = false;
-                $imgTransBase64 = "";
-                if( $imgObj != null ){
-                    $mime = pathinfo($imgObj->img_url_origin, PATHINFO_EXTENSION);
+                try {
+                    $imgId  = (int)$image["id"];
+                    $imgObj = ProductImageData::where("id", $imgId)->first();
+                    if( $imgObj == null ){
+                        throw new ValueError(TransApiConstant::getNotHaveErrorMessage("IMG_ID"));
+                    }
+
+                    $offerId = $imgObj->offer_id;
+                    $prdObj  = ProductData::where("offer_id", $offerId)->first();
+                    if( $prdObj == null ){
+                        throw new ValueError(TransApiConstant::getNotHaveErrorMessage("PRODUCT"));
+                    }
+                    $prd_desc_trans = $prdObj->prd_desc;
+
+                    $uploadResult   = false;
+                    $imgTransBase64 = "";
+                    $mime           = pathinfo($imgObj->img_url_origin, PATHINFO_EXTENSION);
                     if( $imgObj->img_type == ImageConstant::IMAGE_TYPE_MAIN ){
-                        $imgName  = "/" . $this->appEnv . date('Y/m/d/') . $imgObj->offer_id . "_" . $imgObj->img_type . "." . $mime;
+                        $imgName  = "/" . $this->appEnv . date('Y/m/d/') . $offerId . "_" . $imgObj->img_type . "." . $mime;
                     } else {
-                        $imgName  = "/" . $this->appEnv . date('Y/m/d/') . $imgObj->offer_id . "_" . $imgObj->id . "_" . $imgObj->img_type . "." . $mime;
+                        $imgName  = "/" . $this->appEnv . date('Y/m/d/') . $offerId . "_" . $imgObj->id . "_" . $imgObj->img_type . "." . $mime;
                     }
                     if( isset($image["imgTransBase64"]) && !empty($image["imgTransBase64"]) ){
                         $imgTransBase64 = $image["imgTransBase64"];
@@ -205,9 +215,15 @@ class GenuioService extends TransApiAbstract
                     }
 
                     if( $uploadResult == true ) {
+                        $img_url_trans = env("AWS_URL") . $imgName;
                         ProductImageData::where("id", $imgId)->update([
-                            "img_url_trans"  => env("AWS_URL") . $imgName,
+                            "img_url_trans"  => $img_url_trans,
                             "trans_dated_at" => Carbon::now(),
+                        ]);
+
+                        $prd_desc_trans = str_replace($imgObj->img_url_origin, $img_url_trans, $prd_desc_trans);
+                        ProductData::where("offer_id", $offerId)->update([
+                            "prd_desc_trans"  => $prd_desc_trans
                         ]);
                     } else {
                         ProductImageData::where("id", $imgId)->update([
@@ -215,16 +231,22 @@ class GenuioService extends TransApiAbstract
                             "trans_dated_at" => null,
                         ]);
                     }
+    
+                    GenuioQueueDetailData::where([
+                        "queue_id"     => $jobId,
+                        "img_id"       => $imgId,
+                        "trans_status" => TransApiConstant::QUEUE_STAY,
+                    ])->update([
+                        "trans_status" => $uploadResult == true ? TransApiConstant::QUEUE_SUCCESS : TransApiConstant::QUEUE_FAIL,
+                        "base64"       => $imgTransBase64,
+                    ]);
+                } catch (ValueError $ve) {
+                    $errMsg = [
+                        "img"   => $image,
+                        "error" => $ve->getMessage()
+                    ];
+                    debug_log(json_encode($errMsg, JSON_UNESCAPED_UNICODE), "genuio", "genuio-img");                    
                 }
-
-                GenuioQueueDetailData::where([
-                    "queue_id"     => $jobId,
-                    "img_id"       => $imgId,
-                    "trans_status" => TransApiConstant::QUEUE_STAY,
-                ])->update([
-                    "trans_status" => $uploadResult == true ? TransApiConstant::QUEUE_SUCCESS : TransApiConstant::QUEUE_FAIL,
-                    "base64"       => $imgTransBase64,
-                ]);
             }
             $returnMsg = helpers_success_message();
         } catch (Exception $e) {

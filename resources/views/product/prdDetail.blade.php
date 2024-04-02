@@ -1,6 +1,15 @@
 @extends('dashboard.base')
 
 @section('styles')
+<style>
+    .prd-desc {
+        padding: 10px;
+    }
+    .prd-desc img{
+        max-width: 100%; /* 이미지가 부모 요소 너비를 넘지 않게 함 */
+    height: auto; /* 이미지의 높이를 비율에 맞게 조정 */
+    }
+</style>
 @endsection
 
 @section('scripts')
@@ -24,8 +33,11 @@
         
         <div class="container-fluid">
             <div class="row my-4 bg-white py-3">
-                <div class="col-md-4" style="text-align: -webkit-center; position: relative;">
-                    <div class="swiper-container">
+                <div class="col-md-6" style="text-align: -webkit-center; position: relative;">
+                    <div class="col">
+                        <h5>[원본 이미지]</h5>
+                    </div>
+                    <div id="swiper-container1" class="swiper-container">
                         <div class="swiper-wrapper">
                             @foreach ($prdObj->images as $prdImg)
                             @if ($prdImg->img_type == "main")
@@ -43,11 +55,42 @@
                             @endforeach
                         </div>
                     </div>
-                    <div class="swiper-pagination"></div>
-                    <div class="swiper-button-next"></div>
-                    <div class="swiper-button-prev"></div>
+                    <div class="swiper-pagination swiper-pagination1"></div>
+                    <div class="swiper-button-next swiper-button-next1"></div>
+                    <div class="swiper-button-prev swiper-button-prev1"></div>
                 </div>
-                <div class="col-md-8 d-flex flex-column justify-content-center">
+                <div class="col-md-6" style="text-align: -webkit-center; position: relative;">
+                    <div class="col">
+                        <h5>[번역 이미지]</h5>
+                    </div>
+                    <div id="swiper-container2" class="swiper-container">
+                        <div class="swiper-wrapper">
+                            @foreach ($prdObj->images as $prdImg)
+                            @if ($prdImg->img_type == "main")
+                                <div class="swiper-slide">
+                                    <img src={{ $prdImg->img_url_trans}}>
+                                </div>
+                            @endif
+                            @endforeach
+                            @foreach ($prdObj->images as $prdImg)
+                            @if ($prdImg->img_type == "sub")
+                                <div class="swiper-slide">
+                                    <img src={{ $prdImg->img_url_trans}}>
+                                </div>
+                            @endif
+                            @endforeach
+                        </div>
+                    </div>
+                    <div class="swiper-pagination swiper-pagination2"></div>
+                    <div class="swiper-button-next swiper-button-next2"></div>
+                    <div class="swiper-button-prev swiper-button-prev2"></div>
+                </div>
+
+                <hr style="margin-top: 20px">
+                <div class="row mb-12">
+                    <div class="col">
+                        <h5>[기본 정보]</h5>
+                    </div>
                     <div class="row mb-2">
                         <div class="col-md-3 text-center">제품ID</div>
                         <div class="col-md-8">{{ $prdObj->offer_id }}</div>
@@ -198,10 +241,20 @@
 
                 <hr style="margin-top: 20px">
                 <div class="row mt-3">
-                    <h5>[제품상세]</h5>
-                    <div class="d-flex justify-content-center">
-                        <div class="text-center" style="max-width: 100%;">
-                            {!! $prdObj->prd_desc !!}
+                    <div class="col-md-6">
+                        <h5>[제품상세 원본]</h5>
+                        <div class="d-flex justify-content-center">
+                            <div class="text-center prd-desc">
+                                {!! $prdObj->prd_desc !!}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <h5>[제품상세 번역]</h5>
+                        <div class="d-flex justify-content-center">
+                            <div class="text-center prd-desc" >
+                                {!! $prdObj->prd_desc !!}
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -211,6 +264,53 @@
     </div>
 <script type="text/javascript">
 
+    $(document).ready(function(){
+        var mySwiper = new Swiper('#swiper-container1', {
+            // Optional parameters
+            slidesPerView: 1,
+            spaceBetween: 10,
+            direction: 'horizontal',
+            loop: false,
+            // If we need pagination
+            pagination: {
+                el: '.swiper-pagination1',
+                clickable: true,
+            },
+            // Navigation arrows
+            navigation: {
+                nextEl: '.swiper-button-next1',
+                prevEl: '.swiper-button-prev1',
+            },
+
+            // And if we need scrollbar
+            scrollbar: {
+                el: '.swiper-scrollbar1',
+            }
+        });
+
+        var mySwiper2 = new Swiper('#swiper-container2', {
+            // Optional parameters
+            slidesPerView: 1,
+            spaceBetween: 10,
+            direction: 'horizontal',
+            loop: false,
+            // If we need pagination
+            pagination: {
+                el: '.swiper-pagination2',
+                clickable: true,
+            },
+            // Navigation arrows
+            navigation: {
+                nextEl: '.swiper-button-next2',
+                prevEl: '.swiper-button-prev2',
+            },
+
+            // And if we need scrollbar
+            scrollbar: {
+                el: '.swiper-scrollbar2',
+            }
+        });
+    })
 </script>
 
 @endsection
