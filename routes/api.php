@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ApiController;
 use App\Http\Controllers\GenuioController;
+use App\Http\Controllers\MallController;
 use App\Http\Controllers\ProductController;
 use Illuminate\Support\Facades\Route;
 
@@ -39,5 +40,11 @@ Route::name('genuio.')->prefix('genuio')->group(function () {
 
     Route::middleware(["oepnApi.jwt.verify"])->group(function () {
         Route::post('/img/trans', [GenuioController::class, "imgTrans"])->name("imgTrans");
+    });
+});
+
+Route::name('mall.')->prefix('mall')->group(function () {
+    Route::name('easySell.')->prefix('easySell')->group(function () {
+        Route::post('/product/regist', [MallController::class, "productRegist"])->name("productRegist");
     });
 });

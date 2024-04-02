@@ -1,6 +1,7 @@
 <?php
 
 use App\Providers\App1688Provider;
+use App\Providers\MallApiProvider;
 use App\Providers\OpenApiProvider;
 
 return [
@@ -182,6 +183,7 @@ return [
 
         App1688Provider::class,
         OpenApiProvider::class,
+        MallApiProvider::class,
     ],
 
     /*
