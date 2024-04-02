@@ -208,7 +208,7 @@
         });
 
         $(".btn-trans-img").click(function(){
-            let offerIds = [$(this).val()];
+            let offerIds = [$(this).attr("offerid")];
 
             if(confirm(`해당 상품을 번역 요청 하시겠습니까?`)){
                 $("#loadingOverlay").show();

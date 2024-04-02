@@ -314,6 +314,11 @@ class GenuioService extends TransApiAbstract
     public function imgTransRequest(array $offerIds): array
     {
         $returnMsg = $this->returnMsg;
+
+        if( env("APP_ENV", "local") != "production" ){
+            return helpers_fail_message(false, "운영 환경에서만 사용 가능합니다.");
+        }
+
         try {
             foreach ($offerIds as $offerId) {
                 $product1688ImageDtoList = [];
