@@ -253,7 +253,7 @@
                         <h5>[제품상세 번역]</h5>
                         <div class="d-flex justify-content-center">
                             <div class="text-center prd-desc" >
-                                {!! $prdObj->prd_desc !!}
+                                {!! $prdObj->prd_desc_trans !!}
                             </div>
                         </div>
                     </div>

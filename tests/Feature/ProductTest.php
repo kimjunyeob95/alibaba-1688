@@ -113,6 +113,25 @@ class ProductTest extends TestCase
         // }
     }
 
+    # testCode
+    # php artisan test --filter testCode
+    public function testCode()
+    {
+        $offerId = 684130604130; 
+        
+        $prdObj  = ProductData::where("offer_id", $offerId)->first();
+        $imgObjs = ProductImageData::where("offer_id", $offerId)->get();
+        $prd_desc_trans = $prdObj->prd_desc;
+        foreach ($imgObjs as $imgObj) {
+            $mime    = pathinfo($imgObj->img_url_origin, PATHINFO_EXTENSION);
+            // 정규 표현식 매치를 사용하여 결과를 검색
+            if (preg_match('/^(jpg|jpeg|png|gif)/i', $mime, $matches)) {
+                $mime = $matches[0];
+            }
+            var_dump($mime);
+        }
+    }
+
     # Genuio img queue create
     # php artisan test --filter testGenuioImgCreate
     public function testGenuioImgCreate()

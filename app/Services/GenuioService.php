@@ -186,11 +186,13 @@ class GenuioService extends TransApiAbstract
                     if( $prdObj == null ){
                         throw new ValueError(TransApiConstant::getNotHaveErrorMessage("PRODUCT"));
                     }
-                    $prd_desc_trans = $prdObj->prd_desc;
 
                     $uploadResult   = false;
                     $imgTransBase64 = "";
                     $mime           = pathinfo($imgObj->img_url_origin, PATHINFO_EXTENSION);
+                    if (preg_match('/^(jpg|jpeg|png|gif)/i', $mime, $matches)) {
+                        $mime = $matches[0];
+                    }
                     if( $imgObj->img_type == ImageConstant::IMAGE_TYPE_MAIN ){
                         $imgName  = "/" . $this->appEnv . date('Y/m/d/') . $offerId . "_" . $imgObj->img_type . "." . $mime;
                     } else {
@@ -221,7 +223,7 @@ class GenuioService extends TransApiAbstract
                             "trans_dated_at" => Carbon::now(),
                         ]);
 
-                        $prd_desc_trans = str_replace($imgObj->img_url_origin, $img_url_trans, $prd_desc_trans);
+                        $prd_desc_trans = str_replace($imgObj->img_url_origin, $img_url_trans, $prdObj->prd_desc);
                         ProductData::where("offer_id", $offerId)->update([
                             "prd_desc_trans"  => $prd_desc_trans
                         ]);
