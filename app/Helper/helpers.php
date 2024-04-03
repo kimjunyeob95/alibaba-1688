@@ -349,7 +349,7 @@ if (!function_exists("chkTransStatus")) {
     function chkTransStatus(int $offerId): void
     {
        $TransCnt = ProductImageData::where("offer_id", $offerId)
-       ->where("img_url_trans", "!=", "")
+       ->whereRaw("REPLACE(img_url_trans, ' ', '') != ''")
        ->whereNotNull("trans_dated_at")
        ->whereNull("deleted_at")
        ->count();
