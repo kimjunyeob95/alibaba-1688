@@ -554,8 +554,11 @@ class ProductV1 extends ProductAbstract
 
         // 1. 상품 이미지
         $product1688ImageDtoList = [];
+        if( count($detailProduct["productImage"]["images"]) < 5 ) {
+            throw new Exception(ProductErrorMessageConstant::getNotHaveErrorMessage("MAIN_IMG"));
+        }
         foreach ($detailProduct["productImage"]["images"] as $imgKey => $prdImage) {
-            if( $imgKey == 0 ) {
+            if( $imgKey == 4 ) {
                 $imgType = ImageConstant::IMAGE_TYPE_MAIN;
             } else {
                 $imgType = ImageConstant::IMAGE_TYPE_SUB;
@@ -1168,7 +1171,7 @@ class ProductV1 extends ProductAbstract
 
         try {
             $filePath      = $file->getRealPath();
-            $fileContent   = file_get_contents($filePath);
+            $fileContent   = fileContents($filePath);
             $base64Encoded = base64_encode($fileContent);
             $mimeType      = $file->getMimeType();
             $dataUrlScheme = "data:" . $mimeType . ";base64," . $base64Encoded;

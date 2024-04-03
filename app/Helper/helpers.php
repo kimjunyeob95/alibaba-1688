@@ -358,3 +358,19 @@ if (!function_exists("chkTransStatus")) {
        ]);
     }
 }
+
+if (!function_exists("fileContents")) {
+    function fileContents(string $filePath): string
+    {
+        $options  = [
+            "ssl" => [
+                "verify_peer" => false,
+                "verify_peer_name" => false,
+            ],
+        ];
+
+        $context     = stream_context_create($options);
+        $fileContent = file_get_contents($filePath, false, $context);
+        return $fileContent;
+    }
+}

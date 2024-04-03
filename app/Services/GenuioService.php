@@ -214,7 +214,7 @@ class GenuioService extends TransApiAbstract
                         $uploadResult   = $this->uploadAbstract->uploadFile($imgName, base64_decode($imgTransBase64));
                     } else {
                         try {
-                            $fileContent = file_get_contents($img_url_origin);
+                            $fileContent = fileContents($img_url_origin);
                             $status      = "";
                             if( isset($image["status"]) ) {
                                 $status = $image["status"];
@@ -253,8 +253,7 @@ class GenuioService extends TransApiAbstract
                     }
 
                     if( $errorImgFlag == true ) {
-                        // 1688 측 이미지 자체가 유효하지 않은 상태 softDelete
-                        // ProductImageData::where("id", $imgId)->delete();
+                        // 1688 측 이미지 자체가 유효하지 않은 상태 기록
                         $errMsg = "원본 이미지 upload error | img: " . $img_url_origin;
                         debug_log(json_encode($errMsg, JSON_UNESCAPED_UNICODE), "genuio", "genuio-img");
                     }

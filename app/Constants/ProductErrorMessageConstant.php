@@ -20,6 +20,7 @@ class ProductErrorMessageConstant
     public const ERROR_MESSAGE_PRODUCT_S3_IMG_UPLOAD             = "S3 image Upload";
     public const ERROR_MESSAGE_PRODUCT_CHECK_IMG_SIZE            = "check img size";
     public const ERROR_MESSAGE_PRODUCT_KEYWORD                   = "keyword";
+    public const ERROR_MESSAGE_PRODUCT_MAIN_IMG                  = "Main Img";
  
     public static function getErrorMessageNotDefault($constantName): string
     {
