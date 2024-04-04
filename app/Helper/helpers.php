@@ -325,17 +325,53 @@ if (!function_exists("ocPrice")) {
     }
 }
 
+if (!function_exists("getPrice1688")) {
+    function getPrice1688(array $detailProduct): float
+    {
+        $price_1688 = 0;
+        if( isset($detailProduct["productSkuInfos"][0]["price"]) ){
+            foreach ($detailProduct["productSkuInfos"] as $prdOptions) {
+                if( $prdOptions["price"] > $price_1688 ){
+                    $price_1688 = $prdOptions["price"];
+                }
+            }
+        } else if( !isset($detailProduct["productSkuInfos"][0]["price"]) &&
+            isset($detailProduct["productSaleInfo"]["priceRangeList"])
+        ) {
+            $price_1688 = $detailProduct["productSaleInfo"]["priceRangeList"][0]["price"];
+        }
+
+        return (float)$price_1688;
+    }
+}
+
 if (!function_exists("chkTransStatus")) {
     function chkTransStatus(int $offerId): void
     {
        $TransCnt = ProductImageData::where("offer_id", $offerId)
-       ->where("img_url_trans", "!=", "")
+       ->whereRaw("REPLACE(img_url_trans, ' ', '') != ''")
        ->whereNotNull("trans_dated_at")
        ->whereNull("deleted_at")
        ->count();
        ProductData::where("offer_id", $offerId)->update([
            "trans_status" => $TransCnt > 0 ? ProductConstant::TRANS_STATUE_Y : ProductConstant::TRANS_STATUE_N
        ]);
+    }
+}
+
+if (!function_exists("fileContents")) {
+    function fileContents(string $filePath): string
+    {
+        $options  = [
+            "ssl" => [
+                "verify_peer" => false,
+                "verify_peer_name" => false,
+            ],
+        ];
+
+        $context     = stream_context_create($options);
+        $fileContent = file_get_contents($filePath, false, $context);
+        return $fileContent;
     }
 }
 
@@ -358,5 +394,4 @@ if ( ! function_exists('productNameValidation'))
 
 		return $return;
 	}
-
 }

@@ -26,9 +26,9 @@ class Service1688Product
     * @func getPrdList
     * @description '1688 수집 상품 리스트'
     * @param array $params
-    * @return LengthAwarePaginator
+    * @return array
     */
-   public function getPrdList(array $params): LengthAwarePaginator
+   public function getPrdList(array $params): array
    {
       return $this->productAbstract->getPrdList($params);
    }
@@ -42,6 +42,17 @@ class Service1688Product
    public function getPrdDetail(int $offerId): array
    {
       return $this->productAbstract->getPrdDetail($offerId);
+   }
+
+   /**
+     * @func getQueryProductDetail
+     * @description '상품ID로 조회'
+     * @param array $offerIds
+     * @return array
+     */
+   public function getQueryProductDetail(array $offerIds): array
+   {
+      return $this->productAbstract->getQueryProductDetail($offerIds);
    }
 
    /**

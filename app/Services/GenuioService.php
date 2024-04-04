@@ -11,8 +11,10 @@ use App\Models\GenuioQueueData;
 use App\Models\GenuioQueueDetailData;
 use App\Models\ProductData;
 use App\Models\ProductImageData;
+use App\Models\ProductImageDetailData;
 use App\Packages\JwtPackage;
 use App\Vo\Genuio\QueueDto;
+use App\Vo\Product\Product1688ImageDto;
 use Carbon\Carbon;
 use Exception;
 use InvalidArgumentException;
@@ -137,6 +139,8 @@ class GenuioService extends TransApiAbstract
                 }
             }
 
+            chkTransStatus($offerId);
+
             $returnMsg = helpers_success_message();
         } catch (Exception $e) {
             $errorMsg  = "offerId: {$offerId} | errorTitle: " . TransApiConstant::getFitErrorMessage("TRANS_REQUEST_IMAGE") . "errorDesc: " . $e->getMessage();
@@ -210,7 +214,7 @@ class GenuioService extends TransApiAbstract
                         $uploadResult   = $this->uploadAbstract->uploadFile($imgName, base64_decode($imgTransBase64));
                     } else {
                         try {
-                            $fileContent = file_get_contents($img_url_origin);
+                            $fileContent = fileContents($img_url_origin);
                             $status      = "";
                             if( isset($image["status"]) ) {
                                 $status = $image["status"];
@@ -226,7 +230,6 @@ class GenuioService extends TransApiAbstract
                             $errorImgFlag   = true;
                             $imgTransBase64 = TransApiConstant::getFitErrorMessage("1688_IMG");
                         }
-
                     }
 
                     if( $uploadResult == true ) {
@@ -250,8 +253,9 @@ class GenuioService extends TransApiAbstract
                     }
 
                     if( $errorImgFlag == true ) {
-                        // 1688 측 이미지 자체가 유효하지 않은 상태 softDelete
-                        ProductImageData::where("id", $imgId)->delete();
+                        // 1688 측 이미지 자체가 유효하지 않은 상태 기록
+                        $errMsg = "원본 이미지 upload error | img: " . $img_url_origin;
+                        debug_log(json_encode($errMsg, JSON_UNESCAPED_UNICODE), "genuio", "genuio-img");
                     }
     
                     GenuioQueueDetailData::where([
@@ -299,6 +303,59 @@ class GenuioService extends TransApiAbstract
             chkTransStatus($getGenuioObj->offer_id);
         }
 
+        return $returnMsg;
+    }
+
+    /**
+     * @func imgTransRequest
+     * @description '상품 이미지 번역 요청'
+     * @param array $offerIds
+     */
+    public function imgTransRequest(array $offerIds): array
+    {
+        $returnMsg = $this->returnMsg;
+
+        if( env("APP_ENV", "local") != "production" ){
+            return helpers_fail_message(false, "운영 환경에서만 사용 가능합니다.");
+        }
+
+        try {
+            foreach ($offerIds as $offerId) {
+                $product1688ImageDtoList = [];
+                
+                $offerId = (int)$offerId;
+                $imgObjs = ProductImageData::where("offer_id", $offerId)->get();
+                foreach ($imgObjs as $imgObj) {
+                    $imgDetailObj = ProductImageDetailData::where([
+                        "offer_id"       => $offerId,
+                        "img_url_origin" => $imgObj->img_url_origin,
+                        "img_type"       => $imgObj->img_type,
+                    ])->first();
+                    $product1688ImageDto = new Product1688ImageDto();
+                    $product1688ImageDto->bind([
+                        "offerId"        => $offerId,
+                        "imgType"        => $imgObj->img_type,
+                        "img_url_origin" => $imgObj->img_url_origin,
+                        "img_url_trans"  => "",
+                        "isChangeImg"    => ImageConstant::IS_CHANGE_IMG,
+                        "width"          => $imgDetailObj->width,
+                        "height"         => $imgDetailObj->height,
+                        "byte"           => $imgDetailObj->byte,
+                        "mime"           => $imgDetailObj->mime,
+                    ]);
+                    $product1688ImageDtoList[] = $product1688ImageDto;
+                }
+                $createResult = $this->createTransProductImg($product1688ImageDtoList, $offerId);
+                if( $createResult["isSuccess"] != true ){
+                    throw new Exception($createResult["msg"]);
+                }
+            }
+
+            $returnMsg = helpers_success_message(true, "번역 요청이 완료되었습니다.");
+        } catch (Exception $e) {
+            $returnMsg = helpers_fail_message(false, $e->getMessage());
+        }
+        
         return $returnMsg;
     }
 

@@ -2,9 +2,11 @@
 
 namespace Tests\Feature;
 
+use App\Constants\ImageConstant;
 use App\Models\ProductData;
 use App\Models\ProductImageData;
 use App\Packages\Connect\Connect;
+use App\Packages\S3;
 use App\Services\GenuioService;
 use App\Services\OrderService;
 use App\Vo\Connect\Order\OrderSubJobDto;
@@ -128,6 +130,43 @@ class ProductTest extends TestCase
                 "prd_desc_trans"  => $prd_desc_trans
             ]);
         }
+    }
+
+    # s3 upload
+    # php artisan test --filter testS3Upload
+    public function testS3Upload()
+    {
+        $s3 = new S3();
+        $offerId = 737834654023; 
+        
+        $imgObj = ProductImageData::where([
+            "offer_id" => $offerId,
+            "img_type" => "main",
+        ])->first();
+        $mime = pathinfo($imgObj->img_url_origin, PATHINFO_EXTENSION);
+        if (preg_match('/^(jpg|jpeg|png|gif)/i', $mime, $matches)) {
+            $mime = $matches[0];
+        }
+        if( $imgObj->img_type == ImageConstant::IMAGE_TYPE_MAIN ){
+            $imgName  = "/dev/" . date('Y/m/d/') . $offerId . "_" . $imgObj->img_type . "." . $mime;
+        } else {
+            $imgName  = "/dev/" . date('Y/m/d/') . $offerId . "_" . $imgObj->id . "_" . $imgObj->img_type . "." . $mime;
+        }
+        $options = [
+            "ssl" => [
+                "verify_peer" => false,
+                "verify_peer_name" => false,
+            ],
+        ];
+        $context = stream_context_create($options);
+        $fileContent = file_get_contents($imgObj->img_url_origin, false, $context);
+        $imgEncodeBase64 = base64_encode($fileContent);
+        $uploadResult    = $s3->uploadFile($imgName, base64_decode($imgEncodeBase64));
+        if( $uploadResult == true ) {
+            $img_url_trans = env("AWS_URL") . $imgName;
+            dd($img_url_trans);
+        }
+        
     }
 
     # Genuio img queue create
