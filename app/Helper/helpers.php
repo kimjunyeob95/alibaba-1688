@@ -338,3 +338,25 @@ if (!function_exists("chkTransStatus")) {
        ]);
     }
 }
+
+//글자 byte 확인 함수
+if ( ! function_exists('productNameValidation'))
+{
+	function productNameValidation($prdName, $type, ?int $setVal = 0)
+	{
+		switch($type){
+			case "product":
+				$return = mb_strwidth( $prdName , "UTF-8") <= 100 ?? false;
+				break;
+			case "option":
+				$return = mb_strwidth( $prdName , "UTF-8") <= 45 ?? false;
+				break;
+			default:
+				$return = mb_strwidth( $prdName , "UTF-8") <= $setVal ?? false;
+				break;
+		}
+
+		return $return;
+	}
+
+}
