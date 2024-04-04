@@ -9,6 +9,7 @@
         padding: 10px;
         width: 100% !important;
     }
+    .prd-desc div,
     .prd-desc img,
     .prd-desc table,
     .prd-desc table td div{
