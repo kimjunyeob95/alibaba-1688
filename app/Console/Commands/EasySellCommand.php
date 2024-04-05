@@ -18,10 +18,6 @@ class EasySellCommand extends Command
         parent::__construct();
     }
 
-    /*
-     * 실행 구문 
-     * php artisan easy_sell_command --func=productRegist --offerids=731918432151,721717418135
-    */
     public function handle()
     {
         $func  = $this->option('func');
@@ -30,11 +26,17 @@ class EasySellCommand extends Command
 
         $this->mallApiService = new MallApiService(new EasySell(MallConstant::MALL_EASYSELL));
         switch ($func) {
+            /**
+             * 상품등록 커맨드
+             * php artisan easy_sell_command --func=productRegist --offerids=44798792934,562321147241
+             */
             case 'productRegist':
             default:
                 $offerIds = explode(",", $this->option('offerids'));
-                $result = $this->mallApiService->productRegist($offerIds);
-                dd($result);
+                if (!empty($offerIds)) {
+                    $result = $this->mallApiService->productRegist($offerIds);
+                    dd($result);
+                }
                 break;
         }
     }
