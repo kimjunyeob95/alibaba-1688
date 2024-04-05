@@ -194,7 +194,7 @@ class EasySell extends MallApiAbstract
                 $unitInfo .= "{$optionNm}^^{$stock}^^{$setPrice}^^{$setPrice}^^{$option->option_price}::{$option->id}";
             }
 
-            $itemImage = implode("|", array_filter($productObj->images->whereIn("img_type",["main","sub"])->pluck("img_url_trans")->toArray()));
+            $itemImage = implode("|", array_reverse(array_filter($productObj->images->whereIn("img_type",["main","sub"])->pluck("img_url_trans")->toArray())));
 
             $voParams = [
                 "ItemNo"                => $offerId,
