@@ -26,9 +26,15 @@ class MallApiService
         return $this->mallApiAbstract->tokenCreate($params);
     }
 
-    public function productRegist(): array
+    /**
+     * @func productRegist
+     * @description '상품등록'
+     * @param array $offerIds
+     * @return array
+    */
+    public function productRegist(array $offerIds): array
     {
-        return $this->mallApiAbstract->productRegist();
+        return $this->mallApiAbstract->productRegist($offerIds);
     }
 
     /**

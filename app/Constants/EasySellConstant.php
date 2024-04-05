@@ -7,7 +7,7 @@ class EasySellConstant
 {
     //상품 모드
     public const ITEM_REGIST = "I"; //등록
-    public const ITEM_MODI = "M"; //수정
+    public const ITEM_MODI   = "M"; //수정
 
     //셀러허브 아이디
     public const SELLERHUB_ID = "sellerhub";
@@ -26,6 +26,9 @@ class EasySellConstant
     public const API_SUCCESS = "SUCC";
     public const API_FAIL    = "FAIL";
 
-    public const API_REGIST_SUCCESS = "Y";
-    public const API_REGIST_FAIL    = "N";
+    // 과세여부
+    /** 과세 */
+    public const TAX_TAXATION  = "001";
+    /** 면세 */
+    public const TAX_EXEMPTION = "002";
 }

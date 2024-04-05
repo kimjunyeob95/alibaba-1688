@@ -50,8 +50,25 @@ class MallController extends Controller
 
     public function productRegist()
     {
-        $result = $this->mallApiService->productRegist();
-        return helpers_json_response(HttpConstant::OK, $result);
+        try {
+            $validator = Validator::make($this->request->all(), [
+                'offer_ids' => 'required|array',
+            ], [
+                'offer_ids.required' => 'offer_ids를 전달해주세요.',
+            ]);
+            if ($validator->fails()) {
+                throw new Exception($validator->errors()->first());
+            }
+
+            $result   = $this->mallApiService->productRegist($this->request->all());
+            if( $result["isSuccess"] == true ){
+                return helpers_json_response(HttpConstant::OK, $result);
+            } else {
+                return helpers_json_response(HttpConstant::BAD_REQUEST, [], $result["msg"]);
+            }
+        } catch (Exception $e) {
+            return helpers_json_response(HttpConstant::BAD_REQUEST, [], $e->getMessage());
+        }
     }
 
     public function orderInfo(int $orderId): JsonResponse
