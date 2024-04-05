@@ -38,13 +38,13 @@ class EasySell extends MallApiAbstract
                 $rsData = $this->_apiCall("Goods",$paramsResult["data"]);
 
                 if($rsData->Result == EasySellConstant::API_SUCCESS){
-                    $result = "Y";
+                    $result = EasySellConstant::API_REGIST_SUCCESS;
                     $itemno = $rsData->ItemGoodCode;
                     $registedAt = Carbon::now();
 
                     $return = helpers_success_message();
                 }else{
-                    $result = "N";
+                    $result = EasySellConstant::API_REGIST_FAIL;
                     $itemno = $rsData->ItemGoodNo;
                     $registedAt = NULL;
 
@@ -61,15 +61,26 @@ class EasySell extends MallApiAbstract
                     "response_json"  => json_encode($rsData,JSON_UNESCAPED_UNICODE),
                     "registed_at"    => $registedAt
                 ];
-
-                EasysellProductLog::updateOrCreate(["offer_id" => $offerId], $logParams);
             } else {
                 throw new Exception($paramsResult["msg"]);
             }
         }catch(Exception $e){
+            $payloadJson = $paramsResult["data"] ?? [];
+            $responseJson = $rsData ?? [];
+
+            $logParams = [
+                "offer_id"       => $offerId,
+                "account"        => EasySellConstant::USER_ID,
+                "regist_success" => EasySellConstant::API_REGIST_FAIL,
+                "regist_message" => $e->getMessage(),
+                "payload_json"   => json_encode(mb_convert_encoding($payloadJson,'utf-8','euc-kr'), JSON_UNESCAPED_UNICODE),
+                "response_json"  => json_encode($responseJson, JSON_UNESCAPED_UNICODE)
+            ];
+
             $return = helpers_fail_message(false, $e->getMessage());
         }
 
+        EasysellProductLog::updateOrCreate(["offer_id" => $offerId], $logParams);
         return $return;
     }
 
@@ -78,6 +89,13 @@ class EasySell extends MallApiAbstract
         return ["result" => "getOrders / EasySell"];
     }
 
+    /**
+     * api param 생성 - 상품 등록/수정 공통사용
+     *
+     * @param integer $offerId
+     * @param string $itemMode
+     * @return array
+     */
     private function _getPrdParams(int $offerId, string $itemMode = EasySellConstant::ITEM_REGIST) :array
     {
         $return = helpers_fail_message();
@@ -251,9 +269,11 @@ class EasySell extends MallApiAbstract
     }
 
     /**
+     * xml parser
+     *
      * @param string $xml
      * @param bool   $removeNameSpace
-     * @return SimpleXMLElement
+     * @return ?SimpleXMLElement
      */
     function parseXml(string $xml, bool $removeNameSpace = true): ?SimpleXMLElement
     {

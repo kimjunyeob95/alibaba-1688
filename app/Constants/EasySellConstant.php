@@ -24,5 +24,8 @@ class EasySellConstant
     public const ITEM_MADE_IN = "중국";
 
     public const API_SUCCESS = "SUCC";
-    public const API_FAIL = "FAIL";
+    public const API_FAIL    = "FAIL";
+
+    public const API_REGIST_SUCCESS = "Y";
+    public const API_REGIST_FAIL    = "N";
 }
