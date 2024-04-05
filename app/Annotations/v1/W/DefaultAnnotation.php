@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Annotations\v1\genuio;
+namespace App\Annotations\v1\W;
 
 /**
  *
  *
  * @OA\Info(
- *  title="mslabe API",
+ *  title="W API",
  *  version="1.0",
  * )
  *
@@ -17,7 +17,7 @@ namespace App\Annotations\v1\genuio;
  *         property="meta", 
  *         type="object",
  *         @OA\Property(property="timestamp", type="string", example="2023-12-19 17:45:50"),
- *         @OA\Property(property="apiVersion", type="string", example="v1")
+ *         @OA\Property(property="apiType", type="string", example="mall")
  *     ),
  *     @OA\Property(
  *         property="data", 
@@ -32,7 +32,7 @@ namespace App\Annotations\v1\genuio;
  *         property="meta", 
  *         type="object",
  *         @OA\Property(property="timestamp", type="string", example="2023-12-19 17:45:50"),
- *         @OA\Property(property="apiVersion", type="string", example="v1")
+ *         @OA\Property(property="apiType", type="string", example="mall")
  *     ),
  *     @OA\Property(
  *         property="error", 
@@ -49,7 +49,7 @@ namespace App\Annotations\v1\genuio;
  *         property="meta", 
  *         type="object",
  *         @OA\Property(property="timestamp", type="string", example="2023-12-19 17:45:50"),
- *         @OA\Property(property="apiVersion", type="string", example="v1")
+ *         @OA\Property(property="apiType", type="string", example="mall")
  *     ),
  *     @OA\Property(
  *         property="error", 
@@ -66,7 +66,7 @@ namespace App\Annotations\v1\genuio;
  *         property="meta", 
  *         type="object",
  *         @OA\Property(property="timestamp", type="string", example="2023-12-19 17:45:50"),
- *         @OA\Property(property="apiVersion", type="string", example="v1")
+ *         @OA\Property(property="apiType", type="string", example="mall")
  *     ),
  *     @OA\Property(
  *         property="error", 
@@ -83,7 +83,7 @@ namespace App\Annotations\v1\genuio;
  *         property="meta", 
  *         type="object",
  *         @OA\Property(property="timestamp", type="string", example="2023-12-19 17:45:50"),
- *         @OA\Property(property="apiVersion", type="string", example="v1")
+ *         @OA\Property(property="apiType", type="string", example="mall")
  *     ),
  *     @OA\Property(
  *         property="error", 

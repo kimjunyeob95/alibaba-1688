@@ -17,8 +17,8 @@ namespace App\Annotations\v1\genuio\bImage;
  *     required={"jobId", "images"},
  *     @OA\Property(
  *         property="jobId",
- *         type="integer",
- *         example=1,
+ *         type="string",
+ *         example="1",
  *         description="작업 ID"
  *     ),
  *     @OA\Property(
@@ -29,8 +29,8 @@ namespace App\Annotations\v1\genuio\bImage;
  *             required={"id", "imgTransBase64"},
  *             @OA\Property(
  *                 property="id",
- *                 type="integer",
- *                 example=1,
+ *                 type="string",
+ *                 example="1",
  *                 description="이미지 ID"
  *             ),
  *             @OA\Property(

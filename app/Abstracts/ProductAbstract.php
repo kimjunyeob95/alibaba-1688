@@ -12,9 +12,9 @@ abstract class ProductAbstract
     * @func getPrdList
     * @description '1688 수집 상품 리스트'
     * @param array $params
-    * @return LengthAwarePaginator
+    * @return array
     */
-    abstract function getPrdList(array $params): LengthAwarePaginator;
+    abstract function getPrdList(array $params): array;
 
     /**
      * @func getMallCategory
@@ -47,6 +47,14 @@ abstract class ProductAbstract
      * @return void
      */
     abstract function saveMallProductByImageId(string $imageId): void;
+
+    /**
+     * @func getQueryProductDetail
+     * @description '상품ID로 조회'
+     * @param array $offerIds
+     * @return array
+     */
+    abstract function getQueryProductDetail(array $offerIds): array;
 
     /**
      * @func getKeywordQuery

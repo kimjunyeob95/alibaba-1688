@@ -44,12 +44,49 @@ class ProductV1 extends ProductAbstract
         $this->transApiAbstract = $transApiAbstract;
     }
 
-    public function getPrdList(array $params): LengthAwarePaginator
+    public function getPrdList(array $params): array
     {
-        $pageSize  = $params["pageSize"];
+        $pageSize     = $params["pageSize"];
+        $search_cls   = $params["search_cls"];
+        $keyword      = $params["keyword"];
+        $trans_status = $params["trans_status"];
 
-        $prdBuilder = ProductData::with(["main_img", "options"])->orderBy("created_at", "desc");
-        $lists      = $prdBuilder->paginate($pageSize)->appends($params);
+        $prdBuilder = ProductData::with(["main_img", "options"])
+        ->whereNull("deleted_at")->orderBy("created_at", "desc");
+
+        if( !empty($keyword) ){
+            if( $search_cls == "offer_id"){
+                $keyword = preg_replace("/(\r\n|\r|\n)/", ",", trim($keyword));
+                $keyword = explode(",", $keyword);
+                // 각 배열 요소의 앞뒤 공백 제거
+                $keyword = array_map('trim', $keyword);
+                // 빈 값을 제거
+                $keyword = array_filter($keyword);
+                // 중복 제거
+                $keyword = array_unique($keyword);
+
+                $prdBuilder->whereIn($search_cls, $keyword);
+            } else if( $search_cls == "prd_name_trans"){
+                $prdBuilder->where($search_cls, "like", "%" . $keyword . "%");
+            }
+        }
+
+        if( !empty($trans_status) ){
+            $prdBuilder->where("trans_status", $trans_status);
+        }
+        
+        $totalCnt  = ProductData::whereNull("deleted_at")->count();
+        $transYCnt = ProductData::where("trans_status", ProductConstant::TRANS_STATUE_Y)->whereNull("deleted_at")->count();
+        $transNCnt = ProductData::where("trans_status", ProductConstant::TRANS_STATUE_N)->whereNull("deleted_at")->count();
+
+        $lists = $prdBuilder->paginate($pageSize)->appends($params);
+
+        return [
+            "paginator" => $lists,
+            "totalCnt"  => $totalCnt,
+            "transYCnt" => $transYCnt,
+            "transNCnt" => $transNCnt,
+        ];
 
         return $lists;
     }
@@ -374,6 +411,7 @@ class ProductV1 extends ProductAbstract
             "created_at" => Carbon::now()
         ]);
         foreach ($offerIds as $offerId) {
+            $offerId = trim($offerId);
             try {
                 $endPoint = "param2/1/com.alibaba.fenxiao.crossborder/product.search.queryProductDetail/";
                 $payload  = [
@@ -516,8 +554,11 @@ class ProductV1 extends ProductAbstract
 
         // 1. 상품 이미지
         $product1688ImageDtoList = [];
+        if( count($detailProduct["productImage"]["images"]) < 5 ) {
+            throw new Exception(ProductErrorMessageConstant::getNotHaveErrorMessage("PRODUCT_MAIN_IMG"));
+        }
         foreach ($detailProduct["productImage"]["images"] as $imgKey => $prdImage) {
-            if( $imgKey == 0 ) {
+            if( $imgKey == 4 ) {
                 $imgType = ImageConstant::IMAGE_TYPE_MAIN;
             } else {
                 $imgType = ImageConstant::IMAGE_TYPE_SUB;
@@ -772,22 +813,15 @@ class ProductV1 extends ProductAbstract
             }
 
             // 6. 이미지 번역 요청 통신 
-            $transResult = $this->transApiAbstract->createTransProductImg($product1688ImageDtoList, (int)$product1688Dto->offer_id);
-            if( $transResult["isSuccess"] == false ){
-                throw new Exception($transResult["msg"]);
+            if( env("APP_ENV", "local") == "production" ) {
+                $transResult = $this->transApiAbstract->createTransProductImg($product1688ImageDtoList, (int)$product1688Dto->offer_id);
+                if( $transResult["isSuccess"] == false ){
+                    throw new Exception($transResult["msg"]);
+                }
             }
 
             // 7. 기존 이미지 삭제
             $this->delProductImage($product1688ImageDtoList);
-
-            // 8. 변역 완료 여부 체크
-            $noTransCnt = ProductImageData::where("offer_id", $product1688Dto->offer_id)
-            ->where("img_url_trans", "")
-            ->whereNull("trans_dated_at")
-            ->count();
-            ProductData::where("offer_id", $product1688Dto->offer_id)->update([
-                "trans_status" => $noTransCnt == 0 ? ProductConstant::TRANS_STATUE_Y : ProductConstant::TRANS_STATUE_N
-            ]);
 
             $returnMsg = helpers_success_message();
         } catch (Exception $e) {
@@ -840,6 +874,7 @@ class ProductV1 extends ProductAbstract
 
     public function isChangeImage(int $offerId, string $imagePath, string $imgType): bool
     {
+        return true;
         $isChange = false;
 
         $getOriginImgObj = ProductImageDetailData::where("offer_id", $offerId)
@@ -866,19 +901,61 @@ class ProductV1 extends ProductAbstract
 
     public function checkImageSize(string $imagePath): array
     {
-        try {
-            $imageInfo = getimagesize($imagePath);
-        } catch (Exception $e) {
-            $errorMsg = ProductErrorMessageConstant::getFitErrorMessage("PRODUCT_CHECK_IMG_SIZE") . " {$imagePath}" . " | error: " . $e->getMessage();
-            throw new UnexpectedValueException($errorMsg);
-        }
+        // try {
+        //     $imageInfo = getimagesize($imagePath);
+        // } catch (Exception $e) {
+        //     $errorMsg = ProductErrorMessageConstant::getFitErrorMessage("PRODUCT_CHECK_IMG_SIZE") . " {$imagePath}" . " | error: " . $e->getMessage();
+        //     throw new UnexpectedValueException($errorMsg);
+        // }
+
+        // return [
+        //     "width"  => $imageInfo[0],
+        //     "height" => $imageInfo[1],
+        //     "byte"   => $imageInfo["bits"],
+        //     "mime"   => $imageInfo["mime"],
+        // ];
 
         return [
-            "width"  => $imageInfo[0],
-            "height" => $imageInfo[1],
-            "byte"   => $imageInfo["bits"],
-            "mime"   => $imageInfo["mime"],
+            "width"  => 800,
+            "height" => 800,
+            "byte"   => 8,
+            "mime"   => "image/jpeg",
         ];
+    }
+
+    public function getQueryProductDetail(array $offerIds): array
+    {
+        $datas = [];
+        foreach ($offerIds as $offerId) {
+            try {
+                $endPoint       = "param2/1/com.alibaba.fenxiao.crossborder/product.search.queryProductDetail/";
+                $payload        = [
+                    'access_token'     => $this->accessToken,
+                    'offerDetailParam' => [
+                        'offerId' => $offerId,
+                        'country' => Constant1688::LANGUAGE_KO,
+                    ]
+                ];
+                $apiDatas = curl_1688("POST", $endPoint, $payload);
+                if( $apiDatas["isSuccess"] == true && isset($apiDatas["data"]["result"]["result"]) ){
+                    $detailData               = $apiDatas["data"]["result"]["result"];
+                    $price_1688               = getPrice1688($detailData);
+                    $detailData["price_1688"] = $price_1688;
+                    $datas[]                  = $detailData;
+                }
+            } catch (Exception $e) {
+            }
+        }
+
+        foreach ($datas as &$data) {
+            $ocPrice                 = ocPrice($data["price_1688"]);
+            $data["onch_price"]      = $ocPrice["onch_price"];
+            $data["option_price"]    = $ocPrice["option_price"];
+            $data["cus_price"]       = $ocPrice["cus_price"];
+            $data["recom_cus_price"] = $ocPrice["recom_cus_price"];
+        }
+
+        return $datas;
     }
 
     public function getKeywordQuery(array $params): array
@@ -1094,7 +1171,7 @@ class ProductV1 extends ProductAbstract
 
         try {
             $filePath      = $file->getRealPath();
-            $fileContent   = file_get_contents($filePath);
+            $fileContent   = fileContents($filePath);
             $base64Encoded = base64_encode($fileContent);
             $mimeType      = $file->getMimeType();
             $dataUrlScheme = "data:" . $mimeType . ";base64," . $base64Encoded;

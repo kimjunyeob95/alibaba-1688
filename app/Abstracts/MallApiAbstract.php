@@ -5,27 +5,32 @@ namespace App\Abstracts;
 abstract class MallApiAbstract
 {
     protected array $returnMsg;
+    protected mixed $mallApiAbstract;
 
     public function __construct()
     {
-        $this->returnMsg    = helpers_fail_message();
+        $this->returnMsg = helpers_fail_message();
     }
 
     /**
-     * @func registProduct
+     * @func productRegist
      * @description '상품등록'
      */
-    abstract function registProduct(): array;
+    abstract function productRegist(): array;
 
     /**
-     * @func modiProduct
-     * @description '상품수정'
-     */
-    abstract function modiProduct(): array;
+     * @func orderInfo
+     * @description '주문 조회'
+     * @param int $orderId
+     * @return array
+    */
+    abstract function orderInfo(int $orderId): array;
 
     /**
-     * @func getOrders
-     * @description '주문수집'
+     * @func orderCreate
+     * @description '주문 생성'
+     * @param array $params
+     * @return array
      */
-    abstract function getOrders(): array;
+    abstract function orderCreate(array $params): array;
 }

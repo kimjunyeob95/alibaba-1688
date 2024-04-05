@@ -20,7 +20,7 @@ class Save1688CollectProduct extends Command
     }
     /*
      * 실행 구문 
-     * php artisan save_1688_collect_product
+     * php artisan save_1688_collect_product --offerids=552908136418,737834654023
     */
     public function handle()
     {

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Annotations\v1\genuio\aUser;
+namespace App\Annotations\v1\W\aUser;
 
 /**
  * 

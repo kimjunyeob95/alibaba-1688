@@ -2,10 +2,15 @@
 
 namespace Tests\Feature;
 
+use App\Constants\ImageConstant;
 use App\Models\ProductData;
+use App\Models\ProductImageData;
 use App\Packages\Connect\Connect;
+use App\Packages\S3;
+use App\Services\GenuioService;
 use App\Services\OrderService;
 use App\Vo\Connect\Order\OrderSubJobDto;
+use App\Vo\Product\Product1688ImageDto;
 use Carbon\Carbon;
 use Exception;
 use Tests\TestCase;
@@ -108,6 +113,87 @@ class ProductTest extends TestCase
         // } catch (Exception $e) {
         //     dd($result);
         // }
+    }
+
+    # testCode
+    # php artisan test --filter testCode
+    public function testCode()
+    {
+        $offerId = 684130604130; 
+        
+        $prdObj  = ProductData::where("offer_id", $offerId)->first();
+        $imgObjs = ProductImageData::where("offer_id", $offerId)->get();
+        $prd_desc_trans = $prdObj->prd_desc;
+        foreach ($imgObjs as $imgObj) {
+            $prd_desc_trans = str_replace($imgObj->img_url_origin, $imgObj->img_url_trans, $prd_desc_trans);
+            ProductData::where("offer_id", $offerId)->update([
+                "prd_desc_trans"  => $prd_desc_trans
+            ]);
+        }
+    }
+
+    # s3 upload
+    # php artisan test --filter testS3Upload
+    public function testS3Upload()
+    {
+        $s3 = new S3();
+        $offerId = 737834654023; 
+        
+        $imgObj = ProductImageData::where([
+            "offer_id" => $offerId,
+            "img_type" => "main",
+        ])->first();
+        $mime = pathinfo($imgObj->img_url_origin, PATHINFO_EXTENSION);
+        if (preg_match('/^(jpg|jpeg|png|gif)/i', $mime, $matches)) {
+            $mime = $matches[0];
+        }
+        if( $imgObj->img_type == ImageConstant::IMAGE_TYPE_MAIN ){
+            $imgName  = "/dev/" . date('Y/m/d/') . $offerId . "_" . $imgObj->img_type . "." . $mime;
+        } else {
+            $imgName  = "/dev/" . date('Y/m/d/') . $offerId . "_" . $imgObj->id . "_" . $imgObj->img_type . "." . $mime;
+        }
+        $options = [
+            "ssl" => [
+                "verify_peer" => false,
+                "verify_peer_name" => false,
+            ],
+        ];
+        $context = stream_context_create($options);
+        $fileContent = file_get_contents($imgObj->img_url_origin, false, $context);
+        $imgEncodeBase64 = base64_encode($fileContent);
+        $uploadResult    = $s3->uploadFile($imgName, base64_decode($imgEncodeBase64));
+        if( $uploadResult == true ) {
+            $img_url_trans = env("AWS_URL") . $imgName;
+            dd($img_url_trans);
+        }
+        
+    }
+
+    # Genuio img queue create
+    # php artisan test --filter testGenuioImgCreate
+    public function testGenuioImgCreate()
+    {
+        $offerId                 = 773387095350;
+        $product1688ImageDtoList = [];
+        $imgObjs                 = ProductImageData::where("offer_id", $offerId)->get();
+        foreach ($imgObjs as $imgObj) {
+            $product1688ImageDto = new Product1688ImageDto();
+            $product1688ImageDto->bind([
+                "offerId"        => $offerId,
+                "imgType"        => $imgObj->img_type,
+                "img_url_origin" => $imgObj->img_url_origin,
+                "img_url_trans"  => "",
+                "isChangeImg"    => true,
+                "width"          => 800,
+                "height"         => 800,
+                "byte"           => 8,
+                "mime"           => "image/jpeg"
+            ]);
+            $product1688ImageDtoList[] = $product1688ImageDto;
+        }
+
+        $geService = app(GenuioService::class);
+        $geService->createTransProductImg($product1688ImageDtoList, $offerId);
     }
 
 }

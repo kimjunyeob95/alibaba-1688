@@ -2,7 +2,7 @@
 
 namespace App\Constants;
 
-class ProductErrorMessageConstant
+class OrderErrorMessageConstant
 {
     private static $defaultMsg         = "(을)를 입력해주세요.";
     private static $defaultTypeMsg     = "의 타입형식이 올바르지 않습니다.";
@@ -10,17 +10,13 @@ class ProductErrorMessageConstant
     private static $defaultNotHaveMsg  = "Empty";
     private static $defaultFitErrorMsg = "Error";
 
-    public const ERROR_MESSAGE_PRODUCT_SEARCH_KEYWORDQUERY       = "product.search.keywordQuery";
-    public const ERROR_MESSAGE_PRODUCT_SEARCH_IMAGEQUERY         = "product.search.imageQuery";
-    public const ERROR_MESSAGE_PRODUCT_SEARCH_QUERYPRODUCTDETAIL = "product.search.queryProductDetail";
-    public const ERROR_MESSAGE_PRODUCT_SKUINFOS                  = "productSkuInfos";
-    public const ERROR_MESSAGE_PRODUCT_PRICE_1688                = "1688 Price";
-    public const ERROR_MESSAGE_PRODUCT_CONSIGN_PRICE             = "productSkuInfos consignPrice";
-    public const ERROR_MESSAGE_PRODUCT_TRANS_IMG                 = "Genuio imageTranslate";
-    public const ERROR_MESSAGE_PRODUCT_S3_IMG_UPLOAD             = "S3 image Upload";
-    public const ERROR_MESSAGE_PRODUCT_CHECK_IMG_SIZE            = "check img size";
-    public const ERROR_MESSAGE_PRODUCT_KEYWORD                   = "keyword";
-    public const ERROR_MESSAGE_PRODUCT_MAIN_IMG                  = "Main Img";
+    public const ERROR_MESSAGE_CARGOPARAMLIST = "주문 생성 제품 정보";
+    public const ERROR_MESSAGE_OFFER_ID       = "제품 ID";
+    public const ERROR_MESSAGE_SPEC_ID        = "제품 spec ID";
+    public const ERROR_MESSAGE_QUANTITY       = "제품 수량";
+    public const ERROR_MESSAGE_RECEIVE_NAME   = "수취인 이름";
+    public const ERROR_MESSAGE_RECEIVE_TELL   = "수취인 전화번호";
+    public const ERROR_MESSAGE_RECEIVE_PHONE  = "수취인 휴대폰번호";
  
     public static function getErrorMessageNotDefault($constantName): string
     {

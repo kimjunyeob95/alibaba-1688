@@ -14,6 +14,8 @@ class TransApiConstant
     public const QUEUE_SUCCESS = "Y";  // 성공
     public const QUEUE_FAIL    = "N";  // 실패
 
+    // 번역 결과
+    public const TRANS_IMG_NO_TRANSLATE = "no_translate";
 
     private static $defaultMsg         = "(을)를 입력해주세요.";
     private static $defaultTypeMsg     = "의 타입형식이 올바르지 않습니다.";
@@ -24,6 +26,9 @@ class TransApiConstant
     public const ERROR_MESSAGE_QUEUE_ID              = "queue ID";
     public const ERROR_MESSAGE_NOT_EQUAL_COUNT_IMAGE = "요청과 응답의 이미지 개수가 다릅니다.";
     public const ERROR_MESSAGE_TRANS_REQUEST_IMAGE   = "Trans Request Image";
+    public const ERROR_MESSAGE_IMG_ID                = "Image ID";
+    public const ERROR_MESSAGE_PRODUCT               = "Product";
+    public const ERROR_MESSAGE_1688_IMG              = "1688 원본 이미지";
  
     public static function getErrorMessageNotDefault($constantName): string
     {

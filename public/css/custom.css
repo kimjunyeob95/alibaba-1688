@@ -46,7 +46,7 @@ a:hover {text-decoration: underline; color: rgb(22, 22, 23);}
 
 .swiper-container {
   width: 60%;
-  height: 400px; /* 예시로 설정한 고정 높이, 실제 사용 환경에 맞게 조정 필요 */
+  height: 600px; /* 예시로 설정한 고정 높이, 실제 사용 환경에 맞게 조정 필요 */
   max-width: 60%;
   position: relative; /* Swiper 네비게이션 버튼 위치 조정을 위해 relative로 설정 */
   margin: auto; /* 가운데 정렬 */
@@ -70,10 +70,10 @@ a:hover {text-decoration: underline; color: rgb(22, 22, 23);}
   position: absolute;
 }
 .swiper-button-prev {
-  left: 50px;
+  left: 110px;
 }
 .swiper-button-next {
-  right: 50px;
+  right: 110px;
 }
 /* 페이지네이션 위치 조정 */
 .swiper-pagination {
