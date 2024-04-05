@@ -1,13 +1,14 @@
 <?php
 namespace App\Console\Commands;
 
+use App\Constants\MallConstant;
 use App\Packages\EasySell;
 use App\Services\MallApiService;
 use Illuminate\Console\Command;
 
 class EasySellCommand extends Command
 {
-    protected $signature   = 'easy_sell_command {--func=}';
+    protected $signature   = 'easy_sell_command {--func=} {--offerids=}';
     protected $description = 'easySell command';
 
     protected MallApiService $mallApiService;
@@ -19,7 +20,7 @@ class EasySellCommand extends Command
 
     /*
      * 실행 구문 
-     * php artisan easy_sell_command --func=productRegist
+     * php artisan easy_sell_command --func=productRegist --offerids=552908136418,737834654023
     */
     public function handle()
     {
@@ -27,11 +28,12 @@ class EasySellCommand extends Command
 
         if( !$func ) return null;
 
-        $this->mallApiService = new MallApiService(new EasySell());
+        $this->mallApiService = new MallApiService(new EasySell(MallConstant::MALL_EASYSELL));
         switch ($func) {
             case 'productRegist':
             default:
-                $result = $this->mallApiService->productRegist();
+                $offerIds = explode(",", $this->option('offerids'));
+                $result = $this->mallApiService->productRegist($offerIds);
                 dd($result);
                 break;
         }

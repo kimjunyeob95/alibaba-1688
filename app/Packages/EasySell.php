@@ -4,6 +4,8 @@ namespace App\Packages;
 
 use App\Abstracts\MallApiAbstract;
 use App\Constants\EasySellConstant;
+use App\Constants\MallConstant;
+use App\Constants\MallErrorMessageConstant;
 use App\Constants\ProductConstant;
 use App\Models\EasysellProductLog;
 use App\Models\OnchCategoryExcelDataCopy2;
@@ -20,69 +22,96 @@ class EasySell extends MallApiAbstract
         parent::__construct(app(JwtPackage::class), $channel);
     }
 
-    public function productRegist(): array
+    /**
+     * @func productRegist
+     * @description '상품등록'
+     * @param array $offerIds
+     * @return array
+    */
+    public function productRegist(array $offerIds): array
     {
-        $selObj = ProductData::where("trans_status","Y")
-            ->whereNotIn("offer_id",function($query){
-                $query->select("offer_id")->from("easysell_product_logs");
-            })
-            ->first();
-        if(!isset($selObj)){
-            return helpers_fail_message(false, "전송 가능한 상품이 없습니다");
-        }
+        $successIds = [];
+        $failIds    = [];
 
-        try{
-            $offerId = $selObj->offer_id;
-            $paramsResult = $this->_getPrdParams($offerId, EasySellConstant::ITEM_REGIST);
+        foreach ($offerIds as $offerId) {
+            $paramsResult = [];
+            $rsData       = [];
+            $itemno       = 0;
+            $modi_message = "";
+            try{
+                $prdObj = ProductData::with([
+                    "images",
+                    "extends",
+                    "options",
+                    "notices",
+                    "oc_mapping"
+                ])->where("offer_id", $offerId)->first();
 
-            if( $paramsResult["isSuccess"] ){
-                $rsData = $this->_apiCall("Goods",$paramsResult["data"]);
-
-                if($rsData->Result == EasySellConstant::API_SUCCESS){
-                    $result = EasySellConstant::API_REGIST_SUCCESS;
-                    $itemno = $rsData->ItemGoodCode;
-                    $registedAt = Carbon::now();
-
-                    $return = helpers_success_message();
-                }else{
-                    $result = EasySellConstant::API_REGIST_FAIL;
-                    $itemno = $rsData->ItemGoodNo;
-                    $registedAt = NULL;
-
-                    $return = helpers_fail_message(false, $rsData->Msg);
+                if( $prdObj == null ){
+                    throw new Exception(MallErrorMessageConstant::getNotHaveErrorMessage("PRODUCT"));
+                }
+                if( $prdObj->trans_status != ProductConstant::IMG_TRANS_Y ){
+                    throw new Exception(MallErrorMessageConstant::getFitErrorMessage("NOT_TRANS_IMG"));
                 }
 
+                $easyObj = EasySellProductLog::where([
+                    "offer_id" => $offerId,
+                    "regist_success" => MallConstant::REGIST_SUCCESS,
+                ])->first();
+                if( $easyObj != null ){
+                    throw new Exception(MallErrorMessageConstant::getFitErrorMessage("HAVE_REGIST"));
+                }
+
+                $paramsResult = $this->_getPrdParams($prdObj, EasySellConstant::ITEM_REGIST);
+                if( $paramsResult["isSuccess"] == true ){
+                    $apiResult = $this->_apiCall("Goods", $paramsResult["data"]);
+
+                    if( $apiResult["isSuccess"] != true ){
+                        throw new Exception(MallErrorMessageConstant::getFitErrorMessage("EASYSELL_GOODS_API"));
+                    }
+
+                    $rsData = $apiResult["data"]["result"];
+                    $itemno = $rsData->ItemGoodCode;
+                    if($rsData->Result == EasySellConstant::API_SUCCESS){
+                        $successIds[] = $offerId;
+                    } else {
+                        throw new Exception($rsData->Msg);
+                    }
+
+                    $logParams = [
+                        "itemno"         => $itemno,
+                        "offer_id"       => $offerId,
+                        "account"        => EasySellConstant::USER_ID,
+                        "regist_success" => MallConstant::REGIST_SUCCESS,
+                        "regist_message" => $rsData->Msg,
+                        "modi_success"   => MallConstant::MODI_FAIL,
+                        "modi_message"   => $modi_message,
+                        "registed_at"    => Carbon::now()
+                    ];
+                } else {
+                    throw new Exception($paramsResult["msg"]);
+                }
+            }catch(Exception $e){
                 $logParams = [
                     "itemno"         => $itemno,
                     "offer_id"       => $offerId,
                     "account"        => EasySellConstant::USER_ID,
-                    "regist_success" => $result,
-                    "regist_message" => $rsData->Msg,
-                    "payload_json"   => json_encode(mb_convert_encoding($paramsResult["data"],'utf-8','euc-kr'), JSON_UNESCAPED_UNICODE),
-                    "response_json"  => json_encode($rsData,JSON_UNESCAPED_UNICODE),
-                    "registed_at"    => $registedAt
+                    "regist_success" => MallConstant::REGIST_FAIL,
+                    "regist_message" => $e->getMessage(),
+                    "modi_success"   => MallConstant::MODI_FAIL,
+                    "modi_message"   => $modi_message
                 ];
-            } else {
-                throw new Exception($paramsResult["msg"]);
+
+                $failIds[] = [
+                    "offer_id" => $offerId,
+                    "msg"      => $e->getMessage()
+                ];
             }
-        }catch(Exception $e){
-            $payloadJson = $paramsResult["data"] ?? [];
-            $responseJson = $rsData ?? [];
 
-            $logParams = [
-                "offer_id"       => $offerId,
-                "account"        => EasySellConstant::USER_ID,
-                "regist_success" => EasySellConstant::API_REGIST_FAIL,
-                "regist_message" => $e->getMessage(),
-                "payload_json"   => json_encode(mb_convert_encoding($payloadJson,'utf-8','euc-kr'), JSON_UNESCAPED_UNICODE),
-                "response_json"  => json_encode($responseJson, JSON_UNESCAPED_UNICODE)
-            ];
-
-            $return = helpers_fail_message(false, $e->getMessage());
+            EasysellProductLog::updateOrCreate(["offer_id" => $offerId], $logParams);
         }
 
-        EasysellProductLog::updateOrCreate(["offer_id" => $offerId], $logParams);
-        return $return;
+        return ["success" => $successIds, "fail" => $failIds];
     }
 
     public function orderInfo(int $orderId): array
@@ -112,49 +141,33 @@ class EasySell extends MallApiAbstract
     /**
      * api param 생성 - 상품 등록/수정 공통사용
      *
-     * @param integer $offerId
+     * @param ProductData $prdObj
      * @param string $itemMode
      * @return array
      */
-    private function _getPrdParams(int $offerId, string $itemMode = EasySellConstant::ITEM_REGIST) :array
+    private function _getPrdParams(ProductData $prdObj, string $itemMode = EasySellConstant::ITEM_REGIST) :array
     {
         $return = helpers_fail_message();
 
         try{
-            $productObj = ProductData::where("offer_id",$offerId);
-            if(!$productObj->exists()){
-                throw new Exception("존재하지 않는 상품입니다");
-            }
-            $productObj->where("trans_status",ProductConstant::IMG_TRANS_Y);
-            if(!$productObj->exists()){
-                throw new Exception("번역 미완료 상품입니다");
-            }
-
-            $productObj = $productObj->with([
-                "images",
-                "extends",
-                "options",
-                "notices",
-                "oc_mapping"
-            ])
-            ->first();
+            $offerId = $prdObj->offer_id;
 
             //카테고리 매핑
-            $categoryId = $productObj->oc_mapping->mapping_code;
+            $categoryId = $prdObj->oc_mapping->mapping_code;
             $cateObj = OnchCategoryExcelDataCopy2::select("sellerhub_cate")->where("codenum",$categoryId)->first();
             if(!isset($cateObj)){
                 throw new Exception("카테고리 정보가 없습니다");
             }
 
-            $ItemName = $productObj->prd_name_trans;
+            $ItemName = $prdObj->prd_name_trans;
             // if(!productNameValidation($ItemName, "", 100)){
             //     throw new Exception("상품명 길이가 100byte를 초과했습니다.");
             // }
 
-            $ItemDescDetail = "<p style='font-size:18px;border: 1px solid #ec9821;background-color: #f0ad4e; color: #fff;padding: 15px 30px;'>{$productObj->return_comment}</p>{$productObj->prd_desc_trans}";
+            $ItemDescDetail = "<p style='font-size:18px;border: 1px solid #ec9821;background-color: #f0ad4e; color: #fff;padding: 15px 30px;'>{$prdObj->return_comment}</p>{$prdObj->prd_desc_trans}";
 
             $notice = "<table><tbody>";
-            foreach($productObj->notices as $gosiKey => $gosi){
+            foreach($prdObj->notices as $gosiKey => $gosi){
                 if(!$gosiKey){
                     $noticeType = $gosi->notice_type;
                 }
@@ -165,36 +178,36 @@ class EasySell extends MallApiAbstract
 
                 $notice .= "<th>{$gosi->attribute_name_trans}</th><td>{$gosi->attribute_value_trans}</td>";
 
-                if(($gosiKey + 1) % 4 == 0 || ($gosiKey + 1) == count($productObj->notices)){
+                if(($gosiKey + 1) % 4 == 0 || ($gosiKey + 1) == count($prdObj->notices)){
                     $notice .="</tr>";
                 }
             }
             $notice .= "</tbody></table>";
 
-            $unitInfo = "";
+            $unitInfo   = "";
             $saleStatus = EasySellConstant::STATUS_STOP_SALE;
-            foreach($productObj->options as $idx => $option){
+            foreach($prdObj->options as $idx => $option){
                 if(!$idx){
-                    $buyPrice = $option->option_price; //셀러허브 공급가
+                    $buyPrice  = $option->option_price; //셀러허브 공급가
                     $salePrice = $setPrice = ceil(($option->onch_price * env("EASYSELL_PRICE_RATE", "1.35")) / 100) * 100;
                 }
                 $setPrice = ceil(($option->onch_price * env("EASYSELL_PRICE_RATE", "1.35")) / 100) * 100;
 
                 //옵션명
-                $replaceArr = array("|",",","/");
+                $replaceArr     = array("|",",","/");
                 $replacementArr = array("-","\,","-");
-                $optionNm = str_replace($replaceArr, $replacementArr ,$option->option_name_trans);
+                $optionNm       = str_replace($replaceArr, $replacementArr ,$option->option_name_trans);
 
                 if($option->status == ProductConstant::OPTION_SEC_ON_SALE_NUMBER){
                     $saleStatus = EasySellConstant::STATUS_ON_SALE;
-                    $stock = $option->amount_on_sale;
+                    $stock      = $option->amount_on_sale;
                 }
                 $stock = 0;
 
                 $unitInfo .= "{$optionNm}^^{$stock}^^{$setPrice}^^{$setPrice}^^{$option->option_price}::{$option->id}";
             }
 
-            $itemImage = implode("|", array_reverse(array_filter($productObj->images->whereIn("img_type",["main","sub"])->pluck("img_url_trans")->toArray())));
+            $itemImage = implode("|", array_reverse(array_filter($prdObj->images->whereIn("img_type",["main","sub"])->pluck("img_url_trans")->toArray())));
 
             $voParams = [
                 "ItemNo"                => $offerId,
@@ -204,11 +217,11 @@ class EasySell extends MallApiAbstract
                 "ItemDescDetail"        => $ItemDescDetail,
                 "ItemGoodsRequiredDesc" => $notice,
                 "ItemImage"             => $itemImage,
-                "TaxYn"                 => ($productObj->tax_type) == 1 ? "001" : "002",   //과세 001, 면세 002
+                "TaxYn"                 => ($prdObj->tax_type) == ProductConstant::TAX_TAXATION ? EasySellConstant::TAX_TAXATION : EasySellConstant::TAX_EXEMPTION,
                 "BuyPrice"              => $buyPrice,
                 "SalePrice"             => $salePrice,
                 "ConsumerPrice"         => $salePrice,
-                "Delfee"                => $productObj->extends->send_default_price,
+                "Delfee"                => $prdObj->extends->send_default_price,
                 "UnitInfo"              => $unitInfo,
                 "SaleStatus"            => $saleStatus,
                 "ItemMode"              => $itemMode,
@@ -275,69 +288,54 @@ class EasySell extends MallApiAbstract
      * @param $item 변경할 array
 	 *
      */
-    private function _iconvArr (&$item, $key) {
+    private function _iconvArr (&$item) {
         $item = iconv("utf-8","euc-kr//TRANSLIT",$item);
     }
 
-    /**
-     * @param string $name
-     * @return string
-     */
-    private function _getApiHost(string $name): string
-    {
-        return sprintf('%s.%s.php',  env("EASYSELL_DOMAIN", "https://pravs.co.kr/shop/_OpenAPI/link"), $name);
-    }
+    private function _apiCall(string $name, array $params = []): array
+	{
+        $returnMsg = $this->returnMsg;
 
-    /**
-     * xml parser
-     *
-     * @param string $xml
-     * @param bool   $removeNameSpace
-     * @return ?SimpleXMLElement
-     */
-    function parseXml(string $xml, bool $removeNameSpace = true): ?SimpleXMLElement
-    {
-        if ($removeNameSpace) {
-            $xml = preg_replace('/xmlns[^=]*="[^"]*"/i', '', $xml);
-            $xml = preg_replace('/[a-zA-Z0-9]+:([a-zA-Z]+[=>]*)/', '$1', $xml);
-			$xml = preg_replace('/&(?!lt;|gt;|quot;|apos;|amp;|#)/', '&amp;', $xml); //xml escape 추가
+        try {
+            $url = sprintf('%s.%s.php',  env("EASYSELL_DOMAIN", "https://pravs.co.kr/shop/_OpenAPI/link"), $name);
+
+            $curl = curl_init();
+            curl_setopt_array($curl, array(
+                CURLOPT_URL => $url,
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_ENCODING => "",
+                CURLOPT_MAXREDIRS => 10,
+                CURLOPT_TIMEOUT => 30,
+                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+                CURLOPT_CUSTOMREQUEST => "POST",
+                CURLOPT_POSTFIELDS => $params,
+                CURLOPT_HTTPHEADER => array(
+                )
+            ));
+
+            $response = curl_exec($curl);
+            curl_close($curl);
+
+            $response = str_replace('euc-kr', 'utf-8', $response);
+            $response = mb_convert_encoding($response, 'utf-8', 'euc-kr');
+
+
+            if (false) {
+                $response = preg_replace('/xmlns[^=]*="[^"]*"/i', '', $response);
+                $response = preg_replace('/[a-zA-Z0-9]+:([a-zA-Z]+[=>]*)/', '$1', $response);
+                $response = preg_replace('/&(?!lt;|gt;|quot;|apos;|amp;|#)/', '&amp;', $response);
+            }
+
+            $response = simplexml_load_string($response, "SimpleXMLElement", LIBXML_NOCDATA);
+            if(empty($response)){
+                throw new Exception(MallErrorMessageConstant::getFitErrorMessage("XML_PARSE"));
+            }
+
+            $returnMsg = helpers_success_message(["result" => $response]);
+        } catch (Exception $e) {
+            $returnMsg = helpers_fail_message(false, $e->getMessage());
         }
 
-		$response = simplexml_load_string($xml, "SimpleXMLElement", LIBXML_NOCDATA);
-		if(empty($response)){
-			$response = null;
-		}
-
-        return $response;
-    }
-
-
-    private function _apiCall(string $name, array $params = []) :?SimpleXMLElement
-	{
-        $url = $this->_getApiHost($name);
-
-        $curl = curl_init();
-        curl_setopt_array($curl, array(
-            CURLOPT_URL => $url,
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_ENCODING => "",
-            CURLOPT_MAXREDIRS => 10,
-            CURLOPT_TIMEOUT => 30,
-            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-            CURLOPT_CUSTOMREQUEST => "POST",
-            CURLOPT_POSTFIELDS => $params,
-            CURLOPT_HTTPHEADER => array(
-            )
-        ));
-
-       	$response = curl_exec($curl);
-    	curl_close($curl);
-
-		$response = str_replace('euc-kr','utf-8',$response);
-		$response = mb_convert_encoding($response,'utf-8','euc-kr');
-
-        $rsData = $this->parseXml($response);
-
-        return $rsData;
+        return $returnMsg;
     }
 }
