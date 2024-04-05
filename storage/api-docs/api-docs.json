@@ -130,6 +130,7 @@
                     "주문"
                 ],
                 "summary": "주문 생성",
+                "description": "주문 생성 endPoint",
                 "operationId": "ff60c3bea5f208b49fd4ef22b4691c7a",
                 "requestBody": {
                     "required": true,
@@ -205,9 +206,9 @@
                                 "type": "string",
                                 "example": "2023-12-19 17:45:50"
                             },
-                            "apiVersion": {
+                            "apiType": {
                                 "type": "string",
-                                "example": "v1"
+                                "example": "mall"
                             }
                         },
                         "type": "object"
@@ -230,9 +231,9 @@
                                 "type": "string",
                                 "example": "2023-12-19 17:45:50"
                             },
-                            "apiVersion": {
+                            "apiType": {
                                 "type": "string",
-                                "example": "v1"
+                                "example": "mall"
                             }
                         },
                         "type": "object"
@@ -265,9 +266,9 @@
                                 "type": "string",
                                 "example": "2023-12-19 17:45:50"
                             },
-                            "apiVersion": {
+                            "apiType": {
                                 "type": "string",
-                                "example": "v1"
+                                "example": "mall"
                             }
                         },
                         "type": "object"
@@ -300,9 +301,9 @@
                                 "type": "string",
                                 "example": "2023-12-19 17:45:50"
                             },
-                            "apiVersion": {
+                            "apiType": {
                                 "type": "string",
-                                "example": "v1"
+                                "example": "mall"
                             }
                         },
                         "type": "object"
@@ -335,9 +336,9 @@
                                 "type": "string",
                                 "example": "2023-12-19 17:45:50"
                             },
-                            "apiVersion": {
+                            "apiType": {
                                 "type": "string",
-                                "example": "v1"
+                                "example": "mall"
                             }
                         },
                         "type": "object"

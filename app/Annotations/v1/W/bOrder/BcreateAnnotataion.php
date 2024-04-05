@@ -51,6 +51,7 @@ namespace App\Annotations\v1\W\bOrder;
  * @OA\Post(
  *     path="/api/mall/easySell/order/create",
  *     summary="주문 생성",
+ *     description="주문 생성 endPoint",
  *     tags={"주문"},
  *     security={{"BearerAuth": {}}},
  *     @OA\RequestBody(
