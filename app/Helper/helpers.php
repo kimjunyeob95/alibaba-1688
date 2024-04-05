@@ -10,6 +10,15 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
 use Psr\Log\LogLevel;
 
+if (!function_exists("pr")) {
+    function pr($data)
+    {
+        echo "<pre>";
+        print_r($data);
+        echo "</pre>";
+    }
+}
+
 if (!function_exists('helpers_curl')) {
     /**
 	 * helpers_curl
