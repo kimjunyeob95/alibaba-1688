@@ -3,16 +3,16 @@
 return [
     'default' => 'v1',
     'documentations' => [
-        'v1' => [
+        'w.v1' => [
             'api' => [
-                'title' => '1688 API',
+                'title' => 'W API',
             ],
             'routes' => [
                 /*
                  * Route for accessing api documentation interface
                 */
-                'api' => 'api/v1/1688/swagger',
-                'docs' => 'api/v1/1688/swagger',
+                'api' => 'api/v1/w/swagger',
+                'docs' => 'api/v1/w/swagger',
                 'oauth2_callback' => 'api/v1/callback'
             ],
             'paths' => [
@@ -40,7 +40,7 @@ return [
                  * Absolute paths to directory containing the swagger annotations are stored.
                 */
                 'annotations' => [
-                    base_path('app/Annotations/v1/1688'),
+                    base_path('app/Annotations/v1/W'),
                 ],
             ],
             'scanOptions' => [

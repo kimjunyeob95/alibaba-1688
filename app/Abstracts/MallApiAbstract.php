@@ -20,7 +20,9 @@ abstract class MallApiAbstract
 
     /**
      * @func getOrders
-     * @description '주문수집'
+     * @description '주문 생성'
+     * @param int $params
+     * @return array
      */
-    abstract function getOrders(): array;
+    abstract function orderCreate(array $params): array;
 }

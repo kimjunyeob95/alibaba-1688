@@ -49,5 +49,7 @@ Route::name('genuio.')->prefix('genuio')->group(function () {
 Route::name('mall.')->prefix('mall')->group(function () {
     Route::name('easySell.')->prefix('easySell')->group(function () {
         Route::post('/product/regist', [MallController::class, "productRegist"])->name("productRegist");
+
+        Route::post('/order/create', [MallController::class, "orderCreate"])->name("orderCreate");
     });
 });

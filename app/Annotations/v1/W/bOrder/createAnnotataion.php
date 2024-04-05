@@ -14,34 +14,38 @@ namespace App\Annotations\v1\W\bOrder;
  * 
  * @OA\Schema(
  *     schema="OrderCreateSchema",
- *     required={"jobId", "images"},
+ *     required={"cargoParamList", "receive_name", "receive_tell", "receive_phone"},
  *     @OA\Property(
- *         property="jobId",
- *         type="string",
- *         example="1",
- *         description="작업 ID"
- *     ),
- *     @OA\Property(
- *         property="images",
+ *         property="cargoParamList",
  *         type="array",
  *         @OA\Items(
  *             type="object",
- *             required={"id", "imgTransBase64"},
+ *             required={"offer_id", "spec_id"},
  *             @OA\Property(
- *                 property="id",
- *                 type="string",
- *                 example="1",
- *                 description="이미지 ID"
+ *                 property="offer_id",
+ *                 type="integer",
+ *                 example=630519988300,
+ *                 description="제품 ID"
  *             ),
  *             @OA\Property(
- *                 property="imgTransBase64",
+ *                 property="spec_id",
  *                 type="string",
- *                 example="~~",
- *                 description="Base64로 인코딩된 이미지 데이터"
- *             )
+ *                 example="e9b1640fc6f205e445c3c7d72c4373c2",
+ *                 description="제품 spec Id"
+ *             ),
+ *             @OA\Property(
+ *                 property="quantity",
+ *                 type="integer",
+ *                 example="1",
+ *                 description="제품 수량"
+ *             ),
  *         ),
- *         description="번역 된 이미지 ID와 base64 인코딩된 이미지 데이터"
- *     )
+ *         description="주문 생성 제품 정보"
+ *     ),
+ *     @OA\Property(property="receive_name", type="string", description="수취인 이름", example="홍길동"),
+ *     @OA\Property(property="receive_tell", type="string", description="수취인 전화번호", example="021231324"),
+ *     @OA\Property(property="receive_phone", type="string", description="수취인 휴대폰번호", example="01012345678"),
+ *     @OA\Property(property="message", type="string", description="주문 메모", example="문 앞에 놔주세요.")
  * )
  *
  * @OA\Post(

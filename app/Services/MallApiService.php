@@ -19,4 +19,9 @@ class MallApiService
     {
         return $this->mallApiAbstract->productRegist();
     }
+
+    public function orderCreate(array $params): array
+    {
+        return $this->mallApiAbstract->orderCreate($params);
+    }
 }

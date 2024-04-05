@@ -15,7 +15,7 @@ class EasySell extends MallApiAbstract
         return ["result" => "productRegist / EasySell"];
     }
 
-    public function getOrders(): array
+    public function orderCreate(array $params): array
     {
         return ["result" => "getOrders / EasySell"];
     }
