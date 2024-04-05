@@ -111,7 +111,9 @@ class EasySell extends MallApiAbstract
             EasysellProductLog::updateOrCreate(["offer_id" => $offerId], $logParams);
         }
 
-        return ["success" => $successIds, "fail" => $failIds];
+        $result = ["success" => $successIds, "fail" => $failIds];
+
+        return helpers_success_message($result);
     }
 
     public function orderInfo(int $orderId): array

@@ -20,7 +20,7 @@ class EasySellCommand extends Command
 
     /*
      * 실행 구문 
-     * php artisan easy_sell_command --func=productRegist --offerids=552908136418,737834654023
+     * php artisan easy_sell_command --func=productRegist --offerids=731918432151,721717418135
     */
     public function handle()
     {
