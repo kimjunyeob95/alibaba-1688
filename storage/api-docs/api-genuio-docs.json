@@ -137,9 +137,9 @@
                                 "type": "string",
                                 "example": "2023-12-19 17:45:50"
                             },
-                            "apiVersion": {
+                            "apiType": {
                                 "type": "string",
-                                "example": "v1"
+                                "example": "mall"
                             }
                         },
                         "type": "object"
@@ -162,9 +162,9 @@
                                 "type": "string",
                                 "example": "2023-12-19 17:45:50"
                             },
-                            "apiVersion": {
+                            "apiType": {
                                 "type": "string",
-                                "example": "v1"
+                                "example": "mall"
                             }
                         },
                         "type": "object"
@@ -197,9 +197,9 @@
                                 "type": "string",
                                 "example": "2023-12-19 17:45:50"
                             },
-                            "apiVersion": {
+                            "apiType": {
                                 "type": "string",
-                                "example": "v1"
+                                "example": "mall"
                             }
                         },
                         "type": "object"
@@ -232,9 +232,9 @@
                                 "type": "string",
                                 "example": "2023-12-19 17:45:50"
                             },
-                            "apiVersion": {
+                            "apiType": {
                                 "type": "string",
-                                "example": "v1"
+                                "example": "mall"
                             }
                         },
                         "type": "object"
@@ -267,9 +267,9 @@
                                 "type": "string",
                                 "example": "2023-12-19 17:45:50"
                             },
-                            "apiVersion": {
+                            "apiType": {
                                 "type": "string",
-                                "example": "v1"
+                                "example": "mall"
                             }
                         },
                         "type": "object"
@@ -349,8 +349,8 @@
                 "properties": {
                     "jobId": {
                         "description": "작업 ID",
-                        "type": "integer",
-                        "example": 1
+                        "type": "string",
+                        "example": "1"
                     },
                     "images": {
                         "description": "번역 된 이미지 ID와 base64 인코딩된 이미지 데이터",
@@ -363,8 +363,8 @@
                             "properties": {
                                 "id": {
                                     "description": "이미지 ID",
-                                    "type": "integer",
-                                    "example": 1
+                                    "type": "string",
+                                    "example": "1"
                                 },
                                 "imgTransBase64": {
                                     "description": "Base64로 인코딩된 이미지 데이터",

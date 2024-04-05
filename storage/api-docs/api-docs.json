@@ -1,17 +1,28 @@
 {
     "openapi": "3.0.0",
     "info": {
-        "title": "mslabe API",
+        "title": "W API",
         "version": "1.0"
     },
     "paths": {
-        "/api/v1/token/create": {
+        "/api/mall/{channel}/token/create": {
             "post": {
                 "tags": [
                     "회원"
                 ],
                 "summary": "토큰 생성",
-                "operationId": "f291100482910b6f308ef5df033d80dc",
+                "operationId": "b9cd38534cf336928b1ffa6efc7827b5",
+                "parameters": [
+                    {
+                        "name": "channel",
+                        "in": "path",
+                        "description": "채널 ID",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -56,19 +67,108 @@
                 }
             }
         },
-        "/api/v1/product/list": {
+        "/api/mall/{channel}/order/{orderId}": {
+            "get": {
+                "tags": [
+                    "주문"
+                ],
+                "summary": "주문 조회",
+                "description": "주어진 orderId에 해당하는 주문의 상세 정보를 조회합니다.",
+                "operationId": "ffa398d8bf8cc5bdc0c65bfac2ff0e52",
+                "parameters": [
+                    {
+                        "name": "channel",
+                        "in": "path",
+                        "description": "채널 ID",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "orderId",
+                        "in": "path",
+                        "description": "주문 ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SuccessResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Authorization Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/401ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/400ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/500ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/mall/{channel}/order/create": {
             "post": {
                 "tags": [
-                    "상품"
+                    "주문"
                 ],
-                "summary": "상품 리스트",
-                "operationId": "45a9b3989265d25300d7579b13a25c5e",
+                "summary": "주문 생성",
+                "description": "주문 생성 endPoint",
+                "operationId": "1c496f755bc280e2f4a80d380f425267",
+                "parameters": [
+                    {
+                        "name": "channel",
+                        "in": "path",
+                        "description": "채널 ID",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
                 "requestBody": {
                     "required": true,
                     "content": {
                         "application/json": {
                             "schema": {
-                                "$ref": "#/components/schemas/ProductListSchema"
+                                "$ref": "#/components/schemas/OrderCreateSchema"
                             }
                         }
                     }
@@ -137,9 +237,9 @@
                                 "type": "string",
                                 "example": "2023-12-19 17:45:50"
                             },
-                            "apiVersion": {
+                            "apiType": {
                                 "type": "string",
-                                "example": "v1"
+                                "example": "mall"
                             }
                         },
                         "type": "object"
@@ -162,9 +262,9 @@
                                 "type": "string",
                                 "example": "2023-12-19 17:45:50"
                             },
-                            "apiVersion": {
+                            "apiType": {
                                 "type": "string",
-                                "example": "v1"
+                                "example": "mall"
                             }
                         },
                         "type": "object"
@@ -197,9 +297,9 @@
                                 "type": "string",
                                 "example": "2023-12-19 17:45:50"
                             },
-                            "apiVersion": {
+                            "apiType": {
                                 "type": "string",
-                                "example": "v1"
+                                "example": "mall"
                             }
                         },
                         "type": "object"
@@ -232,9 +332,9 @@
                                 "type": "string",
                                 "example": "2023-12-19 17:45:50"
                             },
-                            "apiVersion": {
+                            "apiType": {
                                 "type": "string",
-                                "example": "v1"
+                                "example": "mall"
                             }
                         },
                         "type": "object"
@@ -267,9 +367,9 @@
                                 "type": "string",
                                 "example": "2023-12-19 17:45:50"
                             },
-                            "apiVersion": {
+                            "apiType": {
                                 "type": "string",
-                                "example": "v1"
+                                "example": "mall"
                             }
                         },
                         "type": "object"
@@ -292,17 +392,12 @@
             },
             "TokenCreateSchema": {
                 "required": [
-                    "name",
-                    "password"
+                    "user_id"
                 ],
                 "properties": {
-                    "name": {
+                    "user_id": {
                         "type": "string",
-                        "example": "john_doe"
-                    },
-                    "password": {
-                        "type": "string",
-                        "example": "password123"
+                        "example": "easySell"
                     }
                 },
                 "type": "object"
@@ -326,40 +421,81 @@
                         },
                         "type": "object"
                     },
-                    "token": {
+                    "msg": {
                         "type": "string",
-                        "example": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9..."
+                        "example": "정상 처리 되었습니다."
                     },
-                    "expires_at": {
-                        "type": "string",
-                        "example": "2023-12-19 18:45:50"
+                    "data": {
+                        "properties": {
+                            "token": {
+                                "type": "string",
+                                "example": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9..."
+                            },
+                            "expiresAt": {
+                                "type": "string",
+                                "example": "2023-12-19 18:45:50"
+                            }
+                        },
+                        "type": "object"
                     }
                 },
                 "type": "object"
             },
-            "ProductListSchema": {
+            "OrderCreateSchema": {
                 "required": [
-                    "page",
-                    "pageSize",
-                    "orderBy",
-                    "direction"
+                    "cargoParamList",
+                    "receive_name",
+                    "receive_tell",
+                    "receive_phone"
                 ],
                 "properties": {
-                    "page": {
-                        "type": "integer",
-                        "example": 1
+                    "cargoParamList": {
+                        "description": "주문 생성 제품 정보",
+                        "type": "array",
+                        "items": {
+                            "required": [
+                                "offer_id",
+                                "spec_id"
+                            ],
+                            "properties": {
+                                "offer_id": {
+                                    "description": "제품 ID",
+                                    "type": "integer",
+                                    "example": 630519988300
+                                },
+                                "spec_id": {
+                                    "description": "제품 spec Id",
+                                    "type": "string",
+                                    "example": "e9b1640fc6f205e445c3c7d72c4373c2"
+                                },
+                                "quantity": {
+                                    "description": "제품 수량",
+                                    "type": "integer",
+                                    "example": "1"
+                                }
+                            },
+                            "type": "object"
+                        }
                     },
-                    "pageSize": {
+                    "receive_name": {
+                        "description": "수취인 이름",
                         "type": "string",
-                        "example": 40
+                        "example": "홍길동"
                     },
-                    "orderBy": {
+                    "receive_tell": {
+                        "description": "수취인 전화번호",
                         "type": "string",
-                        "example": "prd_name"
+                        "example": "021231324"
                     },
-                    "direction": {
+                    "receive_phone": {
+                        "description": "수취인 휴대폰번호",
                         "type": "string",
-                        "example": "desc"
+                        "example": "01012345678"
+                    },
+                    "message": {
+                        "description": "주문 메모",
+                        "type": "string",
+                        "example": "문 앞에 놔주세요."
                     }
                 },
                 "type": "object"

@@ -90,8 +90,14 @@ class GenuioService extends TransApiAbstract
     {
         $returnMsg = $this->returnMsg;
         try {
-            $lastId = GenuioQueueData::max('id');
-            $nextId = $lastId + 1;
+            $insWhere  = [
+                "offer_id"      => $offerId,
+                "payload_json"  => "",
+                "request_user"  => TransApiConstant::API_USER_COMPANY_OC,
+                "response_json" => "",
+                "created_at"    => Carbon::now()
+            ];
+            $nextId = GenuioQueueData::insertGetId($insWhere);
 
             $payload = [
                 "jobId"  => $nextId,
@@ -124,15 +130,11 @@ class GenuioService extends TransApiAbstract
             if( count($payload["images"]) > 0 ){
                 $apiResult = $this->apiCurl("post", "/translate-img", $payload);
 
-                $insWhere  = [
-                    "id"            => $nextId,
-                    "offer_id"      => $offerId,
+                $upWhere  = [
                     "payload_json"  => json_encode($payload, JSON_UNESCAPED_UNICODE),
-                    "request_user"  => TransApiConstant::API_USER_COMPANY_OC,
-                    "response_json" => json_encode($apiResult, JSON_UNESCAPED_UNICODE),
-                    "created_at"    => Carbon::now()
+                    "response_json" => json_encode($apiResult, JSON_UNESCAPED_UNICODE)
                 ];
-                GenuioQueueData::insertGetId($insWhere);
+                GenuioQueueData::where("id", $nextId)->update($upWhere);
     
                 foreach ($queueDetailInsList as $queueDetailIns) {
                     GenuioQueueDetailData::insert($queueDetailIns);

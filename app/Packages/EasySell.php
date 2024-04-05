@@ -15,8 +15,9 @@ use SimpleXMLElement;
 
 class EasySell extends MallApiAbstract
 {
-    public function __construct()
+    public function __construct(string $channel)
     {
+        parent::__construct(app(JwtPackage::class), $channel);
     }
 
     public function productRegist(): array
@@ -84,9 +85,28 @@ class EasySell extends MallApiAbstract
         return $return;
     }
 
-    public function getOrders(): array
+    public function orderInfo(int $orderId): array
     {
-        return ["result" => "getOrders / EasySell"];
+        $returnMsg = $this->returnMsg;
+        try {
+            $returnMsg = helpers_success_message(["orderId" => $orderId]);
+        } catch (Exception $e) {
+            $returnMsg = helpers_fail_message($e->getMessage());
+        }
+
+        return $returnMsg;
+    }
+
+    public function orderCreate(array $params): array
+    {
+        $returnMsg = $this->returnMsg;
+        try {
+            $returnMsg = helpers_success_message($params);
+        } catch (Exception $e) {
+            $returnMsg = helpers_fail_message($e->getMessage());
+        }
+
+        return $returnMsg;
     }
 
     /**
