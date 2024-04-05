@@ -21,6 +21,33 @@ class MallController extends Controller
         $this->mallApiService = $mallApiService;
     }
 
+    public function tokenCreate(): JsonResponse
+    {
+        try {
+            $validator = Validator::make($this->request->all(), [
+                'user_id' => 'required',
+            ], [
+                'user_id.required' => '아이디를 입력하세요.',
+            ]);
+            if ($validator->fails()) {
+                throw new Exception($validator->errors()->first());
+            }
+
+            $credentials = $this->request->only(["user_id"]);
+            $params = [
+                "user_id" => $credentials["user_id"]
+            ];
+            $result = $this->mallApiService->tokenCreate($params);
+            if( $result["isSuccess"] == true ){
+                return helpers_json_response(HttpConstant::OK, $result);
+            } else {
+                return helpers_json_response(HttpConstant::BAD_REQUEST, [], $result["msg"]);
+            }
+        } catch (Exception $e) {
+            return helpers_json_response(HttpConstant::BAD_REQUEST, [], $e->getMessage());
+        }
+    }
+
     public function productRegist()
     {
         $result = $this->mallApiService->productRegist();

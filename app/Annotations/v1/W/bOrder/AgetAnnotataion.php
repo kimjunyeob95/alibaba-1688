@@ -8,7 +8,16 @@ namespace App\Annotations\v1\W\bOrder;
  * 
  *
  * @OA\Get(
- *     path="/api/mall/easySell/order/{orderId}",
+ *     path="/api/mall/{channel}/order/{orderId}",
+ *     @OA\Parameter(
+ *         name="channel",
+ *         in="path",
+ *         required=true,
+ *         description="채널 ID",
+ *         @OA\Schema(
+ *             type="string"
+ *         )
+ *     ),
  *     summary="주문 조회",
  *     description="주어진 orderId에 해당하는 주문의 상세 정보를 조회합니다.",
  *     tags={"주문"},
