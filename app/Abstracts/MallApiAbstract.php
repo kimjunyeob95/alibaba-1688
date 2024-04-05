@@ -19,9 +19,17 @@ abstract class MallApiAbstract
     abstract function productRegist(): array;
 
     /**
-     * @func getOrders
+     * @func orderInfo
+     * @description '주문 조회'
+     * @param int $orderId
+     * @return array
+    */
+    abstract function orderInfo(int $orderId): array;
+
+    /**
+     * @func orderCreate
      * @description '주문 생성'
-     * @param int $params
+     * @param array $params
      * @return array
      */
     abstract function orderCreate(array $params): array;

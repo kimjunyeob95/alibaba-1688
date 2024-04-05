@@ -2,10 +2,9 @@
 
 namespace App\Providers;
 
+use App\Abstracts\MallApiAbstract;
 use App\Constants\MallConstant;
-use App\Http\Controllers\MallController;
 use App\Packages\EasySell;
-use App\Services\MallApiService;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Route;
 
@@ -21,15 +20,11 @@ class MallApiProvider extends ServiceProvider
             return new EasySell();
         });
 
-        $this->app->bind(MallApiService::class, function () {
+        $this->app->bind(MallApiAbstract::class, function () {
             $routeName = Route::currentRouteName();
             if(strpos($routeName, MallConstant::MALL_EASYSELL) !== false){
                 return app(EasySell::class);
             };
-        });
-
-        $this->app->bind(MallController::class, function () {
-            return app(MallApiService::class);
         });
     }
 

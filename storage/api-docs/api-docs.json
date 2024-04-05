@@ -56,13 +56,81 @@
                 }
             }
         },
+        "/api/mall/easySell/order/{orderId}": {
+            "get": {
+                "tags": [
+                    "주문"
+                ],
+                "summary": "주문 조회",
+                "description": "주어진 orderId에 해당하는 주문의 상세 정보를 조회합니다.",
+                "operationId": "6faa1771d535cbbe9cbec2cd674ab961",
+                "parameters": [
+                    {
+                        "name": "orderId",
+                        "in": "path",
+                        "description": "주문 ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SuccessResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Authorization Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/401ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/400ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/500ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            }
+        },
         "/api/mall/easySell/order/create": {
             "post": {
                 "tags": [
                     "주문"
                 ],
                 "summary": "주문 생성",
-                "operationId": "a3f7b5715ba318f2cf832098148df8d8",
+                "operationId": "ff60c3bea5f208b49fd4ef22b4691c7a",
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -342,8 +410,7 @@
                     "cargoParamList",
                     "receive_name",
                     "receive_tell",
-                    "receive_phone",
-                    "message"
+                    "receive_phone"
                 ],
                 "properties": {
                     "cargoParamList": {

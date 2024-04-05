@@ -50,6 +50,9 @@ Route::name('mall.')->prefix('mall')->group(function () {
     Route::name('easySell.')->prefix('easySell')->group(function () {
         Route::post('/product/regist', [MallController::class, "productRegist"])->name("productRegist");
 
+        // 주문 조회
+        Route::get('/order/{orderId}', [MallController::class, "orderInfo"])->name("orderInfo");
+        // 주문 생성
         Route::post('/order/create', [MallController::class, "orderCreate"])->name("orderCreate");
     });
 });

@@ -81,5 +81,5 @@ namespace App\Annotations\v1\W\bOrder;
 */
 
 
-class createAnnotataion{
+class BcreateAnnotataion{
 }

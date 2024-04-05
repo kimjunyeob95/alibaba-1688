@@ -23,7 +23,22 @@ class MallController extends Controller
 
     public function productRegist()
     {
-        $this->mallApiService->productRegist();
+        $result = $this->mallApiService->productRegist();
+        return helpers_json_response(HttpConstant::OK, $result);
+    }
+
+    public function orderInfo(int $orderId): JsonResponse
+    {
+        try {
+            $result = $this->mallApiService->orderInfo($orderId);
+            if( $result["isSuccess"] == true ){
+                return helpers_json_response(HttpConstant::OK, $result);
+            } else {
+                return helpers_json_response(HttpConstant::BAD_REQUEST, [], $result["msg"]);
+            }
+        } catch (Exception $e) {
+            return helpers_json_response(HttpConstant::BAD_REQUEST, [], $e->getMessage());
+        }
     }
 
     public function orderCreate(): JsonResponse
