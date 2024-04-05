@@ -10,6 +10,15 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
 use Psr\Log\LogLevel;
 
+if (!function_exists("pr")) {
+    function pr($data)
+    {
+        echo "<pre>";
+        print_r($data);
+        echo "</pre>";
+    }
+}
+
 if (!function_exists('helpers_curl')) {
     /**
 	 * helpers_curl
@@ -335,7 +344,7 @@ if (!function_exists("getPrice1688")) {
                     $price_1688 = $prdOptions["price"];
                 }
             }
-        } else if( !isset($detailProduct["productSkuInfos"][0]["price"]) && 
+        } else if( !isset($detailProduct["productSkuInfos"][0]["price"]) &&
             isset($detailProduct["productSaleInfo"]["priceRangeList"])
         ) {
             $price_1688 = $detailProduct["productSaleInfo"]["priceRangeList"][0]["price"];
@@ -373,4 +382,25 @@ if (!function_exists("fileContents")) {
         $fileContent = file_get_contents($filePath, false, $context);
         return $fileContent;
     }
+}
+
+//글자 byte 확인 함수
+if ( ! function_exists('productNameValidation'))
+{
+	function productNameValidation($prdName, $type, ?int $setVal = 0)
+	{
+		switch($type){
+			case "product":
+				$return = mb_strwidth( $prdName , "UTF-8") <= 100 ?? false;
+				break;
+			case "option":
+				$return = mb_strwidth( $prdName , "UTF-8") <= 45 ?? false;
+				break;
+			default:
+				$return = mb_strwidth( $prdName , "UTF-8") <= $setVal ?? false;
+				break;
+		}
+
+		return $return;
+	}
 }

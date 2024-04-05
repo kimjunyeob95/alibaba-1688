@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\EasySellController;
 use App\Http\Controllers\ProductController;
 use Illuminate\Support\Facades\Route;
 
@@ -29,3 +30,7 @@ Route::prefix("product")->name("product.")->group(function(){
     Route::get("/{offerId}", [ProductController::class, "getPrdDetail"])->name("detail");
 });
 
+Route::prefix("easySell")->name("product.")->group(function(){
+    // 상품 현황
+    Route::get("/product", [EasySellController::class, "getPrdList"])->name("list");
+});
