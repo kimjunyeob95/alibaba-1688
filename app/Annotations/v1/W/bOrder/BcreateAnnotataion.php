@@ -49,7 +49,16 @@ namespace App\Annotations\v1\W\bOrder;
  * )
  *
  * @OA\Post(
- *     path="/api/mall/easySell/order/create",
+ *     path="/api/mall/{channel}/order/create",
+ *     @OA\Parameter(
+ *         name="channel",
+ *         in="path",
+ *         required=true,
+ *         description="채널 ID",
+ *         @OA\Schema(
+ *             type="string"
+ *         )
+ *     ),
  *     summary="주문 생성",
  *     description="주문 생성 endPoint",
  *     tags={"주문"},

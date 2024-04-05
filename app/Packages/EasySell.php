@@ -7,9 +7,9 @@ use Exception;
 
 class EasySell extends MallApiAbstract
 {
-    public function __construct()
+    public function __construct(string $channel)
     {
-        parent::__construct();
+        parent::__construct(app(JwtPackage::class), $channel);
     }
 
     public function productRegist(): array

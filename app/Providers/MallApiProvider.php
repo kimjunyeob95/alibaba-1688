@@ -17,7 +17,7 @@ class MallApiProvider extends ServiceProvider
     {
         // EasySell 싱글톤으로 등록
         $this->app->singleton(EasySell::class, function () {
-            return new EasySell();
+            return new EasySell(MallConstant::MALL_EASYSELL);
         });
 
         $this->app->bind(MallApiAbstract::class, function () {

@@ -6,9 +6,8 @@ namespace App\Annotations\v1\W\aUser;
  * 
  * @OA\Schema(
  *     schema="TokenCreateSchema",
- *     required={"name", "password"},
- *     @OA\Property(property="name", type="string", example="john_doe"),
- *     @OA\Property(property="password", type="string", example="password123")
+ *     required={"user_id"},
+ *     @OA\Property(property="user_id", type="string", example="easySell"),
  * )
  * @OA\Schema(
  *     schema="SuccessTokenResponse",
@@ -19,12 +18,26 @@ namespace App\Annotations\v1\W\aUser;
  *         @OA\Property(property="timestamp", type="string", example="2023-12-19 17:45:50"),
  *         @OA\Property(property="apiVersion", type="string", example="v1")
  *     ),
- *     @OA\Property(property="token", type="string", example="eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9..."),
- *     @OA\Property(property="expires_at", type="string", example="2023-12-19 18:45:50")
+ *     @OA\Property(property="msg", type="string", example="정상 처리 되었습니다."),
+ *     @OA\Property(
+ *         property="data", 
+ *         type="object",
+ *         @OA\Property(property="token", type="string", example="eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9..."),
+ *         @OA\Property(property="expiresAt", type="string", example="2023-12-19 18:45:50")
+ *     )
  * )
  *
  * @OA\Post(
- *     path="/api/v1/token/create",
+ *     path="/api/mall/{channel}/token/create",
+ *     @OA\Parameter(
+ *         name="channel",
+ *         in="path",
+ *         required=true,
+ *         description="채널 ID",
+ *         @OA\Schema(
+ *             type="string"
+ *         )
+ *     ),
  *     summary="토큰 생성",
  *     tags={"회원"},
  *     @OA\RequestBody(

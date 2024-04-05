@@ -15,6 +15,17 @@ class MallApiService
         $this->returnMsg       = helpers_fail_message();
     }
 
+    /**
+     * @func tokenCreate
+     * @description '토큰 생성'
+     * @param array $params
+     * @return array
+     */
+    public function tokenCreate(array $params): array
+    {
+        return $this->mallApiAbstract->tokenCreate($params);
+    }
+
     public function productRegist(): array
     {
         return $this->mallApiAbstract->productRegist();

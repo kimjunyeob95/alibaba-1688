@@ -5,13 +5,24 @@
         "version": "1.0"
     },
     "paths": {
-        "/api/v1/token/create": {
+        "/api/mall/{channel}/token/create": {
             "post": {
                 "tags": [
                     "회원"
                 ],
                 "summary": "토큰 생성",
-                "operationId": "b1aa7dd4f1d2e9c20150698a366c7d20",
+                "operationId": "b9cd38534cf336928b1ffa6efc7827b5",
+                "parameters": [
+                    {
+                        "name": "channel",
+                        "in": "path",
+                        "description": "채널 ID",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -56,15 +67,24 @@
                 }
             }
         },
-        "/api/mall/easySell/order/{orderId}": {
+        "/api/mall/{channel}/order/{orderId}": {
             "get": {
                 "tags": [
                     "주문"
                 ],
                 "summary": "주문 조회",
                 "description": "주어진 orderId에 해당하는 주문의 상세 정보를 조회합니다.",
-                "operationId": "6faa1771d535cbbe9cbec2cd674ab961",
+                "operationId": "ffa398d8bf8cc5bdc0c65bfac2ff0e52",
                 "parameters": [
+                    {
+                        "name": "channel",
+                        "in": "path",
+                        "description": "채널 ID",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
                     {
                         "name": "orderId",
                         "in": "path",
@@ -124,14 +144,25 @@
                 ]
             }
         },
-        "/api/mall/easySell/order/create": {
+        "/api/mall/{channel}/order/create": {
             "post": {
                 "tags": [
                     "주문"
                 ],
                 "summary": "주문 생성",
                 "description": "주문 생성 endPoint",
-                "operationId": "ff60c3bea5f208b49fd4ef22b4691c7a",
+                "operationId": "1c496f755bc280e2f4a80d380f425267",
+                "parameters": [
+                    {
+                        "name": "channel",
+                        "in": "path",
+                        "description": "채널 ID",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -361,17 +392,12 @@
             },
             "TokenCreateSchema": {
                 "required": [
-                    "name",
-                    "password"
+                    "user_id"
                 ],
                 "properties": {
-                    "name": {
+                    "user_id": {
                         "type": "string",
-                        "example": "john_doe"
-                    },
-                    "password": {
-                        "type": "string",
-                        "example": "password123"
+                        "example": "easySell"
                     }
                 },
                 "type": "object"
@@ -395,13 +421,22 @@
                         },
                         "type": "object"
                     },
-                    "token": {
+                    "msg": {
                         "type": "string",
-                        "example": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9..."
+                        "example": "정상 처리 되었습니다."
                     },
-                    "expires_at": {
-                        "type": "string",
-                        "example": "2023-12-19 18:45:50"
+                    "data": {
+                        "properties": {
+                            "token": {
+                                "type": "string",
+                                "example": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9..."
+                            },
+                            "expiresAt": {
+                                "type": "string",
+                                "example": "2023-12-19 18:45:50"
+                            }
+                        },
+                        "type": "object"
                     }
                 },
                 "type": "object"
