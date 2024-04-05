@@ -27,7 +27,7 @@ class EasySell extends MallApiAbstract
             })
             ->first();
         if(!isset($selObj)){
-            dd("상품이 없습니다");
+            return helpers_fail_message(false, "전송 가능한 상품이 없습니다");
         }
 
         try{
