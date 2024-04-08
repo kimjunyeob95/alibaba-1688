@@ -414,9 +414,9 @@
                                 "type": "string",
                                 "example": "2023-12-19 17:45:50"
                             },
-                            "apiVersion": {
+                            "apiType": {
                                 "type": "string",
-                                "example": "v1"
+                                "example": "mall"
                             }
                         },
                         "type": "object"

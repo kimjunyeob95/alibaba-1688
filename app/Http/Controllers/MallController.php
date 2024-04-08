@@ -89,21 +89,21 @@ class MallController extends Controller
     {
         try {
             $validator = Validator::make($this->request->all(), [
-                'cargoParamList'            => 'required|array',
-                'cargoParamList.*.offer_id' => 'required|int',
-                'cargoParamList.*.spec_id'  => 'required|string',
-                'cargoParamList.*.quantity' => 'required|int',
-                'receive_name'              => 'required|string',
-                'receive_tell'              => 'required|string',
-                'receive_phone'             => 'required|string',
+                'cargoParamList'             => 'required|array',
+                'cargoParamList.*.offer_id'  => 'required|int',
+                'cargoParamList.*.option_id' => 'required|int',
+                'cargoParamList.*.quantity'  => 'required|int',
+                'receive_name'               => 'required|string',
+                'receive_tell'               => 'required|string',
+                'receive_phone'              => 'required|string',
             ], [
-                'cargoParamList.required'    => OrderErrorMessageConstant::getNotHaveErrorMessage("CARGOPARAMLIST"),
-                'images.*.offer_id.required' => OrderErrorMessageConstant::getNotHaveErrorMessage("OFFER_ID"),
-                'images.*.spec_id.required'  => OrderErrorMessageConstant::getNotHaveErrorMessage("SPEC_ID"),
-                'images.*.quantity.required' => OrderErrorMessageConstant::getNotHaveErrorMessage("QUANTITY"),
-                'receive_name.required'      => OrderErrorMessageConstant::getNotHaveErrorMessage("RECEIVE_NAME"),
-                'receive_tell.required'      => OrderErrorMessageConstant::getNotHaveErrorMessage("RECEIVE_TELL"),
-                'receive_phone.required'     => OrderErrorMessageConstant::getNotHaveErrorMessage("RECEIVE_PHONE"),
+                'cargoParamList.required'     => OrderErrorMessageConstant::getNotHaveErrorMessage("CARGOPARAMLIST"),
+                'images.*.offer_id.required'  => OrderErrorMessageConstant::getNotHaveErrorMessage("OFFER_ID"),
+                'images.*.option_id.required' => OrderErrorMessageConstant::getNotHaveErrorMessage("OPTION_ID"),
+                'images.*.quantity.required'  => OrderErrorMessageConstant::getNotHaveErrorMessage("QUANTITY"),
+                'receive_name.required'       => OrderErrorMessageConstant::getNotHaveErrorMessage("RECEIVE_NAME"),
+                'receive_tell.required'       => OrderErrorMessageConstant::getNotHaveErrorMessage("RECEIVE_TELL"),
+                'receive_phone.required'      => OrderErrorMessageConstant::getNotHaveErrorMessage("RECEIVE_PHONE"),
             ]);
             if ($validator->fails()) {
                 throw new Exception($validator->errors()->first());

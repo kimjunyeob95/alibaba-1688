@@ -41,9 +41,9 @@ class OpenApiProvider extends ServiceProvider
          * start
          * 
         */
-        $this->app->bind(MallApiAbstract::class, function () {
-            $routeName = Route::currentRouteName();
-            if(strpos($routeName, MallConstant::MALL_EASYSELL) !== false){
+        $this->app->bind(MallApiAbstract::class, function ($app) {
+            $currentUrl = $app['request']->fullUrl();
+            if(strpos($currentUrl, MallConstant::MALL_EASYSELL) !== false){
                 return app(EasySell::class);
             };
         });
