@@ -188,12 +188,14 @@ class EasySell extends MallApiAbstract
             }
             $notice .= "</tbody></table>";
 
-            $unitInfo   = "";
+            $unitInfo   = "옵션|";
             $saleStatus = EasySellConstant::STATUS_STOP_SALE;
             foreach($prdObj->options as $idx => $option){
                 if(!$idx){
                     $buyPrice  = $option->option_price; //셀러허브 공급가
                     $salePrice = $setPrice = ceil(($option->onch_price * env("EASYSELL_PRICE_RATE", "1.35")) / 100) * 100;
+                }else{
+                    $unitInfo .= ",";
                 }
                 $setPrice = ceil(($option->onch_price * env("EASYSELL_PRICE_RATE", "1.35")) / 100) * 100;
 
