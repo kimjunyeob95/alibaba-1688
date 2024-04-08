@@ -65,7 +65,7 @@ class EasySell extends MallApiAbstract
                 $paramsResult = $this->_getPrdParams($prdObj, EasySellConstant::ITEM_REGIST);
                 if( $paramsResult["isSuccess"] == true ){
                     $apiResult = $this->_apiCall("Goods", $paramsResult["data"]);
-                    
+
                     if( $apiResult["isSuccess"] != true ){
                         throw new Exception(MallErrorMessageConstant::getFitErrorMessage("EASYSELL_GOODS_API"));
                     }
@@ -77,7 +77,7 @@ class EasySell extends MallApiAbstract
                     } else {
                         throw new Exception($rsData->Msg);
                     }
-    
+
                     $logParams = [
                         "itemno"         => $itemno,
                         "offer_id"       => $offerId,
@@ -91,7 +91,7 @@ class EasySell extends MallApiAbstract
                 } else {
                     throw new Exception($paramsResult["msg"]);
                 }
-            }catch(Exception $e){    
+            }catch(Exception $e){
                 $logParams = [
                     "itemno"         => $itemno,
                     "offer_id"       => $offerId,
@@ -101,7 +101,7 @@ class EasySell extends MallApiAbstract
                     "modi_success"   => $modi_success,
                     "modi_message"   => $modi_message
                 ];
-    
+
                 $failIds[] = [
                     "offer_id" => $offerId,
                     "msg"      => $e->getMessage()
@@ -188,12 +188,14 @@ class EasySell extends MallApiAbstract
             }
             $notice .= "</tbody></table>";
 
-            $unitInfo   = "";
+            $unitInfo   = "옵션|";
             $saleStatus = EasySellConstant::STATUS_STOP_SALE;
             foreach($prdObj->options as $idx => $option){
                 if(!$idx){
                     $buyPrice  = $option->option_price; //셀러허브 공급가
                     $salePrice = $setPrice = ceil(($option->onch_price * env("EASYSELL_PRICE_RATE", "1.35")) / 100) * 100;
+                }else{
+                    $unitInfo .= ",";
                 }
                 $setPrice = ceil(($option->onch_price * env("EASYSELL_PRICE_RATE", "1.35")) / 100) * 100;
 
@@ -211,7 +213,7 @@ class EasySell extends MallApiAbstract
                 $unitInfo .= "{$optionNm}^^{$stock}^^{$setPrice}^^{$setPrice}^^{$option->option_price}::{$option->id}";
             }
 
-            $itemImage = implode("|", array_filter($prdObj->images->whereIn("img_type",["main","sub"])->pluck("img_url_trans")->toArray()));
+            $itemImage = implode("|", array_reverse(array_filter($prdObj->images->whereIn("img_type",["main","sub"])->pluck("img_url_trans")->toArray())));
 
             $voParams = [
                 "ItemNo"                => $offerId,
