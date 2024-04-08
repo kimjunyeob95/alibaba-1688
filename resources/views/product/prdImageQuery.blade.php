@@ -117,7 +117,7 @@
                                         {{ number_format(($totalRecords - $offset) - $index) }}
                                     </td>
                                     <td>
-                                        {{ $data["offerId"] }}
+                                        <a href="https://detail.1688.com/offer/{{ $data["offerId"] }}.html" target="_blank">{{ $data["offerId"] }}</a>
                                     </td>
                                     <td>
                                         {{ $data["subject"] }}
