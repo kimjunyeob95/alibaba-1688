@@ -13,7 +13,6 @@ use App\Models\ProductData;
 use App\Vo\EasySell\EasySellProductVo;
 use Carbon\Carbon;
 use Exception;
-use SimpleXMLElement;
 
 class EasySell extends MallApiAbstract
 {
@@ -34,11 +33,20 @@ class EasySell extends MallApiAbstract
         $failIds    = [];
 
         foreach ($offerIds as $offerId) {
-            $paramsResult = [];
-            $rsData       = [];
+            $easyObj      = null;
             $itemno       = 0;
+            $account      = EasySellConstant::USER_ID;
+            $modi_success = MallConstant::MODI_FAIL;
             $modi_message = "";
             try{
+                $easyObj = EasySellProductLog::where([
+                    "offer_id"       => $offerId,
+                    "regist_success" => MallConstant::REGIST_SUCCESS,
+                ])->first();
+                if( $easyObj != null ){
+                    throw new Exception(MallErrorMessageConstant::getFitErrorMessage("HAVE_REGIST"));
+                }
+
                 $prdObj = ProductData::with([
                     "images",
                     "extends",
@@ -54,61 +62,55 @@ class EasySell extends MallApiAbstract
                     throw new Exception(MallErrorMessageConstant::getFitErrorMessage("NOT_TRANS_IMG"));
                 }
 
-                $easyObj = EasySellProductLog::where([
-                    "offer_id" => $offerId,
-                    "regist_success" => MallConstant::REGIST_SUCCESS,
-                ])->first();
-                if( $easyObj != null ){
-                    throw new Exception(MallErrorMessageConstant::getFitErrorMessage("HAVE_REGIST"));
-                }
-
                 $paramsResult = $this->_getPrdParams($prdObj, EasySellConstant::ITEM_REGIST);
                 if( $paramsResult["isSuccess"] == true ){
                     $apiResult = $this->_apiCall("Goods", $paramsResult["data"]);
-                    
+
                     if( $apiResult["isSuccess"] != true ){
                         throw new Exception(MallErrorMessageConstant::getFitErrorMessage("EASYSELL_GOODS_API"));
                     }
 
-                    $rsData = $apiResult["data"]["result"];
-                    $itemno = $rsData->ItemGoodCode;
+                    $rsData         = $apiResult["data"]["result"];
+                    $itemno         = $rsData->ItemGoodCode;
                     if($rsData->Result == EasySellConstant::API_SUCCESS){
                         $successIds[] = $offerId;
                     } else {
                         throw new Exception($rsData->Msg);
                     }
-    
+
                     $logParams = [
                         "itemno"         => $itemno,
                         "offer_id"       => $offerId,
-                        "account"        => EasySellConstant::USER_ID,
+                        "account"        => $account,
                         "regist_success" => MallConstant::REGIST_SUCCESS,
                         "regist_message" => $rsData->Msg,
-                        "modi_success"   => MallConstant::MODI_FAIL,
+                        "modi_success"   => $modi_success,
                         "modi_message"   => $modi_message,
                         "registed_at"    => Carbon::now()
                     ];
                 } else {
                     throw new Exception($paramsResult["msg"]);
                 }
-            }catch(Exception $e){    
+            }catch(Exception $e){
                 $logParams = [
                     "itemno"         => $itemno,
                     "offer_id"       => $offerId,
-                    "account"        => EasySellConstant::USER_ID,
+                    "account"        => $account,
                     "regist_success" => MallConstant::REGIST_FAIL,
                     "regist_message" => $e->getMessage(),
-                    "modi_success"   => MallConstant::MODI_FAIL,
+                    "modi_success"   => $modi_success,
                     "modi_message"   => $modi_message
                 ];
-    
+
                 $failIds[] = [
                     "offer_id" => $offerId,
                     "msg"      => $e->getMessage()
                 ];
             }
 
-            EasysellProductLog::updateOrCreate(["offer_id" => $offerId], $logParams);
+            if ( $easyObj == null ){
+                EasysellProductLog::updateOrCreate(["offer_id" => $offerId], $logParams);
+            }
         }
 
         $result = ["success" => $successIds, "fail" => $failIds];
@@ -186,12 +188,14 @@ class EasySell extends MallApiAbstract
             }
             $notice .= "</tbody></table>";
 
-            $unitInfo   = "";
+            $unitInfo   = "옵션|";
             $saleStatus = EasySellConstant::STATUS_STOP_SALE;
             foreach($prdObj->options as $idx => $option){
                 if(!$idx){
                     $buyPrice  = $option->option_price; //셀러허브 공급가
                     $salePrice = $setPrice = ceil(($option->onch_price * env("EASYSELL_PRICE_RATE", "1.35")) / 100) * 100;
+                }else{
+                    $unitInfo .= ",";
                 }
                 $setPrice = ceil(($option->onch_price * env("EASYSELL_PRICE_RATE", "1.35")) / 100) * 100;
 
@@ -209,7 +213,7 @@ class EasySell extends MallApiAbstract
                 $unitInfo .= "{$optionNm}^^{$stock}^^{$setPrice}^^{$setPrice}^^{$option->option_price}::{$option->id}";
             }
 
-            $itemImage = implode("|", array_filter($prdObj->images->whereIn("img_type",["main","sub"])->pluck("img_url_trans")->toArray()));
+            $itemImage = implode("|", array_reverse(array_filter($prdObj->images->whereIn("img_type",["main","sub"])->pluck("img_url_trans")->toArray())));
 
             $voParams = [
                 "ItemNo"                => $offerId,

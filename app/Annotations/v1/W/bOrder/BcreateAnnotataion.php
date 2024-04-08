@@ -20,7 +20,7 @@ namespace App\Annotations\v1\W\bOrder;
  *         type="array",
  *         @OA\Items(
  *             type="object",
- *             required={"offer_id", "spec_id"},
+ *             required={"offer_id", "option_id"},
  *             @OA\Property(
  *                 property="offer_id",
  *                 type="integer",
@@ -28,10 +28,10 @@ namespace App\Annotations\v1\W\bOrder;
  *                 description="제품 ID"
  *             ),
  *             @OA\Property(
- *                 property="spec_id",
- *                 type="string",
- *                 example="e9b1640fc6f205e445c3c7d72c4373c2",
- *                 description="제품 spec Id"
+ *                 property="option_id",
+ *                 type="integer",
+ *                 example=291,
+ *                 description="제품 옵션 ID"
  *             ),
  *             @OA\Property(
  *                 property="quantity",

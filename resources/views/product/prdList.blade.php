@@ -5,7 +5,7 @@
 
 @section('styles')
 <style>
-
+    
 </style>
 @endsection
 
@@ -139,7 +139,7 @@
                                         {{ number_format(($datas->total() - $offset) - $index) }}
                                     </td>
                                     <td>
-                                        {{ $data->offer_id }}
+                                        <a href="https://detail.1688.com/offer/{{ $data->offer_id }}.html" target="_blank">{{ $data->offer_id }}</a>
                                     </td>
                                     <td>
                                         {{ $data->prd_name }}

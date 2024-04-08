@@ -114,7 +114,7 @@
                     </div>
                     <div class="row mb-2">
                         <div class="col-md-3 text-center">제품ID</div>
-                        <div class="col-md-8">{{ $prdObj->offer_id }}</div>
+                        <div class="col-md-8"><a href="https://detail.1688.com/offer/{{ $prdObj->offer_id }}.html" target="_blank">{{ $prdObj->offer_id }}</a></div>
                     </div>
                     <div class="row mb-2">
                         <div class="col-md-3 text-center">제품명</div>

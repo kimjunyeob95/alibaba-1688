@@ -2,6 +2,7 @@
 
 namespace App\Console;
 
+use App\Console\Commands\EasySellCommand;
 use App\Console\Commands\Save1688AllProducts;
 use App\Console\Commands\Save1688Category;
 use App\Console\Commands\Save1688CategoryMapping;
@@ -21,6 +22,7 @@ class Kernel extends ConsoleKernel
         Save1688ProductByImageId::class,
         Save1688AllProducts::class,
         Save1688CollectProduct::class,
+        EasySellCommand::class,
         TestCommands::class,
     ];
 
