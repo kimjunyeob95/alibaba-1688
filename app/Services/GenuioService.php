@@ -92,6 +92,7 @@ class GenuioService extends TransApiAbstract
         try {
             $insWhere  = [
                 "offer_id"      => $offerId,
+                "parent_id"     => 0,
                 "payload_json"  => "",
                 "request_user"  => TransApiConstant::API_USER_COMPANY_OC,
                 "response_json" => "",
@@ -293,6 +294,7 @@ class GenuioService extends TransApiAbstract
         if( $getGenuioObj != null ){
             $bindParam = [
                 "offerId"       => $getGenuioObj->offer_id,
+                "parent_id"     => $getGenuioObj->id,
                 "payload_json"  => "", // base64가 너무 길어 그냥 ""처리
                 "request_user"  => TransApiConstant::API_USER_COMPANY_GENUIO,
                 "response_json" => json_encode($returnMsg, JSON_UNESCAPED_UNICODE),
