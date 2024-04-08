@@ -455,7 +455,7 @@
                         "items": {
                             "required": [
                                 "offer_id",
-                                "spec_id"
+                                "option_id"
                             ],
                             "properties": {
                                 "offer_id": {
@@ -463,10 +463,10 @@
                                     "type": "integer",
                                     "example": 630519988300
                                 },
-                                "spec_id": {
-                                    "description": "제품 spec Id",
-                                    "type": "string",
-                                    "example": "e9b1640fc6f205e445c3c7d72c4373c2"
+                                "option_id": {
+                                    "description": "제품 옵션 ID",
+                                    "type": "integer",
+                                    "example": 291
                                 },
                                 "quantity": {
                                     "description": "제품 수량",
