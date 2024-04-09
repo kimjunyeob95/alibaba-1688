@@ -21,7 +21,9 @@ Route::prefix("product")->name("product.")->group(function(){
     // 상품 수집 관리
     Route::get("/queryProductDetail", [ProductController::class, "queryProductDetail"])->name("queryProductDetail");
     Route::get("/keywordQuery", [ProductController::class, "keywordQuery"])->name("keywordQuery");
+    Route::get("/urlQuery", [ProductController::class, "urlQuery"])->name("urlQuery");
     Route::get("/imageQuery", [ProductController::class, "imageQuery"])->name("imageQuery");
+    Route::get("/imageMultiQuery", [ProductController::class, "imageMultiQuery"])->name("imageMultiQuery");
     Route::get("/collectLogs", [ProductController::class, "prdCollectLogs"])->name("prdCollectLogs");
     Route::get("/collect/log/{logId}", [ProductController::class, "prdCollectLogDetail"])->name("prdCollectLogDetail");
 
@@ -32,5 +34,5 @@ Route::prefix("product")->name("product.")->group(function(){
 
 Route::prefix("easySell")->name("product.")->group(function(){
     // 상품 현황
-    Route::get("/product", [EasySellController::class, "getPrdList"])->name("list");
+    // Route::get("/product", [EasySellController::class, "getPrdList"])->name("list");
 });
