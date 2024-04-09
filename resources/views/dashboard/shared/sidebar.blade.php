@@ -76,11 +76,11 @@
                 상품관리
             </a>
             <ul class="nav-group-items">
-                {{-- <li class="nav-item">
+                <li class="nav-item">
                     <a class="nav-link" href="/easySell/product/list">
                         상품 현황
                     </a>
-                </li> --}}
+                </li>
             </ul>
         </li>
     </ul>

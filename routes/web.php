@@ -32,7 +32,7 @@ Route::prefix("product")->name("product.")->group(function(){
     Route::get("/{offerId}", [ProductController::class, "getPrdDetail"])->name("detail");
 });
 
-Route::prefix("easySell")->name("product.")->group(function(){
+Route::prefix("easySell")->name("easySell.")->group(function(){
     // 상품 현황
-    // Route::get("/product", [EasySellController::class, "getPrdList"])->name("list");
+    Route::get("product/list", [EasySellController::class, "getPrdList"])->name("product/list");
 });
