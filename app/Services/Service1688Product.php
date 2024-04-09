@@ -78,6 +78,17 @@ class Service1688Product
    }
 
    /**
+     * @func getUrlQuery
+     * @description '상품상세 URL로 수집'
+     * @param array $urls
+     * @return array
+   */
+   public function getUrlQuery(array $urls): array
+   {
+      return $this->productAbstract->getUrlQuery($urls);
+   }
+
+   /**
      * @func getPrdCollectLogList
      * @description '상품 수집현황 조회'
      * @param array $params

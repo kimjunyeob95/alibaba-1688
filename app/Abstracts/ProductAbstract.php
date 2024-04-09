@@ -73,6 +73,14 @@ abstract class ProductAbstract
     abstract function getImageQuery(array $params): array;
 
     /**
+     * @func getImageQuery
+     * @description '상품상세 URL로 수집'
+     * @param array $urls
+     * @return array
+     */
+    abstract function getUrlQuery(array $urls): array;
+
+    /**
      * @func getPrdCollectLogList
      * @description '상품 수집현황 조회'
      * @param array $params

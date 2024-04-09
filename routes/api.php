@@ -26,6 +26,8 @@ Route::name('product.')->prefix('product')->group(function () {
     Route::post('/collect/img', [ProductController::class, 'collectProductImage'])->name('collectProductImage');
     // 1688 imageQuery 수집
     Route::post('/collectImageQuery', [ProductController::class, 'collectImageQuery'])->name('collectImageQuery');
+    // 1688 상품상세 URL->상품ID 별 수집
+    Route::post('/collect/url', [ProductController::class, 'collectProductUrl'])->name('collectProductUrl');
 });
 
 Route::name('1688.')->prefix('1688')->group(function () {

@@ -26,6 +26,7 @@ class LogConstant
     // 수집 API 분류
     public const COLLECT_API_KEYWORDQUERY     = "keywordQuery";
     public const COLLECT_API_IMAGEQUERY       = "imageQuery";
+    public const COLLECT_API_URLQUERY         = "urlQuery";
     public const COLLECT_API_KEYWORDQUERY_ALL = "keywordQueryAll";
     public const COLLECT_API_IMAGEQUERY_ALL   = "imageQueryAll";
     public const COLLECT_API                  = [
@@ -33,5 +34,6 @@ class LogConstant
         self::COLLECT_API_IMAGEQUERY       => "Image 수집",
         self::COLLECT_API_KEYWORDQUERY_ALL => "기본 정보 전체 수집",
         self::COLLECT_API_IMAGEQUERY_ALL   => "Image 전체 수집",
+        self::COLLECT_API_URLQUERY         => "상품상세 URL 수집",
     ];
 }
