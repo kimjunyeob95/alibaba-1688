@@ -60,7 +60,7 @@ class MallController extends Controller
                 throw new Exception($validator->errors()->first());
             }
 
-            $result   = $this->mallApiService->productRegist($this->request->all());
+            $result   = $this->mallApiService->productRegist($this->request->post("offer_ids"));
             if( $result["isSuccess"] == true ){
                 return helpers_json_response(HttpConstant::OK, $result);
             } else {

@@ -70,9 +70,10 @@ class EasySell extends MallApiAbstract
                         throw new Exception(MallErrorMessageConstant::getFitErrorMessage("EASYSELL_GOODS_API"));
                     }
 
-                    $rsData         = $apiResult["data"]["result"];
-                    $itemno         = $rsData->ItemGoodCode;
+                    $rsData = $apiResult["data"]["result"];
+
                     if($rsData->Result == EasySellConstant::API_SUCCESS){
+                        $itemno       = $rsData->ItemGoodCode;
                         $successIds[] = $offerId;
                     } else {
                         throw new Exception($rsData->Msg);
