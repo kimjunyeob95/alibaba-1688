@@ -199,7 +199,7 @@
                         $("#loadingOverlay").hide();
                     },
                     success: function (resp) {
-                        alert(resp.msg);
+                        alert("전송 요청이 완료되었습니다.\n이미 전송 된 상품은 수정 반영 됩니다.");
                     },
                     error: function error(request, status, _error) {
                         let { error } = JSON.parse(request.responseText);
@@ -222,7 +222,7 @@
                 return alert("선택 된 상품이 없습니다.");
             }
 
-            if(confirm('상품을 전송하시겠습니까?')){
+            if(confirm('선택하신 상품을 전송하시겠습니까?')){
                 $.ajax({
                     "headers"    : {
                         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -236,7 +236,7 @@
                         $("#loadingOverlay").hide();
                     },
                     success: function (resp) {
-                        alert(resp.msg);
+                        alert("전송 요청이 완료되었습니다.\n이미 전송 된 상품은 수정 반영 됩니다.");
                     },
                     error: function error(request, status, _error) {
                         let { error } = JSON.parse(request.responseText);
