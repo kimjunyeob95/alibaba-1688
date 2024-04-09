@@ -51,12 +51,14 @@ Route::name('genuio.')->prefix('genuio')->group(function () {
 Route::name('mall.')->prefix('mall')->group(function () {
     Route::post('/{channel}/token/create', [MallController::class, "tokenCreate"])->name("tokenCreate");
 
-    Route::name('easySell.')->prefix('easySell')->middleware(["oepnApi.jwt.verify"])->group(function () {
-        Route::post('/product/regist', [MallController::class, "productRegist"])->name("productRegist");
+    Route::name('easySell.')->prefix('easySell')->group(function () {
+        Route::post('/product/regist', [MallController::class, "productRegist"])->name('productRegist');
 
-        // 주문 조회
-        Route::get('/order/{orderId}', [MallController::class, "orderInfo"])->name("orderInfo");
-        // 주문 생성
-        Route::post('/order/create', [MallController::class, "orderCreate"])->name("orderCreate");
+        Route::middleware(["oepnApi.jwt.verify"])->group(function () {
+            // 주문 조회
+            Route::get('/order/{orderId}', [MallController::class, "orderInfo"])->name("orderInfo");
+            // 주문 생성
+            Route::post('/order/create', [MallController::class, "orderCreate"])->name("orderCreate");
+        });
     });
 });
