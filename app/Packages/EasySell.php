@@ -7,7 +7,7 @@ use App\Constants\EasySellConstant;
 use App\Constants\MallConstant;
 use App\Constants\MallErrorMessageConstant;
 use App\Constants\ProductConstant;
-use App\Models\EasysellProductLog;
+use App\Models\EasySellProductLog;
 use App\Models\OnchCategoryExcelDataCopy2;
 use App\Models\ProductData;
 use App\Vo\EasySell\EasySellProductVo;
@@ -113,7 +113,7 @@ class EasySell extends MallApiAbstract
             }
 
             if ( $easyObj == null ){
-                EasysellProductLog::updateOrCreate(["offer_id" => $offerId], $logParams);
+                EasySellProductLog::updateOrCreate(["offer_id" => $offerId], $logParams);
             }
         }
 
@@ -208,7 +208,7 @@ class EasySell extends MallApiAbstract
                 ];
             }
 
-            EasysellProductLog::where(["offer_id" => $offerId])
+            EasySellProductLog::where(["offer_id" => $offerId])
                 ->update($logParams);
         }
 
