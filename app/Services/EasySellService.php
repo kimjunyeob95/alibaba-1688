@@ -12,7 +12,7 @@ class EasySellService
     public function getPrdList($params) :array
     {
         $pageSize     = $params["pageSize"];
-        $registStatus     = $params["registStatus"];
+        $registStatus = $params["registStatus"];
         $search_cls   = $params["search_cls"];
         $keyword      = $params["keyword"];
 
@@ -21,7 +21,7 @@ class EasySellService
         ->leftJoin("easysell_product_logs as epl","product_datas.offer_id","=","epl.offer_id")
         ->where("product_datas.trans_status", ProductConstant::TRANS_STATUE_Y)
         ->whereNull("product_datas.deleted_at")->orderBy("product_datas.created_at", "desc");
-        $totalCnt   = $prdBuilder->count();
+        $totalCnt = $prdBuilder->count();
 
         if(isset($search_cls) && !empty($keyword)){
             if($search_cls == "prd_name_trans"){
