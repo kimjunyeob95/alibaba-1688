@@ -53,7 +53,8 @@ class EasySellService
                 });
             }
         }
-        $successCnt = EasySellProductLog::where("regist_success",MallConstant::REGIST_SUCCESS)->count();
+        // $successCnt = EasySellProductLog::where("regist_success",MallConstant::REGIST_SUCCESS)->count();
+        $successCnt = 9;
         $failCnt    = $totalCnt - $successCnt;
         $lists      = $prdBuilder->paginate($pageSize)->appends($params);
 
