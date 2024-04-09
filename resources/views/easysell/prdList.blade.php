@@ -90,11 +90,18 @@
                             </table>
                         </div>
                     </div>
-                </form>
 
-                <div class="mt-3 d-flex justify-content-end">
-                    <button class="btn btn-md btn-outline-dark me-2" id="btn-select">상품전송</button>
-                </div>
+                    <div class="mt-3 d-flex justify-content-between">
+                        <div>
+                            <select id="selectPageSize" class="form-select" name="pageSize">
+                                <option value=50 @if($pageSize == 100) selected @endif>100개 노출</option>
+                                <option value=30 @if($pageSize == 30) selected @endif>30개 노출</option>
+                                <option value=10 @if($pageSize == 10) selected @endif>10개 노출</option>
+                            </select>
+                        </div>
+                        <button class="btn btn-md btn-outline-dark me-2" id="btn-select">상품전송</button>
+                    </div>
+                </form>
 
                 <div class="table-responsive mt-3">
                     <table class="table table-white bg-white">
@@ -182,16 +189,18 @@
             $("#searchFrm").submit();
         });
 
+        $("#selectPageSize").change(function(){
+            $("#searchFrm").submit();
+        });
+
         $(".btn-regist").click(function(){
             let offer_ids = [$(this).attr("offerid")];
 
             if(confirm('상품을 전송하시겠습니까?')){
                 $.ajax({
-                    "headers"    : {
-                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                    },
+                    "headers"    : {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
                     "type"       : "POST",
-                    "url"        : "{{ route('mall.easySell.selectRegist') }}",
+                    "url"        : "{{ route('mall.easySell.productRegist') }}",
                     "data"       : { offer_ids },
                     beforeSend: function () {
                     },
@@ -224,11 +233,9 @@
 
             if(confirm('선택하신 상품을 전송하시겠습니까?')){
                 $.ajax({
-                    "headers"    : {
-                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                    },
+                    "headers"    : {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
                     "type"       : "POST",
-                    "url"        : "{{ route('mall.easySell.selectRegist') }}",
+                    "url"        : "{{ route('mall.easySell.productRegist') }}",
                     "data"       : { offer_ids },
                     beforeSend: function () {
                     },

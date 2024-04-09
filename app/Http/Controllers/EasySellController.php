@@ -20,7 +20,7 @@ class EasySellController extends Controller
     public function getPrdList():View
     {
         $page         = $this->request->post("page", 1);
-        $pageSize     = $this->request->post("pageSize", 30);
+        $pageSize     = $this->request->post("pageSize", 100);
         $registStatus = $this->request->post("registStatus", "");
         $search_cls   = $this->request->get("search_cls", "offer_id");
         $keyword      = $this->request->get("keyword", "");
