@@ -74,9 +74,9 @@ class EasySell extends MallApiAbstract
                     }
 
                     $rsData = $apiResult["data"]["result"];
+                    $itemno = $rsData->ItemGoodCode;
 
                     if($rsData->Result == EasySellConstant::API_SUCCESS){
-                        $itemno       = $rsData->ItemGoodCode;
                         $successIds[] = $offerId;
                     } else {
                         throw new Exception($rsData->Msg);
@@ -208,7 +208,8 @@ class EasySell extends MallApiAbstract
                 ];
             }
 
-            EasysellProductLog::updateOrCreate(["offer_id" => $offerId], $logParams);
+            EasysellProductLog::where(["offer_id" => $offerId])
+                ->update($logParams);
         }
 
         $result = ["success" => $successIds, "fail" => $failIds];
@@ -262,6 +263,11 @@ class EasySell extends MallApiAbstract
                 throw new Exception("카테고리 정보가 없습니다");
             }
 
+            //연령제한 상품여부
+            if($prdObj->minor_not_sale == ProductConstant::MINOR_NOT_SALE_YES){
+                throw new Exception("연령제한 상품입니다");
+            }
+
             $ItemName = $prdObj->prd_name_trans;
             // if(!productNameValidation($ItemName, "", 100)){
             //     throw new Exception("상품명 길이가 100byte를 초과했습니다.");
@@ -279,7 +285,7 @@ class EasySell extends MallApiAbstract
                     $notice .="<tr>";
                 }
 
-                $notice .= "<th>{$gosi->attribute_name_trans}</th><td>{$gosi->attribute_value_trans}</td>";
+                $notice .= "<th style='background-color:#ebedef; padding:0.3rem 0.3rem; border-bottom: 1px solid #d8dbe0;'>{$gosi->attribute_name_trans}</th><td style='padding: 0.3rem 0.3rem; border-bottom: 1px solid #d8dbe0;'>{$gosi->attribute_value_trans}</td>";
 
                 if(($gosiKey + 1) % 4 == 0 || ($gosiKey + 1) == count($prdObj->notices)){
                     $notice .="</tr>";
@@ -312,7 +318,7 @@ class EasySell extends MallApiAbstract
                 $unitInfo .= "{$optionNm}^^{$stock}^^{$setPrice}^^{$setPrice}^^{$option->option_price}::{$option->id}";
             }
 
-            $itemImage = implode("|", array_reverse(array_filter($prdObj->images->whereIn("img_type",["main","sub"])->pluck("img_url_trans")->toArray())));
+            $itemImage = implode("|", array_filter($prdObj->images->whereIn("img_type",["main","sub"])->pluck("img_url_trans")->toArray()));
 
             $voParams = [
                 "ItemNo"                => $offerId,
