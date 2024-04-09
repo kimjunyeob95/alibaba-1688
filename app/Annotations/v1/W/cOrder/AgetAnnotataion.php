@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Annotations\v1\W\bOrder;
+namespace App\Annotations\v1\W\cOrder;
 
 /**
  * 

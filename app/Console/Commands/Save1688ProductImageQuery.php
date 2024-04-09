@@ -6,7 +6,7 @@ use Illuminate\Console\Command;
 
 class Save1688ProductImageQuery extends Command
 {
-    protected $signature   = 'save_1688_product_image_query {--imageid=} {--sort=}';
+    protected $signature   = 'save_1688_product_image_query {--imageIds=} {--sort=}';
     protected $description = '1688API imageQueryAPI로 상품 수집';
 
     protected Service1688Product $service1688Product;
@@ -24,12 +24,12 @@ class Save1688ProductImageQuery extends Command
     */
     public function handle()
     {
-        $imageId = $this->option('imageid');
+        $imageIds = $this->option('imageIds', "");
         $sort    = $this->option('sort') ?? "";
         
-        if( $imageId ){
+        if( $imageIds ){
             $params = [
-                "imageId"  => $imageId,
+                "imageIds" => explode(",", $imageIds),
                 "sort"     => $sort,
                 "page"     => 1,
                 "pageSize" => 50,

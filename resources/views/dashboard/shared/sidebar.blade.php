@@ -31,8 +31,18 @@
                     </a>
                 </li>
                 <li class="nav-item">
+                    <a class="nav-link" href="/product/urlQuery">
+                        상품상세 URL로 수집
+                    </a>
+                </li>
+                <li class="nav-item">
                     <a class="nav-link" href="/product/imageQuery">
-                        상품 Image로 수집
+                        상품 단일 Image로 수집
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/product/imageMultiQuery">
+                        상품 멀티 Image로 수집
                     </a>
                 </li>
                 <li class="nav-item">

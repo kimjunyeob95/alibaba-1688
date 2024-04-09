@@ -78,6 +78,17 @@ class Service1688Product
    }
 
    /**
+     * @func getUrlQuery
+     * @description '상품상세 URL로 수집'
+     * @param array $urls
+     * @return array
+   */
+   public function getUrlQuery(array $urls): array
+   {
+      return $this->productAbstract->getUrlQuery($urls);
+   }
+
+   /**
      * @func getPrdCollectLogList
      * @description '상품 수집현황 조회'
      * @param array $params
@@ -177,6 +188,55 @@ class Service1688Product
       return $this->productAbstract->saveImageQuery($params);
    }
 
+   /**
+     * @func apiPrdList
+     * @description 'w API 상품리스트'
+     * @param array $params
+     * @return array
+   */
+   public function apiPrdList(array $params): array
+   {
+      $result    = $this->productAbstract->getPrdList($params);
+      $paginator = $result["paginator"];
+      $datas     = [];
+      foreach ($paginator as $prdObj) {
+         $data = [
+            "offer_id"       => $prdObj->offer_id,
+            "prd_name"       => $prdObj->prd_name,
+            "prd_name_trans" => $prdObj->prd_name_trans
+         ];
+
+         foreach ($prdObj->options as $option) {
+            $data["options"][] = [
+               "id"                => $option->id,
+               "option_name"       => $option->option_name,
+               "option_name_trans" => $option->option_name_trans,
+            ];
+         }
+
+         foreach ($prdObj->images as $image) {
+            $data["images"][] = [
+               "id"             => $image->id,
+               "img_type"       => $image->img_type,
+               "img_url_origin" => $image->img_url_origin,
+               "img_url_trans"  => $image->img_url_trans,
+            ];
+         }
+
+         $datas[] = $data;
+      }
+
+      $lastPage  = $paginator->lastPage();
+      $page      = $paginator->currentPage();
+      $pageSize  = $paginator->perPage();
+
+      return [
+         "result"   => $datas,
+         "lastPage" => $lastPage,
+         "page"     => $page,
+         "pageSize" => (int)$pageSize,
+      ];
+   }
 
    /* =========================================== 카테고리 Abstract =================================================================================== */
 
@@ -242,4 +302,6 @@ class Service1688Product
    {
       $this->categoryAbstract->saveCategoryMapping();
    }
+
+
 }

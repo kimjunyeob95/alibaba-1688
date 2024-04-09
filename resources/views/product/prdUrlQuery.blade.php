@@ -16,63 +16,26 @@
                     </a>
                 </li>
                 <li class="breadcrumb-item">상품 수집 관리</li>
-                <li class="breadcrumb-item active" aria-current="page">상품 Image로 수집</li>
+                <li class="breadcrumb-item active" aria-current="page">상품상세 URL로 수집</li>
             </ol>
         </nav>
 
         <div class="row my-4 bg-white py-3">
             <div class="col-12 mb-3">
                 <form id="searchFrm">
-                    <input type="hidden" id="imageId" name="imageId" value={{ $imageId }}>
-
                     <div class="card">
                         <div class="card-header">
                             <table class="table">
                                 <tr class="align-middle">
-                                    <th style="width: 120px">Image 등록</th>
-                                    <td colspan="2">
-                                        <input type="file" class="form-control" id="imgFile" accept="image/*">
-                                    </td>
-                                </tr>
-                                <tr class="align-middle">
-                                    <th style="width: 120px">Image ID</th>
-                                    <td colspan="2">
-                                        <span id="span-imgId">{{ $imageId }}</span>
-                                    </td>
-                                </tr>
-                                <tr class="align-middle">
-                                    <th style="width: 120px">정렬</th>
-                                    <td style="width: 200px">
-                                        <select class="form-select" name="sort">
-                                            <option value="monthSold|desc" @if($sort == "monthSold|desc") selected @endif>판매량 내림차순</option>
-                                            <option value="monthSold|asc" @if($sort == "monthSold|asc") selected @endif>판매량 오름차순</option>
-                                            <option value="price|desc" @if($sort == "price|desc") selected @endif>가격 내림차순</option>
-                                            <option value="price|asc" @if($sort == "price|asc") selected @endif>가격 오름차순</option>
-                                        </select>
-                                    </td>
-                                    <td colspan="2">
-                                    </td>
-                                </tr>
-                                <tr class="align-middle">
-                                    <th style="width: 120px">노출 수</th>
-                                    <td style="width: 200px">
-                                        <select class="form-select" name="pageSize">
-                                            <option value=50 @if($pageSize == 50) selected @endif>50개 노출</option>
-                                            <option value=30 @if($pageSize == 30) selected @endif>30개 노출</option>
-                                            <option value=20 @if($pageSize == 20) selected @endif>20개 노출</option>
-                                            <option value=10 @if($pageSize == 10) selected @endif>10개 노출</option>
-                                        </select>
-                                    </td>
-                                    <td colspan="2">
+                                    <th style="width: 120px">상품상세 URL 검색</th>
+                                    <td>
+                                        <textarea class="form-control" id="keyword" name="keyword" placeholder="여러 상품을 동시에 검색하려면 콤마(,) 혹은 엔터로 구분하여 입력 예) https://detail.1688.com/offer/776602958006.html,https://detail.1688.com/offer/737834654023.html">{!! $keyword !!}</textarea>
                                     </td>
                                 </tr>
                                 <tr class="align-middle text-left">
                                     <td colspan="6">
                                         <button type="button" class="btn btn-md btn-primary" id="form-submit">검색</button>
-                                        <button type="button" onclick="location.href='/product/imageQuery'" class="btn btn-md btn-light btn-reset">초기화</button>
-                                        @if ( $payload )
-                                            <div class="mt-3">payload: {{ $payload }}</div>
-                                        @endif
+                                        <button type="button" onclick="location.href='/product/urlQuery'" class="btn btn-md btn-light btn-reset">초기화</button>
                                     </td>
                                 </tr>
                             </table>
@@ -93,11 +56,12 @@
                                     <label class="form-check-label" for="allCheckbox">선택</label>
                                     <input class="form-check-input" type="checkbox" id="allCheckbox">
                                 </th>
+                                <th scope="col" style="width: 50px">No</th>
                                 <th scope="col" style="width: 150px">제품ID</th>
                                 <th scope="col">제품명</th>
                                 <th scope="col">제품명(번역)</th>
                                 <th scope="col" style="width: 100px">원본이미지</th>
-                                <th scope="col" style="width: 100px">판매량(월)</th>
+                                <th scope="col" style="width: 100px">판매량</th>
                                 <th scope="col" style="width: 150px" class="text-center">
                                     1688 소비자가<br>
                                     옵션가격<br>
@@ -113,6 +77,9 @@
                                         <input class="form-check-input chk-inp" type="checkbox" value="{{ $data["offerId"] }}">
                                     </td>
                                     <td>
+                                        {{ count($datas) - $index }}
+                                    </td>
+                                    <td>
                                         <a href="https://detail.1688.com/offer/{{ $data["offerId"] }}.html" target="_blank">{{ $data["offerId"] }}</a>
                                     </td>
                                     <td>
@@ -122,10 +89,18 @@
                                         {{ $data["subjectTrans"] }}
                                     </td>
                                     <td>
-                                        <img class="lazy-img preview-image" data-src="{{ $data["imageUrl"] }}" width=60 height=60/>
+                                        @if (count($data["productImage"]["images"]) > 4)
+                                            <img class="lazy-img preview-image" data-src="{{ $data["productImage"]["images"][4] }}" width=60 height=60/>
+                                        @else
+                                            <img class="lazy-img preview-image" data-src="{{ $data["productImage"]["images"][0] }}" width=60 height=60/>
+                                        @endif
                                     </td>
                                     <td>
-                                        {{ number_format($data["monthSold"]) }}
+                                        @if (isset($data["soldOut"]))
+                                            {{ number_format($data["soldOut"]) }}
+                                        @else
+                                            데이터 없음
+                                        @endif
                                     </td>
                                     <td class="text-center">
                                         {{ $data["price_1688"] }}(元)<br>
@@ -139,12 +114,6 @@
                     </table>
                 </div>
             </div>
-
-            <div class="d-flex justify-content-center">
-                @if ($paginator)
-                    {{ $paginator->links("vendor.pagination.bootstrap-4") }}
-                @endif
-            </div>
         </div>
 
     </div>
@@ -152,60 +121,18 @@
 
     $(document).ready(function(){
         $("#form-submit").click(function(){
-            let imageId = $("#imageId").val();
-            if( !imageId ){
-                return alert("파일을 먼저 등록해주세요.");
+            let keyword = $("#keyword").val();
+            keyword = fn_split(keyword);
+            if( keyword.length > 20 ){
+                return alert("최대 검색 수는 20개를 초과할 수 없습니다.");
             }
 
             $("#searchFrm").submit();
         });
 
-        $("#imgFile").change(function(){
-            $("#loadingOverlay").show();
-
-            let file = this.files[0];
-
-            // 파일 타입 검사 (이미지 파일인지 확인)
-            if (file.type.indexOf('image') == -1) {
-                this.value = '';
-                $("#imageId").val('');
-                $("#loadingOverlay").hide();
-                return alert('이미지 파일만 업로드 가능합니다.');
-            } else if (file.size > 300000) { // 파일 크기 검사 (300KB 이하인지 확인)
-                this.value = '';
-                $("#imageId").val('');
-                $("#loadingOverlay").hide();
-                return alert('파일 크기는 300KB 이하로 업로드 가능합니다.');
-            }
-
-            let formData = new FormData();
-            formData.append('imgFile[]', file);
-
-            $.ajax({
-                "headers" : {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
-                "type" : "POST",
-                "url" : "{{ route('product.createImgId') }}",
-                "data" : formData,
-                "processData": false,
-                "contentType": false,
-                beforeSend : function () {},
-                complete: function(xhr, status) {
-                    $("#loadingOverlay").hide();
-                },
-                success : function (resp) {
-                    $("#imageId").val(resp.result);
-                    $("#span-imgId").text(resp.result);
-                },
-                error: function (request) {
-                    let { error } = JSON.parse(request.responseText);
-                    alert(error.message);
-                }
-            });
-        });
-
         $("#btn-select").click(function(){
             let offer_ids = [];
-            
+
             $(".chk-inp:checked").each(function(index, element){
                 offer_ids.push($(this).val());
             });
@@ -218,7 +145,7 @@
                 $.ajax({
                     "headers"    : {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
                     "type"       : "POST",
-                    "url"        : "{{ route('product.collectProductImage') }}",
+                    "url"        : "{{ route('product.collectProductUrl') }}",
                     "data"       : { offer_ids },
                     beforeSend: function () {
                     },
@@ -236,25 +163,22 @@
         });
 
         $("#btn-all").click(function(){
-            let totalRecords = "{{ $totalRecords }}";
-            let imageId      = "{{ $imageId }}";
+            let offer_ids = [];
 
-            if( totalRecords < 1 ){
-                return alert("수집 할 상품이 없습니다.");
-            }
-            if( !imageId ){
-                return alert("이미지 ID가 없습니다. 이미지를 등록하세요.");
+            $(".chk-inp").each(function(index, element){
+                offer_ids.push($(this).val());
+            });
+
+            if(offer_ids.length < 1){
+                return alert("검색 된 상품이 없습니다.");
             }
 
-            if(confirm(`${totalRecords}건의 상품을 수집 하시겠습니까?`)){
+            if(confirm(`${offer_ids.length}건의 상품을 수집 하시겠습니까?`)){
                 $.ajax({
                     "headers"    : {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
                     "type"       : "POST",
-                    "url"        : "{{ route('product.collectImageQuery') }}",
-                    "data"       : {
-                        "imageIds": imageId,
-                        "sort"    : $("select[name=sort]").val(),
-                    },
+                    "url"        : "{{ route('product.collectProductUrl') }}",
+                    "data"       : { offer_ids },
                     beforeSend: function () {
                     },
                     complete: function () {

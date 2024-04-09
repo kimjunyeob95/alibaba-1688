@@ -121,6 +121,115 @@
                     }
                 ]
             }
+        },
+        "/api/genuio/products": {
+            "get": {
+                "tags": [
+                    "상품"
+                ],
+                "summary": "상품 조회",
+                "description": "W 상품 조회 endPoint",
+                "operationId": "714238944ffde1f708483f83f2af67ef",
+                "parameters": [
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "페이지 수",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    },
+                    {
+                        "name": "pageSize",
+                        "in": "query",
+                        "description": "페이지 크기 max 50",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 50
+                        }
+                    },
+                    {
+                        "name": "trans_status",
+                        "in": "query",
+                        "description": "번역 여부) Y: 번역완료, N: 미번역",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "example": "Y"
+                        }
+                    },
+                    {
+                        "name": "search_cls",
+                        "in": "query",
+                        "description": "검색 타입) prd_name_trans: 상품명, option_name_trans: 옵션명",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "example": "prd_name_trans"
+                        }
+                    },
+                    {
+                        "name": "keyword",
+                        "in": "query",
+                        "description": "검색어",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "example": "데님 블루"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProductListSuccessResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Authorization Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/401ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/400ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/500ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            }
         }
     },
     "components": {
@@ -314,9 +423,9 @@
                                 "type": "string",
                                 "example": "2023-12-19 17:45:50"
                             },
-                            "apiVersion": {
+                            "apiType": {
                                 "type": "string",
-                                "example": "v1"
+                                "example": "mall"
                             }
                         },
                         "type": "object"
@@ -374,6 +483,122 @@
                             },
                             "type": "object"
                         }
+                    }
+                },
+                "type": "object"
+            },
+            "ProductListSuccessResponse": {
+                "properties": {
+                    "status": {
+                        "type": "integer",
+                        "example": 200
+                    },
+                    "meta": {
+                        "properties": {
+                            "timestamp": {
+                                "type": "string",
+                                "example": "2023-12-19 17:45:50"
+                            },
+                            "apiType": {
+                                "type": "string",
+                                "example": "mall"
+                            }
+                        },
+                        "type": "object"
+                    },
+                    "data": {
+                        "properties": {
+                            "result": {
+                                "type": "array",
+                                "items": {
+                                    "properties": {
+                                        "offer_id": {
+                                            "description": "제품ID",
+                                            "type": "integer",
+                                            "example": 769405131194
+                                        },
+                                        "prd_name": {
+                                            "description": "제품명 원본",
+                                            "type": "string",
+                                            "example": "网红ins欧式水洗棉复古牛仔外套女2024春秋韩版宽松短款长袖衬衫"
+                                        },
+                                        "prd_name_trans": {
+                                            "description": "제품명 번역",
+                                            "type": "string",
+                                            "example": "인터넷 유명 인사 유럽 스타일 씻은 면화 복고풍 데님 코트 여성의 2024 봄과 가을 한국 스타일 느슨한 짧은 긴 소매 셔츠"
+                                        },
+                                        "options": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "id": {
+                                                        "description": "옵션ID",
+                                                        "type": "integer",
+                                                        "example": 3498
+                                                    },
+                                                    "option_name": {
+                                                        "description": "옵션명 원본",
+                                                        "type": "string",
+                                                        "example": "牛仔蓝_S 建议96斤内"
+                                                    },
+                                                    "option_name_trans": {
+                                                        "description": "옵션명 번역",
+                                                        "type": "string",
+                                                        "example": "데님 블루_S 96 진 내에서 추천"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        },
+                                        "images": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "id": {
+                                                        "description": "이미지ID",
+                                                        "type": "integer",
+                                                        "example": 2647
+                                                    },
+                                                    "img_type": {
+                                                        "description": "이미지 타입) main: 메인, sub: 서브, desc: 상세",
+                                                        "type": "string",
+                                                        "example": "main"
+                                                    },
+                                                    "img_url_origin": {
+                                                        "description": "이미지 원본 url",
+                                                        "type": "string",
+                                                        "example": "https://cbu01.alicdn.com/img/ibank/O1CN01AWbFYv2CKRfBHrvTL_!!2216320858455-0-cib.jpg"
+                                                    },
+                                                    "img_url_trans": {
+                                                        "description": "이미지 번역 url",
+                                                        "type": "string",
+                                                        "example": "https://onch-1688.s3.ap-northeast-2.amazonaws.com/2024/04/09/769405131194_main.jpg"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            },
+                            "lastPage": {
+                                "description": "마지막 페이지",
+                                "type": "integer",
+                                "example": 18
+                            },
+                            "page": {
+                                "description": "현재 페이지",
+                                "type": "integer",
+                                "example": 1
+                            },
+                            "pageSize": {
+                                "description": "페이지 크기",
+                                "type": "integer",
+                                "example": 50
+                            }
+                        },
+                        "type": "object"
                     }
                 },
                 "type": "object"

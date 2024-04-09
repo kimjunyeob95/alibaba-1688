@@ -51,7 +51,7 @@ class ProductV1 extends ProductAbstract
         $keyword      = $params["keyword"];
         $trans_status = $params["trans_status"];
 
-        $prdBuilder = ProductData::with(["main_img", "options"])
+        $prdBuilder = ProductData::with(["main_img", "options", "images"])
         ->whereNull("deleted_at")->orderBy("created_at", "desc");
 
         if( !empty($keyword) ){
@@ -66,8 +66,12 @@ class ProductV1 extends ProductAbstract
                 $keyword = array_unique($keyword);
 
                 $prdBuilder->whereIn($search_cls, $keyword);
-            } else if( $search_cls == "prd_name_trans"){
+            } else if( $search_cls == "prd_name_trans" || $search_cls == "prd_name"){
                 $prdBuilder->where($search_cls, "like", "%" . $keyword . "%");
+            } else if( $search_cls == "option_name_trans" || $search_cls == "option_name" ){
+                $prdBuilder->whereHas('options', function ($query) use ($keyword, $search_cls) {
+                    $query->where($search_cls, 'like', "%" . $keyword . "%");
+                });
             }
         }
 
@@ -80,7 +84,6 @@ class ProductV1 extends ProductAbstract
         $transNCnt = ProductData::where("trans_status", ProductConstant::TRANS_STATUE_N)->whereNull("deleted_at")->count();
 
         $lists = $prdBuilder->paginate($pageSize)->appends($params);
-
         return [
             "paginator" => $lists,
             "totalCnt"  => $totalCnt,
@@ -1173,14 +1176,12 @@ class ProductV1 extends ProductAbstract
             $filePath      = $file->getRealPath();
             $fileContent   = fileContents($filePath);
             $base64Encoded = base64_encode($fileContent);
-            $mimeType      = $file->getMimeType();
-            $dataUrlScheme = "data:" . $mimeType . ";base64," . $base64Encoded;
             
             $endPoint = "param2/1/com.alibaba.fenxiao.crossborder/product.image.upload/";
             $payload = [
-                'access_token'    => $this->accessToken,
+                'access_token' => $this->accessToken,
                 'uploadImageParam' => [
-                    "imageBase64" => $dataUrlScheme
+                    "imageBase64" => $base64Encoded
                 ]
             ];
             $apiDatas = curl_1688("POST", $endPoint, $payload);
@@ -1255,34 +1256,29 @@ class ProductV1 extends ProductAbstract
         ];
         $page     = $params["page"];
         $pageSize = $params["pageSize"];
-        $payload  = [
-            'access_token'    => $this->accessToken,
-            'offerQueryParam' => [
-                'sort'      => json_encode($sort),
-                'country'   => Constant1688::LANGUAGE_KO,
-                'imageId'   => $params["imageId"]
-            ]
-        ];
+        $imageIds = $params["imageIds"];
 
         try {
-            $endPoint = "param2/1/com.alibaba.fenxiao.crossborder/product.search.imageQuery/";
-            
-            $payload["offerQueryParam"]["beginPage"] = $page;
-            $payload["offerQueryParam"]["pageSize"]  = $pageSize;
-
-            $apiDatas     = curl_1688("POST", $endPoint, $payload);
-            $totalRecords = $apiDatas["data"]["result"]["result"]["totalRecords"];
-
-            $payload_json = json_encode($payload["offerQueryParam"], JSON_UNESCAPED_UNICODE);
             $logId = ProductCollectLog::insertGetId([
                 "type"       => LogConstant::COLLECT_API_IMAGEQUERY_ALL,
                 "status"     => LogConstant::COLLECT_RUNNING,
-                "payload"    => $payload_json,
-                "log_count"  => (int)$totalRecords,
+                "payload"    => implode(",", $imageIds),
+                "log_count"  => count($imageIds),
                 "created_at" => Carbon::now()
             ]);
 
-            $this->saveImageQueryRecursively($logId, $payload, $page, $pageSize);
+            foreach ($imageIds as $imageId) {
+                $payload  = [
+                    'access_token'    => $this->accessToken,
+                    'offerQueryParam' => [
+                        'sort'      => json_encode($sort),
+                        'country'   => Constant1688::LANGUAGE_KO,
+                        'imageId'   => $imageId
+                    ]
+                ];
+
+                $this->saveImageQueryRecursively($logId, $payload, $page, $pageSize);
+            }
         } catch (Exception $e) {
             $msg = "======================== 에러 발생 (params_json: {$params_json}) ========================\r\n";
             $msg .= $e->getMessage();
@@ -1401,5 +1397,43 @@ class ProductV1 extends ProductAbstract
                 $this->saveImageQueryRecursively($logId, $payload, $nextPage, $pageSize, $totalPage);
             }
         }
+    }
+
+    public function getUrlQuery(array $urls): array
+    {
+        $datas = [];
+        foreach ($urls as $url) {
+            if (preg_match("/offer\/(\d+)\.html/", $url, $matches)) {
+                $offerId = $matches[1];
+                try {
+                    $endPoint       = "param2/1/com.alibaba.fenxiao.crossborder/product.search.queryProductDetail/";
+                    $payload        = [
+                        'access_token'     => $this->accessToken,
+                        'offerDetailParam' => [
+                            'offerId' => $offerId,
+                            'country' => Constant1688::LANGUAGE_KO,
+                        ]
+                    ];
+                    $apiDatas = curl_1688("POST", $endPoint, $payload);
+                    if( $apiDatas["isSuccess"] == true && isset($apiDatas["data"]["result"]["result"]) ){
+                        $detailData               = $apiDatas["data"]["result"]["result"];
+                        $price_1688               = getPrice1688($detailData);
+                        $detailData["price_1688"] = $price_1688;
+                        $datas[]                  = $detailData;
+                    }
+                } catch (Exception $e) {
+                }
+            }
+        }
+
+        foreach ($datas as &$data) {
+            $ocPrice                 = ocPrice($data["price_1688"]);
+            $data["onch_price"]      = $ocPrice["onch_price"];
+            $data["option_price"]    = $ocPrice["option_price"];
+            $data["cus_price"]       = $ocPrice["cus_price"];
+            $data["recom_cus_price"] = $ocPrice["recom_cus_price"];
+        }
+
+        return $datas;
     }
 }
