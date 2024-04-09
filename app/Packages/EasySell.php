@@ -7,7 +7,7 @@ use App\Constants\EasySellConstant;
 use App\Constants\MallConstant;
 use App\Constants\MallErrorMessageConstant;
 use App\Constants\ProductConstant;
-use App\Models\EasySellProductLog;
+use App\Models\EasysellProductLog;
 use App\Models\OnchCategoryExcelDataCopy2;
 use App\Models\ProductData;
 use App\Vo\EasySell\EasySellProductVo;
@@ -40,7 +40,7 @@ class EasySell extends MallApiAbstract
             $modi_success = MallConstant::MODI_FAIL;
             $modi_message = "";
             try{
-                $easyObj = EasySellProductLog::where([
+                $easyObj = EasysellProductLog::where([
                     "offer_id"       => $offerId,
                     "regist_success" => MallConstant::REGIST_SUCCESS,
                 ])->first();
@@ -113,7 +113,7 @@ class EasySell extends MallApiAbstract
             }
 
             if ( $easyObj == null ){
-                EasySellProductLog::updateOrCreate(["offer_id" => $offerId], $logParams);
+                EasysellProductLog::updateOrCreate(["offer_id" => $offerId], $logParams);
             }
         }
 
@@ -144,7 +144,7 @@ class EasySell extends MallApiAbstract
             $easyObj      = null;
             $account      = EasySellConstant::USER_ID;
             try{
-                $easyObj = EasySellProductLog::where([
+                $easyObj = EasysellProductLog::where([
                     "offer_id"       => $offerId,
                     "regist_success" => MallConstant::REGIST_SUCCESS,
                 ])->first();
@@ -208,7 +208,7 @@ class EasySell extends MallApiAbstract
                 ];
             }
 
-            EasySellProductLog::where(["offer_id" => $offerId])
+            EasysellProductLog::where(["offer_id" => $offerId])
                 ->update($logParams);
         }
 

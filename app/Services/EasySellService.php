@@ -4,7 +4,7 @@ namespace App\Services;
 
 use App\Constants\MallConstant;
 use App\Constants\ProductConstant;
-use App\Models\EasySellProductLog;
+use App\Models\EasysellProductLog;
 use App\Models\ProductData;
 
 class EasySellService
@@ -53,7 +53,7 @@ class EasySellService
                 });
             }
         }
-        $successCnt = EasySellProductLog::where("regist_success",MallConstant::REGIST_SUCCESS)->count();
+        $successCnt = EasysellProductLog::where("regist_success",MallConstant::REGIST_SUCCESS)->count();
         $failCnt    = $totalCnt - $successCnt;
         $lists      = $prdBuilder->paginate($pageSize)->appends($params);
 
