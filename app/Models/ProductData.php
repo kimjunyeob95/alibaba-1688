@@ -47,4 +47,8 @@ class ProductData extends Model
     public function oc_mapping () {
         return $this->hasOne(CategoryMapping::class, "category_id", "category_id")->where("mapping_channel", ProductConstant::MAPPING_OC_CHANNEL);
     }
+
+    public function easysell () {
+        return $this->hasOne(EasySellProductLog::class, "offer_id", "offer_id");
+    }
 }
