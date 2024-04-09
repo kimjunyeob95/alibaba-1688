@@ -232,7 +232,6 @@ class ProductController extends Controller
     {
         $keyword = $this->request->get("keyword", "");
         $datas   = [];
-
         if( $keyword ){
             $urls = preg_replace("/(\r\n|\r|\n)/", ",", trim($keyword));
             $urls = explode(",", $urls);
@@ -242,7 +241,6 @@ class ProductController extends Controller
             $urls = array_filter($urls);
             // 중복 제거
             $urls = array_unique($urls);
-
             $result = $this->service1688Product->getUrlQuery($urls);
             $datas  = $result;
         }
@@ -446,5 +444,31 @@ class ProductController extends Controller
             ];
         }
         return view("product.prdCollectLogDetail")->with($viewParams);
+    }
+
+    public function apiPrdList(): JsonResponse
+    {
+        try {
+            $page           = $this->request->get("page", 1);
+            $pageSize       = $this->request->get("pageSize", 50);
+            if( $pageSize > 50 ) $pageSize = 50;
+            $search_cls     = $this->request->get("search_cls", "prd_name");
+            $keyword        = $this->request->get("keyword", "");
+            $trans_status   = $this->request->get("trans_status", ProductConstant::TRANS_STATUE_Y);
+            
+            $params = [
+                "page"         => $page,
+                "pageSize"     => $pageSize,
+                "search_cls"   => $search_cls,
+                "keyword"      => $keyword,
+                "trans_status" => $trans_status,
+            ];
+            $result = $this->service1688Product->getPrdList($params);
+
+
+            return helpers_json_response(HttpConstant::OK, helpers_success_message([], "수집 요청 완료"));
+        } catch (Exception $e) {
+            return helpers_json_response(HttpConstant::BAD_REQUEST, [], $e->getMessage());
+        }
     }
 }

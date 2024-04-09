@@ -51,7 +51,7 @@ class ProductV1 extends ProductAbstract
         $keyword      = $params["keyword"];
         $trans_status = $params["trans_status"];
 
-        $prdBuilder = ProductData::with(["main_img", "options"])
+        $prdBuilder = ProductData::with(["main_img", "options", "images"])
         ->whereNull("deleted_at")->orderBy("created_at", "desc");
 
         if( !empty($keyword) ){
@@ -66,8 +66,12 @@ class ProductV1 extends ProductAbstract
                 $keyword = array_unique($keyword);
 
                 $prdBuilder->whereIn($search_cls, $keyword);
-            } else if( $search_cls == "prd_name_trans"){
+            } else if( $search_cls == "prd_name_trans" || $search_cls == "prd_name"){
                 $prdBuilder->where($search_cls, "like", "%" . $keyword . "%");
+            } else if( $search_cls == "option_name_trans" || $search_cls == "option_name" ){
+                $prdBuilder->whereHas('options', function ($query) use ($keyword, $search_cls) {
+                    $query->where($search_cls, 'like', "%" . $keyword . "%");
+                });
             }
         }
 
@@ -80,7 +84,6 @@ class ProductV1 extends ProductAbstract
         $transNCnt = ProductData::where("trans_status", ProductConstant::TRANS_STATUE_N)->whereNull("deleted_at")->count();
 
         $lists = $prdBuilder->paginate($pageSize)->appends($params);
-
         return [
             "paginator" => $lists,
             "totalCnt"  => $totalCnt,

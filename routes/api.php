@@ -4,6 +4,7 @@ use App\Http\Controllers\ApiController;
 use App\Http\Controllers\GenuioController;
 use App\Http\Controllers\MallController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\W\WProductController;
 use Illuminate\Support\Facades\Route;
 
 Route::name('category.')->prefix('category')->group(function () {
@@ -42,6 +43,9 @@ Route::name('genuio.')->prefix('genuio')->group(function () {
 
     Route::middleware(["oepnApi.jwt.verify"])->group(function () {
         Route::post('/img/trans', [GenuioController::class, "imgTrans"])->name("imgTrans");
+
+        // 상품 조회
+        Route::get('/products', [WProductController::class, "apiPrdList"])->name("products");
     });
 
     // 상품 이미지 번역 요청
@@ -58,5 +62,13 @@ Route::name('mall.')->prefix('mall')->group(function () {
         Route::get('/order/{orderId}', [MallController::class, "orderInfo"])->name("orderInfo");
         // 주문 생성
         Route::post('/order/create', [MallController::class, "orderCreate"])->name("orderCreate");
+    });
+});
+
+Route::name('w.')->prefix('w')->group(function () {
+    
+    Route::middleware(["oepnApi.jwt.verify"])->group(function () {
+        // 상품 조회
+        Route::get('/products', [WProductController::class, "apiPrdList"])->name("products");
     });
 });

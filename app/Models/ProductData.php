@@ -25,7 +25,7 @@ class ProductData extends Model
     }
 
     public function images () {
-        return $this->hasMany(ProductImageData::class, "offer_id", "offer_id")->oldest("id");
+        return $this->hasMany(ProductImageData::class, "offer_id", "offer_id")->orderBy('img_type', 'asc');
     }
 
     public function options () {

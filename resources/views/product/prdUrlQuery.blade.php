@@ -96,7 +96,11 @@
                                         @endif
                                     </td>
                                     <td>
-                                        {{ number_format($data["soldOut"]) }}
+                                        @if (isset($data["soldOut"]))
+                                            {{ number_format($data["soldOut"]) }}
+                                        @else
+                                            데이터 없음
+                                        @endif
                                     </td>
                                     <td class="text-center">
                                         {{ $data["price_1688"] }}(元)<br>
@@ -117,6 +121,12 @@
 
     $(document).ready(function(){
         $("#form-submit").click(function(){
+            let keyword = $("#keyword").val();
+            keyword = fn_split(keyword);
+            if( keyword.length > 20 ){
+                return alert("최대 검색 수는 20개를 초과할 수 없습니다.");
+            }
+
             $("#searchFrm").submit();
         });
 
