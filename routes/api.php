@@ -22,7 +22,7 @@ Route::name('w.')->prefix('w')->group(function () {
         // 카테고리
         Route::name('category.')->prefix('category')->group(function () {
             // 1688에서 수집 한 카테고리를 단계별로 정리한 데이터 목록
-            Route::get('/all', [WCategoryController::class, 'getAllCategory'])->name('getAllCategory');
+            Route::get('/', [WCategoryController::class, 'getAllCategory'])->name('getAllCategory');
             // 1688에서 수집 한 최상위 카테고리 계층별 목록
             Route::get('/tree/{categoryId?}', [WCategoryController::class, 'getTreeCategory'])->name('getTreeCategory');
             // 1688<->채널 카테고리 맵핑 조회

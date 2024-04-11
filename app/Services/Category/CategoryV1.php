@@ -28,13 +28,21 @@ class CategoryV1 extends CategoryAbstract
    /**
      * @func getAllCategory
      * @description '1688에서 수집 한 카테고리를 단계별로 정리한 데이터 목록'
+     * @param mixed $parent_cate_id
+     * @return array
      */
-    public function getAllCategory(): array
+    public function getAllCategory(mixed $parent_cate_id): array
     {
         $returnMsg = $this->returnMsg;
 
         try {
-            $getCategoryTreeObjs = CategoryTree::orderBy("cate_first", "asc")->orderBy("cate_second", "asc")->orderBy("cate_third", "asc")->get();
+            $qryBuilder = CategoryTree::with(["category"])->orderBy("cate_first", "asc")->orderBy("cate_second", "asc")->orderBy("cate_third", "asc");
+            if( $parent_cate_id != null ){
+                $qryBuilder->whereHas('category', function ($query) use ($parent_cate_id) {
+                    $query->where("parent_cate_id", $parent_cate_id);
+                });
+            }
+            $getCategoryTreeObjs = $qryBuilder->get();
             $result = [
                 "total" => count($getCategoryTreeObjs),
             ];
@@ -61,6 +69,7 @@ class CategoryV1 extends CategoryAbstract
 
                 $result["categories"][] = [
                     "categoryId"              => $getCategoryTreeObj->category_id,
+                    "parent_cate_id"          => $getCategoryTreeObj->category->parent_cate_id,
                     "categoryFullPath"        => $categoryFullPath,
                     "categoryChineseFullPath" => $categoryChineseFullPath,
                 ];
@@ -107,12 +116,9 @@ class CategoryV1 extends CategoryAbstract
                     $element["childs"] = $this->getBuildTree($childObjs, $element->category_id);
                 }
                 $paramArray = [
-                    "id"                    => $element->id,
                     "category_id"           => $element->category_id,
                     "category_name"         => $element->category_name,
                     "category_chinese_name" => $element->category_chinese_name,
-                    "leaf"                  => $element->leaf,
-                    "level"                 => $element->level,
                     "parent_cate_id"        => $element->parent_cate_id,
                 ];
                 if( isset($element["childs"]) && !empty($element["childs"])){
@@ -135,7 +141,7 @@ class CategoryV1 extends CategoryAbstract
         $returnMsg = $this->returnMsg;
 
         try {
-            $getCategoryMappingObjs = CategoryMapping::where("mapping_channel", $channel)
+            $getCategoryMappingObjs = CategoryMapping::with(["categoryTree"])->where("mapping_channel", $channel)
             ->where("mapping_code", "!=", 0)
             ->orderBy("category_id", "asc")
             ->get();
@@ -145,9 +151,32 @@ class CategoryV1 extends CategoryAbstract
                 "result"          => []
             ];
             foreach ($getCategoryMappingObjs as $getCategoryMappingObj) {
+                $categoryFullPath   = $categoryChineseFullPath = "";
+                $getCategoryTreeObj = $getCategoryMappingObj->categoryTree;
+                if( $getCategoryTreeObj->cate_first ){
+                    $categoryFullPath = $getCategoryTreeObj->cate_first;
+                }
+                if( $getCategoryTreeObj->cate_second ){
+                    $categoryFullPath .= " > " . $getCategoryTreeObj->cate_second;
+                }
+                if( $getCategoryTreeObj->cate_third ){
+                    $categoryFullPath .= " > " . $getCategoryTreeObj->cate_third;
+                }
+                if( $getCategoryTreeObj->cate_chinese_first ){
+                    $categoryChineseFullPath = $getCategoryTreeObj->cate_chinese_first;
+                }
+                if( $getCategoryTreeObj->cate_chinese_second ){
+                    $categoryChineseFullPath .= " > " . $getCategoryTreeObj->cate_chinese_second;
+                }
+                if( $getCategoryTreeObj->cate_chinese_third ){
+                    $categoryChineseFullPath .= " > " . $getCategoryTreeObj->cate_chinese_third;
+                }
+
                 $result["result"][] = [
-                    "category_id"     => $getCategoryMappingObj->category_id,
-                    "mapping_code"    => $getCategoryMappingObj->mapping_code,
+                    "category_id"             => $getCategoryMappingObj->category_id,
+                    "categoryFullPath"        => $categoryFullPath,
+                    "categoryChineseFullPath" => $categoryChineseFullPath,
+                    "mapping_code"            => $getCategoryMappingObj->mapping_code,
                 ];
             }
             $returnMsg = helpers_success_message($result);

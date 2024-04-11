@@ -257,9 +257,9 @@ class Service1688Product
      * @description '수집 한 카테고리를 단계별로 정리한 데이터 목록'
      * @return array
      */
-   public function getAllCategory(): array
+   public function getAllCategory(mixed $parent_cate_id): array
    {
-      return $this->categoryAbstract->getAllCategory();
+      return $this->categoryAbstract->getAllCategory($parent_cate_id);
    }
 
    /**

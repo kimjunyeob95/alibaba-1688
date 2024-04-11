@@ -7,9 +7,10 @@ abstract class CategoryAbstract
     /**
      * @func getAllCategory
      * @description '수집 한 카테고리를 단계별로 정리한 데이터 목록'
+     * @param mixed $parent_cate_id
      * @return array
      */
-    abstract function getAllCategory(): array;
+    abstract function getAllCategory(mixed $parent_cate_id): array;
 
     /**
      * @func getTreeCategory

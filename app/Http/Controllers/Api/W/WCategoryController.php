@@ -22,7 +22,8 @@ class WCategoryController extends Controller
 
     public function getAllCategory(): JsonResponse
     {
-        $result = $this->service1688Product->getAllCategory();
+        $parent_cate_id = $this->request->get("parent_cate_id", null);
+        $result = $this->service1688Product->getAllCategory($parent_cate_id);
         if( $result["isSuccess"] == true ){
             return helpers_json_response(HttpConstant::OK, $result);
         } else {

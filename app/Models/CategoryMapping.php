@@ -12,4 +12,8 @@ class CategoryMapping extends Model
     protected $table      = 'category_mappings';
     protected $guarded    = [];
     protected $fillable   = [];
+
+    public function categoryTree () {
+        return $this->hasOne(CategoryTree::class, "category_id", "category_id");
+    }
 }
