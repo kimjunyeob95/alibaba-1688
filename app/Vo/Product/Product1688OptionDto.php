@@ -10,7 +10,7 @@ class Product1688OptionDto extends Vo
     protected int $offer_id             = 0;
     protected int $sku_id               = 0;
     protected string $spec_id           = "";
-    protected string $status            = ProductConstant::OPTION_SEC_ON_SALE_NUMBER;
+    protected string $status            = "";
     protected string $option_name       = "";
     protected string $option_name_trans = "";
     protected float $price_1688         = 0.0;
@@ -26,6 +26,7 @@ class Product1688OptionDto extends Vo
         $this->offer_id          = $data["offerId"];
         $this->sku_id            = $data["skuId"];
         $this->spec_id           = $data["specId"];
+        $this->status            = $data["status"];
         $this->option_name       = $data["optionName"];
         $this->option_name_trans = $data["optionNameTrans"];
         $this->price_1688        = (float)$data["price_1688"];

@@ -9,6 +9,7 @@ class Product1688Dto extends Vo
 {
     protected int $offer_id          = 0;
     protected int $category_id       = 0;
+    protected string $status         = "";
     protected string $prd_name       = "";
     protected string $prd_name_trans = "";
     protected int $start_quantity    = 1;
@@ -29,6 +30,7 @@ class Product1688Dto extends Vo
     {
         $this->offer_id       = $data["offerId"];
         $this->category_id    = $data["categoryId"];
+        $this->status         = $data["status"];
         $this->prd_name       = $data["subject"];
         $this->prd_name_trans = $data["subjectTrans"];
         $this->start_quantity = $data["startQuantity"];

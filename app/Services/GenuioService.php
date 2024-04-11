@@ -188,6 +188,7 @@ class GenuioService extends TransApiAbstract
                 throw new ValueError(TransApiConstant::getNotHaveErrorMessage("PRODUCT"));
             }
             $prd_desc = $prdObj->prd_desc;
+            $dateName = $prdObj->created_at->format('Y/m/d');
 
             // 1. product_image_datas update
             foreach ($images as $image) {
@@ -208,9 +209,9 @@ class GenuioService extends TransApiAbstract
                         $mime = $matches[0];
                     }
                     if( $imgObj->img_type == ImageConstant::IMAGE_TYPE_MAIN ){
-                        $imgName  = "/" . $this->appEnv . date('Y/m/d/') . $offerId . "_" . $imgObj->img_type . "." . $mime;
+                        $imgName  = "/product/" . $dateName . "/" . $offerId . "_" . $imgObj->img_type . "." . $mime;
                     } else {
-                        $imgName  = "/" . $this->appEnv . date('Y/m/d/') . $offerId . "_" . $imgObj->id . "_" . $imgObj->img_type . "." . $mime;
+                        $imgName  = "/product/" . $dateName . "/" . $offerId . "_" . $imgObj->id . "_" . $imgObj->img_type . "." . $mime;
                     }
                     if( isset($image["imgTransBase64"]) && !empty($image["imgTransBase64"]) ){
                         $imgTransBase64 = $image["imgTransBase64"];

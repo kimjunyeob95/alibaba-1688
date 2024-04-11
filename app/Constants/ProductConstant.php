@@ -5,6 +5,9 @@ namespace App\Constants;
 
 class ProductConstant
 {
+    // 상품상태
+    public const PRD_STATUS = "published"; // 게시됨
+
     // 제품채널
     public const CHANNE_PRICE_FREE             = 1;
     public const CHANNE_DISTRIBUTION_SCIENCE   = 2;

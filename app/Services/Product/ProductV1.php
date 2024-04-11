@@ -572,6 +572,7 @@ class ProductV1 extends ProductAbstract
         $detailProduct = $detailResult["data"]["result"]["result"];
         $offerId       = $detailProduct["offerId"];
         $prdCategoryId = $detailProduct["categoryId"];
+        $status        = $detailProduct["status"];
 
         // 1. 상품 이미지
         $product1688ImageDtoList = [];
@@ -650,6 +651,7 @@ class ProductV1 extends ProductAbstract
         $product1688Dto->bind([
             "offerId"       => $offerId,
             "categoryId"    => $prdCategoryId,
+            "status"        => $status,
             "subject"       => $detailProduct["subject"],
             "subjectTrans"  => $detailProduct["subjectTrans"],
             "startQuantity" => $startQuantity,
@@ -700,6 +702,11 @@ class ProductV1 extends ProductAbstract
         }
 
         foreach ($detailProduct["productSkuInfos"] as $prdOptions) {
+            $opt_status = ProductConstant::OPTION_SEC_ON_SALE_NUMBER;
+            if( $status != ProductConstant::PRD_STATUS ){
+                $opt_status = ProductConstant::OPTION_SEC_OUT_OF_STOCK_NUMBER;
+            }
+
             $optionName      = "";
             $optionNameTrans = "";
             foreach ($prdOptions["skuAttributes"] as $prdOption) {
@@ -711,6 +718,7 @@ class ProductV1 extends ProductAbstract
                 "offerId"         => $offerId,
                 "skuId"           => $prdOptions["skuId"],
                 "specId"          => $prdOptions["specId"],
+                "status"          => $opt_status,
                 "price_1688"      => $price_1688,
                 "optionName"      => rtrim($optionName, "_"),
                 "optionNameTrans" => rtrim($optionNameTrans, "_"),
@@ -735,11 +743,13 @@ class ProductV1 extends ProductAbstract
     {
         $returnMsg = helpers_fail_message();
         try {
+            $offerId = (int)$product1688Dto->offer_id;
+
             // 1. product_datas upsert
             $upsertWhere = $product1688Dto->getAllProperties();
             unset($upsertWhere["offer_id"]);
             ProductData::updateOrCreate(
-                ["offer_id" => $product1688Dto->offer_id],
+                ["offer_id" => $offerId],
                 $upsertWhere
             );
 
@@ -747,7 +757,7 @@ class ProductV1 extends ProductAbstract
             $upsertWhere = $product1688ExtendDto->getAllProperties();
             unset($upsertWhere["offer_id"]);
             ProductExtendData::updateOrCreate(
-                ["offer_id" => $product1688ExtendDto->offer_id],
+                ["offer_id" => $offerId],
                 $upsertWhere
             );
 
@@ -757,7 +767,7 @@ class ProductV1 extends ProductAbstract
                 if( $product1688ImageDto->is_change_img == true && $product1688ImageDto->img_type == ImageConstant::IMAGE_TYPE_MAIN ){
                     ProductImageData::updateOrCreate(
                         [
-                            "offer_id" => $product1688ImageDto->offer_id,
+                            "offer_id" => $offerId,
                             "img_type" => ImageConstant::IMAGE_TYPE_MAIN,
                         ],
                         [
@@ -771,7 +781,7 @@ class ProductV1 extends ProductAbstract
                 if( $product1688ImageDto->is_change_img == true && $product1688ImageDto->img_type != ImageConstant::IMAGE_TYPE_MAIN ){
                     ProductImageData::updateOrCreate(
                         [
-                            "offer_id"       => $product1688ImageDto->offer_id,
+                            "offer_id"       => $offerId,
                             "img_type"       => $product1688ImageDto->img_type,
                             "img_url_origin" => $product1688ImageDto->img_url_origin,
                         ],
@@ -794,7 +804,7 @@ class ProductV1 extends ProductAbstract
                 if( !empty($upsertDetailWhere) ){
                     ProductImageDetailData::updateOrCreate(
                         [
-                            "offer_id"       => $product1688ImageDto->offer_id,
+                            "offer_id"       => $offerId,
                             "img_type"       => $product1688ImageDto->img_type,
                             "img_url_origin" => $product1688ImageDto->img_url_origin,
                         ],
@@ -810,7 +820,7 @@ class ProductV1 extends ProductAbstract
                 unset($upsertWhere["attribute_id"]);
                 ProductNoticeData::updateOrCreate(
                     [
-                        "offer_id"     => $product1688NoticeDto->offer_id,
+                        "offer_id"     => $offerId,
                         "attribute_id" => $product1688NoticeDto->attribute_id,
                     ],
                     $upsertWhere
@@ -818,6 +828,9 @@ class ProductV1 extends ProductAbstract
             }
 
             // 5. product_option_datas upsert
+            // 5-1. 우선 전체 품절처리
+            ProductOptionData::where("offer_id", $offerId)->update(["status" => ProductConstant::OPTION_SEC_OUT_OF_STOCK_NUMBER]);
+            // 5-2. Upsert
             foreach ($product1688OptionDtoList as $product1688OptionDto) {
                 $upsertWhere = $product1688OptionDto->getAllProperties();
                 unset($upsertWhere["offer_id"]);
@@ -825,7 +838,7 @@ class ProductV1 extends ProductAbstract
                 unset($upsertWhere["spec_id"]);
                 ProductOptionData::updateOrCreate(
                     [
-                        "offer_id" => $product1688OptionDto->offer_id,
+                        "offer_id" => $offerId,
                         "sku_id"   => $product1688OptionDto->sku_id,
                         "spec_id"  => $product1688OptionDto->spec_id,
                     ],
@@ -835,7 +848,7 @@ class ProductV1 extends ProductAbstract
 
             // 6. 이미지 번역 요청 통신 
             if( env("APP_ENV", "local") == "production" ) {
-                $transResult = $this->transApiAbstract->createTransProductImg($product1688ImageDtoList, (int)$product1688Dto->offer_id);
+                $transResult = $this->transApiAbstract->createTransProductImg($product1688ImageDtoList, $offerId);
                 if( $transResult["isSuccess"] == false ){
                     throw new Exception($transResult["msg"]);
                 }
@@ -1468,6 +1481,7 @@ class ProductV1 extends ProductAbstract
             }
 
             $prd_desc = $prdObj->prd_desc;
+            $dateName = $prdObj->created_at->format('Y/m/d');
 
             $descTransImgs = [];
             foreach ($images as $image) {
@@ -1484,9 +1498,9 @@ class ProductV1 extends ProductAbstract
                     $img_url_origin = $imgObj->img_url_origin;
                     $mime           = pathinfo($img_url_origin, PATHINFO_EXTENSION);
                     if( $imgObj->img_type == ImageConstant::IMAGE_TYPE_MAIN ){
-                        $imgName  = "/" . date('Y/m/d/') . $offerId . "_" . $imgObj->img_type . "." . $mime;
+                        $imgName  = "/product/" . $dateName . "/" . $offerId . "_" . $imgObj->img_type . "." . $mime;
                     } else {
-                        $imgName  = "/" . date('Y/m/d/') . $offerId . "_" . $imgObj->id . "_" . $imgObj->img_type . "." . $mime;
+                        $imgName  = "/product/" . $dateName . "/" . $offerId . "_" . $imgObj->id . "_" . $imgObj->img_type . "." . $mime;
                     }
 
                     $uploadResult = $this->uploadAbstract->uploadFile($imgName, base64_decode($image["base64"]));
