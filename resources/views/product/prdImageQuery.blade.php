@@ -184,7 +184,7 @@
             $.ajax({
                 "headers" : {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
                 "type" : "POST",
-                "url" : "{{ route('product.createImgId') }}",
+                "url" : "{{ route('w.product.createImgId') }}",
                 "data" : formData,
                 "processData": false,
                 "contentType": false,
@@ -218,7 +218,7 @@
                 $.ajax({
                     "headers"    : {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
                     "type"       : "POST",
-                    "url"        : "{{ route('product.collectProductImage') }}",
+                    "url"        : "{{ route('w.product.collectProductImage') }}",
                     "data"       : { offer_ids },
                     beforeSend: function () {
                     },
@@ -250,7 +250,7 @@
                 $.ajax({
                     "headers"    : {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
                     "type"       : "POST",
-                    "url"        : "{{ route('product.collectImageQuery') }}",
+                    "url"        : "{{ route('w.product.collectImageQuery') }}",
                     "data"       : {
                         "imageIds": imageId,
                         "sort"    : $("select[name=sort]").val(),

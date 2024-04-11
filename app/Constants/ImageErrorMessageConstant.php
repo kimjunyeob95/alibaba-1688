@@ -10,10 +10,15 @@ class ImageErrorMessageConstant
     private static $defaultNotHaveMsg  = "Empty";
     private static $defaultFitErrorMsg = "Error";
 
-    public const ERROR_MESSAGE_FILE   = "이미지 파일";
-    public const ERROR_MESSAGE_TYPE   = "업로드된 파일이 이미지 형식이 아닙니다.";
-    public const ERROR_MESSAGE_SIZE   = "파일 크기는 300KB 이하로 업로드 가능합니다.";
-    public const ERROR_MESSAGE_IMG_ID = "이미지ID";
+    public const ERROR_MESSAGE_FILE          = "이미지 파일";
+    public const ERROR_MESSAGE_TYPE          = "업로드된 파일이 이미지 형식이 아닙니다.";
+    public const ERROR_MESSAGE_SIZE          = "파일 크기는 300KB 이하로 업로드 가능합니다.";
+    public const ERROR_MESSAGE_IMG_ID        = "이미지ID";
+    public const ERROR_MESSAGE_IMAGE         = "image";
+    public const ERROR_MESSAGE_IMAGES        = "images";
+    public const ERROR_MESSAGE_IMAGES_ID     = "images id";
+    public const ERROR_MESSAGE_IMAGES_BASE64 = "images base64";
+    public const ERROR_MESSAGE_S3_IMG_UPLOAD = "S3 image Upload";
 
  
     public static function getErrorMessageNotDefault($constantName): string

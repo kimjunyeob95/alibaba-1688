@@ -4,6 +4,7 @@ namespace App\Services\Product;
 
 use App\Abstracts\ProductAbstract;
 use App\Abstracts\TransApiAbstract;
+use App\Abstracts\UploadAbstract;
 use App\Constants\Constant1688;
 use App\Constants\ImageConstant;
 use App\Constants\ImageErrorMessageConstant;
@@ -30,18 +31,21 @@ use Illuminate\Http\UploadedFile;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Psr\Log\LogLevel;
 use UnexpectedValueException;
+use ValueError;
 
 class ProductV1 extends ProductAbstract
 {
     private array $returnMsg;
     private string $accessToken;
     private TransApiAbstract $transApiAbstract;
+    private UploadAbstract $uploadAbstract;
 
-    public function __construct(TransApiAbstract $transApiAbstract)
+    public function __construct(TransApiAbstract $transApiAbstract, UploadAbstract $uploadAbstract)
     {
         $this->returnMsg        = helpers_fail_message();
         $this->accessToken      = env("1688_ACCESS_TOKEN");
         $this->transApiAbstract = $transApiAbstract;
+        $this->uploadAbstract   = $uploadAbstract;
     }
 
     public function getPrdList(array $params): array
@@ -1435,5 +1439,87 @@ class ProductV1 extends ProductAbstract
         }
 
         return $datas;
+    }
+
+    public function productsUpdateImages(int $offerId, array $images): array
+    {
+        $returnMsg = $this->returnMsg;
+
+        try {
+            $resultImgs = [];
+            $prdObj     = ProductData::where("offer_id", $offerId)->first();
+
+            if( $prdObj == null ){
+                throw new Exception(ProductErrorMessageConstant::getNotHaveErrorMessage("PRODUCT"));
+            }
+
+            $prd_desc = $prdObj->prd_desc;
+
+            $descTransImgs = [];
+            foreach ($images as $image) {
+                $imgId     = $image["id"];
+                try {
+                    $imgObj = ProductImageData::where([
+                        "id"       => $imgId,
+                        "offer_id" => $offerId
+                    ])->first();
+                    if( $imgObj == null ){
+                        throw new ValueError(ImageErrorMessageConstant::getNotHaveErrorMessage("IMAGE"));
+                    }
+
+                    $img_url_origin = $imgObj->img_url_origin;
+                    $mime           = pathinfo($img_url_origin, PATHINFO_EXTENSION);
+                    if( $imgObj->img_type == ImageConstant::IMAGE_TYPE_MAIN ){
+                        $imgName  = "/" . date('Y/m/d/') . $offerId . "_" . $imgObj->img_type . "." . $mime;
+                    } else {
+                        $imgName  = "/" . date('Y/m/d/') . $offerId . "_" . $imgObj->id . "_" . $imgObj->img_type . "." . $mime;
+                    }
+
+                    $uploadResult = $this->uploadAbstract->uploadFile($imgName, base64_decode($image["base64"]));
+
+                    if( $uploadResult == true ) {
+                        $img_url_trans = env("AWS_URL") . $imgName;
+                        ProductImageData::where("id", $imgId)->update([
+                            "img_url_trans"  => $img_url_trans,
+                            "trans_dated_at" => Carbon::now(),
+                        ]);
+
+                        if( $imgObj->img_type == ImageConstant::IMAGE_TYPE_DESC ){
+                            $descTransImgs[] = [
+                                "img_url_origin" => $img_url_origin,
+                                "img_url_trans"  => $img_url_trans
+                            ];
+                        }
+                    } else {
+                        throw new ValueError(ImageErrorMessageConstant::getFitErrorMessage("S3_IMG_UPLOAD"));
+                    }
+
+                    $resultImgs[] = [
+                        "id"        => $imgId,
+                        "isSuccess" => true,
+                    ];
+                } catch (ValueError $ve) {
+                    $resultImgs[] = [
+                        "id"        => $imgId,
+                        "isSuccess" => false,
+                        "msg"       => $ve->getMessage()
+                    ];
+                }
+            }
+
+            foreach ($descTransImgs as $descTransImg) {
+                $prd_desc_trans = str_replace($descTransImg["img_url_origin"], $descTransImg["img_url_trans"], $prd_desc);
+                $prd_desc       = $prd_desc_trans;
+                ProductData::where("offer_id", $offerId)->update([
+                    "prd_desc_trans" => $prd_desc_trans
+                ]);
+            }
+
+            $returnMsg = helpers_success_message($resultImgs);
+        } catch (Exception $e) {
+            $returnMsg = helpers_fail_message(false, $e->getMessage());
+        }
+
+        return $returnMsg;
     }
 }

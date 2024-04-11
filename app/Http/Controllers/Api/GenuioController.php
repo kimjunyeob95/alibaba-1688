@@ -1,8 +1,9 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api;
 
 use App\Constants\HttpConstant;
+use App\Http\Controllers\Controller;
 use App\Services\GenuioService;
 use Exception;
 use Illuminate\Http\JsonResponse;

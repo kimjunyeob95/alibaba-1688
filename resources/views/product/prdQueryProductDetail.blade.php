@@ -135,7 +135,7 @@
                 $.ajax({
                     "headers"    : {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
                     "type"       : "POST",
-                    "url"        : "{{ route('product.collectProduct') }}",
+                    "url"        : "{{ route('w.product.collectProduct') }}",
                     "data"       : { offer_ids },
                     beforeSend: function () {
                     },
@@ -167,7 +167,7 @@
                 $.ajax({
                     "headers"    : {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
                     "type"       : "POST",
-                    "url"        : "{{ route('product.collectProduct') }}",
+                    "url"        : "{{ route('w.product.collectProduct') }}",
                     "data"       : { offer_ids },
                     beforeSend: function () {
                     },

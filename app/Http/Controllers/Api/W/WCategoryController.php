@@ -1,14 +1,15 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api\W;
 
 use App\Constants\HttpConstant;
 use App\Constants\ProductConstant;
+use App\Http\Controllers\Controller;
 use App\Services\Service1688Product;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
-class ApiController extends Controller
+class WCategoryController extends Controller
 {
     private Request $request;
     private Service1688Product $service1688Product;
@@ -52,16 +53,6 @@ class ApiController extends Controller
     public function getMappingCategory(string $channel = ProductConstant::MAPPING_OC_CHANNEL): JsonResponse
     {
         $result = $this->service1688Product->getMappingCategory($channel);
-        if( $result["isSuccess"] == true ){
-            return helpers_json_response(HttpConstant::OK, $result);
-        } else {
-            return helpers_json_response(HttpConstant::BAD_REQUEST, [], $result["msg"]);
-        }
-    }
-
-    public function getProductData(int $offerId): JsonResponse
-    {
-        $result = $this->service1688Product->getProductData($offerId);
         if( $result["isSuccess"] == true ){
             return helpers_json_response(HttpConstant::OK, $result);
         } else {

@@ -128,4 +128,13 @@ abstract class ProductAbstract
      * @return void
      */
     abstract function collectProduct(array $offerIds, string $type = LogConstant::COLLECT_API_KEYWORDQUERY): void;
+
+    /**
+     * @func productsUpdateImages
+     * @description '상품 이미지 업데이트'
+     * @param int $offerId
+     * @param array $images
+     * @return array
+     */
+    abstract function productsUpdateImages(int $offerId, array $images): array;
 }

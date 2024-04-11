@@ -238,6 +238,18 @@ class Service1688Product
       ];
    }
 
+   /**
+     * @func productsUpdateImages
+     * @description '상품 이미지 업데이트'
+     * @param int $offerId
+     * @param array $images
+     * @return array
+   */
+   public function productsUpdateImages(int $offerId, array $images): array
+   {
+      return $this->productAbstract->productsUpdateImages($offerId, $images);
+   }
+
    /* =========================================== 카테고리 Abstract =================================================================================== */
 
    /**
@@ -302,6 +314,4 @@ class Service1688Product
    {
       $this->categoryAbstract->saveCategoryMapping();
    }
-
-
 }
