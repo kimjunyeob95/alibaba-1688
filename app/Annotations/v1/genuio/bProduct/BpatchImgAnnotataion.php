@@ -70,8 +70,8 @@ namespace App\Annotations\v1\genuio\bProduct;
  *
  * @OA\Patch(
  *     path="/api/genuio/products/{offerId}/images",
- *     summary="상품 조회",
- *     description="W 상품 조회 endPoint",
+ *     summary="상품 이미지 업데이트",
+ *     description="W 상품 이미지 업데이트 endPoint",
  *     tags={"상품"},
  *     security={{"BearerAuth": {}}},
  *     @OA\Parameter(
