@@ -46,6 +46,8 @@ Route::name('w.')->prefix('w')->group(function () {
         Route::post('/collectImageQuery', [WProductController::class, 'collectImageQuery'])->name('collectImageQuery');
         // 1688 상품상세 URL->상품ID 별 수집
         Route::post('/collect/url', [WProductController::class, 'collectProductUrl'])->name('collectProductUrl');
+        // 1688 상품 조회 요청
+        Route::post('/searchData', [WProductController::class, 'productSearchData'])->name('productSearchData');
     });
 });
 

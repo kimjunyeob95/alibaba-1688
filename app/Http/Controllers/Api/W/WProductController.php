@@ -39,8 +39,9 @@ class WProductController extends Controller
             }
 
             $offerIds = $this->request->post("offer_ids");
+            $log_type = $this->request->post("log_type", LogConstant::COLLECT_API_KEYWORDQUERY);
 
-            $options = "--offerids=" . escapeshellarg(implode(",", $offerIds)) . " --type=" . escapeshellarg(LogConstant::COLLECT_API_KEYWORDQUERY);
+            $options = "--offerids=" . escapeshellarg(implode(",", $offerIds)) . " --type=" . escapeshellarg($log_type);
             $command = "nohup php artisan save_1688_collect_product " . $options . " > /dev/null 2>&1 &";
             $process = Process::fromShellCommandline($command);
             $process->setWorkingDirectory(env("WORK_DIRECTORY", "/web1/1688"));
@@ -204,7 +205,7 @@ class WProductController extends Controller
             if( $pageSize > 50 ) $pageSize = 50;
             $search_cls     = $this->request->get("search_cls", "prd_name_trans");
             $keyword        = $this->request->get("keyword", "");
-            $trans_status   = $this->request->get("trans_status", ProductConstant::TRANS_STATUE_Y);
+            $trans_status   = $this->request->get("trans_status", ProductConstant::TRANS_STATUS_Y);
             
             $params = [
                 "page"         => $page,
@@ -244,6 +245,51 @@ class WProductController extends Controller
             } else {
                 return helpers_json_response(HttpConstant::BAD_REQUEST, [], $result["msg"]);
             }
+        } catch (Exception $e) {
+            return helpers_json_response(HttpConstant::BAD_REQUEST, [], $e->getMessage());
+        }
+    }
+
+    public function productSearchData(): JsonResponse
+    {
+        try {
+            $keyword      = $this->request->post("keyword", "");
+            $search_title = $this->request->post("search_title", "");
+            $search_type  = ProductConstant::SEARCH_TYPE_URL;
+
+            if( $keyword == "" ){
+                throw new Exception(ProductErrorMessageConstant::getNotHaveErrorMessage("PRODUCT_KEYWORD"));
+            }
+
+            if( $search_title == "" ){
+                throw new Exception(ProductErrorMessageConstant::getNotHaveErrorMessage("SEARCH_TITLE"));
+            }
+
+            $urls = preg_replace("/(\r\n|\r|\n)/", ",", trim($keyword));
+            $urls = explode(",", $urls);
+            // 각 배열 요소의 앞뒤 공백 제거
+            $urls = array_map('trim', $urls);
+            // 빈 값을 제거
+            $urls = array_filter($urls);
+            // 중복 제거
+            $urls = array_unique($urls);
+
+            $offerIds = [];
+            foreach ($urls as $url) {
+                if (preg_match("/offer\/(\d+)\.html/", $url, $matches)) {
+                    $offerIds[] = $matches[1];
+                }
+            }
+            $offerIds = implode(",", $offerIds);
+
+            $options = "--offerIds=" . escapeshellarg($offerIds) . " --search_title=" . escapeshellarg($search_title) . " --search_type=" . escapeshellarg($search_type);
+            $command = "nohup php artisan save_product_search_data " . $options . " > /dev/null 2>&1 &";
+            $process = Process::fromShellCommandline($command);
+            $process->setWorkingDirectory(env("WORK_DIRECTORY", "/web1/1688"));
+            $process->setTimeout(null); // 실행 시간 제한 없음
+            $process->start();
+            
+            return helpers_json_response(HttpConstant::OK, helpers_success_message([], "조회 요청 완료"));
         } catch (Exception $e) {
             return helpers_json_response(HttpConstant::BAD_REQUEST, [], $e->getMessage());
         }

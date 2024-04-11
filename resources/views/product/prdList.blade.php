@@ -57,10 +57,10 @@
                                 <tr class="align-middle">
                                     <th style="width: 120px">상품 번역</th>
                                     <td style="width: 200px">
-                                        <button type="button" class="btn-trans-img-type btn btn-md {{ $trans_status == ProductConstant::TRANS_STATUE_Y ? "btn-primary" : "btn-dark" }}"
-                                        value="{{ ProductConstant::TRANS_STATUE_Y }}">완료</button>
-                                        <button type="button" class="btn-trans-img-type btn btn-md {{ $trans_status == ProductConstant::TRANS_STATUE_N ? "btn-primary" : "btn-dark" }}"
-                                        value="{{ ProductConstant::TRANS_STATUE_N }}">미완료</button>
+                                        <button type="button" class="btn-trans-img-type btn btn-md {{ $trans_status == ProductConstant::TRANS_STATUS_Y ? "btn-primary" : "btn-dark" }}"
+                                        value="{{ ProductConstant::TRANS_STATUS_Y }}">완료</button>
+                                        <button type="button" class="btn-trans-img-type btn btn-md {{ $trans_status == ProductConstant::TRANS_STATUS_N ? "btn-primary" : "btn-dark" }}"
+                                        value="{{ ProductConstant::TRANS_STATUS_N }}">미완료</button>
                                     </td>
                                     <td colspan="2">
                                     </td>

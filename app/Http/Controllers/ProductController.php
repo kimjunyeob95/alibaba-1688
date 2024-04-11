@@ -26,7 +26,7 @@ class ProductController extends Controller
         $pageSize       = $this->request->post("pageSize", 50);
         $search_cls     = $this->request->get("search_cls", "offer_id");
         $keyword        = $this->request->get("keyword", "");
-        $trans_status   = $this->request->get("trans_status", ProductConstant::TRANS_STATUE_Y);
+        $trans_status   = $this->request->get("trans_status", ProductConstant::TRANS_STATUS_Y);
         $offset         = ($page - 1) * $pageSize;
 
         $params = [
@@ -222,28 +222,35 @@ class ProductController extends Controller
 
     public function urlQuery(): View
     {
-        $keyword = $this->request->get("keyword", "");
-        $datas   = [];
-        if( $keyword ){
-            $urls = preg_replace("/(\r\n|\r|\n)/", ",", trim($keyword));
-            $urls = explode(",", $urls);
-            // 각 배열 요소의 앞뒤 공백 제거
-            $urls = array_map('trim', $urls);
-            // 빈 값을 제거
-            $urls = array_filter($urls);
-            // 중복 제거
-            $urls = array_unique($urls);
-            $result = $this->service1688Product->getUrlQuery($urls);
-            $datas  = $result;
-        }
+        $page           = $this->request->post("page", 1);
+        $pageSize       = $this->request->post("pageSize", 50);
+        $offset         = ($page - 1) * $pageSize;
+
+        $params = [
+            "page"         => $page,
+            "pageSize"     => $pageSize,
+        ];
+        $result = $this->service1688Product->getUrlQuery($params);
 
         $viewParams = [
-            "datas"        => $datas,
-            "totalRecords" => count($datas),
-            "keyword"      => $keyword,
+            "datas"    => $result,
+            "offset"   => (int) $offset,
+            "totalCnt" => (int) $result->total(),
         ];
-
         return view("product.prdUrlQuery")->with($viewParams);
+    }
+
+    public function urlQueryDetail(int $searchId): View
+    {
+        $result = $this->service1688Product->urlQueryDetail($searchId);
+        if( $result["isSuccess"] == false ){
+            abort(404);
+        } else {
+            $viewParams = [
+                "obj" => $result["data"]
+            ];   
+        }
+        return view("product.prdUrlQueryDetail")->with($viewParams);
     }
 
     public function prdCollectLogs(): View

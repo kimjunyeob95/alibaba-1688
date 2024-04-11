@@ -22,6 +22,7 @@ class ProductErrorMessageConstant
     public const ERROR_MESSAGE_PRODUCT_CHECK_IMG_SIZE            = "check img size";
     public const ERROR_MESSAGE_PRODUCT_KEYWORD                   = "keyword";
     public const ERROR_MESSAGE_PRODUCT_MAIN_IMG                  = "Main Img";
+    public const ERROR_MESSAGE_SEARCH_TITLE                      = "search_title";
  
     public static function getErrorMessageNotDefault($constantName): string
     {

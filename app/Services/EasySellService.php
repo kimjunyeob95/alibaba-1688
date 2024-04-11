@@ -19,7 +19,7 @@ class EasySellService
         $prdBuilder = ProductData::select(["product_datas.offer_id","product_datas.prd_name_trans","epl.itemno","epl.regist_success"])
         ->with(["main_img", "options"])
         ->leftJoin("easysell_product_logs as epl","product_datas.offer_id","=","epl.offer_id")
-        ->where("product_datas.trans_status", ProductConstant::TRANS_STATUE_Y)
+        ->where("product_datas.trans_status", ProductConstant::TRANS_STATUS_Y)
         ->whereNull("product_datas.deleted_at")->orderBy("product_datas.created_at", "desc");
         $totalCnt = $prdBuilder->count();
 

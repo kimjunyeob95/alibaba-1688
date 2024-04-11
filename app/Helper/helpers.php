@@ -363,7 +363,7 @@ if (!function_exists("chkTransStatus")) {
        ->whereNull("deleted_at")
        ->count();
        ProductData::where("offer_id", $offerId)->update([
-           "trans_status" => $TransCnt > 0 ? ProductConstant::TRANS_STATUE_Y : ProductConstant::TRANS_STATUE_N
+           "trans_status" => $TransCnt > 0 ? ProductConstant::TRANS_STATUS_Y : ProductConstant::TRANS_STATUS_N
        ]);
     }
 }

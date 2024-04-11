@@ -20,6 +20,8 @@ use App\Models\ProductImageData;
 use App\Models\ProductImageDetailData;
 use App\Models\ProductNoticeData;
 use App\Models\ProductOptionData;
+use App\Models\ProductSearchData;
+use App\Models\ProductSearchDetailData;
 use App\Vo\Product\Product1688Dto;
 use App\Vo\Product\Product1688ExtendDto;
 use App\Vo\Product\Product1688ImageDto;
@@ -84,8 +86,8 @@ class ProductV1 extends ProductAbstract
         }
         
         $totalCnt  = ProductData::whereNull("deleted_at")->count();
-        $transYCnt = ProductData::where("trans_status", ProductConstant::TRANS_STATUE_Y)->whereNull("deleted_at")->count();
-        $transNCnt = ProductData::where("trans_status", ProductConstant::TRANS_STATUE_N)->whereNull("deleted_at")->count();
+        $transYCnt = ProductData::where("trans_status", ProductConstant::TRANS_STATUS_Y)->whereNull("deleted_at")->count();
+        $transNCnt = ProductData::where("trans_status", ProductConstant::TRANS_STATUS_N)->whereNull("deleted_at")->count();
 
         $lists = $prdBuilder->paginate($pageSize)->appends($params);
         return [
@@ -1430,42 +1432,28 @@ class ProductV1 extends ProductAbstract
         }
     }
 
-    public function getUrlQuery(array $urls): array
+    public function getUrlQuery(array $params): LengthAwarePaginator
     {
-        $datas = [];
-        foreach ($urls as $url) {
-            if (preg_match("/offer\/(\d+)\.html/", $url, $matches)) {
-                $offerId = $matches[1];
-                try {
-                    $endPoint       = "param2/1/com.alibaba.fenxiao.crossborder/product.search.queryProductDetail/";
-                    $payload        = [
-                        'access_token'     => $this->accessToken,
-                        'offerDetailParam' => [
-                            'offerId' => $offerId,
-                            'country' => Constant1688::LANGUAGE_KO,
-                        ]
-                    ];
-                    $apiDatas = curl_1688("POST", $endPoint, $payload);
-                    if( $apiDatas["isSuccess"] == true && isset($apiDatas["data"]["result"]["result"]) ){
-                        $detailData               = $apiDatas["data"]["result"]["result"];
-                        $price_1688               = getPrice1688($detailData);
-                        $detailData["price_1688"] = $price_1688;
-                        $datas[]                  = $detailData;
-                    }
-                } catch (Exception $e) {
-                }
-            }
-        }
+        $pageSize  = $params["pageSize"];
 
-        foreach ($datas as &$data) {
-            $ocPrice                 = ocPrice($data["price_1688"]);
-            $data["onch_price"]      = $ocPrice["onch_price"];
-            $data["option_price"]    = $ocPrice["option_price"];
-            $data["cus_price"]       = $ocPrice["cus_price"];
-            $data["recom_cus_price"] = $ocPrice["recom_cus_price"];
-        }
+        $prdBuilder = ProductSearchData::orderBy("created_at", "desc");
+        $lists = $prdBuilder->paginate($pageSize)->appends($params);
 
-        return $datas;
+        return $lists;
+    }
+
+    public function urlQueryDetail(int $searchId): array
+    {
+        $returnMsg = $this->returnMsg;
+
+        try {
+            $searchObjs = ProductSearchData::with(["details"])->where("id", $searchId)->orderBy("created_at", "desc")->first();
+            $returnMsg  = helpers_success_message($searchObjs);
+        } catch (Exception $e) {
+            $returnMsg = helpers_fail_message(false, $e->getMessage());
+        }
+        
+        return $returnMsg;
     }
 
     public function productsUpdateImages(int $offerId, array $images): array
@@ -1549,5 +1537,101 @@ class ProductV1 extends ProductAbstract
         }
 
         return $returnMsg;
+    }
+
+    public function saveProductSearchData(array $params): void
+    {
+        $offerIds     = $params["offerIds"];
+        $search_title = $params["search_title"];
+        $search_type  = $params["search_type"];
+        
+        $searchId = ProductSearchData::insertGetId([
+            "search_title" => $search_title,
+            "search_type"  => $search_type,
+            "status"       => ProductConstant::SEARCH_STATUS_R,
+            "search_count" => count($offerIds),
+            "created_at"   => Carbon::now(),
+        ]);
+
+        foreach ($offerIds as $offerId) {
+            $offerId        = trim($offerId);
+            $prdCategoryId  = 0;
+            $prd_name_trans = "";
+            $price_1688     = 0;
+            $prd_image      = "";
+            $sold_out       = 0;
+
+            try {
+                $endPoint = "param2/1/com.alibaba.fenxiao.crossborder/product.search.queryProductDetail/";
+                $payload  = [
+                    'access_token'     => $this->accessToken,
+                    'offerDetailParam' => [
+                        'offerId' => $offerId,
+                        'country' => Constant1688::LANGUAGE_KO,
+                    ]
+                ];
+                $detailResult = curl_1688("POST", $endPoint, $payload);
+                if( $detailResult["isSuccess"] != true || $detailResult["data"]["result"]["success"] != true ){
+                    throw new Exception(ProductErrorMessageConstant::getFitErrorMessage("PRODUCT_SEARCH_QUERYPRODUCTDETAIL"));
+                }
+
+                $detailProduct = $detailResult["data"]["result"]["result"];
+                $prdCategoryId = $detailProduct["categoryId"];
+                $prd_name_trans = $detailProduct["subjectTrans"];
+                if( isset($detailProduct["productSkuInfos"][0]["price"]) ){
+                    foreach ($detailProduct["productSkuInfos"] as $prdOptions) {
+                        if( $prdOptions["price"] > $price_1688 ){
+                            $price_1688 = $prdOptions["price"];
+                        }
+                    }
+                } else if( !isset($detailProduct["productSkuInfos"][0]["price"]) && 
+                    isset($detailProduct["productSaleInfo"]["priceRangeList"])
+                ) {
+                    $price_1688 = $detailProduct["productSaleInfo"]["priceRangeList"][0]["price"];
+                } 
+                if( $price_1688 == 0 ){
+                    throw new Exception(ProductErrorMessageConstant::getFitErrorMessage("PRICE_1688"));
+                }
+
+                if( count($detailProduct["productImage"]["images"]) < 5 ) {
+                    throw new Exception(ProductErrorMessageConstant::getNotHaveErrorMessage("PRODUCT_MAIN_IMG"));
+                }
+                $prd_image = $detailProduct["productImage"]["images"][4];
+
+                if( isset($detailProduct["soldOut"]) ){
+                    $sold_out = (int)$detailProduct["soldOut"];
+                }
+
+                ProductSearchDetailData::create([
+                    "search_id"      => $searchId,
+                    "offer_id"       => $offerId,
+                    "category_id"    => $prdCategoryId,
+                    "prd_name_trans" => $prd_name_trans,
+                    "price_1688"     => $price_1688,
+                    "prd_image"      => $prd_image,
+                    "sold_out"       => $sold_out,
+                    "is_search"      => ProductConstant::IS_SEARCH_Y,
+                    "msg"            => ""
+                ]);
+
+            } catch (Exception $e) {
+                ProductSearchDetailData::create([
+                    "search_id"      => $searchId,
+                    "offer_id"       => $offerId,
+                    "category_id"    => $prdCategoryId,
+                    "prd_name_trans" => $prd_name_trans,
+                    "price_1688"     => $price_1688,
+                    "prd_image"      => $prd_image,
+                    "sold_out"       => $sold_out,
+                    "is_search"      => ProductConstant::IS_SEARCH_N,
+                    "msg"            => $e->getMessage()
+                ]);
+            }
+        }
+
+        ProductSearchData::where("id", $searchId)->update([
+            "status"       => ProductConstant::SEARCH_STATUS_C,
+            "completed_at" => Carbon::now()
+        ]);
     }
 }

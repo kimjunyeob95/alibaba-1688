@@ -1,3 +1,6 @@
+@php
+    use App\Constants\ProductConstant;
+@endphp
 @extends('dashboard.base')
 
 @section('styles')
@@ -29,12 +32,18 @@
                                 <tr class="align-middle">
                                     <th style="width: 120px">상품상세 URL 검색</th>
                                     <td>
-                                        <textarea class="form-control" id="keyword" name="keyword" placeholder="여러 상품을 동시에 검색하려면 콤마(,) 혹은 엔터로 구분하여 입력 예) https://detail.1688.com/offer/776602958006.html,https://detail.1688.com/offer/737834654023.html">{!! $keyword !!}</textarea>
+                                        <textarea class="form-control" id="keyword" name="keyword" placeholder="여러 상품을 동시에 검색하려면 콤마(,) 혹은 엔터로 구분하여 입력 예) https://detail.1688.com/offer/776602958006.html,https://detail.1688.com/offer/737834654023.html"></textarea>
+                                    </td>
+                                </tr>
+                                <tr class="align-middle">
+                                    <th style="width: 120px">제목</th>
+                                    <td>
+                                        <input type="text" class="form-control" id="search_title" name="search_title" placeholder="요청자 또는 수집 상품의 내용을 작성해 주세요." value="">
                                     </td>
                                 </tr>
                                 <tr class="align-middle text-left">
                                     <td colspan="6">
-                                        <button type="button" class="btn btn-md btn-primary" id="form-submit">검색</button>
+                                        <button type="button" class="btn btn-md btn-primary" id="form-submit">상품 조회 요청</button>
                                         <button type="button" onclick="location.href='/product/urlQuery'" class="btn btn-md btn-light btn-reset">초기화</button>
                                     </td>
                                 </tr>
@@ -44,75 +53,67 @@
                 </form>
                 
                 <div class="mt-3 d-flex justify-content-end">
-                    <button class="btn btn-md btn-outline-dark me-2" id="btn-select">선택상품 수집</button>
-                    <button class="btn btn-md btn-outline-success" id="btn-all">전체상품 수집</button>
+                    <button class="btn btn-md btn-outline-danger btn-del">선택 삭제</button>
                 </div>
 
                 <div class="table-responsive mt-3">
                     <table class="table table-white bg-white">
                         <thead class="table-light">
                             <tr>
-                                <th class="text-center">
+                                <th class="text-center" style="width: 50px">
                                     <label class="form-check-label" for="allCheckbox">선택</label>
                                     <input class="form-check-input" type="checkbox" id="allCheckbox">
                                 </th>
                                 <th scope="col" style="width: 50px">No</th>
-                                <th scope="col" style="width: 150px">제품ID</th>
-                                <th scope="col">제품명</th>
-                                <th scope="col">제품명(번역)</th>
-                                <th scope="col" style="width: 100px">원본이미지</th>
-                                <th scope="col" style="width: 100px">판매량</th>
-                                <th scope="col" style="width: 150px" class="text-center">
-                                    1688 소비자가<br>
-                                    옵션가격<br>
-                                    온채널가<br>
-                                    소비자가
-                                </th>
+                                <th scope="col">제목</th>
+                                <th scope="col" style="width: 100px">요청건수</th>
+                                <th scope="col" style="width: 100px">완료건수</th>
+                                <th scope="col" style="width: 100px">진행상태</th>
+                                <th scope="col" style="width: 200px">요청일자</th>
+                                <th scope="col" style="width: 200px">완료일자</th>
+                                <th scope="col" class="text-center" style="width: 150px">관리</th>
                             </tr>
                         </thead>
                         <tbody>
                             @foreach ($datas as $index => $data)
                                 <tr>
                                     <td class="text-center">
-                                        <input class="form-check-input chk-inp" type="checkbox" value="{{ $data["offerId"] }}">
+                                        <input class="form-check-input chk-inp" type="checkbox" value="{{ $data->id }}">
                                     </td>
                                     <td>
                                         {{ count($datas) - $index }}
                                     </td>
                                     <td>
-                                        <a href="https://detail.1688.com/offer/{{ $data["offerId"] }}.html" target="_blank">{{ $data["offerId"] }}</a>
+                                        {{ $data->search_title }}
                                     </td>
                                     <td>
-                                        {{ $data["subject"] }}
+                                        {{ $data->search_count }}
                                     </td>
                                     <td>
-                                        {{ $data["subjectTrans"] }}
+                                        {{ $data->search_count }}
                                     </td>
                                     <td>
-                                        @if (count($data["productImage"]["images"]) > 4)
-                                            <img class="lazy-img preview-image" data-src="{{ $data["productImage"]["images"][4] }}" width=60 height=60/>
-                                        @else
-                                            <img class="lazy-img preview-image" data-src="{{ $data["productImage"]["images"][0] }}" width=60 height=60/>
-                                        @endif
+                                        {{ ProductConstant::SEARCH_STATUS[$data->status] }}
                                     </td>
                                     <td>
-                                        @if (isset($data["soldOut"]))
-                                            {{ number_format($data["soldOut"]) }}
-                                        @else
-                                            데이터 없음
-                                        @endif
+                                        {{ $data->created_at }}
+                                    </td>
+                                    <td>
+                                        {{ $data->completed_at }}
                                     </td>
                                     <td class="text-center">
-                                        {{ $data["price_1688"] }}(元)<br>
-                                        {{ number_format($data["option_price"]) }}(원)<br>
-                                        {{ number_format($data["onch_price"]) }}(원)<br>
-                                        {{ number_format($data["cus_price"]) }}(원)<br>
+                                        <button class="btn btn-sm btn-outline-success btn-detail" searchid={{ $data->id }}>상세</button>
+                                        <button class="btn btn-sm btn-outline-danger btn-del" searchid={{ $data->id }}>삭제</button>
                                     </td>
                                 </tr>
                             @endforeach
                         </tbody>
                     </table>
                 </div>
+            </div>
+
+            <div class="d-flex justify-content-center">
+                {{ $datas->links("vendor.pagination.bootstrap-4") }}
             </div>
         </div>
 
@@ -121,13 +122,41 @@
 
     $(document).ready(function(){
         $("#form-submit").click(function(){
-            let keyword = $("#keyword").val();
-            keyword = fn_split(keyword);
-            if( keyword.length > 20 ){
-                return alert("최대 검색 수는 20개를 초과할 수 없습니다.");
+            let keyword      = $("#keyword").val();
+            let search_title = $("#search_title").val();
+            
+            if( keyword.trim() == "" ) {
+                return alert("상세 Url을 입력하세요.");
+            }
+            if( search_title.trim() == "" ) {
+                return alert("제목을 입력하세요.");
             }
 
-            $("#searchFrm").submit();
+            let formData = $("#searchFrm").serialize();
+            if(confirm(`상품 조회 요청을 하시겠습니까?`)){
+                $.ajax({
+                    "headers"    : {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
+                    "type"       : "POST",
+                    "url"        : "{{ route('w.product.productSearchData') }}",
+                    "data"       : formData,
+                    beforeSend: function () {
+                    },
+                    complete: function () {
+                    },
+                    success: function (resp) {
+                        alert(resp.msg);
+                    },
+                    error: function error(request, status, _error) {
+                        let { error } = JSON.parse(request.responseText);
+                        alert(error.message);
+                    }
+                });
+            }
+        });
+
+        $(".btn-detail").click(function(){
+            let searchid = $(this).attr("searchid");
+            location.href = `/product/urlQuery/log/${searchid}`;
         });
 
         $("#btn-select").click(function(){

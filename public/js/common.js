@@ -27,3 +27,16 @@ function fn_split(keyword) {
     
     return text;
 }
+
+function toggleCheckbox(event, cardElement) {
+    // 클릭된 요소가 a 태그나 그 자식 요소인 경우 아무 것도 하지 않음
+    if (event.target.closest('a')) {
+        return;
+    }
+
+    // 카드 내 체크박스 요소 찾기
+    const checkbox = cardElement.querySelector('.form-check-input');
+    if (checkbox) {
+        checkbox.checked = !checkbox.checked; // 체크박스 상태 토글
+    }
+}

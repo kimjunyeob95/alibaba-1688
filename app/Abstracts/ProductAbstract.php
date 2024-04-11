@@ -75,10 +75,18 @@ abstract class ProductAbstract
     /**
      * @func getImageQuery
      * @description '상품상세 URL로 수집'
-     * @param array $urls
+     * @param array $params
+     * @return LengthAwarePaginator
+     */
+    abstract function getUrlQuery(array $params): LengthAwarePaginator;
+
+    /**
+     * @func urlQueryDetail
+     * @description '상품URL 조회 상세'
+     * @param int $searchId
      * @return array
      */
-    abstract function getUrlQuery(array $urls): array;
+    abstract function urlQueryDetail(int $searchId): array;
 
     /**
      * @func getPrdCollectLogList
@@ -137,4 +145,12 @@ abstract class ProductAbstract
      * @return array
      */
     abstract function productsUpdateImages(int $offerId, array $images): array;
+
+    /**
+     * @func saveProductSearchData
+     * @description '상품상세 URL로 조회 요청'
+     * @param array $params
+     * @return void
+     */
+    abstract function saveProductSearchData(array $params): void;
 }

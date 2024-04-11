@@ -80,12 +80,23 @@ class Service1688Product
    /**
      * @func getUrlQuery
      * @description '상품상세 URL로 수집'
-     * @param array $urls
-     * @return array
+     * @param array $params
+     * @return LengthAwarePaginator
    */
-   public function getUrlQuery(array $urls): array
+   public function getUrlQuery(array $params): LengthAwarePaginator
    {
-      return $this->productAbstract->getUrlQuery($urls);
+      return $this->productAbstract->getUrlQuery($params);
+   }
+
+   /**
+    * @func urlQueryDetail
+    * @description '상품URL 조회 상세'
+    * @param int $searchId
+    * @return array
+   */
+   public function urlQueryDetail(int $searchId): array
+   {
+      return $this->productAbstract->urlQueryDetail($searchId);
    }
 
    /**
@@ -249,6 +260,18 @@ class Service1688Product
    {
       return $this->productAbstract->productsUpdateImages($offerId, $images);
    }
+
+   /**
+     * @func saveProductSearchData
+     * @description '상품상세 URL로 조회 요청'
+     * @param array $params
+     * @return void
+   */
+   public function saveProductSearchData(array $params): void
+   {
+      $this->productAbstract->saveProductSearchData($params);
+   }
+
 
    /* =========================================== 카테고리 Abstract =================================================================================== */
 
