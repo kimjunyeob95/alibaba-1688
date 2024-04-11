@@ -404,3 +404,11 @@ if ( ! function_exists('productNameValidation'))
 		return $return;
 	}
 }
+
+if (!function_exists("helperEscape")) {
+    function helperEscape(string $string): string
+    {
+        $input = str_replace("'", "'\\''", $string);
+        return "'" . $input . "'";
+    }
+}

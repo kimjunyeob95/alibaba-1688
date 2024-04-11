@@ -41,7 +41,7 @@ class WProductController extends Controller
             $offerIds = $this->request->post("offer_ids");
             $log_type = $this->request->post("log_type", LogConstant::COLLECT_API_KEYWORDQUERY);
 
-            $options = "--offerids=" . escapeshellarg(implode(",", $offerIds)) . " --type=" . escapeshellarg($log_type);
+            $options = "--offerids=" . helperEscape(implode(",", $offerIds)) . " --type=" . helperEscape($log_type);
             $command = "nohup php artisan save_1688_collect_product " . $options . " > /dev/null 2>&1 &";
             $process = Process::fromShellCommandline($command);
             $process->setWorkingDirectory(env("WORK_DIRECTORY", "/web1/1688"));
@@ -65,7 +65,7 @@ class WProductController extends Controller
                 throw new Exception(ProductErrorMessageConstant::getNotHaveErrorMessage("PRODUCT_KEYWORD"));
             }
 
-            $options = "--search_cls=" . escapeshellarg($searchCls) . " --keyword=" . escapeshellarg($keyword) . " --sort=" . escapeshellarg($sort);
+            $options = "--search_cls=" . helperEscape($searchCls) . " --keyword=" . helperEscape($keyword) . " --sort=" . helperEscape($sort);
             $command = "nohup php artisan save_1688_product_keyword_query " . $options . " > /dev/null 2>&1 &";
             $process = Process::fromShellCommandline($command);
             $process->setWorkingDirectory(env("WORK_DIRECTORY", "/web1/1688"));
@@ -125,7 +125,7 @@ class WProductController extends Controller
     
             $offerIds = $this->request->post("offer_ids");
             
-            $options = "--offerids=" . escapeshellarg(implode(",", $offerIds)) . " --type=" . escapeshellarg(LogConstant::COLLECT_API_IMAGEQUERY);
+            $options = "--offerids=" . helperEscape(implode(",", $offerIds)) . " --type=" . helperEscape(LogConstant::COLLECT_API_IMAGEQUERY);
             $command = "nohup php artisan save_1688_collect_product " . $options . " > /dev/null 2>&1 &";
             $process = Process::fromShellCommandline($command);
             $process->setWorkingDirectory(env("WORK_DIRECTORY", "/web1/1688"));
@@ -147,7 +147,7 @@ class WProductController extends Controller
                 throw new Exception(ImageErrorMessageConstant::getNotHaveErrorMessage("IMG_ID"));   
             }
 
-            $options = "--imageIds=" . $imageIds . " --sort=" . escapeshellarg($sort);
+            $options = "--imageIds=" . $imageIds . " --sort=" . helperEscape($sort);
             $command = "nohup php artisan save_1688_product_image_query " . $options . " > /dev/null 2>&1 &";
             $process = Process::fromShellCommandline($command);
             $process->setWorkingDirectory(env("WORK_DIRECTORY", "/web1/1688"));
@@ -174,7 +174,7 @@ class WProductController extends Controller
     
             $offerIds = $this->request->post("offer_ids");
             
-            $options = "--offerids=" . escapeshellarg(implode(",", $offerIds)) . " --type=" . escapeshellarg(LogConstant::COLLECT_API_URLQUERY);
+            $options = "--offerids=" . helperEscape(implode(",", $offerIds)) . " --type=" . helperEscape(LogConstant::COLLECT_API_URLQUERY);
             $command = "nohup php artisan save_1688_collect_product " . $options . " > /dev/null 2>&1 &";
             $process = Process::fromShellCommandline($command);
             $process->setWorkingDirectory(env("WORK_DIRECTORY", "/web1/1688"));
@@ -282,7 +282,7 @@ class WProductController extends Controller
             }
             $offerIds = implode(",", $offerIds);
 
-            $options = "--offerIds=" . escapeshellarg($offerIds) . " --search_title=" . escapeshellarg($search_title) . " --search_type=" . escapeshellarg($search_type);
+            $options = "--offerIds=" . helperEscape($offerIds) . " --search_title=" . helperEscape($search_title) . " --search_type=" . helperEscape($search_type);
             $command = "nohup php artisan save_product_search_data " . $options . " > /dev/null 2>&1 &";
             $process = Process::fromShellCommandline($command);
             $process->setWorkingDirectory(env("WORK_DIRECTORY", "/web1/1688"));
