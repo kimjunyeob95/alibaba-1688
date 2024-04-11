@@ -414,9 +414,11 @@ class ProductV1 extends ProductAbstract
             "type"       => $type,
             "status"     => LogConstant::COLLECT_RUNNING,
             "payload"    => implode(", ", $offerIds),
-            "log_count"  => count($offerIds),
+            "log_count"  => 0,
             "created_at" => Carbon::now()
         ]);
+        $successCnt = 0;
+        $failCnt    = 0;
         foreach ($offerIds as $offerId) {
             $offerId = trim($offerId);
             try {
@@ -462,6 +464,8 @@ class ProductV1 extends ProductAbstract
                     "is_collect" => LogConstant::COLLECT_DETAIL_Y,
                     "msg"        => ""
                 ]);
+
+                $successCnt++;
             } catch (Exception $e) {
                 $msg = "offerId: {$offerId} | error: " . $e->getMessage();
                 debug_log($msg, "collectProduct/".$type, $type, LogLevel::ERROR);
@@ -472,11 +476,14 @@ class ProductV1 extends ProductAbstract
                     "is_collect" => LogConstant::COLLECT_DETAIL_N,
                     "msg"        => $e->getMessage()
                 ]);
+
+                $failCnt++;
             }
         }
 
         ProductCollectLog::where("id", $logId)->update([
             "status"       => LogConstant::COLLECT_COMPLETE,
+            "log_count"    => $successCnt + $failCnt,
             "completed_at" => Carbon::now()
         ]);
     }
@@ -487,9 +494,11 @@ class ProductV1 extends ProductAbstract
             "type"       => LogConstant::COLLECT_API_KEYWORDQUERY,
             "status"     => LogConstant::COLLECT_RUNNING,
             "payload"    => implode(", ", $offerIds),
-            "log_count"  => count($offerIds),
+            "log_count"  => 0,
             "created_at" => Carbon::now()
         ]);
+        $successCnt = 0;
+        $failCnt    = 0;
         foreach ($offerIds as $offerId) {
             try {
                 $endPoint = "param2/1/com.alibaba.fenxiao.crossborder/product.search.queryProductDetail/";
@@ -534,6 +543,8 @@ class ProductV1 extends ProductAbstract
                     "is_collect" => LogConstant::COLLECT_DETAIL_Y,
                     "msg"        => ""
                 ]);
+
+                $successCnt++;
             } catch (Exception $e) {
                 $msg = "offerId: {$offerId} | error: " . $e->getMessage();
                 debug_log($msg, "collectProduct", "collectProduct", LogLevel::ERROR);
@@ -544,11 +555,14 @@ class ProductV1 extends ProductAbstract
                     "is_collect" => LogConstant::COLLECT_DETAIL_N,
                     "msg"        => $e->getMessage()
                 ]);
+
+                $failCnt++;
             }
         }
 
         ProductCollectLog::where("id", $logId)->update([
             "status"       => LogConstant::COLLECT_COMPLETE,
+            "log_count"    => $successCnt + $failCnt,
             "completed_at" => Carbon::now()
         ]);
     }
@@ -1034,20 +1048,12 @@ class ProductV1 extends ProductAbstract
         }
 
         try {
-            $endPoint = "param2/1/com.alibaba.fenxiao.crossborder/product.search.keywordQuery/";
-            
-            $payload["offerQueryParam"]["beginPage"] = $page;
-            $payload["offerQueryParam"]["pageSize"]  = $pageSize;
-
-            $apiDatas     = curl_1688("POST", $endPoint, $payload);
-            $totalRecords = $apiDatas["data"]["result"]["result"]["totalRecords"];
-
             $payload_json = json_encode($payload["offerQueryParam"], JSON_UNESCAPED_UNICODE);
             $logId = ProductCollectLog::insertGetId([
                 "type"       => LogConstant::COLLECT_API_KEYWORDQUERY_ALL,
                 "status"     => LogConstant::COLLECT_RUNNING,
                 "payload"    => $payload_json,
-                "log_count"  => (int)$totalRecords,
+                "log_count"  => 0,
                 "created_at" => Carbon::now()
             ]);
 
@@ -1058,8 +1064,12 @@ class ProductV1 extends ProductAbstract
             debug_log($msg, "collectProduct/keywordQueryAll", "keywordQueryAll", LogLevel::ERROR);
         }
 
+        $log_count = ProductCollectDetailLog::where([
+            "log_id" => $logId
+        ])->count();
         ProductCollectLog::where("id", $logId)->update([
             "status"       => LogConstant::COLLECT_COMPLETE,
+            "log_count"    => $log_count,
             "completed_at" => Carbon::now()
         ]);
 
@@ -1267,7 +1277,7 @@ class ProductV1 extends ProductAbstract
                 "type"       => LogConstant::COLLECT_API_IMAGEQUERY_ALL,
                 "status"     => LogConstant::COLLECT_RUNNING,
                 "payload"    => implode(",", $imageIds),
-                "log_count"  => count($imageIds),
+                "log_count"  => 0,
                 "created_at" => Carbon::now()
             ]);
 
@@ -1289,8 +1299,12 @@ class ProductV1 extends ProductAbstract
             debug_log($msg, "collectProduct/imageQueryAll", "imageQueryAll", LogLevel::ERROR);
         }
 
+        $log_count = ProductCollectDetailLog::where([
+            "log_id" => $logId
+        ])->count();
         ProductCollectLog::where("id", $logId)->update([
             "status"       => LogConstant::COLLECT_COMPLETE,
+            "log_count"    => $log_count,
             "completed_at" => Carbon::now()
         ]);
 
