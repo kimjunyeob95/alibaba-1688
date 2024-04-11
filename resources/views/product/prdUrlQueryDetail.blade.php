@@ -5,6 +5,17 @@
 @extends('dashboard.base')
 
 @section('styles')
+<style>
+    .img-limited {
+        max-height: 150px; /* 이미지 최대 높이 */
+        width: 100%; /* 너비를 카드에 맞춤 */
+        object-fit: contain; /* 이미지가 카드 너비에 맞춰 잘리도록 설정 */
+    }
+    .body-limited {
+        max-height: 250px; /* card-body 최대 높이 */
+        overflow-y: auto; /* 내용이 넘치면 스크롤바 생성 */
+    }
+</style>
 @endsection
 
 @section('scripts')
@@ -54,12 +65,12 @@
                                 <div class="col-12 col-sm-6 col-md-4 col-lg-3 mb-4">
                                     <div class="card h-100" onclick="toggleCheckbox(event, this)">
                                         <div class="position-relative">
-                                            <img src="{{ $detail->prd_image }}" class="card-img-top" alt="이미지 설명">
+                                            <img src="{{ $detail->prd_image }}" class="card-img-top img-limited" alt="이미지 설명">
                                             <div class="position-absolute" style="top: 10px; left: 10px;">
                                                 <input type="checkbox" class="form-check-input chk-inp" value="{{ $detail->offer_id }}">
                                             </div>
                                         </div>
-                                        <div class="card-body">
+                                        <div class="card-body body-limited">
                                             <p class="card-text">
                                                 <a href="https://detail.1688.com/offer/{{ $detail->offer_id }}.html" target="_blank">
                                                     offerID: {{ $detail->offer_id }}
@@ -135,7 +146,7 @@
                     "headers"    : {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
                     "type"       : "POST",
                     "url"        : "{{ route('w.product.collectProduct') }}",
-                    "data"       : { offer_ids },
+                    "data"       : { offer_ids, log_type },
                     beforeSend: function () {
                     },
                     complete: function () {

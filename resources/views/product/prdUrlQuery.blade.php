@@ -53,7 +53,7 @@
                 </form>
                 
                 <div class="mt-3 d-flex justify-content-end">
-                    <button class="btn btn-md btn-outline-danger btn-del">선택 삭제</button>
+                    <button class="btn btn-md btn-outline-danger" id="btn-all-del">선택 삭제</button>
                 </div>
 
                 <div class="table-responsive mt-3">
@@ -90,7 +90,7 @@
                                         {{ $data->search_count }}
                                     </td>
                                     <td>
-                                        {{ $data->search_count }}
+                                        {{ $data->details_y_cnt() }}
                                     </td>
                                     <td>
                                         {{ ProductConstant::SEARCH_STATUS[$data->status] }}
@@ -159,18 +159,20 @@
             location.href = `/product/urlQuery/log/${searchid}`;
         });
 
-        $("#btn-select").click(function(){
-            let offer_ids = [];
+        $("#btn-all-del").click(function(){
+            let ids = [];
 
-            $(".chk-inp:checked").each(function(index, element){
-                offer_ids.push($(this).val());
+            $(".chk-inp").each(function(index, element){
+                ids.push($(this).val());
             });
 
-            if(offer_ids.length < 1){
+            if(ids.length < 1){
                 return alert("선택 된 상품이 없습니다.");
             }
 
-            if(confirm(`${offer_ids.length}건의 상품을 수집 하시겠습니까?`)){
+            return alert("준비중..");
+
+            if(confirm(`${ids.length}건의 요청을 삭제 하시겠습니까?`)){
                 $.ajax({
                     "headers"    : {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
                     "type"       : "POST",
@@ -191,18 +193,16 @@
             }
         });
 
-        $("#btn-all").click(function(){
-            let offer_ids = [];
+        $(".btn-del").click(function(){
+            let ids = [$(this).val()];
 
-            $(".chk-inp").each(function(index, element){
-                offer_ids.push($(this).val());
-            });
-
-            if(offer_ids.length < 1){
-                return alert("검색 된 상품이 없습니다.");
+            if(ids.length < 1){
+                return alert("선택 된 상품이 없습니다.");
             }
 
-            if(confirm(`${offer_ids.length}건의 상품을 수집 하시겠습니까?`)){
+            return alert("준비중..");
+
+            if(confirm(`해당 요청을 삭제 하시겠습니까?`)){
                 $.ajax({
                     "headers"    : {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
                     "type"       : "POST",
