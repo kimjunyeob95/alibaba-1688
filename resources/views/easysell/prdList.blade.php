@@ -99,7 +99,7 @@
                                 <option value=10 @if($pageSize == 10) selected @endif>10개 노출</option>
                             </select>
                         </div>
-                        <button class="btn btn-md btn-outline-dark me-2" id="btn-select">상품전송</button>
+                        <button type="button" class="btn btn-md btn-outline-dark me-2" id="btn-select">상품전송</button>
                     </div>
                 </form>
 
@@ -152,17 +152,15 @@
                                         @endif
                                     </td>
                                     <td class="text-center">
-                                        @isset($data->easysell)
-                                            @if($data->easysell->regist_success == MallConstant::REGIST_SUCCESS)
-                                                {{$data->easysell->itemno}}
-                                            @endif
+                                        @if($data->regist_success == MallConstant::REGIST_SUCCESS)
+                                            {{$data->itemno}}
                                         @else
                                             <span class="text-danger">미등록</span>
                                         @endisset
                                     </td>
                                     <td class="text-center">
-                                        <button class="btn btn-sm btn-outline-success btn-detail" offerid={{ $data->offer_id }}>상세보기</button>
-                                        <button class="btn btn-sm btn-outline-primary btn-regist" offerid={{ $data->offer_id }}>상품전송</button>
+                                        <button type="button" class="btn btn-sm btn-outline-success btn-detail" offerid={{ $data->offer_id }}>상세보기</button>
+                                        <button type="button" class="btn btn-sm btn-outline-primary btn-regist" offerid={{ $data->offer_id }}>상품전송</button>
                                     </td>
                                 </tr>
                             @endforeach
@@ -208,7 +206,25 @@
                         $("#loadingOverlay").hide();
                     },
                     success: function (resp) {
-                        alert("전송 요청이 완료되었습니다.\n이미 전송 된 상품은 수정 반영 됩니다.");
+                        var alertMessage = "전송 요청이 완료되었습니다.\n이미 전송 된 상품은 수정 반영 됩니다.";
+                        if(resp.data.fail.length > 0){
+                            var fail = resp.data.fail;
+                            var groupedMessages = {};
+
+                            alertMessage += "\n";
+                            $.each(fail, function(index, item) {
+                                if (!groupedMessages[item.msg]) {
+                                    groupedMessages[item.msg] = [];
+                                }
+                                groupedMessages[item.msg].push(item.offer_id);
+                            });
+
+                            $.each(groupedMessages, function(msg, offer_ids) {
+                                alertMessage += "\n"+ msg + " [" + offer_ids.join(", ") + "]";
+                            });
+                        }
+
+                        alert(alertMessage);
                     },
                     error: function error(request, status, _error) {
                         let { error } = JSON.parse(request.responseText);
@@ -243,7 +259,25 @@
                         $("#loadingOverlay").hide();
                     },
                     success: function (resp) {
-                        alert("전송 요청이 완료되었습니다.\n이미 전송 된 상품은 수정 반영 됩니다.");
+                        var alertMessage = "전송 요청이 완료되었습니다.\n이미 전송 된 상품은 수정 반영 됩니다.";
+                        if(resp.data.fail.length > 0){
+                            var fail = resp.data.fail;
+                            var groupedMessages = {};
+
+                            alertMessage += "\n";
+                            $.each(fail, function(index, item) {
+                                if (!groupedMessages[item.msg]) {
+                                    groupedMessages[item.msg] = [];
+                                }
+                                groupedMessages[item.msg].push(item.offer_id);
+                            });
+
+                            $.each(groupedMessages, function(msg, offer_ids) {
+                                alertMessage += "\n"+ msg + " [" + offer_ids.join(", ") + "]";
+                            });
+                        }
+
+                        alert(alertMessage);
                     },
                     error: function error(request, status, _error) {
                         let { error } = JSON.parse(request.responseText);
