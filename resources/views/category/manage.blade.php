@@ -142,7 +142,8 @@
                                             </p>
                                         @else
                                             <p>
-                                                {{ ProductConstant::MAPPING_STATUS[ProductConstant::MAPPING_STATUS_Y] }}
+                                                {{ ProductConstant::MAPPING_STATUS[ProductConstant::MAPPING_STATUS_Y] }}<br>
+                                                {{ $data->mapping_code }}
                                             </p>
                                         @endif
                                     </td>
