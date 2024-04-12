@@ -359,11 +359,11 @@ class EasySell extends MallApiAbstract
                 $replacementArr = array("-","\,","-");
                 $optionNm       = str_replace($replaceArr, $replacementArr ,$option->option_name_trans);
 
+                $stock = 0;
                 if($option->status == ProductConstant::OPTION_SEC_ON_SALE_NUMBER){
                     $saleStatus = EasySellConstant::STATUS_ON_SALE;
                     $stock      = $option->amount_on_sale;
                 }
-                $stock = 0;
 
                 $unitInfo .= "{$optionNm}^^{$stock}^^{$setPrice}^^{$setPrice}^^{$option->option_price}::{$option->id}";
             }
