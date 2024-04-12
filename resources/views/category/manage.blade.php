@@ -206,10 +206,10 @@
         });
 
         $(".btn-detail").click(function(){
-            alert("준비중...");
-        })
+            return alert("준비중...");
+        });
         
-    })
+    });
 </script>
 
 @endsection
