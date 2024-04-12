@@ -64,6 +64,9 @@ class EasySell extends MallApiAbstract
                 if( $prdObj->trans_status != ProductConstant::IMG_TRANS_Y ){
                     throw new Exception(MallErrorMessageConstant::getFitErrorMessage("NOT_TRANS_IMG"));
                 }
+                if( $prdObj->mapping_status != ProductConstant::MAPPING_STATUS_Y ){
+                    throw new Exception(MallErrorMessageConstant::getFitErrorMessage("NOT_MAPPING_CATE"));
+                }
 
                 $paramsResult = $this->_getPrdParams($prdObj, EasySellConstant::ITEM_REGIST);
                 if( $paramsResult["isSuccess"] == true ){
