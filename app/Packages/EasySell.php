@@ -57,7 +57,7 @@ class EasySell extends MallApiAbstract
                     "extends",
                     "options",
                     "notices",
-                    "oc_mapping"
+                    "es_mapping"
                 ])->where("offer_id", $offerId)->first();
 
                 if( $prdObj == null ){
@@ -162,7 +162,7 @@ class EasySell extends MallApiAbstract
                     "extends",
                     "options",
                     "notices",
-                    "oc_mapping"
+                    "es_mapping"
                 ])->where("offer_id", $offerId)->first();
 
                 if( $prdObj == null ){
@@ -261,7 +261,7 @@ class EasySell extends MallApiAbstract
         try {
             DB::beginTransaction();
 
-            $categoryObj = CategoryMapping::where("mapping_channel", MallConstant::MALL_ONCHANNEL)->get();
+            $categoryObj = CategoryMapping::where("mapping_channel", ProductConstant::MAPPING_OC_CHANNEL)->get();
             $categoryArr = $categoryObj->pluck("mapping_code","category_id")->toArray();
 
             $easysellCategory = OnchCategoryExcelDataCopy2::select("codenum","sellerhub_cate")
@@ -307,11 +307,10 @@ class EasySell extends MallApiAbstract
             $offerId = $prdObj->offer_id;
 
             //카테고리 매핑
-            $categoryId = $prdObj->oc_mapping->mapping_code;
-            $cateObj = OnchCategoryExcelDataCopy2::select("sellerhub_cate")->where("codenum",$categoryId)->first();
-            if(!isset($cateObj)){
+            if(!isset($prdObj->es_mapping) || empty($prdObj->es_mapping->mapping_code)){
                 throw new Exception("카테고리 정보가 없습니다");
             }
+            $categoryId = $prdObj->es_mapping->mapping_code;
 
             //연령제한 상품여부
             if($prdObj->minor_not_sale == ProductConstant::MINOR_NOT_SALE_YES){
@@ -372,7 +371,7 @@ class EasySell extends MallApiAbstract
 
             $voParams = [
                 "ItemNo"                => $offerId,
-                "ItemCategory"          => $cateObj->sellerhub_cate,
+                "ItemCategory"          => $categoryId,
                 "ItemName"              => $ItemName,
                 "ItemGoodCode"          => $ItemGoodCode,
                 "ItemDesc"              => $ItemName,
