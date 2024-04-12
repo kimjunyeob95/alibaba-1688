@@ -6,7 +6,8 @@ namespace App\Constants;
 class MallConstant
 {
     // Mall 리스트
-    public const MALL_EASYSELL = "easySell";
+    public const MALL_ONCHANNEL = "onchannel";
+    public const MALL_EASYSELL  = "easySell";
 
     //상품등록상태 (등록 / 미등록)
     public const UNREGIST = "S";

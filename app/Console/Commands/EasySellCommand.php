@@ -31,12 +31,20 @@ class EasySellCommand extends Command
              * php artisan easy_sell_command --func=productRegist --offerids=44798792934,562321147241
              */
             case 'productRegist':
-            default:
                 $offerIds = explode(",", $this->option('offerids'));
                 if (!empty($offerIds)) {
                     $result = $this->mallApiService->productRegist($offerIds);
                     dd($result);
                 }
+                break;
+            /**
+             * 온채널 매핑데이터 사용하여 이지셀 카테고리 매핑
+             */
+            case 'categoryMapping':
+                $result = $this->mallApiService->categoryMapping();
+                dd($result);
+                break;
+            default:
                 break;
         }
     }

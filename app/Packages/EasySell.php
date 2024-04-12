@@ -7,12 +7,14 @@ use App\Constants\EasySellConstant;
 use App\Constants\MallConstant;
 use App\Constants\MallErrorMessageConstant;
 use App\Constants\ProductConstant;
+use App\Models\CategoryMapping;
 use App\Models\EasysellProductLog;
 use App\Models\OnchCategoryExcelDataCopy2;
 use App\Models\ProductData;
 use App\Vo\EasySell\EasySellProductVo;
 use Carbon\Carbon;
 use Exception;
+use Illuminate\Support\Facades\DB;
 
 class EasySell extends MallApiAbstract
 {
@@ -169,6 +171,9 @@ class EasySell extends MallApiAbstract
                 if( $prdObj->trans_status != ProductConstant::IMG_TRANS_Y ){
                     throw new Exception(MallErrorMessageConstant::getFitErrorMessage("NOT_TRANS_IMG"));
                 }
+                if( $prdObj->mapping_status != ProductConstant::MAPPING_STATUS_Y ){
+                    throw new Exception(MallErrorMessageConstant::getFitErrorMessage("NOT_MAPPING_CATE"));
+                }
 
                 $paramsResult = $this->_getPrdParams($prdObj, EasySellConstant::ITEM_MODI, $easyObj->itemno);
                 if( $paramsResult["isSuccess"] == true ){
@@ -238,6 +243,48 @@ class EasySell extends MallApiAbstract
         try {
             $returnMsg = helpers_success_message($params);
         } catch (Exception $e) {
+            $returnMsg = helpers_fail_message($e->getMessage());
+        }
+
+        return $returnMsg;
+    }
+
+    /**
+     * @func categoryMapping
+     * @description '카테고리 매핑 저장'
+     *
+     * @return array
+     */
+    public function categoryMapping(): array
+    {
+        $returnMsg = $this->returnMsg;
+        try {
+            DB::beginTransaction();
+
+            $categoryObj = CategoryMapping::where("mapping_channel", MallConstant::MALL_ONCHANNEL)->get();
+            $categoryArr = $categoryObj->pluck("mapping_code","category_id")->toArray();
+
+            $easysellCategory = OnchCategoryExcelDataCopy2::select("codenum","sellerhub_cate")
+                ->whereIn("codenum", $categoryArr)
+                ->where("sellerhub_cate", "!=", "")
+                ->whereNotNull("sellerhub_cate")
+                ->pluck("sellerhub_cate", "codenum")
+                ->toArray();
+
+            foreach($categoryObj as $data){
+                CategoryMapping::updateOrCreate([
+                        "category_id" => $data->category_id,
+                        "mapping_channel" => MallConstant::MALL_EASYSELL
+                    ],[
+                        "mapping_code"    => $easysellCategory[$data['mapping_code']] ?? 0
+                    ]);
+            }
+
+            $returnMsg = helpers_success_message();
+
+            DB::commit();
+        } catch (Exception $e) {
+            DB::rollback();
             $returnMsg = helpers_fail_message($e->getMessage());
         }
 
