@@ -49,4 +49,27 @@ abstract class CategoryAbstract
      * @return void
      */
     abstract function saveCategoryMapping(): void;
+
+    /**
+     * @func saveWCategoryMapping
+     * @description 'categories 테이블의 데이터들을 w_categories 테이블로 정리'
+     * @return void
+     */
+    abstract function saveWCategoryMapping(): void;
+
+    /**
+     * @func cateList
+     * @description '카테고리 리스트'
+     * @param array $params
+     * @return array
+    */
+    abstract function cateList(array $params): array;
+
+    /**
+     * @func getDepth
+     * @description '하위 카테고리 조회'
+     * @param int $categoryId '카테고리 ID'
+     * @return array
+     */
+    abstract function getDepth(int $categoryId): array;
 }

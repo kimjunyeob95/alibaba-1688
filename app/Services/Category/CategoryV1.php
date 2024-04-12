@@ -9,6 +9,7 @@ use App\Constants\ProductConstant;
 use App\Models\Category;
 use App\Models\CategoryMapping;
 use App\Models\CategoryTree;
+use App\Models\WCategory;
 use Exception;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\File;
@@ -460,4 +461,188 @@ class CategoryV1 extends CategoryAbstract
         debug_log($msg, "saveCategoryMappingLog", "saveCategoryMappingLog");
     }
 
+    public function saveWCategoryMapping(): void
+    {
+        try {
+            $filePath          = public_path('app/w_categories.txt');
+            $mappingCategories = [];
+            if (File::exists($filePath)) {
+                $lines = File::lines($filePath);
+                foreach ($lines as $line) {
+                    $data         = explode(',', $line);
+                    $category_id  = trim($data[0]);
+                    $mapping_code = trim($data[1]);
+                    $cate_first   = "";
+                    $cate_second  = "";
+                    $cate_third   = "";
+                    $cate_fourth  = "";
+                    if( $category_id == "미 매핑" ) continue;
+
+                    if( isset($data[2]) ){
+                        $cate_first  = trim($data[2]);
+                    }
+                    if( isset($data[3]) ){
+                        $cate_second  = trim($data[3]);
+                    }
+                    if( isset($data[4]) ){
+                        $cate_third  = trim($data[4]);
+                    }
+                    if( isset($data[5]) ){
+                        $cate_fourth  = trim($data[5]);
+                    }
+                    $mappingCategories[] = [
+                        "category_id"  => $category_id,
+                        "mapping_code" => $mapping_code,
+                        "cate_first"   => $cate_first,
+                        "cate_second"  => $cate_second,
+                        "cate_third"   => $cate_third,
+                        "cate_fourth"  => $cate_fourth
+                    ];
+                }
+            } else {
+                throw new Exception("파일이 존재하지 않습니다.");
+            }
+
+            foreach ($mappingCategories as $cate) {
+                $category_id  = $cate["category_id"];
+                $mapping_code = $cate["mapping_code"];
+                $cate_first   = $cate["cate_first"];
+                $cate_second  = $cate["cate_second"];
+                $cate_third   = $cate["cate_third"];
+                $cate_fourth  = $cate["cate_fourth"];
+
+                $upsertWhere = [
+                    "mapping_code" => $mapping_code,
+                    "cate_first"   => $cate_first,
+                    "cate_second"  => $cate_second,
+                    "cate_third"   => $cate_third,
+                    "cate_fourth"  => $cate_fourth,
+                ];
+                WCategory::updateOrCreate(
+                    ["category_id" => $category_id],
+                    $upsertWhere
+                );
+            }
+        } catch (Exception $e) {
+            dd($e->getMessage());
+        }
+        dd("끝");
+    }
+
+    public function cateList(array $params): array
+    {
+        $returnMsg = $this->returnMsg;
+        
+        try {
+            $keyword        = $params["keyword"];
+            $mapping_status = $params["mapping_status"];
+            $cate_first     = $params["cate_first"];
+            $cate_second    = $params["cate_second"];
+            $cate_third     = $params["cate_third"];
+
+            $firstCateObjs  = [];
+            $secondCateObjs = [];
+            $thirdCateObjs  = [];
+            if( $cate_first == "" ){
+                $firstCateObjs = Category::where("parent_cate_id", 0)->orderBy("category_name", "asc")->get();
+            }else {
+                if( $cate_first && $cate_second ){
+                    $firstCateObjs  = Category::where("parent_cate_id", 0)->orderBy("category_name", "asc")->get();
+                    $secondCateObjs = Category::where("parent_cate_id", $cate_first)->orderBy("category_name", "asc")->get();
+                    $thirdCateObjs  = Category::where("parent_cate_id", $cate_second)->orderBy("category_name", "asc")->get();
+                } else if( $cate_first ){
+                    $firstCateObjs  = Category::where("parent_cate_id", 0)->orderBy("category_name", "asc")->get();
+                    $secondCateObjs = Category::where("parent_cate_id", $cate_first)->orderBy("category_name", "asc")->get();
+                }
+            }
+
+            $qryBuilder = WCategory::with(["categoryTree"])
+            ->orderBy("cate_first", "asc")
+            ->orderBy("cate_second", "asc")
+            ->orderBy("cate_third", "asc")
+            ->orderBy("cate_fourth", "asc");
+            
+            if( $mapping_status == ProductConstant::MAPPING_STATUS_Y ){
+                $qryBuilder->where("mapping_code", "!=", "0");
+            } else if( $mapping_status == ProductConstant::MAPPING_STATUS_N ){
+                $qryBuilder->where("mapping_code", "0");
+            }
+
+            if( $cate_third ){
+                $qryBuilder->where("category_id", $cate_third);
+            } else if( $cate_second ){
+                $searchArr = [$cate_second];
+                foreach ($thirdCateObjs as $thirdCateObj) {
+                    $searchArr[] = $thirdCateObj->category_id;
+                }
+                $qryBuilder->whereIn("category_id", $searchArr);
+            } else if( $cate_first ){
+                $searchArr = [$cate_first];
+                foreach ($secondCateObjs as $secondCateObj) {
+                    $searchArr[] = $secondCateObj->category_id;
+                    $thirdObjs   = Category::select("category_id")->where("parent_cate_id", $secondCateObj->category_id)->get();
+                    foreach ($thirdObjs as $thirdObj) {
+                        $searchArr[] = $thirdObj->category_id;
+                    }
+                }
+                $qryBuilder->whereIn("category_id", $searchArr);
+            }
+
+            if( !empty($keyword) ){
+                $qryBuilder->where(function($query1) use ($keyword) {
+                    $query1->whereHas('categoryTree', function ($query2) use ($keyword) {
+                        $query2->where("cate_first", "like", "%" . $keyword . "%")
+                        ->orWhere("cate_second", "like", "%" . $keyword . "%")
+                        ->orWhere("cate_third", "like", "%" . $keyword . "%")
+                        ->orWhere("cate_fourth", "like", "%" . $keyword . "%");
+                    })->orWhere(function($query) use ($keyword) {
+                        $query->where("cate_first", "like", "%" . $keyword . "%")
+                            ->orWhere("cate_second", "like", "%" . $keyword . "%")
+                            ->orWhere("cate_third", "like", "%" . $keyword . "%")
+                            ->orWhere("cate_fourth", "like", "%" . $keyword . "%");
+                    });
+                });
+            }
+
+            $cateObjs = $qryBuilder->get();
+
+            $result = [
+                "cateObjs"       => $cateObjs,
+                "firstCateObjs"  => $firstCateObjs,
+                "secondCateObjs" => $secondCateObjs,
+                "thirdCateObjs"  => $thirdCateObjs,
+            ];
+            $returnMsg = helpers_success_message($result);
+        } catch (Exception $e) {
+            $returnMsg = helpers_fail_message(false, $e->getMessage());
+        }
+
+        return $returnMsg;
+    }
+
+    public function getDepth(int $categoryId): array
+    {
+        $returnMsg = $this->returnMsg;
+        
+        try {
+            $cateObj = Category::where("category_id", $categoryId)->first();
+            if( $cateObj == null ){
+                throw new Exception(CategoryErrorMessageConstant::getNotHaveErrorMessage("CATEGORY"));
+            }
+
+            $nextCateObjs = Category::where("parent_cate_id", $categoryId)->orderBy("category_name", "asc")->get();
+            $datas = [];
+            foreach ($nextCateObjs as $nextCateObj) {
+                $datas[] = [
+                    "category_id"   => $nextCateObj->category_id,
+                    "category_name" => $nextCateObj->category_name,
+                ];
+            }
+            $returnMsg = helpers_success_message($datas);
+        } catch (Exception $e) {
+            $returnMsg = helpers_fail_message(false, $e->getMessage());
+        }
+
+        return $returnMsg;
+    }
 }

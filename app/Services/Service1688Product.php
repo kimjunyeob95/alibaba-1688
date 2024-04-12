@@ -348,4 +348,36 @@ class Service1688Product
    {
       $this->categoryAbstract->saveCategoryMapping();
    }
+
+   /**
+     * @func saveWCategoryMapping
+     * @description 'categories 테이블의 데이터들을 w_categories 테이블로 정리'
+     * @return void
+   */
+   public function saveWCategoryMapping(): void
+   {
+      $this->categoryAbstract->saveWCategoryMapping();
+   }
+
+   /**
+     * @func cateList
+     * @description '카테고리 리스트'
+     * @param array $params
+     * @return array
+   */
+   public function cateList(array $params): array
+   {
+      return $this->categoryAbstract->cateList($params);
+   }
+
+   /**
+     * @func getDepth
+     * @description '하위 카테고리 조회'
+     * @param int $categoryId '카테고리 ID'
+     * @return array
+   */
+   public function getDepth(int $categoryId): array
+   {
+      return $this->categoryAbstract->getDepth($categoryId);
+   }
 }

@@ -51,6 +51,11 @@ Route::name('w.')->prefix('w')->group(function () {
         // 1688 상품 조회 요청
         Route::post('/searchData', [WProductController::class, 'productSearchData'])->name('productSearchData');
     });
+
+    Route::name('category.')->prefix('category')->group(function () {
+        // 하위 카테고리 조회
+        Route::get('/depth/{categoryId}', [WCategoryController::class, 'getDepth'])->name('getDepth');
+    });
 });
 
 /**

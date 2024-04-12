@@ -68,19 +68,12 @@
             </ul>
         </li>
         <li class="nav-group">
-            <a class="nav-link nav-group-toggle" href="javascript:;">
+            <a class="nav-link" href="/category">
                 <svg class="nav-icon">
                     <use xlink:href="/vendors/@coreui/icons/svg/free.svg#cil-3d"></use>
                 </svg>
-                카테고리
+                카테고리 관리
             </a>
-            <ul class="nav-group-items">
-                <li class="nav-item">
-                    <a class="nav-link" href="/category/list">
-                        카테고리 리스트
-                    </a>
-                </li>
-            </ul>
         </li>
         <li class="nav-title">이지셀</li>
         <li class="nav-group">
