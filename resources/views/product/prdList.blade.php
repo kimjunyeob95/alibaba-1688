@@ -31,6 +31,7 @@
 
                 <form id="searchFrm">
                     <input type="hidden" name="trans_status" value={{ $trans_status }}>
+                    <input type="hidden" name="mapping_status" value={{ $mapping_status }}>
 
                     <div class="card">
                         <div class="card-header">
@@ -57,10 +58,23 @@
                                 <tr class="align-middle">
                                     <th style="width: 120px">상품 번역</th>
                                     <td style="width: 200px">
-                                        <button type="button" class="btn-trans-img-type btn btn-md {{ $trans_status == ProductConstant::TRANS_STATUS_Y ? "btn-primary" : "btn-dark" }}"
+                                        <button type="button" name="trans_status" class="btn-status btn btn-md {{ $trans_status == ProductConstant::TRANS_STATUS_Y ? "btn-primary" : "btn-dark" }}"
                                         value="{{ ProductConstant::TRANS_STATUS_Y }}">완료</button>
-                                        <button type="button" class="btn-trans-img-type btn btn-md {{ $trans_status == ProductConstant::TRANS_STATUS_N ? "btn-primary" : "btn-dark" }}"
+                                        <button type="button" name="trans_status" class="btn-status btn btn-md {{ $trans_status == ProductConstant::TRANS_STATUS_N ? "btn-primary" : "btn-dark" }}"
                                         value="{{ ProductConstant::TRANS_STATUS_N }}">미완료</button>
+                                    </td>
+                                    <td colspan="2">
+                                    </td>
+                                </tr>
+                                <tr class="align-middle">
+                                    <th style="width: 120px">카테고리 맵핑</th>
+                                    <td style="width: 200px">
+                                        <button type="button" name="mapping_status" class="btn-status btn btn-md {{ $mapping_status == "" ? "btn-primary" : "btn-dark" }}"
+                                        value="">전체</button>
+                                        <button type="button" name="mapping_status" class="btn-status btn btn-md {{ $mapping_status == ProductConstant::MAPPING_STATUS_Y ? "btn-primary" : "btn-dark" }}"
+                                        value="{{ ProductConstant::MAPPING_STATUS_Y }}">맵핑</button>
+                                        <button type="button" name="mapping_status" class="btn-status btn btn-md {{ $mapping_status == ProductConstant::MAPPING_STATUS_N ? "btn-primary" : "btn-dark" }}"
+                                        value="{{ ProductConstant::MAPPING_STATUS_N }}">미맵핑</button>
                                     </td>
                                     <td colspan="2">
                                     </td>
@@ -140,6 +154,9 @@
                                     </td>
                                     <td>
                                         <a href="https://detail.1688.com/offer/{{ $data->offer_id }}.html" target="_blank">{{ $data->offer_id }}</a>
+                                        @if ($data->mapping_status == ProductConstant::MAPPING_STATUS_N)
+                                            <p class="text-danger">*카테고리 미맵핑</p>
+                                        @endif
                                     </td>
                                     <td>
                                         {{ $data->prd_name }}
@@ -202,8 +219,9 @@
             $("#searchFrm").submit();
         });
 
-        $(".btn-trans-img-type").click(function(){
-            $("input[name=trans_status]").val($(this).val());
+        $(".btn-status").click(function(){
+            let name = $(this).attr("name");
+            $(`input[name=${name}]`).val($(this).val());
             $("#searchFrm").submit();            
         });
 

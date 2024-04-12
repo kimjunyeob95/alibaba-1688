@@ -32,7 +32,6 @@ class CreateProductDatasTable extends Migration
             $table->unsignedInteger('prd_channel')->default(22)->nullable(false)->comment('제품채널');
             $table->unsignedInteger('prd_rule')->default(1)->nullable(false)->comment('판매가 준수여부');
             $table->enum('trans_status', ["N", "Y"])->default("N")->nullable(false)->comment('번역 완료 여부 N: 변역 미완료, Y: 번역 완료');
-            $table->longText('response_json')->nullable(false)->comment('응답 전문');
 
             $table->timestamps();
             $table->softDeletes();

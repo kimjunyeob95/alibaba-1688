@@ -18,7 +18,7 @@ class ProductSearchData extends Model
 
     public function details()
     {
-        return $this->hasMany(ProductSearchDetailData::class, "search_id", "id")->orderBy("created_at", "desc");
+        return $this->hasMany(ProductSearchDetailData::class, "search_id", "id")->orderBy("sold_out", "desc");
     }
 
     public function details_y_cnt()

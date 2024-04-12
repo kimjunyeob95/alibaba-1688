@@ -27,28 +27,31 @@ class ProductController extends Controller
         $search_cls     = $this->request->get("search_cls", "offer_id");
         $keyword        = $this->request->get("keyword", "");
         $trans_status   = $this->request->get("trans_status", ProductConstant::TRANS_STATUS_Y);
+        $mapping_status = $this->request->get("mapping_status", "");
         $offset         = ($page - 1) * $pageSize;
 
         $params = [
-            "page"         => $page,
-            "pageSize"     => $pageSize,
-            "search_cls"   => $search_cls,
-            "keyword"      => $keyword,
-            "trans_status" => $trans_status,
+            "page"           => $page,
+            "pageSize"       => $pageSize,
+            "search_cls"     => $search_cls,
+            "keyword"        => $keyword,
+            "trans_status"   => $trans_status,
+            "mapping_status" => $mapping_status,
         ];
         $result = $this->service1688Product->getPrdList($params);
 
         $viewParams = [
-            "datas"        => $result["paginator"],
-            "transYCnt"    => $result["transYCnt"],
-            "transNCnt"    => $result["transNCnt"],
-            "totalCnt"     => $result["totalCnt"],
-            "totalCnt"     => $result["totalCnt"],
-            "offset"       => (int) $offset,
-            "pageSize"     => (int) $pageSize,
-            "search_cls"   => $search_cls,
-            "keyword"      => $keyword,
-            "trans_status" => $trans_status,
+            "datas"          => $result["paginator"],
+            "transYCnt"      => $result["transYCnt"],
+            "transNCnt"      => $result["transNCnt"],
+            "totalCnt"       => $result["totalCnt"],
+            "totalCnt"       => $result["totalCnt"],
+            "offset"         => (int) $offset,
+            "pageSize"       => (int) $pageSize,
+            "search_cls"     => $search_cls,
+            "keyword"        => $keyword,
+            "trans_status"   => $trans_status,
+            "mapping_status" => $mapping_status,
         ];
 
         return view("product.prdList")->with($viewParams);

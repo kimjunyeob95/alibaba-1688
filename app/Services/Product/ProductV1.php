@@ -52,10 +52,11 @@ class ProductV1 extends ProductAbstract
 
     public function getPrdList(array $params): array
     {
-        $pageSize     = $params["pageSize"];
-        $search_cls   = $params["search_cls"];
-        $keyword      = $params["keyword"];
-        $trans_status = $params["trans_status"];
+        $pageSize       = $params["pageSize"];
+        $search_cls     = $params["search_cls"];
+        $keyword        = $params["keyword"];
+        $trans_status   = $params["trans_status"];
+        $mapping_status = $params["mapping_status"];
 
         $prdBuilder = ProductData::with(["main_img", "options", "images"])
         ->whereNull("deleted_at")->orderBy("created_at", "desc");
@@ -83,6 +84,10 @@ class ProductV1 extends ProductAbstract
 
         if( !empty($trans_status) ){
             $prdBuilder->where("trans_status", $trans_status);
+        }
+
+        if( !empty($mapping_status) ){
+            $prdBuilder->where("mapping_status", $mapping_status);
         }
         
         $totalCnt  = ProductData::whereNull("deleted_at")->count();
@@ -242,14 +247,6 @@ class ProductV1 extends ProductAbstract
                         $detailProduct = $detailResult["data"]["result"]["result"];
                         $prdCategoryId = $detailProduct["categoryId"];
 
-                        $getCategoryMappingObj = CategoryMapping::select(["mapping_code"])
-                        ->where("category_id", $prdCategoryId)
-                        ->where("mapping_channel", ProductConstant::MAPPING_OC_CHANNEL)
-                        ->where("mapping_code", "!=", 0)->first();
-                        if( $getCategoryMappingObj == null ){
-                            throw new Exception("카테고리 미맵핑");
-                        }
-
                         $prdDto                   = $this->get1688ProductDto($detailResult);
                         $product1688Dto           = $prdDto["product1688Dto"];
                         $product1688ExtendDto     = $prdDto["product1688ExtendDto"];
@@ -360,14 +357,6 @@ class ProductV1 extends ProductAbstract
                         $detailProduct = $detailResult["data"]["result"]["result"];
                         $prdCategoryId = $detailProduct["categoryId"];
 
-                        $getCategoryMappingObj = CategoryMapping::select(["mapping_code"])
-                        ->where("category_id", $prdCategoryId)
-                        ->where("mapping_channel", ProductConstant::MAPPING_OC_CHANNEL)
-                        ->where("mapping_code", "!=", 0)->first();
-                        if( $getCategoryMappingObj == null ){
-                            throw new Exception("카테고리 미맵핑");
-                        }
-
                         $prdDto                   = $this->get1688ProductDto($detailResult);
                         $product1688Dto           = $prdDto["product1688Dto"];
                         $product1688ExtendDto     = $prdDto["product1688ExtendDto"];
@@ -437,17 +426,6 @@ class ProductV1 extends ProductAbstract
                     throw new Exception(ProductErrorMessageConstant::getFitErrorMessage("PRODUCT_SEARCH_QUERYPRODUCTDETAIL"));
                 }
 
-                $detailProduct = $detailResult["data"]["result"]["result"];
-                $prdCategoryId = $detailProduct["categoryId"];
-
-                $getCategoryMappingObj = CategoryMapping::select(["mapping_code"])
-                ->where("category_id", $prdCategoryId)
-                ->where("mapping_channel", ProductConstant::MAPPING_OC_CHANNEL)
-                ->where("mapping_code", "!=", 0)->first();
-                if( $getCategoryMappingObj == null ){
-                    throw new Exception("카테고리 미맵핑");
-                }
-
                 $prdDto                   = $this->get1688ProductDto($detailResult);
                 $product1688Dto           = $prdDto["product1688Dto"];
                 $product1688ExtendDto     = $prdDto["product1688ExtendDto"];
@@ -514,17 +492,6 @@ class ProductV1 extends ProductAbstract
                 $detailResult = curl_1688("POST", $endPoint, $payload);
                 if( $detailResult["isSuccess"] != true || $detailResult["data"]["result"]["success"] != true ){
                     throw new Exception(ProductErrorMessageConstant::getFitErrorMessage("PRODUCT_SEARCH_QUERYPRODUCTDETAIL"));
-                }
-
-                $detailProduct = $detailResult["data"]["result"]["result"];
-                $prdCategoryId = $detailProduct["categoryId"];
-
-                $getCategoryMappingObj = CategoryMapping::select(["mapping_code"])
-                ->where("category_id", $prdCategoryId)
-                ->where("mapping_channel", ProductConstant::MAPPING_OC_CHANNEL)
-                ->where("mapping_code", "!=", 0)->first();
-                if( $getCategoryMappingObj == null ){
-                    throw new Exception("카테고리 미맵핑");
                 }
 
                 $prdDto                   = $this->get1688ProductDto($detailResult);
@@ -648,17 +615,26 @@ class ProductV1 extends ProductAbstract
         }
 
         // 2. 상품 기본정보
+        $mapping_status = ProductConstant::MAPPING_STATUS_N;
+        $getCategoryMappingObj = CategoryMapping::select(["mapping_code"])
+        ->where("category_id", $prdCategoryId)
+        ->where("mapping_channel", ProductConstant::MAPPING_OC_CHANNEL)
+        ->where("mapping_code", "!=", 0)->first();
+        if( $getCategoryMappingObj != null ){
+            $mapping_status = ProductConstant::MAPPING_STATUS_Y;
+        }
+
         $startQuantity = $detailProduct["productSaleInfo"]["priceRangeList"][0]["startQuantity"];
         $product1688Dto = new Product1688Dto();
         $product1688Dto->bind([
-            "offerId"       => $offerId,
-            "categoryId"    => $prdCategoryId,
-            "status"        => $status,
-            "subject"       => $detailProduct["subject"],
-            "subjectTrans"  => $detailProduct["subjectTrans"],
-            "startQuantity" => $startQuantity,
-            "description"   => $detailProduct["description"],
-            "response_json" => json_encode($detailProduct, JSON_UNESCAPED_UNICODE),
+            "offerId"        => $offerId,
+            "categoryId"     => $prdCategoryId,
+            "status"         => $status,
+            "subject"        => $detailProduct["subject"],
+            "subjectTrans"   => $detailProduct["subjectTrans"],
+            "startQuantity"  => $startQuantity,
+            "description"    => $detailProduct["description"],
+            "mapping_status" => $mapping_status,
         ]);
 
         // 2. 상품 확장정보
@@ -1133,17 +1109,6 @@ class ProductV1 extends ProductAbstract
                             throw new Exception(ProductErrorMessageConstant::getFitErrorMessage("PRODUCT_SEARCH_QUERYPRODUCTDETAIL"));
                         }
 
-                        $detailProduct = $detailResult["data"]["result"]["result"];
-                        $prdCategoryId = $detailProduct["categoryId"];
-
-                        $getCategoryMappingObj = CategoryMapping::select(["mapping_code"])
-                        ->where("category_id", $prdCategoryId)
-                        ->where("mapping_channel", ProductConstant::MAPPING_OC_CHANNEL)
-                        ->where("mapping_code", "!=", 0)->first();
-                        if( $getCategoryMappingObj == null ){
-                            throw new Exception("카테고리 미맵핑");
-                        }
-
                         $prdDto                   = $this->get1688ProductDto($detailResult);
                         $product1688Dto           = $prdDto["product1688Dto"];
                         $product1688ExtendDto     = $prdDto["product1688ExtendDto"];
@@ -1366,17 +1331,6 @@ class ProductV1 extends ProductAbstract
                         $detailResult = curl_1688("POST", $endPoint, $payload_detail);
                         if( $detailResult["isSuccess"] != true || $detailResult["data"]["result"]["success"] != true ){
                             throw new Exception(ProductErrorMessageConstant::getFitErrorMessage("PRODUCT_SEARCH_QUERYPRODUCTDETAIL"));
-                        }
-
-                        $detailProduct = $detailResult["data"]["result"]["result"];
-                        $prdCategoryId = $detailProduct["categoryId"];
-
-                        $getCategoryMappingObj = CategoryMapping::select(["mapping_code"])
-                        ->where("category_id", $prdCategoryId)
-                        ->where("mapping_channel", ProductConstant::MAPPING_OC_CHANNEL)
-                        ->where("mapping_code", "!=", 0)->first();
-                        if( $getCategoryMappingObj == null ){
-                            throw new Exception("카테고리 미맵핑");
                         }
 
                         $prdDto                   = $this->get1688ProductDto($detailResult);
