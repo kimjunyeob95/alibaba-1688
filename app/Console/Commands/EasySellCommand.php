@@ -39,6 +39,7 @@ class EasySellCommand extends Command
                 break;
             /**
              * 온채널 매핑데이터 사용하여 이지셀 카테고리 매핑
+             * php artisan easy_sell_command --func=categoryMapping
              */
             case 'categoryMapping':
                 $result = $this->mallApiService->categoryMapping();
