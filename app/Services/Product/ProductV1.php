@@ -1634,4 +1634,20 @@ class ProductV1 extends ProductAbstract
             "completed_at" => Carbon::now()
         ]);
     }
+
+    public function urlQueryDel(array $ids): array
+    {
+        $returnMsg = $this->returnMsg;
+
+        try {
+            foreach ($ids as $id) {
+                ProductSearchData::where("id", $id)->forceDelete();
+            }
+            $returnMsg = helpers_success_message();
+        } catch (Exception $e) {
+            $returnMsg = helpers_fail_message(false, $e->getMessage());
+        }
+
+        return $returnMsg;
+    }
 }

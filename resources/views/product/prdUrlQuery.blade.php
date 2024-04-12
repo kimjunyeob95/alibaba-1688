@@ -162,7 +162,7 @@
         $("#btn-all-del").click(function(){
             let ids = [];
 
-            $(".chk-inp").each(function(index, element){
+            $(".chk-inp:checked").each(function(index, element){
                 ids.push($(this).val());
             });
 
@@ -170,20 +170,21 @@
                 return alert("선택 된 상품이 없습니다.");
             }
 
-            return alert("준비중..");
-
             if(confirm(`${ids.length}건의 요청을 삭제 하시겠습니까?`)){
                 $.ajax({
                     "headers"    : {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
                     "type"       : "POST",
-                    "url"        : "{{ route('w.product.collectProductUrl') }}",
-                    "data"       : { offer_ids },
+                    "url"        : "{{ route('w.product.urlQueryDel') }}",
+                    "data"       : { ids },
                     beforeSend: function () {
                     },
                     complete: function () {
                     },
                     success: function (resp) {
                         alert(resp.msg);
+                        if( resp.status == 200 ){
+                            location.reload();
+                        }
                     },
                     error: function error(request, status, _error) {
                         let { error } = JSON.parse(request.responseText);
@@ -194,26 +195,27 @@
         });
 
         $(".btn-del").click(function(){
-            let ids = [$(this).val()];
+            let ids = [$(this).attr("searchid")];
 
             if(ids.length < 1){
                 return alert("선택 된 상품이 없습니다.");
             }
 
-            return alert("준비중..");
-
             if(confirm(`해당 요청을 삭제 하시겠습니까?`)){
                 $.ajax({
                     "headers"    : {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
                     "type"       : "POST",
-                    "url"        : "{{ route('w.product.collectProductUrl') }}",
-                    "data"       : { offer_ids },
+                    "url"        : "{{ route('w.product.urlQueryDel') }}",
+                    "data"       : { ids },
                     beforeSend: function () {
                     },
                     complete: function () {
                     },
                     success: function (resp) {
                         alert(resp.msg);
+                        if( resp.status == 200 ){
+                            location.reload();
+                        }
                     },
                     error: function error(request, status, _error) {
                         let { error } = JSON.parse(request.responseText);

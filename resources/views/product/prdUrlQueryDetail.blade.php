@@ -7,12 +7,12 @@
 @section('styles')
 <style>
     .img-limited {
-        max-height: 150px; /* 이미지 최대 높이 */
+        max-height: 80px; /* 이미지 최대 높이 */
         width: 100%; /* 너비를 카드에 맞춤 */
         object-fit: contain; /* 이미지가 카드 너비에 맞춰 잘리도록 설정 */
     }
     .body-limited {
-        max-height: 250px; /* card-body 최대 높이 */
+        max-height: 100px; /* card-body 최대 높이 */
         overflow-y: auto; /* 내용이 넘치면 스크롤바 생성 */
     }
 </style>
@@ -61,27 +61,45 @@
                             <input class="form-check-input" type="checkbox" id="allCheckbox">
                         </div>
                         <div class="row">
-                            @foreach ($obj->details as $detail)    
-                                <div class="col-12 col-sm-6 col-md-4 col-lg-3 mb-4">
-                                    <div class="card h-100" onclick="toggleCheckbox(event, this)">
-                                        <div class="position-relative">
-                                            <img src="{{ $detail->prd_image }}" class="card-img-top img-limited" alt="이미지 설명">
-                                            <div class="position-absolute" style="top: 10px; left: 10px;">
-                                                <input type="checkbox" class="form-check-input chk-inp" value="{{ $detail->offer_id }}">
+                            @foreach ($obj->details as $detail)
+                                @if( $detail->is_search == ProductConstant::IS_SEARCH_Y )
+                                    <div class="col-12 col-sm-6 col-md-4 col-lg-3 mb-4">
+                                        <div class="card h-100" onclick="toggleCheckbox(event, this)">
+                                            <div class="position-relative">
+                                                <img src="{{ $detail->prd_image }}" class="card-img-top img-limited" alt="이미지 설명">
+                                                <div class="position-absolute" style="top: 10px; left: 10px;">
+                                                    <input type="checkbox" class="form-check-input chk-inp" value="{{ $detail->offer_id }}">
+                                                </div>
+                                            </div>
+                                            <div class="card-body body-limited">
+                                                <p class="card-text" style="font-size: 12px">
+                                                    <a href="https://detail.1688.com/offer/{{ $detail->offer_id }}.html" target="_blank">
+                                                        offerID: {{ $detail->offer_id }}
+                                                    </a>
+                                                    <br>
+                                                    {{ $detail->prd_name_trans }}
+                                                    <br>
+                                                    판매량: {{ number_format($detail->sold_out) }}
+                                                    <br>
+                                                    가격: {{ number_format($detail->price_1688) }}(元)
+                                                </p>
                                             </div>
                                         </div>
-                                        <div class="card-body body-limited">
-                                            <p class="card-text">
-                                                <a href="https://detail.1688.com/offer/{{ $detail->offer_id }}.html" target="_blank">
-                                                    offerID: {{ $detail->offer_id }}
-                                                </a>
-                                            </p>
-                                            <p class="card-text">{{ $detail->prd_name_trans }}</p>
-                                            <p class="card-text">판매량: {{ number_format($detail->sold_out) }}</p>
-                                            <p class="card-text">가격: {{ number_format($detail->price_1688) }}(元)</p>
+                                    </div>
+                                @else
+                                    <div class="col-12 col-sm-6 col-md-4 col-lg-3 mb-4">
+                                        <div class="card h-100">
+                                            <div class="card-body d-flex justify-content-center align-items-center text-danger fs-4">
+                                                <p class="card-text text-center m-0">
+                                                    <a href="https://detail.1688.com/offer/{{ $detail->offer_id }}.html" target="_blank">
+                                                        offerID: {{ $detail->offer_id }}
+                                                    </a>
+                                                    {{ $detail->msg }}
+                                                </p>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
+                                @endif
                             @endforeach
                         </div>
             

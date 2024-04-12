@@ -272,6 +272,17 @@ class Service1688Product
       $this->productAbstract->saveProductSearchData($params);
    }
 
+   /**
+     * @func urlQueryDel
+     * @description '상품상세 URL 수집 데이터 삭제'
+     * @param array $ids
+     * @return array
+   */
+   public function urlQueryDel(array $ids): array
+   {
+      return $this->productAbstract->urlQueryDel($ids);
+   }
+
 
    /* =========================================== 카테고리 Abstract =================================================================================== */
 

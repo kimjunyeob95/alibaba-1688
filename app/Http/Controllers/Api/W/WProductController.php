@@ -187,6 +187,31 @@ class WProductController extends Controller
         }
     }
 
+    public function urlQueryDel(): JsonResponse
+    {
+        try {
+            $validator = Validator::make($this->request->all(), [
+                'ids' => 'required|array',
+            ], [
+                'ids.required' => 'ids를 입력하세요.'
+            ]);
+            if ($validator->fails()) {
+                throw new Exception($validator->errors()->first());
+            }
+    
+            $ids = $this->request->post("ids");
+            $result = $this->service1688Product->urlQueryDel($ids);
+
+            if( $result["isSuccess"] == true ){
+                return helpers_json_response(HttpConstant::OK, $result);
+            } else {
+                return helpers_json_response(HttpConstant::BAD_REQUEST, [], $result["msg"]);
+            }
+        } catch (Exception $e) {
+            return helpers_json_response(HttpConstant::BAD_REQUEST, [], $e->getMessage());
+        }
+    }
+
     public function getProductData(int $offerId): JsonResponse
     {
         $result = $this->service1688Product->getProductData($offerId);

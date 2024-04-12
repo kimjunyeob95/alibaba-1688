@@ -153,4 +153,12 @@ abstract class ProductAbstract
      * @return void
      */
     abstract function saveProductSearchData(array $params): void;
+
+    /**
+     * @func urlQueryDel
+     * @description '상품상세 URL 수집 데이터 삭제'
+     * @param array $ids
+     * @return array
+    */
+    abstract function urlQueryDel(array $ids): array;
 }
