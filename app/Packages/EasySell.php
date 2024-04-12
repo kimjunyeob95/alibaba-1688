@@ -337,7 +337,8 @@ class EasySell extends MallApiAbstract
                 "UnitInfo"              => $unitInfo,
                 "SaleStatus"            => $saleStatus,
                 "ItemMode"              => $itemMode,
-                "noticeType"            => $noticeType
+                "noticeType"            => $noticeType,
+                "MinEa"                 => $prdObj->start_quantity
             ];
 
             $vo = new EasySellProductVo();
@@ -381,6 +382,7 @@ class EasySell extends MallApiAbstract
                 "ItemCertification"          => $vo->ItemCertification,
                 "ItemCertificationInfo"      => $vo->ItemCertificationInfo,
                 "ItemApproveAuto"            => $vo->ItemApproveAuto,
+                "MinEa"                      => $vo->MinEa
             ] + $vo->ItemGoodsRequired;
 
             ###인코딩
