@@ -108,19 +108,25 @@ class GenuioService extends TransApiAbstract
             $queueDetailInsList = [];
             foreach ($product1688ImageDtoList as $product1688ImageDto) {
                 if( $product1688ImageDto->is_change_img == true ){
-                    $imgId = ProductImageData::where([
+                    $imgObj = ProductImageData::where([
                         "offer_id"       => $product1688ImageDto->offer_id,
                         "img_type"       => $product1688ImageDto->img_type,
                         "img_url_origin" => $product1688ImageDto->img_url_origin,
-                    ])->value('id');
+                    ])->first();
+                    
+                    $isThumbnail = false;
+                    if( $imgObj->img_type != ImageConstant::IMAGE_TYPE_DESC ){
+                        $isThumbnail = true;
+                    }
                     $payload["images"][] = [
-                        "id"        => $imgId,
-                        "imagePath" => $product1688ImageDto->img_url_origin,
+                        "id"          => $imgObj->id,
+                        "imagePath"   => $product1688ImageDto->img_url_origin,
+                        "isThumbnail" => $isThumbnail,
                     ];
 
                     $queueDetailInsList[] = [
                         "queue_id"     => $nextId,
-                        "img_id"       => $imgId,
+                        "img_id"       => $imgObj->id,
                         "trans_status" => TransApiConstant::QUEUE_STAY,
                         "base64"       => "",
                         "created_at"   => Carbon::now()

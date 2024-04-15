@@ -106,6 +106,10 @@ class ProductConstant
     // 카테고리 맵핑 여부
     public const MAPPING_STATUS_Y = "Y";
     public const MAPPING_STATUS_N = "N";
+    public const MAPPING_STATUS = [
+        self::MAPPING_STATUS_Y => "맵핑완료",
+        self::MAPPING_STATUS_N => "미맵핑",
+    ];
 
     public const CHANNE_FOREGIN_CHANNEL_RETURN_COMMENT = "- 해외직배송 상품 특성상 교환/반품 시 왕복 해외배송비는 고객 부담이므로 반드시 확인해주세요.\r\n
     - 본 상품은 해외직배송 상품으로 제품 출고 후 취소가 불가능합니다. 신중한 구매 부탁드립니다.<br>

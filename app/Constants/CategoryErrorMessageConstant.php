@@ -13,6 +13,13 @@ class CategoryErrorMessageConstant
     public const ERROR_MESSAGE_PARENT_CATEGORY     = "최상위 카테고리가 없습니다.";
     public const ERROR_MESSAGE_NOT_PARENT_CATEGORY = "최상위 카테고리가 아닙니다.";
     public const ERROR_MESSAGE_MAPPING_CATEGORY    = "맵핑 카테고리";
+    public const ERROR_MESSAGE_CATEGORY            = "category";
+    public const ERROR_MESSAGE_CATEGORY_TREE       = "categoryTree";
+    public const ERROR_MESSAGE_CATEGORYID          = "category id";
+    public const ERROR_MESSAGE_W_CATEGORYID        = "W category id";
+    public const ERROR_MESSAGE_LEVEL               = "level";
+    public const ERROR_MESSAGE_CATE_FIRST          = "cate_first";
+    public const ERROR_MESSAGE_CATEGORY_NAME       = "category name";
  
     public static function getErrorMessageNotDefault($constantName): string
     {

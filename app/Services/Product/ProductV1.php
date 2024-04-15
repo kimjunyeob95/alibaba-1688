@@ -22,6 +22,7 @@ use App\Models\ProductNoticeData;
 use App\Models\ProductOptionData;
 use App\Models\ProductSearchData;
 use App\Models\ProductSearchDetailData;
+use App\Models\WCategory;
 use App\Vo\Product\Product1688Dto;
 use App\Vo\Product\Product1688ExtendDto;
 use App\Vo\Product\Product1688ImageDto;
@@ -616,10 +617,8 @@ class ProductV1 extends ProductAbstract
 
         // 2. 상품 기본정보
         $mapping_status = ProductConstant::MAPPING_STATUS_N;
-        $getCategoryMappingObj = CategoryMapping::select(["mapping_code"])
-        ->where("category_id", $prdCategoryId)
-        ->where("mapping_channel", ProductConstant::MAPPING_OC_CHANNEL)
-        ->where("mapping_code", "!=", 0)->first();
+        $getCategoryMappingObj = WCategory::select(["mapping_code"])
+        ->where("category_id", $prdCategoryId)->first();
         if( $getCategoryMappingObj != null ){
             $mapping_status = ProductConstant::MAPPING_STATUS_Y;
         }

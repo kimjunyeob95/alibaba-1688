@@ -9,6 +9,8 @@ use App\Console\Commands\Save1688CategoryMapping;
 use App\Console\Commands\Save1688CollectProduct;
 use App\Console\Commands\Save1688ProductByCategotyId;
 use App\Console\Commands\Save1688ProductByImageId;
+use App\Console\Commands\SaveWCategory;
+use App\Console\Commands\SaveWCategoryMapping;
 use App\Console\Commands\TestCommands;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
@@ -18,6 +20,8 @@ class Kernel extends ConsoleKernel
     protected $commands = [
         Save1688Category::class,
         Save1688CategoryMapping::class,
+        SaveWCategory::class,
+        SaveWCategoryMapping::class,
         Save1688ProductByCategotyId::class,
         Save1688ProductByImageId::class,
         Save1688AllProducts::class,
