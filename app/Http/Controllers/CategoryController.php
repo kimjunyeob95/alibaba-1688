@@ -4,19 +4,22 @@ namespace App\Http\Controllers;
 
 use App\Constants\ProductConstant;
 use App\Http\Controllers\Controller;
-use App\Services\Service1688Product;
+use App\Services\Service1688Category;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 class CategoryController extends Controller
 {
     private Request $request;
-    private Service1688Product $service1688Product;
+    private Service1688Category $service1688Category;
 
-    function __construct(Request $request, Service1688Product $service1688Product)
+    function __construct(
+        Request $request,
+        Service1688Category $service1688Category
+    )
     {
-        $this->request            = $request;
-        $this->service1688Product = $service1688Product;
+        $this->request             = $request;
+        $this->service1688Category = $service1688Category;
     }
 
     public function manage(): View
@@ -39,7 +42,7 @@ class CategoryController extends Controller
             "cate_second"    => $cate_second,
             "cate_third"     => $cate_third
         ];
-        $result = $this->service1688Product->cateList($params);
+        $result = $this->service1688Category->cateList($params);
         $viewParams = [
             "mapping_status" => $mapping_status,
             "keyword"        => $keyword,

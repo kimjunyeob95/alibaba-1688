@@ -4,10 +4,9 @@ namespace App\Http\Controllers\Api\W;
 
 use App\Constants\CategoryErrorMessageConstant;
 use App\Constants\HttpConstant;
-use App\Constants\ImageErrorMessageConstant;
 use App\Constants\ProductConstant;
 use App\Http\Controllers\Controller;
-use App\Services\Service1688Product;
+use App\Services\Service1688Category;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -16,18 +15,18 @@ use Illuminate\Support\Facades\Validator;
 class WCategoryController extends Controller
 {
     private Request $request;
-    private Service1688Product $service1688Product;
+    private Service1688Category $service1688Category;
 
-    function __construct(Request $request, Service1688Product $service1688Product)
+    function __construct(Request $request, Service1688Category $service1688Category)
     {
-        $this->request            = $request;
-        $this->service1688Product = $service1688Product;
+        $this->request             = $request;
+        $this->service1688Category = $service1688Category;
     }
 
     public function getAllCategory(): JsonResponse
     {
         $parent_cate_id = $this->request->get("parent_cate_id", null);
-        $result = $this->service1688Product->getAllCategory($parent_cate_id);
+        $result = $this->service1688Category->getAllCategory($parent_cate_id);
         if( $result["isSuccess"] == true ){
             return helpers_json_response(HttpConstant::OK, $result);
         } else {
@@ -37,7 +36,7 @@ class WCategoryController extends Controller
 
     public function getTreeCategory(int $categoryId = 1038378): JsonResponse
     {
-        $result = $this->service1688Product->getTreeCategory($categoryId);
+        $result = $this->service1688Category->getTreeCategory($categoryId);
         if( $result["isSuccess"] == true ){
             return helpers_json_response(HttpConstant::OK, $result);
         } else {
@@ -47,7 +46,7 @@ class WCategoryController extends Controller
 
     public function getMallCategory(int $categoryId = 1038378): JsonResponse
     {
-        $result = $this->service1688Product->getMallCategory($categoryId);
+        $result = $this->service1688Category->getMallCategory($categoryId);
         if( $result["isSuccess"] == true ){
             return helpers_json_response(HttpConstant::OK, $result);
         } else {
@@ -57,7 +56,7 @@ class WCategoryController extends Controller
 
     public function getMappingCategory(string $channel = ProductConstant::MAPPING_OC_CHANNEL): JsonResponse
     {
-        $result = $this->service1688Product->getMappingCategory($channel);
+        $result = $this->service1688Category->getMappingCategory($channel);
         if( $result["isSuccess"] == true ){
             return helpers_json_response(HttpConstant::OK, $result);
         } else {
@@ -83,7 +82,7 @@ class WCategoryController extends Controller
             "cate_fourth" => $this->request->post("cate_fourth", ""),
             "keyword"     => $this->request->post("w_cate_keyword", ""),
         ];
-        $result = $this->service1688Product->getW($params);
+        $result = $this->service1688Category->getW($params);
         if( $result["isSuccess"] == true ){
             return helpers_json_response(HttpConstant::OK, $result);
         } else {
@@ -108,7 +107,7 @@ class WCategoryController extends Controller
             "category_ids" => explode(",", $this->request->post("category_ids")),
             "w_cate_id"    => $this->request->post("w_cate_id"),
         ];
-        $result = $this->service1688Product->wMapping($params);
+        $result = $this->service1688Category->wMapping($params);
         if( $result["isSuccess"] == true ){
             return helpers_json_response(HttpConstant::OK, $result);
         } else {
@@ -118,7 +117,7 @@ class WCategoryController extends Controller
 
     public function getDepth(int $categoryId): JsonResponse
     {
-        $result = $this->service1688Product->getDepth($categoryId);
+        $result = $this->service1688Category->getDepth($categoryId);
         if( $result["isSuccess"] == true ){
             return helpers_json_response(HttpConstant::OK, $result);
         } else {
@@ -143,7 +142,7 @@ class WCategoryController extends Controller
             "level"     => $this->request->post("level"),
             "cate_name" => $this->request->post("cate_name"),
         ];
-        $result = $this->service1688Product->getWDepth($params);
+        $result = $this->service1688Category->getWDepth($params);
         if( $result["isSuccess"] == true ){
             return helpers_json_response(HttpConstant::OK, $result);
         } else {
@@ -162,7 +161,7 @@ class WCategoryController extends Controller
             throw new Exception($validator->errors()->first());
         }
 
-        $result = $this->service1688Product->getInfos($this->request->post("categoryIds"));
+        $result = $this->service1688Category->getInfos($this->request->post("categoryIds"));
         if( $result["isSuccess"] == true ){
             return helpers_json_response(HttpConstant::OK, $result);
         } else {
