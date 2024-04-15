@@ -621,8 +621,10 @@ class CategoryV1 extends CategoryAbstract
             ->orderBy("a.cate_third", "asc");
             
             if( $mapping_status == ProductConstant::MAPPING_STATUS_Y ){
+                $qryBuilder->where("a.category_id", "!=", 0);
                 $qryBuilder->where("b.category_id", "!=", null);
             } else if( $mapping_status == ProductConstant::MAPPING_STATUS_N ){
+                $qryBuilder->where("a.category_id", "!=", 0);
                 $qryBuilder->where("b.category_id", null);
             }
 
@@ -734,11 +736,36 @@ class CategoryV1 extends CategoryAbstract
         
         try {
             $category_ids = $params["category_ids"];
-            $w_cate_id   = $params["w_cate_id"];
+            $w_cate_id    = $params["w_cate_id"];
 
             foreach ($category_ids as $category_id) {
                 $cateObj = WCategory::where("id", $w_cate_id)->first();
                 if( $cateObj != null ){
+                    // 업데이트할 w 카테고리말고 존재하는게 없으면 미맵핑 카테고리로 생성
+                    // 하나라도 안남으면 w 카테고리 리스트에서 없어지기 때문
+                    $prevObj = WCategory::where("category_id", $category_id)->first();
+
+                    if( $prevObj != null ){
+                        $prevWObj = WCategory::where([
+                            "cate_first"  => $prevObj->cate_first,
+                            "cate_second" => $prevObj->cate_second,
+                            "cate_third"  => $prevObj->cate_third,
+                            "cate_fourth" => $prevObj->cate_fourth,
+                        ])->where("category_id", "!=", $category_id)
+                        ->where("category_id", "!=", 0)->first();
+                        
+                        if( $prevWObj == null ){
+                            WCategory::create([
+                                "category_id"  => 0,
+                                "mapping_code" => $prevObj->mapping_code,
+                                "cate_first"   => $prevObj->cate_first,
+                                "cate_second"  => $prevObj->cate_second,
+                                "cate_third"   => $prevObj->cate_third,
+                                "cate_fourth"  => $prevObj->cate_fourth,
+                            ]);
+                        }
+                    }
+
                     $upsertWhere = [
                         "mapping_code" => $cateObj->mapping_code,
                         "cate_first"   => $cateObj->cate_first,

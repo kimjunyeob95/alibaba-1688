@@ -233,11 +233,12 @@ class WProductController extends Controller
             $trans_status   = $this->request->get("trans_status", ProductConstant::TRANS_STATUS_Y);
             
             $params = [
-                "page"         => $page,
-                "pageSize"     => $pageSize,
-                "search_cls"   => $search_cls,
-                "keyword"      => $keyword,
-                "trans_status" => $trans_status,
+                "page"           => $page,
+                "pageSize"       => $pageSize,
+                "search_cls"     => $search_cls,
+                "keyword"        => $keyword,
+                "trans_status"   => $trans_status,
+                "mapping_status" => ProductConstant::MAPPING_STATUS_Y
             ];
             $result = $this->service1688Product->apiPrdList($params);
 
