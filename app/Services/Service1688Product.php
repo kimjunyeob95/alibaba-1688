@@ -350,6 +350,16 @@ class Service1688Product
    }
 
    /**
+     * @func saveWCategory
+     * @description 'w_categories 카테고리 테이블로 insert'
+     * @return void
+   */
+   public function saveWCategory(): void
+   {
+      $this->categoryAbstract->saveWCategory();
+   }
+
+   /**
      * @func saveWCategoryMapping
      * @description 'categories 테이블의 데이터들을 w_categories 테이블로 정리'
      * @return void
@@ -371,6 +381,28 @@ class Service1688Product
    }
 
    /**
+     * @func getW
+     * @description 'W 카테고리 조회'
+     * @param array $params
+     * @return array
+   */
+   public function getW(array $params): array
+   {
+      return $this->categoryAbstract->getW($params);
+   }
+
+   /**
+     * @func wMapping
+     * @description 'W 카테고리 맵핑'
+     * @param array $params
+     * @return array
+   */
+   public function wMapping(array $params): array
+   {
+      return $this->categoryAbstract->wMapping($params);
+   }
+
+   /**
      * @func getDepth
      * @description '하위 카테고리 조회'
      * @param int $categoryId '카테고리 ID'
@@ -379,5 +411,27 @@ class Service1688Product
    public function getDepth(int $categoryId): array
    {
       return $this->categoryAbstract->getDepth($categoryId);
+   }
+
+   /**
+     * @func getWDepth
+     * @description 'W 하위 카테고리 조회'
+     * @param array $params
+     * @return array
+   */
+   public function getWDepth(array $params): array
+   {
+      return $this->categoryAbstract->getWDepth($params);
+   }
+
+   /**
+     * @func getInfos
+     * @description '카테고리 정보 조회'
+     * @param array $categoryIds '카테고리 ID'
+     * @return array
+   */
+   public function getInfos(array $categoryIds): array
+   {
+      return $this->categoryAbstract->getInfos($categoryIds);
    }
 }

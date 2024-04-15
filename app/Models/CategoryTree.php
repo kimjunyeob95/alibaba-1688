@@ -16,4 +16,8 @@ class CategoryTree extends Model
     public function category () {
         return $this->hasOne(Category::class, "category_id", "category_id");
     }
+
+    public function w_category () {
+        return $this->hasOne(WCategory::class, "category_id", "category_id");
+    }
 }

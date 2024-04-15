@@ -53,8 +53,16 @@ Route::name('w.')->prefix('w')->group(function () {
     });
 
     Route::name('category.')->prefix('category')->group(function () {
-        // 하위 카테고리 조회
+        // W 카테고리 조회
+        Route::post('/', [WCategoryController::class, 'getW'])->name('getW');
+        // W 카테고리 맵핑
+        Route::post('/mapping', [WCategoryController::class, 'wMapping'])->name('wMapping');
+        // 1688 하위 카테고리 조회
         Route::get('/depth/{categoryId}', [WCategoryController::class, 'getDepth'])->name('getDepth');
+        // 카테고리 정보 조회
+        Route::post('/infos', [WCategoryController::class, 'getInfos'])->name('getInfos');
+        // W 하위 카테고리 조회
+        Route::post('/wDepth', [WCategoryController::class, 'getWDepth'])->name('getWDepth');
     });
 });
 

@@ -16,7 +16,7 @@ class CreateWCategoriesTable extends Migration
     {
         Schema::create('w_categories', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('category_id')->unique()->nullable(false)->comment('카테고리ID');
+            $table->unsignedBigInteger('category_id')->nullable(false)->comment('카테고리ID');
             $table->string('mapping_code', 50)->default(0)->nullable(false)->comment('카테고리 맵핑 코드');
             $table->string('cate_first', 50)->nullable(true)->comment('카테고리 레벨 1');
             $table->string('cate_second', 50)->nullable(true)->comment('카테고리 레벨 2');
@@ -26,7 +26,6 @@ class CreateWCategoriesTable extends Migration
             $table->timestamps();
             $table->softDeletes();
 
-            $table->foreign('category_id')->references('category_id')->on('categories')->onDelete('cascade');
             $table->index('category_id');
             $table->index('mapping_code');
             $table->index('cate_first');
