@@ -11,6 +11,7 @@ use App\Models\CategoryMapping;
 use App\Models\EasysellProductLog;
 use App\Models\OnchCategoryExcelDataCopy2;
 use App\Models\ProductData;
+use App\Models\WCategory;
 use App\Vo\EasySell\EasySellProductVo;
 use Carbon\Carbon;
 use Exception;
@@ -261,7 +262,7 @@ class EasySell extends MallApiAbstract
         try {
             DB::beginTransaction();
 
-            $categoryObj = CategoryMapping::where("mapping_channel", ProductConstant::MAPPING_OC_CHANNEL)->get();
+            $categoryObj = WCategory::select(["category_id","mapping_code"])->where("category_id", "!=", 0)->get();
             $categoryArr = $categoryObj->pluck("mapping_code","category_id")->toArray();
 
             $easysellCategory = OnchCategoryExcelDataCopy2::select("codenum","sellerhub_cate")
