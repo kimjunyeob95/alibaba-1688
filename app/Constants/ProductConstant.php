@@ -5,6 +5,9 @@ namespace App\Constants;
 
 class ProductConstant
 {
+    // 상품상태
+    public const PRD_STATUS = "published"; // 게시됨
+
     // 제품채널
     public const CHANNE_PRICE_FREE             = 1;
     public const CHANNE_DISTRIBUTION_SCIENCE   = 2;
@@ -96,10 +99,36 @@ class ProductConstant
     public const MAPPING_OC_CHANNEL = "onchannel";
 
     // 번역 여부
-    public const TRANS_STATUE_Y = "Y"; // 번역 완료
-    public const TRANS_STATUE_N = "N"; // 번역 미완료
+    public const TRANS_STATUS_Y = "Y"; // 번역 완료
+    public const TRANS_STATUS_N = "N"; // 번역 미완료
+
+    // 카테고리 맵핑 여부
+    public const MAPPING_STATUS_Y = "Y";
+    public const MAPPING_STATUS_N = "N";
+    public const MAPPING_STATUS = [
+        self::MAPPING_STATUS_Y => "맵핑완료",
+        self::MAPPING_STATUS_N => "미맵핑",
+    ];
 
     public const CHANNE_FOREGIN_CHANNEL_RETURN_COMMENT = "- 해외직배송 상품 특성상 교환/반품 시 왕복 해외배송비는 고객 부담이므로 반드시 확인해주세요.\r\n
     - 본 상품은 해외직배송 상품으로 제품 출고 후 취소가 불가능합니다. 신중한 구매 부탁드립니다.<br>
     - 상품 수령일로부터 7일 이내에 먼저 판매자와 연락하셔서 반품 사유, 택배사, 배송비, 반송처 등을 협의하신 후 상품을 반품하시기 바랍니다.";
+
+    // url 조회 상태
+    public const SEARCH_STATUS_S = "S";
+    public const SEARCH_STATUS_R = "R";
+    public const SEARCH_STATUS_C = "C";
+    public const SEARCH_STATUS = [
+        self::SEARCH_STATUS_S => "대기",
+        self::SEARCH_STATUS_R => "조회중",
+        self::SEARCH_STATUS_C => "완료",
+    ];
+
+    public const SEARCH_TYPE_URL = "url";
+    public const SEARCH_TYPE = [
+        self::SEARCH_TYPE_URL => "상세 Url 검색"
+    ];
+
+    public const IS_SEARCH_Y = "Y";
+    public const IS_SEARCH_N = "N";
 }

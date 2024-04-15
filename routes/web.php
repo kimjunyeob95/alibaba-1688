@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\EasySellController;
 use App\Http\Controllers\ProductController;
 use Illuminate\Support\Facades\Route;
@@ -17,11 +18,15 @@ use Illuminate\Support\Facades\Route;
 
 Route::get("/", [ProductController::class, "getPrdList"]);
 
+/**
+ * 상품
+ */
 Route::prefix("product")->name("product.")->group(function(){
     // 상품 수집 관리
     Route::get("/queryProductDetail", [ProductController::class, "queryProductDetail"])->name("queryProductDetail");
     Route::get("/keywordQuery", [ProductController::class, "keywordQuery"])->name("keywordQuery");
     Route::get("/urlQuery", [ProductController::class, "urlQuery"])->name("urlQuery");
+    Route::get("/urlQuery/log/{searchId}", [ProductController::class, "urlQueryDetail"])->name("urlQueryDetail");
     Route::get("/imageQuery", [ProductController::class, "imageQuery"])->name("imageQuery");
     Route::get("/imageMultiQuery", [ProductController::class, "imageMultiQuery"])->name("imageMultiQuery");
     Route::get("/collectLogs", [ProductController::class, "prdCollectLogs"])->name("prdCollectLogs");
@@ -31,6 +36,15 @@ Route::prefix("product")->name("product.")->group(function(){
     Route::get("/list", [ProductController::class, "getPrdList"])->name("list");
     Route::get("/{offerId}", [ProductController::class, "getPrdDetail"])->name("detail");
 });
+
+/**
+ * 카테고리
+ */
+Route::prefix("category")->name("category.")->group(function(){
+    // 관리
+    Route::get("/", [CategoryController::class, "manage"])->name("");
+});
+
 
 Route::prefix("easySell")->name("easySell.")->group(function(){
     // 상품 현황

@@ -40,7 +40,7 @@ class EasySell extends MallApiAbstract
             $modi_success = MallConstant::MODI_FAIL;
             $modi_message = "";
             try{
-                $easyObj = EasySellProductLog::where([
+                $easyObj = EasysellProductLog::where([
                     "offer_id"       => $offerId,
                     "regist_success" => MallConstant::REGIST_SUCCESS,
                 ])->first();
@@ -144,7 +144,7 @@ class EasySell extends MallApiAbstract
             $easyObj      = null;
             $account      = EasySellConstant::USER_ID;
             try{
-                $easyObj = EasySellProductLog::where([
+                $easyObj = EasysellProductLog::where([
                     "offer_id"       => $offerId,
                     "regist_success" => MallConstant::REGIST_SUCCESS,
                 ])->first();

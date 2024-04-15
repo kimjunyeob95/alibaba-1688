@@ -49,6 +49,6 @@ class ProductData extends Model
     }
 
     public function easysell () {
-        return $this->hasOne(EasySellProductLog::class, "offer_id", "offer_id");
+        return $this->hasOne(EasysellProductLog::class, "offer_id", "offer_id");
     }
 }

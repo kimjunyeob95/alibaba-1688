@@ -230,6 +230,84 @@
                     }
                 ]
             }
+        },
+        "/api/genuio/products/{offerId}/images": {
+            "patch": {
+                "tags": [
+                    "상품"
+                ],
+                "summary": "상품 이미지 업데이트",
+                "description": "W 상품 이미지 업데이트 endPoint",
+                "operationId": "00d64ba683be65861c55aa2e70a0fb88",
+                "parameters": [
+                    {
+                        "name": "offerId",
+                        "in": "path",
+                        "description": "제품 ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ProductsUpdateImagesSchema"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProductsUpdateImagesSuccessResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Authorization Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/401ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/400ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/500ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            }
         }
     },
     "components": {
@@ -599,6 +677,82 @@
                             }
                         },
                         "type": "object"
+                    }
+                },
+                "type": "object"
+            },
+            "ProductsUpdateImagesSchema": {
+                "required": [
+                    "images"
+                ],
+                "properties": {
+                    "images": {
+                        "description": "상품 이미지 업데이트를 위한 payload",
+                        "type": "array",
+                        "items": {
+                            "required": [
+                                "id",
+                                "base64"
+                            ],
+                            "properties": {
+                                "id": {
+                                    "description": "이미지 ID",
+                                    "type": "integer",
+                                    "example": 64
+                                },
+                                "base64": {
+                                    "description": "Base64로 인코딩된 이미지 데이터",
+                                    "type": "string",
+                                    "example": "~~"
+                                }
+                            },
+                            "type": "object"
+                        }
+                    }
+                },
+                "type": "object"
+            },
+            "ProductsUpdateImagesSuccessResponse": {
+                "properties": {
+                    "status": {
+                        "type": "integer",
+                        "example": 200
+                    },
+                    "meta": {
+                        "properties": {
+                            "timestamp": {
+                                "type": "string",
+                                "example": "2023-12-19 17:45:50"
+                            },
+                            "apiType": {
+                                "type": "string",
+                                "example": "mall"
+                            }
+                        },
+                        "type": "object"
+                    },
+                    "data": {
+                        "type": "array",
+                        "items": {
+                            "properties": {
+                                "id": {
+                                    "description": "이미지 ID",
+                                    "type": "integer",
+                                    "example": 64
+                                },
+                                "isSuccess": {
+                                    "description": "업데이트 성공 여부",
+                                    "type": "boolean",
+                                    "example": true
+                                },
+                                "msg": {
+                                    "description": "실패 사유",
+                                    "type": "string",
+                                    "example": "Empty image"
+                                }
+                            },
+                            "type": "object"
+                        }
                     }
                 },
                 "type": "object"

@@ -10,6 +10,7 @@ class ProductErrorMessageConstant
     private static $defaultNotHaveMsg  = "Empty";
     private static $defaultFitErrorMsg = "Error";
 
+    public const ERROR_MESSAGE_PRODUCT                           = "Product";
     public const ERROR_MESSAGE_PRODUCT_SEARCH_KEYWORDQUERY       = "product.search.keywordQuery";
     public const ERROR_MESSAGE_PRODUCT_SEARCH_IMAGEQUERY         = "product.search.imageQuery";
     public const ERROR_MESSAGE_PRODUCT_SEARCH_QUERYPRODUCTDETAIL = "product.search.queryProductDetail";
@@ -21,6 +22,7 @@ class ProductErrorMessageConstant
     public const ERROR_MESSAGE_PRODUCT_CHECK_IMG_SIZE            = "check img size";
     public const ERROR_MESSAGE_PRODUCT_KEYWORD                   = "keyword";
     public const ERROR_MESSAGE_PRODUCT_MAIN_IMG                  = "Main Img";
+    public const ERROR_MESSAGE_SEARCH_TITLE                      = "search_title";
  
     public static function getErrorMessageNotDefault($constantName): string
     {

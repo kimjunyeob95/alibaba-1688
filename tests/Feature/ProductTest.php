@@ -139,6 +139,9 @@ class ProductTest extends TestCase
         $s3 = new S3();
         $offerId = 737834654023; 
         
+        $prdObj   = ProductData::where("offer_id", $offerId)->first();
+        $dateName = $prdObj->created_at->format('Y/m/d');
+
         $imgObj = ProductImageData::where([
             "offer_id" => $offerId,
             "img_type" => "main",
@@ -148,9 +151,9 @@ class ProductTest extends TestCase
             $mime = $matches[0];
         }
         if( $imgObj->img_type == ImageConstant::IMAGE_TYPE_MAIN ){
-            $imgName  = "/dev/" . date('Y/m/d/') . $offerId . "_" . $imgObj->img_type . "." . $mime;
+            $imgName  = "/product/" . $dateName . "/" . $offerId . "_" . $imgObj->img_type . "." . $mime;
         } else {
-            $imgName  = "/dev/" . date('Y/m/d/') . $offerId . "_" . $imgObj->id . "_" . $imgObj->img_type . "." . $mime;
+            $imgName  = "/product/" . $dateName . "/" . $offerId . "_" . $imgObj->id . "_" . $imgObj->img_type . "." . $mime;
         }
         $options = [
             "ssl" => [

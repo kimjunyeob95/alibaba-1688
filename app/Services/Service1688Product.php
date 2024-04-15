@@ -80,12 +80,23 @@ class Service1688Product
    /**
      * @func getUrlQuery
      * @description '상품상세 URL로 수집'
-     * @param array $urls
-     * @return array
+     * @param array $params
+     * @return LengthAwarePaginator
    */
-   public function getUrlQuery(array $urls): array
+   public function getUrlQuery(array $params): LengthAwarePaginator
    {
-      return $this->productAbstract->getUrlQuery($urls);
+      return $this->productAbstract->getUrlQuery($params);
+   }
+
+   /**
+    * @func urlQueryDetail
+    * @description '상품URL 조회 상세'
+    * @param int $searchId
+    * @return array
+   */
+   public function urlQueryDetail(int $searchId): array
+   {
+      return $this->productAbstract->urlQueryDetail($searchId);
    }
 
    /**
@@ -238,6 +249,41 @@ class Service1688Product
       ];
    }
 
+   /**
+     * @func productsUpdateImages
+     * @description '상품 이미지 업데이트'
+     * @param int $offerId
+     * @param array $images
+     * @return array
+   */
+   public function productsUpdateImages(int $offerId, array $images): array
+   {
+      return $this->productAbstract->productsUpdateImages($offerId, $images);
+   }
+
+   /**
+     * @func saveProductSearchData
+     * @description '상품상세 URL로 조회 요청'
+     * @param array $params
+     * @return void
+   */
+   public function saveProductSearchData(array $params): void
+   {
+      $this->productAbstract->saveProductSearchData($params);
+   }
+
+   /**
+     * @func urlQueryDel
+     * @description '상품상세 URL 수집 데이터 삭제'
+     * @param array $ids
+     * @return array
+   */
+   public function urlQueryDel(array $ids): array
+   {
+      return $this->productAbstract->urlQueryDel($ids);
+   }
+
+
    /* =========================================== 카테고리 Abstract =================================================================================== */
 
    /**
@@ -245,9 +291,9 @@ class Service1688Product
      * @description '수집 한 카테고리를 단계별로 정리한 데이터 목록'
      * @return array
      */
-   public function getAllCategory(): array
+   public function getAllCategory(mixed $parent_cate_id): array
    {
-      return $this->categoryAbstract->getAllCategory();
+      return $this->categoryAbstract->getAllCategory($parent_cate_id);
    }
 
    /**
@@ -303,5 +349,89 @@ class Service1688Product
       $this->categoryAbstract->saveCategoryMapping();
    }
 
+   /**
+     * @func saveWCategory
+     * @description 'w_categories 카테고리 테이블로 insert'
+     * @return void
+   */
+   public function saveWCategory(): void
+   {
+      $this->categoryAbstract->saveWCategory();
+   }
 
+   /**
+     * @func saveWCategoryMapping
+     * @description 'categories 테이블의 데이터들을 w_categories 테이블로 정리'
+     * @return void
+   */
+   public function saveWCategoryMapping(): void
+   {
+      $this->categoryAbstract->saveWCategoryMapping();
+   }
+
+   /**
+     * @func cateList
+     * @description '카테고리 리스트'
+     * @param array $params
+     * @return array
+   */
+   public function cateList(array $params): array
+   {
+      return $this->categoryAbstract->cateList($params);
+   }
+
+   /**
+     * @func getW
+     * @description 'W 카테고리 조회'
+     * @param array $params
+     * @return array
+   */
+   public function getW(array $params): array
+   {
+      return $this->categoryAbstract->getW($params);
+   }
+
+   /**
+     * @func wMapping
+     * @description 'W 카테고리 맵핑'
+     * @param array $params
+     * @return array
+   */
+   public function wMapping(array $params): array
+   {
+      return $this->categoryAbstract->wMapping($params);
+   }
+
+   /**
+     * @func getDepth
+     * @description '하위 카테고리 조회'
+     * @param int $categoryId '카테고리 ID'
+     * @return array
+   */
+   public function getDepth(int $categoryId): array
+   {
+      return $this->categoryAbstract->getDepth($categoryId);
+   }
+
+   /**
+     * @func getWDepth
+     * @description 'W 하위 카테고리 조회'
+     * @param array $params
+     * @return array
+   */
+   public function getWDepth(array $params): array
+   {
+      return $this->categoryAbstract->getWDepth($params);
+   }
+
+   /**
+     * @func getInfos
+     * @description '카테고리 정보 조회'
+     * @param array $categoryIds '카테고리 ID'
+     * @return array
+   */
+   public function getInfos(array $categoryIds): array
+   {
+      return $this->categoryAbstract->getInfos($categoryIds);
+   }
 }

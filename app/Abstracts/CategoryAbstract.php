@@ -7,9 +7,10 @@ abstract class CategoryAbstract
     /**
      * @func getAllCategory
      * @description '수집 한 카테고리를 단계별로 정리한 데이터 목록'
+     * @param mixed $parent_cate_id
      * @return array
      */
-    abstract function getAllCategory(): array;
+    abstract function getAllCategory(mixed $parent_cate_id): array;
 
     /**
      * @func getTreeCategory
@@ -48,4 +49,66 @@ abstract class CategoryAbstract
      * @return void
      */
     abstract function saveCategoryMapping(): void;
+
+    /**
+     * @func saveWCategory
+     * @description 'w_categories 카테고리 테이블로 insert'
+     * @return void
+     */
+    abstract function saveWCategory(): void;
+
+    /**
+     * @func saveWCategoryMapping
+     * @description 'categories 테이블의 데이터들을 w_categories 테이블로 정리'
+     * @return void
+     */
+    abstract function saveWCategoryMapping(): void;
+
+    /**
+     * @func cateList
+     * @description '카테고리 리스트'
+     * @param array $params
+     * @return array
+    */
+    abstract function cateList(array $params): array;
+
+    /**
+     * @func getW
+     * @description 'W 카테고리 조회'
+     * @param array $params
+     * @return array
+     */
+    abstract function getW(array $params): array;
+
+    /**
+     * @func wMapping
+     * @description 'W 카테고리 맵핑'
+     * @param array $params
+     * @return array
+     */
+    abstract function wMapping(array $params): array;
+
+    /**
+     * @func getDepth
+     * @description '하위 카테고리 조회'
+     * @param int $categoryId '카테고리 ID'
+     * @return array
+     */
+    abstract function getDepth(int $categoryId): array;
+
+    /**
+     * @func getWDepth
+     * @description 'W 하위 카테고리 조회'
+     * @param array $params
+     * @return array
+     */
+    abstract function getWDepth(array $params): array;
+
+    /**
+     * @func getInfos
+     * @description '카테고리 정보 조회'
+     * @param array $categoryIds '카테고리 ID'
+     * @return array
+     */
+    abstract function getInfos(array $categoryIds): array;
 }

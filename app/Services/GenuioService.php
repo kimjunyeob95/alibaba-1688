@@ -108,19 +108,25 @@ class GenuioService extends TransApiAbstract
             $queueDetailInsList = [];
             foreach ($product1688ImageDtoList as $product1688ImageDto) {
                 if( $product1688ImageDto->is_change_img == true ){
-                    $imgId = ProductImageData::where([
+                    $imgObj = ProductImageData::where([
                         "offer_id"       => $product1688ImageDto->offer_id,
                         "img_type"       => $product1688ImageDto->img_type,
                         "img_url_origin" => $product1688ImageDto->img_url_origin,
-                    ])->value('id');
+                    ])->first();
+                    
+                    $isThumbnail = false;
+                    if( $imgObj->img_type != ImageConstant::IMAGE_TYPE_DESC ){
+                        $isThumbnail = true;
+                    }
                     $payload["images"][] = [
-                        "id"        => $imgId,
-                        "imagePath" => $product1688ImageDto->img_url_origin,
+                        "id"          => $imgObj->id,
+                        "imagePath"   => $product1688ImageDto->img_url_origin,
+                        "isThumbnail" => $isThumbnail,
                     ];
 
                     $queueDetailInsList[] = [
                         "queue_id"     => $nextId,
-                        "img_id"       => $imgId,
+                        "img_id"       => $imgObj->id,
                         "trans_status" => TransApiConstant::QUEUE_STAY,
                         "base64"       => "",
                         "created_at"   => Carbon::now()
@@ -188,6 +194,7 @@ class GenuioService extends TransApiAbstract
                 throw new ValueError(TransApiConstant::getNotHaveErrorMessage("PRODUCT"));
             }
             $prd_desc = $prdObj->prd_desc;
+            $dateName = $prdObj->created_at->format('Y/m/d');
 
             // 1. product_image_datas update
             foreach ($images as $image) {
@@ -208,9 +215,9 @@ class GenuioService extends TransApiAbstract
                         $mime = $matches[0];
                     }
                     if( $imgObj->img_type == ImageConstant::IMAGE_TYPE_MAIN ){
-                        $imgName  = "/" . $this->appEnv . date('Y/m/d/') . $offerId . "_" . $imgObj->img_type . "." . $mime;
+                        $imgName  = "/product/" . $dateName . "/" . $offerId . "_" . $imgObj->img_type . "." . $mime;
                     } else {
-                        $imgName  = "/" . $this->appEnv . date('Y/m/d/') . $offerId . "_" . $imgObj->id . "_" . $imgObj->img_type . "." . $mime;
+                        $imgName  = "/product/" . $dateName . "/" . $offerId . "_" . $imgObj->id . "_" . $imgObj->img_type . "." . $mime;
                     }
                     if( isset($image["imgTransBase64"]) && !empty($image["imgTransBase64"]) ){
                         $imgTransBase64 = $image["imgTransBase64"];

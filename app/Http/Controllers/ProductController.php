@@ -2,20 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Constants\HttpConstant;
-use App\Constants\ImageErrorMessageConstant;
-use App\Constants\LogConstant;
 use App\Constants\ProductConstant;
-use App\Constants\ProductErrorMessageConstant;
 use App\Http\Controllers\Controller;
 use App\Services\Service1688Product;
-use Exception;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\View\View;
-use Illuminate\Support\Facades\Validator;
-use Symfony\Component\Process\Process;
 
 class ProductController extends Controller
 {
@@ -34,29 +26,32 @@ class ProductController extends Controller
         $pageSize       = $this->request->post("pageSize", 50);
         $search_cls     = $this->request->get("search_cls", "offer_id");
         $keyword        = $this->request->get("keyword", "");
-        $trans_status   = $this->request->get("trans_status", ProductConstant::TRANS_STATUE_Y);
+        $trans_status   = $this->request->get("trans_status", ProductConstant::TRANS_STATUS_Y);
+        $mapping_status = $this->request->get("mapping_status", "");
         $offset         = ($page - 1) * $pageSize;
 
         $params = [
-            "page"         => $page,
-            "pageSize"     => $pageSize,
-            "search_cls"   => $search_cls,
-            "keyword"      => $keyword,
-            "trans_status" => $trans_status,
+            "page"           => $page,
+            "pageSize"       => $pageSize,
+            "search_cls"     => $search_cls,
+            "keyword"        => $keyword,
+            "trans_status"   => $trans_status,
+            "mapping_status" => $mapping_status,
         ];
         $result = $this->service1688Product->getPrdList($params);
 
         $viewParams = [
-            "datas"        => $result["paginator"],
-            "transYCnt"    => $result["transYCnt"],
-            "transNCnt"    => $result["transNCnt"],
-            "totalCnt"     => $result["totalCnt"],
-            "totalCnt"     => $result["totalCnt"],
-            "offset"       => (int) $offset,
-            "pageSize"     => (int) $pageSize,
-            "search_cls"   => $search_cls,
-            "keyword"      => $keyword,
-            "trans_status" => $trans_status,
+            "datas"          => $result["paginator"],
+            "transYCnt"      => $result["transYCnt"],
+            "transNCnt"      => $result["transNCnt"],
+            "totalCnt"       => $result["totalCnt"],
+            "totalCnt"       => $result["totalCnt"],
+            "offset"         => (int) $offset,
+            "pageSize"       => (int) $pageSize,
+            "search_cls"     => $search_cls,
+            "keyword"        => $keyword,
+            "trans_status"   => $trans_status,
+            "mapping_status" => $mapping_status,
         ];
 
         return view("product.prdList")->with($viewParams);
@@ -230,79 +225,35 @@ class ProductController extends Controller
 
     public function urlQuery(): View
     {
-        $keyword = $this->request->get("keyword", "");
-        $datas   = [];
-        if( $keyword ){
-            $urls = preg_replace("/(\r\n|\r|\n)/", ",", trim($keyword));
-            $urls = explode(",", $urls);
-            // 각 배열 요소의 앞뒤 공백 제거
-            $urls = array_map('trim', $urls);
-            // 빈 값을 제거
-            $urls = array_filter($urls);
-            // 중복 제거
-            $urls = array_unique($urls);
-            $result = $this->service1688Product->getUrlQuery($urls);
-            $datas  = $result;
-        }
+        $page           = $this->request->post("page", 1);
+        $pageSize       = $this->request->post("pageSize", 50);
+        $offset         = ($page - 1) * $pageSize;
+
+        $params = [
+            "page"         => $page,
+            "pageSize"     => $pageSize,
+        ];
+        $result = $this->service1688Product->getUrlQuery($params);
 
         $viewParams = [
-            "datas"        => $datas,
-            "totalRecords" => count($datas),
-            "keyword"      => $keyword,
+            "datas"    => $result,
+            "offset"   => (int) $offset,
+            "totalCnt" => (int) $result->total(),
         ];
-
         return view("product.prdUrlQuery")->with($viewParams);
     }
 
-    public function collectProduct(): JsonResponse
+    public function urlQueryDetail(int $searchId): View
     {
-        try {
-            $validator = Validator::make($this->request->all(), [
-                'offer_ids' => 'required|array',
-            ], [
-                'offer_ids.required' => 'offer_ids를 입력하세요.',
-            ]);
-            if ($validator->fails()) {
-                throw new Exception($validator->errors()->first());
-            }
-
-            $offerIds = $this->request->post("offer_ids");
-
-            $options = "--offerids=" . escapeshellarg(implode(",", $offerIds)) . " --type=" . escapeshellarg(LogConstant::COLLECT_API_KEYWORDQUERY);
-            $command = "nohup php artisan save_1688_collect_product " . $options . " > /dev/null 2>&1 &";
-            $process = Process::fromShellCommandline($command);
-            $process->setWorkingDirectory(env("WORK_DIRECTORY", "/web1/1688"));
-            $process->setTimeout(null); // 실행 시간 제한 없음
-            $process->start();
-
-            return helpers_json_response(HttpConstant::OK, helpers_success_message([], "수집 요청 완료"));
-        } catch (Exception $e) {
-            return helpers_json_response(HttpConstant::BAD_REQUEST, [], $e->getMessage());
+        $result = $this->service1688Product->urlQueryDetail($searchId);
+        if( $result["isSuccess"] == false ){
+            abort(404);
+        } else {
+            $viewParams = [
+                "obj" => $result["data"]
+            ];   
         }
-    }
-
-    public function collectKeywordQuery(): JsonResponse
-    {
-        try {
-            $searchCls = $this->request->post("search_cls", "productCollectionId");
-            $keyword   = $this->request->post("keyword", "");
-            $sort      = $this->request->post("sort", "monthSold|desc");
-
-            if( $keyword == "" ){
-                throw new Exception(ProductErrorMessageConstant::getNotHaveErrorMessage("PRODUCT_KEYWORD"));
-            }
-
-            $options = "--search_cls=" . escapeshellarg($searchCls) . " --keyword=" . escapeshellarg($keyword) . " --sort=" . escapeshellarg($sort);
-            $command = "nohup php artisan save_1688_product_keyword_query " . $options . " > /dev/null 2>&1 &";
-            $process = Process::fromShellCommandline($command);
-            $process->setWorkingDirectory(env("WORK_DIRECTORY", "/web1/1688"));
-            $process->setTimeout(null); // 실행 시간 제한 없음
-            $process->start();
-            
-            return helpers_json_response(HttpConstant::OK, helpers_success_message([], "수집 요청 완료"));
-        } catch (Exception $e) {
-            return helpers_json_response(HttpConstant::BAD_REQUEST, [], $e->getMessage());
-        }
+        return view("product.prdUrlQueryDetail")->with($viewParams);
     }
 
     public function prdCollectLogs(): View
@@ -324,115 +275,6 @@ class ProductController extends Controller
         return view("product.prdCollectLogs")->with($viewParams);
     }
 
-    public function createImgId(): JsonResponse
-    {
-        $returnArr = [
-            "result" => []
-        ];
-        try {
-            if ($this->request->hasFile('imgFile')) {
-                $imgFiles = $this->request->file('imgFile');
-                foreach ($imgFiles as $imgFile) {
-                    if (strpos($imgFile->getClientMimeType(), 'image') !== 0) {
-                        throw new Exception(ImageErrorMessageConstant::getFitErrorMessage("TYPE"));
-                    }
-    
-                    if ($imgFile->getSize() > 300 * 1024) {
-                        throw new Exception(ImageErrorMessageConstant::getFitErrorMessage("SIZE"));
-                    }
-    
-                    $result = $this->service1688Product->createImgId($imgFile);
-                    if( isset($result["data"]["result"] )){
-                        $returnArr["result"][] = $result["data"]["result"];
-                    }
-                }
-                $returnArr["result"] = implode(",", $returnArr["result"]);
-            } else {
-                throw new Exception(ImageErrorMessageConstant::getNotHaveErrorMessage("FILE"));
-            }
-
-            return helpers_json_response(HttpConstant::OK, $returnArr);
-        } catch (Exception $e) {
-            return helpers_json_response(HttpConstant::BAD_REQUEST, [], $e->getMessage());
-        }
-    }
-
-    public function collectProductImage(): JsonResponse
-    {
-        try {
-            $validator = Validator::make($this->request->all(), [
-                'offer_ids' => 'required|array',
-            ], [
-                'offer_ids.required' => 'offer_ids를 입력하세요.'
-            ]);
-            if ($validator->fails()) {
-                throw new Exception($validator->errors()->first());
-            }
-    
-            $offerIds = $this->request->post("offer_ids");
-            
-            $options = "--offerids=" . escapeshellarg(implode(",", $offerIds)) . " --type=" . escapeshellarg(LogConstant::COLLECT_API_IMAGEQUERY);
-            $command = "nohup php artisan save_1688_collect_product " . $options . " > /dev/null 2>&1 &";
-            $process = Process::fromShellCommandline($command);
-            $process->setWorkingDirectory(env("WORK_DIRECTORY", "/web1/1688"));
-            $process->setTimeout(null); // 실행 시간 제한 없음
-            $process->start();
-
-            return helpers_json_response(HttpConstant::OK, helpers_success_message([], "수집 요청 완료"));
-        } catch (Exception $e) {
-            return helpers_json_response(HttpConstant::BAD_REQUEST, [], $e->getMessage());
-        }
-    }
-
-    public function collectImageQuery(): JsonResponse
-    {
-        try {
-            $imageIds = $this->request->post("imageIds");
-            $sort     = $this->request->post("sort", "monthSold|desc");
-            if( !$imageIds ){
-                throw new Exception(ImageErrorMessageConstant::getNotHaveErrorMessage("IMG_ID"));   
-            }
-
-            $options = "--imageIds=" . $imageIds . " --sort=" . escapeshellarg($sort);
-            $command = "nohup php artisan save_1688_product_image_query " . $options . " > /dev/null 2>&1 &";
-            $process = Process::fromShellCommandline($command);
-            $process->setWorkingDirectory(env("WORK_DIRECTORY", "/web1/1688"));
-            $process->setTimeout(null); // 실행 시간 제한 없음
-            $process->start();
-
-            return helpers_json_response(HttpConstant::OK, helpers_success_message([], "수집 요청 완료"));
-        } catch (Exception $e) {
-            return helpers_json_response(HttpConstant::BAD_REQUEST, [], $e->getMessage());
-        }
-    }
-
-    public function collectProductUrl(): JsonResponse
-    {
-        try {
-            $validator = Validator::make($this->request->all(), [
-                'offer_ids' => 'required|array',
-            ], [
-                'offer_ids.required' => 'offer_ids를 입력하세요.'
-            ]);
-            if ($validator->fails()) {
-                throw new Exception($validator->errors()->first());
-            }
-    
-            $offerIds = $this->request->post("offer_ids");
-            
-            $options = "--offerids=" . escapeshellarg(implode(",", $offerIds)) . " --type=" . escapeshellarg(LogConstant::COLLECT_API_URLQUERY);
-            $command = "nohup php artisan save_1688_collect_product " . $options . " > /dev/null 2>&1 &";
-            $process = Process::fromShellCommandline($command);
-            $process->setWorkingDirectory(env("WORK_DIRECTORY", "/web1/1688"));
-            $process->setTimeout(null); // 실행 시간 제한 없음
-            $process->start();
-
-            return helpers_json_response(HttpConstant::OK, helpers_success_message([], "수집 요청 완료"));
-        } catch (Exception $e) {
-            return helpers_json_response(HttpConstant::BAD_REQUEST, [], $e->getMessage());
-        }
-    }
-
     public function prdCollectLogDetail(int $logId): View
     {
         $result = $this->service1688Product->prdCollectLogDetail($logId);
@@ -444,31 +286,5 @@ class ProductController extends Controller
             ];
         }
         return view("product.prdCollectLogDetail")->with($viewParams);
-    }
-
-    public function apiPrdList(): JsonResponse
-    {
-        try {
-            $page           = $this->request->get("page", 1);
-            $pageSize       = $this->request->get("pageSize", 50);
-            if( $pageSize > 50 ) $pageSize = 50;
-            $search_cls     = $this->request->get("search_cls", "prd_name");
-            $keyword        = $this->request->get("keyword", "");
-            $trans_status   = $this->request->get("trans_status", ProductConstant::TRANS_STATUE_Y);
-            
-            $params = [
-                "page"         => $page,
-                "pageSize"     => $pageSize,
-                "search_cls"   => $search_cls,
-                "keyword"      => $keyword,
-                "trans_status" => $trans_status,
-            ];
-            $result = $this->service1688Product->getPrdList($params);
-
-
-            return helpers_json_response(HttpConstant::OK, helpers_success_message([], "수집 요청 완료"));
-        } catch (Exception $e) {
-            return helpers_json_response(HttpConstant::BAD_REQUEST, [], $e->getMessage());
-        }
     }
 }

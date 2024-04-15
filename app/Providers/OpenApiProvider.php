@@ -30,12 +30,6 @@ class OpenApiProvider extends ServiceProvider
             return new JwtPackage();
         });
 
-        // S3 싱글톤으로 등록
-        $this->app->singleton(S3::class, function () {
-            return new S3();
-        });
-
-
         /**
          * channel API 의존성 설정
          * start

@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class EasySellProductLog extends Model
+class EasysellProductLog extends Model
 {
     use HasFactory;
     use SoftDeletes;
