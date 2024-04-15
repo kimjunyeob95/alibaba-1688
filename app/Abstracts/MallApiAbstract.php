@@ -35,7 +35,7 @@ abstract class MallApiAbstract
                 throw new Exception(MallErrorMessageConstant::getNotHaveErrorMessage("USER_ID"));
             }
             $userId = $params["user_id"];
-            
+
             $result = $this->jwtPackage->tokenCreate($userId, $this->channel);
             if( $result["isSuccess"] && isset($result["data"]["token"]) ){
                 ApiUser::where([
@@ -79,4 +79,12 @@ abstract class MallApiAbstract
      * @return array
      */
     abstract function orderCreate(array $params): array;
+
+    /**
+     * @func categoryMapping
+     * @description '카테고리 매핑'
+     *
+     * @return array
+     */
+    abstract function categoryMapping(): array;
 }

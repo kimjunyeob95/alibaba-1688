@@ -48,6 +48,10 @@ class ProductData extends Model
         return $this->hasOne(CategoryMapping::class, "category_id", "category_id")->where("mapping_channel", ProductConstant::MAPPING_OC_CHANNEL);
     }
 
+    public function es_mapping () {
+        return $this->hasOne(CategoryMapping::class, "category_id", "category_id")->where("mapping_channel", ProductConstant::MAPPING_ES_CHANNEL);
+    }
+
     public function easysell () {
         return $this->hasOne(EasysellProductLog::class, "offer_id", "offer_id");
     }

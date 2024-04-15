@@ -20,6 +20,7 @@ class EasySellService
         ->with(["main_img", "options"])
         ->leftJoin("easysell_product_logs as epl","product_datas.offer_id","=","epl.offer_id")
         ->where("product_datas.trans_status", ProductConstant::TRANS_STATUS_Y)
+        ->where("product_datas.mapping_status", ProductConstant::MAPPING_STATUS_Y)
         ->whereNull("product_datas.deleted_at")->orderBy("product_datas.created_at", "desc");
         $totalCnt = $prdBuilder->count();
 

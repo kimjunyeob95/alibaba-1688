@@ -7,12 +7,14 @@ use App\Constants\EasySellConstant;
 use App\Constants\MallConstant;
 use App\Constants\MallErrorMessageConstant;
 use App\Constants\ProductConstant;
+use App\Models\CategoryMapping;
 use App\Models\EasysellProductLog;
 use App\Models\OnchCategoryExcelDataCopy2;
 use App\Models\ProductData;
 use App\Vo\EasySell\EasySellProductVo;
 use Carbon\Carbon;
 use Exception;
+use Illuminate\Support\Facades\DB;
 
 class EasySell extends MallApiAbstract
 {
@@ -55,7 +57,7 @@ class EasySell extends MallApiAbstract
                     "extends",
                     "options",
                     "notices",
-                    "oc_mapping"
+                    "es_mapping"
                 ])->where("offer_id", $offerId)->first();
 
                 if( $prdObj == null ){
@@ -63,6 +65,9 @@ class EasySell extends MallApiAbstract
                 }
                 if( $prdObj->trans_status != ProductConstant::IMG_TRANS_Y ){
                     throw new Exception(MallErrorMessageConstant::getFitErrorMessage("NOT_TRANS_IMG"));
+                }
+                if( $prdObj->mapping_status != ProductConstant::MAPPING_STATUS_Y ){
+                    throw new Exception(MallErrorMessageConstant::getFitErrorMessage("NOT_MAPPING_CATE"));
                 }
 
                 $paramsResult = $this->_getPrdParams($prdObj, EasySellConstant::ITEM_REGIST);
@@ -157,7 +162,7 @@ class EasySell extends MallApiAbstract
                     "extends",
                     "options",
                     "notices",
-                    "oc_mapping"
+                    "es_mapping"
                 ])->where("offer_id", $offerId)->first();
 
                 if( $prdObj == null ){
@@ -165,6 +170,9 @@ class EasySell extends MallApiAbstract
                 }
                 if( $prdObj->trans_status != ProductConstant::IMG_TRANS_Y ){
                     throw new Exception(MallErrorMessageConstant::getFitErrorMessage("NOT_TRANS_IMG"));
+                }
+                if( $prdObj->mapping_status != ProductConstant::MAPPING_STATUS_Y ){
+                    throw new Exception(MallErrorMessageConstant::getFitErrorMessage("NOT_MAPPING_CATE"));
                 }
 
                 $paramsResult = $this->_getPrdParams($prdObj, EasySellConstant::ITEM_MODI, $easyObj->itemno);
@@ -242,6 +250,48 @@ class EasySell extends MallApiAbstract
     }
 
     /**
+     * @func categoryMapping
+     * @description '카테고리 매핑 저장'
+     *
+     * @return array
+     */
+    public function categoryMapping(): array
+    {
+        $returnMsg = $this->returnMsg;
+        try {
+            DB::beginTransaction();
+
+            $categoryObj = CategoryMapping::where("mapping_channel", ProductConstant::MAPPING_OC_CHANNEL)->get();
+            $categoryArr = $categoryObj->pluck("mapping_code","category_id")->toArray();
+
+            $easysellCategory = OnchCategoryExcelDataCopy2::select("codenum","sellerhub_cate")
+                ->whereIn("codenum", $categoryArr)
+                ->where("sellerhub_cate", "!=", "")
+                ->whereNotNull("sellerhub_cate")
+                ->pluck("sellerhub_cate", "codenum")
+                ->toArray();
+
+            foreach($categoryObj as $data){
+                CategoryMapping::updateOrCreate([
+                        "category_id" => $data->category_id,
+                        "mapping_channel" => MallConstant::MALL_EASYSELL
+                    ],[
+                        "mapping_code"    => $easysellCategory[$data['mapping_code']] ?? 0
+                    ]);
+            }
+
+            $returnMsg = helpers_success_message();
+
+            DB::commit();
+        } catch (Exception $e) {
+            DB::rollback();
+            $returnMsg = helpers_fail_message($e->getMessage());
+        }
+
+        return $returnMsg;
+    }
+
+    /**
      * api param 생성 - 상품 등록/수정 공통사용
      *
      * @param ProductData $prdObj
@@ -257,11 +307,10 @@ class EasySell extends MallApiAbstract
             $offerId = $prdObj->offer_id;
 
             //카테고리 매핑
-            $categoryId = $prdObj->oc_mapping->mapping_code;
-            $cateObj = OnchCategoryExcelDataCopy2::select("sellerhub_cate")->where("codenum",$categoryId)->first();
-            if(!isset($cateObj)){
+            if(!isset($prdObj->es_mapping) || empty($prdObj->es_mapping->mapping_code)){
                 throw new Exception("카테고리 정보가 없습니다");
             }
+            $categoryId = $prdObj->es_mapping->mapping_code;
 
             //연령제한 상품여부
             if($prdObj->minor_not_sale == ProductConstant::MINOR_NOT_SALE_YES){
@@ -309,11 +358,11 @@ class EasySell extends MallApiAbstract
                 $replacementArr = array("-","\,","-");
                 $optionNm       = str_replace($replaceArr, $replacementArr ,$option->option_name_trans);
 
+                $stock = 0;
                 if($option->status == ProductConstant::OPTION_SEC_ON_SALE_NUMBER){
                     $saleStatus = EasySellConstant::STATUS_ON_SALE;
                     $stock      = $option->amount_on_sale;
                 }
-                $stock = 0;
 
                 $unitInfo .= "{$optionNm}^^{$stock}^^{$setPrice}^^{$setPrice}^^{$option->option_price}::{$option->id}";
             }
@@ -322,7 +371,7 @@ class EasySell extends MallApiAbstract
 
             $voParams = [
                 "ItemNo"                => $offerId,
-                "ItemCategory"          => $cateObj->sellerhub_cate,
+                "ItemCategory"          => $categoryId,
                 "ItemName"              => $ItemName,
                 "ItemGoodCode"          => $ItemGoodCode,
                 "ItemDesc"              => $ItemName,
@@ -337,7 +386,8 @@ class EasySell extends MallApiAbstract
                 "UnitInfo"              => $unitInfo,
                 "SaleStatus"            => $saleStatus,
                 "ItemMode"              => $itemMode,
-                "noticeType"            => $noticeType
+                "noticeType"            => $noticeType,
+                "MinEa"                 => $prdObj->start_quantity
             ];
 
             $vo = new EasySellProductVo();
@@ -381,6 +431,7 @@ class EasySell extends MallApiAbstract
                 "ItemCertification"          => $vo->ItemCertification,
                 "ItemCertificationInfo"      => $vo->ItemCertificationInfo,
                 "ItemApproveAuto"            => $vo->ItemApproveAuto,
+                "MinEa"                      => $vo->MinEa
             ] + $vo->ItemGoodsRequired;
 
             ###인코딩
