@@ -11,7 +11,7 @@
                 </svg> Dashboard
             </a>
         </li>
-        <li class="nav-title">상품 V1</li>
+        <li class="nav-title">상품 V1(1688)</li>
         <li class="nav-group">
             <a class="nav-link nav-group-toggle" href="javascript:;">
                 <svg class="nav-icon">
@@ -53,7 +53,7 @@
             </ul>
         </li>
 
-        <li class="nav-title">상품 V2</li>
+        <li class="nav-title">상품 V2(word-1688)</li>
         <li class="nav-group">
             <a class="nav-link nav-group-toggle" href="javascript:;">
                 <svg class="nav-icon">
