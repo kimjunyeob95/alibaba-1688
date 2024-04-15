@@ -11,7 +11,7 @@
                 </svg> Dashboard
             </a>
         </li>
-        <li class="nav-title">상품</li>
+        <li class="nav-title">상품 V1</li>
         <li class="nav-group">
             <a class="nav-link nav-group-toggle" href="javascript:;">
                 <svg class="nav-icon">
@@ -52,6 +52,25 @@
                 </li>
             </ul>
         </li>
+
+        <li class="nav-title">상품 V2</li>
+        <li class="nav-group">
+            <a class="nav-link nav-group-toggle" href="javascript:;">
+                <svg class="nav-icon">
+                    <use xlink:href="/vendors/@coreui/icons/svg/free.svg#cil-3d"></use>
+                </svg>
+                상품 수집 관리
+            </a>
+            <ul class="nav-group-items">
+                {{-- <li class="nav-item">
+                    <a class="nav-link" href="/product/queryProductDetail">
+                        상품 ID로 수집
+                    </a>
+                </li> --}}
+            </ul>
+        </li>
+        
+        <li class="nav-title">W App</li>
         <li class="nav-group">
             <a class="nav-link nav-group-toggle" href="javascript:;">
                 <svg class="nav-icon">
