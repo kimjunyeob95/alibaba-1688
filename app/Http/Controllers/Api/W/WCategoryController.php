@@ -80,7 +80,7 @@ class WCategoryController extends Controller
             "cate_second" => $this->request->post("cate_second", ""),
             "cate_third"  => $this->request->post("cate_third", ""),
             "cate_fourth" => $this->request->post("cate_fourth", ""),
-            "keyword"     => $this->request->post("w_cate_keyword", ""),
+            "keyword"     => trim($this->request->post("w_cate_keyword", "")),
         ];
         $result = $this->service1688Category->getW($params);
         if( $result["isSuccess"] == true ){

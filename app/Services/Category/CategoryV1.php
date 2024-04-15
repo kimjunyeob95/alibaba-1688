@@ -656,6 +656,10 @@ class CategoryV1 extends CategoryAbstract
                             ->orWhere("b.cate_second", "like", "%" . $keyword . "%")
                             ->orWhere("b.cate_third", "like", "%" . $keyword . "%")
                             ->orWhere("b.cate_fourth", "like", "%" . $keyword . "%");
+                    })
+                    ->orWhere(function($query) use ($keyword) {
+                        $query->where("a.category_id", "like", "%" . $keyword . "%")
+                            ->orWhere("b.mapping_code", "like", "%" . $keyword . "%");
                     });
                 });
             }
@@ -710,7 +714,9 @@ class CategoryV1 extends CategoryAbstract
                     $query1->where("cate_first", "like", "%" . $keyword . "%")
                     ->orWhere("cate_second", "like", "%" . $keyword . "%")
                     ->orWhere("cate_third", "like", "%" . $keyword . "%")
-                    ->orWhere("cate_fourth", "like", "%" . $keyword . "%");
+                    ->orWhere("cate_fourth", "like", "%" . $keyword . "%")
+                    ->orWhere("category_id", "like", "%" . $keyword . "%")
+                    ->orWhere("mapping_code", "like", "%" . $keyword . "%");
                 });
             }
 
