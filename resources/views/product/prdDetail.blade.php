@@ -146,16 +146,19 @@
                         <div class="col-md-3 text-center">WApp 카테고리 (맵핑 코드)</div>
                         <div class="col-md-8">
                             @if ( $prdObj->mapping_status == ProductConstant::MAPPING_STATUS_Y)    
-                                @if(isset($prdObj->w_mapping->cate_first))
-                                    {{ $prdObj->w_mapping->cate_first }}
+                                @php
+                                    $wCate = $prdObj->w_mapping;
+                                @endphp
+                                @if(isset($wCate->w_cate_name->cate_first))
+                                    {{ $wCate->w_cate_name->cate_first }}
                                 @endif
-                                @if(isset($prdObj->w_mapping->cate_second))
-                                    > {{ $prdObj->w_mapping->cate_second }}
+                                @if(isset($wCate->w_cate_name->cate_second))
+                                    > {{ $wCate->w_cate_name->cate_second }}
                                 @endif
-                                @if(isset($prdObj->w_mapping->cate_third))
-                                    > {{ $prdObj->w_mapping->cate_third }}
+                                @if(isset($wCate->w_cate_name->cate_third))
+                                    > {{ $wCate->w_cate_name->cate_third }}
                                 @endif
-                                ({{ $prdObj->w_mapping->mapping_code }})
+                                ({{ $wCate->mapping_code }})
                             @else
                                 <span class="text-danger fs-5">미맵핑</span>
                             @endif

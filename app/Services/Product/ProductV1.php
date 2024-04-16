@@ -127,7 +127,7 @@ class ProductV1 extends ProductAbstract
                 "options",
                 "notices",
                 "category",
-                "w_mapping"
+                "w_mapping.w_cate_name",
             ])->where("offer_id", $offerId)->first();
             if( $prdObj == null ){
                 throw new Exception("No Data");   
