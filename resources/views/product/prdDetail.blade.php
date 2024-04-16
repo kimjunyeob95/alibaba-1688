@@ -40,7 +40,7 @@
                 <li class="breadcrumb-item">
                     <a href="/">상품 리스트</a>
                 </li>
-                <li class="breadcrumb-item active" aria-current="page">1688 수집 상품 상세</li>
+                <li class="breadcrumb-item active" aria-current="page">수집 상품 상세</li>
             </ol>
         </nav>
         

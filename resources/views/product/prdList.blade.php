@@ -22,7 +22,7 @@
                     </a>
                 </li>
                 <li class="breadcrumb-item">상품 리스트</li>
-                <li class="breadcrumb-item active" aria-current="page">1688 수집 상품 리스트</li>
+                <li class="breadcrumb-item active" aria-current="page">수집 상품 리스트</li>
             </ol>
         </nav>
 
