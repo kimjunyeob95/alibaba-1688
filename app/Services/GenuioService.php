@@ -26,7 +26,6 @@ use ValueError;
 
 class GenuioService extends TransApiAbstract
 {
-    private string $appEnv;
     private JwtPackage $jwtPackage;
     private UploadAbstract $uploadAbstract;
     private string $domain;
@@ -39,7 +38,6 @@ class GenuioService extends TransApiAbstract
     )
     {
         parent::__construct(TransApiConstant::API_USER_COMPANY_GENUIO);
-        $this->appEnv         = ( env("APP_ENV", "local") != "production" ) ? "dev/" : "";
         $this->jwtPackage     = $jwtPackage;
         $this->uploadAbstract = $uploadAbstract;
         $this->domain         = env("GENUIO_DOMAIN");
