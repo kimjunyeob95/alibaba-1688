@@ -6,12 +6,14 @@ use App\Abstracts\ProductAbstract;
 use App\Abstracts\TransApiAbstract;
 use App\Abstracts\UploadAbstract;
 use App\Constants\Constant1688;
+use App\Constants\GenuioConstant;
 use App\Constants\ImageConstant;
 use App\Constants\ImageErrorMessageConstant;
 use App\Constants\LogConstant;
 use App\Constants\ProductConstant;
 use App\Constants\ProductErrorMessageConstant;
 use App\Models\CategoryMapping;
+use App\Models\GenuioImageData;
 use App\Models\ProductCollectDetailLog;
 use App\Models\ProductCollectLog;
 use App\Models\ProductData;
@@ -1610,7 +1612,29 @@ class ProductV1 extends ProductAbstract
         $returnMsg = $this->returnMsg;
 
         try {
-            $prdObj = ProductData::with(["images"])->where("offer_id", $offerId)->first();
+            $imgObjs = ProductImageData::where("offer_id", $offerId)
+            ->where("img_url_trans", "!=", "")->get();
+            foreach ($imgObjs as $imgObj) {
+                $gObj = GenuioImageData::where([
+                    "offer_id" => $offerId,
+                    "img_id"   => $imgObj->id,
+                ])->count();
+                if( $gObj < 1 ){
+                    GenuioImageData::insert([
+                        "offer_id"   => $offerId,
+                        "img_id"     => $imgObj->id,
+                        "ai_type"    => GenuioConstant::IMG_Ai_TRANS,
+                        "img_url_ai" => $imgObj->img_url_trans,
+                        "created_at" => $imgObj->created_at,
+                    ]);
+                }
+            }
+
+            $prdObj = ProductData::with([
+                "main_img.ai_imgs",
+                "sub_imgs.ai_imgs",
+                "desc_imgs.ai_imgs",
+            ])->where("offer_id", $offerId)->first();
             if( $prdObj == null ){
                 throw new Exception("No Data");
             }

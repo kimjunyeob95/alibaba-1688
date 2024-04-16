@@ -308,7 +308,7 @@
         </div>
 
         <div class="btn-group me-5 mb-4 fixed-bottom" style="left: auto;">
-            <a href="imgEdit/{{ $prdObj->offer_id }}" target="_blank" class="btn btn-danger btn-lg text-white text-decoration-none">Image 수정</a>
+            <a href="/product/img/edit/{{ $prdObj->offer_id }}" target="_blank" class="btn btn-danger btn-lg text-white text-decoration-none">Image 수정</a>
         </div>
     </div>
 <script type="text/javascript">

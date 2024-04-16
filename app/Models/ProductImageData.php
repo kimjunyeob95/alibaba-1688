@@ -14,4 +14,8 @@ class ProductImageData extends Model
     protected $table      = 'product_image_datas';
     protected $guarded    = [];
     protected $fillable   = [];
+
+    public function ai_imgs () {
+        return $this->hasMany(GenuioImageData::class, "img_id", "id");
+    }
 }

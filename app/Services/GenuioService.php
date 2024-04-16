@@ -97,6 +97,7 @@ class GenuioService extends TransApiAbstract
             $insWhere  = [
                 "offer_id"      => $offerId,
                 "parent_id"     => 0,
+                "send_type"     => GenuioConstant::IMG_TRANS,
                 "payload_json"  => "",
                 "request_user"  => TransApiConstant::API_USER_COMPANY_OC,
                 "response_json" => "",
@@ -306,6 +307,7 @@ class GenuioService extends TransApiAbstract
             $bindParam = [
                 "offerId"       => $getGenuioObj->offer_id,
                 "parent_id"     => $getGenuioObj->id,
+                "send_type"     => $getGenuioObj->send_type,
                 "payload_json"  => "", // base64가 너무 길어 그냥 ""처리
                 "request_user"  => TransApiConstant::API_USER_COMPANY_GENUIO,
                 "response_json" => json_encode($returnMsg, JSON_UNESCAPED_UNICODE),
@@ -420,7 +422,7 @@ class GenuioService extends TransApiAbstract
                         GenuioImageData::create([
                             "offer_id"   => $offerId,
                             "img_id"     => $imgObj->id,
-                            "ai_type"    => GenuioConstant::IMG_TRANS,
+                            "ai_type"    => GenuioConstant::IMG_Ai_TRANS,
                             "img_url_ai" => $img_url_ai
                         ]);
                     } else {
@@ -439,6 +441,94 @@ class GenuioService extends TransApiAbstract
                     ];
                 }
             }
+            $returnMsg = helpers_success_message($resultImgs);
+        } catch (Exception $e) {
+            $returnMsg = helpers_fail_message(false, $e->getMessage());
+        }
+
+        return $returnMsg;
+    }
+
+    /**
+     * @func imgAiTransRequest
+     * @description '이미지 별 AI 알고리즘 요청'
+     * @param array $imgIds
+     * @param array $aiType
+     * @return array
+     */
+    public function imgAiTransRequest(array $imgIds, string $aiType): array
+    {
+        $returnMsg = $this->returnMsg;
+
+        if( env("APP_ENV", "local") != "production" ){
+            return helpers_fail_message(false, "운영 환경에서만 사용 가능합니다.");
+        }
+
+        try {
+            $resultImgs = [];
+            foreach ($imgIds as $imgId) {
+                $imgObj  = ProductImageData::where("id", $imgId)->first();
+                $offerId = $imgObj->offer_id;
+                $aiImgObj = GenuioImageData::where([
+                    "id"       => $imgId,
+                    "offer_id" => $offerId
+                ])->first();
+
+                try {
+                    $insWhere  = [
+                        "offer_id"      => $offerId,
+                        "parent_id"     => 0,
+                        "send_type"     => GenuioConstant::IMG_Ai_TRANS,
+                        "payload_json"  => "",
+                        "request_user"  => TransApiConstant::API_USER_COMPANY_OC,
+                        "response_json" => "",
+                        "created_at"    => Carbon::now()
+                    ];
+                    $nextId = GenuioQueueData::insertGetId($insWhere);
+        
+                    $payload = [
+                        "jobId"  => $nextId,
+                        "images" => []
+                    ];
+                    
+                    $isThumbnail = false;
+                    if( $imgObj->img_type != ImageConstant::IMAGE_TYPE_DESC ){
+                        $isThumbnail = true;
+                    }
+                    $payload["images"][] = [
+                        "id"          => $aiImgObj->id,
+                        "imagePath"   => $aiImgObj->img_url_ai,
+                        "isThumbnail" => $isThumbnail,
+                    ];
+
+                    $queueDetailInsList[] = [
+                        "queue_id"     => $nextId,
+                        "img_id"       => $imgObj->id,
+                        "trans_status" => TransApiConstant::QUEUE_STAY,
+                        "base64"       => "",
+                        "created_at"   => Carbon::now()
+                    ];
+        
+                    if( count($payload["images"]) > 0 ){
+                        $apiResult = $this->apiCurl("post", "/translate-img", $payload);
+        
+                        $upWhere  = [
+                            "payload_json"  => json_encode($payload, JSON_UNESCAPED_UNICODE),
+                            "response_json" => json_encode($apiResult, JSON_UNESCAPED_UNICODE)
+                        ];
+                        GenuioQueueData::where("id", $nextId)->update($upWhere);
+            
+                        foreach ($queueDetailInsList as $queueDetailIns) {
+                            GenuioQueueDetailData::insert($queueDetailIns);
+                        }
+                    }    
+                    $returnMsg = helpers_success_message();
+                } catch (Exception $e) {
+                    $errorMsg  = "offerId: {$offerId} | errorTitle: " . TransApiConstant::getFitErrorMessage("TRANS_REQUEST_IMAGE") . "errorDesc: " . $e->getMessage();
+                    $returnMsg = helpers_fail_message(false, $errorMsg);
+                }
+            }
+
             $returnMsg = helpers_success_message($resultImgs);
         } catch (Exception $e) {
             $returnMsg = helpers_fail_message(false, $e->getMessage());

@@ -101,4 +101,6 @@ Route::name('genuio.')->prefix('genuio')->group(function () {
 
     // 상품 이미지 번역 요청
     Route::post('/img/trans/request', [GenuioController::class, 'imgTransRequest'])->name('imgTransRequest');
+    // 이미지 별 AI 알고리즘 요청
+    Route::post('/img/ai/trans/request', [GenuioController::class, 'imgAiTransRequest'])->name('imgAiTransRequest');
 });
