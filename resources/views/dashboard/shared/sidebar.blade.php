@@ -11,47 +11,83 @@
                 </svg> Dashboard
             </a>
         </li>
-        <li class="nav-title">상품</li>
+        
+        <li class="nav-title">W1</li>
         <li class="nav-group">
             <a class="nav-link nav-group-toggle" href="javascript:;">
                 <svg class="nav-icon">
                     <use xlink:href="/vendors/@coreui/icons/svg/free.svg#cil-3d"></use>
                 </svg>
-                상품 수집 관리
+                상품
             </a>
             <ul class="nav-group-items">
-                <li class="nav-item">
-                    <a class="nav-link" href="/product/queryProductDetail">
-                        상품 ID로 수집
+                <li class="nav-group">
+                    <a class="nav-link nav-group-toggle" href="javascript:;">
+                        <svg class="nav-icon">
+                            <use xlink:href="/vendors/@coreui/icons/svg/free.svg#cil-3d"></use>
+                        </svg>
+                        상품 수집 관리
                     </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/product/keywordQuery">
-                        기본 정보로 수집
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/product/urlQuery">
-                        상품상세 URL로 수집
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/product/imageQuery">
-                        상품 단일 Image로 수집
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/product/imageMultiQuery">
-                        상품 멀티 Image로 수집
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/product/collectLogs">
-                        상품 수집 현황
-                    </a>
+                    <ul class="nav-group-items">
+                        <li class="nav-item">
+                            <a class="nav-link" href="/product/queryProductDetail">
+                                상품 ID로 수집
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/product/keywordQuery">
+                                기본 정보로 수집
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/product/urlQuery">
+                                상품상세 URL로 수집
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/product/imageQuery">
+                                상품 단일 Image로 수집
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/product/imageMultiQuery">
+                                상품 멀티 Image로 수집
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/product/collectLogs">
+                                상품 수집 현황
+                            </a>
+                        </li>
+                    </ul>
                 </li>
             </ul>
         </li>
+
+        <li class="nav-title">W2</li>
+        <li class="nav-group">
+            <a class="nav-link nav-group-toggle" href="javascript:;">
+                <svg class="nav-icon">
+                    <use xlink:href="/vendors/@coreui/icons/svg/free.svg#cil-3d"></use>
+                </svg>
+                상품
+            </a>
+            <ul class="nav-group-items">
+                <li class="nav-group">
+                    <a class="nav-link nav-group-toggle" href="javascript:;">
+                        <svg class="nav-icon">
+                            <use xlink:href="/vendors/@coreui/icons/svg/free.svg#cil-3d"></use>
+                        </svg>
+                        상품 수집 관리
+                    </a>
+                    <ul class="nav-group-items">
+                        
+                    </ul>
+                </li>
+            </ul>
+        </li>
+        
+        <li class="nav-title">W App</li>
         <li class="nav-group">
             <a class="nav-link nav-group-toggle" href="javascript:;">
                 <svg class="nav-icon">
@@ -62,7 +98,7 @@
             <ul class="nav-group-items">
                 <li class="nav-item">
                     <a class="nav-link" href="/product/list">
-                        1688 수집 상품 리스트
+                        수집 상품 리스트
                     </a>
                 </li>
             </ul>

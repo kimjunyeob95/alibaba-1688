@@ -107,11 +107,11 @@
                                     <input class="form-check-input" type="checkbox" id="allCheckbox">
                                 </th>
                                 <th scope="col" style="width: 50px">No</th>
-                                <th scope="col" style="width: 100px">category_id</th>
-                                <th scope="col" style="width: 200px">1688 cate_first</th>
-                                <th scope="col" style="width: 200px">1688 cate_second</th>
-                                <th scope="col" style="width: 200px">1688 cate_third</th>
-                                <th scope="col">W 맵핑 카테고리</th>
+                                <th scope="col" style="width: 100px">카테고리ID</th>
+                                <th scope="col" style="width: 200px">W 1차 분류</th>
+                                <th scope="col" style="width: 200px">W 2차 분류</th>
+                                <th scope="col" style="width: 200px">W 3차 분류</th>
+                                <th scope="col">WApp 맵핑 카테고리</th>
                                 <th scope="col" style="width: 100px">맵핑여부</th>
                                 <th style="width: 100px" class="text-center">관리</th> 
                             </tr>
@@ -185,81 +185,79 @@
                         <h5 class="modal-title" id="htmlModalLabel">카테고리 맵핑</h5>
                     </div>
                     <div class="modal-body">
-                        <form id="searchForm">
-                            <input type="hidden" name="chkCateIds[]" />
-        
-                            <div>
-                                <div class="d-flex align-items-center">
-                                    <label class="fs-5">1688 카테고리</label>
-                                </div>
-                                <div class="d-flex justify-content-evenly px-3">
-                                    <div class="row w-100 cate-1688-list">
-                                    </div>
-                                </div>
-                                <hr>
-
-                                <div class="d-flex justify-content-evenly px-3">
-                                    <div class="row w-100">
-                                        <div class="col">
-                                            <label class="fs-5">W 카테고리</label>
-                                        </div>
-                                        <div class="col">
-                                            <select class="form-control select-opt-w" name="w_cate_first" level="1">
-                                                <option value="">1차 분류</option>
-                                            </select>
-                                        </div>
-                                        <div class="col">
-                                            <select class="form-control select-opt-w" name="w_cate_second" level="2">
-                                                <option value="">2차 분류</option>
-                                            </select>
-                                        </div>
-                                        <div class="col">
-                                            <select class="form-control select-opt-w" name="w_cate_third" level="3">
-                                                <option value="">3차 분류</option>
-                                            </select>
-                                        </div>
-                                        <div class="col">
-                                            <select class="form-control select-opt-w" name="w_cate_fourth" level="4">
-                                                <option value="">4차 분류</option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                </div>
-                                <hr>
-
-                                <div class="d-flex justify-content-evenly px-3">
-                                    <div class="row w-100">
-                                        <div class="col-2">
-                                            <label class="fs-5">W 카테고리 키워드</label>
-                                        </div>
-                                        <div class="col">
-                                            <input type="text" class="form-control" name="w_cate_keyword" placeholder="검색어를 입력하세요." value="">
-                                        </div>
-                                    </div>
-                                </div>
-                                <hr>
-
-                                <div class="text-left">
-                                    <button type="button" class="btn btn-primary btn-w-cate-search">검색</button>
-                                </div>
-                                <hr>
-
-                                <table class="table table-white bg-white w-cate-table">
-                                    <thead class="table-light">
-                                        <tr>
-                                            <th scope="col" style="width: 200px">w 1차 카테고리</th>
-                                            <th scope="col" style="width: 200px">w 2차 카테고리</th>
-                                            <th scope="col" style="width: 200px">w 3차 카테고리</th>
-                                            <th scope="col" style="width: 200px">w 4차 카테고리</th>
-                                            <th scope="col" style="width: 200px">맵핑 코드</th>
-                                            <th scope="col" style="width: 100px">맵핑</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                    </tbody>
-                                </table>
+                        <input type="hidden" name="chkCateIds[]" />
+    
+                        <div>
+                            <div class="d-flex align-items-center">
+                                <label class="fs-7">W 카테고리</label>
                             </div>
-                        </form>
+                            <div class="d-flex justify-content-evenly px-3">
+                                <div class="row w-100 cate-1688-list">
+                                </div>
+                            </div>
+                            <hr>
+
+                            <div class="d-flex justify-content-evenly px-3">
+                                <div class="row w-100">
+                                    <div class="col">
+                                        <label class="fs-7">WApp 카테고리</label>
+                                    </div>
+                                    <div class="col">
+                                        <select class="form-control select-opt-w" name="w_cate_first" level="1">
+                                            <option value="">1차 분류</option>
+                                        </select>
+                                    </div>
+                                    <div class="col">
+                                        <select class="form-control select-opt-w" name="w_cate_second" level="2">
+                                            <option value="">2차 분류</option>
+                                        </select>
+                                    </div>
+                                    <div class="col">
+                                        <select class="form-control select-opt-w" name="w_cate_third" level="3">
+                                            <option value="">3차 분류</option>
+                                        </select>
+                                    </div>
+                                    <div class="col">
+                                        <select class="form-control select-opt-w" name="w_cate_fourth" level="4">
+                                            <option value="">4차 분류</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <hr>
+
+                            <div class="d-flex justify-content-evenly px-3">
+                                <div class="row w-100">
+                                    <div class="col-2">
+                                        <label class="fs-7">WApp 카테고리 키워드</label>
+                                    </div>
+                                    <div class="col">
+                                        <input type="text" class="form-control" name="w_cate_keyword" placeholder="검색어를 입력하세요." value="">
+                                    </div>
+                                </div>
+                            </div>
+                            <hr>
+
+                            <div class="text-left">
+                                <button type="button" class="btn btn-primary btn-w-cate-search">검색</button>
+                            </div>
+                            <hr>
+
+                            <table class="table table-white bg-white w-cate-table">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th scope="col" style="width: 200px">WApp 1차 카테고리</th>
+                                        <th scope="col" style="width: 200px">WApp 2차 카테고리</th>
+                                        <th scope="col" style="width: 200px">WApp 3차 카테고리</th>
+                                        <th scope="col" style="width: 200px">WApp 4차 카테고리</th>
+                                        <th scope="col" style="width: 200px">맵핑 코드</th>
+                                        <th scope="col" style="width: 100px">맵핑</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary htmlModalClose">닫기</button>

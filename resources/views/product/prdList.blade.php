@@ -22,7 +22,7 @@
                     </a>
                 </li>
                 <li class="breadcrumb-item">상품 리스트</li>
-                <li class="breadcrumb-item active" aria-current="page">1688 수집 상품 리스트</li>
+                <li class="breadcrumb-item active" aria-current="page">수집 상품 리스트</li>
             </ol>
         </nav>
 
@@ -57,7 +57,7 @@
                                 </tr>
                                 <tr class="align-middle">
                                     <th style="width: 120px">상품 번역</th>
-                                    <td style="width: 200px">
+                                    <td>
                                         <button type="button" name="trans_status" class="btn-status btn btn-md {{ $trans_status == ProductConstant::TRANS_STATUS_Y ? "btn-primary" : "btn-dark" }}"
                                         value="{{ ProductConstant::TRANS_STATUS_Y }}">완료</button>
                                         <button type="button" name="trans_status" class="btn-status btn btn-md {{ $trans_status == ProductConstant::TRANS_STATUS_N ? "btn-primary" : "btn-dark" }}"
@@ -68,7 +68,7 @@
                                 </tr>
                                 <tr class="align-middle">
                                     <th style="width: 120px">카테고리 맵핑</th>
-                                    <td style="width: 200px">
+                                    <td>
                                         <button type="button" name="mapping_status" class="btn-status btn btn-md {{ $mapping_status == "" ? "btn-primary" : "btn-dark" }}"
                                         value="">전체</button>
                                         <button type="button" name="mapping_status" class="btn-status btn btn-md {{ $mapping_status == ProductConstant::MAPPING_STATUS_Y ? "btn-primary" : "btn-dark" }}"
@@ -135,7 +135,7 @@
                                 <th scope="col" style="width: 100px">원본이미지</th>
                                 <th scope="col" style="width: 100px">번역이미지</th>
                                 <th scope="col" style="width: 150px" class="text-center">
-                                    1688 소비자가<br>
+                                    W 소비자가<br>
                                     옵션가격<br>
                                     온채널가<br>
                                     소비자가

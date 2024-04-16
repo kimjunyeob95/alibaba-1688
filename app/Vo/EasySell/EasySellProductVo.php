@@ -56,6 +56,7 @@ class EasySellProductVo extends Vo
     protected string $ItemCertificationInfo;
     protected string $OptIf;
     protected string $Exhibition;
+    protected int $MinEa;
     //상품 승인요청여부
     protected string $ItemApproveAuto;
 
@@ -108,7 +109,8 @@ class EasySellProductVo extends Vo
         $this->ItemCertificationInfo      = $data['ItemCertificationInfo'] ?? "";
         $this->OptIf                      = $data['OptIf'] ?? "N";
         $this->Exhibition                 = $data['Exhibition'] ?? "N";
-        $this->ItemApproveAuto            = "Y";       // 테스트 완료시 N으로 수정
+        $this->MinEa                      = $data['MinEa'] ?? 1;
+        $this->ItemApproveAuto            = "Y";                                   // 테스트 완료시 N으로 수정
 
         $this->_makeItemGoodsRequired($data['noticeType']);
     }

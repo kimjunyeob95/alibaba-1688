@@ -58,4 +58,15 @@ class MallApiService
     {
         return $this->mallApiAbstract->orderCreate($params);
     }
+
+    /**
+     * @func categoryMapping
+     * @description '카테고리 매핑'
+     *
+     * @return array
+     */
+    public function categoryMapping() :array
+    {
+        return $this->mallApiAbstract->categoryMapping();
+    }
 }

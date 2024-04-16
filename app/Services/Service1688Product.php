@@ -2,7 +2,6 @@
 
 namespace App\Services;
 
-use App\Abstracts\CategoryAbstract;
 use App\Abstracts\ProductAbstract;
 use App\Constants\LogConstant;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -10,15 +9,12 @@ use Illuminate\Http\UploadedFile;
 
 class Service1688Product
 {
-   private CategoryAbstract $categoryAbstract;
    private ProductAbstract $productAbstract;
 
    public function __construct(
-      CategoryAbstract $categoryAbstract,
       ProductAbstract $productAbstract
    )
    {
-      $this->categoryAbstract = $categoryAbstract;
       $this->productAbstract  = $productAbstract;
    }
 
@@ -283,155 +279,13 @@ class Service1688Product
       return $this->productAbstract->urlQueryDel($ids);
    }
 
-
-   /* =========================================== 카테고리 Abstract =================================================================================== */
-
    /**
-     * @func getAllCategory
-     * @description '수집 한 카테고리를 단계별로 정리한 데이터 목록'
-     * @return array
-     */
-   public function getAllCategory(mixed $parent_cate_id): array
-   {
-      return $this->categoryAbstract->getAllCategory($parent_cate_id);
-   }
-
-   /**
-     * @func getTreeCategory
-     * @description '수집 한 최상위 카테고리 단위를 계층별 목록으로 반환'
-     * @param int $categoryId '카테고리 ID'
-     * @return array
-     */
-   public function getTreeCategory(int $categoryId): array
-   {
-      return $this->categoryAbstract->getTreeCategory($categoryId);
-   }
-
-   /**
-     * @func getMappingCategory
-     * @description '1688<->채널 카테고리 맵핑 조회'
-     * @param string $channel
-     * @return array
-     */
-   public function getMappingCategory(string $channel): array
-   {
-      return $this->categoryAbstract->getMappingCategory($channel);
-   }
-
-   /**
-     * @func getMallCategory
-     * @description '오픈API 카테고리 endPoint 조회'
-     * @param int $categoryId '카테고리 ID'
-     * @return array
-     */
-   public function getMallCategory(int $categoryId): array
-   {
-      return $this->categoryAbstract->getMallCategory($categoryId);
-   }
-
-   /**
-     * @func saveCategory
-     * @description '1688API 카테고리 endPoint 조회 후 저장'
-     * @return void
-     */
-   public function saveCategory(): void
-   {
-      $this->categoryAbstract->saveCategory();
-   }
-
-   /**
-     * @func saveCategoryMapping
-     * @description 'categories 테이블의 데이터들을 category_mappings 테이블로 정리'
-     * @return void
-     */
-   public function saveCategoryMapping(): void
-   {
-      $this->categoryAbstract->saveCategoryMapping();
-   }
-
-   /**
-     * @func saveWCategory
-     * @description 'w_categories 카테고리 테이블로 insert'
+     * @func wAppProductMapping
+     * @description 'wapp 상품 미맵핑 컬럼 업데이트'
      * @return void
    */
-   public function saveWCategory(): void
+   public function wAppProductMapping(): void
    {
-      $this->categoryAbstract->saveWCategory();
-   }
-
-   /**
-     * @func saveWCategoryMapping
-     * @description 'categories 테이블의 데이터들을 w_categories 테이블로 정리'
-     * @return void
-   */
-   public function saveWCategoryMapping(): void
-   {
-      $this->categoryAbstract->saveWCategoryMapping();
-   }
-
-   /**
-     * @func cateList
-     * @description '카테고리 리스트'
-     * @param array $params
-     * @return array
-   */
-   public function cateList(array $params): array
-   {
-      return $this->categoryAbstract->cateList($params);
-   }
-
-   /**
-     * @func getW
-     * @description 'W 카테고리 조회'
-     * @param array $params
-     * @return array
-   */
-   public function getW(array $params): array
-   {
-      return $this->categoryAbstract->getW($params);
-   }
-
-   /**
-     * @func wMapping
-     * @description 'W 카테고리 맵핑'
-     * @param array $params
-     * @return array
-   */
-   public function wMapping(array $params): array
-   {
-      return $this->categoryAbstract->wMapping($params);
-   }
-
-   /**
-     * @func getDepth
-     * @description '하위 카테고리 조회'
-     * @param int $categoryId '카테고리 ID'
-     * @return array
-   */
-   public function getDepth(int $categoryId): array
-   {
-      return $this->categoryAbstract->getDepth($categoryId);
-   }
-
-   /**
-     * @func getWDepth
-     * @description 'W 하위 카테고리 조회'
-     * @param array $params
-     * @return array
-   */
-   public function getWDepth(array $params): array
-   {
-      return $this->categoryAbstract->getWDepth($params);
-   }
-
-   /**
-     * @func getInfos
-     * @description '카테고리 정보 조회'
-     * @param array $categoryIds '카테고리 ID'
-     * @return array
-   */
-   public function getInfos(array $categoryIds): array
-   {
-      return $this->categoryAbstract->getInfos($categoryIds);
+      $this->productAbstract->wAppProductMapping();
    }
 }

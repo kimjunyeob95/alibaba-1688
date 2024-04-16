@@ -3,12 +3,15 @@
 namespace App\Console;
 
 use App\Console\Commands\EasySellCommand;
+use App\Console\Commands\Save1688AllCategory;
 use App\Console\Commands\Save1688AllProducts;
 use App\Console\Commands\Save1688Category;
 use App\Console\Commands\Save1688CategoryMapping;
+use App\Console\Commands\Save1688CategoryTree;
 use App\Console\Commands\Save1688CollectProduct;
 use App\Console\Commands\Save1688ProductByCategotyId;
 use App\Console\Commands\Save1688ProductByImageId;
+use App\Console\Commands\SaveWAppProductMapping;
 use App\Console\Commands\SaveWCategory;
 use App\Console\Commands\SaveWCategoryMapping;
 use App\Console\Commands\TestCommands;
@@ -18,14 +21,17 @@ use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 class Kernel extends ConsoleKernel
 {
     protected $commands = [
+        Save1688AllCategory::class,
         Save1688Category::class,
         Save1688CategoryMapping::class,
+        Save1688CategoryTree::class,
         SaveWCategory::class,
         SaveWCategoryMapping::class,
         Save1688ProductByCategotyId::class,
         Save1688ProductByImageId::class,
         Save1688AllProducts::class,
         Save1688CollectProduct::class,
+        SaveWAppProductMapping::class,
         EasySellCommand::class,
         TestCommands::class,
     ];

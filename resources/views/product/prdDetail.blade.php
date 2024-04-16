@@ -40,7 +40,7 @@
                 <li class="breadcrumb-item">
                     <a href="/">상품 리스트</a>
                 </li>
-                <li class="breadcrumb-item active" aria-current="page">1688 수집 상품 상세</li>
+                <li class="breadcrumb-item active" aria-current="page">수집 상품 상세</li>
             </ol>
         </nav>
         
@@ -125,26 +125,42 @@
                         <div class="col-md-8">{{ $prdObj->prd_name_trans }}</div>
                     </div>
                     <div class="row mb-2">
-                        <div class="col-md-3 text-center">맵핑 카테고리</div>
+                        <div class="col-md-3 text-center">W 카테고리</div>
                         <div class="col-md-8">
-                            {{ $prdObj->category->cate_first }}
-                            @if($prdObj->category->cate_second)
-                                > {{ $prdObj->category->cate_second }}
-                            @endif
-                            @if($prdObj->category->cate_third)
-                                > {{ $prdObj->category->cate_third }}
+                            @if ( $prdObj->category != null )   
+                                @if(isset($prdObj->category->cate_first))
+                                    {{ $prdObj->category->cate_first }}
+                                @endif
+                                @if(isset($prdObj->category->cate_second))
+                                    > {{ $prdObj->category->cate_second }}
+                                @endif
+                                @if(isset($prdObj->category->cate_third))
+                                    > {{ $prdObj->category->cate_third }}
+                                @endif
+                            @else
+                                <span class="text-danger fs-5">미수집된 W 카테고리</span>
                             @endif
                         </div>
                     </div>
                     <div class="row mb-2">
-                        <div class="col-md-3 text-center">1688 카테고리</div>
+                        <div class="col-md-3 text-center">WApp 카테고리 (맵핑 코드)</div>
                         <div class="col-md-8">
-                            {{ $prdObj->category->cate_chinese_first }}
-                            @if($prdObj->category->cate_chinese_second)
-                                > {{ $prdObj->category->cate_chinese_second }}
-                            @endif
-                            @if($prdObj->category->cate_chinese_third)
-                                > {{ $prdObj->category->cate_chinese_third }}
+                            @if ( $prdObj->mapping_status == ProductConstant::MAPPING_STATUS_Y)    
+                                @php
+                                    $wCate = $prdObj->w_mapping;
+                                @endphp
+                                @if(isset($wCate->w_cate_name->cate_first))
+                                    {{ $wCate->w_cate_name->cate_first }}
+                                @endif
+                                @if(isset($wCate->w_cate_name->cate_second))
+                                    > {{ $wCate->w_cate_name->cate_second }}
+                                @endif
+                                @if(isset($wCate->w_cate_name->cate_third))
+                                    > {{ $wCate->w_cate_name->cate_third }}
+                                @endif
+                                ({{ $wCate->mapping_code }})
+                            @else
+                                <span class="text-danger fs-5">미맵핑</span>
                             @endif
                         </div>
                     </div>
@@ -171,7 +187,7 @@
                                     <th scope="col">skuID</th>
                                     <th scope="col">옵션명</th>
                                     <th scope="col">옵션명(번역)</th>
-                                    <th scope="col">1688 소비자가</th>
+                                    <th scope="col">W 소비자가</th>
                                     <th scope="col">옵션가격</th>
                                     <th scope="col">온채널가</th>
                                     <th scope="col">소비자가</th>

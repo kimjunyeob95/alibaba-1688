@@ -126,7 +126,8 @@ class ProductV1 extends ProductAbstract
                 "extends",
                 "options",
                 "notices",
-                "category"
+                "category",
+                "w_mapping.w_cate_name",
             ])->where("offer_id", $offerId)->first();
             if( $prdObj == null ){
                 throw new Exception("No Data");   
@@ -546,11 +547,8 @@ class ProductV1 extends ProductAbstract
 
         // 1. 상품 이미지
         $product1688ImageDtoList = [];
-        if( count($detailProduct["productImage"]["images"]) < 5 ) {
-            throw new Exception(ProductErrorMessageConstant::getNotHaveErrorMessage("PRODUCT_MAIN_IMG"));
-        }
         foreach ($detailProduct["productImage"]["images"] as $imgKey => $prdImage) {
-            if( $imgKey == 4 ) {
+            if( $imgKey == 0 ) {
                 $imgType = ImageConstant::IMAGE_TYPE_MAIN;
             } else {
                 $imgType = ImageConstant::IMAGE_TYPE_SUB;
@@ -617,8 +615,11 @@ class ProductV1 extends ProductAbstract
 
         // 2. 상품 기본정보
         $mapping_status = ProductConstant::MAPPING_STATUS_N;
-        $getCategoryMappingObj = WCategory::select(["mapping_code"])
-        ->where("category_id", $prdCategoryId)->first();
+        $getCategoryMappingObj = CategoryMapping::select(["mapping_code"])
+        ->where([
+            "mapping_channel" => ProductConstant::MAPPING_WAPP,
+            "category_id"     => $prdCategoryId,
+        ])->first();
         if( $getCategoryMappingObj != null ){
             $mapping_status = ProductConstant::MAPPING_STATUS_Y;
         }
@@ -1602,5 +1603,51 @@ class ProductV1 extends ProductAbstract
         }
 
         return $returnMsg;
+    }
+
+    public function wAppProductMapping(): void
+    {
+        $msg = "======================== 실행 시작 ========================";
+        debug_log($msg, "wAppProductMapping", "wAppProductMapping");
+
+        try {
+            //1. category_mappings upsert
+            $wObjs = WCategory::where("category_id", "!=", 0)->get();
+            foreach ($wObjs as $wObj) {
+                $category_id = $wObj->category_id;
+                $upsertWhere = [
+                    "mapping_chaneel" => ProductConstant::MAPPING_WAPP,
+                    "mapping_code"    => $wObj->mapping_code,
+                ];
+                CategoryMapping::updateOrCreate(
+                    ["category_id" => $category_id],
+                    $upsertWhere
+                );
+            }
+
+            $prdObjs = ProductData::where()->get();
+            foreach ($prdObjs as $prdObj) {
+                $mapping_status = ProductConstant::MAPPING_STATUS_N;
+                $cateObj = CategoryMapping::where([
+                    "mapping_channel" => ProductConstant::MAPPING_WAPP,
+                    "category_id"     => $prdObj->category_id,
+                ])->first();
+
+                if( $cateObj != null ){
+                    $mapping_status = ProductConstant::MAPPING_STATUS_Y;
+                }
+
+                ProductData::where("id", $prdObj->id)->update([
+                    "mapping_status" => $mapping_status
+                ]);
+            }
+        } catch (Exception $e) {
+            $msg = "======================== 에러 발생 ========================\r\n";
+            $msg .= $e->getMessage();
+            debug_log($msg, "wAppProductMapping", "wAppProductMapping", LogLevel::ERROR);
+        }
+
+        $msg = "======================== 실행 종료 ========================";
+        debug_log($msg, "wAppProductMapping", "wAppProductMapping");
     }
 }
