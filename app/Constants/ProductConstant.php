@@ -96,6 +96,7 @@ class ProductConstant
         self::OPTION_SEC_OUT_OF_STOCK_NUMBER => self::OPTION_SEC_OUT_OF_STOCK,
     ];
 
+    public const MAPPING_WAPP       = "WApp";
     public const MAPPING_OC_CHANNEL = "onchannel";
     public const MAPPING_ES_CHANNEL = "easySell";
 

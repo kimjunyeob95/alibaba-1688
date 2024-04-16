@@ -59,6 +59,16 @@ class Service1688Category
    }
 
    /**
+     * @func save1688AllCategory
+     * @description '1688 모든 최상위 카테고리 저장'
+     * @return void
+   */
+   public function save1688AllCategory(): void
+   {
+      $this->categoryAbstract->save1688AllCategory();
+   }
+
+   /**
      * @func saveCategory
      * @description '1688API 카테고리 endPoint 조회 후 저장'
      * @return void
@@ -162,5 +172,15 @@ class Service1688Category
    public function getInfos(array $categoryIds): array
    {
       return $this->categoryAbstract->getInfos($categoryIds);
+   }
+
+   /**
+     * @func saveCategoryTree
+     * @description 'categories 테이블의 데이터들을 category_trees 테이블로 정리'
+     * @return void
+   */
+   public function saveCategoryTree(): void
+   {
+      $this->categoryAbstract->saveCategoryTree();
    }
 }

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Constants\HttpConstant;
+use App\Constants\ImageErrorMessageConstant;
 use App\Http\Controllers\Controller;
 use App\Services\GenuioService;
 use Exception;
@@ -87,6 +88,34 @@ class GenuioController extends Controller
                 throw new Exception($validator->errors()->first());
             }
             $result = $this->genuioService->imgTransRequest($this->request->post("offerIds"));
+            if( $result["isSuccess"] == true ){
+                return helpers_json_response(HttpConstant::OK, $result);
+            } else {
+                return helpers_json_response(HttpConstant::BAD_REQUEST, [], $result["msg"]);
+            }
+        } catch (Exception $e) {
+            return helpers_json_response(HttpConstant::BAD_REQUEST, [], $e->getMessage());
+        }
+    }
+
+    public function imgAiRegist(int $offerId): JsonResponse
+    {
+        try {
+            $validator = Validator::make($this->request->all(), [
+                'images'          => 'required|array',
+                'images.*.id'     => 'required|int',
+                'images.*.base64' => 'required|string',
+            ], [
+                'images.required'          => ImageErrorMessageConstant::getNotHaveErrorMessage("IMAGES"),
+                'images.*.id.required'     => ImageErrorMessageConstant::getNotHaveErrorMessage("IMAGES_ID"),
+                'images.*.base64.required' => ImageErrorMessageConstant::getNotHaveErrorMessage("IMAGES_BASE64")
+            ]);
+            if ($validator->fails()) {
+                throw new Exception($validator->errors()->first());
+            }
+            
+            $images = $this->request->post("images");
+            $result = $this->genuioService->imgAiRegist($offerId, $images);
             if( $result["isSuccess"] == true ){
                 return helpers_json_response(HttpConstant::OK, $result);
             } else {

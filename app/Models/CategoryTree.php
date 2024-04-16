@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Constants\ProductConstant;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -18,6 +19,6 @@ class CategoryTree extends Model
     }
 
     public function w_category () {
-        return $this->hasOne(WCategory::class, "category_id", "category_id");
+        return $this->hasOne(CategoryMapping::class, "category_id", "category_id")->where("mapping_channel", ProductConstant::MAPPING_WAPP);
     }
 }

@@ -169,4 +169,11 @@ abstract class ProductAbstract
      * @return array
      */
     abstract function getPrdImageEdit(int $offerId): array;
+
+    /**
+     * @func wAppProductMapping
+     * @description 'wapp 상품 미맵핑 컬럼 업데이트'
+     * @return void
+    */
+    abstract function wAppProductMapping(): void;
 }

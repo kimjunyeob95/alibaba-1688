@@ -289,4 +289,14 @@ class Service1688Product
    {
       return $this->productAbstract->getPrdImageEdit($offerId);
    }
+
+   /**
+     * @func wAppProductMapping
+     * @description 'wapp 상품 미맵핑 컬럼 업데이트'
+     * @return void
+   */
+   public function wAppProductMapping(): void
+   {
+      $this->productAbstract->wAppProductMapping();
+   }
 }

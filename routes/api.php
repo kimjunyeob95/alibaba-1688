@@ -95,8 +95,8 @@ Route::name('genuio.')->prefix('genuio')->group(function () {
 
         // 상품 조회
         Route::get('/products', [WProductController::class, "apiPrdList"])->name("products");
-        // 상품 이미지 수정
-        Route::patch('/products/{offerId}/images', [WProductController::class, "productsUpdateImages"])->name("productsUpdateImages");
+        // AI 이미지 저장
+        Route::patch('/products/{offerId}/images', [GenuioController::class, "imgAiRegist"])->name("imgAiRegist");
     });
 
     // 상품 이미지 번역 요청

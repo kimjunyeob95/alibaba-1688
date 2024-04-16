@@ -1,0 +1,537 @@
+{
+    "result": {
+        "success": true,
+        "code": "S0000",
+        "message": "成功",
+        "result": {
+            "categoryId": 0,
+            "leaf": "false",
+            "level": "0",
+            "fromCache": true,
+            "children": [
+                {
+                    "categoryId": 1043472,
+                    "chineseName": "毛巾、巾类",
+                    "translatedName": "수건, 수건 수업",
+                    "language": "ko",
+                    "leaf": false,
+                    "level": "1",
+                    "parentCateId": 0
+                },
+                {
+                    "categoryId": 10208,
+                    "chineseName": "仪器仪表",
+                    "translatedName": "계측",
+                    "language": "ko",
+                    "leaf": false,
+                    "level": "1",
+                    "parentCateId": 0
+                },
+                {
+                    "categoryId": 1038378,
+                    "chineseName": "鞋",
+                    "translatedName": "신발",
+                    "language": "ko",
+                    "leaf": false,
+                    "level": "1",
+                    "parentCateId": 0
+                },
+                {
+                    "categoryId": 1,
+                    "chineseName": "农业",
+                    "translatedName": "농업",
+                    "language": "ko",
+                    "leaf": false,
+                    "level": "1",
+                    "parentCateId": 0
+                },
+                {
+                    "categoryId": 10,
+                    "chineseName": "能源",
+                    "translatedName": "에너지",
+                    "language": "ko",
+                    "leaf": false,
+                    "level": "1",
+                    "parentCateId": 0
+                },
+                {
+                    "categoryId": 1042954,
+                    "chineseName": "箱包皮具",
+                    "translatedName": "수하물 및 가죽 제품",
+                    "language": "ko",
+                    "leaf": false,
+                    "level": "1",
+                    "parentCateId": 0
+                },
+                {
+                    "categoryId": 122916001,
+                    "chineseName": "宠物及园艺",
+                    "translatedName": "애완 동물과 원예",
+                    "language": "ko",
+                    "leaf": false,
+                    "level": "1",
+                    "parentCateId": 0
+                },
+                {
+                    "categoryId": 122916002,
+                    "chineseName": "汽车用品",
+                    "translatedName": "자동차 용품",
+                    "language": "ko",
+                    "leaf": false,
+                    "level": "1",
+                    "parentCateId": 0
+                },
+                {
+                    "categoryId": 12,
+                    "chineseName": "交通运输",
+                    "translatedName": "교통",
+                    "language": "ko",
+                    "leaf": false,
+                    "level": "1",
+                    "parentCateId": 0
+                },
+                {
+                    "categoryId": 123614001,
+                    "chineseName": "钢铁",
+                    "translatedName": "스틸",
+                    "language": "ko",
+                    "leaf": false,
+                    "level": "1",
+                    "parentCateId": 0
+                },
+                {
+                    "categoryId": 10165,
+                    "chineseName": "男装",
+                    "translatedName": "남성복",
+                    "language": "ko",
+                    "leaf": false,
+                    "level": "1",
+                    "parentCateId": 0
+                },
+                {
+                    "categoryId": 10166,
+                    "chineseName": "女装",
+                    "translatedName": "여성 의류",
+                    "language": "ko",
+                    "leaf": false,
+                    "level": "1",
+                    "parentCateId": 0
+                },
+                {
+                    "categoryId": 1426,
+                    "chineseName": "机床",
+                    "translatedName": "공작 기계",
+                    "language": "ko",
+                    "leaf": false,
+                    "level": "1",
+                    "parentCateId": 0
+                },
+                {
+                    "categoryId": 1813,
+                    "chineseName": "玩具",
+                    "translatedName": "장난감",
+                    "language": "ko",
+                    "leaf": false,
+                    "level": "1",
+                    "parentCateId": 0
+                },
+                {
+                    "categoryId": 201547801,
+                    "chineseName": "日用餐厨饮具",
+                    "translatedName": "매일 음식, 주방 및 음주 용품",
+                    "language": "ko",
+                    "leaf": false,
+                    "level": "1",
+                    "parentCateId": 0
+                },
+                {
+                    "categoryId": 59,
+                    "chineseName": "五金、工具",
+                    "translatedName": "하드웨어, 도구",
+                    "language": "ko",
+                    "leaf": false,
+                    "level": "1",
+                    "parentCateId": 0
+                },
+                {
+                    "categoryId": 6,
+                    "chineseName": "家用电器",
+                    "translatedName": "가전 제품",
+                    "language": "ko",
+                    "leaf": false,
+                    "level": "1",
+                    "parentCateId": 0
+                },
+                {
+                    "categoryId": 73,
+                    "chineseName": "项目合作",
+                    "translatedName": "프로젝트 협력",
+                    "language": "ko",
+                    "leaf": false,
+                    "level": "1",
+                    "parentCateId": 0
+                },
+                {
+                    "categoryId": 127380009,
+                    "chineseName": "运动服饰",
+                    "translatedName": "스포츠웨어",
+                    "language": "ko",
+                    "leaf": false,
+                    "level": "1",
+                    "parentCateId": 0
+                },
+                {
+                    "categoryId": 2,
+                    "chineseName": "食品酒水",
+                    "translatedName": "음식 술꾼",
+                    "language": "ko",
+                    "leaf": false,
+                    "level": "1",
+                    "parentCateId": 0
+                },
+                {
+                    "categoryId": 200514001,
+                    "chineseName": "床上用品",
+                    "translatedName": "침구",
+                    "language": "ko",
+                    "leaf": false,
+                    "level": "1",
+                    "parentCateId": 0
+                },
+                {
+                    "categoryId": 51,
+                    "chineseName": "代理",
+                    "translatedName": "에이전트",
+                    "language": "ko",
+                    "leaf": false,
+                    "level": "1",
+                    "parentCateId": 0
+                },
+                {
+                    "categoryId": 69,
+                    "chineseName": "商务服务",
+                    "translatedName": "비즈니스 서비스",
+                    "language": "ko",
+                    "leaf": false,
+                    "level": "1",
+                    "parentCateId": 0
+                },
+                {
+                    "categoryId": 68,
+                    "chineseName": "包装",
+                    "translatedName": "포장",
+                    "language": "ko",
+                    "leaf": false,
+                    "level": "1",
+                    "parentCateId": 0
+                },
+                {
+                    "categoryId": 7,
+                    "chineseName": "数码、电脑",
+                    "translatedName": "디지털, 컴퓨터",
+                    "language": "ko",
+                    "leaf": false,
+                    "level": "1",
+                    "parentCateId": 0
+                },
+                {
+                    "categoryId": 70,
+                    "chineseName": "安全、防护",
+                    "translatedName": "안전, 보호",
+                    "language": "ko",
+                    "leaf": false,
+                    "level": "1",
+                    "parentCateId": 0
+                },
+                {
+                    "categoryId": 97,
+                    "chineseName": "美容护肤/彩妆",
+                    "translatedName": "뷰티 스킨 케어/메이크업",
+                    "language": "ko",
+                    "leaf": false,
+                    "level": "1",
+                    "parentCateId": 0
+                },
+                {
+                    "categoryId": 96,
+                    "chineseName": "家纺家饰",
+                    "translatedName": "홈 섬유 홈 장식",
+                    "language": "ko",
+                    "leaf": false,
+                    "level": "1",
+                    "parentCateId": 0
+                },
+                {
+                    "categoryId": 66,
+                    "chineseName": "医药、保养",
+                    "translatedName": "의학, 유지 보수",
+                    "language": "ko",
+                    "leaf": false,
+                    "level": "1",
+                    "parentCateId": 0
+                },
+                {
+                    "categoryId": 65,
+                    "chineseName": "机械及行业设备",
+                    "translatedName": "기계 및 산업 장비",
+                    "language": "ko",
+                    "leaf": false,
+                    "level": "1",
+                    "parentCateId": 0
+                },
+                {
+                    "categoryId": 67,
+                    "chineseName": "办公、文化",
+                    "translatedName": "사무실, 문화",
+                    "language": "ko",
+                    "leaf": false,
+                    "level": "1",
+                    "parentCateId": 0
+                },
+                {
+                    "categoryId": 202052814,
+                    "chineseName": "新能源",
+                    "translatedName": "새로운 에너지",
+                    "language": "ko",
+                    "leaf": false,
+                    "level": "1",
+                    "parentCateId": 0
+                },
+                {
+                    "categoryId": 2805,
+                    "chineseName": "加工",
+                    "translatedName": "처리",
+                    "language": "ko",
+                    "leaf": false,
+                    "level": "1",
+                    "parentCateId": 0
+                },
+                {
+                    "categoryId": 509,
+                    "chineseName": "通信产品",
+                    "translatedName": "통신 제품",
+                    "language": "ko",
+                    "leaf": false,
+                    "level": "1",
+                    "parentCateId": 0
+                },
+                {
+                    "categoryId": 5,
+                    "chineseName": "电工电气",
+                    "translatedName": "전기 전기",
+                    "language": "ko",
+                    "leaf": false,
+                    "level": "1",
+                    "parentCateId": 0
+                },
+                {
+                    "categoryId": 8,
+                    "chineseName": "化工",
+                    "translatedName": "화학",
+                    "language": "ko",
+                    "leaf": false,
+                    "level": "1",
+                    "parentCateId": 0
+                },
+                {
+                    "categoryId": 15,
+                    "chineseName": "居家日用品",
+                    "translatedName": "가정 생활 필수품",
+                    "language": "ko",
+                    "leaf": false,
+                    "level": "1",
+                    "parentCateId": 0
+                },
+                {
+                    "categoryId": 64,
+                    "chineseName": "环保",
+                    "translatedName": "환경 보호",
+                    "language": "ko",
+                    "leaf": false,
+                    "level": "1",
+                    "parentCateId": 0
+                },
+                {
+                    "categoryId": 17,
+                    "chineseName": "工艺品、礼品",
+                    "translatedName": "예술과 공예, 선물",
+                    "language": "ko",
+                    "leaf": false,
+                    "level": "1",
+                    "parentCateId": 0
+                },
+                {
+                    "categoryId": 201547901,
+                    "chineseName": "收纳清洁用具",
+                    "translatedName": "저장 청소 기기",
+                    "language": "ko",
+                    "leaf": false,
+                    "level": "1",
+                    "parentCateId": 0
+                },
+                {
+                    "categoryId": 9,
+                    "chineseName": "冶金矿产",
+                    "translatedName": "야금 광물",
+                    "language": "ko",
+                    "leaf": false,
+                    "level": "1",
+                    "parentCateId": 0
+                },
+                {
+                    "categoryId": 13,
+                    "chineseName": "家装建材",
+                    "translatedName": "주택 개량 건축 자재",
+                    "language": "ko",
+                    "leaf": false,
+                    "level": "1",
+                    "parentCateId": 0
+                },
+                {
+                    "categoryId": 130822002,
+                    "chineseName": "餐饮生鲜",
+                    "translatedName": "신선한 케이터링",
+                    "language": "ko",
+                    "leaf": false,
+                    "level": "1",
+                    "parentCateId": 0
+                },
+                {
+                    "categoryId": 2829,
+                    "chineseName": "二手设备转让",
+                    "translatedName": "중고 장비의 전송",
+                    "language": "ko",
+                    "leaf": false,
+                    "level": "1",
+                    "parentCateId": 0
+                },
+                {
+                    "categoryId": 72,
+                    "chineseName": "印刷",
+                    "translatedName": "인쇄",
+                    "language": "ko",
+                    "leaf": false,
+                    "level": "1",
+                    "parentCateId": 0
+                },
+                {
+                    "categoryId": 71,
+                    "chineseName": "汽摩及配件",
+                    "translatedName": "자동차 부품 및 액세서리",
+                    "language": "ko",
+                    "leaf": false,
+                    "level": "1",
+                    "parentCateId": 0
+                },
+                {
+                    "categoryId": 130822220,
+                    "chineseName": "个护/家清",
+                    "translatedName": "가드/홈 클리어",
+                    "language": "ko",
+                    "leaf": false,
+                    "level": "1",
+                    "parentCateId": 0
+                },
+                {
+                    "categoryId": 130823000,
+                    "chineseName": "成人用品",
+                    "translatedName": "성인 용품",
+                    "language": "ko",
+                    "leaf": false,
+                    "level": "1",
+                    "parentCateId": 0
+                },
+                {
+                    "categoryId": 18,
+                    "chineseName": "运动户外",
+                    "translatedName": "야외 스포츠",
+                    "language": "ko",
+                    "leaf": false,
+                    "level": "1",
+                    "parentCateId": 0
+                },
+                {
+                    "categoryId": 201346017,
+                    "chineseName": "建材",
+                    "translatedName": "건축 자재",
+                    "language": "ko",
+                    "leaf": false,
+                    "level": "1",
+                    "parentCateId": 0
+                },
+                {
+                    "categoryId": 312,
+                    "chineseName": "内衣",
+                    "translatedName": "속옷",
+                    "language": "ko",
+                    "leaf": false,
+                    "level": "1",
+                    "parentCateId": 0
+                },
+                {
+                    "categoryId": 311,
+                    "chineseName": "童装",
+                    "translatedName": "아동복",
+                    "language": "ko",
+                    "leaf": false,
+                    "level": "1",
+                    "parentCateId": 0
+                },
+                {
+                    "categoryId": 4,
+                    "chineseName": "纺织、皮革",
+                    "translatedName": "섬유, 가죽",
+                    "language": "ko",
+                    "leaf": false,
+                    "level": "1",
+                    "parentCateId": 0
+                },
+                {
+                    "categoryId": 57,
+                    "chineseName": "电子元器件",
+                    "translatedName": "전자 부품",
+                    "language": "ko",
+                    "leaf": false,
+                    "level": "1",
+                    "parentCateId": 0
+                },
+                {
+                    "categoryId": 58,
+                    "chineseName": "灯饰照明",
+                    "translatedName": "조명",
+                    "language": "ko",
+                    "leaf": false,
+                    "level": "1",
+                    "parentCateId": 0
+                },
+                {
+                    "categoryId": 54,
+                    "chineseName": "服饰配件、饰品",
+                    "translatedName": "의류 액세서리, 액세서리",
+                    "language": "ko",
+                    "leaf": false,
+                    "level": "1",
+                    "parentCateId": 0
+                },
+                {
+                    "categoryId": 53,
+                    "chineseName": "传媒、广电",
+                    "translatedName": "미디어, 라디오 및 텔레비전",
+                    "language": "ko",
+                    "leaf": false,
+                    "level": "1",
+                    "parentCateId": 0
+                },
+                {
+                    "categoryId": 55,
+                    "chineseName": "橡塑",
+                    "translatedName": "고무 및 플라스틱",
+                    "language": "ko",
+                    "leaf": false,
+                    "level": "1",
+                    "parentCateId": 0
+                }
+            ]
+        }
+    }
+}

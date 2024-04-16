@@ -4,9 +4,13 @@ namespace App\Services;
 
 use App\Abstracts\TransApiAbstract;
 use App\Abstracts\UploadAbstract;
+use App\Constants\GenuioConstant;
 use App\Constants\ImageConstant;
+use App\Constants\ImageErrorMessageConstant;
+use App\Constants\ProductErrorMessageConstant;
 use App\Constants\TransApiConstant;
 use App\Models\ApiUser;
+use App\Models\GenuioImageData;
 use App\Models\GenuioQueueData;
 use App\Models\GenuioQueueDetailData;
 use App\Models\ProductData;
@@ -367,6 +371,79 @@ class GenuioService extends TransApiAbstract
             $returnMsg = helpers_fail_message(false, $e->getMessage());
         }
         
+        return $returnMsg;
+    }
+
+    /**
+     * @func imgAiRegist
+     * @description '상품 AI 이미지 저장'
+     * @param int $offerId
+     * @param array $images
+     */
+    public function imgAiRegist(int $offerId, array $images): array
+    {
+        $returnMsg = $this->returnMsg;
+
+        try {
+            $resultImgs = [];
+            $prdObj     = ProductData::where("offer_id", $offerId)->first();
+
+            if( $prdObj == null ){
+                throw new Exception(ProductErrorMessageConstant::getNotHaveErrorMessage("PRODUCT"));
+            }
+
+            $dateName = $prdObj->created_at->format('Y/m/d');
+            foreach ($images as $image) {
+                $imgId = $image["id"];
+                try {
+                    $imgObj = ProductImageData::where([
+                        "id"       => $imgId,
+                        "offer_id" => $offerId
+                    ])->first();
+                    if( $imgObj == null ){
+                        throw new ValueError(ImageErrorMessageConstant::getNotHaveErrorMessage("IMAGE"));
+                    }
+
+                    $img_url_origin = $imgObj->img_url_origin;
+                    $mime           = pathinfo($img_url_origin, PATHINFO_EXTENSION);
+                    $genuioName = "_ai";
+                    if( $imgObj->img_type == ImageConstant::IMAGE_TYPE_MAIN ){
+                        $imgName  = "/product/" . $dateName . "/" . $offerId . "_" . $imgObj->img_type . $genuioName . "." . $mime;
+                    } else {
+                        $imgName  = "/product/" . $dateName . "/" . $offerId . "_" . $imgObj->id . "_" . $imgObj->img_type . $genuioName . "." . $mime;
+                    }
+
+                    $uploadResult = $this->uploadAbstract->uploadFile($imgName, base64_decode($image["base64"]));
+
+                    if( $uploadResult == true ) {
+                        $img_url_ai = env("AWS_URL") . $imgName;
+                        GenuioImageData::create([
+                            "offer_id"   => $offerId,
+                            "img_id"     => $imgObj->id,
+                            "ai_type"    => GenuioConstant::IMG_TRANS,
+                            "img_url_ai" => $img_url_ai
+                        ]);
+                    } else {
+                        throw new ValueError(ImageErrorMessageConstant::getFitErrorMessage("S3_IMG_UPLOAD"));
+                    }
+
+                    $resultImgs[] = [
+                        "id"        => $imgId,
+                        "isSuccess" => true,
+                    ];
+                } catch (ValueError $ve) {
+                    $resultImgs[] = [
+                        "id"        => $imgId,
+                        "isSuccess" => false,
+                        "msg"       => $ve->getMessage()
+                    ];
+                }
+            }
+            $returnMsg = helpers_success_message($resultImgs);
+        } catch (Exception $e) {
+            $returnMsg = helpers_fail_message(false, $e->getMessage());
+        }
+
         return $returnMsg;
     }
 
