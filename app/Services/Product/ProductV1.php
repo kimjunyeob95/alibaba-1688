@@ -1618,6 +1618,7 @@ class ProductV1 extends ProductAbstract
                 $gObj = GenuioImageData::where([
                     "offer_id" => $offerId,
                     "img_id"   => $imgObj->id,
+                    "ai_type"  => GenuioConstant::IMG_Ai_TRANS,
                 ])->count();
                 if( $gObj < 1 ){
                     GenuioImageData::insert([
@@ -1638,7 +1639,7 @@ class ProductV1 extends ProductAbstract
             if( $prdObj == null ){
                 throw new Exception("No Data");
             }
-
+            // dd($prdObj->toArray());
             $returnMsg = helpers_success_message($prdObj);
         } catch (Exception $e) {
             $returnMsg = helpers_fail_message(false, $e->getMessage());

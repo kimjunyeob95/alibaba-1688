@@ -129,10 +129,10 @@
                                 <button type="button" class="btn btn-danger text-white exceptBtn">제외하기</button>
                             </div>
                         </div>
-                    @endif
                     @php
                         $idx++;
                     @endphp
+                    @endif
                 @endforeach
             </div>
         </div>
@@ -183,10 +183,10 @@
                                 <button type="button" class="btn btn-danger text-white exceptBtn">제외하기</button>
                             </div>
                         </div>
-                    @endif
                     @php
                         $idx++;
                     @endphp
+                    @endif
                 @endforeach
             </div>
         </div>
@@ -235,7 +235,6 @@
                     nextEl: '.swiper-button-next'+idx,
                     prevEl: '.swiper-button-prev'+idx,
                 },
-
                 // And if we need scrollbar
                 scrollbar: {
                     el: '.swiper-scrollbar'+idx,
@@ -282,12 +281,31 @@
         $("#AImodi-submit").click(function(){
             let imgChecked = $("#AImodi-modal").find(".imgChecked").val();
 
-
-
-
-
-            alert("작업중...");
-            hideModal("#AImodi-modal");
+            let imgIds = imgChecked.split(",");
+            if( imgIds.length > 0 ){
+                if(confirm("요청하시겠습니까?")){
+                    $("#loadingOverlay").show();
+                    $.ajax({
+                        "headers"    : {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
+                        "type"       : "POST",
+                        "url"        : "{{ route('genuio.imgAiTransRequest') }}",
+                        "data"       : { imgIds },
+                        beforeSend: function () {
+                        },
+                        complete: function () {
+                            $("#loadingOverlay").hide();
+                        },
+                        success: function (resp) {
+                            alert(resp.msg);
+                            hideModal("#AImodi-modal");
+                        },
+                        error: function error(request, status, _error) {
+                            let { error } = JSON.parse(request.responseText);
+                            alert(error.message);
+                        }
+                    });
+                }
+            }
         })
 
         $(".AItoolBtn, .allAItoolBtn").click(function(){
@@ -307,8 +325,9 @@
                     imgChecked.push($(this).val());
                 });
 
-                if(confirm("A.I 툴로 이동합니다.")){
-                }
+                return alert("A.I 툴 확인중..");
+                // if(confirm("A.I 툴로 이동합니다.")){
+                // }
             }
         })
 
@@ -329,9 +348,10 @@
                     imgChecked.push($(this).val());
                 });
 
-                if(confirm("선택한 이미지로 적용 됩니다.")){
-                    alert("이미지가 적용 되었습니다.");
-                }
+                return alert("작업중..");
+                // if(confirm("선택한 이미지로 적용 됩니다.")){
+                //     alert("이미지가 적용 되었습니다.");
+                // }
             }
         })
 
@@ -352,9 +372,10 @@
                     imgChecked.push($(this).val());
                 });
 
-                if(confirm("선택한 이미지는 노출이 제외 됩니다.")){
-                    alert("이미지가 제외 되었습니다.");
-                }
+                return alert("작업중..");
+                // if(confirm("선택한 이미지는 노출이 제외 됩니다.")){
+                //     alert("이미지가 제외 되었습니다.");
+                // }
             }
         })
     })

@@ -104,18 +104,15 @@ class GenuioController extends Controller
             $validator = Validator::make($this->request->all(), [
                 'imgIds'   => 'required|array',
                 'imgIds.*' => 'required|string',
-                'aiType'  => 'required|string'
             ], [
                 'imgIds.required' => 'imgIds를 입력하세요.',
-                'aiType.required' => 'aiType를 입력하세요.',
             ]);
             if ($validator->fails()) {
                 throw new Exception($validator->errors()->first());
             }
-            $imgIds = $this->request->post("offerIds");
-            $aiType = $this->request->post("aiType");
+            $imgIds = $this->request->post("imgIds");
 
-            $result = $this->genuioService->imgAiTransRequest($imgIds, $aiType);
+            $result = $this->genuioService->imgAiTransRequest($imgIds);
             if( $result["isSuccess"] == true ){
                 return helpers_json_response(HttpConstant::OK, $result);
             } else {
