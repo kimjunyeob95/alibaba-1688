@@ -308,12 +308,25 @@
         </div>
 
         <div class="btn-group me-5 mb-4 fixed-bottom" style="left: auto;">
-            <a href="/product/img/edit/{{ $prdObj->offer_id }}" target="_blank" class="btn btn-danger btn-lg text-white text-decoration-none">Image 수정</a>
+            <a class="btn btn-danger btn-lg text-white text-decoration-none btn-edit-img">Image 수정</a>
         </div>
     </div>
 <script type="text/javascript">
 
     $(document).ready(function(){
+        $('.btn-edit-img').click(function(e){
+            e.preventDefault();
+
+            let trans_status = "{{ $prdObj->trans_status }}";
+            let offer_id     = "{{ $prdObj->offer_id }}";
+            if( trans_status == "N" ){
+                return alert("번역이 완료 된 상태에서만 수정 가능합니다.");
+            }
+
+            window.open(`/product/img/edit/${offer_id}`, '_blank');
+        });
+
+
         var mySwiper = new Swiper('#swiper-container1', {
             // Optional parameters
             slidesPerView: 1,
