@@ -135,7 +135,7 @@
                                 <th scope="col" style="width: 100px">원본이미지</th>
                                 <th scope="col" style="width: 100px">번역이미지</th>
                                 <th scope="col" style="width: 150px" class="text-center">
-                                    1688 소비자가<br>
+                                    W 소비자가<br>
                                     옵션가격<br>
                                     온채널가<br>
                                     소비자가
