@@ -45,7 +45,7 @@ class ProductData extends Model
     }
 
     public function w_mapping () {
-        return $this->hasOne(WCategory::class, "category_id", "category_id");
+        return $this->hasOne(CategoryMapping::class, "category_id", "category_id")->where("mapping_channel", ProductConstant::MAPPING_WAPP);
     }
 
     public function oc_mapping () {

@@ -775,7 +775,6 @@ class CategoryV1 extends CategoryAbstract
                     ->orWhere("cate_second", "like", "%" . $keyword . "%")
                     ->orWhere("cate_third", "like", "%" . $keyword . "%")
                     ->orWhere("cate_fourth", "like", "%" . $keyword . "%")
-                    ->orWhere("category_id", "like", "%" . $keyword . "%")
                     ->orWhere("mapping_code", "like", "%" . $keyword . "%");
                 });
             }
@@ -795,7 +794,6 @@ class CategoryV1 extends CategoryAbstract
         try {
             $category_ids = $params["category_ids"];
             $w_cate_id    = $params["w_cate_id"];
-
             foreach ($category_ids as $category_id) {
                 $cateObj = WCategory::where("id", $w_cate_id)->first();
                 if( $cateObj != null ){
