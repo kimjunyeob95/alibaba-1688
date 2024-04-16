@@ -12,7 +12,7 @@
             </a>
         </li>
         
-        <li class="nav-title">V1(1688)</li>
+        <li class="nav-title">W1</li>
         <li class="nav-group">
             <a class="nav-link nav-group-toggle" href="javascript:;">
                 <svg class="nav-icon">
@@ -64,7 +64,7 @@
             </ul>
         </li>
 
-        <li class="nav-title">V2(word-1688)</li>
+        <li class="nav-title">W2</li>
         <li class="nav-group">
             <a class="nav-link nav-group-toggle" href="javascript:;">
                 <svg class="nav-icon">
@@ -98,7 +98,7 @@
             <ul class="nav-group-items">
                 <li class="nav-item">
                     <a class="nav-link" href="/product/list">
-                        1688 수집 상품 리스트
+                        수집 상품 리스트
                     </a>
                 </li>
             </ul>
