@@ -9,6 +9,7 @@ use App\Constants\ProductConstant;
 use App\Models\Category;
 use App\Models\CategoryMapping;
 use App\Models\CategoryTree;
+use App\Models\ProductData;
 use App\Models\WCategory;
 use Exception;
 use Illuminate\Database\Eloquent\Collection;
@@ -797,16 +798,24 @@ class CategoryV1 extends CategoryAbstract
             foreach ($category_ids as $category_id) {
                 $cateObj = WCategory::where("id", $w_cate_id)->first();
                 if( $cateObj != null ){
-                    $upsertWhere = [
-                        "mapping_code" => $cateObj->mapping_code
-                    ];
-                    CategoryMapping::updateOrCreate(
-                        [
-                            "category_id"     => $category_id,
-                            "mapping_channel" => ProductConstant::MAPPING_WAPP
-                        ],
-                        $upsertWhere
-                    );
+                    if( $cateObj->mapping_code ){
+                        // 1. 카테고리 맵핑 upsert
+                        $upsertWhere = [
+                            "mapping_code" => $cateObj->mapping_code
+                        ];
+                        CategoryMapping::updateOrCreate(
+                            [
+                                "category_id"     => $category_id,
+                                "mapping_channel" => ProductConstant::MAPPING_WAPP
+                            ],
+                            $upsertWhere
+                        );
+
+                        // 2. 상품 mapping_status 업데이트
+                        ProductData::where("category_id", $category_id)->update([
+                            "mapping_status" => ProductConstant::MAPPING_STATUS_Y
+                        ]);
+                    }
                 }
             }
             $returnMsg = helpers_success_message();
