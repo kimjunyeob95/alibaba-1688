@@ -317,7 +317,7 @@
             let category_ids = $('input[name="chkCateIds[]"]').val();
             let w_cate_id    = Number($(this).attr("value"));
 
-            // $("#loadingOverlay").show();
+            $("#loadingOverlay").show();
             $.ajax({
                 "headers": {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
                 "type"   : "POST",

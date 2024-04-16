@@ -127,24 +127,36 @@
                     <div class="row mb-2">
                         <div class="col-md-3 text-center">맵핑 카테고리</div>
                         <div class="col-md-8">
-                            {{ $prdObj->category->cate_first }}
-                            @if($prdObj->category->cate_second)
-                                > {{ $prdObj->category->cate_second }}
-                            @endif
-                            @if($prdObj->category->cate_third)
-                                > {{ $prdObj->category->cate_third }}
+                            @if ( $prdObj->mapping_status == ProductConstant::MAPPING_STATUS_Y)    
+                                @if(isset($prdObj->w_mapping->cate_first))
+                                    {{ $prdObj->w_mapping->cate_first }}
+                                @endif
+                                @if(isset($prdObj->w_mapping->cate_second))
+                                    > {{ $prdObj->w_mapping->cate_second }}
+                                @endif
+                                @if(isset($prdObj->w_mapping->cate_third))
+                                    > {{ $prdObj->w_mapping->cate_third }}
+                                @endif
+                            @else
+                                <span class="text-danger fs-5">미맵핑</span>
                             @endif
                         </div>
                     </div>
                     <div class="row mb-2">
                         <div class="col-md-3 text-center">1688 카테고리</div>
                         <div class="col-md-8">
-                            {{ $prdObj->category->cate_chinese_first }}
-                            @if($prdObj->category->cate_chinese_second)
-                                > {{ $prdObj->category->cate_chinese_second }}
-                            @endif
-                            @if($prdObj->category->cate_chinese_third)
-                                > {{ $prdObj->category->cate_chinese_third }}
+                            @if ( $prdObj->category != null )   
+                                @if(isset($prdObj->category->cate_chinese_first))
+                                    {{ $prdObj->category->cate_chinese_first }}
+                                @endif
+                                @if(isset($prdObj->category->cate_chinese_second))
+                                    > {{ $prdObj->category->cate_chinese_second }}
+                                @endif
+                                @if(isset($prdObj->category->cate_chinese_third))
+                                    > {{ $prdObj->category->cate_chinese_third }}
+                                @endif
+                            @else
+                                <span class="text-danger fs-5">미수집된 1688 카테고리</span>
                             @endif
                         </div>
                     </div>
