@@ -106,7 +106,7 @@ class ProductController extends Controller
         $page       = $this->request->get("page", 1);
         $pageSize   = $this->request->get("pageSize", 50);
         $offset     = ($page - 1) * $pageSize;
-        
+
         $datas        = [];
         $totalRecords = 0;
         $totalPage    = 0;
@@ -251,7 +251,7 @@ class ProductController extends Controller
         } else {
             $viewParams = [
                 "obj" => $result["data"]
-            ];   
+            ];
         }
         return view("product.prdUrlQueryDetail")->with($viewParams);
     }
@@ -261,7 +261,7 @@ class ProductController extends Controller
         $page     = $this->request->get("page", 1);
         $pageSize = $this->request->get("pageSize", 100);
         $offset   = ($page - 1) * $pageSize;
-        
+
         $params = [
             "page"     => $page,
             "pageSize" => $pageSize,
@@ -286,5 +286,19 @@ class ProductController extends Controller
             ];
         }
         return view("product.prdCollectLogDetail")->with($viewParams);
+    }
+
+    public function getPrdImageEdit(int $offerId): View
+    {
+        $result = $this->service1688Product->getPrdImageEdit($offerId);
+        if( $result["isSuccess"] == false ){
+            abort(404);
+        } else {
+            $viewParams = [
+                "prdObj" => $result["data"]
+            ];
+        }
+
+        return view("product.prdImageEdit")->with($viewParams);
     }
 }

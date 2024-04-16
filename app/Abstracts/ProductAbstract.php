@@ -39,7 +39,7 @@ abstract class ProductAbstract
      * @return void
      */
     abstract function saveMallProductByCategotyId(int $categoryId): void;
-    
+
     /**
      * @func saveMallProductByImageId
      * @description '1688API 이미지ID로 상품 수집'
@@ -161,4 +161,12 @@ abstract class ProductAbstract
      * @return array
     */
     abstract function urlQueryDel(array $ids): array;
+
+    /**
+     * @func getPrdImageEdit
+     * @description '상품 이미지 수정'
+     * @param int $offerId '제품ID'
+     * @return array
+     */
+    abstract function getPrdImageEdit(int $offerId): array;
 }

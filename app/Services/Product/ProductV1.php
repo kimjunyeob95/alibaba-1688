@@ -90,7 +90,7 @@ class ProductV1 extends ProductAbstract
         if( !empty($mapping_status) ){
             $prdBuilder->where("mapping_status", $mapping_status);
         }
-        
+
         $totalCnt  = ProductData::whereNull("deleted_at")->count();
         $transYCnt = ProductData::where("trans_status", ProductConstant::TRANS_STATUS_Y)->whereNull("deleted_at")->count();
         $transNCnt = ProductData::where("trans_status", ProductConstant::TRANS_STATUS_N)->whereNull("deleted_at")->count();
@@ -129,7 +129,7 @@ class ProductV1 extends ProductAbstract
                 "category"
             ])->where("offer_id", $offerId)->first();
             if( $prdObj == null ){
-                throw new Exception("No Data");   
+                throw new Exception("No Data");
             }
 
             $returnMsg = helpers_success_message($prdObj);
@@ -149,7 +149,7 @@ class ProductV1 extends ProductAbstract
                 "details"
             ])->where("id", $logId)->first();
             if( $prdObj == null ){
-                throw new Exception("No Data");   
+                throw new Exception("No Data");
             }
 
             $returnMsg = helpers_success_message($prdObj);
@@ -668,12 +668,12 @@ class ProductV1 extends ProductAbstract
                     $price_1688 = $prdOptions["price"];
                 }
             }
-        } else if( !isset($detailProduct["productSkuInfos"][0]["price"]) && 
+        } else if( !isset($detailProduct["productSkuInfos"][0]["price"]) &&
             isset($detailProduct["productSaleInfo"]["priceRangeList"])
         ) {
             $price_1688 = $detailProduct["productSaleInfo"]["priceRangeList"][0]["price"];
-        } 
-        
+        }
+
         if( $price_1688 == 0 ){
             throw new Exception(ProductErrorMessageConstant::getFitErrorMessage("PRICE_1688"));
         }
@@ -823,7 +823,7 @@ class ProductV1 extends ProductAbstract
                 );
             }
 
-            // 6. 이미지 번역 요청 통신 
+            // 6. 이미지 번역 요청 통신
             if( env("APP_ENV", "local") == "production" ) {
                 $transResult = $this->transApiAbstract->createTransProductImg($product1688ImageDtoList, $offerId);
                 if( $transResult["isSuccess"] == false ){
@@ -901,7 +901,7 @@ class ProductV1 extends ProductAbstract
             $imgByte   = $imageInfo["byte"];
             $imgMime   = $imageInfo["mime"];
 
-            if( $getOriginImgObj->width != $imgWidth || $getOriginImgObj->height != $imgHeight 
+            if( $getOriginImgObj->width != $imgWidth || $getOriginImgObj->height != $imgHeight
             && $getOriginImgObj->byte != $imgByte && $getOriginImgObj->mime != $imgMime){
                 $isChange = true;
             }
@@ -1073,7 +1073,7 @@ class ProductV1 extends ProductAbstract
     {
         try {
             $endPoint = "param2/1/com.alibaba.fenxiao.crossborder/product.search.keywordQuery/";
-            
+
             $payload["offerQueryParam"]["beginPage"] = $page;
             $payload["offerQueryParam"]["pageSize"]  = $pageSize;
 
@@ -1122,7 +1122,7 @@ class ProductV1 extends ProductAbstract
                         }else{
                             throw new Exception($saveResult["msg"]);
                         }
-                        
+
                         ProductCollectDetailLog::create([
                             "log_id"     => $logId,
                             "offer_id"   => $offerId,
@@ -1169,7 +1169,7 @@ class ProductV1 extends ProductAbstract
             $filePath      = $file->getRealPath();
             $fileContent   = fileContents($filePath);
             $base64Encoded = base64_encode($fileContent);
-            
+
             $endPoint = "param2/1/com.alibaba.fenxiao.crossborder/product.image.upload/";
             $payload = [
                 'access_token' => $this->accessToken,
@@ -1297,7 +1297,7 @@ class ProductV1 extends ProductAbstract
     {
         try {
             $endPoint = "param2/1/com.alibaba.fenxiao.crossborder/product.search.imageQuery/";
-            
+
             $payload["offerQueryParam"]["beginPage"] = $page;
             $payload["offerQueryParam"]["pageSize"]  = $pageSize;
 
@@ -1346,7 +1346,7 @@ class ProductV1 extends ProductAbstract
                         }else{
                             throw new Exception($saveResult["msg"]);
                         }
-                        
+
                         ProductCollectDetailLog::create([
                             "log_id"     => $logId,
                             "offer_id"   => $offerId,
@@ -1405,7 +1405,7 @@ class ProductV1 extends ProductAbstract
         } catch (Exception $e) {
             $returnMsg = helpers_fail_message(false, $e->getMessage());
         }
-        
+
         return $returnMsg;
     }
 
@@ -1497,7 +1497,7 @@ class ProductV1 extends ProductAbstract
         $offerIds     = $params["offerIds"];
         $search_title = $params["search_title"];
         $search_type  = $params["search_type"];
-        
+
         $searchId = ProductSearchData::insertGetId([
             "search_title" => $search_title,
             "search_type"  => $search_type,
@@ -1537,11 +1537,11 @@ class ProductV1 extends ProductAbstract
                             $price_1688 = $prdOptions["price"];
                         }
                     }
-                } else if( !isset($detailProduct["productSkuInfos"][0]["price"]) && 
+                } else if( !isset($detailProduct["productSkuInfos"][0]["price"]) &&
                     isset($detailProduct["productSaleInfo"]["priceRangeList"])
                 ) {
                     $price_1688 = $detailProduct["productSaleInfo"]["priceRangeList"][0]["price"];
-                } 
+                }
                 if( $price_1688 == 0 ){
                     throw new Exception(ProductErrorMessageConstant::getFitErrorMessage("PRICE_1688"));
                 }
@@ -1597,6 +1597,24 @@ class ProductV1 extends ProductAbstract
                 ProductSearchData::where("id", $id)->forceDelete();
             }
             $returnMsg = helpers_success_message();
+        } catch (Exception $e) {
+            $returnMsg = helpers_fail_message(false, $e->getMessage());
+        }
+
+        return $returnMsg;
+    }
+
+    public function getPrdImageEdit(int $offerId):array
+    {
+        $returnMsg = $this->returnMsg;
+
+        try {
+            $prdObj = ProductData::with(["images"])->where("offer_id", $offerId)->first();
+            if( $prdObj == null ){
+                throw new Exception("No Data");
+            }
+
+            $returnMsg = helpers_success_message($prdObj);
         } catch (Exception $e) {
             $returnMsg = helpers_fail_message(false, $e->getMessage());
         }

@@ -278,4 +278,15 @@ class Service1688Product
    {
       return $this->productAbstract->urlQueryDel($ids);
    }
+
+   /**
+     * @func getPrdImageEdit
+     * @description '상품 이미지 수정'
+     * @param int $offerId
+     * @return array
+   */
+   public function getPrdImageEdit(int $offerId): array
+   {
+      return $this->productAbstract->getPrdImageEdit($offerId);
+   }
 }

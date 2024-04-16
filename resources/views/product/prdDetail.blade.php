@@ -43,7 +43,7 @@
                 <li class="breadcrumb-item active" aria-current="page">1688 수집 상품 상세</li>
             </ol>
         </nav>
-        
+
         <div class="container-fluid">
             <div class="row my-4 bg-white py-3">
                 <div class="col-md-6" style="text-align: -webkit-center; position: relative;">
@@ -217,7 +217,7 @@
                     <div class="table-responsive">
                         <table class="table table-white bg-white">
                             <tbody>
-                                @foreach ($prdObj->notices as $gosiKey => $gosi)    
+                                @foreach ($prdObj->notices as $gosiKey => $gosi)
                                     @if ( $gosiKey % 4 == 0)
                                         <tr>
                                     @endif
@@ -243,7 +243,7 @@
                     <div class="table-responsive">
                         <table class="table table-white bg-white">
                             <tbody>
-                                @foreach ($prdObj->notices as $gosiKey => $gosi)    
+                                @foreach ($prdObj->notices as $gosiKey => $gosi)
                                     @if ( $gosiKey % 4 == 0)
                                         <tr>
                                     @endif
@@ -289,6 +289,10 @@
                 </div>
 
             </div>
+        </div>
+
+        <div class="btn-group me-5 mb-4 fixed-bottom" style="left: auto;">
+            <a href="imgEdit/{{ $prdObj->offer_id }}" target="_blank" class="btn btn-danger btn-lg text-white text-decoration-none">Image 수정</a>
         </div>
     </div>
 <script type="text/javascript">
