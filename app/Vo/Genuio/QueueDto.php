@@ -9,7 +9,7 @@ class QueueDto extends Vo
 {
     protected int $offer_id         = 0;
     protected int $parent_id        = 0;
-    protected int $send_type        = GenuioConstant::IMG_TRANS;
+    protected string $send_type     = GenuioConstant::IMG_TRANS;
     protected string $payload_json  = "";
     protected string $request_user  = "";
     protected string $response_json = "";

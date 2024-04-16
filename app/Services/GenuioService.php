@@ -556,13 +556,11 @@ class GenuioService extends TransApiAbstract
         try {
             foreach ($imgIds as $imgId) {
                 $imgId    = (int)$imgId;
-                $imgObj   = ProductImageData::where("id", $imgId)->first();
-                $offerId  = $imgObj->offer_id;
                 $aiImgObj = GenuioImageData::where([
-                    "id"       => $imgId,
-                    "offer_id" => $offerId
+                    "id" => $imgId
                 ])->first();
-
+                $imgObj  = ProductImageData::where("id", $aiImgObj->img_id)->first();
+                $offerId = $aiImgObj->offer_id;
                 try {
                     $insWhere  = [
                         "offer_id"      => $offerId,
