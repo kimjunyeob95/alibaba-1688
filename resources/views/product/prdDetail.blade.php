@@ -125,7 +125,25 @@
                         <div class="col-md-8">{{ $prdObj->prd_name_trans }}</div>
                     </div>
                     <div class="row mb-2">
-                        <div class="col-md-3 text-center">맵핑 카테고리</div>
+                        <div class="col-md-3 text-center">1688 카테고리</div>
+                        <div class="col-md-8">
+                            @if ( $prdObj->category != null )   
+                                @if(isset($prdObj->category->cate_first))
+                                    {{ $prdObj->category->cate_first }}
+                                @endif
+                                @if(isset($prdObj->category->cate_second))
+                                    > {{ $prdObj->category->cate_second }}
+                                @endif
+                                @if(isset($prdObj->category->cate_third))
+                                    > {{ $prdObj->category->cate_third }}
+                                @endif
+                            @else
+                                <span class="text-danger fs-5">미수집된 1688 카테고리</span>
+                            @endif
+                        </div>
+                    </div>
+                    <div class="row mb-2">
+                        <div class="col-md-3 text-center">맵핑 카테고리 (맵핑 코드)</div>
                         <div class="col-md-8">
                             @if ( $prdObj->mapping_status == ProductConstant::MAPPING_STATUS_Y)    
                                 @if(isset($prdObj->w_mapping->cate_first))
@@ -137,26 +155,9 @@
                                 @if(isset($prdObj->w_mapping->cate_third))
                                     > {{ $prdObj->w_mapping->cate_third }}
                                 @endif
+                                ({{ $prdObj->w_mapping->mapping_code }})
                             @else
                                 <span class="text-danger fs-5">미맵핑</span>
-                            @endif
-                        </div>
-                    </div>
-                    <div class="row mb-2">
-                        <div class="col-md-3 text-center">1688 카테고리</div>
-                        <div class="col-md-8">
-                            @if ( $prdObj->category != null )   
-                                @if(isset($prdObj->category->cate_chinese_first))
-                                    {{ $prdObj->category->cate_chinese_first }}
-                                @endif
-                                @if(isset($prdObj->category->cate_chinese_second))
-                                    > {{ $prdObj->category->cate_chinese_second }}
-                                @endif
-                                @if(isset($prdObj->category->cate_chinese_third))
-                                    > {{ $prdObj->category->cate_chinese_third }}
-                                @endif
-                            @else
-                                <span class="text-danger fs-5">미수집된 1688 카테고리</span>
                             @endif
                         </div>
                     </div>
