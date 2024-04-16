@@ -546,11 +546,8 @@ class ProductV1 extends ProductAbstract
 
         // 1. 상품 이미지
         $product1688ImageDtoList = [];
-        if( count($detailProduct["productImage"]["images"]) < 5 ) {
-            throw new Exception(ProductErrorMessageConstant::getNotHaveErrorMessage("PRODUCT_MAIN_IMG"));
-        }
         foreach ($detailProduct["productImage"]["images"] as $imgKey => $prdImage) {
-            if( $imgKey == 4 ) {
+            if( $imgKey == 0 ) {
                 $imgType = ImageConstant::IMAGE_TYPE_MAIN;
             } else {
                 $imgType = ImageConstant::IMAGE_TYPE_SUB;
