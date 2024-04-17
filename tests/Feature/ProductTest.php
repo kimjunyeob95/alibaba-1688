@@ -6,14 +6,9 @@ use App\Constants\ImageConstant;
 use App\Models\ProductData;
 use App\Models\ProductImageData;
 use App\Models\ProductOptionData;
-use App\Packages\Connect\Connect;
 use App\Packages\S3;
 use App\Services\GenuioService;
-use App\Services\OrderService;
-use App\Vo\Connect\Order\OrderSubJobDto;
 use App\Vo\Product\Product1688ImageDto;
-use Carbon\Carbon;
-use Exception;
 use Tests\TestCase;
 
 class ProductTest extends TestCase
@@ -120,17 +115,24 @@ class ProductTest extends TestCase
     # php artisan test --filter testCode
     public function testCode()
     {
-        $offerId = 684130604130; 
+        $offerId = 719991111764; 
         
         $prdObj  = ProductData::where("offer_id", $offerId)->first();
-        $imgObjs = ProductImageData::where("offer_id", $offerId)->get();
-        $prd_desc_trans = $prdObj->prd_desc;
+        $imgObjs = ProductImageData::where("offer_id", $offerId)->where("is_except", "Y")->get();
+        $prd_desc     = $prdObj->prd_desc;
+        $prd_desc_new = $prdObj->prd_desc;
+
         foreach ($imgObjs as $imgObj) {
-            $prd_desc_trans = str_replace($imgObj->img_url_origin, $imgObj->img_url_trans, $prd_desc_trans);
-            ProductData::where("offer_id", $offerId)->update([
-                "prd_desc_trans"  => $prd_desc_trans
-            ]);
+            $img_url_origin = $imgObj->img_url_origin;
+            $img_url_trans  = $imgObj->img_url_trans;
+
+            $pattern = '/<img[^>]+src\s*=\s*["\']' . preg_quote($img_url_origin, '/') . '["\'][^>]*>/i';
+            $prd_desc_new = preg_replace($pattern, '', $prd_desc_new);
+
+            $pattern = '/<img[^>]+src\s*=\s*["\']' . preg_quote($img_url_trans, '/') . '["\'][^>]*>/i';
+            $prd_desc_new = preg_replace($pattern, '', $prd_desc_new);
         }
+        dd($prd_desc, $prd_desc_new);
     }
 
     # s3 upload

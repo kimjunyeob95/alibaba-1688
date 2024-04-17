@@ -50,6 +50,8 @@ Route::name('w.')->prefix('w')->group(function () {
         Route::post('/urlQuery/delete', [WProductController::class, 'urlQueryDel'])->name('urlQueryDel');
         // 1688 상품 조회 요청
         Route::post('/searchData', [WProductController::class, 'productSearchData'])->name('productSearchData');
+        // 이미지 수집 제외 처리
+        Route::post('/image/except', [WProductController::class, 'imageExcept'])->name('imageExcept');
     });
 
     Route::name('category.')->prefix('category')->group(function () {

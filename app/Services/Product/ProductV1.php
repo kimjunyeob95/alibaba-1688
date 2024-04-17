@@ -555,7 +555,6 @@ class ProductV1 extends ProductAbstract
             } else {
                 $imgType = ImageConstant::IMAGE_TYPE_SUB;
             }
-
             $is_except = ImageConstant::IS_EXCEPT_N;
             $imgObj    = ProductImageData::where([
                 "offer_id"       => $offerId,
@@ -564,6 +563,9 @@ class ProductV1 extends ProductAbstract
             ])->first();
             if( $imgObj != null ){
                 $is_except = $imgObj->is_except;
+            }
+            if( $is_except == ImageConstant::IS_EXCEPT_Y ){
+                continue;
             }
 
             $isChangeImg = $this->isChangeImage($offerId, $prdImage, $imgType);
@@ -609,6 +611,10 @@ class ProductV1 extends ProductAbstract
             if( $imgObj != null ){
                 $is_except = $imgObj->is_except;
             }
+            if( $is_except == ImageConstant::IS_EXCEPT_Y ){
+                continue;
+            }
+
             $isChangeImg = $this->isChangeImage($offerId, $imageSrc, $imgType);
             $imgWidth    = 0;
             $imgHeight   = 0;
@@ -859,7 +865,6 @@ class ProductV1 extends ProductAbstract
                 }
             }
 
-
             $returnMsg = helpers_success_message();
         } catch (Exception $e) {
             $returnMsg = helpers_fail_message(false, $e->getMessage());
@@ -888,6 +893,7 @@ class ProductV1 extends ProductAbstract
         foreach ($mainImgs as $offer_id => $mainImg) {
             ProductImageData::where('img_type', ImageConstant::IMAGE_TYPE_MAIN)
             ->where('offer_id', $offer_id)
+            ->where('is_except', ImageConstant::IS_EXCEPT_N)
             ->where('img_url_origin', '!=', $mainImg)
             ->delete();
         }
@@ -896,6 +902,7 @@ class ProductV1 extends ProductAbstract
         foreach ($subImgs as $offer_id => $subImg) {
             ProductImageData::where('img_type', ImageConstant::IMAGE_TYPE_SUB)
             ->where('offer_id', $offer_id)
+            ->where('is_except', ImageConstant::IS_EXCEPT_N)
             ->whereNotIn('img_url_origin', $subImg)
             ->delete();
         }
@@ -904,6 +911,7 @@ class ProductV1 extends ProductAbstract
         foreach ($descImgs as $offer_id => $descImg) {
             ProductImageData::where('img_type', ImageConstant::IMAGE_TYPE_DESC)
             ->where('offer_id', $offer_id)
+            ->where('is_except', ImageConstant::IS_EXCEPT_N)
             ->whereNotIn('img_url_origin', $descImg)
             ->delete();
         }
@@ -1729,5 +1737,20 @@ class ProductV1 extends ProductAbstract
 
         $msg = "======================== 실행 종료 ========================";
         debug_log($msg, "wAppProductMapping", "wAppProductMapping");
+    }
+
+    public function imageExcept(array $imgIds, string $is_except): array
+    {
+        $returnMsg = $this->returnMsg;
+        try {
+            ProductImageData::whereIn("id", $imgIds)->update([
+                "is_except" => $is_except
+            ]);
+            $returnMsg = helpers_success_message();
+        } catch (Exception $e) {
+            $returnMsg = helpers_fail_message(false, $e->getMessage());
+        }
+
+        return $returnMsg;
     }
 }

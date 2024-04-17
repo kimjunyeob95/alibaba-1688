@@ -176,4 +176,13 @@ abstract class ProductAbstract
      * @return void
     */
     abstract function wAppProductMapping(): void;
+
+    /**
+     * @func imageExcept
+     * @description '이미지 수집 제외 처리'
+     * @param array $imgIds
+     * @param string $is_except
+     * @return array
+    */
+    abstract function imageExcept(array $imgIds, string $is_except): array;
 }

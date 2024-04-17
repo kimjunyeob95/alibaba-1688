@@ -26,7 +26,7 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::table('genuio_image_datas', function (Blueprint $table) {
+        Schema::table('product_image_datas', function (Blueprint $table) {
             //
         });
     }

@@ -96,7 +96,6 @@
                         <button type="button" class="btn btn-success text-white AImodiBtn">A.I 수정</button>
                         <button type="button" class="btn btn-warning text-white AItoolBtn">A.I Tool</button>
                         <button type="button" class="btn btn-primary text-white applyBtn">적용하기</button>
-                        <button type="button" class="btn btn-danger text-white exceptBtn">제외하기</button>
                     </div>
                 </div>
 
@@ -143,7 +142,7 @@
                                 <button type="button" class="btn btn-success text-white AImodiBtn">A.I 수정</button>
                                 <button type="button" class="btn btn-warning text-white AItoolBtn">A.I Tool</button>
                                 <button type="button" class="btn btn-primary text-white applyBtn">적용하기</button>
-                                <button type="button" class="btn btn-danger text-white exceptBtn">제외하기</button>
+                                <button type="button" class="btn btn-danger text-white exceptBtn" imgid={{ $img->id }}>제외하기</button>
                             </div>
                         </div>
                     @php
@@ -205,7 +204,7 @@
                                 <button type="button" class="btn btn-success text-white AImodiBtn">A.I 수정</button>
                                 <button type="button" class="btn btn-warning text-white AItoolBtn">A.I Tool</button>
                                 <button type="button" class="btn btn-primary text-white applyBtn">적용하기</button>
-                                <button type="button" class="btn btn-danger text-white exceptBtn">제외하기</button>
+                                <button type="button" class="btn btn-danger text-white exceptBtn" imgid={{ $img->id }}>제외하기</button>
                             </div>
                         </div>
                     @php
@@ -381,26 +380,30 @@
         })
 
         $(".exceptBtn, .allExceptBtn").click(function(){
-            if($(this).hasClass("exceptBtn")){
-                var checked = $(this).parent().prev(".swiper-box").find("input[name='selectImg']:checked");
-            }else{
-                var type = $(this).attr("attr-type");
-                var checked = $("."+type+"-container").find("input[name='selectImg']:checked");
-            }
-
-            if(!checked.length){
-                alert("선택된 이미지가 없습니다.");
-                return false;
-            }else{
-                let imgChecked = [];
-                checked.each(function(){
-                    imgChecked.push($(this).val());
-                });
-                return console.log(imgChecked);
-                return alert("작업중..");
-                // if(confirm("선택한 이미지는 노출이 제외 됩니다.")){
-                //     alert("이미지가 제외 되었습니다.");
-                // }
+            let imgChecked = [$(this).attr("imgid")];
+            if( imgChecked.length > 0 ){
+                if(confirm("수집 제외하시겠습니까?")){
+                    $("#loadingOverlay").show();
+                    $.ajax({
+                        "headers"    : {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
+                        "type"       : "POST",
+                        "url"        : "{{ route('w.product.imageExcept') }}",
+                        "data"       : { imgIds: imgChecked, is_except: "Y" },
+                        beforeSend: function () {
+                        },
+                        complete: function () {
+                            $("#loadingOverlay").hide();
+                        },
+                        success: function (resp) {
+                            alert(resp.msg);
+                            hideModal("#AImodi-modal");
+                        },
+                        error: function error(request, status, _error) {
+                            let { error } = JSON.parse(request.responseText);
+                            alert(error.message);
+                        }
+                    });
+                }
             }
         })
     })

@@ -299,4 +299,16 @@ class Service1688Product
    {
       $this->productAbstract->wAppProductMapping();
    }
+
+   /**
+     * @func imageExcept
+     * @description '이미지 수집 제외 처리'
+     * @param array $imgIds
+     * @param string $is_except
+     * @return array
+   */
+   public function imageExcept(array $imgIds, string $is_except): array
+   {
+      return $this->productAbstract->imageExcept($imgIds, $is_except);
+   }
 }
