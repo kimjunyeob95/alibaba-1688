@@ -1,5 +1,6 @@
 @php
     use App\Constants\ProductConstant;
+    $exchangeRate = env("1688_EXCHANGE_RATE", 190);
 @endphp
 @extends('dashboard.base')
 
@@ -135,10 +136,8 @@
                                 <th scope="col" style="width: 100px">원본이미지</th>
                                 <th scope="col" style="width: 100px">번역이미지</th>
                                 <th scope="col" style="width: 150px" class="text-center">
-                                    W 소비자가<br>
-                                    옵션가격<br>
-                                    온채널가<br>
-                                    소비자가
+                                    W 공급가(위안)<br>
+                                    (환율: {{ number_format($exchangeRate) }}원)
                                 </th>
                                 <th scope="col" style="width: 100px" class="text-center">이미지<br>번역여부</th>
                                 <th style="width: 100px" class="text-center">관리</th> 
@@ -183,10 +182,8 @@
                                             @php
                                                 $option = $data->options[0];
                                             @endphp
-                                                {{ $option->price_1688 }}(元)<br>
-                                                {{ number_format($option->option_price) }}(원)<br>
-                                                {{ number_format($option->onch_price) }}(원)<br>
-                                                {{ number_format($option->cus_price) }}(원)<br>
+                                                {{ $option->price_1688 }}<br>
+                                                {{ number_format($option->option_price) }}
                                         @else
                                             <p class="text-danger">옵션없음</p>
                                         @endif

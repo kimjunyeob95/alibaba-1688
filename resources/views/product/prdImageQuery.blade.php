@@ -1,3 +1,6 @@
+@php
+    $exchangeRate = env("1688_EXCHANGE_RATE", 190);
+@endphp
 @extends('dashboard.base')
 
 @section('styles')
@@ -99,10 +102,8 @@
                                 <th scope="col" style="width: 100px">원본이미지</th>
                                 <th scope="col" style="width: 100px">판매량(월)</th>
                                 <th scope="col" style="width: 150px" class="text-center">
-                                    W 소비자가<br>
-                                    옵션가격<br>
-                                    온채널가<br>
-                                    소비자가
+                                    W 공급가(위안)<br>
+                                    (환율: {{ number_format($exchangeRate) }}원)
                                 </th>
                             </tr>
                         </thead>
@@ -128,10 +129,8 @@
                                         {{ number_format($data["monthSold"]) }}
                                     </td>
                                     <td class="text-center">
-                                        {{ $data["price_1688"] }}(元)<br>
-                                        {{ number_format($data["option_price"]) }}(원)<br>
-                                        {{ number_format($data["onch_price"]) }}(원)<br>
-                                        {{ number_format($data["cus_price"]) }}(원)<br>
+                                        {{ $data["price_1688"] }}<br>
+                                        {{ number_format($data["option_price"]) }}
                                     </td>
                                 </tr>
                             @endforeach

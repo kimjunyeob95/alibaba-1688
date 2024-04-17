@@ -1,5 +1,6 @@
 @php
     use App\Constants\ProductConstant;
+    $exchangeRate = env("1688_EXCHANGE_RATE", 190);
 @endphp
 @extends('dashboard.base')
 
@@ -187,10 +188,9 @@
                                     <th scope="col">skuID</th>
                                     <th scope="col">옵션명</th>
                                     <th scope="col">옵션명(번역)</th>
-                                    <th scope="col">W 소비자가</th>
-                                    <th scope="col">옵션가격</th>
-                                    <th scope="col">온채널가</th>
-                                    <th scope="col">소비자가</th>
+                                    <th scope="col">W 공급가(위안)</th>
+                                    <th scope="col">W 공급가(원)</th>
+                                    <th scope="col">환율(원)</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -206,16 +206,13 @@
                                             {{ $option->option_name_trans }}
                                         </td>
                                         <td>
-                                            {{ $option->price_1688 }}(元)
+                                            {{ $option->price_1688 }}
                                         </td>
                                         <td>
-                                            {{ number_format($option->option_price) }}(원)
+                                            {{ number_format($option->option_price) }}
                                         </td>
                                         <td>
-                                            {{ number_format($option->onch_price) }}(원)
-                                        </td>
-                                        <td>
-                                            {{ number_format($option->cus_price) }}(원)
+                                            {{ number_format($exchangeRate) }}
                                         </td>
                                     </tr>
                                 @endforeach
