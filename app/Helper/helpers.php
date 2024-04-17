@@ -315,19 +315,19 @@ if (!function_exists("curl_1688")) {
 if (!function_exists("ocPrice")) {
     function ocPrice(float $price_1688): array
     {
-        $onch_price       = round( $price_1688 * env("1688_EXCHANGE_RATE", 190) , -1);
-        $option_price_sum = (int)intval($onch_price) + intval($onch_price * env("OPTION_PRICE_RATE", 0.12));
+        $option_price     = round( $price_1688 * env("1688_EXCHANGE_RATE", 190) , -1);
+        $option_price_sum = (int)intval($option_price) + intval($option_price * env("OPTION_PRICE_RATE", 0.12));
         $option_price_cal = round($option_price_sum / 10) * 10;
-        $option_price     = $option_price_cal;
+        $onch_price       = $option_price_cal;
 
-        $recom_cus_price_sum = (int)intval($onch_price) + intval($onch_price * env("RECOM_CUS_PRICE_RATE", 0.45));
+        $recom_cus_price_sum = (int)intval($option_price) + intval($option_price * env("RECOM_CUS_PRICE_RATE", 0.45));
         $recom_cus_price_cal = round($recom_cus_price_sum / 10) * 10;
         $cus_price       = $recom_cus_price_cal;
         $recom_cus_price = $recom_cus_price_cal;
 
         return [
-            "onch_price"      => $onch_price,
             "option_price"    => $option_price,
+            "onch_price"      => $onch_price,
             "cus_price"       => $cus_price,
             "recom_cus_price" => $recom_cus_price,
         ];

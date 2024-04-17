@@ -38,13 +38,13 @@ class Product1688OptionDto extends Vo
 
     public function oc_bind(): void
     {
-        $this->onch_price   = round( $this->price_1688 * env("1688_EXCHANGE_RATE", 190) , -1);  // 1의 자리 반올림
+        $this->option_price = round( $this->price_1688 * env("1688_EXCHANGE_RATE", 190) , -1);  // 1의 자리 반올림
 
-        $option_price_sum = (int)intval($this->onch_price) + intval($this->onch_price * env("OPTION_PRICE_RATE", 0.12));
+        $option_price_sum = (int)intval($this->option_price) + intval($this->option_price * env("OPTION_PRICE_RATE", 0.12));
         $option_price_cal = round($option_price_sum / 10) * 10;
-        $this->option_price = $option_price_cal;
+        $this->onch_price = $option_price_cal;
 
-        $recom_cus_price_sum = (int)intval($this->onch_price) + intval($this->onch_price * env("RECOM_CUS_PRICE_RATE", 0.45));
+        $recom_cus_price_sum = (int)intval($this->option_price) + intval($this->option_price * env("RECOM_CUS_PRICE_RATE", 0.45));
         $recom_cus_price_cal = round($recom_cus_price_sum / 10) * 10;
         $this->cus_price       = $recom_cus_price_cal;
         $this->recom_cus_price = $recom_cus_price_cal;
