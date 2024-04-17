@@ -70,6 +70,15 @@
                     <div class="col-3 position-relative swiper-box">
                         <div class="swiper-container" id="swiper-container0">
                             <div class="swiper-wrapper align-items-center">
+                                @if ($prdObj->main_img->ai_origin_img)    
+                                    <div class="swiper-slide">
+                                        <div>
+                                            <input class="form-check-input position-absolute start-0 m-2" type="checkbox" name="selectImg" value="{{ $prdObj->main_img->ai_origin_img->id }}" style="z-index: 10;">
+                                            <img src="{{ $prdObj->main_img->ai_origin_img->img_url_ai }}" class="" alt="...">
+                                            <figcaption class="figure-caption fs-6 text-center mt-3">{{ $prdObj->main_img->ai_origin_img->created_at }}</figcaption>
+                                        </div>
+                                    </div>
+                                @endif
                                 @foreach ($prdObj->main_img->ai_imgs as $aiImg)
                                     <div class="swiper-slide">
                                         <div>
@@ -108,6 +117,15 @@
                             <div class="col-3 position-relative swiper-box">
                                 <div class="swiper-container" id="swiper-container{{ $idx }}">
                                     <div class="swiper-wrapper align-items-center">
+                                        @if( $img->ai_origin_img )
+                                            <div class="swiper-slide">
+                                                <div>
+                                                    <input class="form-check-input position-absolute start-0 m-2" type="checkbox" name="selectImg" value="{{ $img->ai_origin_img->id }}" style="z-index: 10;">
+                                                    <img src="{{ $img->ai_origin_img->img_url_ai }}" class="" alt="...">
+                                                    <figcaption class="figure-caption fs-6 text-center mt-3">{{ $img->ai_origin_img->created_at }}</figcaption>
+                                                </div>
+                                            </div>
+                                        @endif
                                         @foreach ($img->ai_imgs as $aiImg)
                                             <div class="swiper-slide">
                                                 <div>
@@ -162,6 +180,15 @@
                             <div class="col-3 position-relative swiper-box">
                                 <div class="swiper-container" id="swiper-container{{ $idx }}">
                                     <div class="swiper-wrapper align-items-center">
+                                        @if( $img->ai_origin_img )
+                                            <div class="swiper-slide">
+                                                <div>
+                                                    <input class="form-check-input position-absolute start-0 m-2" type="checkbox" name="selectImg" value="{{ $img->ai_origin_img->id }}" style="z-index: 10;">
+                                                    <img src="{{ $img->ai_origin_img->img_url_ai }}" class="" alt="...">
+                                                    <figcaption class="figure-caption fs-6 text-center mt-3">{{ $img->ai_origin_img->created_at }}</figcaption>
+                                                </div>
+                                            </div>
+                                        @endif
                                         @foreach ($img->ai_imgs as $aiImg)
                                             <div class="swiper-slide">
                                                 <div>

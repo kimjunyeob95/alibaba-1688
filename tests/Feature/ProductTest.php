@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Constants\ImageConstant;
 use App\Models\ProductData;
 use App\Models\ProductImageData;
+use App\Models\ProductOptionData;
 use App\Packages\Connect\Connect;
 use App\Packages\S3;
 use App\Services\GenuioService;
@@ -197,6 +198,35 @@ class ProductTest extends TestCase
 
         $geService = app(GenuioService::class);
         $geService->createTransProductImg($product1688ImageDtoList, $offerId);
+    }
+
+    # php artisan test --filter testProductPrice
+    public function testProductPrice()
+    {
+        $prdObjs = ProductOptionData::groupBy("offer_id")->get();
+
+        foreach ($prdObjs as $prdObj) {
+            $price_1688 = $prdObj->price_1688;
+            $option_price = round( $price_1688 * env("1688_EXCHANGE_RATE", 190) , -1);  // 1의 자리 반올림
+
+            $option_price_sum = (int)intval($option_price) + intval($option_price * env("OPTION_PRICE_RATE", 0.12));
+            $option_price_cal = round($option_price_sum / 10) * 10;
+            $onch_price = $option_price_cal;
+    
+            $recom_cus_price_sum = (int)intval($option_price) + intval($option_price * env("RECOM_CUS_PRICE_RATE", 0.45));
+            $recom_cus_price_cal = round($recom_cus_price_sum / 10) * 10;
+            $cus_price           = $recom_cus_price_cal;
+            $recom_cus_price     = $recom_cus_price_cal;
+
+            ProductOptionData::where("offer_id", $prdObj->offer_id)->update([
+                "option_price"    => $option_price,
+                "onch_price"      => $onch_price,
+                "cus_price"       => $cus_price,
+                "recom_cus_price" => $recom_cus_price,
+            ]);
+        };
+
+        dd("끝");
     }
 
 }

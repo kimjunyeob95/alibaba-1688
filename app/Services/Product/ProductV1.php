@@ -1627,6 +1627,7 @@ class ProductV1 extends ProductAbstract
                             "offer_id"   => $offerId,
                             "img_id"     => $imgObj->id,
                             "ai_type"    => GenuioConstant::IMG_Ai_TRANS,
+                            "is_origin"  => GenuioConstant::IS_ORIGIN_Y,
                             "img_url_ai" => $imgObj->img_url_origin,
                             "created_at" => $imgObj->created_at,
                         ],
@@ -1634,6 +1635,7 @@ class ProductV1 extends ProductAbstract
                             "offer_id"   => $offerId,
                             "img_id"     => $imgObj->id,
                             "ai_type"    => GenuioConstant::IMG_Ai_TRANS,
+                            "is_origin"  => GenuioConstant::IS_ORIGIN_N,
                             "img_url_ai" => $imgObj->img_url_trans,
                             "created_at" => $imgObj->created_at,
                         ],
@@ -1642,8 +1644,11 @@ class ProductV1 extends ProductAbstract
             }
 
             $prdObj = ProductData::with([
+                "main_img.ai_origin_img",
                 "main_img.ai_imgs",
+                "sub_imgs.ai_origin_img",
                 "sub_imgs.ai_imgs",
+                "desc_imgs.ai_origin_img",
                 "desc_imgs.ai_imgs",
             ])->where("offer_id", $offerId)->first();
             if( $prdObj == null ){

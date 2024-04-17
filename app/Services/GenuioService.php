@@ -263,6 +263,7 @@ class GenuioService extends TransApiAbstract
                                         "offer_id"   => $offerId,
                                         "img_id"     => $imgObj->id,
                                         "ai_type"    => GenuioConstant::IMG_Ai_TRANS,
+                                        "is_origin"  => GenuioConstant::IS_ORIGIN_Y,
                                         "img_url_ai" => $img_url_origin,
                                         "created_at" => Carbon::now(),
                                     ],
@@ -270,6 +271,7 @@ class GenuioService extends TransApiAbstract
                                         "offer_id"   => $offerId,
                                         "img_id"     => $imgObj->id,
                                         "ai_type"    => GenuioConstant::IMG_Ai_TRANS,
+                                        "is_origin"  => GenuioConstant::IS_ORIGIN_N,
                                         "img_url_ai" => $img_url_trans,
                                         "created_at" => Carbon::now(),
                                     ]
@@ -371,6 +373,7 @@ class GenuioService extends TransApiAbstract
                                 "offer_id"   => $offerId,
                                 "img_id"     => $imgObj->img_id,
                                 "ai_type"    => GenuioConstant::IMG_Ai_TRANS,
+                                "is_origin"  => GenuioConstant::IS_ORIGIN_N,
                                 "img_url_ai" => $img_url_ai,
                             ]);
                         }
@@ -508,6 +511,7 @@ class GenuioService extends TransApiAbstract
                         "offer_id"   => $offerId,
                         "img_id"     => $imgObj->id,
                         "ai_type"    => GenuioConstant::IMG_Ai_TRANS,
+                        "is_origin"  => GenuioConstant::IS_ORIGIN_N,
                         "img_url_ai" => "",
                         "ceated_at"  => Carbon::now()
                     ]);
