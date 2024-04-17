@@ -146,7 +146,11 @@
                                 <button type="button" class="btn btn-success text-white AImodiBtn">A.I 수정</button>
                                 <button type="button" class="btn btn-warning text-white AItoolBtn">A.I Tool</button>
                                 <button type="button" class="btn btn-primary text-white applyBtn">적용하기</button>
-                                <button type="button" class="btn btn-danger text-white exceptBtn" imgid={{ $img->id }}>제외하기</button>
+                                @if ($img->is_except == ImageConstant::IS_EXCEPT_N )
+                                    <button type="button" class="btn btn-danger text-white exceptBtn" except="{{ ImageConstant::IS_EXCEPT_Y }}" imgid={{ $img->id }}>제외하기</button>
+                                @else
+                                    <button type="button" class="btn btn-danger text-white exceptBtn" except="{{ ImageConstant::IS_EXCEPT_N }}" imgid={{ $img->id }}>제외 취소하기</button>
+                                @endif
                             </div>
                         </div>
                     @php
@@ -212,7 +216,11 @@
                                 <button type="button" class="btn btn-success text-white AImodiBtn">A.I 수정</button>
                                 <button type="button" class="btn btn-warning text-white AItoolBtn">A.I Tool</button>
                                 <button type="button" class="btn btn-primary text-white applyBtn">적용하기</button>
-                                <button type="button" class="btn btn-danger text-white exceptBtn" imgid={{ $img->id }}>제외하기</button>
+                                @if ($img->is_except == ImageConstant::IS_EXCEPT_N )
+                                    <button type="button" class="btn btn-danger text-white exceptBtn" except="{{ ImageConstant::IS_EXCEPT_Y }}" imgid={{ $img->id }}>제외하기</button>
+                                @else
+                                    <button type="button" class="btn btn-danger text-white exceptBtn" except="{{ ImageConstant::IS_EXCEPT_N }}" imgid={{ $img->id }}>제외 취소하기</button>
+                                @endif
                             </div>
                         </div>
                     @php
@@ -389,14 +397,19 @@
 
         $(".exceptBtn, .allExceptBtn").click(function(){
             let imgChecked = [$(this).attr("imgid")];
+            let except     = $(this).attr("except");
+            let exceptText = "제외";
+            if( except == "N" ){
+                exceptText = "제외 취소";
+            }
             if( imgChecked.length > 0 ){
-                if(confirm("수집 제외하시겠습니까?")){
+                if(confirm(`수집 ${exceptText}하시겠습니까?`)){
                     $("#loadingOverlay").show();
                     $.ajax({
                         "headers"    : {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
                         "type"       : "POST",
                         "url"        : "{{ route('w.product.imageExcept') }}",
-                        "data"       : { imgIds: imgChecked, is_except: "Y" },
+                        "data"       : { imgIds: imgChecked, is_except: except },
                         beforeSend: function () {
                         },
                         complete: function () {
@@ -404,7 +417,8 @@
                         },
                         success: function (resp) {
                             alert(resp.msg);
-                            hideModal("#AImodi-modal");
+                            location.reload();
+                            // hideModal("#AImodi-modal");
                         },
                         error: function error(request, status, _error) {
                             let { error } = JSON.parse(request.responseText);

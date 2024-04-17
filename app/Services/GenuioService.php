@@ -252,29 +252,31 @@ class GenuioService extends TransApiAbstract
                                 "trans_dated_at" => Carbon::now(),
                             ]);
 
-                            $gObj = GenuioImageData::where([
-                                "offer_id" => $offerId,
-                                "img_id"   => $imgObj->id,
-                                "ai_type"  => GenuioConstant::IMG_Ai_TRANS,
-                            ])->count();
-                            if( $gObj < 1 ){
-                                GenuioImageData::insert([
-                                    [
-                                        "offer_id"   => $offerId,
-                                        "img_id"     => $imgObj->id,
-                                        "ai_type"    => GenuioConstant::IMG_Ai_TRANS,
-                                        "is_origin"  => GenuioConstant::IS_ORIGIN_Y,
-                                        "img_url_ai" => $img_url_origin,
-                                        "created_at" => $prdObj->created_at,
-                                    ],
-                                    [
-                                        "offer_id"   => $offerId,
-                                        "img_id"     => $imgObj->id,
-                                        "ai_type"    => GenuioConstant::IMG_Ai_TRANS,
-                                        "is_origin"  => GenuioConstant::IS_ORIGIN_N,
-                                        "img_url_ai" => $img_url_trans,
-                                        "created_at" => Carbon::now(),
-                                    ]
+                            // 1. origin 이미지
+                            GenuioImageData::updateOrCreate([
+                                "offer_id"  => $offerId,
+                                "img_id"    => $imgObj->id,
+                                "ai_type"   => GenuioConstant::IMG_Ai_TRANS,
+                                "is_origin" => GenuioConstant::IS_ORIGIN_Y,
+                            ],[
+                                "img_url_ai" => $img_url_origin,
+                            ]);
+
+                            // 2. 최초 번역 이미지
+                            $aiImgObj = GenuioImageData::where([
+                                "offer_id"   => $offerId,
+                                "img_id"     => $imgObj->id,
+                                "img_url_ai" => $img_url_trans,
+                                "ai_type"    => GenuioConstant::IMG_Ai_TRANS,
+                                "is_origin"  => GenuioConstant::IS_ORIGIN_N
+                            ])->first();
+                            if( $aiImgObj == null ){
+                                GenuioImageData::create([
+                                    "offer_id"   => $offerId,
+                                    "img_id"     => $imgObj->id,
+                                    "img_url_ai" => $img_url_trans,
+                                    "ai_type"    => GenuioConstant::IMG_Ai_TRANS,
+                                    "is_origin"  => GenuioConstant::IS_ORIGIN_N,
                                 ]);
                             }
                     
