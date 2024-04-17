@@ -102,7 +102,7 @@
                                 <th scope="col" style="width: 100px">원본이미지</th>
                                 <th scope="col" style="width: 100px">판매량(월)</th>
                                 <th scope="col" style="width: 150px" class="text-center">
-                                    W 공급가(위안)<br>
+                                    W 공급가<br>
                                     (환율: {{ number_format($exchangeRate) }}원)
                                 </th>
                             </tr>
@@ -129,8 +129,8 @@
                                         {{ number_format($data["monthSold"]) }}
                                     </td>
                                     <td class="text-center">
-                                        {{ $data["price_1688"] }}<br>
-                                        {{ number_format($data["option_price"]) }}
+                                        {{ $data["price_1688"] }}(위안)<br>
+                                        {{ number_format($data["option_price"]) }}(원)
                                     </td>
                                 </tr>
                             @endforeach

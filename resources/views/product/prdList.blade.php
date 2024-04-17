@@ -136,7 +136,7 @@
                                 <th scope="col" style="width: 100px">원본이미지</th>
                                 <th scope="col" style="width: 100px">번역이미지</th>
                                 <th scope="col" style="width: 150px" class="text-center">
-                                    W 공급가(위안)<br>
+                                    W 공급가<br>
                                     (환율: {{ number_format($exchangeRate) }}원)
                                 </th>
                                 <th scope="col" style="width: 100px" class="text-center">이미지<br>번역여부</th>
@@ -182,8 +182,8 @@
                                             @php
                                                 $option = $data->options[0];
                                             @endphp
-                                                {{ $option->price_1688 }}<br>
-                                                {{ number_format($option->option_price) }}
+                                                {{ $option->price_1688 }}(위안)<br>
+                                                {{ number_format($option->option_price) }}(원)
                                         @else
                                             <p class="text-danger">옵션없음</p>
                                         @endif
