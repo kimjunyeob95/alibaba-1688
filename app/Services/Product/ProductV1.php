@@ -1779,4 +1779,30 @@ class ProductV1 extends ProductAbstract
 
         return $returnMsg;
     }
+
+    public function imageAccept(array $aiImgIds): array
+    {
+        $returnMsg = $this->returnMsg;
+        try {
+            foreach ($aiImgIds as $aiImgId) {
+                $aiImgObj = GenuioImageData::with(["image"])->where("id", $aiImgId)->first();
+                if( $aiImgObj != null && $aiImgObj->image ){
+                    $imgObj = $aiImgObj->image;
+                    if( $imgObj->img_url_trans ){
+                        ProductImageData::where("id", $imgObj->id)->update([
+                            "img_url_trans" => $aiImgObj->img_url_ai
+                        ]);
+
+                        // 상세이미지 업데이트
+                        upPrdDescTrans($imgObj->offer_id);
+                    }
+                }
+            }
+            $returnMsg = helpers_success_message();
+        } catch (Exception $e) {
+            $returnMsg = helpers_fail_message(false, $e->getMessage());
+        }
+
+        return $returnMsg;
+    }
 }

@@ -316,34 +316,8 @@ class GenuioService extends TransApiAbstract
                     }
                 }
     
-                // 2. product_datas prd_desc_trans update
-                foreach ($descTransImgs as $descTransImg) {
-                    $prd_desc_trans = str_replace($descTransImg["img_url_origin"], $descTransImg["img_url_trans"], $prd_desc);
-                    $prd_desc       = $prd_desc_trans;
-                    ProductData::where("offer_id", $offerId)->update([
-                        "prd_desc_trans" => $prd_desc_trans
-                    ]);
-                }
-
-                // 3. 이미지 상세 제외 이미지 제거 후 업데이트
-                $prdObj         = ProductData::where("offer_id", $offerId)->first();
-                $prd_desc_trans = $prdObj->prd_desc_trans;
-                $imgExceptObjs  = ProductImageData::where("offer_id", $offerId)->where("is_except", ImageConstant::IS_EXCEPT_Y)->get();
-                foreach ($imgExceptObjs as $imgExceptObj) {
-                    $img_url_origin = $imgExceptObj->img_url_origin;
-                    $img_url_trans  = $imgExceptObj->img_url_trans;
-        
-                    $pattern = '/<img[^>]+src\s*=\s*["\']' . preg_quote($img_url_origin, '/') . '["\'][^>]*>/i';
-                    $prd_desc_trans = preg_replace($pattern, '', $prd_desc_trans);
-        
-                    $pattern = '/<img[^>]+src\s*=\s*["\']' . preg_quote($img_url_trans, '/') . '["\'][^>]*>/i';
-                    $prd_desc_trans = preg_replace($pattern, '', $prd_desc_trans);
-                }
-                if( count($imgExceptObjs) > 0 ){
-                    ProductData::where("offer_id", $offerId)->update([
-                        "prd_desc_trans" => $prd_desc_trans
-                    ]);
-                }
+                // 2. 상세 이미지 업데이트
+                upPrdDescTrans($offerId);
 
             } else if( $getGenuioObj->send_type == GenuioConstant::IMG_Ai_TRANS ){
                 foreach ($images as $image) {

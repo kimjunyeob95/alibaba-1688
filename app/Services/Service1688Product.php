@@ -331,4 +331,15 @@ class Service1688Product
    {
       return $this->productAbstract->imageExcept($imgIds, $is_except);
    }
+
+   /**
+     * @func imageAccept
+     * @description 'AI 이미지 적용'
+     * @param array $aiImgIds
+     * @return array
+   */
+   public function imageAccept(array $aiImgIds): array
+   {
+      return $this->productAbstract->imageAccept($aiImgIds);
+   }
 }

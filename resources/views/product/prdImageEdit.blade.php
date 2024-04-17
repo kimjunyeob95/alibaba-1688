@@ -388,10 +388,30 @@
                     imgChecked.push($(this).val());
                 });
 
-                return alert("작업중..");
-                // if(confirm("선택한 이미지로 적용 됩니다.")){
-                //     alert("이미지가 적용 되었습니다.");
-                // }
+                if( imgChecked.length > 0 ){
+                    if(confirm(`선택한 이미지로 적용하시겠습니까?`)){
+                        $("#loadingOverlay").show();
+                        $.ajax({
+                            "headers"    : {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
+                            "type"       : "POST",
+                            "url"        : "{{ route('w.product.imageAccept') }}",
+                            "data"       : { aiImgIds: imgChecked },
+                            beforeSend: function () {
+                            },
+                            complete: function () {
+                                $("#loadingOverlay").hide();
+                            },
+                            success: function (resp) {
+                                alert(resp.msg);
+                                location.reload();
+                            },
+                            error: function error(request, status, _error) {
+                                let { error } = JSON.parse(request.responseText);
+                                alert(error.message);
+                            }
+                        });
+                    }
+                }
             }
         })
 

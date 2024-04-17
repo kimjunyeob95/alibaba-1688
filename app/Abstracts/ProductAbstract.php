@@ -193,4 +193,12 @@ abstract class ProductAbstract
      * @return array
     */
     abstract function imageExcept(array $imgIds, string $is_except): array;
+
+    /**
+     * @func imageAccept
+     * @description 'AI 이미지 적용'
+     * @param array $aiImgIds
+     * @return array
+    */
+    abstract function imageAccept(array $aiImgIds): array;
 }

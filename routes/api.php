@@ -54,6 +54,8 @@ Route::name('w.')->prefix('w')->group(function () {
         Route::post('/searchData', [WProductController::class, 'productSearchData'])->name('productSearchData');
         // 이미지 수집 제외 처리
         Route::post('/image/except', [WProductController::class, 'imageExcept'])->name('imageExcept');
+        // AI 이미지 적용
+        Route::post('/image/accept', [WProductController::class, 'imageAccept'])->name('imageAccept');
     });
 
     Route::name('category.')->prefix('category')->group(function () {

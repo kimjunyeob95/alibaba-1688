@@ -414,3 +414,37 @@ if (!function_exists("helperEscape")) {
         return "'" . $input . "'";
     }
 }
+
+if (!function_exists("upPrdDescTrans")) {
+    function upPrdDescTrans(int $offerId): void
+    {
+        $prdObj = ProductData::where("offer_id", $offerId)->first();
+        if( $prdObj != null ){
+            $prd_desc = $prdObj->prd_desc;
+
+            $imgObjs = ProductImageData::where([
+                "offer_id" => $offerId,
+                "img_type" => ImageConstant::IMAGE_TYPE_DESC,
+            ])->get();
+    
+            foreach ($imgObjs as $imgObj) {
+                if( $imgObj->is_except == ImageConstant::IS_EXCEPT_Y ){
+                    $img_url_origin = $imgObj->img_url_origin;
+                    $img_url_trans  = $imgObj->img_url_trans;
+        
+                    $pattern = '/<img[^>]+src\s*=\s*["\']' . preg_quote($img_url_origin, '/') . '["\'][^>]*>/i';
+                    $prd_desc = preg_replace($pattern, '', $prd_desc);
+        
+                    $pattern = '/<img[^>]+src\s*=\s*["\']' . preg_quote($img_url_trans, '/') . '["\'][^>]*>/i';
+                    $prd_desc = preg_replace($pattern, '', $prd_desc);
+                } else {
+                    $prd_desc = str_replace($imgObj->img_url_origin, $imgObj->img_url_trans, $prd_desc);
+                }
+            }
+
+            ProductData::where("id", $prdObj->id)->update([
+                "prd_desc_trans" => $prd_desc
+            ]);
+        }
+    }
+}
