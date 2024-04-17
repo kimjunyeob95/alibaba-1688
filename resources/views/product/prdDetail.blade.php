@@ -1,7 +1,7 @@
 @php
     use App\Constants\ProductConstant;
     use App\Constants\ImageConstant;
-    $exchangeRate = env("1688_EXCHANGE_RATE", 190);
+    $exchangeRate = env("1688_EXCHANGE_RATE", 200);
 @endphp
 @extends('dashboard.base')
 

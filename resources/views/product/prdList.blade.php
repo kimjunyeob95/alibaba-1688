@@ -1,6 +1,6 @@
 @php
     use App\Constants\ProductConstant;
-    $exchangeRate = env("1688_EXCHANGE_RATE", 190);
+    $exchangeRate = env("1688_EXCHANGE_RATE", 200);
 @endphp
 @extends('dashboard.base')
 

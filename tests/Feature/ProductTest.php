@@ -209,7 +209,7 @@ class ProductTest extends TestCase
 
         foreach ($prdObjs as $prdObj) {
             $price_1688 = $prdObj->price_1688;
-            $option_price = round( $price_1688 * env("1688_EXCHANGE_RATE", 190) , -1);  // 1의 자리 반올림
+            $option_price = round( $price_1688 * env("1688_EXCHANGE_RATE", 200) , -1);  // 1의 자리 반올림
 
             $option_price_sum = (int)intval($option_price) + intval($option_price * env("OPTION_PRICE_RATE", 0.12));
             $option_price_cal = round($option_price_sum / 10) * 10;
