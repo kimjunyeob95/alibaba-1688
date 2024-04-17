@@ -55,7 +55,6 @@
                         <button type="button" class="btn btn-success text-white allAImodiBtn" attr-type="main">A.I 수정</button>
                         <button type="button" class="btn btn-warning text-white allAItoolBtn" attr-type="main">A.I Tool</button>
                         <button type="button" class="btn btn-primary text-white allApplyBtn"  attr-type="main">적용하기</button>
-                        <button type="button" class="btn btn-danger text-white allExceptBtn"  attr-type="main">제외하기</button>
                     </div>
                 </div>
 
@@ -164,7 +163,6 @@
                         <button type="button" class="btn btn-success text-white allAImodiBtn" attr-type="desc">A.I 수정</button>
                         <button type="button" class="btn btn-warning text-white allAItoolBtn" attr-type="desc">A.I Tool</button>
                         <button type="button" class="btn btn-primary text-white allApplyBtn"  attr-type="desc">적용하기</button>
-                        <button type="button" class="btn btn-danger text-white allExceptBtn"  attr-type="desc">제외하기</button>
                     </div>
                 </div>
 
@@ -398,7 +396,7 @@
                 checked.each(function(){
                     imgChecked.push($(this).val());
                 });
-
+                return console.log(imgChecked);
                 return alert("작업중..");
                 // if(confirm("선택한 이미지는 노출이 제외 됩니다.")){
                 //     alert("이미지가 제외 되었습니다.");

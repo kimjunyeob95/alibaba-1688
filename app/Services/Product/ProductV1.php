@@ -555,6 +555,17 @@ class ProductV1 extends ProductAbstract
             } else {
                 $imgType = ImageConstant::IMAGE_TYPE_SUB;
             }
+
+            $is_except = ImageConstant::IS_EXCEPT_N;
+            $imgObj    = ProductImageData::where([
+                "offer_id"       => $offerId,
+                "img_type"       => $imgType,
+                "img_url_origin" => $prdImage,
+            ])->first();
+            if( $imgObj != null ){
+                $is_except = $imgObj->is_except;
+            }
+
             $isChangeImg = $this->isChangeImage($offerId, $prdImage, $imgType);
             $imgWidth    = 0;
             $imgHeight   = 0;
@@ -571,6 +582,7 @@ class ProductV1 extends ProductAbstract
             $product1688ImageDto->bind([
                 "offerId"        => $offerId,
                 "imgType"        => $imgType,
+                "is_except"      => $is_except,
                 "img_url_origin" => $prdImage,
                 "img_url_trans"  => "",
                 "isChangeImg"    => $isChangeImg,
@@ -587,7 +599,16 @@ class ProductV1 extends ProductAbstract
         preg_match_all('/<img[^>]+src="([^">]+)"/', $prdDescription, $matches);
         $imageSrcs = $matches[1];
         foreach ($imageSrcs as $imageSrc) {
-            $imgType     = ImageConstant::IMAGE_TYPE_DESC;
+            $imgType   = ImageConstant::IMAGE_TYPE_DESC;
+            $is_except = ImageConstant::IS_EXCEPT_N;
+            $imgObj    = ProductImageData::where([
+                "offer_id"       => $offerId,
+                "img_type"       => $imgType,
+                "img_url_origin" => $imageSrc,
+            ])->first();
+            if( $imgObj != null ){
+                $is_except = $imgObj->is_except;
+            }
             $isChangeImg = $this->isChangeImage($offerId, $imageSrc, $imgType);
             $imgWidth    = 0;
             $imgHeight   = 0;
@@ -604,6 +625,7 @@ class ProductV1 extends ProductAbstract
             $product1688ImageDto->bind([
                 "offerId"        => $offerId,
                 "imgType"        => $imgType,
+                "is_except"      => $is_except,
                 "img_url_origin" => $imageSrc,
                 "img_url_trans"  => "",
                 "isChangeImg"    => $isChangeImg,

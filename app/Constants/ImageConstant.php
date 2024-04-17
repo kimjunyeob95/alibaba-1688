@@ -11,4 +11,9 @@ class ImageConstant
     public const IMAGE_TYPE_DESC = "desc"; // 상세 이미지
 
     public const IS_CHANGE_IMG = true;
+
+    public const IS_EXCEPT_Y = "Y";
+    public const IS_EXCEPT_N = "N";
+
+    
 }
