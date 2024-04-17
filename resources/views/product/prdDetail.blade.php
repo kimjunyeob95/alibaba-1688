@@ -1,5 +1,6 @@
 @php
     use App\Constants\ProductConstant;
+    use App\Constants\ImageConstant;
     $exchangeRate = env("1688_EXCHANGE_RATE", 190);
 @endphp
 @extends('dashboard.base')
@@ -88,7 +89,7 @@
                                 @endif
                                 @endforeach
                                 @foreach ($prdObj->images as $prdImg)
-                                @if ($prdImg->img_type == "sub")
+                                @if ($prdImg->img_type == "sub" && $prdImg->is_except == ImageConstant::IS_EXCEPT_N)
                                     <div class="swiper-slide">
                                         <img src={{ $prdImg->img_url_trans}}>
                                     </div>

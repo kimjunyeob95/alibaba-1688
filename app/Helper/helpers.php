@@ -1,6 +1,7 @@
 <?php
 
 use App\Constants\HttpConstant;
+use App\Constants\ImageConstant;
 use App\Constants\ProductConstant;
 use App\Models\ProductData;
 use App\Models\ProductImageData;
@@ -359,6 +360,7 @@ if (!function_exists("chkTransStatus")) {
     {
        $TransCnt = ProductImageData::where("offer_id", $offerId)
        ->whereRaw("REPLACE(img_url_trans, ' ', '') != ''")
+       ->where("is_except", ImageConstant::IS_EXCEPT_N)
        ->whereNotNull("trans_dated_at")
        ->whereNull("deleted_at")
        ->count();

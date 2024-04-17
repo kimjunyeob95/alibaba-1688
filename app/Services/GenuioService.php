@@ -265,7 +265,7 @@ class GenuioService extends TransApiAbstract
                                         "ai_type"    => GenuioConstant::IMG_Ai_TRANS,
                                         "is_origin"  => GenuioConstant::IS_ORIGIN_Y,
                                         "img_url_ai" => $img_url_origin,
-                                        "created_at" => Carbon::now(),
+                                        "created_at" => $prdObj->created_at,
                                     ],
                                     [
                                         "offer_id"   => $offerId,

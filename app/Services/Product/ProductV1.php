@@ -1667,7 +1667,7 @@ class ProductV1 extends ProductAbstract
                             "ai_type"    => GenuioConstant::IMG_Ai_TRANS,
                             "is_origin"  => GenuioConstant::IS_ORIGIN_N,
                             "img_url_ai" => $imgObj->img_url_trans,
-                            "created_at" => $imgObj->created_at,
+                            "created_at" => $imgObj->trans_dated_at,
                         ],
                     ]);
                 }
