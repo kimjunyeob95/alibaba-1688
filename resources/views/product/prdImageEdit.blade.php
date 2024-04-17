@@ -109,7 +109,11 @@
                             <div class="col-3">
                                 <div class="row">
                                     <img src="{{ $img->img_url_trans }}" class="rounded img-fluid" alt="...">
-                                    <figcaption class="figure-caption fs-6 text-center mt-3">{{ $img->trans_dated_at }}</figcaption>
+                                    @if( $img->is_except == ImageConstant::IS_EXCEPT_N )
+                                        <figcaption class="figure-caption fs-6 text-center mt-3">{{ $img->trans_dated_at }}</figcaption>
+                                    @else
+                                        <figcaption class="figure-caption fs-4 text-center mt-3 text-danger">*제외처리</figcaption>
+                                    @endif
                                 </div>
                             </div>
                             <div class="col-3 position-relative swiper-box">
@@ -171,7 +175,11 @@
                             <div class="col-3">
                                 <div class="row">
                                     <img src="{{ $img->img_url_trans }}" class="rounded img-fluid" alt="...">
-                                    <figcaption class="figure-caption fs-6 text-center mt-3">{{ $img->trans_dated_at }}</figcaption>
+                                    @if( $img->is_except == ImageConstant::IS_EXCEPT_N )
+                                        <figcaption class="figure-caption fs-6 text-center mt-3">{{ $img->trans_dated_at }}</figcaption>
+                                    @else
+                                        <figcaption class="figure-caption fs-4 text-center mt-3 text-danger">*제외처리</figcaption>
+                                    @endif
                                 </div>
                             </div>
                             <div class="col-3 position-relative swiper-box">

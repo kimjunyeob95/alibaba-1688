@@ -231,13 +231,82 @@
                 ]
             }
         },
+        "/api/genuio/products/{offerId}": {
+            "get": {
+                "tags": [
+                    "상품"
+                ],
+                "summary": "WApp 상품 상세",
+                "description": "WApp 상품 상세 endPoint",
+                "operationId": "4fd361ca9810eb57f47daff62529cb2d",
+                "parameters": [
+                    {
+                        "name": "offerId",
+                        "in": "path",
+                        "description": "상품 ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 730301197041
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SuccessResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Authorization Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/401ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/400ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/500ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            }
+        },
         "/api/genuio/products/{offerId}/images": {
             "patch": {
                 "tags": [
                     "상품"
                 ],
-                "summary": "상품 이미지 업데이트",
-                "description": "W 상품 이미지 업데이트 endPoint",
+                "summary": "상품 AI 이미지 추가",
+                "description": "WApp 상품 AI 이미지 추가 endPoint",
                 "operationId": "00d64ba683be65861c55aa2e70a0fb88",
                 "parameters": [
                     {
@@ -267,6 +336,84 @@
                             "application/json": {
                                 "schema": {
                                     "$ref": "#/components/schemas/ProductsUpdateImagesSuccessResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Authorization Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/401ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/400ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/500ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/genuio/products/{offerId}/images/except": {
+            "patch": {
+                "tags": [
+                    "상품"
+                ],
+                "summary": "상품 이미지 제외 처리",
+                "description": "WApp 상품 이미지 제외 처리 endPoint",
+                "operationId": "f0f97fcf8adad031aa4d44210cbd0ddb",
+                "parameters": [
+                    {
+                        "name": "offerId",
+                        "in": "path",
+                        "description": "제품 ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ProductsUpdateImagesExceptSchema"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SuccessResponse"
                                 }
                             }
                         }
@@ -687,7 +834,7 @@
                 ],
                 "properties": {
                     "images": {
-                        "description": "상품 이미지 업데이트를 위한 payload",
+                        "description": "WApp 상품 AI 이미지 추가를 위한 payload",
                         "type": "array",
                         "items": {
                             "required": [
@@ -753,6 +900,29 @@
                             },
                             "type": "object"
                         }
+                    }
+                },
+                "type": "object"
+            },
+            "ProductsUpdateImagesExceptSchema": {
+                "required": [
+                    "imgIds",
+                    "is_except"
+                ],
+                "properties": {
+                    "imgIds": {
+                        "description": "상품 이미지 제외를 위한 payload",
+                        "type": "array",
+                        "items": {
+                            "description": "이미지 ID",
+                            "type": "integer",
+                            "example": 64
+                        }
+                    },
+                    "is_except": {
+                        "description": "Y: 제외, N: 제외취소",
+                        "type": "string",
+                        "example": "Y"
                     }
                 },
                 "type": "object"

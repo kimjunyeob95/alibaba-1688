@@ -17,6 +17,14 @@ abstract class ProductAbstract
     abstract function getPrdList(array $params): array;
 
     /**
+     * @func apiPrdDetail
+     * @description 'w API 상품 상세 조회'
+     * @param int $offerId
+     * @return array
+    */
+    abstract function apiPrdDetail(int $offerId): array;
+
+    /**
      * @func getMallCategory
      * @description '1688API 수집 상품 디테일'
      * @param int $offerId '제품ID'

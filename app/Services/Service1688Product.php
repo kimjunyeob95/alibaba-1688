@@ -220,14 +220,23 @@ class Service1688Product
                "option_name_trans" => $option->option_name_trans,
             ];
          }
-
-         foreach ($prdObj->images as $image) {
-            $data["images"][] = [
+         foreach ($prdObj->images as $key => $image) {
+            $data["images"][$key] = [
                "id"             => $image->id,
                "img_type"       => $image->img_type,
                "img_url_origin" => $image->img_url_origin,
                "img_url_trans"  => $image->img_url_trans,
             ];
+
+            foreach ($image->ai_all_imgs as $ai_img) {
+               $data["images"][$key]["ai_images"][] = [
+                  "id"         => $ai_img->id,
+                  "img_id"     => $ai_img->img_id,
+                  "is_origin"  => $ai_img->is_origin,
+                  "img_url_ai" => $ai_img->img_url_ai,
+                  "created_at" => $ai_img->created_at,
+               ]; 
+            }
          }
 
          $datas[] = $data;
@@ -243,6 +252,17 @@ class Service1688Product
          "page"     => $page,
          "pageSize" => (int)$pageSize,
       ];
+   }
+
+   /**
+     * @func apiPrdDetail
+     * @description 'w API 상품 상세 조회'
+     * @param int $offerId
+     * @return array
+   */
+   public function apiPrdDetail(int $offerId): array
+   {
+      return $this->productAbstract->apiPrdDetail($offerId);
    }
 
    /**

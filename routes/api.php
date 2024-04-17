@@ -31,6 +31,8 @@ Route::name('w.')->prefix('w')->group(function () {
 
         // 상품 조회
         Route::get('/products', [WProductController::class, "apiPrdList"])->name("products");
+        // 상품 상세 조회
+        Route::get('/products/{offerId}', [WProductController::class, "apiPrdDetail"])->name("productsDetail");
     });
 
     Route::name('product.')->prefix('product')->group(function () {
@@ -97,6 +99,10 @@ Route::name('genuio.')->prefix('genuio')->group(function () {
 
         // 상품 조회
         Route::get('/products', [WProductController::class, "apiPrdList"])->name("products");
+        // 상품 상세 조회
+        Route::get('/products/{offerId}', [WProductController::class, "apiPrdDetail"])->name("productsDetail");
+        // 상품 이미지 제외 처리
+        Route::patch('/products/{offerId}/images/except', [WProductController::class, 'imageExcept'])->name('imageExcept');
         // AI 이미지 저장
         Route::patch('/products/{offerId}/images', [GenuioController::class, "imgAiRegist"])->name("imgAiRegist");
     });

@@ -249,6 +249,17 @@ class WProductController extends Controller
         }
     }
 
+    public function apiPrdDetail(int $offerId): JsonResponse
+    {
+        try {
+            $result = $this->service1688Product->apiPrdDetail($offerId);
+
+            return helpers_json_response(HttpConstant::OK, helpers_success_message($result));
+        } catch (Exception $e) {
+            return helpers_json_response(HttpConstant::BAD_REQUEST, [], $e->getMessage());
+        }
+    }
+
     public function productsUpdateImages(int $offerId): JsonResponse
     {
         try {

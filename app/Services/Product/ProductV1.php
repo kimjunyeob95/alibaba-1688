@@ -61,8 +61,11 @@ class ProductV1 extends ProductAbstract
         $trans_status   = $params["trans_status"];
         $mapping_status = $params["mapping_status"];
 
-        $prdBuilder = ProductData::with(["main_img", "options", "images"])
-        ->whereNull("deleted_at")->orderBy("created_at", "desc");
+        $prdBuilder = ProductData::with([
+                "main_img",
+                "options", 
+                "images.ai_all_imgs"
+        ])->whereNull("deleted_at")->orderBy("created_at", "desc");
 
         if( !empty($keyword) ){
             if( $search_cls == "offer_id"){
@@ -104,8 +107,31 @@ class ProductV1 extends ProductAbstract
             "transYCnt" => $transYCnt,
             "transNCnt" => $transNCnt,
         ];
+    }
 
-        return $lists;
+    public function apiPrdDetail(int $offerId): array
+    {
+        $returnMsg = $this->returnMsg;
+
+        try {
+            $prdObj = ProductData::with([
+                "images.ai_all_imgs",
+                "extends",
+                "options",
+                "notices",
+                "category",
+                "w_mapping.w_cate_name",
+            ])->where("offer_id", $offerId)->first();
+            if( $prdObj == null ){
+                throw new Exception("No Data");
+            }
+
+            $returnMsg = helpers_success_message($prdObj);
+        } catch (Exception $e) {
+            $returnMsg = helpers_fail_message($e->getMessage());
+        }
+
+        return $returnMsg;
     }
 
     public function getPrdCollectLogList(array $params): LengthAwarePaginator
