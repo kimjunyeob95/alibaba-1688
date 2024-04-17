@@ -258,11 +258,21 @@ class GenuioService extends TransApiAbstract
                                 "ai_type"  => GenuioConstant::IMG_Ai_TRANS,
                             ])->count();
                             if( $gObj < 1 ){
-                                GenuioImageData::create([
-                                    "offer_id"   => $offerId,
-                                    "img_id"     => $imgObj->id,
-                                    "ai_type"    => GenuioConstant::IMG_Ai_TRANS,
-                                    "img_url_ai" => $img_url_trans,
+                                GenuioImageData::insert([
+                                    [
+                                        "offer_id"   => $offerId,
+                                        "img_id"     => $imgObj->id,
+                                        "ai_type"    => GenuioConstant::IMG_Ai_TRANS,
+                                        "img_url_ai" => $img_url_origin,
+                                        "created_at" => Carbon::now(),
+                                    ],
+                                    [
+                                        "offer_id"   => $offerId,
+                                        "img_id"     => $imgObj->id,
+                                        "ai_type"    => GenuioConstant::IMG_Ai_TRANS,
+                                        "img_url_ai" => $img_url_trans,
+                                        "created_at" => Carbon::now(),
+                                    ]
                                 ]);
                             }
                     

@@ -826,7 +826,10 @@ class ProductV1 extends ProductAbstract
                 );
             }
 
-            // 6. 이미지 번역 요청 통신
+            // 6. 기존 이미지 삭제
+            $this->delProductImage($product1688ImageDtoList);
+
+            // 7. 이미지 번역 요청 통신
             if( env("APP_ENV", "local") == "production" ) {
                 $transResult = $this->transApiAbstract->createTransProductImg($product1688ImageDtoList, $offerId);
                 if( $transResult["isSuccess"] == false ){
@@ -834,8 +837,6 @@ class ProductV1 extends ProductAbstract
                 }
             }
 
-            // 7. 기존 이미지 삭제
-            $this->delProductImage($product1688ImageDtoList);
 
             $returnMsg = helpers_success_message();
         } catch (Exception $e) {
@@ -1622,11 +1623,20 @@ class ProductV1 extends ProductAbstract
                 ])->count();
                 if( $gObj < 1 ){
                     GenuioImageData::insert([
-                        "offer_id"   => $offerId,
-                        "img_id"     => $imgObj->id,
-                        "ai_type"    => GenuioConstant::IMG_Ai_TRANS,
-                        "img_url_ai" => $imgObj->img_url_trans,
-                        "created_at" => $imgObj->created_at,
+                        [
+                            "offer_id"   => $offerId,
+                            "img_id"     => $imgObj->id,
+                            "ai_type"    => GenuioConstant::IMG_Ai_TRANS,
+                            "img_url_ai" => $imgObj->img_url_origin,
+                            "created_at" => $imgObj->created_at,
+                        ],
+                        [
+                            "offer_id"   => $offerId,
+                            "img_id"     => $imgObj->id,
+                            "ai_type"    => GenuioConstant::IMG_Ai_TRANS,
+                            "img_url_ai" => $imgObj->img_url_trans,
+                            "created_at" => $imgObj->created_at,
+                        ],
                     ]);
                 }
             }
