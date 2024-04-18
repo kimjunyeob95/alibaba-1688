@@ -40,3 +40,52 @@ function toggleCheckbox(event, cardElement) {
         checkbox.checked = !checkbox.checked; // 체크박스 상태 토글
     }
 }
+
+function resizeImage(file, maxSize) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = function(event) {
+            const img = new Image();
+            img.src = event.target.result;
+            img.onload = function() {
+                let width = img.width;
+                let height = img.height;
+
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                canvas.width = width;
+                canvas.height = height;
+                ctx.drawImage(img, 0, 0, width, height);
+
+                let quality = 0.9;
+                let dataUrl = canvas.toDataURL('image/jpeg', quality);
+
+                while (dataUrl.length > maxSize && quality > 0.1) {
+                    quality -= 0.05;
+                    dataUrl = canvas.toDataURL('image/jpeg', quality);
+                }
+
+                if (dataUrl.length < maxSize) {
+                    resolve(dataURLtoFile(dataUrl, file.name));
+                } else {
+                    reject('파일 크기를 충분히 줄일 수 없습니다.');
+                }
+            };
+        };
+    });
+}
+
+function dataURLtoFile(dataUrl, fileName) {
+    const arr = dataUrl.split(',');
+    const mime = arr[0].match(/:(.*?);/)[1];
+    const bstr = atob(arr[1]);
+    let n = bstr.length;
+    const u8arr = new Uint8Array(n);
+    
+    while(n--){
+        u8arr[n] = bstr.charCodeAt(n);
+    }
+
+    return new File([u8arr], fileName, {type:mime});
+}

@@ -159,7 +159,7 @@
             $("#searchFrm").submit();
         });
 
-        $("#imgFile").change(function(){
+        $("#imgFile").change(async function(){
             $("#loadingOverlay").show();
 
             let file = this.files[0];
@@ -170,11 +170,10 @@
                 $("#imageId").val('');
                 $("#loadingOverlay").hide();
                 return alert('이미지 파일만 업로드 가능합니다.');
-            } else if (file.size > 300000) { // 파일 크기 검사 (300KB 이하인지 확인)
-                this.value = '';
-                $("#imageId").val('');
-                $("#loadingOverlay").hide();
-                return alert('파일 크기는 300KB 이하로 업로드 가능합니다.');
+            } 
+
+            if (file.size > 300000) {
+                file = await resizeImage(file, 290 * 1024);
             }
 
             let formData = new FormData();
