@@ -50,4 +50,7 @@ Route::prefix("category")->name("category.")->group(function(){
 Route::prefix("easySell")->name("easySell.")->group(function(){
     // 상품 현황
     Route::get("product/list", [EasySellController::class, "getPrdList"])->name("product/list");
+
+    //카테고리 관리
+    Route::get("category", [EasySellController::class, "categoryManage"])->name("category");
 });

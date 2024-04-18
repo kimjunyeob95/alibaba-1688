@@ -4,8 +4,10 @@ namespace App\Services;
 
 use App\Constants\MallConstant;
 use App\Constants\ProductConstant;
+use App\Models\CategoryMapping;
 use App\Models\EasysellProductLog;
 use App\Models\ProductData;
+use App\Models\WCategory;
 
 class EasySellService
 {
@@ -63,6 +65,26 @@ class EasySellService
             "totalCnt"   => $totalCnt,
             "successCnt" => $successCnt,
             "failCnt"    => $failCnt,
+        ];
+    }
+
+    public function cateList($params) :array
+    {
+        $pageSize       = $params["pageSize"];
+        $mapping_status = $params["mapping_status"];
+        $keyword        = $params["keyword"];
+
+        $categoryBuilder = CategoryMapping::select(["a.mapping_code as mapping_code", "b.mapping_code as es_mapping_code", "b.category_id"])
+            ->with(["w_cate_name", "es_category"])
+            ->from("category_mappings as a")
+            ->leftJoin("category_mappings as b","a.category_id","=","b.category_id")
+            ->where("a.mapping_channel",ProductConstant::MAPPING_WAPP)
+            ->where("b.mapping_channel",ProductConstant::MAPPING_ES_CHANNEL);
+
+        $lists = $categoryBuilder->paginate($pageSize)->appends($params);
+
+        return [
+            "paginator"  => $lists,
         ];
     }
 }
