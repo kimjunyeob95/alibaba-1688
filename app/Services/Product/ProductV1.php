@@ -1772,6 +1772,14 @@ class ProductV1 extends ProductAbstract
             ProductImageData::whereIn("id", $imgIds)->update([
                 "is_except" => $is_except
             ]);
+
+            foreach ($imgIds as $imgId) {
+                $imgObj = ProductImageData::where("id", $imgId)->first();
+                if( $imgObj != null ){
+                    // 상세이미지 업데이트
+                    upPrdDescTrans($imgObj->offer_id);
+                }
+            }
             $returnMsg = helpers_success_message();
         } catch (Exception $e) {
             $returnMsg = helpers_fail_message(false, $e->getMessage());

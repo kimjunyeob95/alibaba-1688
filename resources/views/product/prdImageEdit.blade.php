@@ -49,7 +49,7 @@
         <div class="row my-4 bg-white py-3">
             <div class="container-fluid main-container">
                 <div class="d-flex justify-content-between">
-                    <h4>대표이미지</h4>
+                    <h4>썸네일 이미지</h4>
                     <div>
                         <button type="button" class="btn btn-light allCheckbtn" attr-type="main">전체선택</button>
                         <button type="button" class="btn btn-success text-white allAImodiBtn" attr-type="main">A.I 수정</button>
