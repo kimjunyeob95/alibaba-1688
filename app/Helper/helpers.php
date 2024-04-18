@@ -426,15 +426,15 @@ if (!function_exists("upPrdDescTrans")) {
                 "offer_id" => $offerId,
                 "img_type" => ImageConstant::IMAGE_TYPE_DESC,
             ])->get();
-    
+
             foreach ($imgObjs as $imgObj) {
                 if( $imgObj->is_except == ImageConstant::IS_EXCEPT_Y ){
                     $img_url_origin = $imgObj->img_url_origin;
                     $img_url_trans  = $imgObj->img_url_trans;
-        
+
                     $pattern = '/<img[^>]+src\s*=\s*["\']' . preg_quote($img_url_origin, '/') . '["\'][^>]*>/i';
                     $prd_desc = preg_replace($pattern, '', $prd_desc);
-        
+
                     $pattern = '/<img[^>]+src\s*=\s*["\']' . preg_quote($img_url_trans, '/') . '["\'][^>]*>/i';
                     $prd_desc = preg_replace($pattern, '', $prd_desc);
                 } else {
@@ -446,5 +446,13 @@ if (!function_exists("upPrdDescTrans")) {
                 "prd_desc_trans" => $prd_desc
             ]);
         }
+    }
+}
+
+//이지셀 판매가 계산
+if (!function_exists("calcEasySellSalePrice")) {
+    function calcEasySellSalePrice(?int $onchPrice = 0): int
+    {
+        return ceil(($onchPrice * env("EASYSELL_PRICE_RATE", "1.35")) / 100) * 100;
     }
 }
