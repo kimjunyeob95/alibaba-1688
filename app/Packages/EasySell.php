@@ -17,6 +17,7 @@ use App\Vo\EasySell\EasySellProductVo;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\File;
 
 class EasySell extends MallApiAbstract
 {
@@ -59,7 +60,8 @@ class EasySell extends MallApiAbstract
                     "extends",
                     "options",
                     "notices",
-                    "es_mapping"
+                    "es_mapping",
+                    "es_fgn_mapping"
                 ])->where("offer_id", $offerId)->first();
 
                 if( $prdObj == null ){
@@ -164,7 +166,8 @@ class EasySell extends MallApiAbstract
                     "extends",
                     "options",
                     "notices",
-                    "es_mapping"
+                    "es_mapping",
+                    "es_fgn_mapping"
                 ])->where("offer_id", $offerId)->first();
 
                 if( $prdObj == null ){
@@ -263,25 +266,35 @@ class EasySell extends MallApiAbstract
         try {
             DB::beginTransaction();
 
-            $categoryObj = CategoryMapping::where("mapping_channel", ProductConstant::MAPPING_WAPP)->get();
-            $categoryArr = $categoryObj->pluck("mapping_code","category_id")->toArray();
+            $filePath = public_path('app/es_categories.txt');
+            if (File::exists($filePath)) {
+                $lines = File::lines($filePath);
+                foreach($lines as $line){
+                    $data = explode(',', $line);
+                    $categoryObj = CategoryMapping::where("mapping_channel", ProductConstant::MAPPING_WAPP)
+                        ->where("mapping_code",$data[0])
+                        ->get();
+                    foreach($categoryObj as $cate){
+                        //이지셀 카테고리 매핑
+                        CategoryMapping::updateOrCreate([
+                                "category_id"     => $cate->category_id,
+                                "mapping_channel" => ProductConstant::MAPPING_ES_CHANNEL
+                            ],[
+                                "mapping_code" => $data[1]
+                            ]);
 
-            $easysellCategory = OnchCategoryExcelDataCopy2::select("codenum","sellerhub_cate")
-                ->whereIn("codenum", $categoryArr)
-                ->where("sellerhub_cate", "!=", "")
-                ->whereNotNull("sellerhub_cate")
-                ->pluck("sellerhub_cate", "codenum")
-                ->toArray();
-
-            foreach($categoryObj as $data){
-                CategoryMapping::updateOrCreate([
-                        "category_id" => $data->category_id,
-                        "mapping_channel" => MallConstant::MALL_EASYSELL
-                    ],[
-                        "mapping_code"    => $easysellCategory[$data['mapping_code']] ?? 0
-                    ]);
+                        //이지셀 해외카테고리 매핑
+                        CategoryMapping::updateOrCreate([
+                                "category_id"     => $cate->category_id,
+                                "mapping_channel" => ProductConstant::MAPPING_ES_FGN_CHANNEL
+                            ],[
+                                "mapping_code" => $data[2]
+                            ]);
+                    }
+                }
+            } else {
+                throw new Exception("파일이 존재하지 않습니다.");
             }
-
             $returnMsg = helpers_success_message();
 
             DB::commit();
@@ -309,10 +322,11 @@ class EasySell extends MallApiAbstract
             $offerId = $prdObj->offer_id;
 
             //카테고리 매핑
-            if(!isset($prdObj->es_mapping) || empty($prdObj->es_mapping->mapping_code)){
+            if(!isset($prdObj->es_mapping) || empty($prdObj->es_mapping->mapping_code) || !isset($prdObj->es_fgn_mapping) || empty($prdObj->es_fgn_mapping->mapping_code)){
                 throw new Exception("카테고리 정보가 없습니다");
             }
-            $categoryId = $prdObj->es_mapping->mapping_code;
+            $categoryId = $prdObj->es_mapping->mapping_code."|".$prdObj->es_fgn_mapping->mapping_code;
+            $ItemBrand = EasySellConstant::CATEGORY_MAPPING[substr($prdObj->es_fgn_mapping->mapping_code,0,6)];
 
             //연령제한 상품여부
             if($prdObj->minor_not_sale == ProductConstant::MINOR_NOT_SALE_YES){
@@ -374,6 +388,7 @@ class EasySell extends MallApiAbstract
             $voParams = [
                 "ItemNo"                => $offerId,
                 "ItemCategory"          => $categoryId,
+                "ItemBrand"             => $ItemBrand,
                 "ItemName"              => $ItemName,
                 "ItemGoodCode"          => $ItemGoodCode,
                 "ItemDesc"              => $ItemName,

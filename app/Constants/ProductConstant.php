@@ -99,6 +99,7 @@ class ProductConstant
     public const MAPPING_WAPP       = "WApp";
     public const MAPPING_OC_CHANNEL = "onchannel";
     public const MAPPING_ES_CHANNEL = "easySell";
+    public const MAPPING_ES_FGN_CHANNEL = "easySellFgn";
 
     // 번역 여부
     public const TRANS_STATUS_Y = "Y"; // 번역 완료

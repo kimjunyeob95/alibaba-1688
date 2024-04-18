@@ -110,7 +110,7 @@ class EasySellProductVo extends Vo
         $this->OptIf                      = $data['OptIf'] ?? "N";
         $this->Exhibition                 = $data['Exhibition'] ?? "N";
         $this->MinEa                      = $data['MinEa'] ?? 1;
-        $this->ItemApproveAuto            = "Y";                                   // 테스트 완료시 N으로 수정
+        $this->ItemApproveAuto            = "N";                                   // 테스트 완료시 N으로 수정
 
         $this->_makeItemGoodsRequired($data['noticeType']);
     }
