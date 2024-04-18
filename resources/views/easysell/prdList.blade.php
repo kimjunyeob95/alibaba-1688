@@ -1,6 +1,7 @@
 @php
     use App\Constants\ProductConstant;
     use App\Constants\MallConstant;
+    use App\Constants\EasySellConstant;
 @endphp
 @extends('dashboard.base')
 
@@ -138,6 +139,9 @@
                                     </td>
                                     <td>
                                         {{ $data->offer_id }}
+                                        @if(empty($data->es_mapping) || empty($data->es_fgn_mapping))
+                                        <br><span class="text-danger">*카테고리 미맵핑 ({{ $data->category_id }})</span>
+                                        @endif
                                     </td>
                                     <td>
                                         {{ $data->prd_name_trans }}
@@ -164,7 +168,8 @@
                                     </td>
                                     <td class="text-center">
                                         @if($data->regist_success == MallConstant::REGIST_SUCCESS)
-                                            {{$data->itemno}}
+                                            {{ $data->itemno }} <br>
+                                            <small>({{ EasySellConstant::CATEGORY_NAME[substr($data->es_fgn_mapping->mapping_code,0,6)] }})</small>
                                         @else
                                             <span class="text-danger">미등록</span>
                                         @endisset
