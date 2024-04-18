@@ -383,6 +383,75 @@
                 ]
             }
         },
+        "/api/w/products/{offerId}": {
+            "get": {
+                "tags": [
+                    "상품"
+                ],
+                "summary": "WApp 상품 상세",
+                "description": "WApp 상품 상세 endPoint",
+                "operationId": "01dd57d9e2d9b0c7243f54ae4fd88ea3",
+                "parameters": [
+                    {
+                        "name": "offerId",
+                        "in": "path",
+                        "description": "상품 ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 730301197041
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SuccessResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Authorization Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/401ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/400ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/500ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            }
+        },
         "/api/mall/{channel}/order/{orderId}": {
             "get": {
                 "tags": [
