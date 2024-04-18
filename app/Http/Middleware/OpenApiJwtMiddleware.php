@@ -30,11 +30,10 @@ class OpenApiJwtMiddleware
             }
 
             // 마지막 생성 토큰인지 확인
-            if (!$this->isLastToken($decodedToken)) {
-                return helpers_json_response(HttpConstant::UNAUTHORIZED, [], "마지막 생성 토큰을 전달해주세요.");
-            }
+            // if (!$this->isLastToken($decodedToken)) {
+            //     return helpers_json_response(HttpConstant::UNAUTHORIZED, [], "마지막 생성 토큰을 전달해주세요.");
+            // }
 
-    
             return $next($request);
         } catch (Exception $e) {
             $message = $e->getMessage();
