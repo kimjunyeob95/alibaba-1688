@@ -1,5 +1,6 @@
 @php
     use App\Constants\ProductConstant;
+    $exchangeRate = env("1688_EXCHANGE_RATE", 200);
 @endphp
 @extends('dashboard.base')
 
@@ -128,17 +129,18 @@
                                     <input class="form-check-input" type="checkbox" id="allCheckbox">
                                 </th>
                                 <th scope="col" style="width: 50px">No</th>
-                                <th scope="col" style="width: 150px">제품ID</th>
+                                <th scope="col" style="width: 150px">
+                                    제품ID<br>
+                                    (카테고리ID)
+                                </th>
                                 <th scope="col">제품명</th>
                                 <th scope="col">제품명(번역)</th>
                                 <th scope="col" style="width: 50px">최소 구매 수량</th>
                                 <th scope="col" style="width: 100px">원본이미지</th>
                                 <th scope="col" style="width: 100px">번역이미지</th>
                                 <th scope="col" style="width: 150px" class="text-center">
-                                    W 소비자가<br>
-                                    옵션가격<br>
-                                    온채널가<br>
-                                    소비자가
+                                    W 공급가<br>
+                                    (환율: {{ number_format($exchangeRate) }}원)
                                 </th>
                                 <th scope="col" style="width: 100px" class="text-center">이미지<br>번역여부</th>
                                 <th style="width: 100px" class="text-center">관리</th> 
@@ -155,8 +157,14 @@
                                     </td>
                                     <td>
                                         <a href="https://detail.1688.com/offer/{{ $data->offer_id }}.html" target="_blank">{{ $data->offer_id }}</a>
+                                        @if ($data->mapping_status == ProductConstant::MAPPING_STATUS_Y)
+                                            <br>
+                                            <span>({{ $data->category_id }})</span>
+                                        @endif
                                         @if ($data->mapping_status == ProductConstant::MAPPING_STATUS_N)
-                                            <p class="text-danger">*카테고리 미맵핑</p>
+                                            <br>
+                                            <span class="text-danger">*카테고리 미맵핑</span>
+                                            <span class="text-danger">({{ $data->category_id }})</span>
                                         @endif
                                     </td>
                                     <td>
@@ -183,10 +191,8 @@
                                             @php
                                                 $option = $data->options[0];
                                             @endphp
-                                                {{ $option->price_1688 }}(元)<br>
-                                                {{ number_format($option->option_price) }}(원)<br>
-                                                {{ number_format($option->onch_price) }}(원)<br>
-                                                {{ number_format($option->cus_price) }}(원)<br>
+                                                {{ $option->price_1688 }}(위안)<br>
+                                                {{ number_format($option->option_price) }}(원)
                                         @else
                                             <p class="text-danger">옵션없음</p>
                                         @endif

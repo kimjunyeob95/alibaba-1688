@@ -220,14 +220,23 @@ class Service1688Product
                "option_name_trans" => $option->option_name_trans,
             ];
          }
-
-         foreach ($prdObj->images as $image) {
-            $data["images"][] = [
+         foreach ($prdObj->images as $key => $image) {
+            $data["images"][$key] = [
                "id"             => $image->id,
                "img_type"       => $image->img_type,
                "img_url_origin" => $image->img_url_origin,
                "img_url_trans"  => $image->img_url_trans,
             ];
+
+            foreach ($image->ai_all_imgs as $ai_img) {
+               $data["images"][$key]["ai_images"][] = [
+                  "id"         => $ai_img->id,
+                  "img_id"     => $ai_img->img_id,
+                  "is_origin"  => $ai_img->is_origin,
+                  "img_url_ai" => $ai_img->img_url_ai,
+                  "created_at" => $ai_img->created_at,
+               ]; 
+            }
          }
 
          $datas[] = $data;
@@ -243,6 +252,17 @@ class Service1688Product
          "page"     => $page,
          "pageSize" => (int)$pageSize,
       ];
+   }
+
+   /**
+     * @func apiPrdDetail
+     * @description 'w API 상품 상세 조회'
+     * @param int $offerId
+     * @return array
+   */
+   public function apiPrdDetail(int $offerId): array
+   {
+      return $this->productAbstract->apiPrdDetail($offerId);
    }
 
    /**
@@ -280,6 +300,17 @@ class Service1688Product
    }
 
    /**
+     * @func getPrdImageEdit
+     * @description '상품 이미지 수정'
+     * @param int $offerId
+     * @return array
+   */
+   public function getPrdImageEdit(int $offerId): array
+   {
+      return $this->productAbstract->getPrdImageEdit($offerId);
+   }
+
+   /**
      * @func wAppProductMapping
      * @description 'wapp 상품 미맵핑 컬럼 업데이트'
      * @return void
@@ -287,5 +318,28 @@ class Service1688Product
    public function wAppProductMapping(): void
    {
       $this->productAbstract->wAppProductMapping();
+   }
+
+   /**
+     * @func imageExcept
+     * @description '이미지 수집 제외 처리'
+     * @param array $imgIds
+     * @param string $is_except
+     * @return array
+   */
+   public function imageExcept(array $imgIds, string $is_except): array
+   {
+      return $this->productAbstract->imageExcept($imgIds, $is_except);
+   }
+
+   /**
+     * @func imageAccept
+     * @description 'AI 이미지 적용'
+     * @param array $aiImgIds
+     * @return array
+   */
+   public function imageAccept(array $aiImgIds): array
+   {
+      return $this->productAbstract->imageAccept($aiImgIds);
    }
 }

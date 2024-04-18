@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Constants\ImageConstant;
 use App\Constants\ProductConstant;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -17,11 +18,15 @@ class ProductData extends Model
     protected $fillable   = [];
 
     public function main_img () {
-        return $this->hasOne(ProductImageData::class, "offer_id", "offer_id")->where("img_type", "main");
+        return $this->hasOne(ProductImageData::class, "offer_id", "offer_id")->where("img_type", ImageConstant::IMAGE_TYPE_MAIN);
     }
 
     public function sub_imgs () {
-        return $this->hasMany(ProductImageData::class, "offer_id", "offer_id")->where("img_type", "sub");
+        return $this->hasMany(ProductImageData::class, "offer_id", "offer_id")->where("img_type", ImageConstant::IMAGE_TYPE_SUB);
+    }
+
+    public function desc_imgs () {
+        return $this->hasMany(ProductImageData::class, "offer_id", "offer_id")->where("img_type", ImageConstant::IMAGE_TYPE_DESC);
     }
 
     public function images () {

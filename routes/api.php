@@ -31,6 +31,8 @@ Route::name('w.')->prefix('w')->group(function () {
 
         // 상품 조회
         Route::get('/products', [WProductController::class, "apiPrdList"])->name("products");
+        // 상품 상세 조회
+        Route::get('/products/{offerId}', [WProductController::class, "apiPrdDetail"])->name("productsDetail");
     });
 
     Route::name('product.')->prefix('product')->group(function () {
@@ -50,6 +52,10 @@ Route::name('w.')->prefix('w')->group(function () {
         Route::post('/urlQuery/delete', [WProductController::class, 'urlQueryDel'])->name('urlQueryDel');
         // 1688 상품 조회 요청
         Route::post('/searchData', [WProductController::class, 'productSearchData'])->name('productSearchData');
+        // 이미지 수집 제외 처리
+        Route::post('/image/except', [WProductController::class, 'imageExcept'])->name('imageExcept');
+        // AI 이미지 적용
+        Route::post('/image/accept', [WProductController::class, 'imageAccept'])->name('imageAccept');
     });
 
     Route::name('category.')->prefix('category')->group(function () {
@@ -95,10 +101,16 @@ Route::name('genuio.')->prefix('genuio')->group(function () {
 
         // 상품 조회
         Route::get('/products', [WProductController::class, "apiPrdList"])->name("products");
+        // 상품 상세 조회
+        Route::get('/products/{offerId}', [WProductController::class, "apiPrdDetail"])->name("productsDetail");
+        // 상품 이미지 제외 처리
+        Route::patch('/products/{offerId}/images/except', [WProductController::class, 'imageExcept'])->name('imageExcept');
         // AI 이미지 저장
         Route::patch('/products/{offerId}/images', [GenuioController::class, "imgAiRegist"])->name("imgAiRegist");
     });
 
     // 상품 이미지 번역 요청
     Route::post('/img/trans/request', [GenuioController::class, 'imgTransRequest'])->name('imgTransRequest');
+    // 이미지 별 AI 알고리즘 요청
+    Route::post('/img/ai/trans/request', [GenuioController::class, 'imgAiTransRequest'])->name('imgAiTransRequest');
 });

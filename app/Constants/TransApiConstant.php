@@ -27,6 +27,7 @@ class TransApiConstant
     public const ERROR_MESSAGE_NOT_EQUAL_COUNT_IMAGE = "요청과 응답의 이미지 개수가 다릅니다.";
     public const ERROR_MESSAGE_TRANS_REQUEST_IMAGE   = "Trans Request Image";
     public const ERROR_MESSAGE_IMG_ID                = "Image ID";
+    public const ERROR_MESSAGE_AI_IMG_ID             = "AI Image ID";
     public const ERROR_MESSAGE_PRODUCT               = "Product";
     public const ERROR_MESSAGE_1688_IMG              = "1688 원본 이미지";
  

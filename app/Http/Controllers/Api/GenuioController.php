@@ -98,6 +98,31 @@ class GenuioController extends Controller
         }
     }
 
+    public function imgAiTransRequest(): JsonResponse
+    {
+        try {
+            $validator = Validator::make($this->request->all(), [
+                'imgIds'   => 'required|array',
+                'imgIds.*' => 'required|string',
+            ], [
+                'imgIds.required' => 'imgIds를 입력하세요.',
+            ]);
+            if ($validator->fails()) {
+                throw new Exception($validator->errors()->first());
+            }
+            $imgIds = $this->request->post("imgIds");
+
+            $result = $this->genuioService->imgAiTransRequest($imgIds);
+            if( $result["isSuccess"] == true ){
+                return helpers_json_response(HttpConstant::OK, $result);
+            } else {
+                return helpers_json_response(HttpConstant::BAD_REQUEST, [], $result["msg"]);
+            }
+        } catch (Exception $e) {
+            return helpers_json_response(HttpConstant::BAD_REQUEST, [], $e->getMessage());
+        }
+    }
+
     public function imgAiRegist(int $offerId): JsonResponse
     {
         try {

@@ -14,4 +14,8 @@ class GenuioImageData extends Model
     protected $table      = 'genuio_image_datas';
     protected $guarded    = [];
     protected $fillable   = [];
+
+    public function image () {
+        return $this->hasOne(ProductImageData::class, "id", "img_id");
+    }
 }

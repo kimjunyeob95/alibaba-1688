@@ -87,13 +87,13 @@
                     isValid = false;
                     alert('이미지 파일만 업로드 가능합니다.');
                     break;
-                } else if (file.size > 300000) { // 파일 크기 검사 (300KB 이하인지 확인)
-                    isValid = false;
-                    alert('파일 크기는 300KB 이하로 업로드 가능합니다.');
-                    break;
-                } else {
-                    formData.append('imgFile[]', file);
                 }
+
+                if (file.size > 300000) {
+                    file = await resizeImage(file, 290 * 1024);
+                }
+
+                formData.append('imgFile[]', file);
             }
 
             if (!isValid) {

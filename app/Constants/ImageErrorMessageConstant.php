@@ -17,6 +17,7 @@ class ImageErrorMessageConstant
     public const ERROR_MESSAGE_IMAGE         = "image";
     public const ERROR_MESSAGE_IMAGES        = "images";
     public const ERROR_MESSAGE_IMAGES_ID     = "images id";
+    public const ERROR_MESSAGE_IMAGES_AI_ID  = "images Ai id";
     public const ERROR_MESSAGE_IMAGES_BASE64 = "images base64";
     public const ERROR_MESSAGE_S3_IMG_UPLOAD = "S3 image Upload";
 

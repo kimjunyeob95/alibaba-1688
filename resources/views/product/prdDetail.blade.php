@@ -1,5 +1,7 @@
 @php
     use App\Constants\ProductConstant;
+    use App\Constants\ImageConstant;
+    $exchangeRate = env("1688_EXCHANGE_RATE", 200);
 @endphp
 @extends('dashboard.base')
 
@@ -43,7 +45,7 @@
                 <li class="breadcrumb-item active" aria-current="page">수집 상품 상세</li>
             </ol>
         </nav>
-        
+
         <div class="container-fluid">
             <div class="row my-4 bg-white py-3">
                 <div class="col-md-6" style="text-align: -webkit-center; position: relative;">
@@ -87,7 +89,7 @@
                                 @endif
                                 @endforeach
                                 @foreach ($prdObj->images as $prdImg)
-                                @if ($prdImg->img_type == "sub")
+                                @if ($prdImg->img_type == "sub" && $prdImg->is_except == ImageConstant::IS_EXCEPT_N)
                                     <div class="swiper-slide">
                                         <img src={{ $prdImg->img_url_trans}}>
                                     </div>
@@ -187,10 +189,9 @@
                                     <th scope="col">skuID</th>
                                     <th scope="col">옵션명</th>
                                     <th scope="col">옵션명(번역)</th>
-                                    <th scope="col">W 소비자가</th>
-                                    <th scope="col">옵션가격</th>
-                                    <th scope="col">온채널가</th>
-                                    <th scope="col">소비자가</th>
+                                    <th scope="col">W 공급가(위안)</th>
+                                    <th scope="col">W 공급가(원)</th>
+                                    <th scope="col">환율(원)</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -206,16 +207,13 @@
                                             {{ $option->option_name_trans }}
                                         </td>
                                         <td>
-                                            {{ $option->price_1688 }}(元)
+                                            {{ $option->price_1688 }}
                                         </td>
                                         <td>
-                                            {{ number_format($option->option_price) }}(원)
+                                            {{ number_format($option->option_price) }}
                                         </td>
                                         <td>
-                                            {{ number_format($option->onch_price) }}(원)
-                                        </td>
-                                        <td>
-                                            {{ number_format($option->cus_price) }}(원)
+                                            {{ number_format($exchangeRate) }}
                                         </td>
                                     </tr>
                                 @endforeach
@@ -233,7 +231,7 @@
                     <div class="table-responsive">
                         <table class="table table-white bg-white">
                             <tbody>
-                                @foreach ($prdObj->notices as $gosiKey => $gosi)    
+                                @foreach ($prdObj->notices as $gosiKey => $gosi)
                                     @if ( $gosiKey % 4 == 0)
                                         <tr>
                                     @endif
@@ -259,7 +257,7 @@
                     <div class="table-responsive">
                         <table class="table table-white bg-white">
                             <tbody>
-                                @foreach ($prdObj->notices as $gosiKey => $gosi)    
+                                @foreach ($prdObj->notices as $gosiKey => $gosi)
                                     @if ( $gosiKey % 4 == 0)
                                         <tr>
                                     @endif
@@ -306,10 +304,27 @@
 
             </div>
         </div>
+
+        <div class="btn-group me-5 mb-4 fixed-bottom" style="left: auto;">
+            <a class="btn btn-danger btn-lg text-white text-decoration-none btn-edit-img">Image 수정</a>
+        </div>
     </div>
 <script type="text/javascript">
 
     $(document).ready(function(){
+        $('.btn-edit-img').click(function(e){
+            e.preventDefault();
+
+            let trans_status = "{{ $prdObj->trans_status }}";
+            let offer_id     = "{{ $prdObj->offer_id }}";
+            if( trans_status == "N" ){
+                return alert("번역이 완료 된 상태에서만 수정 가능합니다.");
+            }
+
+            window.open(`/product/img/edit/${offer_id}`, '_blank');
+        });
+
+
         var mySwiper = new Swiper('#swiper-container1', {
             // Optional parameters
             slidesPerView: 1,

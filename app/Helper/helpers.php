@@ -1,6 +1,7 @@
 <?php
 
 use App\Constants\HttpConstant;
+use App\Constants\ImageConstant;
 use App\Constants\ProductConstant;
 use App\Models\ProductData;
 use App\Models\ProductImageData;
@@ -315,19 +316,19 @@ if (!function_exists("curl_1688")) {
 if (!function_exists("ocPrice")) {
     function ocPrice(float $price_1688): array
     {
-        $onch_price       = round( $price_1688 * env("1688_EXCHANGE_RATE", 190) , -1);
-        $option_price_sum = (int)intval($onch_price) + intval($onch_price * env("OPTION_PRICE_RATE", 0.12));
+        $option_price     = round( $price_1688 * env("1688_EXCHANGE_RATE", 200) , -1);
+        $option_price_sum = (int)intval($option_price) + intval($option_price * env("OPTION_PRICE_RATE", 0.12));
         $option_price_cal = round($option_price_sum / 10) * 10;
-        $option_price     = $option_price_cal;
+        $onch_price       = $option_price_cal;
 
-        $recom_cus_price_sum = (int)intval($onch_price) + intval($onch_price * env("RECOM_CUS_PRICE_RATE", 0.45));
+        $recom_cus_price_sum = (int)intval($option_price) + intval($option_price * env("RECOM_CUS_PRICE_RATE", 0.45));
         $recom_cus_price_cal = round($recom_cus_price_sum / 10) * 10;
         $cus_price       = $recom_cus_price_cal;
         $recom_cus_price = $recom_cus_price_cal;
 
         return [
-            "onch_price"      => $onch_price,
             "option_price"    => $option_price,
+            "onch_price"      => $onch_price,
             "cus_price"       => $cus_price,
             "recom_cus_price" => $recom_cus_price,
         ];
@@ -359,6 +360,7 @@ if (!function_exists("chkTransStatus")) {
     {
        $TransCnt = ProductImageData::where("offer_id", $offerId)
        ->whereRaw("REPLACE(img_url_trans, ' ', '') != ''")
+       ->where("is_except", ImageConstant::IS_EXCEPT_N)
        ->whereNotNull("trans_dated_at")
        ->whereNull("deleted_at")
        ->count();
@@ -410,5 +412,47 @@ if (!function_exists("helperEscape")) {
     {
         $input = str_replace("'", "'\\''", $string);
         return "'" . $input . "'";
+    }
+}
+
+if (!function_exists("upPrdDescTrans")) {
+    function upPrdDescTrans(int $offerId): void
+    {
+        $prdObj = ProductData::where("offer_id", $offerId)->first();
+        if( $prdObj != null ){
+            $prd_desc = $prdObj->prd_desc;
+
+            $imgObjs = ProductImageData::where([
+                "offer_id" => $offerId,
+                "img_type" => ImageConstant::IMAGE_TYPE_DESC,
+            ])->get();
+
+            foreach ($imgObjs as $imgObj) {
+                if( $imgObj->is_except == ImageConstant::IS_EXCEPT_Y ){
+                    $img_url_origin = $imgObj->img_url_origin;
+                    $img_url_trans  = $imgObj->img_url_trans;
+
+                    $pattern = '/<img[^>]+src\s*=\s*["\']' . preg_quote($img_url_origin, '/') . '["\'][^>]*>/i';
+                    $prd_desc = preg_replace($pattern, '', $prd_desc);
+
+                    $pattern = '/<img[^>]+src\s*=\s*["\']' . preg_quote($img_url_trans, '/') . '["\'][^>]*>/i';
+                    $prd_desc = preg_replace($pattern, '', $prd_desc);
+                } else {
+                    $prd_desc = str_replace($imgObj->img_url_origin, $imgObj->img_url_trans, $prd_desc);
+                }
+            }
+
+            ProductData::where("id", $prdObj->id)->update([
+                "prd_desc_trans" => $prd_desc
+            ]);
+        }
+    }
+}
+
+//이지셀 판매가 계산
+if (!function_exists("calcEasySellSalePrice")) {
+    function calcEasySellSalePrice(?int $onchPrice = 0): int
+    {
+        return ceil(($onchPrice * env("EASYSELL_PRICE_RATE", "1.35")) / 100) * 100;
     }
 }

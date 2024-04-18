@@ -26,7 +26,7 @@ namespace App\Annotations\v1\genuio\bProduct;
  *                 description="Base64로 인코딩된 이미지 데이터"
  *             )
  *         ),
- *         description="상품 이미지 업데이트를 위한 payload"
+ *         description="WApp 상품 AI 이미지 추가를 위한 payload"
  *     )
  * )
  * 
@@ -70,8 +70,8 @@ namespace App\Annotations\v1\genuio\bProduct;
  *
  * @OA\Patch(
  *     path="/api/genuio/products/{offerId}/images",
- *     summary="상품 이미지 업데이트",
- *     description="W 상품 이미지 업데이트 endPoint",
+ *     summary="상품 AI 이미지 추가",
+ *     description="WApp 상품 AI 이미지 추가 endPoint",
  *     tags={"상품"},
  *     security={{"BearerAuth": {}}},
  *     @OA\Parameter(

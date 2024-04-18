@@ -346,13 +346,14 @@
 
         $(".btn-w-cate-search").click(function(){
             let cate_first = $("select[name=w_cate_first]").val();
-            if( cate_first == "" ){
-                return alert("1차 분류를 선택하세요.");
-            }
             let cate_second    = $("select[name=w_cate_second]").val();
             let cate_third     = $("select[name=w_cate_third]").val();
             let cate_fourth    = $("select[name=w_cate_fourth]").val();
             let w_cate_keyword = $("input[name=w_cate_keyword]").val();
+            
+            if( cate_first == "" && w_cate_keyword == "" ){
+                return alert("1차 분류 또는 검색어를 입력하세요.");
+            }
 
             $("#loadingOverlay").show();
             

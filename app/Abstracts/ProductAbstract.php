@@ -17,6 +17,14 @@ abstract class ProductAbstract
     abstract function getPrdList(array $params): array;
 
     /**
+     * @func apiPrdDetail
+     * @description 'w API 상품 상세 조회'
+     * @param int $offerId
+     * @return array
+    */
+    abstract function apiPrdDetail(int $offerId): array;
+
+    /**
      * @func getMallCategory
      * @description '1688API 수집 상품 디테일'
      * @param int $offerId '제품ID'
@@ -39,7 +47,7 @@ abstract class ProductAbstract
      * @return void
      */
     abstract function saveMallProductByCategotyId(int $categoryId): void;
-    
+
     /**
      * @func saveMallProductByImageId
      * @description '1688API 이미지ID로 상품 수집'
@@ -163,9 +171,34 @@ abstract class ProductAbstract
     abstract function urlQueryDel(array $ids): array;
 
     /**
+     * @func getPrdImageEdit
+     * @description '상품 이미지 수정'
+     * @param int $offerId '제품ID'
+     * @return array
+     */
+    abstract function getPrdImageEdit(int $offerId): array;
+
+    /**
      * @func wAppProductMapping
      * @description 'wapp 상품 미맵핑 컬럼 업데이트'
      * @return void
     */
     abstract function wAppProductMapping(): void;
+
+    /**
+     * @func imageExcept
+     * @description '이미지 수집 제외 처리'
+     * @param array $imgIds
+     * @param string $is_except
+     * @return array
+    */
+    abstract function imageExcept(array $imgIds, string $is_except): array;
+
+    /**
+     * @func imageAccept
+     * @description 'AI 이미지 적용'
+     * @param array $aiImgIds
+     * @return array
+    */
+    abstract function imageAccept(array $aiImgIds): array;
 }

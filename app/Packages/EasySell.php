@@ -4,6 +4,7 @@ namespace App\Packages;
 
 use App\Abstracts\MallApiAbstract;
 use App\Constants\EasySellConstant;
+use App\Constants\ImageConstant;
 use App\Constants\MallConstant;
 use App\Constants\MallErrorMessageConstant;
 use App\Constants\ProductConstant;
@@ -262,7 +263,7 @@ class EasySell extends MallApiAbstract
         try {
             DB::beginTransaction();
 
-            $categoryObj = WCategory::select(["category_id","mapping_code"])->where("category_id", "!=", 0)->get();
+            $categoryObj = CategoryMapping::where("mapping_channel", ProductConstant::MAPPING_WAPP)->get();
             $categoryArr = $categoryObj->pluck("mapping_code","category_id")->toArray();
 
             $easysellCategory = OnchCategoryExcelDataCopy2::select("codenum","sellerhub_cate")
@@ -348,11 +349,11 @@ class EasySell extends MallApiAbstract
             foreach($prdObj->options as $idx => $option){
                 if(!$idx){
                     $buyPrice  = $option->option_price; //셀러허브 공급가
-                    $salePrice = $setPrice = ceil(($option->onch_price * env("EASYSELL_PRICE_RATE", "1.35")) / 100) * 100;
+                    $salePrice = $setPrice = calcEasySellSalePrice($option->onch_price);
                 }else{
                     $unitInfo .= ",";
                 }
-                $setPrice = ceil(($option->onch_price * env("EASYSELL_PRICE_RATE", "1.35")) / 100) * 100;
+                $setPrice = calcEasySellSalePrice($option->onch_price);
 
                 //옵션명
                 $replaceArr     = array("|",",","/");
@@ -368,7 +369,7 @@ class EasySell extends MallApiAbstract
                 $unitInfo .= "{$optionNm}^^{$stock}^^{$setPrice}^^{$setPrice}^^{$option->option_price}::{$option->id}";
             }
 
-            $itemImage = implode("|", array_filter($prdObj->images->whereIn("img_type",["main","sub"])->pluck("img_url_trans")->toArray()));
+            $itemImage = implode("|", array_filter($prdObj->images->whereIn("img_type",["main","sub"])->where("is_except",ImageConstant::IS_EXCEPT_N)->pluck("img_url_trans")->toArray()));
 
             $voParams = [
                 "ItemNo"                => $offerId,
