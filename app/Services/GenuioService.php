@@ -435,9 +435,9 @@ class GenuioService extends TransApiAbstract
     {
         $returnMsg = $this->returnMsg;
 
-        if( env("APP_ENV", "local") != "production" ){
-            return helpers_fail_message(false, "운영 환경에서만 사용 가능합니다.");
-        }
+        // if( env("APP_ENV", "local") != "production" ){
+        //     return helpers_fail_message(false, "운영 환경에서만 사용 가능합니다.");
+        // }
 
         try {
             foreach ($offerIds as $offerId) {
@@ -446,6 +446,11 @@ class GenuioService extends TransApiAbstract
                 $offerId = (int)$offerId;
                 $imgObjs = ProductImageData::where("offer_id", $offerId)->get();
                 foreach ($imgObjs as $imgObj) {
+                    $is_except = $imgObj->is_except;
+                    if( $is_except == ImageConstant::IS_EXCEPT_Y ){
+                        continue;
+                    }
+
                     $imgDetailObj = ProductImageDetailData::where([
                         "offer_id"       => $offerId,
                         "img_url_origin" => $imgObj->img_url_origin,
@@ -455,6 +460,7 @@ class GenuioService extends TransApiAbstract
                     $product1688ImageDto->bind([
                         "offerId"        => $offerId,
                         "imgType"        => $imgObj->img_type,
+                        "is_except"      => $is_except,
                         "img_url_origin" => $imgObj->img_url_origin,
                         "img_url_trans"  => "",
                         "isChangeImg"    => ImageConstant::IS_CHANGE_IMG,

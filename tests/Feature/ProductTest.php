@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Constants\ImageConstant;
+use App\Models\CategoryMapping;
 use App\Models\ProductData;
 use App\Models\ProductImageData;
 use App\Models\ProductOptionData;
@@ -115,24 +116,23 @@ class ProductTest extends TestCase
     # php artisan test --filter testCode
     public function testCode()
     {
-        $offerId = 719991111764; 
-        
-        $prdObj  = ProductData::where("offer_id", $offerId)->first();
-        $imgObjs = ProductImageData::where("offer_id", $offerId)->where("is_except", "Y")->get();
-        $prd_desc     = $prdObj->prd_desc;
-        $prd_desc_new = $prdObj->prd_desc;
+        $prdObjs = ProductData::where("mapping_status", "N")->get();
 
-        foreach ($imgObjs as $imgObj) {
-            $img_url_origin = $imgObj->img_url_origin;
-            $img_url_trans  = $imgObj->img_url_trans;
+        foreach ($prdObjs as $prdObj) {
+            $cateObj = CategoryMapping::where("mapping_channel", "WApp")
+            ->where("mapping_code", "!=", "")
+            ->where("category_id", $prdObj->category_id)
+            ->first();
 
-            $pattern = '/<img[^>]+src\s*=\s*["\']' . preg_quote($img_url_origin, '/') . '["\'][^>]*>/i';
-            $prd_desc_new = preg_replace($pattern, '', $prd_desc_new);
-
-            $pattern = '/<img[^>]+src\s*=\s*["\']' . preg_quote($img_url_trans, '/') . '["\'][^>]*>/i';
-            $prd_desc_new = preg_replace($pattern, '', $prd_desc_new);
+            if( $cateObj != null ){
+                ProductData::where("id", $prdObj->id)
+                ->update([
+                    "mapping_status" => "Y"
+                ]);
+            }
         }
-        dd($prd_desc, $prd_desc_new);
+
+        dd("끝");
     }
 
     # s3 upload
