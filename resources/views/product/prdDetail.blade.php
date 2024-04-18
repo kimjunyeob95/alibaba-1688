@@ -191,7 +191,7 @@
                                     <th scope="col">옵션명(번역)</th>
                                     <th scope="col">W 공급가(위안)</th>
                                     <th scope="col">W 공급가(원)</th>
-                                    <th scope="col">환율(원)</th>
+                                    <th scope="col">적용 환율(원)</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -213,7 +213,7 @@
                                             {{ number_format($option->option_price) }}
                                         </td>
                                         <td>
-                                            {{ number_format($exchangeRate) }}
+                                            {{ number_format($option->exchange_rate) }}
                                         </td>
                                     </tr>
                                 @endforeach
