@@ -14,9 +14,9 @@ Route::name('w.')->prefix('w')->group(function () {
         // 1688
         Route::name('1688.')->prefix('1688')->group(function () {
             // 1688에 상품ID 조회 endPoint를 호출 후 결과 반환
-            Route::get('/product/{offerId}', [WProductController::class, 'getProductData'])->name('getCategory');
+            Route::get('/product/{offerId}', [WProductController::class, 'getProductData'])->name('getProductData');
             // 1688에 카테고리 조회 endPoint를 호출 후 결과 반환
-            Route::get('/category/{categoryId?}', [WCategoryController::class, 'getMallCategory'])->name('getCategory');
+            Route::get('/category/{categoryId?}', [WCategoryController::class, 'getMallCategory'])->name('getMallCategory');
         });
 
         // 카테고리
@@ -26,7 +26,7 @@ Route::name('w.')->prefix('w')->group(function () {
             // 1688에서 수집 한 최상위 카테고리 계층별 목록
             Route::get('/tree/{categoryId?}', [WCategoryController::class, 'getTreeCategory'])->name('getTreeCategory');
             // 1688<->채널 카테고리 맵핑 조회
-            Route::get('/mapping/{channel?}', [WCategoryController::class, 'getMappingCategory'])->name('getTreeCategory');
+            Route::get('/mapping/{channel?}', [WCategoryController::class, 'getMappingCategory'])->name('getMappingCategory');
         });
 
         // 상품 조회
