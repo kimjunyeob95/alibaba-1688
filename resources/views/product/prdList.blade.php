@@ -155,7 +155,8 @@
                                     <td>
                                         <a href="https://detail.1688.com/offer/{{ $data->offer_id }}.html" target="_blank">{{ $data->offer_id }}</a>
                                         @if ($data->mapping_status == ProductConstant::MAPPING_STATUS_N)
-                                            <p class="text-danger">*카테고리 미맵핑</p>
+                                            <span class="text-danger">*카테고리 미맵핑</span>
+                                            <span class="text-danger">({{ $data->category_id }})</span>
                                         @endif
                                     </td>
                                     <td>

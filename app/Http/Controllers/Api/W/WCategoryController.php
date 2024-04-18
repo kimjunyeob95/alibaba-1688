@@ -66,21 +66,22 @@ class WCategoryController extends Controller
 
     public function getW(): JsonResponse
     {
-        $validator = Validator::make($this->request->all(), [
-            'cate_first'  => 'required|string',
-        ], [
-            'cate_first.required'  => CategoryErrorMessageConstant::getNotHaveErrorMessage("CATE_FIRST"),
-        ]);
-        if ($validator->fails()) {
-            throw new Exception($validator->errors()->first());
+        $cate_first  = $this->request->post("cate_first", "");
+        $cate_second = $this->request->post("cate_second", "");
+        $cate_third  = $this->request->post("cate_third", "");
+        $cate_fourth = $this->request->post("cate_fourth", "");
+        $keyword     = trim($this->request->post("w_cate_keyword", ""));
+
+        if( !$cate_first && !$keyword ){
+            return helpers_json_response(HttpConstant::BAD_REQUEST, [], "1차 분류 또는 검색어를 입력하세요.");
         }
 
-        $params = [
-            "cate_first"  => $this->request->post("cate_first"),
-            "cate_second" => $this->request->post("cate_second", ""),
-            "cate_third"  => $this->request->post("cate_third", ""),
-            "cate_fourth" => $this->request->post("cate_fourth", ""),
-            "keyword"     => trim($this->request->post("w_cate_keyword", "")),
+        $params      = [
+            "cate_first"  => $cate_first,
+            "cate_second" => $cate_second,
+            "cate_third"  => $cate_third,
+            "cate_fourth" => $cate_fourth,
+            "keyword"     => $keyword,
         ];
         $result = $this->service1688Category->getW($params);
         if( $result["isSuccess"] == true ){

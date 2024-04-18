@@ -753,8 +753,11 @@ class CategoryV1 extends CategoryAbstract
             $cate_fourth = $params["cate_fourth"];
             $keyword     = $params["keyword"];
 
-            $builder = WCategory::where("cate_first", $cate_first);
+            $builder = WCategory::query();
             
+            if( $cate_first != "" ){
+                $builder->where("cate_first", $cate_first);
+            }
             if( $cate_second != "" ){
                 $builder->where("cate_second", $cate_second);
             }
