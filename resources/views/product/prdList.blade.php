@@ -129,7 +129,10 @@
                                     <input class="form-check-input" type="checkbox" id="allCheckbox">
                                 </th>
                                 <th scope="col" style="width: 50px">No</th>
-                                <th scope="col" style="width: 150px">제품ID</th>
+                                <th scope="col" style="width: 150px">
+                                    제품ID<br>
+                                    (카테고리ID)
+                                </th>
                                 <th scope="col">제품명</th>
                                 <th scope="col">제품명(번역)</th>
                                 <th scope="col" style="width: 50px">최소 구매 수량</th>
@@ -154,7 +157,12 @@
                                     </td>
                                     <td>
                                         <a href="https://detail.1688.com/offer/{{ $data->offer_id }}.html" target="_blank">{{ $data->offer_id }}</a>
+                                        @if ($data->mapping_status == ProductConstant::MAPPING_STATUS_Y)
+                                            <br>
+                                            <span>({{ $data->category_id }})</span>
+                                        @endif
                                         @if ($data->mapping_status == ProductConstant::MAPPING_STATUS_N)
+                                            <br>
                                             <span class="text-danger">*카테고리 미맵핑</span>
                                             <span class="text-danger">({{ $data->category_id }})</span>
                                         @endif
