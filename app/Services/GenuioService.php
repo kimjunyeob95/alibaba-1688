@@ -329,7 +329,12 @@ class GenuioService extends TransApiAbstract
                         if( $imgObj == null ){
                             throw new ValueError(TransApiConstant::getNotHaveErrorMessage("AI_IMG_ID"));
                         }
-    
+
+                        $prdImgObj = ProductImageData::where("id", $imgObj->img_id)->first();
+                        if( $prdImgObj == null ){
+                            throw new ValueError(TransApiConstant::getNotHaveErrorMessage("IMG_ID"));
+                        }
+
                         $img_url_ai_origin = $imgObj->img_url_ai;
     
                         $uploadResult   = false;
@@ -340,7 +345,7 @@ class GenuioService extends TransApiAbstract
                         if (preg_match('/^(jpg|jpeg|png|gif)/i', $mime, $matches)) {
                             $mime = $matches[0];
                         }
-                        $imgName = "/genuio/ai-img/" . $dateName . "/" . $offerId . "_" . $imgObj->id . "_" . $imgObj->img_type . "." . $mime;
+                        $imgName = "/genuio/ai-img/" . $dateName . "/" . $offerId . "_" . $imgObj->id . "_" . $prdImgObj->img_type . "." . $mime;
                         if( isset($image["imgTransBase64"]) && !empty($image["imgTransBase64"]) ){
                             $imgTransBase64 = $image["imgTransBase64"];
                             $uploadResult   = $this->uploadAbstract->uploadFile($imgName, base64_decode($imgTransBase64));
@@ -374,15 +379,12 @@ class GenuioService extends TransApiAbstract
                                 "img_url_ai" => $img_url_ai,
                             ]);
 
-                            $prdImgObj = ProductImageData::where("id", $imgObj->img_id)->first();
-                            if( $prdImgObj != null ){
-                                ProductImageData::where("id", $imgObj->img_id)->update([
-                                    "img_url_trans" => $img_url_ai
-                                ]);
+                            ProductImageData::where("id", $prdImgObj->id)->update([
+                                "img_url_trans" => $img_url_ai
+                            ]);
 
-                                if( $prdImgObj->img_type == ImageConstant::IMAGE_TYPE_DESC ){
-                                    upPrdDescTrans($prdImgObj->offer_id);
-                                }
+                            if( $prdImgObj->img_type == ImageConstant::IMAGE_TYPE_DESC ){
+                                upPrdDescTrans($prdImgObj->offer_id);
                             }
                         }
 
