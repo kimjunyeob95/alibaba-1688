@@ -330,6 +330,8 @@ class GenuioService extends TransApiAbstract
                             throw new ValueError(TransApiConstant::getNotHaveErrorMessage("AI_IMG_ID"));
                         }
 
+                        $parentImgCnt = GenuioImageData::where("img_id", $imgObj->img_id)->count();
+
                         $prdImgObj = ProductImageData::where("id", $imgObj->img_id)->first();
                         if( $prdImgObj == null ){
                             throw new ValueError(TransApiConstant::getNotHaveErrorMessage("IMG_ID"));
@@ -345,7 +347,7 @@ class GenuioService extends TransApiAbstract
                         if (preg_match('/^(jpg|jpeg|png|gif)/i', $mime, $matches)) {
                             $mime = $matches[0];
                         }
-                        $imgName = "/genuio/ai-img/" . $dateName . "/" . $offerId . "_" . $imgObj->id . "_" . $prdImgObj->img_type . "." . $mime;
+                        $imgName = "/genuio/ai-img/" . $dateName . "/" . $offerId . "_" . $prdImgObj->img_id . "_" . ($parentImgCnt+1) . "_" . $prdImgObj->img_type . "." . $mime;
                         if( isset($image["imgTransBase64"]) && !empty($image["imgTransBase64"]) ){
                             $imgTransBase64 = $image["imgTransBase64"];
                             $uploadResult   = $this->uploadAbstract->uploadFile($imgName, base64_decode($imgTransBase64));
@@ -532,9 +534,11 @@ class GenuioService extends TransApiAbstract
                         "ceated_at"  => Carbon::now()
                     ]);
 
+                    $parentImgCnt = GenuioImageData::where("img_id", $imgObj->img_id)->count();
+
                     $img_url_origin = $imgObj->img_url_origin;
                     $mime           = pathinfo($img_url_origin, PATHINFO_EXTENSION);
-                    $imgName        = "/genuio/ai-img/" . $dateName . "/" . $offerId . "_" . $imgId . "_" . $imgObj->img_type . "." . $mime;
+                    $imgName        = "/genuio/ai-img/" . $dateName . "/" . $offerId . "_" . $imgObj->id . "_" . ($parentImgCnt+1) . "_" . $imgObj->img_type . "." . $mime;
                     $uploadResult   = $this->uploadAbstract->uploadFile($imgName, base64_decode($image["base64"]));
 
                     if( $uploadResult == true ) {
