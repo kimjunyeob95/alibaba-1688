@@ -347,7 +347,7 @@ class GenuioService extends TransApiAbstract
                         if (preg_match('/^(jpg|jpeg|png|gif)/i', $mime, $matches)) {
                             $mime = $matches[0];
                         }
-                        $imgName = "/genuio/ai-img/" . $dateName . "/" . $offerId . "_" . $prdImgObj->img_id . "_" . ($parentImgCnt+1) . "_" . $prdImgObj->img_type . "." . $mime;
+                        $imgName = "/genuio/ai-img/" . $dateName . "/" . $offerId . "_" . $prdImgObj->id . "_" . ($parentImgCnt+1) . "_" . $prdImgObj->img_type . "." . $mime;
                         if( isset($image["imgTransBase64"]) && !empty($image["imgTransBase64"]) ){
                             $imgTransBase64 = $image["imgTransBase64"];
                             $uploadResult   = $this->uploadAbstract->uploadFile($imgName, base64_decode($imgTransBase64));
