@@ -373,6 +373,17 @@ class GenuioService extends TransApiAbstract
                                 "is_origin"  => GenuioConstant::IS_ORIGIN_N,
                                 "img_url_ai" => $img_url_ai,
                             ]);
+
+                            $prdImgObj = ProductImageData::where("id", $imgObj->img_id)->first();
+                            if( $prdImgObj != null ){
+                                ProductImageData::where("id", $imgObj->img_id)->update([
+                                    "img_url_trans" => $img_url_ai
+                                ]);
+
+                                if( $prdImgObj->img_type == ImageConstant::IMAGE_TYPE_DESC ){
+                                    upPrdDescTrans($prdImgObj->offer_id);
+                                }
+                            }
                         }
 
                         if( $errorImgFlag == true ) {
@@ -564,9 +575,9 @@ class GenuioService extends TransApiAbstract
     {
         $returnMsg = $this->returnMsg;
 
-        // if( env("APP_ENV", "local") != "production" ){
-        //     return helpers_fail_message(false, "운영 환경에서만 사용 가능합니다.");
-        // }
+        if( env("APP_ENV", "local") != "production" ){
+            return helpers_fail_message(false, "운영 환경에서만 사용 가능합니다.");
+        }
 
         try {
             foreach ($imgIds as $imgId) {
