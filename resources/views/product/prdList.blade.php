@@ -58,26 +58,22 @@
                                 </tr>
                                 <tr class="align-middle">
                                     <th style="width: 120px">상품 번역</th>
-                                    <td>
+                                    <td colspan="3">
                                         <button type="button" name="trans_status" class="btn-status btn btn-md {{ $trans_status == ProductConstant::TRANS_STATUS_Y ? "btn-primary" : "btn-dark" }}"
                                         value="{{ ProductConstant::TRANS_STATUS_Y }}">완료</button>
                                         <button type="button" name="trans_status" class="btn-status btn btn-md {{ $trans_status == ProductConstant::TRANS_STATUS_N ? "btn-primary" : "btn-dark" }}"
                                         value="{{ ProductConstant::TRANS_STATUS_N }}">미완료</button>
                                     </td>
-                                    <td colspan="2">
-                                    </td>
                                 </tr>
                                 <tr class="align-middle">
                                     <th style="width: 120px">카테고리 맵핑</th>
-                                    <td>
+                                    <td colspan="3">
                                         <button type="button" name="mapping_status" class="btn-status btn btn-md {{ $mapping_status == "" ? "btn-primary" : "btn-dark" }}"
                                         value="">전체</button>
                                         <button type="button" name="mapping_status" class="btn-status btn btn-md {{ $mapping_status == ProductConstant::MAPPING_STATUS_Y ? "btn-primary" : "btn-dark" }}"
                                         value="{{ ProductConstant::MAPPING_STATUS_Y }}">맵핑</button>
                                         <button type="button" name="mapping_status" class="btn-status btn btn-md {{ $mapping_status == ProductConstant::MAPPING_STATUS_N ? "btn-primary" : "btn-dark" }}"
                                         value="{{ ProductConstant::MAPPING_STATUS_N }}">미맵핑</button>
-                                    </td>
-                                    <td colspan="2">
                                     </td>
                                 </tr>
                                 <tr class="align-middle">

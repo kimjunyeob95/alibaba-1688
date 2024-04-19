@@ -23,6 +23,14 @@
     width: 100%;
     height: 100%;
 }
+.sticky {
+    position: fixed;
+    top: 18px;
+    width: 80%;
+    z-index: 9999;
+    justify-content: space-around !important;
+}
+
 </style>
 @endsection
 
@@ -48,7 +56,7 @@
     <div class="container-fluid">
         <div class="row my-4 bg-white py-3">
             <div class="container-fluid main-container">
-                <div class="d-flex justify-content-between">
+                <div class="d-flex justify-content-between main-button-div">
                     <h4>썸네일 이미지</h4>
                     <div>
                         <button type="button" class="btn btn-light allCheckbtn" attr-type="main">전체선택</button>
@@ -163,7 +171,7 @@
 
         <div class="row my-4 bg-white py-3">
             <div class="container-fluid desc-container">
-                <div class="d-flex justify-content-between">
+                <div class="d-flex justify-content-between desc-button-div">
                     <h4>상세이미지</h4>
                     <div>
                         <button type="button" class="btn btn-light allCheckbtn" attr-type="desc">전체선택</button>
@@ -243,6 +251,7 @@
             </div>
             <div class="modal-body">
                 <p>AI 알고리즘 선택</p>
+                <p>선택 수: <span class="chk-cnt"></span>개</p>
                 <select class="form-select form-select-sm" id="AImodi-select">
                     <option selected value="automatic">자동 수정</option>
                 </select>
@@ -258,6 +267,34 @@
 
 <script type="text/javascript">
     $(function(){
+        var $nav         = $('.main-button-div');  // 고정시킬 요소 선택
+        var $nav2        = $('.desc-button-div');  // 고정시킬 요소 선택
+        var $stopPoint   = $('.desc-container');   // 고정 해제할 지점 선택
+        var navOffsetTop = $nav.offset().top;      // 고정 요소의 초기 위치
+
+        function updateStickyClass() {
+            var scrollPos = $(window).scrollTop();  // 현재 스크롤 위치
+            var stopOffsetTop = $stopPoint.offset().top;  // 고정 해제 지점의 위치
+
+            // 스크롤 위치가 $nav의 위치와 $stopPoint 사이일 때
+            if (scrollPos > navOffsetTop && scrollPos < stopOffsetTop - $nav.outerHeight()) {
+                $nav.addClass('sticky');
+                $nav2.removeClass('sticky');
+            } else if (scrollPos <= navOffsetTop) {
+                // 스크롤 위치가 $nav의 초기 위치보다 위거나 같을 때
+                $nav.removeClass('sticky');
+                $nav2.removeClass('sticky');
+            } else {
+                // 그 외의 경우 (스크롤 위치가 $stopPoint 이후일 때)
+                $nav.removeClass('sticky');
+                $nav2.addClass('sticky');
+            }
+        }
+
+        // 페이지 로드 시 초기화 및 스크롤 이벤트 연결
+        updateStickyClass();
+        $(window).scroll(updateStickyClass);
+
         $(".swiper-container").each(function(idx){
             var mySwiper = new Swiper('#swiper-container'+idx, {
                 // Optional parameters
@@ -314,6 +351,7 @@
                 });
 
                 $("#AImodi-modal").find(".imgChecked").val(imgChecked);
+                $("#AImodi-modal").find(".chk-cnt").text(imgChecked.length);
                 showModal("#AImodi-modal");
             }
         })
