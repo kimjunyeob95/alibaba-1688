@@ -180,11 +180,11 @@ class GenuioService extends TransApiAbstract
                 throw new Exception(TransApiConstant::getNotHaveErrorMessage("QUEUE_ID"));
             }
 
-            $getGenuioDetailObjs = GenuioQueueDetailData::where("queue_id", $jobId)
+            $detailCnt = GenuioQueueDetailData::where("queue_id", $jobId)
             ->where("trans_status", TransApiConstant::QUEUE_STAY)
             ->where("base64", "")
-            ->get();
-            if( count($images) != count($getGenuioDetailObjs) ){
+            ->count();
+            if( count($images) != $detailCnt ){
                 throw new Exception(TransApiConstant::getFitErrorMessage("NOT_EQUAL_COUNT_IMAGE"));
             }
 
@@ -564,9 +564,9 @@ class GenuioService extends TransApiAbstract
     {
         $returnMsg = $this->returnMsg;
 
-        if( env("APP_ENV", "local") != "production" ){
-            return helpers_fail_message(false, "운영 환경에서만 사용 가능합니다.");
-        }
+        // if( env("APP_ENV", "local") != "production" ){
+        //     return helpers_fail_message(false, "운영 환경에서만 사용 가능합니다.");
+        // }
 
         try {
             foreach ($imgIds as $imgId) {
@@ -601,6 +601,7 @@ class GenuioService extends TransApiAbstract
                         "id"          => $aiImgObj->id,
                         "imagePath"   => $aiImgObj->img_url_ai,
                         "isThumbnail" => $isThumbnail,
+                        "priority"    => GenuioConstant::QUEUE_PRIORITY_TRUE,
                     ];
 
                     $queueDetailInsList[] = [
