@@ -601,7 +601,7 @@ class GenuioService extends TransApiAbstract
                         "id"          => $aiImgObj->id,
                         "imagePath"   => $aiImgObj->img_url_ai,
                         "isThumbnail" => $isThumbnail,
-                        "priority"    => GenuioConstant::QUEUE_PRIORITY_TRUE,
+                        "priority"    => GenuioConstant::PRIORITY_TRUE
                     ];
 
                     $queueDetailInsList[] = [
