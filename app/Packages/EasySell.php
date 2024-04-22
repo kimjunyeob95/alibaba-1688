@@ -327,6 +327,7 @@ class EasySell extends MallApiAbstract
             }
             $categoryId = $prdObj->es_mapping->mapping_code."|".$prdObj->es_fgn_mapping->mapping_code;
             $ItemBrand = EasySellConstant::CATEGORY_MAPPING[substr($prdObj->es_fgn_mapping->mapping_code,0,6)];
+            $noticeType = $this->_getNoticeType($prdObj->es_fgn_mapping->mapping_code);
 
             //연령제한 상품여부
             if($prdObj->minor_not_sale == ProductConstant::MINOR_NOT_SALE_YES){
@@ -342,10 +343,6 @@ class EasySell extends MallApiAbstract
 
             $notice = "<table><tbody>";
             foreach($prdObj->notices as $gosiKey => $gosi){
-                if(!$gosiKey){
-                    $noticeType = $gosi->notice_type;
-                }
-
                 if( $gosiKey % 4 == 0){
                     $notice .="<tr>";
                 }
@@ -462,6 +459,28 @@ class EasySell extends MallApiAbstract
         return $return;
     }
 
+    /**
+     * 이지셀 고시정보 타입 매핑
+     *
+     * @param string $categoryId
+     * @return string
+     */
+    private function _getNoticeType(string $categoryId):string
+    {
+        $defaultNotice = EasySellConstant::DEFAULT_NOTICE;
+
+        $categoryType = substr($categoryId,0,6);
+        foreach (EasySellConstant::NOTICE_MAPPING[$categoryType] as $mappingCode => $category) {
+            if($mappingCode === 0){
+                $defaultNotice = $category;
+            }else{
+                if(in_array($categoryId, $category)){
+                    return $mappingCode;
+                }
+            }
+        }
+        return $defaultNotice;
+    }
     /**
 	 * 인코딩 변경
 	 *
