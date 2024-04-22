@@ -179,7 +179,7 @@ class ProductTest extends TestCase
     # php artisan test --filter testGenuioImgCreate
     public function testGenuioImgCreate()
     {
-        $offerId                 = 773387095350;
+        $offerId                 = 740275289359;
         $product1688ImageDtoList = [];
         $imgObjs                 = ProductImageData::where("offer_id", $offerId)->get();
         foreach ($imgObjs as $imgObj) {
@@ -187,6 +187,7 @@ class ProductTest extends TestCase
             $product1688ImageDto->bind([
                 "offerId"        => $offerId,
                 "imgType"        => $imgObj->img_type,
+                "is_except"      => $imgObj->is_except,
                 "img_url_origin" => $imgObj->img_url_origin,
                 "img_url_trans"  => "",
                 "isChangeImg"    => true,

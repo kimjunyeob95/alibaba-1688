@@ -102,9 +102,15 @@ class GenuioService extends TransApiAbstract
             ];
             $nextId = GenuioQueueData::insertGetId($insWhere);
 
+            $prdObj = ProductData::with([
+                "options",
+                "notices",
+            ])->where("offer_id", $offerId)->first();
+
             $payload = [
                 "jobId"  => $nextId,
-                "images" => []
+                "images" => [],
+                "prdObj" => $prdObj->toArray()
             ];
 
             $queueDetailInsList = [];
