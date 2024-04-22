@@ -326,6 +326,6 @@ class ProductController extends Controller
             "keyword"      => $keyword,
         ];
 
-        return view("product.prdQueryProductDetail")->with($viewParams);
+        return view("product.prdQueryW2ProductDetail")->with($viewParams);
     }
 }

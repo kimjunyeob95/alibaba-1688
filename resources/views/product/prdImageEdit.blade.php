@@ -67,7 +67,7 @@
                 </div>
 
                 {{-- 1. 메인이미지 --}}
-                <div class="row my-4 mx-5 p-4 px-5 bg-light border justify-content-between">
+                <div class="row my-4 mx-5 p-4 px-5 bg-light border justify-content-between" id="anchor">
                     <div class="col-3">
                         <div class="row">
                             <img src="{{ $prdObj->main_img->img_url_trans }}" class="rounded img-fluid" alt="...">
@@ -101,6 +101,7 @@
                         <div class="swiper-button-prev swiper-button-prev0"></div>
                     </div>
                     <div class="col-2 d-flex flex-column justify-content-evenly">
+                        <button type="button" href="#anchor" class="btn btn-outline-primary btn-anchor">위치복사</button>
                         <button type="button" class="btn btn-success text-white AImodiBtn">A.I 수정</button>
                         <button type="button" class="btn btn-warning text-white AItoolBtn">A.I Tool</button>
                         <button type="button" class="btn btn-primary text-white applyBtn">적용하기</button>
@@ -113,7 +114,7 @@
                 @endphp
                 @foreach ( $prdObj->sub_imgs as $img)
                     @if( $img->img_url_trans )
-                        <div class="row my-4 mx-5 p-4 px-5 bg-light border justify-content-between">
+                        <div class="row my-4 mx-5 p-4 px-5 bg-light border justify-content-between" id="anchor{{ $idx }}">
                             <div class="col-3">
                                 <div class="row">
                                     <img src="{{ $img->img_url_trans }}" class="rounded img-fluid" alt="...">
@@ -151,6 +152,7 @@
                                 <div class="swiper-button-prev swiper-button-prev{{ $idx }}"></div>
                             </div>
                             <div class="col-2 d-flex flex-column justify-content-evenly">
+                                <button type="button" href="#anchor{{ $idx }}" class="btn btn-outline-primary btn-anchor">위치복사</button>
                                 <button type="button" class="btn btn-success text-white AImodiBtn">A.I 수정</button>
                                 <button type="button" class="btn btn-warning text-white AItoolBtn">A.I Tool</button>
                                 <button type="button" class="btn btn-primary text-white applyBtn">적용하기</button>
@@ -183,7 +185,7 @@
 
                 @foreach ( $prdObj->desc_imgs as $img)
                     @if( $img->img_url_trans )
-                        <div class="row my-4 mx-5 p-4 px-5 bg-light border justify-content-between">
+                        <div class="row my-4 mx-5 p-4 px-5 bg-light border justify-content-between" id="anchor{{ $idx }}">
                             <div class="col-3">
                                 <div class="row">
                                     <img src="{{ $img->img_url_trans }}" class="rounded img-fluid" alt="...">
@@ -221,6 +223,7 @@
                                 <div class="swiper-button-prev swiper-button-prev{{ $idx }}"></div>
                             </div>
                             <div class="col-2 d-flex flex-column justify-content-evenly">
+                                <button type="button" href="#anchor{{ $idx }}" class="btn btn-outline-primary btn-anchor">위치복사</button>
                                 <button type="button" class="btn btn-success text-white AImodiBtn">A.I 수정</button>
                                 <button type="button" class="btn btn-warning text-white AItoolBtn">A.I Tool</button>
                                 <button type="button" class="btn btn-primary text-white applyBtn">적용하기</button>
@@ -267,6 +270,31 @@
 
 <script type="text/javascript">
     $(function(){
+        var urlAnchor = window.location.hash;
+        if (urlAnchor) {
+            var targetElement = $(urlAnchor);
+            if (targetElement.length) {
+                $('html, body').animate({
+                    scrollTop: targetElement.offset().top
+                }, 500); // 스크롤 속도를 1000으로 조정
+            }
+        }
+
+        $('.btn-anchor').click(function(){
+            let anchor = $(this).attr("href");
+
+            var currentUrl = window.location.href.split('#')[0].split('?')[0];
+            var urlWithAnchor = currentUrl + anchor;
+
+            var tempInput = $("<input>");
+            $("body").append(tempInput);
+            tempInput.val(urlWithAnchor).select();
+            document.execCommand("copy");
+
+            tempInput.remove();
+            alert("위치가 복사되었습니다: " + urlWithAnchor);
+        });
+
         var $nav         = $('.main-button-div');  // 고정시킬 요소 선택
         var $nav2        = $('.desc-button-div');  // 고정시킬 요소 선택
         var $stopPoint   = $('.desc-container');   // 고정 해제할 지점 선택
