@@ -151,7 +151,7 @@
                                             @php
                                                 $option = $data->options[0];
                                             @endphp
-                                            {{ number_format($option->onch_price) }}<br>
+                                            {{ number_format($option->option_price) }}<br>
                                         @else
                                             <p class="text-danger">옵션없음</p>
                                         @endif
@@ -161,7 +161,7 @@
                                             @php
                                                 $option = $data->options[0];
                                             @endphp
-                                            {{ number_format(calcEasySellSalePrice($option->onch_price)) }}<br>
+                                            {{ number_format(calcWSalePrice($option->option_price)) }}<br>
                                         @else
                                             <p class="text-danger">옵션없음</p>
                                         @endif

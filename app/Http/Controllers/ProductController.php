@@ -301,4 +301,31 @@ class ProductController extends Controller
 
         return view("product.prdImageEdit")->with($viewParams);
     }
+
+    public function queryW2ProductDetail(): View
+    {
+        $keyword = $this->request->get("keyword", "");
+        $datas   = [];
+
+        if( $keyword ){
+            $offerIds = preg_replace("/(\r\n|\r|\n)/", ",", trim($keyword));
+            $offerIds = explode(",", $offerIds);
+            // 각 배열 요소의 앞뒤 공백 제거
+            $offerIds = array_map('trim', $offerIds);
+            // 빈 값을 제거
+            $offerIds = array_filter($offerIds);
+            // 중복 제거
+            $offerIds = array_unique($offerIds);
+
+            $result = $this->service1688Product->getQueryW2ProductDetail($offerIds);
+            $datas  = $result;
+        }
+        $viewParams = [
+            "datas"        => $datas,
+            "totalRecords" => count($datas),
+            "keyword"      => $keyword,
+        ];
+
+        return view("product.prdQueryProductDetail")->with($viewParams);
+    }
 }

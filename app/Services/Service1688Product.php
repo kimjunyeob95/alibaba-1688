@@ -10,12 +10,15 @@ use Illuminate\Http\UploadedFile;
 class Service1688Product
 {
    private ProductAbstract $productAbstract;
+   private ProductAbstract $productAbstractV2;
 
    public function __construct(
-      ProductAbstract $productAbstract
+      ProductAbstract $productAbstract,
+      ProductAbstract $productAbstractV2
    )
    {
-      $this->productAbstract  = $productAbstract;
+      $this->productAbstract   = $productAbstract;
+      $this->productAbstractV2 = $productAbstractV2;
    }
 
    /**
@@ -353,5 +356,18 @@ class Service1688Product
    public function mdPriceUpdate(array $offerIds, int $mdPrice): array
    {
       return $this->productAbstract->mdPriceUpdate($offerIds, $mdPrice);
+   }
+
+   /****************************************** WApp V2 **********************************************/
+
+   /**
+     * @func getQueryW2ProductDetail
+     * @description '상품ID로 조회'
+     * @param array $offerIds
+     * @return array
+   */
+   public function getQueryW2ProductDetail(array $offerIds): array
+   {
+      return $this->productAbstractV2->getQueryProductDetail($offerIds);
    }
 }

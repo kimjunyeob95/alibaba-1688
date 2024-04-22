@@ -32,6 +32,11 @@ Route::prefix("product")->name("product.")->group(function(){
     Route::get("/collectLogs", [ProductController::class, "prdCollectLogs"])->name("prdCollectLogs");
     Route::get("/collect/log/{logId}", [ProductController::class, "prdCollectLogDetail"])->name("prdCollectLogDetail");
 
+    Route::prefix("w2")->name("w2.")->group(function(){
+        // 상품 수집 관리
+        Route::get("/queryProductDetail", [ProductController::class, "queryW2ProductDetail"])->name("queryProductDetail");
+    });
+
     // 상품 리스트
     Route::get("/list", [ProductController::class, "getPrdList"])->name("list");
     Route::get("/{offerId}", [ProductController::class, "getPrdDetail"])->name("detail");

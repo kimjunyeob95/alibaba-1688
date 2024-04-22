@@ -81,7 +81,11 @@
                         상품 수집 관리
                     </a>
                     <ul class="nav-group-items">
-                        
+                        <li class="nav-item">
+                            <a class="nav-link" href="/product/w2/queryProductDetail">
+                                상품 ID로 수집
+                            </a>
+                        </li>
                     </ul>
                 </li>
             </ul>
