@@ -41,28 +41,12 @@ use ValueError;
 class ProductV2 extends ProductAbstract
 {
     private array $returnMsg;
-    private string $accessToken;
     private TransApiAbstract $transApiAbstract;
     private UploadAbstract $uploadAbstract;
 
     public function __construct(TransApiAbstract $transApiAbstract, UploadAbstract $uploadAbstract)
     {
         $this->returnMsg        = helpers_fail_message();
-
-        $appKey       = env("1688_WORLD_APP_KEY");
-        $appSecret    = env("1688_WORLD_APP_SECRET_KEY");
-        $refreshToken = env("1688_WORLD_REFRESH_TOKEN");
-        $apiDomain    = env("1688_API_DOMAIN", "https://gw.open.1688.com/openapi/");
-
-        $endPoint     = "param2/1/system.oauth2/getToken/{$appKey}?grant_type=refresh_token&client_id={$appKey}&client_secret={$appSecret}&refresh_token={$refreshToken}";
-        $apiDatas     = helpers_curl("GET", $apiDomain . $endPoint, []);
-
-        if( isset($apiDatas["access_token"]) && $apiDatas["access_token"] ){
-            $this->accessToken = $apiDatas["access_token"];
-        } else {
-            throw new Exception("W2 access_token error");
-        }
-
         $this->transApiAbstract = $transApiAbstract;
         $this->uploadAbstract   = $uploadAbstract;
     }
@@ -210,7 +194,6 @@ class ProductV2 extends ProductAbstract
         try {
             $endPoint = "param2/1/com.alibaba.fenxiao.crossborder/product.search.queryProductDetail/";
             $payload = [
-                'access_token'     => $this->accessToken,
                 'offerDetailParam' => [
                     'country' => Constant1688::LANGUAGE_KO,
                     'offerId' => $offerId,
@@ -251,7 +234,6 @@ class ProductV2 extends ProductAbstract
         try {
             $endPoint = "param2/1/com.alibaba.fenxiao.crossborder/product.search.keywordQuery/";
             $payload = [
-                'access_token'    => $this->accessToken,
                 'offerQueryParam' => [
                     'keyword'    => '',
                     'beginPage'  => $page,
@@ -277,7 +259,6 @@ class ProductV2 extends ProductAbstract
                         $offerId        = $productData["offerId"];
                         $endPoint       = "param2/1/com.alibaba.fenxiao.crossborder/product.search.queryProductDetail/";
                         $payload        = [
-                            'access_token'     => $this->accessToken,
                             'offerDetailParam' => [
                                 'offerId' => $offerId,
                                 'country' => Constant1688::LANGUAGE_KO,
@@ -361,7 +342,6 @@ class ProductV2 extends ProductAbstract
         try {
             $endPoint = "param2/1/com.alibaba.fenxiao.crossborder/product.search.imageQuery/";
             $payload = [
-                'access_token'    => $this->accessToken,
                 'offerQueryParam' => [
                     'beginPage' => $page,
                     'pageSize'  => $pageSize,
@@ -387,7 +367,6 @@ class ProductV2 extends ProductAbstract
                         $offerId        = $productData["offerId"];
                         $endPoint       = "param2/1/com.alibaba.fenxiao.crossborder/product.search.queryProductDetail/";
                         $payload        = [
-                            'access_token'     => $this->accessToken,
                             'offerDetailParam' => [
                                 'offerId' => $offerId,
                                 'country' => Constant1688::LANGUAGE_KO,
@@ -459,7 +438,6 @@ class ProductV2 extends ProductAbstract
             try {
                 $endPoint = "param2/1/com.alibaba.fenxiao.crossborder/product.search.queryProductDetail/";
                 $payload  = [
-                    'access_token'     => $this->accessToken,
                     'offerDetailParam' => [
                         'offerId' => $offerId,
                         'country' => Constant1688::LANGUAGE_KO,
@@ -527,7 +505,6 @@ class ProductV2 extends ProductAbstract
             try {
                 $endPoint = "param2/1/com.alibaba.fenxiao.crossborder/product.search.queryProductDetail/";
                 $payload  = [
-                    'access_token'     => $this->accessToken,
                     'offerDetailParam' => [
                         'offerId' => $offerId,
                         'country' => Constant1688::LANGUAGE_KO,
@@ -1015,7 +992,6 @@ class ProductV2 extends ProductAbstract
             try {
                 $endPoint       = "param2/1/com.alibaba.fenxiao.crossborder/overseas.product.detailQuery/";
                 $payload        = [
-                    'access_token'     => $this->accessToken,
                     'detailQueryParams' => [
                         'offerId'  => $offerId,
                         'region'   => Constant1688::REGION_KO,
@@ -1057,7 +1033,6 @@ class ProductV2 extends ProductAbstract
             $sortArr[0] => $sortArr[1]
         ];
         $payload = [
-            'access_token'    => $this->accessToken,
             'offerQueryParam' => [
                 'sort'       => json_encode($sort),
                 'beginPage'  => $params["page"],
@@ -1107,7 +1082,6 @@ class ProductV2 extends ProductAbstract
         $page     = $params["page"];
         $pageSize = $params["pageSize"];
         $payload  = [
-            'access_token'    => $this->accessToken,
             'offerQueryParam' => [
                 'sort'      => json_encode($sort),
                 'country'   => Constant1688::LANGUAGE_KO,
@@ -1177,7 +1151,6 @@ class ProductV2 extends ProductAbstract
                         $offerId        = $productData["offerId"];
                         $endPoint       = "param2/1/com.alibaba.fenxiao.crossborder/product.search.queryProductDetail/";
                         $payload_detail = [
-                            'access_token'     => $this->accessToken,
                             'offerDetailParam' => [
                                 'offerId' => $offerId,
                                 'country' => Constant1688::LANGUAGE_KO,
@@ -1252,7 +1225,6 @@ class ProductV2 extends ProductAbstract
 
             $endPoint = "param2/1/com.alibaba.fenxiao.crossborder/product.image.upload/";
             $payload = [
-                'access_token' => $this->accessToken,
                 'uploadImageParam' => [
                     "imageBase64" => $base64Encoded
                 ]
@@ -1279,7 +1251,6 @@ class ProductV2 extends ProductAbstract
             $sortArr[0] => $sortArr[1]
         ];
         $payload = [
-            'access_token'    => $this->accessToken,
             'offerQueryParam' => [
                 'imageId'    => $params["imageId"],
                 'sort'       => json_encode($sort),
@@ -1342,7 +1313,6 @@ class ProductV2 extends ProductAbstract
 
             foreach ($imageIds as $imageId) {
                 $payload  = [
-                    'access_token'    => $this->accessToken,
                     'offerQueryParam' => [
                         'sort'      => json_encode($sort),
                         'country'   => Constant1688::LANGUAGE_KO,
@@ -1401,7 +1371,6 @@ class ProductV2 extends ProductAbstract
                         $offerId        = $productData["offerId"];
                         $endPoint       = "param2/1/com.alibaba.fenxiao.crossborder/product.search.queryProductDetail/";
                         $payload_detail = [
-                            'access_token'     => $this->accessToken,
                             'offerDetailParam' => [
                                 'offerId' => $offerId,
                                 'country' => Constant1688::LANGUAGE_KO,
@@ -1597,7 +1566,6 @@ class ProductV2 extends ProductAbstract
             try {
                 $endPoint = "param2/1/com.alibaba.fenxiao.crossborder/product.search.queryProductDetail/";
                 $payload  = [
-                    'access_token'     => $this->accessToken,
                     'offerDetailParam' => [
                         'offerId' => $offerId,
                         'country' => Constant1688::LANGUAGE_KO,

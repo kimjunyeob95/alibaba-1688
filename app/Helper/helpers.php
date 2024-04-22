@@ -320,6 +320,15 @@ if (!function_exists("curl_1688_v2")) {
         $apiDomain    = env("1688_API_DOMAIN", "https://gw.open.1688.com/openapi/");
         $appKey       = env("1688_WORLD_APP_KEY");
         $appSecret    = env("1688_WORLD_APP_SECRET_KEY");
+        $refreshToken = env("1688_WORLD_REFRESH_TOKEN");
+
+        $TokenEndPoint = "param2/1/system.oauth2/getToken/{$appKey}?grant_type=refresh_token&client_id={$appKey}&client_secret={$appSecret}&refresh_token={$refreshToken}";
+        $apiDatas      = helpers_curl("GET", $apiDomain . $TokenEndPoint, []);
+        if( isset($apiDatas["access_token"]) && $apiDatas["access_token"] ){
+            $payload["access_token"] = $apiDatas["access_token"];
+        } else {
+            throw new Exception("W2 access_token error");
+        }
 
         $endPoint = $endPoint . $appKey;
         $curlUrl  = $apiDomain . $endPoint;
