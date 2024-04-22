@@ -381,12 +381,13 @@
     $(document).ready(function(){
         $(".btn-md-modi").click(function(){
             let offerIds  = [$(this).attr("offerid")];
-            let mdPrice   = Number($(this).attr("mdprice")).toLocaleString('ko-KR');
-            let salePrice = Number($(this).attr("saleprice")).toLocaleString('ko-KR');
+            let mdPrice   = Number($(this).attr("mdprice"));
+            let salePrice = Number($(this).attr("saleprice"));
 
-            $(".sale-price").html(`<p>${salePrice}원</p>`);
+            $(".sale-price").html(`<p>${salePrice.toLocaleString('ko-KR')}원</p>`);
             $('input[name="offer_ids[]"]').val(offerIds);
             $("input[name=sale_price]").val(salePrice);
+            $("input[name=md_price]").val(mdPrice);
             $("#htmlModal2").modal('show');
         });
 
