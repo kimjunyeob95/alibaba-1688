@@ -275,8 +275,8 @@
             var targetElement = $(urlAnchor);
             if (targetElement.length) {
                 $('html, body').animate({
-                    scrollTop: targetElement.offset().top
-                }, 500); // 스크롤 속도를 1000으로 조정
+                    scrollTop: targetElement.offset().top - 200
+                }, 500);
             }
         }
 
