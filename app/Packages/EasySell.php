@@ -326,9 +326,7 @@ class EasySell extends MallApiAbstract
                 throw new Exception("카테고리 정보가 없습니다");
             }
             $categoryId = $prdObj->es_mapping->mapping_code."|".$prdObj->es_fgn_mapping->mapping_code;
-            $categoryType   = substr($prdObj->es_fgn_mapping->mapping_code,0,6);
-            $ItemBrand = EasySellConstant::CATEGORY_MAPPING[$categoryType];
-
+            $ItemBrand = EasySellConstant::CATEGORY_MAPPING[substr($prdObj->es_fgn_mapping->mapping_code,0,6)];
             $noticeType = $this->_getNoticeType($prdObj->es_fgn_mapping->mapping_code);
 
             //연령제한 상품여부
