@@ -129,7 +129,6 @@
                                     제품ID<br>
                                     (카테고리ID)
                                 </th>
-                                <th scope="col">제품명</th>
                                 <th scope="col">제품명(번역)</th>
                                 <th scope="col" style="width: 50px">최소 구매 수량</th>
                                 <th scope="col" style="width: 100px">원본이미지</th>
@@ -169,9 +168,6 @@
                                             <span class="text-danger">*카테고리 미맵핑</span>
                                             <span class="text-danger">({{ $data->category_id }})</span>
                                         @endif
-                                    </td>
-                                    <td>
-                                        {{ $data->prd_name }}
                                     </td>
                                     <td>
                                         {{ $data->prd_name_trans }}
@@ -396,39 +392,36 @@
         });
 
         $('.btn-md-price-save').click(function(){
-            let mdPrice   = $("input[name=md_price]").val();
+            let mdPrice   = Number($("input[name=md_price]").val());
             let salePrice = $("input[name=sale_price]").val();
             let offerIds  = $('input[name="offer_ids[]"]').val().split(",");
 
-            if( !mdPrice ){
-                return alert("MD 판매가를 입력하세요.");
-            }
-
-            if( mdPrice <= salePrice ){
+            if( mdPrice != 0 && mdPrice <= salePrice ){
                 return alert("MD 판매가는 일반 판매가 보다 높게 입력해야 합니다.");
             }
 
-            $.ajax({
-                "headers" : {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
-                "type"    : "POST",
-                "url"        : "{{ route('w.product.mdPriceUpdate') }}",
-                "data"    : { offerIds, mdPrice },
-                beforeSend: function () {
-                    $("#loadingOverlay").show();
-                },
-                complete  : function(xhr, status) {
-                    $("#loadingOverlay").hide();
-                },
-                success : function (resp) {
-                    alert(resp.msg);
-                    location.reload();
-                },
-                error: function (request) {
-                    let { error } = JSON.parse(request.responseText);
-                    alert(error.message);
-                }
-            });
-
+            if(confirm("MD 판매자가를 설정하시겠습니까?")){
+                $.ajax({
+                    "headers" : {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
+                    "type"    : "POST",
+                    "url"        : "{{ route('w.product.mdPriceUpdate') }}",
+                    "data"    : { offerIds, mdPrice },
+                    beforeSend: function () {
+                        $("#loadingOverlay").show();
+                    },
+                    complete  : function(xhr, status) {
+                        $("#loadingOverlay").hide();
+                    },
+                    success : function (resp) {
+                        alert(resp.msg);
+                        location.reload();
+                    },
+                    error: function (request) {
+                        let { error } = JSON.parse(request.responseText);
+                        alert(error.message);
+                    }
+                });
+            }
         });
 
         $(".btn-modal").click(function(){
