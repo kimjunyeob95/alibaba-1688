@@ -559,9 +559,9 @@ if (!function_exists("upPrdDescTrans")) {
 
 //이지셀 판매가 계산
 if (!function_exists("calcEasySellSalePrice")) {
-    function calcEasySellSalePrice(?int $onchPrice = 0): int
+    function calcEasySellSalePrice(?int $option_price = 0, ?int $md_price): int
     {
-        return ceil(($onchPrice * env("EASYSELL_PRICE_RATE", "1.35")) / 100) * 100;
+        return !empty($md_price) ? $md_price : ceil(($option_price * env("EASYSELL_PRICE_RATE", "1.35")) / 100) * 100 + (int)env("EASYSELL_SHIPPING_PRICE", 12000);
     }
 }
 

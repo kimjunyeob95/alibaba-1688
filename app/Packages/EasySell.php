@@ -360,11 +360,11 @@ class EasySell extends MallApiAbstract
             foreach($prdObj->options as $idx => $option){
                 if(!$idx){
                     $buyPrice  = $option->option_price; //셀러허브 공급가
-                    $salePrice = $setPrice = calcEasySellSalePrice($option->onch_price);
+                    $salePrice = $setPrice = calcEasySellSalePrice($option->option_price, $option->md_price);
                 }else{
                     $unitInfo .= ",";
                 }
-                $setPrice = calcEasySellSalePrice($option->onch_price);
+                $setPrice = calcEasySellSalePrice($option->option_price, $option->md_price);
 
                 //옵션명
                 $replaceArr     = array("|",",","/");
