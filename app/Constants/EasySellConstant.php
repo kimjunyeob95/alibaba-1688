@@ -86,6 +86,7 @@ class EasySellConstant
     ];
 
     //이지셀 정보고시 매핑
+    public const DEFAULT_NOTICE = "g12";
     public const NOTICE_MAPPING = [
         "066001" => [
             "g0",

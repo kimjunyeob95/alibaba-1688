@@ -467,17 +467,19 @@ class EasySell extends MallApiAbstract
      */
     private function _getNoticeType(string $categoryId):string
     {
+        $defaultNotice = EasySellConstant::DEFAULT_NOTICE;
+
         $categoryType = substr($categoryId,0,6);
         foreach (EasySellConstant::NOTICE_MAPPING[$categoryType] as $mappingCode => $category) {
             if($mappingCode === 0){
-                $defaultCate = $category;
+                $defaultNotice = $category;
             }else{
                 if(in_array($categoryId, $category)){
                     return $mappingCode;
                 }
             }
         }
-        return $defaultCate;
+        return $defaultNotice;
     }
     /**
 	 * 인코딩 변경
