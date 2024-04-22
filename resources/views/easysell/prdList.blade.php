@@ -151,7 +151,7 @@
                                             @php
                                                 $option = $data->options[0];
                                             @endphp
-                                            {{ number_format(calcEasySellSalePrice($option->option_price, $option->md_price, "static")) }}<br>
+                                            {{ number_format(calcEasySellSalePrice($option->option_price, $option->md_price, "static")) }}
                                         @else
                                             <p class="text-danger">옵션없음</p>
                                         @endif
@@ -161,7 +161,9 @@
                                             @php
                                                 $option = $data->options[0];
                                             @endphp
-                                            {{ number_format( $option->md_price ) }}<br>
+                                            @if(!empty($option->md_price))
+                                            {{ number_format( $option->md_price ) }}
+                                            @endif
                                         @else
                                             <p class="text-danger">옵션없음</p>
                                         @endif
