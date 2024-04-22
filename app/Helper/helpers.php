@@ -456,3 +456,11 @@ if (!function_exists("calcEasySellSalePrice")) {
         return ceil(($onchPrice * env("EASYSELL_PRICE_RATE", "1.35")) / 100) * 100;
     }
 }
+
+// WApp 일반 판매가 계산
+if (!function_exists("calcWSalePrice")) {
+    function calcWSalePrice(int $option_price = 0): int
+    {
+        return ( ceil(($option_price * env("W_SALE_PRICE_RATE", "1.35")) / 100) * 100 ) + (int)env("W_DROP_SHIPPING_PRICE", 6000);
+    }
+}

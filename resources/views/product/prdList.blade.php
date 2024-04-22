@@ -138,6 +138,12 @@
                                     W 공급가<br>
                                     (환율: {{ number_format($exchangeRate) }}원)
                                 </th>
+                                <th scope="col" style="width: 120px" class="text-center">
+                                    일반 판매가(원)
+                                </th>
+                                <th scope="col" style="width: 120px" class="text-center">
+                                    MD 판매가(원)
+                                </th>
                                 <th scope="col" style="width: 100px" class="text-center">이미지<br>번역여부</th>
                                 <th style="width: 100px" class="text-center">관리</th> 
                             </tr>
@@ -190,6 +196,30 @@
                                             @endphp
                                                 {{ $option->price_1688 }}(위안)<br>
                                                 {{ number_format($option->option_price) }}(원)
+                                        @else
+                                            <p class="text-danger">옵션없음</p>
+                                        @endif
+                                    </td>
+                                    <td class="text-center">
+                                        @if (count($data->options) > 0)
+                                            @php
+                                                $option = $data->options[0];
+                                            @endphp
+                                                {{ number_format(calcWSalePrice($option->option_price)) }} 
+                                        @else
+                                            <p class="text-danger">옵션없음</p>
+                                        @endif
+                                    </td>
+                                    <td class="text-center">
+                                        @if (count($data->options) > 0)
+                                            @php
+                                                $option = $data->options[0];
+                                            @endphp
+                                            @if ($option->md_price)
+                                                <button class="btn btn-sm btn-primary btn-md-modi" offerid={{ $data->offer_id }} saleprice={{ calcWSalePrice($option->option_price) }} mdprice={{ $option->md_price }}>{{ number_format($option->md_price) }}</button>
+                                            @else
+                                                <button class="btn btn-sm btn-warning btn-md-modi" offerid={{ $data->offer_id }} saleprice={{ calcWSalePrice($option->option_price) }} mdprice=0>MD 가격 설정</button>
+                                            @endif
                                         @else
                                             <p class="text-danger">옵션없음</p>
                                         @endif
@@ -301,10 +331,105 @@
             </div>
         </div>
 
+        <div class="modal fade" id="htmlModal2" tabindex="-1" role="dialog" aria-labelledby="htmlModalLabel2" aria-hidden="true">
+            <div class="modal-dialog modal-xl" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="htmlModalLabel2">MD 판매가 설정</h5>
+                    </div>
+                    <div class="modal-body">
+                        <input type="hidden" name="offer_ids[]" />
+                        <input type="hidden" name="sale_price" />
+
+                        <div>
+                            <div class="d-flex justify-content-evenly px-3">
+                                <div class="row w-100">
+                                    <div class="col-2">
+                                        <label class="fs-7">일반 판매가</label>
+                                    </div>
+                                    <div class="col sale-price">
+                                        
+                                    </div>
+                                </div>
+                            </div>
+                            <hr>
+
+                            <div class="d-flex justify-content-evenly px-3">
+                                <div class="row w-100">
+                                    <div class="col-2">
+                                        <label class="fs-7">MD 판매가</label>
+                                    </div>
+                                    <div class="col">
+                                        <input type="number" class="form-control" name="md_price" placeholder="MD 판매가를 입력하세요." value="">
+                                        {{-- <p class="text-danger mt-3 md-danger" style="display: none">* MD 판매가는 일반 판매가 보다 높게 입력해야 합니다.</p> --}}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer d-flex justify-content-center">
+                        <button type="button" class="btn btn-primary btn-md-price-save">저장</button>
+                        <button type="button" class="btn btn-secondary htmlModalClose2">닫기</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </div>
 <script type="text/javascript">
 
     $(document).ready(function(){
+        $(".btn-md-modi").click(function(){
+            let offerIds  = [$(this).attr("offerid")];
+            let mdPrice   = Number($(this).attr("mdprice")).toLocaleString('ko-KR');
+            let salePrice = Number($(this).attr("saleprice")).toLocaleString('ko-KR');
+
+            $(".sale-price").html(`<p>${salePrice}원</p>`);
+            $('input[name="offer_ids[]"]').val(offerIds);
+            $("input[name=sale_price]").val(salePrice);
+            $("#htmlModal2").modal('show');
+        });
+
+        $(".htmlModalClose2").click(function(){
+            $("#htmlModal2").modal('hide');
+        });
+
+        $('.btn-md-price-save').click(function(){
+            let mdPrice   = $("input[name=md_price]").val();
+            let salePrice = $("input[name=sale_price]").val();
+            let offerIds  = $('input[name="offer_ids[]"]').val().split(",");
+
+            if( !mdPrice ){
+                return alert("MD 판매가를 입력하세요.");
+            }
+
+            if( mdPrice <= salePrice ){
+                return alert("MD 판매가는 일반 판매가 보다 높게 입력해야 합니다.");
+            }
+
+            $.ajax({
+                "headers" : {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
+                "type"    : "POST",
+                "url"        : "{{ route('w.product.mdPriceUpdate') }}",
+                "data"    : { offerIds, mdPrice },
+                beforeSend: function () {
+                    $("#loadingOverlay").show();
+                },
+                complete  : function(xhr, status) {
+                    $("#loadingOverlay").hide();
+                },
+                success : function (resp) {
+                    alert(resp.msg);
+                    location.reload();
+                },
+                error: function (request) {
+                    let { error } = JSON.parse(request.responseText);
+                    alert(error.message);
+                }
+            });
+
+        });
+
         $(".btn-modal").click(function(){
             let cateId = $(this).attr("cateid");
             $("#loadingOverlay").show();

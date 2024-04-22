@@ -381,4 +381,31 @@ class WProductController extends Controller
             return helpers_json_response(HttpConstant::BAD_REQUEST, [], $e->getMessage());
         }
     }
+
+    public function mdPriceUpdate(): JsonResponse
+    {
+        try {
+            $validator = Validator::make($this->request->all(), [
+                'offerIds' => 'required|array',
+                'mdPrice'  => 'required|int',
+            ], [
+                'offerIds.required' => ProductErrorMessageConstant::getNotHaveErrorMessage("OFFER_IDS"),
+                'mdPrice.required'  => ProductErrorMessageConstant::getNotHaveErrorMessage("MD_PRICE"),
+            ]);
+            if ($validator->fails()) {
+                throw new Exception($validator->errors()->first());
+            }
+            
+            $offerIds = $this->request->post("offerIds");
+            $mdPrice  = $this->request->post("mdPrice");
+            $result   = $this->service1688Product->mdPriceUpdate($offerIds, $mdPrice);
+            if( $result["isSuccess"] == true ){
+                return helpers_json_response(HttpConstant::OK, $result);
+            } else {
+                return helpers_json_response(HttpConstant::BAD_REQUEST, [], $result["msg"]);
+            }
+        } catch (Exception $e) {
+            return helpers_json_response(HttpConstant::BAD_REQUEST, [], $e->getMessage());
+        }
+    }
 }

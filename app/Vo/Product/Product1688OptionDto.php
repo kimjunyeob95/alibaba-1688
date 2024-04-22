@@ -15,6 +15,7 @@ class Product1688OptionDto extends Vo
     protected string $option_name_trans = "";
     protected float $price_1688         = 0.0;
     protected float $option_price       = 0.0;
+    protected float $md_price           = 0.0;
     protected float $onch_price         = 0.0;
     protected float $cus_price          = 0.0;
     protected float $recom_cus_price    = 0.0;
@@ -31,6 +32,7 @@ class Product1688OptionDto extends Vo
         $this->option_name       = $data["optionName"];
         $this->option_name_trans = $data["optionNameTrans"];
         $this->price_1688        = (float)$data["price_1688"];
+        $this->md_price          = isset($data["md_price"]) ? (int)$data["md_price"] : 0;
         $this->amount_on_sale    = $data["amountOnSale"];
         $this->cargo_number      = $data["cargoNumber"];
         $this->exchange_rate     = env("1688_EXCHANGE_RATE", 200);

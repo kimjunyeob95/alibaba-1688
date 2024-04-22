@@ -342,4 +342,16 @@ class Service1688Product
    {
       return $this->productAbstract->imageAccept($aiImgIds);
    }
+
+   /**
+     * @func mdPriceUpdate
+     * @description 'MD price 수정'
+     * @param array $offerIds
+     * @param int $mdPrice
+     * @return array
+   */
+   public function mdPriceUpdate(array $offerIds, int $mdPrice): array
+   {
+      return $this->productAbstract->mdPriceUpdate($offerIds, $mdPrice);
+   }
 }

@@ -56,6 +56,8 @@ Route::name('w.')->prefix('w')->group(function () {
         Route::post('/image/except', [WProductController::class, 'imageExcept'])->name('imageExcept');
         // AI 이미지 적용
         Route::post('/image/accept', [WProductController::class, 'imageAccept'])->name('imageAccept');
+        // MD 판매자가 설정
+        Route::post('/mdPrice/update', [WProductController::class, 'mdPriceUpdate'])->name('mdPriceUpdate');
     });
 
     Route::name('category.')->prefix('category')->group(function () {

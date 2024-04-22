@@ -73,7 +73,7 @@
 <script type="text/javascript">
 
     $(document).ready(function(){
-        $("#imgFile").change(function(){
+        $("#imgFile").change(async function(){
             $("#loadingOverlay").show();
 
             let isValid = true;

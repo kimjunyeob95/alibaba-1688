@@ -1813,4 +1813,22 @@ class ProductV1 extends ProductAbstract
 
         return $returnMsg;
     }
+
+    public function mdPriceUpdate(array $offerIds, int $mdPrice): array
+    {
+        $returnMsg = $this->returnMsg;
+        try {
+            foreach ($offerIds as $offerId) {
+                ProductOptionData::where("offer_id", $offerId)->update([
+                    "md_price" => $mdPrice
+                ]);
+            }
+
+            $returnMsg = helpers_success_message();
+        } catch (Exception $e) {
+            $returnMsg = helpers_fail_message(false, $e->getMessage());
+        }
+
+        return $returnMsg;
+    }
 }
