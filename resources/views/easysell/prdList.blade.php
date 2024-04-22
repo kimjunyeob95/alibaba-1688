@@ -115,8 +115,8 @@
                                 <th scope="col" style="width: 100px" class="text-center">이미지</th>
                                 <th scope="col" style="width: 150px" class="text-center">제품ID</th>
                                 <th scope="col">상품명</th>
-                                <th scope="col" style="width: 130px">w 공급가(원)</th>
-                                <th scope="col" style="width: 130px">이지셀 판매가(원)</th>
+                                <th scope="col" style="width: 130px">일반 판매가(원)</th>
+                                <th scope="col" style="width: 130px">MD 판매가(원)</th>
                                 <th scope="col" style="width: 100px" class="text-center">이지셀 전송</th>
                                 <th scope="col" style="width: 200px" class="text-center">관리</th>
                             </tr>
@@ -151,7 +151,7 @@
                                             @php
                                                 $option = $data->options[0];
                                             @endphp
-                                            {{ number_format($option->option_price) }}<br>
+                                            {{ number_format(calcEasySellSalePrice($option->option_price, $option->md_price, "static")) }}<br>
                                         @else
                                             <p class="text-danger">옵션없음</p>
                                         @endif
@@ -161,7 +161,7 @@
                                             @php
                                                 $option = $data->options[0];
                                             @endphp
-                                            {{ number_format(calcWSalePrice($option->option_price)) }}<br>
+                                            {{ number_format( $option->md_price ) }}<br>
                                         @else
                                             <p class="text-danger">옵션없음</p>
                                         @endif
