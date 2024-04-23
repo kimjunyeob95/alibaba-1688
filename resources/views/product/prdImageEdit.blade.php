@@ -107,7 +107,7 @@
                         <div class="swiper-button-next swiper-button-next0"></div>
                         <div class="swiper-button-prev swiper-button-prev0"></div>
                     </div>
-                    <div class="col-2 d-flex flex-column justify-content-evenly">
+                    <div class="col-2 d-flex flex-column justify-content-evenly" style="min-height: 400px">
                         <button type="button" href="#anchor" class="btn btn-outline-primary btn-anchor">위치복사</button>
                         <button type="button" class="btn btn-success text-white AImodiBtn">A.I 수정</button>
                         <button type="button" class="btn btn-warning text-white AItoolBtn">A.I Tool</button>
@@ -165,7 +165,7 @@
                                 <div class="swiper-button-next swiper-button-next{{ $idx }}"></div>
                                 <div class="swiper-button-prev swiper-button-prev{{ $idx }}"></div>
                             </div>
-                            <div class="col-2 d-flex flex-column justify-content-evenly">
+                            <div class="col-2 d-flex flex-column justify-content-evenly" style="min-height: 400px">
                                 <button type="button" href="#anchor{{ $idx }}" class="btn btn-outline-primary btn-anchor">위치복사</button>
                                 <button type="button" class="btn btn-success text-white AImodiBtn">A.I 수정</button>
                                 <button type="button" class="btn btn-warning text-white AItoolBtn">A.I Tool</button>
@@ -243,7 +243,7 @@
                                 <div class="swiper-button-next swiper-button-next{{ $idx }}"></div>
                                 <div class="swiper-button-prev swiper-button-prev{{ $idx }}"></div>
                             </div>
-                            <div class="col-2 d-flex flex-column justify-content-evenly">
+                            <div class="col-2 d-flex flex-column justify-content-evenly" style="min-height: 400px">
                                 <button type="button" href="#anchor{{ $idx }}" class="btn btn-outline-primary btn-anchor">위치복사</button>
                                 <button type="button" class="btn btn-success text-white AImodiBtn">A.I 수정</button>
                                 <button type="button" class="btn btn-warning text-white AItoolBtn">A.I Tool</button>
