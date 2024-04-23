@@ -541,7 +541,7 @@ class GenuioService extends TransApiAbstract
                         "created_at"  => Carbon::now()
                     ]);
 
-                    $parentImgCnt = GenuioImageData::where("img_id", $imgObj->img_id)->count();
+                    $parentImgCnt = GenuioImageData::where("img_id", $imgObj->id)->count();
 
                     $img_url_origin = $imgObj->img_url_origin;
                     $mime           = pathinfo($img_url_origin, PATHINFO_EXTENSION);
