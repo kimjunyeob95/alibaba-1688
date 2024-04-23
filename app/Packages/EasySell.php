@@ -339,8 +339,6 @@ class EasySell extends MallApiAbstract
             //     throw new Exception("상품명 길이가 100byte를 초과했습니다.");
             // }
 
-            $ItemDescDetail = "<p style='font-size:18px;border: 1px solid #ec9821;background-color: #f0ad4e; color: #fff;padding: 15px 30px;'>{$prdObj->return_comment}</p>{$prdObj->prd_desc_trans}";
-
             $notice = "<table><tbody>";
             foreach($prdObj->notices as $gosiKey => $gosi){
                 if( $gosiKey % 4 == 0){
@@ -389,7 +387,7 @@ class EasySell extends MallApiAbstract
                 "ItemName"              => $ItemName,
                 "ItemGoodCode"          => $ItemGoodCode,
                 "ItemDesc"              => $ItemName,
-                "ItemDescDetail"        => $ItemDescDetail,
+                "ItemDescDetail"        => $prdObj->prd_desc_trans,
                 "ItemGoodsRequiredDesc" => $notice,
                 "ItemImage"             => $itemImage,
                 "TaxYn"                 => ($prdObj->tax_type) == ProductConstant::TAX_TAXATION ? EasySellConstant::TAX_TAXATION : EasySellConstant::TAX_EXEMPTION,
