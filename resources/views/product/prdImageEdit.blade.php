@@ -23,6 +23,14 @@
     width: 100%;
     height: 100%;
 }
+.sticky {
+    position: fixed;
+    top: 18px;
+    width: 80%;
+    z-index: 9999;
+    justify-content: space-around !important;
+}
+
 </style>
 @endsection
 
@@ -48,7 +56,7 @@
     <div class="container-fluid">
         <div class="row my-4 bg-white py-3">
             <div class="container-fluid main-container">
-                <div class="d-flex justify-content-between">
+                <div class="d-flex justify-content-between main-button-div">
                     <h4>썸네일 이미지</h4>
                     <div>
                         <button type="button" class="btn btn-light allCheckbtn" attr-type="main">전체선택</button>
@@ -59,11 +67,10 @@
                 </div>
 
                 {{-- 1. 메인이미지 --}}
-                <div class="row my-4 mx-5 p-4 px-5 bg-light border justify-content-between">
+                <div class="row my-4 mx-5 p-4 px-5 bg-light border justify-content-between" id="anchor">
                     <div class="col-3">
                         <div class="row">
                             <img src="{{ $prdObj->main_img->img_url_trans }}" class="rounded img-fluid" alt="...">
-                            <figcaption class="figure-caption fs-6 text-center mt-3">{{ $prdObj->main_img->trans_dated_at }}</figcaption>
                         </div>
                     </div>
                     <div class="col-3 position-relative swiper-box">
@@ -75,6 +82,11 @@
                                             <input class="form-check-input position-absolute start-0 m-2" type="checkbox" name="selectImg" value="{{ $prdObj->main_img->ai_origin_img->id }}" style="z-index: 10;">
                                             <img src="{{ $prdObj->main_img->ai_origin_img->img_url_ai }}" class="" alt="...">
                                             <figcaption class="figure-caption fs-6 text-center mt-3">{{ $prdObj->main_img->ai_origin_img->created_at }}</figcaption>
+                                            <span class="fs-6 text-center mt-1">(원본 이미지)</span>
+                                            @if( $prdObj->main_img->img_url_trans == $prdObj->main_img->ai_origin_img->img_url_ai )
+                                                <br>
+                                                <span class="fs-6 text-center">(적용 이미지)</span>
+                                            @endif
                                         </div>
                                     </div>
                                 @endif
@@ -84,6 +96,9 @@
                                             <input class="form-check-input position-absolute start-0 m-2" type="checkbox" name="selectImg" value="{{ $aiImg->id }}" style="z-index: 10;">
                                             <img src="{{ $aiImg->img_url_ai }}" class="" alt="...">
                                             <figcaption class="figure-caption fs-6 text-center mt-3">{{ $aiImg->created_at }}</figcaption>
+                                            @if( $prdObj->main_img->img_url_trans == $aiImg->img_url_ai )
+                                                <p class="fs-6 text-center mt-1">(적용 이미지)</p>
+                                            @endif
                                         </div>
                                     </div>
                                 @endforeach
@@ -92,7 +107,8 @@
                         <div class="swiper-button-next swiper-button-next0"></div>
                         <div class="swiper-button-prev swiper-button-prev0"></div>
                     </div>
-                    <div class="col-2 d-flex flex-column justify-content-evenly">
+                    <div class="col-2 d-flex flex-column justify-content-evenly" style="min-height: 400px">
+                        <button type="button" href="#anchor" class="btn btn-outline-primary btn-anchor">위치복사</button>
                         <button type="button" class="btn btn-success text-white AImodiBtn">A.I 수정</button>
                         <button type="button" class="btn btn-warning text-white AItoolBtn">A.I Tool</button>
                         <button type="button" class="btn btn-primary text-white applyBtn">적용하기</button>
@@ -105,12 +121,11 @@
                 @endphp
                 @foreach ( $prdObj->sub_imgs as $img)
                     @if( $img->img_url_trans )
-                        <div class="row my-4 mx-5 p-4 px-5 bg-light border justify-content-between">
+                        <div class="row my-4 mx-5 p-4 px-5 bg-light border justify-content-between" id="anchor{{ $idx }}">
                             <div class="col-3">
                                 <div class="row">
                                     <img src="{{ $img->img_url_trans }}" class="rounded img-fluid" alt="...">
                                     @if( $img->is_except == ImageConstant::IS_EXCEPT_N )
-                                        <figcaption class="figure-caption fs-6 text-center mt-3">{{ $img->trans_dated_at }}</figcaption>
                                     @else
                                         <figcaption class="figure-caption fs-4 text-center mt-3 text-danger">*제외처리</figcaption>
                                     @endif
@@ -125,6 +140,11 @@
                                                     <input class="form-check-input position-absolute start-0 m-2" type="checkbox" name="selectImg" value="{{ $img->ai_origin_img->id }}" style="z-index: 10;">
                                                     <img src="{{ $img->ai_origin_img->img_url_ai }}" class="" alt="...">
                                                     <figcaption class="figure-caption fs-6 text-center mt-3">{{ $img->ai_origin_img->created_at }}</figcaption>
+                                                    <span class="fs-6 text-center mt-1">(원본 이미지)</span>
+                                                    @if( $img->img_url_trans == $img->ai_origin_img->img_url_ai )
+                                                        <br>
+                                                        <span class="fs-6 text-center">(적용 이미지)</span>
+                                                    @endif
                                                 </div>
                                             </div>
                                         @endif
@@ -134,6 +154,9 @@
                                                     <input class="form-check-input position-absolute start-0 m-2" type="checkbox" name="selectImg" value="{{ $aiImg->id }}" style="z-index: 10;">
                                                     <img src="{{ $aiImg->img_url_ai }}" class="" alt="...">
                                                     <figcaption class="figure-caption fs-6 text-center mt-3">{{ $aiImg->created_at }}</figcaption>
+                                                    @if( $img->img_url_trans == $aiImg->img_url_ai )
+                                                        <p class="fs-6 text-center mt-1">(적용 이미지)</p>
+                                                    @endif
                                                 </div>
                                             </div>
                                         @endforeach
@@ -142,7 +165,8 @@
                                 <div class="swiper-button-next swiper-button-next{{ $idx }}"></div>
                                 <div class="swiper-button-prev swiper-button-prev{{ $idx }}"></div>
                             </div>
-                            <div class="col-2 d-flex flex-column justify-content-evenly">
+                            <div class="col-2 d-flex flex-column justify-content-evenly" style="min-height: 400px">
+                                <button type="button" href="#anchor{{ $idx }}" class="btn btn-outline-primary btn-anchor">위치복사</button>
                                 <button type="button" class="btn btn-success text-white AImodiBtn">A.I 수정</button>
                                 <button type="button" class="btn btn-warning text-white AItoolBtn">A.I Tool</button>
                                 <button type="button" class="btn btn-primary text-white applyBtn">적용하기</button>
@@ -163,7 +187,7 @@
 
         <div class="row my-4 bg-white py-3">
             <div class="container-fluid desc-container">
-                <div class="d-flex justify-content-between">
+                <div class="d-flex justify-content-between desc-button-div">
                     <h4>상세이미지</h4>
                     <div>
                         <button type="button" class="btn btn-light allCheckbtn" attr-type="desc">전체선택</button>
@@ -175,12 +199,11 @@
 
                 @foreach ( $prdObj->desc_imgs as $img)
                     @if( $img->img_url_trans )
-                        <div class="row my-4 mx-5 p-4 px-5 bg-light border justify-content-between">
+                        <div class="row my-4 mx-5 p-4 px-5 bg-light border justify-content-between" id="anchor{{ $idx }}">
                             <div class="col-3">
                                 <div class="row">
                                     <img src="{{ $img->img_url_trans }}" class="rounded img-fluid" alt="...">
                                     @if( $img->is_except == ImageConstant::IS_EXCEPT_N )
-                                        <figcaption class="figure-caption fs-6 text-center mt-3">{{ $img->trans_dated_at }}</figcaption>
                                     @else
                                         <figcaption class="figure-caption fs-4 text-center mt-3 text-danger">*제외처리</figcaption>
                                     @endif
@@ -195,6 +218,11 @@
                                                     <input class="form-check-input position-absolute start-0 m-2" type="checkbox" name="selectImg" value="{{ $img->ai_origin_img->id }}" style="z-index: 10;">
                                                     <img src="{{ $img->ai_origin_img->img_url_ai }}" class="" alt="...">
                                                     <figcaption class="figure-caption fs-6 text-center mt-3">{{ $img->ai_origin_img->created_at }}</figcaption>
+                                                    <span class="fs-6 text-center mt-1">(원본 이미지)</span>
+                                                    @if( $img->img_url_trans == $img->ai_origin_img->img_url_ai )
+                                                        <br>
+                                                        <span class="fs-6 text-center">(적용 이미지)</span>
+                                                    @endif
                                                 </div>
                                             </div>
                                         @endif
@@ -204,6 +232,9 @@
                                                     <input class="form-check-input position-absolute start-0 m-2" type="checkbox" name="selectImg" value="{{ $aiImg->id }}" style="z-index: 10;">
                                                     <img src="{{ $aiImg->img_url_ai }}" class="" alt="...">
                                                     <figcaption class="figure-caption fs-6 text-center mt-3">{{ $aiImg->created_at }}</figcaption>
+                                                    @if( $img->img_url_trans == $aiImg->img_url_ai )
+                                                        <p class="fs-6 text-center mt-1">(적용 이미지)</p>
+                                                    @endif
                                                 </div>
                                             </div>
                                         @endforeach
@@ -212,7 +243,8 @@
                                 <div class="swiper-button-next swiper-button-next{{ $idx }}"></div>
                                 <div class="swiper-button-prev swiper-button-prev{{ $idx }}"></div>
                             </div>
-                            <div class="col-2 d-flex flex-column justify-content-evenly">
+                            <div class="col-2 d-flex flex-column justify-content-evenly" style="min-height: 400px">
+                                <button type="button" href="#anchor{{ $idx }}" class="btn btn-outline-primary btn-anchor">위치복사</button>
                                 <button type="button" class="btn btn-success text-white AImodiBtn">A.I 수정</button>
                                 <button type="button" class="btn btn-warning text-white AItoolBtn">A.I Tool</button>
                                 <button type="button" class="btn btn-primary text-white applyBtn">적용하기</button>
@@ -243,6 +275,7 @@
             </div>
             <div class="modal-body">
                 <p>AI 알고리즘 선택</p>
+                <p>선택 수: <span class="chk-cnt"></span>개</p>
                 <select class="form-select form-select-sm" id="AImodi-select">
                     <option selected value="automatic">자동 수정</option>
                 </select>
@@ -258,6 +291,59 @@
 
 <script type="text/javascript">
     $(function(){
+        var urlAnchor = window.location.hash;
+        if (urlAnchor) {
+            var targetElement = $(urlAnchor);
+            if (targetElement.length) {
+                $('html, body').animate({
+                    scrollTop: targetElement.offset().top - 200
+                }, 500);
+            }
+        }
+
+        $('.btn-anchor').click(function(){
+            let anchor = $(this).attr("href");
+
+            var currentUrl = window.location.href.split('#')[0].split('?')[0];
+            var urlWithAnchor = currentUrl + anchor;
+
+            var tempInput = $("<input>");
+            $("body").append(tempInput);
+            tempInput.val(urlWithAnchor).select();
+            document.execCommand("copy");
+
+            tempInput.remove();
+            alert("위치가 복사되었습니다: " + urlWithAnchor);
+        });
+
+        var $nav         = $('.main-button-div');  // 고정시킬 요소 선택
+        var $nav2        = $('.desc-button-div');  // 고정시킬 요소 선택
+        var $stopPoint   = $('.desc-container');   // 고정 해제할 지점 선택
+        var navOffsetTop = $nav.offset().top;      // 고정 요소의 초기 위치
+
+        function updateStickyClass() {
+            var scrollPos = $(window).scrollTop();  // 현재 스크롤 위치
+            var stopOffsetTop = $stopPoint.offset().top;  // 고정 해제 지점의 위치
+
+            // 스크롤 위치가 $nav의 위치와 $stopPoint 사이일 때
+            if (scrollPos > navOffsetTop && scrollPos < stopOffsetTop - $nav.outerHeight()) {
+                $nav.addClass('sticky');
+                $nav2.removeClass('sticky');
+            } else if (scrollPos <= navOffsetTop) {
+                // 스크롤 위치가 $nav의 초기 위치보다 위거나 같을 때
+                $nav.removeClass('sticky');
+                $nav2.removeClass('sticky');
+            } else {
+                // 그 외의 경우 (스크롤 위치가 $stopPoint 이후일 때)
+                $nav.removeClass('sticky');
+                $nav2.addClass('sticky');
+            }
+        }
+
+        // 페이지 로드 시 초기화 및 스크롤 이벤트 연결
+        updateStickyClass();
+        $(window).scroll(updateStickyClass);
+
         $(".swiper-container").each(function(idx){
             var mySwiper = new Swiper('#swiper-container'+idx, {
                 // Optional parameters
@@ -314,6 +400,7 @@
                 });
 
                 $("#AImodi-modal").find(".imgChecked").val(imgChecked);
+                $("#AImodi-modal").find(".chk-cnt").text(imgChecked.length);
                 showModal("#AImodi-modal");
             }
         })

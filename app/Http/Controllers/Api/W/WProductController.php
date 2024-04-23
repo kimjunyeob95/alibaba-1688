@@ -232,6 +232,7 @@ class WProductController extends Controller
             $search_cls     = $this->request->get("search_cls", "prd_name_trans");
             $keyword        = $this->request->get("keyword", "");
             $trans_status   = $this->request->get("trans_status", ProductConstant::TRANS_STATUS_Y);
+            $sort           = $this->request->get("sort", "updated_at|desc");
             
             $params = [
                 "page"           => $page,
@@ -239,7 +240,8 @@ class WProductController extends Controller
                 "search_cls"     => $search_cls,
                 "keyword"        => $keyword,
                 "trans_status"   => $trans_status,
-                "mapping_status" => ProductConstant::MAPPING_STATUS_Y
+                "mapping_status" => ProductConstant::MAPPING_STATUS_Y,
+                "sort"           => $sort,
             ];
             $result = $this->service1688Product->apiPrdList($params);
 
@@ -372,6 +374,33 @@ class WProductController extends Controller
             
             $aiImgIds = $this->request->post("aiImgIds");
             $result   = $this->service1688Product->imageAccept($aiImgIds);
+            if( $result["isSuccess"] == true ){
+                return helpers_json_response(HttpConstant::OK, $result);
+            } else {
+                return helpers_json_response(HttpConstant::BAD_REQUEST, [], $result["msg"]);
+            }
+        } catch (Exception $e) {
+            return helpers_json_response(HttpConstant::BAD_REQUEST, [], $e->getMessage());
+        }
+    }
+
+    public function mdPriceUpdate(): JsonResponse
+    {
+        try {
+            $validator = Validator::make($this->request->all(), [
+                'offerIds' => 'required|array',
+                'mdPrice'  => 'required|int',
+            ], [
+                'offerIds.required' => ProductErrorMessageConstant::getNotHaveErrorMessage("OFFER_IDS"),
+                'mdPrice.required'  => ProductErrorMessageConstant::getNotHaveErrorMessage("MD_PRICE"),
+            ]);
+            if ($validator->fails()) {
+                throw new Exception($validator->errors()->first());
+            }
+            
+            $offerIds = $this->request->post("offerIds");
+            $mdPrice  = $this->request->post("mdPrice");
+            $result   = $this->service1688Product->mdPriceUpdate($offerIds, $mdPrice);
             if( $result["isSuccess"] == true ){
                 return helpers_json_response(HttpConstant::OK, $result);
             } else {

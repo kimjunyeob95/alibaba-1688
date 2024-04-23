@@ -9,7 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\View\View;
 
-class ProductController extends Controller
+class ProductW2Controller extends Controller
 {
     private Request $request;
     private Service1688Product $service1688Product;
@@ -88,17 +88,16 @@ class ProductController extends Controller
             // 중복 제거
             $offerIds = array_unique($offerIds);
 
-            $result = $this->service1688Product->getQueryProductDetail($offerIds);
+            $result = $this->service1688Product->getQueryProductDetailW2($offerIds);
             $datas  = $result;
         }
-
         $viewParams = [
             "datas"        => $datas,
             "totalRecords" => count($datas),
             "keyword"      => $keyword,
         ];
 
-        return view("product.prdQueryProductDetail")->with($viewParams);
+        return view("product.prdQueryW2ProductDetail")->with($viewParams);
     }
 
     public function keywordQuery(): View
@@ -303,32 +302,5 @@ class ProductController extends Controller
         }
 
         return view("product.prdImageEdit")->with($viewParams);
-    }
-
-    public function queryW2ProductDetail(): View
-    {
-        $keyword = $this->request->get("keyword", "");
-        $datas   = [];
-
-        if( $keyword ){
-            $offerIds = preg_replace("/(\r\n|\r|\n)/", ",", trim($keyword));
-            $offerIds = explode(",", $offerIds);
-            // 각 배열 요소의 앞뒤 공백 제거
-            $offerIds = array_map('trim', $offerIds);
-            // 빈 값을 제거
-            $offerIds = array_filter($offerIds);
-            // 중복 제거
-            $offerIds = array_unique($offerIds);
-
-            $result = $this->service1688Product->getQueryProductDetailW2($offerIds);
-            $datas  = $result;
-        }
-        $viewParams = [
-            "datas"        => $datas,
-            "totalRecords" => count($datas),
-            "keyword"      => $keyword,
-        ];
-
-        return view("product.prdQueryW2ProductDetail")->with($viewParams);
     }
 }

@@ -30,18 +30,17 @@ class OpenApiJwtMiddleware
             }
 
             // 마지막 생성 토큰인지 확인
-            if (!$this->isLastToken($decodedToken)) {
-                return helpers_json_response(HttpConstant::UNAUTHORIZED, [], "마지막 생성 토큰을 전달해주세요.");
-            }
+            // if (!$this->isLastToken($decodedToken)) {
+            //     return helpers_json_response(HttpConstant::UNAUTHORIZED, [], "마지막 생성 토큰을 전달해주세요.");
+            // }
 
-    
             return $next($request);
         } catch (Exception $e) {
             $message = $e->getMessage();
             if( $e->getMessage() == "Expired token" ){
                 $message = "토큰의 유효시간이 만료되었습니다.";
             }
-            return helpers_json_response(HttpConstant::INTERNAL_SERVER_ERROR, [], $message);
+            return helpers_json_response(HttpConstant::INTERNAL_SERVER_ERROR, [], "Token Error: " . $message);
         }
        
     }

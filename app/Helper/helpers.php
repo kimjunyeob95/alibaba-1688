@@ -313,6 +313,107 @@ if (!function_exists("curl_1688")) {
     }
 }
 
+if (!function_exists("curl_1688_v2")) {
+    function curl_1688_v2(string $method, string $endPoint, array $payload, array $header = ["Content-Type: application/x-www-form-urlencoded"]): array
+    {
+        $returnMsg    = helpers_fail_message();
+        $apiDomain    = env("1688_API_DOMAIN", "https://gw.open.1688.com/openapi/");
+        $appKey       = env("1688_WORLD_APP_KEY");
+        $appSecret    = env("1688_WORLD_APP_SECRET_KEY");
+        $refreshToken = env("1688_WORLD_REFRESH_TOKEN");
+
+        $TokenEndPoint = "param2/1/system.oauth2/getToken/{$appKey}?grant_type=refresh_token&client_id={$appKey}&client_secret={$appSecret}&refresh_token={$refreshToken}";
+        $apiDatas      = helpers_curl("GET", $apiDomain . $TokenEndPoint, []);
+        if( isset($apiDatas["access_token"]) && $apiDatas["access_token"] ){
+            $payload["access_token"] = $apiDatas["access_token"];
+        } else {
+            throw new Exception("W2 access_token error");
+        }
+
+        $endPoint = $endPoint . $appKey;
+        $curlUrl  = $apiDomain . $endPoint;
+        $apiInfo  = str_replace($apiDomain, "", $endPoint);
+
+        $aliParams = [];
+        foreach ($payload as $key => $val) {
+            if( is_array($val) ){
+                $aliParams[] = $key . json_encode($val);
+            }else{
+                $aliParams[] = $key . $val;
+            }
+        }
+        sort($aliParams);
+        $sign_str  = join('', $aliParams);
+        $sign_str  = $apiInfo . $sign_str;
+        $code_sign = strtoupper(bin2hex(hash_hmac("sha1", $sign_str, $appSecret, true)));
+        $payload["_aop_signature"] = $code_sign;
+
+        $finalPayload = "";
+        $index = 0;
+        foreach ($payload as $key => $val) {
+            if( $index == 0 ){
+                if( is_array($val) ){
+                    $jsonValue     = json_encode($val);
+                    $finalPayload .= "&" . $key . "=" . urlencode($jsonValue);
+                }else{
+                    $finalPayload .= $key . "=" . $val;
+                }
+            }else{
+                if( is_array($val) ){
+                    $jsonValue     = json_encode($val);
+                    $finalPayload .= "&" . $key . "=" . urlencode($jsonValue);
+                }else{
+                    $finalPayload .= "&" . $key . "=" . $val;
+                }
+            }
+            $index++;
+        }
+
+		$curl   = curl_init();
+		$method = strtoupper($method);
+		if($method == 'GET') {
+			$queryString = (($payload)? http_build_query( $payload ) : '');
+			curl_setopt_array($curl, array(
+				CURLOPT_URL            => $curlUrl.(($queryString)? '?'.$queryString : ''),
+				CURLOPT_RETURNTRANSFER => true,
+				CURLOPT_MAXREDIRS      => 10,
+				CURLOPT_TIMEOUT        => 0,
+				CURLOPT_FOLLOWLOCATION => true,
+				CURLOPT_HTTP_VERSION   => CURL_HTTP_VERSION_1_1,
+				CURLOPT_CUSTOMREQUEST  => $method,
+				CURLOPT_HTTPHEADER     => $header
+			));
+		} else if($method == 'POST'){
+			curl_setopt_array($curl, array(
+				CURLOPT_URL            => $curlUrl,
+				CURLOPT_POST           => true,
+				CURLOPT_RETURNTRANSFER => true,
+				CURLOPT_SSL_VERIFYPEER => false,
+				CURLOPT_CUSTOMREQUEST  => $method,
+				CURLOPT_POSTFIELDS     => $finalPayload,
+				CURLOPT_HTTPHEADER     => $header
+			));
+		}
+		$result = curl_exec($curl);
+		curl_close($curl);
+
+        try {
+            $apiResult = json_decode($result, JSON_UNESCAPED_UNICODE);
+            if(!is_array($apiResult)) throw new InvalidArgumentException("결과가 배열이 아닙니다.");
+
+            $returnMsg = helpers_success_message($apiResult);
+        } catch (JsonException $e) {
+            $returnMsg = helpers_fail_message(false, "결과가 Json이 아닙니다.");
+        } catch (InvalidArgumentException $e) {
+            $returnMsg = helpers_fail_message(false, $e->getMessage());
+        } catch (Exception $e) {
+            $returnMsg = helpers_fail_message(false, $e->getMessage());
+        }
+
+        return $returnMsg;
+    }
+}
+
 if (!function_exists("ocPrice")) {
     function ocPrice(float $price_1688): array
     {
@@ -349,6 +450,22 @@ if (!function_exists("getPrice1688")) {
             isset($detailProduct["productSaleInfo"]["priceRangeList"])
         ) {
             $price_1688 = $detailProduct["productSaleInfo"]["priceRangeList"][0]["price"];
+        }
+
+        return (float)$price_1688;
+    }
+}
+
+if (!function_exists("getPrice1688V2")) {
+    function getPrice1688V2(array $detailProduct): float
+    {
+        $price_1688 = 0;
+        if( isset($detailProduct["skuList"]) ){
+            foreach ($detailProduct["skuList"] as $prdOptions) {
+                if( $prdOptions["price"] > $price_1688 ){
+                    $price_1688 = $prdOptions["price"];
+                }
+            }
         }
 
         return (float)$price_1688;
@@ -451,8 +568,21 @@ if (!function_exists("upPrdDescTrans")) {
 
 //이지셀 판매가 계산
 if (!function_exists("calcEasySellSalePrice")) {
-    function calcEasySellSalePrice(?int $onchPrice = 0): int
+    function calcEasySellSalePrice(?int $option_price = 0, ?int $md_price, string $type = "dynamic"): int
     {
-        return ceil(($onchPrice * env("EASYSELL_PRICE_RATE", "1.35")) / 100) * 100;
+        $salePrice = ceil(($option_price * env("EASYSELL_PRICE_RATE", "1.35")) / 100) * 100 + (int)env("EASYSELL_SHIPPING_PRICE", 12000);
+
+        if($type != "static"){
+            $salePrice = !empty($md_price) ? $md_price : $salePrice;
+        }
+        return $salePrice;
+    }
+}
+
+// WApp 일반 판매가 계산
+if (!function_exists("calcWSalePrice")) {
+    function calcWSalePrice(int $option_price = 0): int
+    {
+        return ( ceil(($option_price * env("W_SALE_PRICE_RATE", "1.35")) / 100) * 100 ) + (int)env("W_DROP_SHIPPING_PRICE", 6000);
     }
 }

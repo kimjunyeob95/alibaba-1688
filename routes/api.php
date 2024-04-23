@@ -14,9 +14,9 @@ Route::name('w.')->prefix('w')->group(function () {
         // 1688
         Route::name('1688.')->prefix('1688')->group(function () {
             // 1688에 상품ID 조회 endPoint를 호출 후 결과 반환
-            Route::get('/product/{offerId}', [WProductController::class, 'getProductData'])->name('getCategory');
+            Route::get('/product/{offerId}', [WProductController::class, 'getProductData'])->name('getProductData');
             // 1688에 카테고리 조회 endPoint를 호출 후 결과 반환
-            Route::get('/category/{categoryId?}', [WCategoryController::class, 'getMallCategory'])->name('getCategory');
+            Route::get('/category/{categoryId?}', [WCategoryController::class, 'getMallCategory'])->name('getMallCategory');
         });
 
         // 카테고리
@@ -26,7 +26,7 @@ Route::name('w.')->prefix('w')->group(function () {
             // 1688에서 수집 한 최상위 카테고리 계층별 목록
             Route::get('/tree/{categoryId?}', [WCategoryController::class, 'getTreeCategory'])->name('getTreeCategory');
             // 1688<->채널 카테고리 맵핑 조회
-            Route::get('/mapping/{channel?}', [WCategoryController::class, 'getMappingCategory'])->name('getTreeCategory');
+            Route::get('/mapping/{channel?}', [WCategoryController::class, 'getMappingCategory'])->name('getMappingCategory');
         });
 
         // 상품 조회
@@ -56,6 +56,8 @@ Route::name('w.')->prefix('w')->group(function () {
         Route::post('/image/except', [WProductController::class, 'imageExcept'])->name('imageExcept');
         // AI 이미지 적용
         Route::post('/image/accept', [WProductController::class, 'imageAccept'])->name('imageAccept');
+        // MD 판매자가 설정
+        Route::post('/mdPrice/update', [WProductController::class, 'mdPriceUpdate'])->name('mdPriceUpdate');
     });
 
     Route::name('category.')->prefix('category')->group(function () {
@@ -111,6 +113,10 @@ Route::name('genuio.')->prefix('genuio')->group(function () {
 
     // 상품 이미지 번역 요청
     Route::post('/img/trans/request', [GenuioController::class, 'imgTransRequest'])->name('imgTransRequest');
+    // 상품 썸네일 이미지 번역 요청
+    Route::post('/img/thumnail/trans/request/{offerId}', [GenuioController::class, 'imgThumnailTransRequest'])->name('imgThumnailTransRequest');
+    // 상품 상세 이미지 번역 요청
+    Route::post('/img/desc/trans/request/{offerId}', [GenuioController::class, 'imgDescTransRequest'])->name('imgDescTransRequest');
     // 이미지 별 AI 알고리즘 요청
     Route::post('/img/ai/trans/request', [GenuioController::class, 'imgAiTransRequest'])->name('imgAiTransRequest');
 });

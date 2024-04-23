@@ -201,4 +201,13 @@ abstract class ProductAbstract
      * @return array
     */
     abstract function imageAccept(array $aiImgIds): array;
+
+    /**
+     * @func mdPriceUpdate
+     * @description 'MD price 수정'
+     * @param array $offerIds
+     * @param int $mdPrice
+     * @return array
+    */
+    abstract function mdPriceUpdate(array $offerIds, int $mdPrice): array;
 }

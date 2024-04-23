@@ -3,6 +3,7 @@
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\EasySellController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\ProductW2Controller;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -31,6 +32,11 @@ Route::prefix("product")->name("product.")->group(function(){
     Route::get("/imageMultiQuery", [ProductController::class, "imageMultiQuery"])->name("imageMultiQuery");
     Route::get("/collectLogs", [ProductController::class, "prdCollectLogs"])->name("prdCollectLogs");
     Route::get("/collect/log/{logId}", [ProductController::class, "prdCollectLogDetail"])->name("prdCollectLogDetail");
+
+    Route::prefix("w2")->name("w2.")->group(function(){
+        // 상품 수집 관리
+        Route::get("/queryProductDetail", [ProductW2Controller::class, "queryProductDetail"])->name("queryProductDetail");
+    });
 
     // 상품 리스트
     Route::get("/list", [ProductController::class, "getPrdList"])->name("list");

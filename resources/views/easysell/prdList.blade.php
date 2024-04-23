@@ -1,6 +1,7 @@
 @php
     use App\Constants\ProductConstant;
     use App\Constants\MallConstant;
+    use App\Constants\EasySellConstant;
 @endphp
 @extends('dashboard.base')
 
@@ -114,8 +115,8 @@
                                 <th scope="col" style="width: 100px" class="text-center">이미지</th>
                                 <th scope="col" style="width: 150px" class="text-center">제품ID</th>
                                 <th scope="col">상품명</th>
-                                <th scope="col" style="width: 130px">w 공급가(원)</th>
-                                <th scope="col" style="width: 130px">이지셀 판매가(원)</th>
+                                <th scope="col" style="width: 130px">일반 판매가(원)</th>
+                                <th scope="col" style="width: 130px">MD 판매가(원)</th>
                                 <th scope="col" style="width: 100px" class="text-center">이지셀 전송</th>
                                 <th scope="col" style="width: 200px" class="text-center">관리</th>
                             </tr>
@@ -138,6 +139,9 @@
                                     </td>
                                     <td>
                                         {{ $data->offer_id }}
+                                        @if(empty($data->es_mapping) || empty($data->es_fgn_mapping))
+                                        <br><span class="text-danger">*카테고리 미맵핑 ({{ $data->category_id }})</span>
+                                        @endif
                                     </td>
                                     <td>
                                         {{ $data->prd_name_trans }}
@@ -147,7 +151,7 @@
                                             @php
                                                 $option = $data->options[0];
                                             @endphp
-                                            {{ number_format($option->onch_price) }}<br>
+                                            {{ number_format(calcEasySellSalePrice($option->option_price, $option->md_price, "static")) }}
                                         @else
                                             <p class="text-danger">옵션없음</p>
                                         @endif
@@ -157,14 +161,17 @@
                                             @php
                                                 $option = $data->options[0];
                                             @endphp
-                                            {{ number_format(calcEasySellSalePrice($option->onch_price)) }}<br>
+                                            @if(!empty($option->md_price))
+                                            {{ number_format( $option->md_price ) }}
+                                            @endif
                                         @else
                                             <p class="text-danger">옵션없음</p>
                                         @endif
                                     </td>
                                     <td class="text-center">
                                         @if($data->regist_success == MallConstant::REGIST_SUCCESS)
-                                            {{$data->itemno}}
+                                            {{ $data->itemno }} <br>
+                                            <small>({{ EasySellConstant::CATEGORY_NAME[substr($data->es_fgn_mapping->mapping_code,0,6)] }})</small>
                                         @else
                                             <span class="text-danger">미등록</span>
                                         @endisset

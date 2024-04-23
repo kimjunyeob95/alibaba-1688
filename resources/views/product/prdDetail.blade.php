@@ -14,7 +14,8 @@
     .prd-desc div,
     .prd-desc img,
     .prd-desc table,
-    .prd-desc table td div{
+    .prd-desc table td div,
+    .prd-desc table td a{
         width: 100% !important;
         max-width: 100% !important;
         height: auto !important;
@@ -191,7 +192,9 @@
                                     <th scope="col">옵션명(번역)</th>
                                     <th scope="col">W 공급가(위안)</th>
                                     <th scope="col">W 공급가(원)</th>
-                                    <th scope="col">환율(원)</th>
+                                    <th scope="col">적용 환율(원)</th>
+                                    <th scope="col">일반 판매가(원)</th>
+                                    <th scope="col">MD 판매가(원)</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -213,7 +216,13 @@
                                             {{ number_format($option->option_price) }}
                                         </td>
                                         <td>
-                                            {{ number_format($exchangeRate) }}
+                                            {{ number_format($option->exchange_rate) }}
+                                        </td>
+                                        <td>
+                                            {{ number_format(calcWSalePrice($option->option_price)) }}
+                                        </td>
+                                        <td>
+                                            {{ number_format($option->md_price) }}
                                         </td>
                                     </tr>
                                 @endforeach
@@ -305,9 +314,18 @@
             </div>
         </div>
 
-        <div class="btn-group me-5 mb-4 fixed-bottom" style="left: auto;">
-            <a class="btn btn-danger btn-lg text-white text-decoration-none btn-edit-img">Image 수정</a>
-        </div>
+        <div class="me-5 mb-4 fixed-bottom d-flex flex-column align-items-stretch" style="left: auto;">
+            <a class="btn btn-primary btn-xl text-white text-decoration-none mb-2 btn-edit-img" type="all">
+                전체 이미지<br>번역요청
+            </a>
+            <a class="btn btn-warning btn-xl text-white text-decoration-none mb-2 btn-edit-img" type="thumbnail">
+                썸네일 이미지<br>번역요청
+            </a>
+            <a class="btn btn-success btn-xl text-white text-decoration-none mb-2 btn-edit-img" type="desc">
+                상세 이미지<br>번역요청
+            </a>
+            <a class="btn btn-danger btn-xl text-white text-decoration-none mb-2 btn-edit-img" type="detail">이미지 수정</a>
+        </div>        
     </div>
 <script type="text/javascript">
 
@@ -315,15 +333,83 @@
         $('.btn-edit-img').click(function(e){
             e.preventDefault();
 
+            let type         = $(this).attr("type");
             let trans_status = "{{ $prdObj->trans_status }}";
             let offer_id     = "{{ $prdObj->offer_id }}";
-            if( trans_status == "N" ){
-                return alert("번역이 완료 된 상태에서만 수정 가능합니다.");
+
+            if( type == "all" ){
+                if( confirm("전체 이미지 번역요청을 하시겠습니까?") ){
+                    $.ajax({
+                        "headers"    : {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
+                        "type"       : "POST",
+                        "url"        : "{{ route('genuio.imgTransRequest') }}",
+                        "data"       : { offerIds: [offer_id] },
+                        beforeSend: function () {
+                            $("#loadingOverlay").show();
+                        },
+                        complete: function () {
+                            $("#loadingOverlay").hide();
+                        },
+                        success: function (resp) {
+                            alert(resp.msg);
+                        },
+                        error: function error(request, status, _error) {
+                            let { error } = JSON.parse(request.responseText);
+                            alert(error.message);
+                        }
+                    });
+                }
+            } else if( type == "thumbnail" ){
+                if( confirm("썸네일 이미지 번역요청을 하시겠습니까?") ){
+                    $.ajax({
+                        "headers"    : {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
+                        "type"       : "POST",
+                        "url"        : `/api/genuio/img/thumnail/trans/request/${offer_id}`,
+                        "data"       : {},
+                        beforeSend: function () {
+                            $("#loadingOverlay").show();
+                        },
+                        complete: function () {
+                            $("#loadingOverlay").hide();
+                        },
+                        success: function (resp) {
+                            alert(resp.msg);
+                        },
+                        error: function error(request, status, _error) {
+                            let { error } = JSON.parse(request.responseText);
+                            alert(error.message);
+                        }
+                    });
+                }
+            } else if( type == "desc" ){
+                if( confirm("상세 이미지 번역요청을 하시겠습니까?") ){
+                    $.ajax({
+                        "headers"    : {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
+                        "type"       : "POST",
+                        "url"        : `/api/genuio/img/desc/trans/request/${offer_id}`,
+                        "data"       : {},
+                        beforeSend: function () {
+                            $("#loadingOverlay").show();
+                        },
+                        complete: function () {
+                            $("#loadingOverlay").hide();
+                        },
+                        success: function (resp) {
+                            alert(resp.msg);
+                        },
+                        error: function error(request, status, _error) {
+                            let { error } = JSON.parse(request.responseText);
+                            alert(error.message);
+                        }
+                    });
+                }
+            } else if( type == "detail" ){
+                if( trans_status == "N" ){
+                    return alert("번역이 완료 된 상태에서만 수정 가능합니다.");
+                }
+                window.open(`/product/img/edit/${offer_id}`, '_blank');
             }
-
-            window.open(`/product/img/edit/${offer_id}`, '_blank');
         });
-
 
         var mySwiper = new Swiper('#swiper-container1', {
             // Optional parameters
