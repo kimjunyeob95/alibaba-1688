@@ -320,7 +320,7 @@ class ProductController extends Controller
             // 중복 제거
             $offerIds = array_unique($offerIds);
 
-            $result = $this->service1688Product->getQueryW2ProductDetail($offerIds);
+            $result = $this->service1688Product->getQueryProductDetailW2($offerIds);
             $datas  = $result;
         }
         $viewParams = [
