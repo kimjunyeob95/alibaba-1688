@@ -25,6 +25,7 @@ class ProductErrorMessageConstant
     public const ERROR_MESSAGE_SEARCH_TITLE                      = "search_title";
     public const ERROR_MESSAGE_OFFER_IDS                         = "offer ids";
     public const ERROR_MESSAGE_MD_PRICE                          = "MD price";
+    public const ERROR_MESSAGE_ALREADY_PRODUCT                   = "이미 수집 된 상품입니다.";
  
     public static function getErrorMessageNotDefault($constantName): string
     {

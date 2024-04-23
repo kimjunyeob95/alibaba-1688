@@ -1020,6 +1020,11 @@ class ProductV2 extends ProductAbstract
             $data["subjectTrans"]           = $data["translateTitle"];
             $data["productImage"]["images"] = $data["imageUrlList"];
             $data["soldOut"]                = $data["days90SoldOut"];
+            $data["hasPrd"]                 = ProductConstant::HAS_PRD_N;
+            $prdCnt                         = ProductData::where("offer_id", $data["offerId"])->count();
+            if( $prdCnt > 0 ){
+                $data["hasPrd"] = ProductConstant::HAS_PRD_Y;
+            }
         }
 
         return $datas;

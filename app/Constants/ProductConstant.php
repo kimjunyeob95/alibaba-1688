@@ -134,4 +134,7 @@ class ProductConstant
 
     public const IS_SEARCH_Y = "Y";
     public const IS_SEARCH_N = "N";
+
+    public const HAS_PRD_Y = "Y";
+    public const HAS_PRD_N = "N";
 }

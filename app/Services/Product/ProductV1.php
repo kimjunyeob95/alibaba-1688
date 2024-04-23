@@ -1044,6 +1044,11 @@ class ProductV1 extends ProductAbstract
             $data["option_price"]    = $ocPrice["option_price"];
             $data["cus_price"]       = $ocPrice["cus_price"];
             $data["recom_cus_price"] = $ocPrice["recom_cus_price"];
+            $data["hasPrd"]          = ProductConstant::HAS_PRD_N;
+            $prdCnt                  = ProductData::where("offer_id", $data["offerId"])->count();
+            if( $prdCnt > 0 ){
+                $data["hasPrd"] = ProductConstant::HAS_PRD_Y;
+            }
         }
 
         return $datas;
@@ -1082,6 +1087,11 @@ class ProductV1 extends ProductAbstract
             $data["option_price"]    = $ocPrice["option_price"];
             $data["cus_price"]       = $ocPrice["cus_price"];
             $data["recom_cus_price"] = $ocPrice["recom_cus_price"];
+            $data["hasPrd"]          = ProductConstant::HAS_PRD_N;
+            $prdCnt                  = ProductData::where("offer_id", $data["offerId"])->count();
+            if( $prdCnt > 0 ){
+                $data["hasPrd"] = ProductConstant::HAS_PRD_Y;
+            }
         }
 
         return [
@@ -1174,7 +1184,12 @@ class ProductV1 extends ProductAbstract
                 $successCnt   = 0;
                 foreach ($productDatas as $productData) {
                     try {
-                        $offerId        = $productData["offerId"];
+                        $offerId = $productData["offerId"];
+                        $prdCnt  = ProductData::where("offer_id", $offerId)->count();
+                        if( $prdCnt > 0 ){
+                            throw new Exception(ProductErrorMessageConstant::getFitErrorMessage("ALREADY_PRODUCT"));
+                        }
+
                         $endPoint       = "param2/1/com.alibaba.fenxiao.crossborder/product.search.queryProductDetail/";
                         $payload_detail = [
                             'access_token'     => $this->accessToken,
@@ -1305,6 +1320,11 @@ class ProductV1 extends ProductAbstract
             $data["option_price"]    = $ocPrice["option_price"];
             $data["cus_price"]       = $ocPrice["cus_price"];
             $data["recom_cus_price"] = $ocPrice["recom_cus_price"];
+            $data["hasPrd"]          = ProductConstant::HAS_PRD_N;
+            $prdCnt                  = ProductData::where("offer_id", $data["offerId"])->count();
+            if( $prdCnt > 0 ){
+                $data["hasPrd"] = ProductConstant::HAS_PRD_Y;
+            }
         }
 
         return [
@@ -1398,7 +1418,12 @@ class ProductV1 extends ProductAbstract
                 $successCnt   = 0;
                 foreach ($productDatas as $productData) {
                     try {
-                        $offerId        = $productData["offerId"];
+                        $offerId = $productData["offerId"];
+                        $prdCnt  = ProductData::where("offer_id", $offerId)->count();
+                        if( $prdCnt > 0 ){
+                            throw new Exception(ProductErrorMessageConstant::getFitErrorMessage("ALREADY_PRODUCT"));
+                        }
+
                         $endPoint       = "param2/1/com.alibaba.fenxiao.crossborder/product.search.queryProductDetail/";
                         $payload_detail = [
                             'access_token'     => $this->accessToken,
@@ -1481,6 +1506,16 @@ class ProductV1 extends ProductAbstract
 
         try {
             $searchObjs = ProductSearchData::with(["details"])->where("id", $searchId)->orderBy("created_at", "desc")->first();
+            if( $searchObjs != null ){
+                foreach ($searchObjs->details as &$detail) {
+                    $prdCnt = ProductData::where("offer_id", $detail->offer_id)->count();
+                    if( $prdCnt > 0 ){
+                        $detail->hasPrd = ProductConstant::HAS_PRD_Y;
+                    } else {
+                        $detail->hasPrd = ProductConstant::HAS_PRD_N;
+                    }
+                }
+            }
             $returnMsg  = helpers_success_message($searchObjs);
         } catch (Exception $e) {
             $returnMsg = helpers_fail_message(false, $e->getMessage());
