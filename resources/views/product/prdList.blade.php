@@ -89,6 +89,21 @@
                                     </td>
                                 </tr>
                                 <tr class="align-middle">
+                                    <th style="width: 120px">정렬</th>
+                                    <td>
+                                        <select class="form-select" name="sort" style="width: 200px">
+                                            <option value="updated_at|desc" @if($sort == "updated_at|desc") selected @endif>수정일 내림차순</option>
+                                            <option value="updated_at|asc" @if($sort == "updated_at|asc") selected @endif>수정일 오름차순</option>
+                                            <option value="created_at|desc" @if($sort == "created_at|desc") selected @endif>등록일 내림차순</option>
+                                            <option value="created_at|asc" @if($sort == "created_at|asc") selected @endif>동록일 오름차순</option>
+                                            <option value="start_quantity|desc" @if($sort == "start_quantity|desc") selected @endif>최소구매수량 내림차순</option>
+                                            <option value="start_quantity|asc" @if($sort == "start_quantity|asc") selected @endif>최소구매수량 오름차순</option>
+                                            <option value="option_price|desc" @if($sort == "option_price|desc") selected @endif>W 공급가 내림차순</option>
+                                            <option value="option_price|asc" @if($sort == "option_price|asc") selected @endif>W 공급가 오름차순</option>
+                                        </select>
+                                    </td>
+                                </tr>
+                                <tr class="align-middle">
                                     <th style="width: 120px">노출 수</th>
                                     <td style="width: 200px">
                                         <select class="form-select" name="pageSize">

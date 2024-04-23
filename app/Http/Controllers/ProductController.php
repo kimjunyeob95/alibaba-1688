@@ -28,6 +28,7 @@ class ProductController extends Controller
         $keyword        = $this->request->get("keyword", "");
         $trans_status   = $this->request->get("trans_status", ProductConstant::TRANS_STATUS_Y);
         $mapping_status = $this->request->get("mapping_status", "");
+        $sort           = $this->request->get("sort", "updated_at|desc");
         $offset         = ($page - 1) * $pageSize;
 
         $params = [
@@ -37,6 +38,7 @@ class ProductController extends Controller
             "keyword"        => $keyword,
             "trans_status"   => $trans_status,
             "mapping_status" => $mapping_status,
+            "sort"           => $sort,
         ];
         $result = $this->service1688Product->getPrdList($params);
 
@@ -52,6 +54,7 @@ class ProductController extends Controller
             "keyword"        => $keyword,
             "trans_status"   => $trans_status,
             "mapping_status" => $mapping_status,
+            "sort"           => $sort,
         ];
 
         return view("product.prdList")->with($viewParams);

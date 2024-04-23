@@ -34,6 +34,7 @@ use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\DB;
 use Psr\Log\LogLevel;
 use UnexpectedValueException;
 use ValueError;
@@ -60,12 +61,13 @@ class ProductV1 extends ProductAbstract
         $keyword        = $params["keyword"];
         $trans_status   = $params["trans_status"];
         $mapping_status = $params["mapping_status"];
+        $sortArr        = explode("|", $params["sort"]);
 
         $prdBuilder = ProductData::with([
-                "main_img",
-                "options", 
-                "images.ai_all_imgs"
-        ])->whereNull("deleted_at")->orderBy("created_at", "desc");
+            "main_img",
+            "options", 
+            "images.ai_all_imgs"
+        ]);
 
         if( !empty($keyword) ){
             if( $search_cls == "offer_id"){
@@ -78,9 +80,9 @@ class ProductV1 extends ProductAbstract
                 // 중복 제거
                 $keyword = array_unique($keyword);
 
-                $prdBuilder->whereIn($search_cls, $keyword);
+                $prdBuilder->whereIn("product_datas." . $search_cls, $keyword);
             } else if( $search_cls == "prd_name_trans" || $search_cls == "prd_name"){
-                $prdBuilder->where($search_cls, "like", "%" . $keyword . "%");
+                $prdBuilder->where("product_datas." . $search_cls, "like", "%" . $keyword . "%");
             } else if( $search_cls == "option_name_trans" || $search_cls == "option_name" ){
                 $prdBuilder->whereHas('options', function ($query) use ($keyword, $search_cls) {
                     $query->where($search_cls, 'like', "%" . $keyword . "%");
@@ -88,17 +90,30 @@ class ProductV1 extends ProductAbstract
             }
         }
 
+        if( $sortArr[0] == "option_price") {
+            $maxPriceSubquery = DB::table('product_option_datas')
+                ->selectRaw('offer_id, MAX(option_price) as max_option_price')
+                ->groupBy('offer_id');
+            $prdBuilder->joinSub($maxPriceSubquery, 'max_price', function ($join) {
+                $join->on('product_datas.offer_id', '=', 'max_price.offer_id');
+            });
+
+            $prdBuilder->orderBy('max_price.max_option_price', $sortArr[1]);
+        } else {
+            $prdBuilder->orderBy("product_datas." . $sortArr[0], $sortArr[1]);
+        }
+        
         if( !empty($trans_status) ){
-            $prdBuilder->where("trans_status", $trans_status);
+            $prdBuilder->where("product_datas.trans_status", $trans_status);
         }
 
         if( !empty($mapping_status) ){
-            $prdBuilder->where("mapping_status", $mapping_status);
+            $prdBuilder->where("product_datas.mapping_status", $mapping_status);
         }
 
-        $totalCnt  = ProductData::whereNull("deleted_at")->count();
-        $transYCnt = ProductData::where("trans_status", ProductConstant::TRANS_STATUS_Y)->whereNull("deleted_at")->count();
-        $transNCnt = ProductData::where("trans_status", ProductConstant::TRANS_STATUS_N)->whereNull("deleted_at")->count();
+        $totalCnt  = ProductData::whereNull('deleted_at')->count();
+        $transYCnt = ProductData::whereNull('deleted_at')->where("trans_status", ProductConstant::TRANS_STATUS_Y)->count();
+        $transNCnt = ProductData::whereNull('deleted_at')->where("trans_status", ProductConstant::TRANS_STATUS_N)->count();
 
         $lists = $prdBuilder->paginate($pageSize)->appends($params);
         return [
