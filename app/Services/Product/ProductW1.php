@@ -34,19 +34,22 @@ use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\DB;
 use Psr\Log\LogLevel;
 use UnexpectedValueException;
 use ValueError;
 
-class ProductV2 extends ProductAbstract
+class ProductW1 extends ProductAbstract
 {
     private array $returnMsg;
+    private string $accessToken;
     private TransApiAbstract $transApiAbstract;
     private UploadAbstract $uploadAbstract;
 
     public function __construct(TransApiAbstract $transApiAbstract, UploadAbstract $uploadAbstract)
     {
         $this->returnMsg        = helpers_fail_message();
+        $this->accessToken      = env("1688_ACCESS_TOKEN");
         $this->transApiAbstract = $transApiAbstract;
         $this->uploadAbstract   = $uploadAbstract;
     }
@@ -58,12 +61,13 @@ class ProductV2 extends ProductAbstract
         $keyword        = $params["keyword"];
         $trans_status   = $params["trans_status"];
         $mapping_status = $params["mapping_status"];
+        $sortArr        = explode("|", $params["sort"]);
 
-        $prdBuilder = ProductData::with([
-                "main_img",
-                "options", 
-                "images.ai_all_imgs"
-        ])->whereNull("deleted_at")->orderBy("created_at", "desc");
+        $prdBuilder = ProductData::select(["product_datas.*"])->with([
+            "main_img",
+            "options", 
+            "images.ai_all_imgs"
+        ]);
 
         if( !empty($keyword) ){
             if( $search_cls == "offer_id"){
@@ -76,9 +80,9 @@ class ProductV2 extends ProductAbstract
                 // 중복 제거
                 $keyword = array_unique($keyword);
 
-                $prdBuilder->whereIn($search_cls, $keyword);
+                $prdBuilder->whereIn("product_datas." . $search_cls, $keyword);
             } else if( $search_cls == "prd_name_trans" || $search_cls == "prd_name"){
-                $prdBuilder->where($search_cls, "like", "%" . $keyword . "%");
+                $prdBuilder->where("product_datas." . $search_cls, "like", "%" . $keyword . "%");
             } else if( $search_cls == "option_name_trans" || $search_cls == "option_name" ){
                 $prdBuilder->whereHas('options', function ($query) use ($keyword, $search_cls) {
                     $query->where($search_cls, 'like', "%" . $keyword . "%");
@@ -86,17 +90,35 @@ class ProductV2 extends ProductAbstract
             }
         }
 
+        if( in_array($sortArr[0], ["option_price", "md_price"])) {
+            $maxPriceSubquery = DB::table('product_option_datas');
+            if( $sortArr[0] == "option_price" ){
+                $maxPriceSubquery->selectRaw('offer_id, MAX(option_price) as max_price');
+            } else if( $sortArr[0] == "md_price" ) {
+                $maxPriceSubquery->selectRaw('offer_id, MAX(md_price) as max_price');
+            }
+
+            $maxPriceSubquery->groupBy('offer_id');
+            $prdBuilder->joinSub($maxPriceSubquery, 'max_qry', function ($join) {
+                $join->on('product_datas.offer_id', '=', 'max_qry.offer_id');
+            });
+
+            $prdBuilder->orderBy('max_qry.max_price', $sortArr[1]);
+        } else {
+            $prdBuilder->orderBy("product_datas." . $sortArr[0], $sortArr[1]);
+        }
+        
         if( !empty($trans_status) ){
-            $prdBuilder->where("trans_status", $trans_status);
+            $prdBuilder->where("product_datas.trans_status", $trans_status);
         }
 
         if( !empty($mapping_status) ){
-            $prdBuilder->where("mapping_status", $mapping_status);
+            $prdBuilder->where("product_datas.mapping_status", $mapping_status);
         }
 
-        $totalCnt  = ProductData::whereNull("deleted_at")->count();
-        $transYCnt = ProductData::where("trans_status", ProductConstant::TRANS_STATUS_Y)->whereNull("deleted_at")->count();
-        $transNCnt = ProductData::where("trans_status", ProductConstant::TRANS_STATUS_N)->whereNull("deleted_at")->count();
+        $totalCnt  = ProductData::count();
+        $transYCnt = ProductData::where("trans_status", ProductConstant::TRANS_STATUS_Y)->count();
+        $transNCnt = ProductData::where("trans_status", ProductConstant::TRANS_STATUS_N)->count();
 
         $lists = $prdBuilder->paginate($pageSize)->appends($params);
         return [
@@ -194,6 +216,7 @@ class ProductV2 extends ProductAbstract
         try {
             $endPoint = "param2/1/com.alibaba.fenxiao.crossborder/product.search.queryProductDetail/";
             $payload = [
+                'access_token'     => $this->accessToken,
                 'offerDetailParam' => [
                     'country' => Constant1688::LANGUAGE_KO,
                     'offerId' => $offerId,
@@ -234,6 +257,7 @@ class ProductV2 extends ProductAbstract
         try {
             $endPoint = "param2/1/com.alibaba.fenxiao.crossborder/product.search.keywordQuery/";
             $payload = [
+                'access_token'    => $this->accessToken,
                 'offerQueryParam' => [
                     'keyword'    => '',
                     'beginPage'  => $page,
@@ -259,6 +283,7 @@ class ProductV2 extends ProductAbstract
                         $offerId        = $productData["offerId"];
                         $endPoint       = "param2/1/com.alibaba.fenxiao.crossborder/product.search.queryProductDetail/";
                         $payload        = [
+                            'access_token'     => $this->accessToken,
                             'offerDetailParam' => [
                                 'offerId' => $offerId,
                                 'country' => Constant1688::LANGUAGE_KO,
@@ -342,6 +367,7 @@ class ProductV2 extends ProductAbstract
         try {
             $endPoint = "param2/1/com.alibaba.fenxiao.crossborder/product.search.imageQuery/";
             $payload = [
+                'access_token'    => $this->accessToken,
                 'offerQueryParam' => [
                     'beginPage' => $page,
                     'pageSize'  => $pageSize,
@@ -367,6 +393,7 @@ class ProductV2 extends ProductAbstract
                         $offerId        = $productData["offerId"];
                         $endPoint       = "param2/1/com.alibaba.fenxiao.crossborder/product.search.queryProductDetail/";
                         $payload        = [
+                            'access_token'     => $this->accessToken,
                             'offerDetailParam' => [
                                 'offerId' => $offerId,
                                 'country' => Constant1688::LANGUAGE_KO,
@@ -438,6 +465,7 @@ class ProductV2 extends ProductAbstract
             try {
                 $endPoint = "param2/1/com.alibaba.fenxiao.crossborder/product.search.queryProductDetail/";
                 $payload  = [
+                    'access_token'     => $this->accessToken,
                     'offerDetailParam' => [
                         'offerId' => $offerId,
                         'country' => Constant1688::LANGUAGE_KO,
@@ -505,6 +533,7 @@ class ProductV2 extends ProductAbstract
             try {
                 $endPoint = "param2/1/com.alibaba.fenxiao.crossborder/product.search.queryProductDetail/";
                 $payload  = [
+                    'access_token'     => $this->accessToken,
                     'offerDetailParam' => [
                         'offerId' => $offerId,
                         'country' => Constant1688::LANGUAGE_KO,
@@ -990,19 +1019,18 @@ class ProductV2 extends ProductAbstract
         $datas = [];
         foreach ($offerIds as $offerId) {
             try {
-                $endPoint       = "param2/1/com.alibaba.fenxiao.crossborder/overseas.product.detailQuery/";
+                $endPoint       = "param2/1/com.alibaba.fenxiao.crossborder/product.search.queryProductDetail/";
                 $payload        = [
-                    'detailQueryParams' => [
-                        'offerId'  => $offerId,
-                        'region'   => Constant1688::REGION_KO,
-                        'language' => Constant1688::LANGUAGE_KO_KR,
-                        'currency' => Constant1688::CURRENCY_KO,
+                    'access_token'     => $this->accessToken,
+                    'offerDetailParam' => [
+                        'offerId' => $offerId,
+                        'country' => Constant1688::LANGUAGE_KO,
                     ]
                 ];
-                $apiDatas = curl_1688_v2("POST", $endPoint, $payload);
+                $apiDatas = curl_1688("POST", $endPoint, $payload);
                 if( $apiDatas["isSuccess"] == true && isset($apiDatas["data"]["result"]["result"]) ){
                     $detailData               = $apiDatas["data"]["result"]["result"];
-                    $price_1688               = getPrice1688V2($detailData);
+                    $price_1688               = getPrice1688($detailData);
                     $detailData["price_1688"] = $price_1688;
                     $datas[]                  = $detailData;
                 }
@@ -1011,17 +1039,13 @@ class ProductV2 extends ProductAbstract
         }
 
         foreach ($datas as &$data) {
-            $ocPrice                        = ocPrice($data["price_1688"]);
-            $data["onch_price"]             = $ocPrice["onch_price"];
-            $data["option_price"]           = $ocPrice["option_price"];
-            $data["cus_price"]              = $ocPrice["cus_price"];
-            $data["recom_cus_price"]        = $ocPrice["recom_cus_price"];
-            $data["subject"]                = $data["title"];
-            $data["subjectTrans"]           = $data["translateTitle"];
-            $data["productImage"]["images"] = $data["imageUrlList"];
-            $data["soldOut"]                = $data["days90SoldOut"];
-            $data["hasPrd"]                 = ProductConstant::HAS_PRD_N;
-            $prdCnt                         = ProductData::where("offer_id", $data["offerId"])->count();
+            $ocPrice                 = ocPrice($data["price_1688"]);
+            $data["onch_price"]      = $ocPrice["onch_price"];
+            $data["option_price"]    = $ocPrice["option_price"];
+            $data["cus_price"]       = $ocPrice["cus_price"];
+            $data["recom_cus_price"] = $ocPrice["recom_cus_price"];
+            $data["hasPrd"]          = ProductConstant::HAS_PRD_N;
+            $prdCnt                  = ProductData::where("offer_id", $data["offerId"])->count();
             if( $prdCnt > 0 ){
                 $data["hasPrd"] = ProductConstant::HAS_PRD_Y;
             }
@@ -1038,6 +1062,7 @@ class ProductV2 extends ProductAbstract
             $sortArr[0] => $sortArr[1]
         ];
         $payload = [
+            'access_token'    => $this->accessToken,
             'offerQueryParam' => [
                 'sort'       => json_encode($sort),
                 'beginPage'  => $params["page"],
@@ -1062,6 +1087,11 @@ class ProductV2 extends ProductAbstract
             $data["option_price"]    = $ocPrice["option_price"];
             $data["cus_price"]       = $ocPrice["cus_price"];
             $data["recom_cus_price"] = $ocPrice["recom_cus_price"];
+            $data["hasPrd"]          = ProductConstant::HAS_PRD_N;
+            $prdCnt                  = ProductData::where("offer_id", $data["offerId"])->count();
+            if( $prdCnt > 0 ){
+                $data["hasPrd"] = ProductConstant::HAS_PRD_Y;
+            }
         }
 
         return [
@@ -1087,6 +1117,7 @@ class ProductV2 extends ProductAbstract
         $page     = $params["page"];
         $pageSize = $params["pageSize"];
         $payload  = [
+            'access_token'    => $this->accessToken,
             'offerQueryParam' => [
                 'sort'      => json_encode($sort),
                 'country'   => Constant1688::LANGUAGE_KO,
@@ -1153,9 +1184,15 @@ class ProductV2 extends ProductAbstract
                 $successCnt   = 0;
                 foreach ($productDatas as $productData) {
                     try {
-                        $offerId        = $productData["offerId"];
+                        $offerId = $productData["offerId"];
+                        $prdCnt  = ProductData::where("offer_id", $offerId)->count();
+                        if( $prdCnt > 0 ){
+                            throw new Exception(ProductErrorMessageConstant::getFitErrorMessage("ALREADY_PRODUCT"));
+                        }
+
                         $endPoint       = "param2/1/com.alibaba.fenxiao.crossborder/product.search.queryProductDetail/";
                         $payload_detail = [
+                            'access_token'     => $this->accessToken,
                             'offerDetailParam' => [
                                 'offerId' => $offerId,
                                 'country' => Constant1688::LANGUAGE_KO,
@@ -1230,6 +1267,7 @@ class ProductV2 extends ProductAbstract
 
             $endPoint = "param2/1/com.alibaba.fenxiao.crossborder/product.image.upload/";
             $payload = [
+                'access_token' => $this->accessToken,
                 'uploadImageParam' => [
                     "imageBase64" => $base64Encoded
                 ]
@@ -1256,6 +1294,7 @@ class ProductV2 extends ProductAbstract
             $sortArr[0] => $sortArr[1]
         ];
         $payload = [
+            'access_token'    => $this->accessToken,
             'offerQueryParam' => [
                 'imageId'    => $params["imageId"],
                 'sort'       => json_encode($sort),
@@ -1281,6 +1320,11 @@ class ProductV2 extends ProductAbstract
             $data["option_price"]    = $ocPrice["option_price"];
             $data["cus_price"]       = $ocPrice["cus_price"];
             $data["recom_cus_price"] = $ocPrice["recom_cus_price"];
+            $data["hasPrd"]          = ProductConstant::HAS_PRD_N;
+            $prdCnt                  = ProductData::where("offer_id", $data["offerId"])->count();
+            if( $prdCnt > 0 ){
+                $data["hasPrd"] = ProductConstant::HAS_PRD_Y;
+            }
         }
 
         return [
@@ -1318,6 +1362,7 @@ class ProductV2 extends ProductAbstract
 
             foreach ($imageIds as $imageId) {
                 $payload  = [
+                    'access_token'    => $this->accessToken,
                     'offerQueryParam' => [
                         'sort'      => json_encode($sort),
                         'country'   => Constant1688::LANGUAGE_KO,
@@ -1373,9 +1418,15 @@ class ProductV2 extends ProductAbstract
                 $successCnt   = 0;
                 foreach ($productDatas as $productData) {
                     try {
-                        $offerId        = $productData["offerId"];
+                        $offerId = $productData["offerId"];
+                        $prdCnt  = ProductData::where("offer_id", $offerId)->count();
+                        if( $prdCnt > 0 ){
+                            throw new Exception(ProductErrorMessageConstant::getFitErrorMessage("ALREADY_PRODUCT"));
+                        }
+
                         $endPoint       = "param2/1/com.alibaba.fenxiao.crossborder/product.search.queryProductDetail/";
                         $payload_detail = [
+                            'access_token'     => $this->accessToken,
                             'offerDetailParam' => [
                                 'offerId' => $offerId,
                                 'country' => Constant1688::LANGUAGE_KO,
@@ -1455,6 +1506,16 @@ class ProductV2 extends ProductAbstract
 
         try {
             $searchObjs = ProductSearchData::with(["details"])->where("id", $searchId)->orderBy("created_at", "desc")->first();
+            if( $searchObjs != null ){
+                foreach ($searchObjs->details as &$detail) {
+                    $prdCnt = ProductData::where("offer_id", $detail->offer_id)->count();
+                    if( $prdCnt > 0 ){
+                        $detail->hasPrd = ProductConstant::HAS_PRD_Y;
+                    } else {
+                        $detail->hasPrd = ProductConstant::HAS_PRD_N;
+                    }
+                }
+            }
             $returnMsg  = helpers_success_message($searchObjs);
         } catch (Exception $e) {
             $returnMsg = helpers_fail_message(false, $e->getMessage());
@@ -1571,6 +1632,7 @@ class ProductV2 extends ProductAbstract
             try {
                 $endPoint = "param2/1/com.alibaba.fenxiao.crossborder/product.search.queryProductDetail/";
                 $payload  = [
+                    'access_token'     => $this->accessToken,
                     'offerDetailParam' => [
                         'offerId' => $offerId,
                         'country' => Constant1688::LANGUAGE_KO,

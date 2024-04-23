@@ -538,7 +538,7 @@ class GenuioService extends TransApiAbstract
                         "ai_type"    => GenuioConstant::IMG_Ai_TRANS,
                         "is_origin"  => GenuioConstant::IS_ORIGIN_N,
                         "img_url_ai" => "",
-                        "ceated_at"  => Carbon::now()
+                        "created_at"  => Carbon::now()
                     ]);
 
                     $parentImgCnt = GenuioImageData::where("img_id", $imgObj->img_id)->count();

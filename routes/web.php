@@ -3,6 +3,7 @@
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\EasySellController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\ProductW2Controller;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -34,7 +35,7 @@ Route::prefix("product")->name("product.")->group(function(){
 
     Route::prefix("w2")->name("w2.")->group(function(){
         // 상품 수집 관리
-        Route::get("/queryProductDetail", [ProductController::class, "queryW2ProductDetail"])->name("queryProductDetail");
+        Route::get("/queryProductDetail", [ProductW2Controller::class, "queryProductDetail"])->name("queryProductDetail");
     });
 
     // 상품 리스트

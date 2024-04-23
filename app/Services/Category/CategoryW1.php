@@ -16,7 +16,7 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\File;
 use Psr\Log\LogLevel;
 
-class CategoryV1 extends CategoryAbstract
+class CategoryW1 extends CategoryAbstract
 {
     private array $returnMsg;
     private string $accessToken;
