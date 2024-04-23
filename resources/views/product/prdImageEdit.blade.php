@@ -71,7 +71,6 @@
                     <div class="col-3">
                         <div class="row">
                             <img src="{{ $prdObj->main_img->img_url_trans }}" class="rounded img-fluid" alt="...">
-                            <figcaption class="figure-caption fs-6 text-center mt-3">{{ $prdObj->main_img->trans_dated_at }}</figcaption>
                         </div>
                     </div>
                     <div class="col-3 position-relative swiper-box">
@@ -83,6 +82,11 @@
                                             <input class="form-check-input position-absolute start-0 m-2" type="checkbox" name="selectImg" value="{{ $prdObj->main_img->ai_origin_img->id }}" style="z-index: 10;">
                                             <img src="{{ $prdObj->main_img->ai_origin_img->img_url_ai }}" class="" alt="...">
                                             <figcaption class="figure-caption fs-6 text-center mt-3">{{ $prdObj->main_img->ai_origin_img->created_at }}</figcaption>
+                                            <span class="fs-6 text-center mt-1">(원본 이미지)</span>
+                                            @if( $prdObj->main_img->img_url_trans == $prdObj->main_img->ai_origin_img->img_url_ai )
+                                                <br>
+                                                <span class="fs-6 text-center">(적용 이미지)</span>
+                                            @endif
                                         </div>
                                     </div>
                                 @endif
@@ -92,6 +96,9 @@
                                             <input class="form-check-input position-absolute start-0 m-2" type="checkbox" name="selectImg" value="{{ $aiImg->id }}" style="z-index: 10;">
                                             <img src="{{ $aiImg->img_url_ai }}" class="" alt="...">
                                             <figcaption class="figure-caption fs-6 text-center mt-3">{{ $aiImg->created_at }}</figcaption>
+                                            @if( $prdObj->main_img->img_url_trans == $aiImg->img_url_ai )
+                                                <p class="fs-6 text-center mt-1">(적용 이미지)</p>
+                                            @endif
                                         </div>
                                     </div>
                                 @endforeach
@@ -119,7 +126,6 @@
                                 <div class="row">
                                     <img src="{{ $img->img_url_trans }}" class="rounded img-fluid" alt="...">
                                     @if( $img->is_except == ImageConstant::IS_EXCEPT_N )
-                                        <figcaption class="figure-caption fs-6 text-center mt-3">{{ $img->trans_dated_at }}</figcaption>
                                     @else
                                         <figcaption class="figure-caption fs-4 text-center mt-3 text-danger">*제외처리</figcaption>
                                     @endif
@@ -134,6 +140,11 @@
                                                     <input class="form-check-input position-absolute start-0 m-2" type="checkbox" name="selectImg" value="{{ $img->ai_origin_img->id }}" style="z-index: 10;">
                                                     <img src="{{ $img->ai_origin_img->img_url_ai }}" class="" alt="...">
                                                     <figcaption class="figure-caption fs-6 text-center mt-3">{{ $img->ai_origin_img->created_at }}</figcaption>
+                                                    <span class="fs-6 text-center mt-1">(원본 이미지)</span>
+                                                    @if( $img->img_url_trans == $img->ai_origin_img->img_url_ai )
+                                                        <br>
+                                                        <span class="fs-6 text-center">(적용 이미지)</span>
+                                                    @endif
                                                 </div>
                                             </div>
                                         @endif
@@ -143,6 +154,9 @@
                                                     <input class="form-check-input position-absolute start-0 m-2" type="checkbox" name="selectImg" value="{{ $aiImg->id }}" style="z-index: 10;">
                                                     <img src="{{ $aiImg->img_url_ai }}" class="" alt="...">
                                                     <figcaption class="figure-caption fs-6 text-center mt-3">{{ $aiImg->created_at }}</figcaption>
+                                                    @if( $img->img_url_trans == $aiImg->img_url_ai )
+                                                        <p class="fs-6 text-center mt-1">(적용 이미지)</p>
+                                                    @endif
                                                 </div>
                                             </div>
                                         @endforeach
@@ -190,7 +204,6 @@
                                 <div class="row">
                                     <img src="{{ $img->img_url_trans }}" class="rounded img-fluid" alt="...">
                                     @if( $img->is_except == ImageConstant::IS_EXCEPT_N )
-                                        <figcaption class="figure-caption fs-6 text-center mt-3">{{ $img->trans_dated_at }}</figcaption>
                                     @else
                                         <figcaption class="figure-caption fs-4 text-center mt-3 text-danger">*제외처리</figcaption>
                                     @endif
@@ -205,6 +218,11 @@
                                                     <input class="form-check-input position-absolute start-0 m-2" type="checkbox" name="selectImg" value="{{ $img->ai_origin_img->id }}" style="z-index: 10;">
                                                     <img src="{{ $img->ai_origin_img->img_url_ai }}" class="" alt="...">
                                                     <figcaption class="figure-caption fs-6 text-center mt-3">{{ $img->ai_origin_img->created_at }}</figcaption>
+                                                    <span class="fs-6 text-center mt-1">(원본 이미지)</span>
+                                                    @if( $img->img_url_trans == $img->ai_origin_img->img_url_ai )
+                                                        <br>
+                                                        <span class="fs-6 text-center">(적용 이미지)</span>
+                                                    @endif
                                                 </div>
                                             </div>
                                         @endif
@@ -214,6 +232,9 @@
                                                     <input class="form-check-input position-absolute start-0 m-2" type="checkbox" name="selectImg" value="{{ $aiImg->id }}" style="z-index: 10;">
                                                     <img src="{{ $aiImg->img_url_ai }}" class="" alt="...">
                                                     <figcaption class="figure-caption fs-6 text-center mt-3">{{ $aiImg->created_at }}</figcaption>
+                                                    @if( $img->img_url_trans == $aiImg->img_url_ai )
+                                                        <p class="fs-6 text-center mt-1">(적용 이미지)</p>
+                                                    @endif
                                                 </div>
                                             </div>
                                         @endforeach
