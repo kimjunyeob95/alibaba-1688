@@ -40,7 +40,7 @@ class OpenApiJwtMiddleware
             if( $e->getMessage() == "Expired token" ){
                 $message = "토큰의 유효시간이 만료되었습니다.";
             }
-            return helpers_json_response(HttpConstant::INTERNAL_SERVER_ERROR, [], $message);
+            return helpers_json_response(HttpConstant::INTERNAL_SERVER_ERROR, [], "Token Error: " . $message);
         }
        
     }
