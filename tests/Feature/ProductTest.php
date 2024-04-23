@@ -5,12 +5,15 @@ namespace Tests\Feature;
 use App\Constants\ImageConstant;
 use App\Models\CategoryMapping;
 use App\Models\ProductData;
+use App\Models\ProductForbiddenData;
 use App\Models\ProductImageData;
 use App\Models\ProductOptionData;
 use App\Packages\S3;
 use App\Services\GenuioService;
 use App\Vo\Product\Product1688ImageDto;
+use Exception;
 use Tests\TestCase;
+use Illuminate\Support\Facades\File;
 
 class ProductTest extends TestCase
 {
@@ -232,4 +235,107 @@ class ProductTest extends TestCase
         dd("끝");
     }
 
+    # php artisan test --filter testProductName
+    public function testProductName()
+    {
+        $prdObjs = ProductData::get();
+        // $prdObjs = ProductForbiddenData::get();
+
+        $filePath     = public_path('app/w_forbidden_word.txt');
+        $removeWords  = [];
+        $replaceWords = [];
+        if (File::exists($filePath)) {
+            $lines = File::lines($filePath);
+            foreach ($lines as $line) {
+                $lineArr = explode(',', $line);
+
+                $type     = $lineArr[0];
+                $status   = $lineArr[1];
+                $offerId  = $lineArr[2];
+                $prevWord = $lineArr[3];
+                $nextWord = $lineArr[4];
+
+                if( $status == "검토완료" ){
+                    if( $type == "삭제어" ){
+                        $removeWords[] = $prevWord;
+                    } else if( $type == "교체어" ){
+                        $replaceWords[] = [
+                            "prevWord" => $prevWord,
+                            "nextWord" => $nextWord,
+                        ];
+                    }
+                }
+            }
+        } else {
+            throw new Exception("파일이 존재하지 않습니다.");
+        }
+        foreach ($prdObjs as $prdObj) {
+            $prd_name_trans = $prdObj->prd_name_trans;
+            // $prd_name_trans = $prdObj->prd_name_trans_origin;
+
+            // 1. 삭제어
+            $upText = $this->removeSpecialSequence($prd_name_trans, $removeWords);
+
+            // 2. 교체어
+            $upText = $this->replaceWord($upText, $replaceWords);
+
+            if( $prd_name_trans != $upText ){
+                ProductForbiddenData::updateOrCreate(
+                    ["offer_id" => $prdObj->offer_id],
+                    [
+                        "prd_name_trans_origin"    => $prd_name_trans,
+                        "prd_name_trans_forbidden" => $upText
+                    ]
+                );
+                ProductData::where("id", $prdObj->id)->update([
+                    "prd_name_trans" => $upText
+                ]);
+                // ProductData::where("offer_id", $prdObj->offer_id)->update([
+                //     "prd_name_trans" => $upText
+                // ]);
+            }
+        };
+
+        dd("끝");
+    }
+
+    function removeSpecialSequence(string $text, array $removeWords)
+    {
+        foreach ($removeWords as $removeWord) {
+            // 1. 삭제어 앞과 뒤에 공백이 없는 경우 삭제어만 삭제
+            //    예: "HelloWord"에서 "Word"를 삭제 -> "Hello"
+            $pattern1 = '/(?<!\s)' . preg_quote($removeWord, '/') . '(?!\s)/';
+            if (preg_match($pattern1, $text)) {
+                $text = preg_replace($pattern1, '', $text);
+            }
+
+            // 2. 삭제어 앞 또는 뒤에 공백이 있는 경우 삭제어만 삭제
+            //    예: "Hello Word "에서 "Word"를 삭제 -> "Hello "
+            $pattern2 = '/(?<=\s)' . preg_quote($removeWord, '/') . '(?!\s)|(?<!\s)' . preg_quote($removeWord, '/') . '(?=\s)/';
+            if (preg_match($pattern2, $text)) {
+                $text = preg_replace($pattern2, '', $text);
+            }
+
+            // 3. 삭제어 앞과 뒤에 공백이 있는 경우 하나의 공백과 삭제어만 삭제
+            //    예: "Hello Word Test"에서 "Word"를 삭제 -> "Hello Test"
+            $pattern3 = '/\s+' . preg_quote($removeWord, '/') . '\s+/';
+            if (preg_match($pattern3, $text)) {
+                $text = preg_replace($pattern3, ' ', $text);
+            }
+        }
+        return $text;
+    }
+
+    function replaceWord(string $text, array $replaceWords)
+    {
+        foreach ($replaceWords as $replaceWordArr) {
+            $originWord  = $replaceWordArr["prevWord"];
+            $replaceWord = $replaceWordArr["nextWord"];
+
+            // 1. 해당 텍스트가 originWord에 걸릴 시 replaceWord로 교체
+            $text = str_replace($originWord, $replaceWord, $text);
+    
+        }
+        return $text;
+    }
 }
