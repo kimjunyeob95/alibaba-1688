@@ -63,7 +63,7 @@ class ProductV1 extends ProductAbstract
         $mapping_status = $params["mapping_status"];
         $sortArr        = explode("|", $params["sort"]);
 
-        $prdBuilder = ProductData::with([
+        $prdBuilder = ProductData::select(["product_datas.*"])->with([
             "main_img",
             "options", 
             "images.ai_all_imgs"
@@ -90,15 +90,20 @@ class ProductV1 extends ProductAbstract
             }
         }
 
-        if( $sortArr[0] == "option_price") {
-            $maxPriceSubquery = DB::table('product_option_datas')
-                ->selectRaw('offer_id, MAX(option_price) as max_option_price')
-                ->groupBy('offer_id');
-            $prdBuilder->joinSub($maxPriceSubquery, 'max_price', function ($join) {
-                $join->on('product_datas.offer_id', '=', 'max_price.offer_id');
+        if( in_array($sortArr[0], ["option_price", "md_price"])) {
+            $maxPriceSubquery = DB::table('product_option_datas');
+            if( $sortArr[0] == "option_price" ){
+                $maxPriceSubquery->selectRaw('offer_id, MAX(option_price) as max_price');
+            } else if( $sortArr[0] == "md_price" ) {
+                $maxPriceSubquery->selectRaw('offer_id, MAX(md_price) as max_price');
+            }
+
+            $maxPriceSubquery->groupBy('offer_id');
+            $prdBuilder->joinSub($maxPriceSubquery, 'max_qry', function ($join) {
+                $join->on('product_datas.offer_id', '=', 'max_qry.offer_id');
             });
 
-            $prdBuilder->orderBy('max_price.max_option_price', $sortArr[1]);
+            $prdBuilder->orderBy('max_qry.max_price', $sortArr[1]);
         } else {
             $prdBuilder->orderBy("product_datas." . $sortArr[0], $sortArr[1]);
         }
