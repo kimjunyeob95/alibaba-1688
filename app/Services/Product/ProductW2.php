@@ -1492,6 +1492,9 @@ class ProductW2 extends ProductAbstract
 
                     $img_url_origin = $imgObj->img_url_origin;
                     $mime           = pathinfo($img_url_origin, PATHINFO_EXTENSION);
+                    if (preg_match('/^(jpg|jpeg|png|gif)/i', $mime, $matches)) {
+                        $mime = $matches[0];
+                    }
                     if( $imgObj->img_type == ImageConstant::IMAGE_TYPE_MAIN ){
                         $imgName  = "/product/" . $dateName . "/" . $offerId . "_" . $imgObj->img_type . "." . $mime;
                     } else {

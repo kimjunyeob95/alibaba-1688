@@ -545,6 +545,9 @@ class GenuioService extends TransApiAbstract
 
                     $img_url_origin = $imgObj->img_url_origin;
                     $mime           = pathinfo($img_url_origin, PATHINFO_EXTENSION);
+                    if (preg_match('/^(jpg|jpeg|png|gif)/i', $mime, $matches)) {
+                        $mime = $matches[0];
+                    }
                     $imgName        = "/genuio/ai-img/" . $dateName . "/" . $offerId . "_" . $imgObj->id . "_" . ($parentImgCnt+1) . "_" . $imgObj->img_type . "." . $mime;
                     $uploadResult   = $this->uploadAbstract->uploadFile($imgName, base64_decode($image["base64"]));
 
