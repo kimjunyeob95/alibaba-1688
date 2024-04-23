@@ -113,6 +113,10 @@ Route::name('genuio.')->prefix('genuio')->group(function () {
 
     // 상품 이미지 번역 요청
     Route::post('/img/trans/request', [GenuioController::class, 'imgTransRequest'])->name('imgTransRequest');
+    // 상품 썸네일 이미지 번역 요청
+    Route::post('/img/thumnail/trans/request/{offerId}', [GenuioController::class, 'imgThumnailTransRequest'])->name('imgThumnailTransRequest');
+    // 상품 상세 이미지 번역 요청
+    Route::post('/img/desc/trans/request/{offerId}', [GenuioController::class, 'imgDescTransRequest'])->name('imgDescTransRequest');
     // 이미지 별 AI 알고리즘 요청
     Route::post('/img/ai/trans/request', [GenuioController::class, 'imgAiTransRequest'])->name('imgAiTransRequest');
 });

@@ -12,6 +12,8 @@ class GenuioConstant
     public const IS_ORIGIN_Y = "Y";
     public const IS_ORIGIN_N = "N";
 
-     /** 양방향 통신 큐 우선순위 설정 */
-    public const PRIORITY_TRUE = true;
+    /** 양방향 통신 큐 우선순위 설정 */
+    public const PRIORITY_TRUE  = true;
+    public const PRIORITY_FALSE = false;
+
 }

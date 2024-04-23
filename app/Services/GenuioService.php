@@ -87,7 +87,7 @@ class GenuioService extends TransApiAbstract
      * @param array $product1688ImageDtoList
      * @param int $offerId
      */
-    public function createTransProductImg(array $product1688ImageDtoList, int $offerId): array
+    public function createTransProductImg(array $product1688ImageDtoList, int $offerId, bool $priority = GenuioConstant::PRIORITY_FALSE): array
     {
         $returnMsg = $this->returnMsg;
         try {
@@ -130,6 +130,7 @@ class GenuioService extends TransApiAbstract
                         "id"          => $imgObj->id,
                         "imagePath"   => $product1688ImageDto->img_url_origin,
                         "isThumbnail" => $isThumbnail,
+                        "priority"    => $priority
                     ];
 
                     $queueDetailInsList[] = [
@@ -492,7 +493,7 @@ class GenuioService extends TransApiAbstract
                     ]);
                     $product1688ImageDtoList[] = $product1688ImageDto;
                 }
-                $createResult = $this->createTransProductImg($product1688ImageDtoList, $offerId);
+                $createResult = $this->createTransProductImg($product1688ImageDtoList, $offerId, GenuioConstant::PRIORITY_TRUE);
                 if( $createResult["isSuccess"] != true ){
                     throw new Exception($createResult["msg"]);
                 }
@@ -656,6 +657,116 @@ class GenuioService extends TransApiAbstract
             }
 
             $returnMsg = helpers_success_message();
+        } catch (Exception $e) {
+            $returnMsg = helpers_fail_message(false, $e->getMessage());
+        }
+
+        return $returnMsg;
+    }
+
+    /**
+     * @func imgThumnailTransRequest
+     * @description '상품 썸네일 이미지 번역 요청'
+     * @param int $offerId
+     * @return array
+     */
+    public function imgThumnailTransRequest(int $offerId): array
+    {
+        $returnMsg = $this->returnMsg;
+
+        if( env("APP_ENV", "local") != "production" ){
+            return helpers_fail_message(false, "운영 환경에서만 사용 가능합니다.");
+        }
+
+        try {
+            $imgObjs = ProductImageData::where("offer_id", $offerId)->whereIn("img_type", [ImageConstant::IMAGE_TYPE_MAIN, ImageConstant::IMAGE_TYPE_SUB])->get();
+            foreach ($imgObjs as $imgObj) {
+                $is_except = $imgObj->is_except;
+                if( $is_except == ImageConstant::IS_EXCEPT_Y ){
+                    continue;
+                }
+
+                $imgDetailObj = ProductImageDetailData::where([
+                    "offer_id"       => $offerId,
+                    "img_url_origin" => $imgObj->img_url_origin,
+                    "img_type"       => $imgObj->img_type,
+                ])->first();
+                $product1688ImageDto = new Product1688ImageDto();
+                $product1688ImageDto->bind([
+                    "offerId"        => $offerId,
+                    "imgType"        => $imgObj->img_type,
+                    "is_except"      => $is_except,
+                    "img_url_origin" => $imgObj->img_url_origin,
+                    "img_url_trans"  => "",
+                    "isChangeImg"    => ImageConstant::IS_CHANGE_IMG,
+                    "width"          => $imgDetailObj->width,
+                    "height"         => $imgDetailObj->height,
+                    "byte"           => $imgDetailObj->byte,
+                    "mime"           => $imgDetailObj->mime,
+                ]);
+                $product1688ImageDtoList[] = $product1688ImageDto;
+            }
+            $createResult = $this->createTransProductImg($product1688ImageDtoList, $offerId, GenuioConstant::PRIORITY_TRUE);
+            if( $createResult["isSuccess"] != true ){
+                throw new Exception($createResult["msg"]);
+            }
+
+            $returnMsg = helpers_success_message([], "번역 요청이 완료되었습니다.");
+        } catch (Exception $e) {
+            $returnMsg = helpers_fail_message(false, $e->getMessage());
+        }
+
+        return $returnMsg;
+    }
+
+    /**
+     * @func imgDescTransRequest
+     * @description '상품 상세 이미지 번역 요청'
+     * @param int $offerId
+     * @return array
+     */
+    public function imgDescTransRequest(int $offerId): array
+    {
+        $returnMsg = $this->returnMsg;
+
+        if( env("APP_ENV", "local") != "production" ){
+            return helpers_fail_message(false, "운영 환경에서만 사용 가능합니다.");
+        }
+
+        try {
+            $imgObjs = ProductImageData::where("offer_id", $offerId)->where("img_type", ImageConstant::IMAGE_TYPE_DESC)->get();
+            foreach ($imgObjs as $imgObj) {
+                $is_except = $imgObj->is_except;
+                if( $is_except == ImageConstant::IS_EXCEPT_Y ){
+                    continue;
+                }
+
+                $imgDetailObj = ProductImageDetailData::where([
+                    "offer_id"       => $offerId,
+                    "img_url_origin" => $imgObj->img_url_origin,
+                    "img_type"       => $imgObj->img_type,
+                ])->first();
+                $product1688ImageDto = new Product1688ImageDto();
+                $product1688ImageDto->bind([
+                    "offerId"        => $offerId,
+                    "imgType"        => $imgObj->img_type,
+                    "is_except"      => $is_except,
+                    "img_url_origin" => $imgObj->img_url_origin,
+                    "img_url_trans"  => "",
+                    "isChangeImg"    => ImageConstant::IS_CHANGE_IMG,
+                    "width"          => $imgDetailObj->width,
+                    "height"         => $imgDetailObj->height,
+                    "byte"           => $imgDetailObj->byte,
+                    "mime"           => $imgDetailObj->mime,
+                ]);
+                $product1688ImageDtoList[] = $product1688ImageDto;
+            }
+            $createResult = $this->createTransProductImg($product1688ImageDtoList, $offerId, GenuioConstant::PRIORITY_TRUE);
+            if( $createResult["isSuccess"] != true ){
+                throw new Exception($createResult["msg"]);
+            }
+
+            $returnMsg = helpers_success_message([], "번역 요청이 완료되었습니다.");
         } catch (Exception $e) {
             $returnMsg = helpers_fail_message(false, $e->getMessage());
         }
