@@ -298,7 +298,8 @@ class ProductController extends Controller
             abort(404);
         } else {
             $viewParams = [
-                "prdObj" => $result["data"]
+                "prdObj"  => $result["data"],
+                "offerId" => $offerId
             ];
         }
 
