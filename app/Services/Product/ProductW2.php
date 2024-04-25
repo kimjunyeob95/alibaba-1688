@@ -754,7 +754,7 @@ class ProductW2 extends ProductAbstract
             $optionName      = "";
             $optionNameTrans = "";
             foreach ($prdOptions["skuAttributeList"] as $prdOption) {
-                $optionNameTrans .= $prdOption["translateName"] .  "_" . $prdOption["translateValue"];
+                $optionNameTrans .= $prdOption["translateValue"] .  "_";
             }
             $product1688OptionDto = new Product1688OptionDto();
             $product1688OptionDto->bind([
