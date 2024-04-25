@@ -44,7 +44,8 @@ if (!function_exists('helpers_curl')) {
 				CURLOPT_FOLLOWLOCATION => true,
 				CURLOPT_HTTP_VERSION   => CURL_HTTP_VERSION_1_1,
 				CURLOPT_CUSTOMREQUEST  => $method,
-				CURLOPT_HTTPHEADER     => $header
+				CURLOPT_HTTPHEADER     => $header,
+                CURLOPT_ENCODING       => "utf-8"  // 지정된 인코딩으로 데이터를 디코드합니다.
 			));
 		} else if($method == 'POST'){
 			curl_setopt_array($curl, array(
@@ -61,6 +62,7 @@ if (!function_exists('helpers_curl')) {
 		curl_close($curl);
 
         if( $return == "string" ){
+            $result = mb_convert_encoding($result, "UTF-8", "GBK");
             return $result;
         }
 
