@@ -28,9 +28,9 @@ if (!function_exists('helpers_curl')) {
 	 * @param  mixed $url
 	 * @param  mixed $data
      * @param  mixed $header
-	 * @return array
+	 * @return mixed
 	 */
-	function helpers_curl($method, $url, $header, $data = '') : array
+	function helpers_curl($method, $url, $header, $data = '', $return = "array") : mixed
 	{
 		$curl   = curl_init();
 		$method = strtoupper($method);
@@ -59,6 +59,11 @@ if (!function_exists('helpers_curl')) {
 		}
 		$result = curl_exec($curl);
 		curl_close($curl);
+
+        if( $return == "string" ){
+            return $result;
+        }
+
 		$result = json_decode($result, JSON_UNESCAPED_UNICODE);
 		if(is_array($result)){
 			return $result;

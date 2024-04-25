@@ -12,6 +12,7 @@ use App\Constants\ImageErrorMessageConstant;
 use App\Constants\LogConstant;
 use App\Constants\ProductConstant;
 use App\Constants\ProductErrorMessageConstant;
+use App\Constants\WConstant;
 use App\Models\CategoryMapping;
 use App\Models\GenuioImageData;
 use App\Models\ProductCollectDetailLog;
@@ -158,7 +159,7 @@ class ProductW1 extends ProductAbstract
     {
         $pageSize  = $params["pageSize"];
 
-        $prdBuilder = ProductCollectLog::orderBy("created_at", "desc");
+        $prdBuilder = ProductCollectLog::where("version", WConstant::WAPP_W1)->orderBy("created_at", "desc");
         $lists = $prdBuilder->paginate($pageSize)->appends($params);
 
         return $lists;
@@ -456,6 +457,7 @@ class ProductW1 extends ProductAbstract
             "status"     => LogConstant::COLLECT_RUNNING,
             "payload"    => implode(", ", $offerIds),
             "log_count"  => 0,
+            "version"    => WConstant::WAPP_W1,
             "created_at" => Carbon::now()
         ]);
         $successCnt = 0;
@@ -525,6 +527,7 @@ class ProductW1 extends ProductAbstract
             "status"     => LogConstant::COLLECT_RUNNING,
             "payload"    => implode(", ", $offerIds),
             "log_count"  => 0,
+            "version"    => WConstant::WAPP_W1,
             "created_at" => Carbon::now()
         ]);
         $successCnt = 0;
@@ -1134,6 +1137,7 @@ class ProductW1 extends ProductAbstract
                 "status"     => LogConstant::COLLECT_RUNNING,
                 "payload"    => $payload_json,
                 "log_count"  => 0,
+                "version"    => WConstant::WAPP_W1,
                 "created_at" => Carbon::now()
             ]);
 
@@ -1357,6 +1361,7 @@ class ProductW1 extends ProductAbstract
                 "status"     => LogConstant::COLLECT_RUNNING,
                 "payload"    => implode(",", $imageIds),
                 "log_count"  => 0,
+                "version"    => WConstant::WAPP_W1,
                 "created_at" => Carbon::now()
             ]);
 

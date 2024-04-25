@@ -86,6 +86,11 @@
                                 상품 ID로 수집
                             </a>
                         </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/product/w2/collectLogs">
+                                상품 수집 현황
+                            </a>
+                        </li>
                     </ul>
                 </li>
             </ul>
@@ -103,6 +108,11 @@
                 <li class="nav-item">
                     <a class="nav-link" href="/product/list">
                         수집 상품 리스트
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/product/w2/list">
+                        W2 수집 상품 리스트
                     </a>
                 </li>
             </ul>
