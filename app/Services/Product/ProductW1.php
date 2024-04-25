@@ -1832,13 +1832,12 @@ class ProductW1 extends ProductAbstract
     {
         $returnMsg = $this->returnMsg;
         try {
-            ProductImageData::whereIn("id", $imgIds)->update([
-                "is_except" => $is_except
-            ]);
-
             foreach ($imgIds as $imgId) {
                 $imgObj = ProductImageData::where("id", $imgId)->first();
-                if( $imgObj != null ){
+                if( $imgObj != null && $imgObj->img_type != ImageConstant::IMAGE_TYPE_MAIN ){
+                    ProductImageData::where("id", $imgId)->update([
+                        "is_except" => $is_except
+                    ]);
                     // 상세이미지 업데이트
                     upPrdDescTrans($imgObj->offer_id);
                 }
