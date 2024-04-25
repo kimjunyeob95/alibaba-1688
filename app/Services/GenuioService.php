@@ -176,8 +176,8 @@ class GenuioService extends TransApiAbstract
     {
         $returnMsg = $this->returnMsg;
         try {
-            $jobId  = (int)$params["jobId"];
-            $images = $params["images"];
+            $jobId     = (int)$params["jobId"];
+            $images    = $params["images"];
 
             $getGenuioObj = GenuioQueueData::where([
                 "id"           => $jobId,
@@ -208,10 +208,22 @@ class GenuioService extends TransApiAbstract
                 // 1. product_image_datas update
                 foreach ($images as $image) {
                     try {
-                        $imgId  = (int)$image["id"];
+                        $imgId     = (int)$image["id"];
+                        $is_except = ImageConstant::IS_EXCEPT_N;
+                        if( isset($params["excluded"]) && $params["excluded"] === true ) {
+                            $is_except = ImageConstant::IS_EXCEPT_Y;
+                        }
+
                         $imgObj = ProductImageData::where("id", $imgId)->first();
                         if( $imgObj == null ){
                             throw new ValueError(TransApiConstant::getNotHaveErrorMessage("IMG_ID"));
+                        }
+
+                        if( $is_except == ImageConstant::IS_EXCEPT_Y || $imgObj->is_except == ImageConstant::IS_EXCEPT_Y ){
+                            ProductImageData::where("id", $imgId)->update([
+                                "is_except" => ImageConstant::IS_EXCEPT_Y
+                            ]);
+                            throw new ValueError(ImageErrorMessageConstant::getFitErrorMessage("EXCEPT_IMG"));
                         }
     
                         $img_url_origin = $imgObj->img_url_origin;
@@ -324,7 +336,12 @@ class GenuioService extends TransApiAbstract
             } else if( $getGenuioObj->send_type == GenuioConstant::IMG_Ai_TRANS ){
                 foreach ($images as $image) {
                     try {
-                        $imgId  = (int)$image["id"];
+                        $imgId     = (int)$image["id"];
+                        $is_except = ImageConstant::IS_EXCEPT_N;
+                        if( isset($params["excluded"]) && $params["excluded"] === true ) {
+                            $is_except = ImageConstant::IS_EXCEPT_Y;
+                        }
+
                         $imgObj = GenuioImageData::where([
                             "id" => $imgId
                         ])->first();
@@ -337,6 +354,13 @@ class GenuioService extends TransApiAbstract
                         $prdImgObj = ProductImageData::where("id", $imgObj->img_id)->first();
                         if( $prdImgObj == null ){
                             throw new ValueError(TransApiConstant::getNotHaveErrorMessage("IMG_ID"));
+                        }
+
+                        if( $is_except == ImageConstant::IS_EXCEPT_Y || $prdImgObj->is_except == ImageConstant::IS_EXCEPT_Y ){
+                            ProductImageData::where("id", $imgObj->img_id)->update([
+                                "is_except" => ImageConstant::IS_EXCEPT_Y
+                            ]);
+                            throw new ValueError(ImageErrorMessageConstant::getFitErrorMessage("EXCEPT_IMG"));
                         }
 
                         $img_url_ai_origin = $imgObj->img_url_ai;
