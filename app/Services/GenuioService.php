@@ -187,10 +187,9 @@ class GenuioService extends TransApiAbstract
                 throw new Exception(TransApiConstant::getNotHaveErrorMessage("QUEUE_ID"));
             }
 
-            $detailCnt = GenuioQueueDetailData::where("queue_id", $jobId)
-            ->where("trans_status", TransApiConstant::QUEUE_STAY)
-            ->where("base64", "")
-            ->count();
+            $payloadJson = json_decode($getGenuioObj->payload_json, JSON_UNESCAPED_UNICODE);
+            $detailCnt   = count($payloadJson["images"]);
+
             if( count($images) != $detailCnt ){
                 throw new Exception(TransApiConstant::getFitErrorMessage("NOT_EQUAL_COUNT_IMAGE"));
             }
@@ -311,8 +310,7 @@ class GenuioService extends TransApiAbstract
                             "img_id"       => $imgId,
                             "trans_status" => TransApiConstant::QUEUE_STAY,
                         ])->update([
-                            "trans_status" => $uploadResult == true ? TransApiConstant::QUEUE_SUCCESS : TransApiConstant::QUEUE_FAIL,
-                            "base64"       => $imgTransBase64,
+                            "trans_status" => $uploadResult == true ? TransApiConstant::QUEUE_SUCCESS : TransApiConstant::QUEUE_FAIL
                         ]);
                     } catch (ValueError $ve) {
                         $errMsg = [
@@ -401,8 +399,7 @@ class GenuioService extends TransApiAbstract
                             "img_id"       => $imgId,
                             "trans_status" => TransApiConstant::QUEUE_STAY,
                         ])->update([
-                            "trans_status" => $uploadResult == true ? TransApiConstant::QUEUE_SUCCESS : TransApiConstant::QUEUE_FAIL,
-                            "base64"       => $imgTransBase64,
+                            "trans_status" => $uploadResult == true ? TransApiConstant::QUEUE_SUCCESS : TransApiConstant::QUEUE_FAIL
                         ]);
                     } catch (ValueError $ve) {
                         $errMsg = [
