@@ -203,7 +203,7 @@ class GenuioService extends TransApiAbstract
                 if( $prdObj == null ){
                     throw new ValueError(TransApiConstant::getNotHaveErrorMessage("PRODUCT"));
                 }
-                $prd_desc = $prdObj->prd_desc;
+
                 $dateName = $prdObj->created_at->format('Y/m/d');
     
                 // 1. product_image_datas update
@@ -322,9 +322,6 @@ class GenuioService extends TransApiAbstract
                         debug_log(json_encode($errMsg, JSON_UNESCAPED_UNICODE), "genuio", "genuio-img");
                     }
                 }
-    
-                // 2. 상세 이미지 업데이트
-                upPrdDescTrans($offerId);
 
             } else if( $getGenuioObj->send_type == GenuioConstant::IMG_Ai_TRANS ){
                 foreach ($images as $image) {
@@ -391,10 +388,6 @@ class GenuioService extends TransApiAbstract
                             ProductImageData::where("id", $prdImgObj->id)->update([
                                 "img_url_trans" => $img_url_ai
                             ]);
-
-                            if( $prdImgObj->img_type == ImageConstant::IMAGE_TYPE_DESC ){
-                                upPrdDescTrans($prdImgObj->offer_id);
-                            }
                         }
 
                         if( $errorImgFlag == true ) {
@@ -420,6 +413,9 @@ class GenuioService extends TransApiAbstract
                     }
                 }
             }
+
+            // 상세 이미지 업데이트
+            upPrdDescTrans($offerId);
 
             $returnMsg = helpers_success_message();
         } catch (Exception $e) {
@@ -556,6 +552,10 @@ class GenuioService extends TransApiAbstract
                         GenuioImageData::where("id", $imgId)->update([
                             "img_url_ai" => $img_url_ai
                         ]);
+
+                        ProductImageData::where("id", $imgObj->id)->update([
+                            "img_url_trans" => $img_url_ai
+                        ]);
                     } else {
                         GenuioImageData::where("id", $imgId)->forceDelete();
                         throw new ValueError(ImageErrorMessageConstant::getFitErrorMessage("S3_IMG_UPLOAD"));
@@ -573,6 +573,10 @@ class GenuioService extends TransApiAbstract
                     ];
                 }
             }
+
+            // 상세이미지 업데이트
+            upPrdDescTrans($offerId);
+
             $returnMsg = helpers_success_message($resultImgs);
         } catch (Exception $e) {
             $returnMsg = helpers_fail_message(false, $e->getMessage());
