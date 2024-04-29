@@ -313,13 +313,17 @@ class EasySell extends MallApiAbstract
     public function sendModiProduct(): void
     {
         $now      = Carbon::now();
-        $modiObjs = ProductModiData::where("is_send", ProductConstant::IS_SEND_N)->groupBy("offer_id", "w_type")->get();
+        $modiObjs = ProductModiData::where("is_send", ProductConstant::IS_SEND_N)
+        ->where("channel", MallConstant::MALL_EASYSELL)
+        ->groupBy("offer_id", "w_type")
+        ->get();
         foreach ($modiObjs as $modiObj) {
             // easySell 전송 로직.....
 
             $query = ProductModiData::where("is_send", ProductConstant::IS_SEND_N)
             ->where("created_at", "<=", $now)
             ->where("offer_id", $modiObj->offer_id)
+            ->where("channel", MallConstant::MALL_EASYSELL)
             ->where("w_type", $modiObj->w_type);
 
             if( false ){
