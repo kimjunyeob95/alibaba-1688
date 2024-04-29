@@ -232,6 +232,8 @@ class WProductController extends Controller
             $search_cls     = $this->request->get("search_cls", "prd_name_trans");
             $keyword        = $this->request->get("keyword", "");
             $trans_status   = $this->request->get("trans_status", ProductConstant::TRANS_STATUS_Y);
+            $prd_status     = $this->request->get("prd_status", "");
+            $mdPrice_status = $this->request->get("mdPrice_status", "");
             $sort           = $this->request->get("sort", "updated_at|desc");
             
             $params = [
@@ -240,6 +242,8 @@ class WProductController extends Controller
                 "search_cls"     => $search_cls,
                 "keyword"        => $keyword,
                 "trans_status"   => $trans_status,
+                "prd_status"     => $prd_status,
+                "mdPrice_status" => $mdPrice_status,
                 "mapping_status" => ProductConstant::MAPPING_STATUS_Y,
                 "sort"           => $sort,
             ];
