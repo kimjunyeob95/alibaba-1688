@@ -411,4 +411,31 @@ class W2ProductController extends Controller
             return helpers_json_response(HttpConstant::BAD_REQUEST, [], $e->getMessage());
         }
     }
+
+    public function statusUpdate(): JsonResponse
+    {
+        try {
+            $validator = Validator::make($this->request->all(), [
+                'offerIds' => 'required|array',
+                'status'   => 'required|string',
+            ], [
+                'offerIds.required' => ProductErrorMessageConstant::getNotHaveErrorMessage("OFFER_IDS"),
+                'status.required'   => ProductErrorMessageConstant::getNotHaveErrorMessage("STATUS"),
+            ]);
+            if ($validator->fails()) {
+                throw new Exception($validator->errors()->first());
+            }
+            
+            $offerIds = $this->request->post("offerIds");
+            $status   = $this->request->post("status");
+            $result   = $this->service1688Product->statusUpdateW2($offerIds, $status);
+            if( $result["isSuccess"] == true ){
+                return helpers_json_response(HttpConstant::OK, $result);
+            } else {
+                return helpers_json_response(HttpConstant::BAD_REQUEST, [], $result["msg"]);
+            }
+        } catch (Exception $e) {
+            return helpers_json_response(HttpConstant::BAD_REQUEST, [], $e->getMessage());
+        }
+    }
 }

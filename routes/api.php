@@ -104,6 +104,8 @@ Route::name('w2.')->prefix('w2')->group(function () {
         Route::post('/image/accept', [WProductController::class, 'imageAccept'])->name('imageAccept');
         // MD 판매자가 설정
         Route::post('/mdPrice/update', [WProductController::class, 'mdPriceUpdate'])->name('mdPriceUpdate');
+        // 판매상태 변경
+        Route::post('/status/update', [W2ProductController::class, 'statusUpdate'])->name('statusUpdate');
     });
 });
 

@@ -427,4 +427,16 @@ class Service1688Product
    {
       return $this->productAbstractW2->getPrdDetail($offerId);
    }
+
+   /**
+     * @func statusUpdateW2
+     * @description '판매상태 변경'
+     * @param array $offerIds
+     * @param string $status
+     * @return array
+   */
+   public function statusUpdateW2(array $offerIds, string $status): array
+   {
+      return $this->productAbstractW2->statusUpdate($offerIds, $status);
+   }
 }

@@ -65,6 +65,7 @@ class ProductW2 extends ProductAbstract
         $keyword        = $params["keyword"];
         $trans_status   = $params["trans_status"];
         $mapping_status = $params["mapping_status"];
+        $prd_status     = $params["prd_status"];
         $mdPrice_status = $params["mdPrice_status"];
         $sortArr        = explode("|", $params["sort"]);
 
@@ -136,6 +137,10 @@ class ProductW2 extends ProductAbstract
 
         if( !empty($mapping_status) ){
             $prdBuilder->where("mapping_status", $mapping_status);
+        }
+
+        if( !empty($prd_status) ){
+            $prdBuilder->where("status", $prd_status);
         }
 
         $totalCnt  = ProductW2Data::whereNull("deleted_at")->count();
@@ -1890,7 +1895,7 @@ class ProductW2 extends ProductAbstract
     {
         $returnMsg = $this->returnMsg;
         try {
-            ProductData::whereIn("offer_id", $offerIds)->update([
+            ProductW2Data::whereIn("offer_id", $offerIds)->update([
                 "status" => $status
             ]);
 
