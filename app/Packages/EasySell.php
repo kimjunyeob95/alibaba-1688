@@ -10,9 +10,8 @@ use App\Constants\MallErrorMessageConstant;
 use App\Constants\ProductConstant;
 use App\Models\CategoryMapping;
 use App\Models\EasysellProductLog;
-use App\Models\OnchCategoryExcelDataCopy2;
 use App\Models\ProductData;
-use App\Models\WCategory;
+use App\Models\ProductModiData;
 use App\Vo\EasySell\EasySellProductVo;
 use Carbon\Carbon;
 use Exception;
@@ -304,6 +303,39 @@ class EasySell extends MallApiAbstract
         }
 
         return $returnMsg;
+    }
+
+    /**
+     * @func sendModiProduct
+     * @description '수정 된 상품 전송'
+     * @return void
+     */
+    public function sendModiProduct(): void
+    {
+        $now      = Carbon::now();
+        $modiObjs = ProductModiData::where("is_send", ProductConstant::IS_SEND_N)->groupBy("offer_id", "w_type")->get();
+        foreach ($modiObjs as $modiObj) {
+            // easySell 전송 로직.....
+
+            $query = ProductModiData::where("is_send", ProductConstant::IS_SEND_N)
+            ->where("created_at", "<=", $now)
+            ->where("offer_id", $modiObj->offer_id)
+            ->where("w_type", $modiObj->w_type);
+
+            if( false ){
+                // 1. 전송 성공 시 
+                $query->update([
+                    "is_send"       => ProductConstant::IS_SEND_Y,
+                    "send_dated_at" => Carbon::now()
+                ]);
+            } else if( false ){
+                // 2. 전송 에러 시
+                $query->update([
+                    "is_send" => ProductConstant::IS_SEND_E,
+                    "msg"     => "에러 내용.."
+                ]);
+            }
+        }
     }
 
     /**

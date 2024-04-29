@@ -1894,7 +1894,7 @@ class ProductW2 extends ProductAbstract
                 "status" => $status
             ]);
 
-            $returnMsg = helpers_success_message([], "판매 상태가 변경되었습니다.");
+            $returnMsg = helpers_success_message([], "판매 상태가 변경되었습니다."); 
         } catch (Exception $e) {
             $returnMsg = helpers_fail_message(false, $e->getMessage());
         }

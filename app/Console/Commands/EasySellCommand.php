@@ -37,6 +37,7 @@ class EasySellCommand extends Command
                     dd($result);
                 }
                 break;
+
             /**
              * 온채널 매핑데이터 사용하여 이지셀 카테고리 매핑
              * php artisan easy_sell_command --func=categoryMapping
@@ -45,6 +46,15 @@ class EasySellCommand extends Command
                 $result = $this->mallApiService->categoryMapping();
                 dd($result);
                 break;
+
+            /**
+             * 수정 된 상품 전송
+             * php artisan easy_sell_command --func=sendModiProduct
+             */
+            case 'sendModiProduct':
+                $this->mallApiService->sendModiProduct();
+                break;
+
             default:
                 break;
         }

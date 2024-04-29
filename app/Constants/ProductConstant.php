@@ -16,6 +16,17 @@ class ProductConstant
         self::PRD_STATUS_EXCEPT  => "판매제외",
     ];
 
+    /** 전송상태 */
+    public const IS_SEND_Y = "Y";
+    public const IS_SEND_N = "N";
+    public const IS_SEND_E = "E";
+
+    public const IS_SEND = [
+        self::IS_SEND_Y => "전송완료",
+        self::IS_SEND_N => "전송미완료",
+        self::IS_SEND_E => "에러",
+    ];
+
     // 제품채널
     public const CHANNE_PRICE_FREE             = 1;
     public const CHANNE_DISTRIBUTION_SCIENCE   = 2;

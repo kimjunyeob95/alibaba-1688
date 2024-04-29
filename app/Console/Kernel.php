@@ -38,7 +38,7 @@ class Kernel extends ConsoleKernel
 
     protected function schedule(Schedule $schedule)
     {
-        // $schedule->command('inspire')->hourly();
+        $schedule->command("easy_sell_command --func=sendModiProduct")->cron("*/5 * * * *")->description("이지셀 수정 된 상품 전송")->withoutOverlapping()->runInBackground();
     }
 
     /**
