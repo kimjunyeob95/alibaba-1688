@@ -210,4 +210,13 @@ abstract class ProductAbstract
      * @return array
     */
     abstract function mdPriceUpdate(array $offerIds, int $mdPrice): array;
+
+    /**
+     * @func statusUpdate
+     * @description '판매상태 변경'
+     * @param array $offerIds
+     * @param string $status
+     * @return array
+    */
+    abstract function statusUpdate(array $offerIds, string $status): array;
 }

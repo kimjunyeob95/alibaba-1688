@@ -28,9 +28,9 @@ if (!function_exists('helpers_curl')) {
 	 * @param  mixed $url
 	 * @param  mixed $data
      * @param  mixed $header
-	 * @return array
+	 * @return mixed
 	 */
-	function helpers_curl($method, $url, $header, $data = '') : array
+	function helpers_curl($method, $url, $header, $data = '', $return = "array") : mixed
 	{
 		$curl   = curl_init();
 		$method = strtoupper($method);
@@ -44,7 +44,8 @@ if (!function_exists('helpers_curl')) {
 				CURLOPT_FOLLOWLOCATION => true,
 				CURLOPT_HTTP_VERSION   => CURL_HTTP_VERSION_1_1,
 				CURLOPT_CUSTOMREQUEST  => $method,
-				CURLOPT_HTTPHEADER     => $header
+				CURLOPT_HTTPHEADER     => $header,
+                CURLOPT_ENCODING       => "utf-8"  // 지정된 인코딩으로 데이터를 디코드합니다.
 			));
 		} else if($method == 'POST'){
 			curl_setopt_array($curl, array(
@@ -59,6 +60,12 @@ if (!function_exists('helpers_curl')) {
 		}
 		$result = curl_exec($curl);
 		curl_close($curl);
+
+        if( $return == "string" ){
+            $result = mb_convert_encoding($result, "UTF-8", "GBK");
+            return $result;
+        }
+
 		$result = json_decode($result, JSON_UNESCAPED_UNICODE);
 		if(is_array($result)){
 			return $result;
@@ -583,6 +590,18 @@ if (!function_exists("calcEasySellSalePrice")) {
 if (!function_exists("calcWSalePrice")) {
     function calcWSalePrice(int $option_price = 0): int
     {
-        return ( ceil(($option_price * env("W_SALE_PRICE_RATE", "1.35")) / 100) * 100 ) + (int)env("W_DROP_SHIPPING_PRICE", 6000);
+        return ( ceil(($option_price * env("W_SALE_PRICE_RATE", "1.35")) / 100) * 100 ) + (int)env("W_DROP_SHIPPING_PRICE", 12000);
+    }
+}
+
+// WApp 일반 판매가 <= MD 판매자가 bool
+if (!function_exists("compareWSalePrice")) {
+    function compareWSalePrice(int $salePrice = 0, int $mdPrice = 0): bool
+    {
+        if( $mdPrice > $salePrice ){
+            return true;
+        } else {
+            return false;
+        }
     }
 }

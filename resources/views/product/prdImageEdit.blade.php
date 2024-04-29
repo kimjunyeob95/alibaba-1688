@@ -79,7 +79,7 @@
                                 @if ($prdObj->main_img->ai_origin_img)    
                                     <div class="swiper-slide">
                                         <div>
-                                            <input class="form-check-input position-absolute start-0 m-2" type="checkbox" name="selectImg" value="{{ $prdObj->main_img->ai_origin_img->id }}" style="z-index: 10;">
+                                            <input class="form-check-input position-absolute start-0 m-2" type="checkbox" name="selectImg" src="{{ $prdObj->main_img->ai_origin_img->img_url_ai }}" imgid="{{ $prdObj->main_img->id }}" value="{{ $prdObj->main_img->ai_origin_img->id }}" style="z-index: 10;">
                                             <img src="{{ $prdObj->main_img->ai_origin_img->img_url_ai }}" class="" alt="...">
                                             <figcaption class="figure-caption fs-6 text-center mt-3">{{ $prdObj->main_img->ai_origin_img->created_at }}</figcaption>
                                             <span class="fs-6 text-center mt-1">(원본 이미지)</span>
@@ -93,7 +93,7 @@
                                 @foreach ($prdObj->main_img->ai_imgs as $aiImg)
                                     <div class="swiper-slide">
                                         <div>
-                                            <input class="form-check-input position-absolute start-0 m-2" type="checkbox" name="selectImg" value="{{ $aiImg->id }}" style="z-index: 10;">
+                                            <input class="form-check-input position-absolute start-0 m-2" type="checkbox" name="selectImg" src="{{ $aiImg->img_url_ai }}" imgid="{{ $aiImg->img_id }}" value="{{ $aiImg->id }}" style="z-index: 10;">
                                             <img src="{{ $aiImg->img_url_ai }}" class="" alt="...">
                                             <figcaption class="figure-caption fs-6 text-center mt-3">{{ $aiImg->created_at }}</figcaption>
                                             @if( $prdObj->main_img->img_url_trans == $aiImg->img_url_ai )
@@ -137,7 +137,7 @@
                                         @if( $img->ai_origin_img )
                                             <div class="swiper-slide">
                                                 <div>
-                                                    <input class="form-check-input position-absolute start-0 m-2" type="checkbox" name="selectImg" value="{{ $img->ai_origin_img->id }}" style="z-index: 10;">
+                                                    <input class="form-check-input position-absolute start-0 m-2" type="checkbox" name="selectImg" src="{{ $img->ai_origin_img->img_url_ai }}" imgid="{{ $img->ai_origin_img->img_id }}" value="{{ $img->ai_origin_img->id }}" style="z-index: 10;">
                                                     <img src="{{ $img->ai_origin_img->img_url_ai }}" class="" alt="...">
                                                     <figcaption class="figure-caption fs-6 text-center mt-3">{{ $img->ai_origin_img->created_at }}</figcaption>
                                                     <span class="fs-6 text-center mt-1">(원본 이미지)</span>
@@ -151,7 +151,7 @@
                                         @foreach ($img->ai_imgs as $aiImg)
                                             <div class="swiper-slide">
                                                 <div>
-                                                    <input class="form-check-input position-absolute start-0 m-2" type="checkbox" name="selectImg" value="{{ $aiImg->id }}" style="z-index: 10;">
+                                                    <input class="form-check-input position-absolute start-0 m-2" type="checkbox" name="selectImg" src="{{ $aiImg->img_url_ai }}" imgid="{{ $aiImg->img_id }}" value="{{ $aiImg->id }}" style="z-index: 10;">
                                                     <img src="{{ $aiImg->img_url_ai }}" class="" alt="...">
                                                     <figcaption class="figure-caption fs-6 text-center mt-3">{{ $aiImg->created_at }}</figcaption>
                                                     @if( $img->img_url_trans == $aiImg->img_url_ai )
@@ -215,7 +215,7 @@
                                         @if( $img->ai_origin_img )
                                             <div class="swiper-slide">
                                                 <div>
-                                                    <input class="form-check-input position-absolute start-0 m-2" type="checkbox" name="selectImg" value="{{ $img->ai_origin_img->id }}" style="z-index: 10;">
+                                                    <input class="form-check-input position-absolute start-0 m-2" type="checkbox" name="selectImg" src="{{ $img->ai_origin_img->img_url_ai }}" imgid="{{ $img->ai_origin_img->img_id }}" value="{{ $img->ai_origin_img->id }}" style="z-index: 10;">
                                                     <img src="{{ $img->ai_origin_img->img_url_ai }}" class="" alt="...">
                                                     <figcaption class="figure-caption fs-6 text-center mt-3">{{ $img->ai_origin_img->created_at }}</figcaption>
                                                     <span class="fs-6 text-center mt-1">(원본 이미지)</span>
@@ -229,7 +229,7 @@
                                         @foreach ($img->ai_imgs as $aiImg)
                                             <div class="swiper-slide">
                                                 <div>
-                                                    <input class="form-check-input position-absolute start-0 m-2" type="checkbox" name="selectImg" value="{{ $aiImg->id }}" style="z-index: 10;">
+                                                    <input class="form-check-input position-absolute start-0 m-2" type="checkbox" name="selectImg" src="{{ $aiImg->img_url_ai }}" imgid="{{ $aiImg->img_id }}" value="{{ $aiImg->id }}" style="z-index: 10;">
                                                     <img src="{{ $aiImg->img_url_ai }}" class="" alt="...">
                                                     <figcaption class="figure-caption fs-6 text-center mt-3">{{ $aiImg->created_at }}</figcaption>
                                                     @if( $img->img_url_trans == $aiImg->img_url_ai )
@@ -291,6 +291,8 @@
 
 <script type="text/javascript">
     $(function(){
+        var offer_id = "{{ $offerId }}";
+
         var urlAnchor = window.location.hash;
         if (urlAnchor) {
             var targetElement = $(urlAnchor);
@@ -435,7 +437,11 @@
             }
         })
 
-        $(".AItoolBtn, .allAItoolBtn").click(function(){
+        $(".allAItoolBtn").click(function(){
+            window.open(`https://1688-img.genu.io/quick-fix/images?offer_id=${offer_id}`, '_blank');
+        });
+
+        $(".AItoolBtn").click(function(){
             if($(this).hasClass("AItoolBtn")){
                 var checked = $(this).parent().prev(".swiper-box").find("input[name='selectImg']:checked");
             }else{
@@ -447,14 +453,10 @@
                 alert("선택된 이미지가 없습니다.");
                 return false;
             }else{
-                let imgChecked = [];
-                checked.each(function(){
-                    imgChecked.push($(this).val());
-                });
+                let img_url = $(checked).attr("src");
+                let img_id = $(checked).attr("imgid");
 
-                return alert("A.I 툴 확인중..");
-                // if(confirm("A.I 툴로 이동합니다.")){
-                // }
+                window.open(`https://1688-img.genu.io/quick-fix/inpaint?img_url=${img_url}&img_id=${img_id}&offer_id=${offer_id}`, '_blank');
             }
         })
 

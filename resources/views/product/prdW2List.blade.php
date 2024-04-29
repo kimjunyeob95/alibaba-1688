@@ -150,7 +150,7 @@
                                 <tr class="align-middle text-left">
                                     <td colspan="6">
                                         <button type="button" class="btn btn-md btn-primary" id="form-submit">검색</button>
-                                        <button type="button" onclick="location.href='/product/list'" class="btn btn-md btn-light btn-reset">초기화</button>
+                                        <button type="button" onclick="location.href='/product/w2/list'" class="btn btn-md btn-light btn-reset">초기화</button>
                                     </td>
                                 </tr>
                             </table>
@@ -160,7 +160,7 @@
                 
                 <div class="mt-3 d-flex justify-content-end">
                     <button class="btn btn-md btn-outline-danger me-2" id="btn-status-select">판매상태 변경</button>
-                    <button class="btn btn-md btn-outline-dark me-2" id="btn-select">선택번역 요청</button>
+                    {{-- <button class="btn btn-md btn-outline-dark me-2" id="btn-select">선택번역 요청</button> --}}
                 </div>
     
                 <div class="table-responsive mt-3">
@@ -176,7 +176,7 @@
                                     제품ID<br>
                                     (카테고리ID)
                                 </th>
-                                <th scope="col">제품명(번역)</th>
+                                <th scope="col">제품명(국문)</th>
                                 <th scope="col" style="width: 50px">최소 구매 수량</th>
                                 <th scope="col" style="width: 100px">원본이미지</th>
                                 <th scope="col" style="width: 100px">번역이미지</th>
@@ -210,14 +210,14 @@
                                             <span>({{ $data->category_id }})</span>
                                         @endif
                                         @if ($data->mapping_status == ProductConstant::MAPPING_STATUS_N)
-                                            <button class="btn btn-sm btn-outline-success btn-modal mt-1" cateid={{ $data->category_id }}>맵핑하기</button>
+                                            {{-- <button class="btn btn-sm btn-outline-success btn-modal mt-1" cateid={{ $data->category_id }}>맵핑하기</button>
                                             <br>
                                             <span class="text-danger">*카테고리 미맵핑</span>
-                                            <span class="text-danger">({{ $data->category_id }})</span>
+                                            <span class="text-danger">({{ $data->category_id }})</span> --}}
                                         @endif
                                     </td>
                                     <td>
-                                        {{ $data->prd_name_trans }}
+                                        {{ $data->prd_name_kr }}
                                         @if ($data->status != ProductConstant::PRD_STATUS_PUBLISH)
                                             <span class="bg-danger rounded text-white px-2 py-1 fs-6">{{ ProductConstant::PRD_STATUS[$data->status] }}</span>
                                         @endif
@@ -261,19 +261,19 @@
                                             @php
                                                 $option = $data->options[0];
                                             @endphp
-                                            @if ($option->md_price)
+                                            {{-- @if ($option->md_price)
                                                 @php
-                                                    $salePrice = calcWSalePrice($option->option_price); 
-                                                    $saleHigh  = compareWSalePrice($salePrice, $option->md_price);
+                                                    $salePrice = calcWSalePrice($option->option_price);
+                                                    $saleHigh = compareWSalePrice($salePrice, $option->md_price);
                                                 @endphp
-                                                @if ($saleHigh === true)
+                                                @if ($saleHigh)
                                                     <button class="btn btn-sm btn-primary btn-md-modi" offerid={{ $data->offer_id }} saleprice={{ $salePrice }} mdprice={{ $option->md_price }}>{{ number_format($option->md_price) }}</button>
                                                 @else
                                                     <button class="btn btn-sm btn-danger btn-md-modi" offerid={{ $data->offer_id }} saleprice={{ $salePrice }} mdprice={{ $option->md_price }}>{{ number_format($option->md_price) }}</button>
                                                 @endif
                                             @else
                                                 <button class="btn btn-sm btn-warning btn-md-modi" offerid={{ $data->offer_id }} saleprice={{ calcWSalePrice($option->option_price) }} mdprice=0>MD 가격 설정</button>
-                                            @endif
+                                            @endif --}}
                                         @else
                                             <p class="text-danger">옵션없음</p>
                                         @endif
@@ -283,7 +283,7 @@
                                     </td>
                                     <td class="text-center">
                                         <button class="btn btn-sm btn-outline-success btn-detail" offerid={{ $data->offer_id }}>상세보기</button>
-                                        <button class="btn btn-sm btn-outline-primary btn-trans-img mt-2" offerid={{ $data->offer_id }}>번역요청</button>
+                                        {{-- <button class="btn btn-sm btn-outline-primary btn-trans-img mt-2" offerid={{ $data->offer_id }}>번역요청</button> --}}
                                     </td>
                                 </tr>
                             @endforeach
@@ -722,7 +722,7 @@
 
         $(".btn-detail").click(function(){
             let offer_id = $(this).attr("offerid");
-            location.href = `/product/${offer_id}`;
+            location.href = `/product/w2/${offer_id}`;
         });
 
         $("#form-submit").click(function(){
@@ -828,7 +828,7 @@
                 $.ajax({
                     "headers"    : {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
                     "type"       : "POST",
-                    "url"        : "{{ route('w.product.statusUpdate') }}",
+                    "url"        : "{{ route('w2.product.statusUpdate') }}",
                     "data"       : { offerIds, status },
                     beforeSend: function () {
                         $("#loadingOverlay").show();
@@ -851,7 +851,7 @@
         $(".htmlModalClose3").click(function(){
             $("#htmlModal3").modal('hide');
         });
-        
+
     })
 </script>
 

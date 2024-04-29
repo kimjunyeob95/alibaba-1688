@@ -176,8 +176,8 @@ class GenuioService extends TransApiAbstract
     {
         $returnMsg = $this->returnMsg;
         try {
-            $jobId  = (int)$params["jobId"];
-            $images = $params["images"];
+            $jobId     = (int)$params["jobId"];
+            $images    = $params["images"];
 
             $getGenuioObj = GenuioQueueData::where([
                 "id"           => $jobId,
@@ -187,10 +187,9 @@ class GenuioService extends TransApiAbstract
                 throw new Exception(TransApiConstant::getNotHaveErrorMessage("QUEUE_ID"));
             }
 
-            $detailCnt = GenuioQueueDetailData::where("queue_id", $jobId)
-            ->where("trans_status", TransApiConstant::QUEUE_STAY)
-            ->where("base64", "")
-            ->count();
+            $payloadJson = json_decode($getGenuioObj->payload_json, JSON_UNESCAPED_UNICODE);
+            $detailCnt   = count($payloadJson["images"]);
+
             if( count($images) != $detailCnt ){
                 throw new Exception(TransApiConstant::getFitErrorMessage("NOT_EQUAL_COUNT_IMAGE"));
             }
@@ -203,16 +202,28 @@ class GenuioService extends TransApiAbstract
                 if( $prdObj == null ){
                     throw new ValueError(TransApiConstant::getNotHaveErrorMessage("PRODUCT"));
                 }
-                $prd_desc = $prdObj->prd_desc;
+
                 $dateName = $prdObj->created_at->format('Y/m/d');
     
                 // 1. product_image_datas update
                 foreach ($images as $image) {
                     try {
-                        $imgId  = (int)$image["id"];
+                        $imgId     = (int)$image["id"];
+                        $is_except = ImageConstant::IS_EXCEPT_N;
+                        if( isset($params["excluded"]) && $params["excluded"] === true ) {
+                            $is_except = ImageConstant::IS_EXCEPT_Y;
+                        }
+
                         $imgObj = ProductImageData::where("id", $imgId)->first();
                         if( $imgObj == null ){
                             throw new ValueError(TransApiConstant::getNotHaveErrorMessage("IMG_ID"));
+                        }
+
+                        if( $is_except == ImageConstant::IS_EXCEPT_Y || $imgObj->is_except == ImageConstant::IS_EXCEPT_Y ){
+                            ProductImageData::where("id", $imgId)->update([
+                                "is_except" => ImageConstant::IS_EXCEPT_Y
+                            ]);
+                            throw new ValueError(ImageErrorMessageConstant::getFitErrorMessage("EXCEPT_IMG"));
                         }
     
                         $img_url_origin = $imgObj->img_url_origin;
@@ -311,8 +322,7 @@ class GenuioService extends TransApiAbstract
                             "img_id"       => $imgId,
                             "trans_status" => TransApiConstant::QUEUE_STAY,
                         ])->update([
-                            "trans_status" => $uploadResult == true ? TransApiConstant::QUEUE_SUCCESS : TransApiConstant::QUEUE_FAIL,
-                            "base64"       => $imgTransBase64,
+                            "trans_status" => $uploadResult == true ? TransApiConstant::QUEUE_SUCCESS : TransApiConstant::QUEUE_FAIL
                         ]);
                     } catch (ValueError $ve) {
                         $errMsg = [
@@ -322,14 +332,16 @@ class GenuioService extends TransApiAbstract
                         debug_log(json_encode($errMsg, JSON_UNESCAPED_UNICODE), "genuio", "genuio-img");
                     }
                 }
-    
-                // 2. 상세 이미지 업데이트
-                upPrdDescTrans($offerId);
 
             } else if( $getGenuioObj->send_type == GenuioConstant::IMG_Ai_TRANS ){
                 foreach ($images as $image) {
                     try {
-                        $imgId  = (int)$image["id"];
+                        $imgId     = (int)$image["id"];
+                        $is_except = ImageConstant::IS_EXCEPT_N;
+                        if( isset($params["excluded"]) && $params["excluded"] === true ) {
+                            $is_except = ImageConstant::IS_EXCEPT_Y;
+                        }
+
                         $imgObj = GenuioImageData::where([
                             "id" => $imgId
                         ])->first();
@@ -342,6 +354,13 @@ class GenuioService extends TransApiAbstract
                         $prdImgObj = ProductImageData::where("id", $imgObj->img_id)->first();
                         if( $prdImgObj == null ){
                             throw new ValueError(TransApiConstant::getNotHaveErrorMessage("IMG_ID"));
+                        }
+
+                        if( $is_except == ImageConstant::IS_EXCEPT_Y || $prdImgObj->is_except == ImageConstant::IS_EXCEPT_Y ){
+                            ProductImageData::where("id", $imgObj->img_id)->update([
+                                "is_except" => ImageConstant::IS_EXCEPT_Y
+                            ]);
+                            throw new ValueError(ImageErrorMessageConstant::getFitErrorMessage("EXCEPT_IMG"));
                         }
 
                         $img_url_ai_origin = $imgObj->img_url_ai;
@@ -391,10 +410,6 @@ class GenuioService extends TransApiAbstract
                             ProductImageData::where("id", $prdImgObj->id)->update([
                                 "img_url_trans" => $img_url_ai
                             ]);
-
-                            if( $prdImgObj->img_type == ImageConstant::IMAGE_TYPE_DESC ){
-                                upPrdDescTrans($prdImgObj->offer_id);
-                            }
                         }
 
                         if( $errorImgFlag == true ) {
@@ -408,8 +423,7 @@ class GenuioService extends TransApiAbstract
                             "img_id"       => $imgId,
                             "trans_status" => TransApiConstant::QUEUE_STAY,
                         ])->update([
-                            "trans_status" => $uploadResult == true ? TransApiConstant::QUEUE_SUCCESS : TransApiConstant::QUEUE_FAIL,
-                            "base64"       => $imgTransBase64,
+                            "trans_status" => $uploadResult == true ? TransApiConstant::QUEUE_SUCCESS : TransApiConstant::QUEUE_FAIL
                         ]);
                     } catch (ValueError $ve) {
                         $errMsg = [
@@ -420,6 +434,9 @@ class GenuioService extends TransApiAbstract
                     }
                 }
             }
+
+            // 상세 이미지 업데이트
+            upPrdDescTrans($offerId);
 
             $returnMsg = helpers_success_message();
         } catch (Exception $e) {
@@ -556,6 +573,10 @@ class GenuioService extends TransApiAbstract
                         GenuioImageData::where("id", $imgId)->update([
                             "img_url_ai" => $img_url_ai
                         ]);
+
+                        ProductImageData::where("id", $imgObj->id)->update([
+                            "img_url_trans" => $img_url_ai
+                        ]);
                     } else {
                         GenuioImageData::where("id", $imgId)->forceDelete();
                         throw new ValueError(ImageErrorMessageConstant::getFitErrorMessage("S3_IMG_UPLOAD"));
@@ -573,6 +594,10 @@ class GenuioService extends TransApiAbstract
                     ];
                 }
             }
+
+            // 상세이미지 업데이트
+            upPrdDescTrans($offerId);
+
             $returnMsg = helpers_success_message($resultImgs);
         } catch (Exception $e) {
             $returnMsg = helpers_fail_message(false, $e->getMessage());

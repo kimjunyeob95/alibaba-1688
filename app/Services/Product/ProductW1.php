@@ -12,6 +12,7 @@ use App\Constants\ImageErrorMessageConstant;
 use App\Constants\LogConstant;
 use App\Constants\ProductConstant;
 use App\Constants\ProductErrorMessageConstant;
+use App\Constants\WConstant;
 use App\Models\CategoryMapping;
 use App\Models\GenuioImageData;
 use App\Models\ProductCollectDetailLog;
@@ -61,6 +62,8 @@ class ProductW1 extends ProductAbstract
         $keyword        = $params["keyword"];
         $trans_status   = $params["trans_status"];
         $mapping_status = $params["mapping_status"];
+        $prd_status     = $params["prd_status"];
+        $mdPrice_status = $params["mdPrice_status"];
         $sortArr        = explode("|", $params["sort"]);
 
         $prdBuilder = ProductData::select(["product_datas.*"])->with([
@@ -90,22 +93,39 @@ class ProductW1 extends ProductAbstract
             }
         }
 
-        if( in_array($sortArr[0], ["option_price", "md_price"])) {
-            $maxPriceSubquery = DB::table('product_option_datas');
-            if( $sortArr[0] == "option_price" ){
-                $maxPriceSubquery->selectRaw('offer_id, MAX(option_price) as max_price');
-            } else if( $sortArr[0] == "md_price" ) {
-                $maxPriceSubquery->selectRaw('offer_id, MAX(md_price) as max_price');
+        if( !empty($mdPrice_status) ) {
+            $optSubquery = DB::table('product_option_datas');
+
+            $optSubquery->selectRaw('offer_id, md_price');
+            $prdBuilder->groupBy('product_datas.offer_id');
+
+            if( in_array($sortArr[0], ["option_price", "md_price"]) ){
+                if( $sortArr[0] == "option_price" ){
+                    $optSubquery->selectRaw('MAX(option_price) as max_price');
+                } else if( $sortArr[0] == "md_price" ) {
+                    $optSubquery->selectRaw('MAX(md_price) as max_price');
+                }
+                $optSubquery->groupBy('offer_id');
+                $prdBuilder->orderBy('opt_sub_qry.max_price', $sortArr[1]);
+            } else {
+                $prdBuilder->orderBy("product_datas." . $sortArr[0], $sortArr[1]);
             }
 
-            $maxPriceSubquery->groupBy('offer_id');
-            $prdBuilder->joinSub($maxPriceSubquery, 'max_qry', function ($join) {
-                $join->on('product_datas.offer_id', '=', 'max_qry.offer_id');
+            $prdBuilder->leftJoinSub($optSubquery, 'opt_sub_qry', function ($join) {
+                $join->on('product_datas.offer_id', '=', 'opt_sub_qry.offer_id');
             });
 
-            $prdBuilder->orderBy('max_qry.max_price', $sortArr[1]);
-        } else {
-            $prdBuilder->orderBy("product_datas." . $sortArr[0], $sortArr[1]);
+            if ($mdPrice_status == ProductConstant::MD_PRICE_Y) {
+                $prdBuilder->where(function ($query) {
+                    $query->where('opt_sub_qry.md_price', '!=', 0)
+                          ->whereNotNull('opt_sub_qry.md_price');
+                });
+            } else if ($mdPrice_status == ProductConstant::MD_PRICE_N) {
+                $prdBuilder->where(function ($query) {
+                    $query->where('opt_sub_qry.md_price', '=', 0)
+                          ->orWhereNull('opt_sub_qry.md_price');
+                });
+            }
         }
         
         if( !empty($trans_status) ){
@@ -114,6 +134,10 @@ class ProductW1 extends ProductAbstract
 
         if( !empty($mapping_status) ){
             $prdBuilder->where("product_datas.mapping_status", $mapping_status);
+        }
+
+        if( !empty($prd_status) ){
+            $prdBuilder->where("product_datas.status", $prd_status);
         }
 
         $totalCnt  = ProductData::count();
@@ -158,7 +182,7 @@ class ProductW1 extends ProductAbstract
     {
         $pageSize  = $params["pageSize"];
 
-        $prdBuilder = ProductCollectLog::orderBy("created_at", "desc");
+        $prdBuilder = ProductCollectLog::where("version", WConstant::WAPP_W1)->orderBy("created_at", "desc");
         $lists = $prdBuilder->paginate($pageSize)->appends($params);
 
         return $lists;
@@ -456,6 +480,7 @@ class ProductW1 extends ProductAbstract
             "status"     => LogConstant::COLLECT_RUNNING,
             "payload"    => implode(", ", $offerIds),
             "log_count"  => 0,
+            "version"    => WConstant::WAPP_W1,
             "created_at" => Carbon::now()
         ]);
         $successCnt = 0;
@@ -525,6 +550,7 @@ class ProductW1 extends ProductAbstract
             "status"     => LogConstant::COLLECT_RUNNING,
             "payload"    => implode(", ", $offerIds),
             "log_count"  => 0,
+            "version"    => WConstant::WAPP_W1,
             "created_at" => Carbon::now()
         ]);
         $successCnt = 0;
@@ -592,6 +618,9 @@ class ProductW1 extends ProductAbstract
         $offerId       = $detailProduct["offerId"];
         $prdCategoryId = $detailProduct["categoryId"];
         $status        = $detailProduct["status"];
+        if( $status != ProductConstant::PRD_STATUS_PUBLISH ){
+            $status = ProductConstant::PRD_STATUS_STOP;
+        }
 
         // 1. 상품 이미지
         $product1688ImageDtoList = [];
@@ -757,7 +786,7 @@ class ProductW1 extends ProductAbstract
 
         foreach ($detailProduct["productSkuInfos"] as $prdOptions) {
             $opt_status = ProductConstant::OPTION_SEC_ON_SALE_NUMBER;
-            if( $status != ProductConstant::PRD_STATUS ){
+            if( $status != ProductConstant::PRD_STATUS_PUBLISH ){
                 $opt_status = ProductConstant::OPTION_SEC_OUT_OF_STOCK_NUMBER;
             }
 
@@ -1134,6 +1163,7 @@ class ProductW1 extends ProductAbstract
                 "status"     => LogConstant::COLLECT_RUNNING,
                 "payload"    => $payload_json,
                 "log_count"  => 0,
+                "version"    => WConstant::WAPP_W1,
                 "created_at" => Carbon::now()
             ]);
 
@@ -1357,6 +1387,7 @@ class ProductW1 extends ProductAbstract
                 "status"     => LogConstant::COLLECT_RUNNING,
                 "payload"    => implode(",", $imageIds),
                 "log_count"  => 0,
+                "version"    => WConstant::WAPP_W1,
                 "created_at" => Carbon::now()
             ]);
 
@@ -1827,13 +1858,12 @@ class ProductW1 extends ProductAbstract
     {
         $returnMsg = $this->returnMsg;
         try {
-            ProductImageData::whereIn("id", $imgIds)->update([
-                "is_except" => $is_except
-            ]);
-
             foreach ($imgIds as $imgId) {
                 $imgObj = ProductImageData::where("id", $imgId)->first();
-                if( $imgObj != null ){
+                if( $imgObj != null && $imgObj->img_type != ImageConstant::IMAGE_TYPE_MAIN ){
+                    ProductImageData::where("id", $imgId)->update([
+                        "is_except" => $is_except
+                    ]);
                     // 상세이미지 업데이트
                     upPrdDescTrans($imgObj->offer_id);
                 }
@@ -1883,6 +1913,22 @@ class ProductW1 extends ProductAbstract
             }
 
             $returnMsg = helpers_success_message();
+        } catch (Exception $e) {
+            $returnMsg = helpers_fail_message(false, $e->getMessage());
+        }
+
+        return $returnMsg;
+    }
+
+    public function statusUpdate(array $offerIds, string $status): array
+    {
+        $returnMsg = $this->returnMsg;
+        try {
+            ProductData::whereIn("offer_id", $offerIds)->update([
+                "status" => $status
+            ]);
+
+            $returnMsg = helpers_success_message([], "판매 상태가 변경되었습니다.");
         } catch (Exception $e) {
             $returnMsg = helpers_fail_message(false, $e->getMessage());
         }

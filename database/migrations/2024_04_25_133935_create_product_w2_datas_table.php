@@ -1,0 +1,61 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     *
+     * @return void
+     */
+    public function up()
+    {
+        Schema::create('product_w2_datas', function (Blueprint $table) {
+            $table->id();
+            $table->unsignedBigInteger('offer_id')->nullable(false)->unique()->comment('제품ID');
+            $table->unsignedBigInteger('category_id')->nullable(false)->comment('카테고리ID');
+            $table->string('status', 25)->nullable(false)->default("published")->comment('제품 상태');
+            $table->text('prd_name')->nullable(false)->comment('제품명');
+            $table->text('prd_name_en')->nullable(false)->comment('제품명(영문)');
+            $table->text('prd_name_kr')->nullable(false)->comment('제품명(국문)');
+            $table->unsignedInteger('start_quantity')->default(1)->nullable(false)->comment('최소 주문 수량');
+            $table->longText('prd_desc')->nullable(false)->comment('제품상세');
+            $table->longText('prd_desc_trans')->nullable(false)->comment('제품상세_번역');
+            $table->enum('tax_type', [1, 2])->default(1)->nullable(false)->comment('과세여부 1: 과세, 2: 비과세');
+            $table->enum('minor_not_sale', ["Y", "N"])->default("N")->nullable(false)->comment('미성년자판매금지');
+            $table->string('delivery_name', 50)->nullable(false)->comment('택배사');
+            $table->longText('delivery_info')->nullable(false)->comment('배송마감/발송처/발송일');
+            $table->longText('return_comment')->nullable(false)->comment('반품사항안내');
+            $table->enum('supply_type', [1, 2, 3])->default(2)->nullable(false)->comment('공급업체 분류 1: 제조사, 2: 벤더사, 3: 수입사');
+            $table->unsignedInteger('prd_channel')->default(22)->nullable(false)->comment('제품채널');
+            $table->unsignedInteger('prd_rule')->default(1)->nullable(false)->comment('판매가 준수여부');
+            $table->enum('trans_status', ["N", "Y"])->default("N")->nullable(false)->comment('번역 완료 여부 N: 변역 미완료, Y: 번역 완료');
+            $table->enum('mapping_status', ["N", "Y"])->default("N")->nullable(false)->comment('카테고리 맵핑 여부');
+
+            $table->timestamps();
+            $table->softDeletes();
+
+            $table->index('offer_id');
+            $table->index('category_id');
+            $table->index('supply_type');
+            $table->index('trans_status');
+            $table->index('mapping_status');
+        });
+
+        DB::statement('ALTER TABLE product_w2_datas COMMENT "W2 상품 데이터 테이블"');
+    }
+
+    /**
+     * Reverse the migrations.
+     *
+     * @return void
+     */
+    public function down()
+    {
+        Schema::dropIfExists('product_w2_datas');
+    }
+};

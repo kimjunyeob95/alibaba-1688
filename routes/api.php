@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\W\WCategoryController;
 use App\Http\Controllers\Api\W\WProductController;
 use App\Http\Controllers\Api\GenuioController;
 use App\Http\Controllers\Api\MallController;
+use App\Http\Controllers\Api\W\W2ProductController;
 use Illuminate\Support\Facades\Route;
 
 /**
@@ -58,6 +59,8 @@ Route::name('w.')->prefix('w')->group(function () {
         Route::post('/image/accept', [WProductController::class, 'imageAccept'])->name('imageAccept');
         // MD 판매자가 설정
         Route::post('/mdPrice/update', [WProductController::class, 'mdPriceUpdate'])->name('mdPriceUpdate');
+        // 판매상태 변경
+        Route::post('/status/update', [WProductController::class, 'statusUpdate'])->name('statusUpdate');
     });
 
     Route::name('category.')->prefix('category')->group(function () {
@@ -71,6 +74,38 @@ Route::name('w.')->prefix('w')->group(function () {
         Route::post('/infos', [WCategoryController::class, 'getInfos'])->name('getInfos');
         // W 하위 카테고리 조회
         Route::post('/wDepth', [WCategoryController::class, 'getWDepth'])->name('getWDepth');
+    });
+});
+
+/**
+ * W2 API List
+ */
+Route::name('w2.')->prefix('w2')->group(function () {
+    Route::name('product.')->prefix('product')->group(function () {
+        // 1688 상품ID 별 수집
+        Route::post('/collect', [W2ProductController::class, 'collectProduct'])->name('collectProduct');
+        // 1688 keywordQuery 수집
+        Route::post('/collectKeywordQuery', [WProductController::class, 'collectKeywordQuery'])->name('collectKeywordQuery');
+        // 1688 이미지ID 생성
+        Route::post('/create/imgId', [WProductController::class, 'createImgId'])->name('createImgId');
+        // 1688 이미지->상품ID 별 수집
+        Route::post('/collect/img', [WProductController::class, 'collectProductImage'])->name('collectProductImage');
+        // 1688 imageQuery 수집
+        Route::post('/collectImageQuery', [WProductController::class, 'collectImageQuery'])->name('collectImageQuery');
+        // 1688 상품상세 URL->상품ID 별 수집
+        Route::post('/collect/url', [WProductController::class, 'collectProductUrl'])->name('collectProductUrl');
+        // 1688 상품상세 URL 수집 데이터 삭제
+        Route::post('/urlQuery/delete', [WProductController::class, 'urlQueryDel'])->name('urlQueryDel');
+        // 1688 상품 조회 요청
+        Route::post('/searchData', [WProductController::class, 'productSearchData'])->name('productSearchData');
+        // 이미지 수집 제외 처리
+        Route::post('/image/except', [WProductController::class, 'imageExcept'])->name('imageExcept');
+        // AI 이미지 적용
+        Route::post('/image/accept', [WProductController::class, 'imageAccept'])->name('imageAccept');
+        // MD 판매자가 설정
+        Route::post('/mdPrice/update', [WProductController::class, 'mdPriceUpdate'])->name('mdPriceUpdate');
+        // 판매상태 변경
+        Route::post('/status/update', [W2ProductController::class, 'statusUpdate'])->name('statusUpdate');
     });
 });
 

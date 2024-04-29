@@ -8,6 +8,7 @@ use App\Constants\ImageErrorMessageConstant;
 use App\Constants\LogConstant;
 use App\Constants\ProductConstant;
 use App\Constants\ProductErrorMessageConstant;
+use App\Constants\WConstant;
 use App\Http\Controllers\Controller;
 use App\Services\Service1688Product;
 use Exception;
@@ -16,7 +17,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Symfony\Component\Process\Process;
 
-class WProductController extends Controller
+class W2ProductController extends Controller
 {
     private Request $request;
     private Service1688Product $service1688Product;
@@ -42,7 +43,7 @@ class WProductController extends Controller
             $offerIds = $this->request->post("offer_ids");
             $log_type = $this->request->post("log_type", LogConstant::COLLECT_API_KEYWORDQUERY);
 
-            $options = "--offerids=" . helperEscape(implode(",", $offerIds)) . " --type=" . helperEscape($log_type);
+            $options = "--offerids=" . helperEscape(implode(",", $offerIds)) . " --type=" . helperEscape($log_type) . " --wversion=" . WConstant::WAPP_W2;
             $command = "nohup php artisan save_1688_collect_product " . $options . " > /dev/null 2>&1 &";
             $process = Process::fromShellCommandline($command);
             $process->setWorkingDirectory(env("WORK_DIRECTORY", "/web1/1688"));
@@ -427,7 +428,7 @@ class WProductController extends Controller
             
             $offerIds = $this->request->post("offerIds");
             $status   = $this->request->post("status");
-            $result   = $this->service1688Product->statusUpdate($offerIds, $status);
+            $result   = $this->service1688Product->statusUpdateW2($offerIds, $status);
             if( $result["isSuccess"] == true ){
                 return helpers_json_response(HttpConstant::OK, $result);
             } else {

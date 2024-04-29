@@ -113,11 +113,7 @@
                 <hr style="margin-top: 20px">
                 <div class="row mb-12">
                     <div class="col">
-                        @if($prdObj->status != ProductConstant::PRD_STATUS_PUBLISH)
-                            <h5>[기본 정보] <span class="bg-danger rounded text-white px-2 py-1 fs-6">{{ ProductConstant::PRD_STATUS[$prdObj->status] }}</span></h5>
-                        @else
-                            <h5>[기본 정보]</h5>
-                        @endif
+                        <h5>[기본 정보]</h5>
                     </div>
                     <div class="row mb-2">
                         <div class="col-md-3 text-center">제품ID</div>
@@ -128,8 +124,12 @@
                         <div class="col-md-8">{{ $prdObj->prd_name }}</div>
                     </div>
                     <div class="row mb-2">
-                        <div class="col-md-3 text-center">제품명(번역)</div>
-                        <div class="col-md-8">{{ $prdObj->prd_name_trans }}</div>
+                        <div class="col-md-3 text-center">제품명(영문)</div>
+                        <div class="col-md-8">{{ $prdObj->prd_name_en }}</div>
+                    </div>
+                    <div class="row mb-2">
+                        <div class="col-md-3 text-center">제품명(국문)</div>
+                        <div class="col-md-8">{{ $prdObj->prd_name_kr }}</div>
                     </div>
                     <div class="row mb-2">
                         <div class="col-md-3 text-center">W 카테고리</div>
@@ -192,8 +192,8 @@
                             <thead class="table-light">
                                 <tr class="text-center">
                                     <th scope="col">skuID</th>
-                                    <th scope="col">옵션명</th>
-                                    <th scope="col">옵션명(번역)</th>
+                                    <th scope="col">옵션명(영문)</th>
+                                    <th scope="col">옵션명(국문)</th>
                                     <th scope="col">W 공급가(위안)</th>
                                     <th scope="col">W 공급가(원)</th>
                                     <th scope="col">적용 환율(원)</th>
@@ -208,10 +208,10 @@
                                             {{ $option->sku_id }}
                                         </td>
                                         <td>
-                                            {{ $option->option_name }}
+                                            {{ $option->option_name_en }}
                                         </td>
                                         <td>
-                                            {{ $option->option_name_trans }}
+                                            {{ $option->option_name_kr }}
                                         </td>
                                         <td>
                                             {{ $option->price_1688 }}
@@ -263,32 +263,6 @@
 
                 <hr style="margin-top: 20px">
                 <div class="row mt-3">
-                    <div class="col">
-                        <h5>[고시정보]</h5>
-                    </div>
-
-                    <div class="table-responsive">
-                        <table class="table table-white bg-white">
-                            <tbody>
-                                @foreach ($prdObj->notices as $gosiKey => $gosi)
-                                    @if ( $gosiKey % 4 == 0)
-                                        <tr>
-                                    @endif
-
-                                        <th class="bg-light">{{ $gosi->attribute_name }}</th>
-                                        <td>{{ $gosi->attribute_value }}</td>
-
-                                    @if (($gosiKey + 1) % 4 == 0 || $loop->last)
-                                        </tr>
-                                    @endif
-                                @endforeach
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <hr style="margin-top: 20px">
-                <div class="row mt-3">
                     <div class="col-md-6">
                         <h5>[제품상세 원본]</h5>
                         <div class="d-flex justify-content-center">
@@ -318,11 +292,7 @@
             </div>
         </div>
 
-        <div class="me-5 mb-4 fixed-bottom d-flex flex-column align-items-stretch" style="left: auto;">
-            <button type="button" class="btn btn-danger btn-xl text-white mb-2 btn-edit-status">
-                판매상태 변경
-            </button>
-
+        {{-- <div class="me-5 mb-4 fixed-bottom d-flex flex-column align-items-stretch" style="left: auto;">
             <a class="btn btn-primary btn-xl text-white text-decoration-none mb-2 btn-edit-img" type="all">
                 전체 이미지<br>번역요청
             </a>
@@ -333,87 +303,11 @@
                 상세 이미지<br>번역요청
             </a>
             <a class="btn btn-danger btn-xl text-white text-decoration-none mb-2 btn-edit-img" type="detail">이미지 수정</a>
-        </div>
-
-        <div class="modal fade" id="htmlModal" tabindex="-1" role="dialog" aria-labelledby="htmlModalLabel" aria-hidden="true">
-            <div class="modal-dialog modal-lg" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="htmlModalLabel">판매 상태 변경</h5>
-                    </div>
-                    <div class="modal-body">
-                        <div>
-                            <div class="d-flex justify-content-evenly px-3">
-                                <div class="row w-100">
-                                    <div class="col-2">
-                                        <label class="fs-7">판매 상태</label>
-                                    </div>
-                                    <div class="col d-flex justify-content-around">
-                                        <div class="form-check form-check-inline">
-                                            <input class="form-check-input" type="radio" name="status" id="status1" value="{{ ProductConstant::PRD_STATUS_PUBLISH }}" @if($prdObj->status == ProductConstant::PRD_STATUS_PUBLISH) checked @endif>
-                                            <label class="form-check-label" for="status1">{{ ProductConstant::PRD_STATUS[ProductConstant::PRD_STATUS_PUBLISH] }}</label>
-                                        </div>
-                                        <div class="form-check form-check-inline">
-                                            <input class="form-check-input" type="radio" name="status" id="status2" value="{{ ProductConstant::PRD_STATUS_STOP }}" @if($prdObj->status == ProductConstant::PRD_STATUS_STOP) checked @endif>
-                                            <label class="form-check-label" for="status2">{{ ProductConstant::PRD_STATUS[ProductConstant::PRD_STATUS_STOP] }}</label>
-                                        </div>
-                                        <div class="form-check form-check-inline">
-                                            <input class="form-check-input" type="radio" name="status" id="status3" value="{{ ProductConstant::PRD_STATUS_EXCEPT }}" @if($prdObj->status == ProductConstant::PRD_STATUS_EXCEPT) checked @endif>
-                                            <label class="form-check-label" for="status3">{{ ProductConstant::PRD_STATUS[ProductConstant::PRD_STATUS_EXCEPT] }}</label>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-primary btn-save">저장</button>
-                        <button type="button" class="btn btn-secondary htmlModalClose">닫기</button>
-                    </div>
-                </div>
-            </div>
-        </div>
+        </div>         --}}
     </div>
 <script type="text/javascript">
 
     $(document).ready(function(){
-        $('.btn-edit-status').click(function(){
-            $("#htmlModal").modal('show');
-        });
-
-        $(".htmlModalClose").click(function(){
-            $("#htmlModal").modal('hide');
-        });
-
-        $(".btn-save").click(function(){
-            let offer_id = "{{ $prdObj->offer_id }}";
-            let status   = $("input[name=status]:checked").val();
-
-            if( confirm("판매상태를 변경 하시겠습니까?") ){
-                $.ajax({
-                    "headers"    : {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
-                    "type"       : "POST",
-                    "url"        : "{{ route('w.product.statusUpdate') }}",
-                    "data"       : { offerIds: [offer_id], status },
-                    beforeSend: function () {
-                        $("#loadingOverlay").show();
-                    },
-                    complete: function () {
-                        $("#loadingOverlay").hide();
-                    },
-                    success: function (resp) {
-                        alert(resp.msg);
-                        location.reload();
-                    },
-                    error: function error(request, status, _error) {
-                        let { error } = JSON.parse(request.responseText);
-                        alert(error.message);
-                    }
-                });
-            }
-        });
-
         $('.btn-edit-img').click(function(e){
             e.preventDefault();
 

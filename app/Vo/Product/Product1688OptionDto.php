@@ -2,7 +2,6 @@
 
 namespace App\Vo\Product;
 
-use App\Constants\ProductConstant;
 use App\Vo\Vo;
 
 class Product1688OptionDto extends Vo

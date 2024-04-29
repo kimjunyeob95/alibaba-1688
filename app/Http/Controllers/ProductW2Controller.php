@@ -26,8 +26,10 @@ class ProductW2Controller extends Controller
         $pageSize       = $this->request->post("pageSize", 50);
         $search_cls     = $this->request->get("search_cls", "offer_id");
         $keyword        = $this->request->get("keyword", "");
-        $trans_status   = $this->request->get("trans_status", ProductConstant::TRANS_STATUS_Y);
+        $trans_status   = $this->request->get("trans_status", "");
         $mapping_status = $this->request->get("mapping_status", "");
+        $prd_status     = $this->request->get("prd_status", "");
+        $mdPrice_status = $this->request->get("mdPrice_status", "");
         $sort           = $this->request->get("sort", "updated_at|desc");
         $offset         = ($page - 1) * $pageSize;
 
@@ -38,9 +40,11 @@ class ProductW2Controller extends Controller
             "keyword"        => $keyword,
             "trans_status"   => $trans_status,
             "mapping_status" => $mapping_status,
+            "prd_status"     => $prd_status,
+            "mdPrice_status" => $mdPrice_status,
             "sort"           => $sort,
         ];
-        $result = $this->service1688Product->getPrdList($params);
+        $result = $this->service1688Product->getPrdListW2($params);
 
         $viewParams = [
             "datas"          => $result["paginator"],
@@ -54,15 +58,17 @@ class ProductW2Controller extends Controller
             "keyword"        => $keyword,
             "trans_status"   => $trans_status,
             "mapping_status" => $mapping_status,
+            "prd_status"     => $prd_status,
+            "mdPrice_status" => $mdPrice_status,
             "sort"           => $sort,
         ];
 
-        return view("product.prdList")->with($viewParams);
+        return view("product.prdW2List")->with($viewParams);
     }
 
     public function getPrdDetail(int $offerId): View
     {
-        $result = $this->service1688Product->getPrdDetail($offerId);
+        $result = $this->service1688Product->getPrdDetailW2($offerId);
         if( $result["isSuccess"] == false ){
             abort(404);
         } else {
@@ -70,7 +76,7 @@ class ProductW2Controller extends Controller
                 "prdObj" => $result["data"]
             ];
         }
-        return view("product.prdDetail")->with($viewParams);
+        return view("product.prdW2Detail")->with($viewParams);
     }
 
     public function queryProductDetail(): View
@@ -268,7 +274,7 @@ class ProductW2Controller extends Controller
             "page"     => $page,
             "pageSize" => $pageSize,
         ];
-        $result = $this->service1688Product->getPrdCollectLogList($params);
+        $result = $this->service1688Product->getPrdCollectLogListW2($params);
         $viewParams = [
             "datas"    => $result,
             "offset"   => (int) $offset,

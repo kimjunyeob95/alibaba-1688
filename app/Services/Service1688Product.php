@@ -358,6 +358,18 @@ class Service1688Product
       return $this->productAbstract->mdPriceUpdate($offerIds, $mdPrice);
    }
 
+   /**
+     * @func statusUpdate
+     * @description '판매상태 변경'
+     * @param array $offerIds
+     * @param string $status
+     * @return array
+   */
+   public function statusUpdate(array $offerIds, string $status): array
+   {
+      return $this->productAbstract->statusUpdate($offerIds, $status);
+   }
+
    /****************************************** WApp W2 **********************************************/
 
    /**
@@ -369,5 +381,62 @@ class Service1688Product
    public function getQueryProductDetailW2(array $offerIds): array
    {
       return $this->productAbstractW2->getQueryProductDetail($offerIds);
+   }
+
+   /**
+     * @func collectProductW2
+     * @description '1688API 제품ID로 조회 후 DB저장'
+     * @param array $offerIds '제품ID'
+     * @param string $type '요청 페이지'
+     * @return void
+   */
+   public function collectProductW2(array $offerIds, string $type = LogConstant::COLLECT_API_KEYWORDQUERY): void
+   {
+      $this->productAbstractW2->collectProduct($offerIds, $type);
+   }
+
+   /**
+     * @func getPrdCollectLogListW2
+     * @description '상품 수집현황 조회'
+     * @param array $params
+     * @return LengthAwarePaginator
+   */
+   public function getPrdCollectLogListW2(array $params): LengthAwarePaginator
+   {
+      return $this->productAbstractW2->getPrdCollectLogList($params);
+   }
+
+   /**
+    * @func getPrdListW2
+    * @description '1688 수집 상품 리스트'
+    * @param array $params
+    * @return array
+   */
+   public function getPrdListW2(array $params): array
+   {
+      return $this->productAbstractW2->getPrdList($params);
+   }
+
+   /**
+    * @func getPrdDetailW2
+    * @description '1688API 수집 상품 디테일'
+    * @param int $offerId
+    * @return array
+   */
+   public function getPrdDetailW2(int $offerId): array
+   {
+      return $this->productAbstractW2->getPrdDetail($offerId);
+   }
+
+   /**
+     * @func statusUpdateW2
+     * @description '판매상태 변경'
+     * @param array $offerIds
+     * @param string $status
+     * @return array
+   */
+   public function statusUpdateW2(array $offerIds, string $status): array
+   {
+      return $this->productAbstractW2->statusUpdate($offerIds, $status);
    }
 }
