@@ -1867,6 +1867,9 @@ class ProductW1 extends ProductAbstract
                     ]);
                     // 상세이미지 업데이트
                     upPrdDescTrans($imgObj->offer_id);
+                    
+                    // 수정 상품 저장
+                    saveModiProduct($imgObj->offer_id);
                 }
             }
             $returnMsg = helpers_success_message();
@@ -1892,6 +1895,9 @@ class ProductW1 extends ProductAbstract
 
                         // 상세이미지 업데이트
                         upPrdDescTrans($imgObj->offer_id);
+
+                        // 수정 상품 저장
+                        saveModiProduct($imgObj->offer_id);
                     }
                 }
             }
@@ -1911,6 +1917,9 @@ class ProductW1 extends ProductAbstract
                 ProductOptionData::where("offer_id", $offerId)->update([
                     "md_price" => $mdPrice
                 ]);
+
+                // 수정 상품 저장
+                saveModiProduct($offerId);
             }
 
             $returnMsg = helpers_success_message();
@@ -1928,6 +1937,11 @@ class ProductW1 extends ProductAbstract
             ProductData::whereIn("offer_id", $offerIds)->update([
                 "status" => $status
             ]);
+
+            foreach ($offerIds as $offerId) {
+                // 수정 상품 저장
+                saveModiProduct($offerId);
+            }
 
             $returnMsg = helpers_success_message([], "판매 상태가 변경되었습니다.");
         } catch (Exception $e) {

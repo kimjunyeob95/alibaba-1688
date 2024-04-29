@@ -2,9 +2,12 @@
 
 use App\Constants\HttpConstant;
 use App\Constants\ImageConstant;
+use App\Constants\MallConstant;
 use App\Constants\ProductConstant;
+use App\Constants\WConstant;
 use App\Models\ProductData;
 use App\Models\ProductImageData;
+use App\Models\ProductModiData;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
@@ -602,6 +605,22 @@ if (!function_exists("compareWSalePrice")) {
             return true;
         } else {
             return false;
+        }
+    }
+}
+
+/** 수정 상품 저장 */
+if (!function_exists("saveModiProduct")) {
+    function saveModiProduct(int $offerId, string $wType = WConstant::WAPP_W1): void
+    {
+        foreach (MallConstant::MALL_LIST as $channel) {
+            ProductModiData::firstOrCreate([
+                "offer_id"      => $offerId,
+                "w_type"        => $wType,
+                "is_send"       => ProductConstant::IS_SEND_N,
+                "channel"       => $channel,
+                "send_dated_at" => Null,
+            ]);
         }
     }
 }

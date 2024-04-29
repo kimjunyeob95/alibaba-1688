@@ -17,7 +17,7 @@ return new class extends Migration
         Schema::create('product_modi_datas', function (Blueprint $table) {
             $table->id();
 
-            $table->unsignedBigInteger('offer_id')->unique()->nullable(false)->comment('제품ID');
+            $table->unsignedBigInteger('offer_id')->nullable(false)->comment('제품ID');
             $table->enum('w_type', ["W1", "W2"])->default("W1")->nullable(false)->comment('WApp type');
             $table->string('channel', 50)->nullable(false)->default("easySell")->comment('전송 채널');
             $table->enum('is_send', ["Y", "N", "E"])->nullable(false)->default("N")->comment('전송 여부 Y:전송 N:미전송 E:에러');

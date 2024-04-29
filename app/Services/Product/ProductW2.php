@@ -1838,6 +1838,9 @@ class ProductW2 extends ProductAbstract
                 if( $imgObj != null ){
                     // 상세이미지 업데이트
                     upPrdDescTrans($imgObj->offer_id);
+
+                    // 수정 상품 저장
+                    saveModiProduct($imgObj->offer_id);
                 }
             }
             $returnMsg = helpers_success_message();
@@ -1863,6 +1866,9 @@ class ProductW2 extends ProductAbstract
 
                         // 상세이미지 업데이트
                         upPrdDescTrans($imgObj->offer_id);
+
+                        // 수정 상품 저장
+                        saveModiProduct($imgObj->offer_id);
                     }
                 }
             }

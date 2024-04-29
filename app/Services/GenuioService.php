@@ -438,6 +438,9 @@ class GenuioService extends TransApiAbstract
             // 상세 이미지 업데이트
             upPrdDescTrans($offerId);
 
+            // 수정 상품 저장
+            saveModiProduct($offerId);
+
             $returnMsg = helpers_success_message();
         } catch (Exception $e) {
             $returnMsg = helpers_fail_message(false, $e->getMessage());
@@ -597,6 +600,9 @@ class GenuioService extends TransApiAbstract
 
             // 상세이미지 업데이트
             upPrdDescTrans($offerId);
+            
+            // 수정 상품 저장
+            saveModiProduct($offerId);
 
             $returnMsg = helpers_success_message($resultImgs);
         } catch (Exception $e) {
