@@ -124,8 +124,12 @@
                         <div class="col-md-8">{{ $prdObj->prd_name }}</div>
                     </div>
                     <div class="row mb-2">
-                        <div class="col-md-3 text-center">제품명(번역)</div>
-                        <div class="col-md-8">{{ $prdObj->prd_name_trans }}</div>
+                        <div class="col-md-3 text-center">제품명(영문)</div>
+                        <div class="col-md-8">{{ $prdObj->prd_name_en }}</div>
+                    </div>
+                    <div class="row mb-2">
+                        <div class="col-md-3 text-center">제품명(국문)</div>
+                        <div class="col-md-8">{{ $prdObj->prd_name_kr }}</div>
                     </div>
                     <div class="row mb-2">
                         <div class="col-md-3 text-center">W 카테고리</div>
@@ -188,8 +192,8 @@
                             <thead class="table-light">
                                 <tr class="text-center">
                                     <th scope="col">skuID</th>
-                                    <th scope="col">옵션명</th>
-                                    <th scope="col">옵션명(번역)</th>
+                                    <th scope="col">옵션명(영문)</th>
+                                    <th scope="col">옵션명(국문)</th>
                                     <th scope="col">W 공급가(위안)</th>
                                     <th scope="col">W 공급가(원)</th>
                                     <th scope="col">적용 환율(원)</th>
@@ -204,10 +208,10 @@
                                             {{ $option->sku_id }}
                                         </td>
                                         <td>
-                                            {{ $option->option_name }}
+                                            {{ $option->option_name_en }}
                                         </td>
                                         <td>
-                                            {{ $option->option_name_trans }}
+                                            {{ $option->option_name_kr }}
                                         </td>
                                         <td>
                                             {{ $option->price_1688 }}

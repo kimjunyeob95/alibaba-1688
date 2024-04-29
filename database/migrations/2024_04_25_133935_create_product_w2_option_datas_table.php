@@ -20,8 +20,8 @@ return new class extends Migration
             $table->unsignedBigInteger('sku_id')->nullable(false)->comment('제품skuID');
             $table->text('spec_id')->nullable(false)->comment('제품specID');
             $table->enum('status', ["Y", "D", "N"])->default("Y")->nullable(false)->comment('상태값 Y: 정상(재입고), D: 단종, N: 품절');
-            $table->text('option_name')->nullable(false)->comment('옵션명');
-            $table->text('option_name_trans')->nullable(false)->comment('옵션명(번역)');
+            $table->text('option_name_en')->nullable(false)->comment('옵션명(영문)');
+            $table->text('option_name_kr')->nullable(false)->comment('옵션명(국문)');
             $table->decimal('price_1688', 12, 2)->nullable(false)->default(0)->comment('W 공급가(위안)');
             $table->decimal('option_price', 12, 2)->nullable(false)->default(0)->comment('W 공급가(원화)');
             $table->integer('md_price')->nullable(false)->default(0)->comment('MD 판매가');

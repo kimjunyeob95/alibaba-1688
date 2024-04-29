@@ -20,7 +20,8 @@ return new class extends Migration
             $table->unsignedBigInteger('category_id')->nullable(false)->comment('카테고리ID');
             $table->string('status', 25)->nullable(false)->default("published")->comment('제품 상태');
             $table->text('prd_name')->nullable(false)->comment('제품명');
-            $table->text('prd_name_trans')->nullable(false)->comment('제품명_번역');
+            $table->text('prd_name_en')->nullable(false)->comment('제품명(영문)');
+            $table->text('prd_name_kr')->nullable(false)->comment('제품명(국문)');
             $table->unsignedInteger('start_quantity')->default(1)->nullable(false)->comment('최소 주문 수량');
             $table->longText('prd_desc')->nullable(false)->comment('제품상세');
             $table->longText('prd_desc_trans')->nullable(false)->comment('제품상세_번역');

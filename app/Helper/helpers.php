@@ -590,6 +590,18 @@ if (!function_exists("calcEasySellSalePrice")) {
 if (!function_exists("calcWSalePrice")) {
     function calcWSalePrice(int $option_price = 0): int
     {
-        return ( ceil(($option_price * env("W_SALE_PRICE_RATE", "1.35")) / 100) * 100 ) + (int)env("W_DROP_SHIPPING_PRICE", 6000);
+        return ( ceil(($option_price * env("W_SALE_PRICE_RATE", "1.35")) / 100) * 100 ) + (int)env("W_DROP_SHIPPING_PRICE", 12000);
+    }
+}
+
+// WApp 일반 판매가 <= MD 판매자가 bool
+if (!function_exists("compareWSalePrice")) {
+    function compareWSalePrice(int $salePrice = 0, int $mdPrice = 0): bool
+    {
+        if( $mdPrice > $salePrice ){
+            return true;
+        } else {
+            return false;
+        }
     }
 }

@@ -19,10 +19,8 @@ use App\Models\GenuioImageData;
 use App\Models\ProductCollectDetailLog;
 use App\Models\ProductCollectLog;
 use App\Models\ProductData;
-use App\Models\ProductExtendData;
 use App\Models\ProductImageData;
 use App\Models\ProductImageDetailData;
-use App\Models\ProductNoticeData;
 use App\Models\ProductOptionData;
 use App\Models\ProductSearchData;
 use App\Models\ProductSearchDetailData;
@@ -33,11 +31,11 @@ use App\Models\ProductW2ImageDetailData;
 use App\Models\ProductW2NoticeData;
 use App\Models\ProductW2OptionData;
 use App\Models\WCategory;
-use App\Vo\Product\Product1688Dto;
 use App\Vo\Product\Product1688ExtendDto;
 use App\Vo\Product\Product1688ImageDto;
 use App\Vo\Product\Product1688NoticeDto;
-use App\Vo\Product\Product1688OptionDto;
+use App\Vo\Product\ProductW2Dto;
+use App\Vo\Product\ProductW2OptionDto;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\UploadedFile;
@@ -281,13 +279,13 @@ class ProductW2 extends ProductAbstract
                         $prdCategoryId = $detailProduct["categoryId"];
 
                         $prdDto                   = $this->get1688ProductDto($detailResult);
-                        $product1688Dto           = $prdDto["product1688Dto"];
+                        $productW2Dto             = $prdDto["productW2Dto"];
                         $product1688ExtendDto     = $prdDto["product1688ExtendDto"];
                         $product1688ImageDtoList  = $prdDto["product1688ImageDtoList"];
                         $product1688NoticeDtoList = $prdDto["product1688NoticeDtoList"];
-                        $product1688OptionDtoList = $prdDto["product1688OptionDtoList"];
+                        $productW2OptionDtoList   = $prdDto["productW2OptionDtoList"];
 
-                        $saveResult = $this->save1688ProductData($product1688Dto, $product1688ExtendDto, $product1688ImageDtoList, $product1688NoticeDtoList, $product1688OptionDtoList);
+                        $saveResult = $this->save1688ProductData($productW2Dto, $product1688ExtendDto, $product1688ImageDtoList, $product1688NoticeDtoList, $productW2OptionDtoList);
 
                         if( $saveResult["isSuccess"] == true ){
                             $successCnt++;
@@ -389,13 +387,13 @@ class ProductW2 extends ProductAbstract
                         $prdCategoryId = $detailProduct["categoryId"];
 
                         $prdDto                   = $this->get1688ProductDto($detailResult);
-                        $product1688Dto           = $prdDto["product1688Dto"];
+                        $productW2Dto             = $prdDto["productW2Dto"];
                         $product1688ExtendDto     = $prdDto["product1688ExtendDto"];
                         $product1688ImageDtoList  = $prdDto["product1688ImageDtoList"];
                         $product1688NoticeDtoList = $prdDto["product1688NoticeDtoList"];
-                        $product1688OptionDtoList = $prdDto["product1688OptionDtoList"];
+                        $productW2OptionDtoList   = $prdDto["productW2OptionDtoList"];
 
-                        $saveResult = $this->save1688ProductData($product1688Dto, $product1688ExtendDto, $product1688ImageDtoList, $product1688NoticeDtoList, $product1688OptionDtoList);
+                        $saveResult = $this->save1688ProductData($productW2Dto, $product1688ExtendDto, $product1688ImageDtoList, $product1688NoticeDtoList, $productW2OptionDtoList);
 
                         if( $saveResult["isSuccess"] == true ){
                             $successCnt++;
@@ -460,13 +458,13 @@ class ProductW2 extends ProductAbstract
                 }
 
                 $prdDto                   = $this->get1688ProductDto($detailResult);
-                $product1688Dto           = $prdDto["product1688Dto"];
+                $productW2Dto             = $prdDto["productW2Dto"];
                 $product1688ExtendDto     = $prdDto["product1688ExtendDto"];
                 $product1688ImageDtoList  = $prdDto["product1688ImageDtoList"];
                 $product1688NoticeDtoList = $prdDto["product1688NoticeDtoList"];
-                $product1688OptionDtoList = $prdDto["product1688OptionDtoList"];
+                $productW2OptionDtoList   = $prdDto["productW2OptionDtoList"];
 
-                $saveResult = $this->save1688ProductData($product1688Dto, $product1688ExtendDto, $product1688ImageDtoList, $product1688NoticeDtoList, $product1688OptionDtoList);
+                $saveResult = $this->save1688ProductData($productW2Dto, $product1688ExtendDto, $product1688ImageDtoList, $product1688NoticeDtoList, $productW2OptionDtoList);
                 if( $saveResult["isSuccess"] != true ){
                     throw new Exception($saveResult["msg"]);
                 }
@@ -527,13 +525,13 @@ class ProductW2 extends ProductAbstract
                 }
 
                 $prdDto                   = $this->get1688ProductDto($detailResult);
-                $product1688Dto           = $prdDto["product1688Dto"];
+                $productW2Dto             = $prdDto["productW2Dto"];
                 $product1688ExtendDto     = $prdDto["product1688ExtendDto"];
                 $product1688ImageDtoList  = $prdDto["product1688ImageDtoList"];
                 $product1688NoticeDtoList = $prdDto["product1688NoticeDtoList"];
-                $product1688OptionDtoList = $prdDto["product1688OptionDtoList"];
+                $productW2OptionDtoList   = $prdDto["productW2OptionDtoList"];
 
-                $saveResult = $this->save1688ProductData($product1688Dto, $product1688ExtendDto, $product1688ImageDtoList, $product1688NoticeDtoList, $product1688OptionDtoList);
+                $saveResult = $this->save1688ProductData($productW2Dto, $product1688ExtendDto, $product1688ImageDtoList, $product1688NoticeDtoList, $productW2OptionDtoList);
                 if( $saveResult["isSuccess"] != true ){
                     throw new Exception($saveResult["msg"]);
                 }
@@ -695,13 +693,14 @@ class ProductW2 extends ProductAbstract
         }
 
         $startQuantity  = $detailProduct["beginQty"];
-        $product1688Dto = new Product1688Dto();
-        $product1688Dto->bind([
+        $productW2Dto = new ProductW2Dto();
+        $productW2Dto->bind([
             "offerId"        => $offerId,
             "categoryId"     => $prdCategoryId,
             "status"         => $status,
             "subject"        => $detailProduct["title"],
-            "subjectTrans"   => $detailProduct["translateTitle"],
+            "subjectEn"      => "",
+            "subjectKr"      => $detailProduct["translateTitle"],
             "startQuantity"  => $startQuantity,
             "description"    => $prdDescription,
             "mapping_status" => $mapping_status,
@@ -729,7 +728,7 @@ class ProductW2 extends ProductAbstract
         }
 
         // 5. 상품 옵션정보
-        $product1688OptionDtoList = [];
+        $productW2OptionDtoList = [];
 
         $price_1688 = 0;
         // 5-1. price 컬럼이 있을 경우
@@ -756,47 +755,47 @@ class ProductW2 extends ProductAbstract
             foreach ($prdOptions["skuAttributeList"] as $prdOption) {
                 $optionNameTrans .= $prdOption["translateValue"] .  "_";
             }
-            $product1688OptionDto = new Product1688OptionDto();
-            $product1688OptionDto->bind([
-                "offerId"         => $offerId,
-                "skuId"           => $prdOptions["skuId"],
-                "specId"          => $prdOptions["specId"],
-                "status"          => $opt_status,
-                "price_1688"      => $price_1688,
-                "optionName"      => rtrim($optionName, "_"),
-                "optionNameTrans" => rtrim($optionNameTrans, "_"),
-                "amountOnSale"    => $prdOptions["stock"],
-                "cargoNumber"     => $prdOptions["cargoNumber"] ?? "",
+            $productW2OptionDto = new ProductW2OptionDto();
+            $productW2OptionDto->bind([
+                "offerId"      => $offerId,
+                "skuId"        => $prdOptions["skuId"],
+                "specId"       => $prdOptions["specId"],
+                "status"       => $opt_status,
+                "price_1688"   => $price_1688,
+                "optionNameEn" => rtrim($optionName, "_"),
+                "optionNameKr" => rtrim($optionNameTrans, "_"),
+                "amountOnSale" => $prdOptions["stock"],
+                "cargoNumber"  => $prdOptions["cargoNumber"] ?? "",
             ]);
-            $product1688OptionDtoList[] = $product1688OptionDto;
+            $productW2OptionDtoList[] = $productW2OptionDto;
         }
 
         return [
-            "product1688Dto"           => $product1688Dto,
+            "productW2Dto"             => $productW2Dto,
             "product1688ImageDtoList"  => $product1688ImageDtoList,
             "product1688ExtendDto"     => $product1688ExtendDto,
             "product1688NoticeDtoList" => $product1688NoticeDtoList,
-            "product1688OptionDtoList" => $product1688OptionDtoList,
+            "productW2OptionDtoList"   => $productW2OptionDtoList,
         ];
     }
 
     public function save1688ProductData(
-        Product1688Dto $product1688Dto, Product1688ExtendDto $product1688ExtendDto, array $product1688ImageDtoList,
-        array $product1688NoticeDtoList, array $product1688OptionDtoList): array
+        ProductW2Dto $productW2Dto, Product1688ExtendDto $product1688ExtendDto, array $product1688ImageDtoList,
+        array $product1688NoticeDtoList, array $productW2OptionDtoList): array
     {
         $returnMsg = helpers_fail_message();
         try {
-            $offerId = (int)$product1688Dto->offer_id;
+            $offerId = (int)$productW2Dto->offer_id;
 
-            // 1. product_datas upsert
-            $upsertWhere = $product1688Dto->getAllProperties();
+            // 1. product_w2_datas upsert
+            $upsertWhere = $productW2Dto->getAllProperties();
             unset($upsertWhere["offer_id"]);
             ProductW2Data::updateOrCreate(
                 ["offer_id" => $offerId],
                 $upsertWhere
             );
 
-            // 2. product_extend_datas upsert
+            // 2. product_w2_extend_datas upsert
             $upsertWhere = $product1688ExtendDto->getAllProperties();
             unset($upsertWhere["offer_id"]);
             ProductW2ExtendData::updateOrCreate(
@@ -804,7 +803,7 @@ class ProductW2 extends ProductAbstract
                 $upsertWhere
             );
 
-            // 3. product_image_datas, product_image_detail_datas upsert
+            // 3. product_w2_image_datas, product_w2_image_detail_datas upsert
             foreach ($product1688ImageDtoList as $product1688ImageDto) {
                 // 메인 이미지
                 if( $product1688ImageDto->is_change_img == true && $product1688ImageDto->img_type == ImageConstant::IMAGE_TYPE_MAIN ){
@@ -856,7 +855,7 @@ class ProductW2 extends ProductAbstract
                 }
             }
 
-            // 4. product_notice_datas upsert
+            // 4. product_w2_notice_datas upsert
             foreach ($product1688NoticeDtoList as $product1688NoticeDto) {
                 $upsertWhere = $product1688NoticeDto->getAllProperties();
                 unset($upsertWhere["offer_id"]);
@@ -870,20 +869,20 @@ class ProductW2 extends ProductAbstract
                 );
             }
 
-            // 5. product_option_datas upsert
+            // 5. product_w2_option_datas upsert
             // 5-1. 우선 전체 품절처리
             ProductW2OptionData::where("offer_id", $offerId)->update(["status" => ProductConstant::OPTION_SEC_OUT_OF_STOCK_NUMBER]);
             // 5-2. Upsert
-            foreach ($product1688OptionDtoList as $product1688OptionDto) {
-                $upsertWhere = $product1688OptionDto->getAllProperties();
+            foreach ($productW2OptionDtoList as $productW2OptionDto) {
+                $upsertWhere = $productW2OptionDto->getAllProperties();
                 unset($upsertWhere["offer_id"]);
                 unset($upsertWhere["sku_id"]);
                 unset($upsertWhere["spec_id"]);
                 ProductW2OptionData::updateOrCreate(
                     [
                         "offer_id" => $offerId,
-                        "sku_id"   => $product1688OptionDto->sku_id,
-                        "spec_id"  => $product1688OptionDto->spec_id,
+                        "sku_id"   => $productW2OptionDto->sku_id,
+                        "spec_id"  => $productW2OptionDto->spec_id,
                     ],
                     $upsertWhere
                 );
@@ -1185,13 +1184,13 @@ class ProductW2 extends ProductAbstract
                         }
 
                         $prdDto                   = $this->get1688ProductDto($detailResult);
-                        $product1688Dto           = $prdDto["product1688Dto"];
+                        $productW2Dto             = $prdDto["productW2Dto"];
                         $product1688ExtendDto     = $prdDto["product1688ExtendDto"];
                         $product1688ImageDtoList  = $prdDto["product1688ImageDtoList"];
                         $product1688NoticeDtoList = $prdDto["product1688NoticeDtoList"];
-                        $product1688OptionDtoList = $prdDto["product1688OptionDtoList"];
+                        $productW2OptionDtoList   = $prdDto["productW2OptionDtoList"];
 
-                        $saveResult = $this->save1688ProductData($product1688Dto, $product1688ExtendDto, $product1688ImageDtoList, $product1688NoticeDtoList, $product1688OptionDtoList);
+                        $saveResult = $this->save1688ProductData($productW2Dto, $product1688ExtendDto, $product1688ImageDtoList, $product1688NoticeDtoList, $productW2OptionDtoList);
 
                         if( $saveResult["isSuccess"] == true ){
                             $successCnt++;
@@ -1405,13 +1404,13 @@ class ProductW2 extends ProductAbstract
                         }
 
                         $prdDto                   = $this->get1688ProductDto($detailResult);
-                        $product1688Dto           = $prdDto["product1688Dto"];
+                        $productW2Dto             = $prdDto["productW2Dto"];
                         $product1688ExtendDto     = $prdDto["product1688ExtendDto"];
                         $product1688ImageDtoList  = $prdDto["product1688ImageDtoList"];
                         $product1688NoticeDtoList = $prdDto["product1688NoticeDtoList"];
-                        $product1688OptionDtoList = $prdDto["product1688OptionDtoList"];
+                        $productW2OptionDtoList   = $prdDto["productW2OptionDtoList"];
 
-                        $saveResult = $this->save1688ProductData($product1688Dto, $product1688ExtendDto, $product1688ImageDtoList, $product1688NoticeDtoList, $product1688OptionDtoList);
+                        $saveResult = $this->save1688ProductData($productW2Dto, $product1688ExtendDto, $product1688ImageDtoList, $product1688NoticeDtoList, $productW2OptionDtoList);
 
                         if( $saveResult["isSuccess"] == true ){
                             $successCnt++;

@@ -147,7 +147,7 @@
                                     제품ID<br>
                                     (카테고리ID)
                                 </th>
-                                <th scope="col">제품명(번역)</th>
+                                <th scope="col">제품명(국문)</th>
                                 <th scope="col" style="width: 50px">최소 구매 수량</th>
                                 <th scope="col" style="width: 100px">원본이미지</th>
                                 <th scope="col" style="width: 100px">번역이미지</th>
@@ -188,7 +188,7 @@
                                         @endif
                                     </td>
                                     <td>
-                                        {{ $data->prd_name_trans }}
+                                        {{ $data->prd_name_kr }}
                                     </td>
                                     <td>
                                         {{ number_format($data->start_quantity) }}
@@ -230,7 +230,15 @@
                                                 $option = $data->options[0];
                                             @endphp
                                             {{-- @if ($option->md_price)
-                                                <button class="btn btn-sm btn-primary btn-md-modi" offerid={{ $data->offer_id }} saleprice={{ calcWSalePrice($option->option_price) }} mdprice={{ $option->md_price }}>{{ number_format($option->md_price) }}</button>
+                                                @php
+                                                    $salePrice = calcWSalePrice($option->option_price);
+                                                    $saleHigh = compareWSalePrice($salePrice, $option->md_price);
+                                                @endphp
+                                                @if ($saleHigh)
+                                                    <button class="btn btn-sm btn-primary btn-md-modi" offerid={{ $data->offer_id }} saleprice={{ $salePrice }} mdprice={{ $option->md_price }}>{{ number_format($option->md_price) }}</button>
+                                                @else
+                                                    <button class="btn btn-sm btn-danger btn-md-modi" offerid={{ $data->offer_id }} saleprice={{ $salePrice }} mdprice={{ $option->md_price }}>{{ number_format($option->md_price) }}</button>
+                                                @endif
                                             @else
                                                 <button class="btn btn-sm btn-warning btn-md-modi" offerid={{ $data->offer_id }} saleprice={{ calcWSalePrice($option->option_price) }} mdprice=0>MD 가격 설정</button>
                                             @endif --}}
@@ -414,11 +422,12 @@
             let salePrice = $("input[name=sale_price]").val();
             let offerIds  = $('input[name="offer_ids[]"]').val().split(",");
 
+            let confirmTxt = "MD 판매자가를 설정하시겠습니까?";
             if( mdPrice != 0 && mdPrice <= salePrice ){
-                return alert("MD 판매가는 일반 판매가 보다 높게 입력해야 합니다.");
+                confirmTxt = "MD 판매가가 일반 판매가보다 낮게 입력되었습니다.\n입력한 가격을 MD 판매가로 등록하시겠습니까?";
             }
 
-            if(confirm("MD 판매자가를 설정하시겠습니까?")){
+            if(confirm(confirmTxt)){
                 $.ajax({
                     "headers" : {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
                     "type"    : "POST",
