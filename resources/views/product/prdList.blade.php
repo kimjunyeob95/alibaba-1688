@@ -61,6 +61,8 @@
                                 <tr class="align-middle">
                                     <th style="width: 120px">상품 번역</th>
                                     <td colspan="3">
+                                        <button type="button" name="trans_status" class="btn-status btn btn-md {{ $trans_status == "" ? "btn-primary" : "btn-dark" }}"
+                                        value="">전체</button>
                                         <button type="button" name="trans_status" class="btn-status btn btn-md {{ $trans_status == ProductConstant::TRANS_STATUS_Y ? "btn-primary" : "btn-dark" }}"
                                         value="{{ ProductConstant::TRANS_STATUS_Y }}">완료</button>
                                         <button type="button" name="trans_status" class="btn-status btn btn-md {{ $trans_status == ProductConstant::TRANS_STATUS_N ? "btn-primary" : "btn-dark" }}"
@@ -81,6 +83,8 @@
                                 <tr class="align-middle">
                                     <th style="width: 120px">판매 상태</th>
                                     <td colspan="3">
+                                        <button type="button" name="prd_status" class="btn-status btn btn-md {{ $prd_status == "" ? "btn-primary" : "btn-dark" }}"
+                                        value="">전체</button>
                                         <button type="button" name="prd_status" class="btn-status btn btn-md {{ $prd_status == ProductConstant::PRD_STATUS_PUBLISH ? "btn-primary" : "btn-dark" }}"
                                         value="{{ ProductConstant::PRD_STATUS_PUBLISH }}">정상판매</button>
                                         <button type="button" name="prd_status" class="btn-status btn btn-md {{ $prd_status == ProductConstant::PRD_STATUS_STOP ? "btn-primary" : "btn-dark" }}"
@@ -92,6 +96,8 @@
                                 <tr class="align-middle">
                                     <th style="width: 120px">판매가 설정</th>
                                     <td colspan="3">
+                                        <button type="button" name="mdPrice_status" class="btn-status btn btn-md {{ $mdPrice_status == "" ? "btn-primary" : "btn-dark" }}"
+                                        value="">전체</button>
                                         <button type="button" name="mdPrice_status" class="btn-status btn btn-md {{ $mdPrice_status == ProductConstant::MD_PRICE_Y ? "btn-primary" : "btn-dark" }}"
                                         value="{{ ProductConstant::MD_PRICE_Y }}">설정</button>
                                         <button type="button" name="mdPrice_status" class="btn-status btn btn-md {{ $mdPrice_status == ProductConstant::MD_PRICE_N ? "btn-primary" : "btn-dark" }}"
@@ -153,6 +159,7 @@
                 </form>
                 
                 <div class="mt-3 d-flex justify-content-end">
+                    <button class="btn btn-md btn-outline-danger me-2" id="btn-status-select">판매상태 변경</button>
                     <button class="btn btn-md btn-outline-dark me-2" id="btn-select">선택번역 요청</button>
                 </div>
     
@@ -417,6 +424,48 @@
                     <div class="modal-footer d-flex justify-content-center">
                         <button type="button" class="btn btn-primary btn-md-price-save">저장</button>
                         <button type="button" class="btn btn-secondary htmlModalClose2">닫기</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade" id="htmlModal3" tabindex="-1" role="dialog" aria-labelledby="htmlModalLabel3" aria-hidden="true">
+            <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="htmlModalLabel3">판매 상태 변경</h5>
+                    </div>
+                    <div class="modal-body">
+                        <input type="hidden" name="offer_ids[]" />
+
+                        <div>
+                            <div class="d-flex justify-content-evenly px-3">
+                                <div class="row w-100">
+                                    <div class="col-2">
+                                        <label class="fs-7">판매 상태</label>
+                                    </div>
+                                    <div class="col d-flex justify-content-around">
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="radio" name="status" id="status1" value="{{ ProductConstant::PRD_STATUS_PUBLISH }}" checked>
+                                            <label class="form-check-label" for="status1">{{ ProductConstant::PRD_STATUS[ProductConstant::PRD_STATUS_PUBLISH] }}</label>
+                                        </div>
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="radio" name="status" id="status2" value="{{ ProductConstant::PRD_STATUS_STOP }}">
+                                            <label class="form-check-label" for="status2">{{ ProductConstant::PRD_STATUS[ProductConstant::PRD_STATUS_STOP] }}</label>
+                                        </div>
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="radio" name="status" id="status3" value="{{ ProductConstant::PRD_STATUS_EXCEPT }}">
+                                            <label class="form-check-label" for="status3">{{ ProductConstant::PRD_STATUS[ProductConstant::PRD_STATUS_EXCEPT] }}</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary btn-status-save">저장</button>
+                        <button type="button" class="btn btn-secondary htmlModalClose3">닫기</button>
                     </div>
                 </div>
             </div>
@@ -746,6 +795,61 @@
                     }
                 });
             }
+        });
+
+        $("#btn-status-select").click(function(){
+            let offerIds = [];
+
+            $(".chk-inp:checked").each(function(index, element){
+                offerIds.push($(this).val());
+            });
+
+            if(offerIds.length < 1){
+                return alert("선택 된 상품이 없습니다.");
+            }
+
+            $("#htmlModal3").modal('show');
+        });
+
+        $(".btn-status-save").click(function(){
+            let offerIds = [];
+
+            $(".chk-inp:checked").each(function(index, element){
+                offerIds.push($(this).val());
+            });
+
+            if(offerIds.length < 1){
+                return alert("선택 된 상품이 없습니다.");
+            }
+
+            let status = $("input[name=status]:checked").val();
+
+            if( confirm("판매상태를 변경 하시겠습니까?") ){
+                $.ajax({
+                    "headers"    : {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
+                    "type"       : "POST",
+                    "url"        : "{{ route('w.product.statusUpdate') }}",
+                    "data"       : { offerIds, status },
+                    beforeSend: function () {
+                        $("#loadingOverlay").show();
+                    },
+                    complete: function () {
+                        $("#loadingOverlay").hide();
+                    },
+                    success: function (resp) {
+                        alert(resp.msg);
+                        location.reload();
+                    },
+                    error: function error(request, status, _error) {
+                        let { error } = JSON.parse(request.responseText);
+                        alert(error.message);
+                    }
+                });
+            }
+        });
+
+        $(".htmlModalClose3").click(function(){
+            $("#htmlModal3").modal('hide');
         });
         
     })

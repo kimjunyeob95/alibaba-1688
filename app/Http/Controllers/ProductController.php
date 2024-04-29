@@ -26,10 +26,10 @@ class ProductController extends Controller
         $pageSize       = $this->request->post("pageSize", 50);
         $search_cls     = $this->request->get("search_cls", "offer_id");
         $keyword        = $this->request->get("keyword", "");
-        $trans_status   = $this->request->get("trans_status", ProductConstant::TRANS_STATUS_Y);
+        $trans_status   = $this->request->get("trans_status", "");
         $mapping_status = $this->request->get("mapping_status", "");
-        $prd_status     = $this->request->get("prd_status", ProductConstant::PRD_STATUS_PUBLISH);
-        $mdPrice_status = $this->request->get("mdPrice_status", ProductConstant::MD_PRICE_Y);
+        $prd_status     = $this->request->get("prd_status", "");
+        $mdPrice_status = $this->request->get("mdPrice_status", "");
         $sort           = $this->request->get("sort", "updated_at|desc");
         $offset         = ($page - 1) * $pageSize;
 
