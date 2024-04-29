@@ -358,6 +358,18 @@ class Service1688Product
       return $this->productAbstract->mdPriceUpdate($offerIds, $mdPrice);
    }
 
+   /**
+     * @func statusUpdate
+     * @description '판매상태 변경'
+     * @param array $offerIds
+     * @param string $status
+     * @return array
+   */
+   public function statusUpdate(array $offerIds, string $status): array
+   {
+      return $this->productAbstract->statusUpdate($offerIds, $status);
+   }
+
    /****************************************** WApp W2 **********************************************/
 
    /**

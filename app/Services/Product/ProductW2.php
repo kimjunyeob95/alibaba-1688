@@ -619,6 +619,9 @@ class ProductW2 extends ProductAbstract
             throw new Exception(CategoryErrorMessageConstant::getFitErrorMessage("CATEGORYID"));
         }
         $status = $detailProduct["status"];
+        if( $status != ProductConstant::PRD_STATUS_PUBLISH ){
+            $status = ProductConstant::PRD_STATUS_STOP;
+        }
 
         // 1. 상품 이미지
         $product1688ImageDtoList = [];
@@ -784,7 +787,7 @@ class ProductW2 extends ProductAbstract
 
         foreach ($detailProduct["skuList"] as $prdOptions) {
             $opt_status = ProductConstant::OPTION_SEC_ON_SALE_NUMBER;
-            if( $status != ProductConstant::PRD_STATUS ){
+            if( $status != ProductConstant::PRD_STATUS_PUBLISH ){
                 $opt_status = ProductConstant::OPTION_SEC_OUT_OF_STOCK_NUMBER;
             }
 
@@ -1876,6 +1879,22 @@ class ProductW2 extends ProductAbstract
             }
 
             $returnMsg = helpers_success_message();
+        } catch (Exception $e) {
+            $returnMsg = helpers_fail_message(false, $e->getMessage());
+        }
+
+        return $returnMsg;
+    }
+
+    public function statusUpdate(array $offerIds, string $status): array
+    {
+        $returnMsg = $this->returnMsg;
+        try {
+            ProductData::whereIn("offer_id", $offerIds)->update([
+                "status" => $status
+            ]);
+
+            $returnMsg = helpers_success_message([], "판매 상태가 변경되었습니다.");
         } catch (Exception $e) {
             $returnMsg = helpers_fail_message(false, $e->getMessage());
         }

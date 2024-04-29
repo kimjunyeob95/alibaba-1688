@@ -28,6 +28,7 @@ class ProductController extends Controller
         $keyword        = $this->request->get("keyword", "");
         $trans_status   = $this->request->get("trans_status", ProductConstant::TRANS_STATUS_Y);
         $mapping_status = $this->request->get("mapping_status", "");
+        $prd_status     = $this->request->get("prd_status", ProductConstant::PRD_STATUS_PUBLISH);
         $mdPrice_status = $this->request->get("mdPrice_status", ProductConstant::MD_PRICE_Y);
         $sort           = $this->request->get("sort", "updated_at|desc");
         $offset         = ($page - 1) * $pageSize;
@@ -39,6 +40,7 @@ class ProductController extends Controller
             "keyword"        => $keyword,
             "trans_status"   => $trans_status,
             "mapping_status" => $mapping_status,
+            "prd_status"     => $prd_status,
             "mdPrice_status" => $mdPrice_status,
             "sort"           => $sort,
         ];
@@ -56,6 +58,7 @@ class ProductController extends Controller
             "keyword"        => $keyword,
             "trans_status"   => $trans_status,
             "mapping_status" => $mapping_status,
+            "prd_status"     => $prd_status,
             "mdPrice_status" => $mdPrice_status,
             "sort"           => $sort,
         ];

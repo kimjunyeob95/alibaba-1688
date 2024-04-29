@@ -5,8 +5,16 @@ namespace App\Constants;
 
 class ProductConstant
 {
-    // 상품상태
-    public const PRD_STATUS = "published"; // 게시됨
+    /** 상품상태 */
+    public const PRD_STATUS_PUBLISH = "published";
+    public const PRD_STATUS_STOP    = "stop";
+    public const PRD_STATUS_EXCEPT  = "except";
+
+    public const PRD_STATUS = [
+        self::PRD_STATUS_PUBLISH => "정상판매",
+        self::PRD_STATUS_STOP    => "판매중지",
+        self::PRD_STATUS_EXCEPT  => "판매제외",
+    ];
 
     // 제품채널
     public const CHANNE_PRICE_FREE             = 1;

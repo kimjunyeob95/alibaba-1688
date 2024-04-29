@@ -33,6 +33,7 @@
                 <form id="searchFrm">
                     <input type="hidden" name="trans_status" value={{ $trans_status }}>
                     <input type="hidden" name="mapping_status" value={{ $mapping_status }}>
+                    <input type="hidden" name="prd_status" value={{ $prd_status }}>
                     <input type="hidden" name="mdPrice_status" value={{ $mdPrice_status }}>
 
                     <div class="card">
@@ -75,6 +76,17 @@
                                         value="{{ ProductConstant::MAPPING_STATUS_Y }}">맵핑</button>
                                         <button type="button" name="mapping_status" class="btn-status btn btn-md {{ $mapping_status == ProductConstant::MAPPING_STATUS_N ? "btn-primary" : "btn-dark" }}"
                                         value="{{ ProductConstant::MAPPING_STATUS_N }}">미맵핑</button>
+                                    </td>
+                                </tr>
+                                <tr class="align-middle">
+                                    <th style="width: 120px">판매 상태</th>
+                                    <td colspan="3">
+                                        <button type="button" name="prd_status" class="btn-status btn btn-md {{ $prd_status == ProductConstant::PRD_STATUS_PUBLISH ? "btn-primary" : "btn-dark" }}"
+                                        value="{{ ProductConstant::PRD_STATUS_PUBLISH }}">정상판매</button>
+                                        <button type="button" name="prd_status" class="btn-status btn btn-md {{ $prd_status == ProductConstant::PRD_STATUS_STOP ? "btn-primary" : "btn-dark" }}"
+                                        value="{{ ProductConstant::PRD_STATUS_STOP }}">판매중지</button>
+                                        <button type="button" name="prd_status" class="btn-status btn btn-md {{ $prd_status == ProductConstant::PRD_STATUS_EXCEPT ? "btn-primary" : "btn-dark" }}"
+                                        value="{{ ProductConstant::PRD_STATUS_EXCEPT }}">판매제외</button>
                                     </td>
                                 </tr>
                                 <tr class="align-middle">
@@ -199,6 +211,9 @@
                                     </td>
                                     <td>
                                         {{ $data->prd_name_trans }}
+                                        @if ($data->status != ProductConstant::PRD_STATUS_PUBLISH)
+                                            <span class="bg-danger rounded text-white px-2 py-1 fs-6">{{ ProductConstant::PRD_STATUS[$data->status] }}</span>
+                                        @endif
                                     </td>
                                     <td>
                                         {{ number_format($data->start_quantity) }}

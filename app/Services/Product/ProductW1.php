@@ -62,6 +62,7 @@ class ProductW1 extends ProductAbstract
         $keyword        = $params["keyword"];
         $trans_status   = $params["trans_status"];
         $mapping_status = $params["mapping_status"];
+        $prd_status     = $params["prd_status"];
         $mdPrice_status = $params["mdPrice_status"];
         $sortArr        = explode("|", $params["sort"]);
 
@@ -133,6 +134,10 @@ class ProductW1 extends ProductAbstract
 
         if( !empty($mapping_status) ){
             $prdBuilder->where("product_datas.mapping_status", $mapping_status);
+        }
+
+        if( !empty($prd_status) ){
+            $prdBuilder->where("product_datas.status", $prd_status);
         }
 
         $totalCnt  = ProductData::count();
@@ -613,6 +618,9 @@ class ProductW1 extends ProductAbstract
         $offerId       = $detailProduct["offerId"];
         $prdCategoryId = $detailProduct["categoryId"];
         $status        = $detailProduct["status"];
+        if( $status != ProductConstant::PRD_STATUS_PUBLISH ){
+            $status = ProductConstant::PRD_STATUS_STOP;
+        }
 
         // 1. 상품 이미지
         $product1688ImageDtoList = [];
@@ -778,7 +786,7 @@ class ProductW1 extends ProductAbstract
 
         foreach ($detailProduct["productSkuInfos"] as $prdOptions) {
             $opt_status = ProductConstant::OPTION_SEC_ON_SALE_NUMBER;
-            if( $status != ProductConstant::PRD_STATUS ){
+            if( $status != ProductConstant::PRD_STATUS_PUBLISH ){
                 $opt_status = ProductConstant::OPTION_SEC_OUT_OF_STOCK_NUMBER;
             }
 
@@ -1905,6 +1913,22 @@ class ProductW1 extends ProductAbstract
             }
 
             $returnMsg = helpers_success_message();
+        } catch (Exception $e) {
+            $returnMsg = helpers_fail_message(false, $e->getMessage());
+        }
+
+        return $returnMsg;
+    }
+
+    public function statusUpdate(array $offerIds, string $status): array
+    {
+        $returnMsg = $this->returnMsg;
+        try {
+            ProductData::whereIn("offer_id", $offerIds)->update([
+                "status" => $status
+            ]);
+
+            $returnMsg = helpers_success_message([], "판매 상태가 변경되었습니다.");
         } catch (Exception $e) {
             $returnMsg = helpers_fail_message(false, $e->getMessage());
         }
