@@ -73,7 +73,7 @@ class ProductW2 extends ProductAbstract
                 "main_img",
                 "options", 
                 "images.ai_all_imgs"
-        ])->whereNull("deleted_at")->orderBy("created_at", "desc");
+        ])->whereNull("deleted_at");
 
         if( !empty($keyword) ){
             if( $search_cls == "offer_id"){
@@ -96,9 +96,8 @@ class ProductW2 extends ProductAbstract
             }
         }
 
-        if( !empty($mdPrice_status) ) {
+        if( in_array($sortArr[0], ["option_price", "md_price"]) || !empty($mdPrice_status) ){
             $optSubquery = DB::table('product_w2_option_datas');
-
             $optSubquery->selectRaw('offer_id, md_price');
             $prdBuilder->groupBy('product_w2_datas.offer_id');
 
@@ -110,25 +109,27 @@ class ProductW2 extends ProductAbstract
                 }
                 $optSubquery->groupBy('offer_id');
                 $prdBuilder->orderBy('opt_sub_qry.max_price', $sortArr[1]);
-            } else {
-                $prdBuilder->orderBy("product_w2_datas." . $sortArr[0], $sortArr[1]);
             }
 
             $prdBuilder->leftJoinSub($optSubquery, 'opt_sub_qry', function ($join) {
                 $join->on('product_w2_datas.offer_id', '=', 'opt_sub_qry.offer_id');
             });
 
-            if ($mdPrice_status == ProductConstant::MD_PRICE_Y) {
-                $prdBuilder->where(function ($query) {
-                    $query->where('opt_sub_qry.md_price', '!=', 0)
-                          ->whereNotNull('opt_sub_qry.md_price');
-                });
-            } else if ($mdPrice_status == ProductConstant::MD_PRICE_N) {
-                $prdBuilder->where(function ($query) {
-                    $query->where('opt_sub_qry.md_price', '=', 0)
-                          ->orWhereNull('opt_sub_qry.md_price');
-                });
+            if( !empty($mdPrice_status) ) {
+                if ($mdPrice_status == ProductConstant::MD_PRICE_Y) {
+                    $prdBuilder->where(function ($query) {
+                        $query->where('opt_sub_qry.md_price', '!=', 0)
+                                ->whereNotNull('opt_sub_qry.md_price');
+                    });
+                } else if ($mdPrice_status == ProductConstant::MD_PRICE_N) {
+                    $prdBuilder->where(function ($query) {
+                        $query->where('opt_sub_qry.md_price', '=', 0)
+                                ->orWhereNull('opt_sub_qry.md_price');
+                    });
+                }
             }
+        } else {
+            $prdBuilder->orderBy("product_w2_datas." . $sortArr[0], $sortArr[1]);
         }
 
         if( !empty($trans_status) ){
