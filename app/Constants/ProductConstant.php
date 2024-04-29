@@ -137,4 +137,8 @@ class ProductConstant
 
     public const HAS_PRD_Y = "Y";
     public const HAS_PRD_N = "N";
+
+    /** MD 판매가 설정여부 */
+    public const MD_PRICE_Y = "Y";
+    public const MD_PRICE_N = "N";
 }

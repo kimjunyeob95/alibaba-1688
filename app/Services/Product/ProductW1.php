@@ -62,6 +62,7 @@ class ProductW1 extends ProductAbstract
         $keyword        = $params["keyword"];
         $trans_status   = $params["trans_status"];
         $mapping_status = $params["mapping_status"];
+        $mdPrice_status = $params["mdPrice_status"];
         $sortArr        = explode("|", $params["sort"]);
 
         $prdBuilder = ProductData::select(["product_datas.*"])->with([
@@ -91,22 +92,39 @@ class ProductW1 extends ProductAbstract
             }
         }
 
-        if( in_array($sortArr[0], ["option_price", "md_price"])) {
-            $maxPriceSubquery = DB::table('product_option_datas');
-            if( $sortArr[0] == "option_price" ){
-                $maxPriceSubquery->selectRaw('offer_id, MAX(option_price) as max_price');
-            } else if( $sortArr[0] == "md_price" ) {
-                $maxPriceSubquery->selectRaw('offer_id, MAX(md_price) as max_price');
+        if( !empty($mdPrice_status) ) {
+            $optSubquery = DB::table('product_option_datas');
+
+            $optSubquery->selectRaw('offer_id, md_price');
+            $prdBuilder->groupBy('product_datas.offer_id');
+
+            if( in_array($sortArr[0], ["option_price", "md_price"]) ){
+                if( $sortArr[0] == "option_price" ){
+                    $optSubquery->selectRaw('MAX(option_price) as max_price');
+                } else if( $sortArr[0] == "md_price" ) {
+                    $optSubquery->selectRaw('MAX(md_price) as max_price');
+                }
+                $optSubquery->groupBy('offer_id');
+                $prdBuilder->orderBy('opt_sub_qry.max_price', $sortArr[1]);
+            } else {
+                $prdBuilder->orderBy("product_datas." . $sortArr[0], $sortArr[1]);
             }
 
-            $maxPriceSubquery->groupBy('offer_id');
-            $prdBuilder->joinSub($maxPriceSubquery, 'max_qry', function ($join) {
-                $join->on('product_datas.offer_id', '=', 'max_qry.offer_id');
+            $prdBuilder->leftJoinSub($optSubquery, 'opt_sub_qry', function ($join) {
+                $join->on('product_datas.offer_id', '=', 'opt_sub_qry.offer_id');
             });
 
-            $prdBuilder->orderBy('max_qry.max_price', $sortArr[1]);
-        } else {
-            $prdBuilder->orderBy("product_datas." . $sortArr[0], $sortArr[1]);
+            if ($mdPrice_status == ProductConstant::MD_PRICE_Y) {
+                $prdBuilder->where(function ($query) {
+                    $query->where('opt_sub_qry.md_price', '!=', 0)
+                          ->whereNotNull('opt_sub_qry.md_price');
+                });
+            } else if ($mdPrice_status == ProductConstant::MD_PRICE_N) {
+                $prdBuilder->where(function ($query) {
+                    $query->where('opt_sub_qry.md_price', '=', 0)
+                          ->orWhereNull('opt_sub_qry.md_price');
+                });
+            }
         }
         
         if( !empty($trans_status) ){

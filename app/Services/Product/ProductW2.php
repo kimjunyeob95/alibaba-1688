@@ -40,6 +40,7 @@ use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\DB;
 use Psr\Log\LogLevel;
 use UnexpectedValueException;
 use ValueError;
@@ -64,6 +65,8 @@ class ProductW2 extends ProductAbstract
         $keyword        = $params["keyword"];
         $trans_status   = $params["trans_status"];
         $mapping_status = $params["mapping_status"];
+        $mdPrice_status = $params["mdPrice_status"];
+        $sortArr        = explode("|", $params["sort"]);
 
         $prdBuilder = ProductW2Data::with([
                 "main_img",
@@ -88,6 +91,41 @@ class ProductW2 extends ProductAbstract
             } else if( $search_cls == "option_name_trans" || $search_cls == "option_name" ){
                 $prdBuilder->whereHas('options', function ($query) use ($keyword, $search_cls) {
                     $query->where($search_cls, 'like', "%" . $keyword . "%");
+                });
+            }
+        }
+
+        if( !empty($mdPrice_status) ) {
+            $optSubquery = DB::table('product_w2_option_datas');
+
+            $optSubquery->selectRaw('offer_id, md_price');
+            $prdBuilder->groupBy('product_w2_datas.offer_id');
+
+            if( in_array($sortArr[0], ["option_price", "md_price"]) ){
+                if( $sortArr[0] == "option_price" ){
+                    $optSubquery->selectRaw('MAX(option_price) as max_price');
+                } else if( $sortArr[0] == "md_price" ) {
+                    $optSubquery->selectRaw('MAX(md_price) as max_price');
+                }
+                $optSubquery->groupBy('offer_id');
+                $prdBuilder->orderBy('opt_sub_qry.max_price', $sortArr[1]);
+            } else {
+                $prdBuilder->orderBy("product_w2_datas." . $sortArr[0], $sortArr[1]);
+            }
+
+            $prdBuilder->leftJoinSub($optSubquery, 'opt_sub_qry', function ($join) {
+                $join->on('product_w2_datas.offer_id', '=', 'opt_sub_qry.offer_id');
+            });
+
+            if ($mdPrice_status == ProductConstant::MD_PRICE_Y) {
+                $prdBuilder->where(function ($query) {
+                    $query->where('opt_sub_qry.md_price', '!=', 0)
+                          ->whereNotNull('opt_sub_qry.md_price');
+                });
+            } else if ($mdPrice_status == ProductConstant::MD_PRICE_N) {
+                $prdBuilder->where(function ($query) {
+                    $query->where('opt_sub_qry.md_price', '=', 0)
+                          ->orWhereNull('opt_sub_qry.md_price');
                 });
             }
         }

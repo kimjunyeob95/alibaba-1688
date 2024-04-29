@@ -33,6 +33,7 @@
                 <form id="searchFrm">
                     <input type="hidden" name="trans_status" value={{ $trans_status }}>
                     <input type="hidden" name="mapping_status" value={{ $mapping_status }}>
+                    <input type="hidden" name="mdPrice_status" value={{ $mdPrice_status }}>
 
                     <div class="card">
                         <div class="card-header">
@@ -74,6 +75,15 @@
                                         value="{{ ProductConstant::MAPPING_STATUS_Y }}">맵핑</button>
                                         <button type="button" name="mapping_status" class="btn-status btn btn-md {{ $mapping_status == ProductConstant::MAPPING_STATUS_N ? "btn-primary" : "btn-dark" }}"
                                         value="{{ ProductConstant::MAPPING_STATUS_N }}">미맵핑</button>
+                                    </td>
+                                </tr>
+                                <tr class="align-middle">
+                                    <th style="width: 120px">판매가 설정</th>
+                                    <td colspan="3">
+                                        <button type="button" name="mdPrice_status" class="btn-status btn btn-md {{ $mdPrice_status == ProductConstant::MD_PRICE_Y ? "btn-primary" : "btn-dark" }}"
+                                        value="{{ ProductConstant::MD_PRICE_Y }}">설정</button>
+                                        <button type="button" name="mdPrice_status" class="btn-status btn btn-md {{ $mdPrice_status == ProductConstant::MD_PRICE_N ? "btn-primary" : "btn-dark" }}"
+                                        value="{{ ProductConstant::MD_PRICE_N }}">미설정</button>
                                     </td>
                                 </tr>
                                 <tr class="align-middle">
