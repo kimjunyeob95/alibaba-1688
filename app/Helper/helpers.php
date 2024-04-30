@@ -5,6 +5,7 @@ use App\Constants\ImageConstant;
 use App\Constants\MallConstant;
 use App\Constants\ProductConstant;
 use App\Constants\WConstant;
+use App\Models\EasysellProductLog;
 use App\Models\ProductData;
 use App\Models\ProductImageData;
 use App\Models\ProductModiData;
@@ -614,13 +615,24 @@ if (!function_exists("saveModiProduct")) {
     function saveModiProduct(int $offerId, string $wType = WConstant::WAPP_W1): void
     {
         foreach (MallConstant::MALL_LIST as $channel) {
-            ProductModiData::firstOrCreate([
-                "offer_id"      => $offerId,
-                "w_type"        => $wType,
-                "is_send"       => ProductConstant::IS_SEND_N,
-                "channel"       => $channel,
-                "send_dated_at" => Null,
-            ]);
+            $regCnt = 0;
+
+            if( $channel == MallConstant::MALL_EASYSELL ){
+                $regCnt = EasysellProductLog::where([
+                    "offer_id"       => $offerId,
+                    "regist_success" => MallConstant::REGIST_SUCCESS,
+                ])->count();
+            }
+
+            if( $regCnt > 0 ){
+                ProductModiData::firstOrCreate([
+                    "offer_id"      => $offerId,
+                    "w_type"        => $wType,
+                    "is_send"       => ProductConstant::IS_SEND_N,
+                    "channel"       => $channel,
+                    "send_dated_at" => Null,
+                ]);
+            }
         }
     }
 }
