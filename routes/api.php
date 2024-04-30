@@ -11,15 +11,15 @@ use Illuminate\Support\Facades\Route;
  * W API List
  */
 Route::name('w.')->prefix('w')->group(function () {
-    Route::middleware(["oepnApi.jwt.verify"])->group(function () {
-        // 1688
-        Route::name('1688.')->prefix('1688')->group(function () {
-            // 1688에 상품ID 조회 endPoint를 호출 후 결과 반환
-            Route::get('/product/{offerId}', [WProductController::class, 'getProductData'])->name('getProductData');
-            // 1688에 카테고리 조회 endPoint를 호출 후 결과 반환
-            Route::get('/category/{categoryId?}', [WCategoryController::class, 'getMallCategory'])->name('getMallCategory');
-        });
+    // 1688
+    Route::name('1688.')->prefix('1688')->group(function () {
+        // 1688에 상품ID 조회 endPoint를 호출 후 결과 반환
+        Route::get('/product/{offerId}', [WProductController::class, 'getProductData'])->name('getProductData');
+        // 1688에 카테고리 조회 endPoint를 호출 후 결과 반환
+        Route::get('/category/{categoryId?}', [WCategoryController::class, 'getMallCategory'])->name('getMallCategory');
+    });
 
+    Route::middleware(["oepnApi.jwt.verify"])->group(function () {
         // 카테고리
         Route::name('category.')->prefix('category')->group(function () {
             // 1688에서 수집 한 카테고리를 단계별로 정리한 데이터 목록
