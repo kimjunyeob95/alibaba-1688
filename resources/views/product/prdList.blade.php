@@ -91,6 +91,8 @@
                                         value="{{ ProductConstant::PRD_STATUS_STOP }}">판매중지</button>
                                         <button type="button" name="prd_status" class="btn-status btn btn-md {{ $prd_status == ProductConstant::PRD_STATUS_EXCEPT ? "btn-primary" : "btn-dark" }}"
                                         value="{{ ProductConstant::PRD_STATUS_EXCEPT }}">판매제외</button>
+                                        <button type="button" name="prd_status" class="btn-status btn btn-md {{ $prd_status == ProductConstant::PRD_STATUS_MISS ? "btn-primary" : "btn-dark" }}"
+                                        value="{{ ProductConstant::PRD_STATUS_MISS }}">정보누락</button>
                                     </td>
                                 </tr>
                                 <tr class="align-middle">

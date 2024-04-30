@@ -628,6 +628,9 @@ class ProductW2 extends ProductAbstract
         if( $status != ProductConstant::PRD_STATUS_PUBLISH ){
             $status = ProductConstant::PRD_STATUS_STOP;
         }
+        if( !isset($detailProduct["skuList"]) || empty($detailProduct["skuList"]) ){
+            $status = ProductConstant::PRD_STATUS_MISS;
+        }
 
         // 1. 상품 이미지
         $product1688ImageDtoList = [];
@@ -753,7 +756,7 @@ class ProductW2 extends ProductAbstract
             "mapping_status" => $mapping_status,
         ]);
 
-        // 2. 상품 확장정보
+        // 3. 상품 확장정보
         $product1688ExtendDto = new Product1688ExtendDto();
         $product1688ExtendDto->bind([
             "offerId" => $offerId,
@@ -791,30 +794,32 @@ class ProductW2 extends ProductAbstract
             throw new Exception(ProductErrorMessageConstant::getFitErrorMessage("PRICE_1688"));
         }
 
-        foreach ($detailProduct["skuList"] as $prdOptions) {
-            $opt_status = ProductConstant::OPTION_SEC_ON_SALE_NUMBER;
-            if( $status != ProductConstant::PRD_STATUS_PUBLISH ){
-                $opt_status = ProductConstant::OPTION_SEC_OUT_OF_STOCK_NUMBER;
-            }
+        if( isset($detailProduct["skuList"]) ){
+            foreach ($detailProduct["skuList"] as $prdOptions) {
+                $opt_status = ProductConstant::OPTION_SEC_ON_SALE_NUMBER;
+                if( $status != ProductConstant::PRD_STATUS_PUBLISH ){
+                    $opt_status = ProductConstant::OPTION_SEC_OUT_OF_STOCK_NUMBER;
+                }
 
-            $optionName      = "";
-            $optionNameTrans = "";
-            foreach ($prdOptions["skuAttributeList"] as $prdOption) {
-                $optionNameTrans .= $prdOption["translateValue"] .  "_";
+                $optionName      = "";
+                $optionNameTrans = "";
+                foreach ($prdOptions["skuAttributeList"] as $prdOption) {
+                    $optionNameTrans .= $prdOption["translateValue"] .  "_";
+                }
+                $productW2OptionDto = new ProductW2OptionDto();
+                $productW2OptionDto->bind([
+                    "offerId"      => $offerId,
+                    "skuId"        => $prdOptions["skuId"],
+                    "specId"       => $prdOptions["specId"],
+                    "status"       => $opt_status,
+                    "price_1688"   => $price_1688,
+                    "optionNameEn" => rtrim($optionName, "_"),
+                    "optionNameKr" => rtrim($optionNameTrans, "_"),
+                    "amountOnSale" => $prdOptions["stock"],
+                    "cargoNumber"  => $prdOptions["cargoNumber"] ?? "",
+                ]);
+                $productW2OptionDtoList[] = $productW2OptionDto;
             }
-            $productW2OptionDto = new ProductW2OptionDto();
-            $productW2OptionDto->bind([
-                "offerId"      => $offerId,
-                "skuId"        => $prdOptions["skuId"],
-                "specId"       => $prdOptions["specId"],
-                "status"       => $opt_status,
-                "price_1688"   => $price_1688,
-                "optionNameEn" => rtrim($optionName, "_"),
-                "optionNameKr" => rtrim($optionNameTrans, "_"),
-                "amountOnSale" => $prdOptions["stock"],
-                "cargoNumber"  => $prdOptions["cargoNumber"] ?? "",
-            ]);
-            $productW2OptionDtoList[] = $productW2OptionDto;
         }
 
         return [
@@ -939,7 +944,7 @@ class ProductW2 extends ProductAbstract
             $this->delProductImage($product1688ImageDtoList);
 
             // 7. 이미지 번역 요청 통신
-            if( env("APP_ENV", "local") == "production" ) {
+            if( env("APP_ENV", "local") == "production" && $productW2Dto->status == ProductConstant::PRD_STATUS_PUBLISH ) {
                 // $transResult = $this->transApiAbstract->createTransProductImg($product1688ImageDtoList, $offerId);
                 // if( $transResult["isSuccess"] == false ){
                 //     throw new Exception($transResult["msg"]);
