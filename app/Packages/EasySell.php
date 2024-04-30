@@ -52,6 +52,7 @@ class EasySell extends MallApiAbstract
                 $easyObj = EasysellProductLog::where([
                     "offer_id"       => $offerId,
                     "regist_success" => MallConstant::REGIST_SUCCESS,
+                    "w_type"         => $type,
                 ])->first();
                 if( $easyObj != null ){
                     // throw new Exception(MallErrorMessageConstant::getFitErrorMessage("HAVE_REGIST"));
@@ -63,7 +64,7 @@ class EasySell extends MallApiAbstract
                     case WConstant::WAPP_W1 :
                         $prdDB = new ProductData();
                         break;
-                    case WConstant::WAPP_W1 :
+                    case WConstant::WAPP_W2 :
                         $prdDB = new ProductW2Data();
                         break;
                     default :
@@ -116,6 +117,7 @@ class EasySell extends MallApiAbstract
                     $logParams = [
                         "itemno"         => $itemno,
                         "offer_id"       => $offerId,
+                        "w_type"         => $type,
                         "account"        => $account,
                         "regist_success" => MallConstant::REGIST_SUCCESS,
                         "regist_message" => $rsData->Msg,
@@ -130,6 +132,7 @@ class EasySell extends MallApiAbstract
                 $logParams = [
                     "itemno"         => $itemno,
                     "offer_id"       => $offerId,
+                    "w_type"         => $type,
                     "account"        => $account,
                     "regist_success" => MallConstant::REGIST_FAIL,
                     "regist_message" => $e->getMessage(),
@@ -179,6 +182,7 @@ class EasySell extends MallApiAbstract
                 $easyObj = EasysellProductLog::where([
                     "offer_id"       => $offerId,
                     "regist_success" => MallConstant::REGIST_SUCCESS,
+                    "w_type"         => $type,
                 ])->first();
                 if( $easyObj == null ){
                     throw new Exception(MallErrorMessageConstant::getFitErrorMessage("MODI_UNREGIST"));
@@ -188,7 +192,7 @@ class EasySell extends MallApiAbstract
                     case WConstant::WAPP_W1 :
                         $prdDB = new ProductData();
                         break;
-                    case WConstant::WAPP_W1 :
+                    case WConstant::WAPP_W2 :
                         $prdDB = new ProductW2Data();
                         break;
                     default :
@@ -239,6 +243,7 @@ class EasySell extends MallApiAbstract
 
                     $logParams = [
                         "offer_id"     => $offerId,
+                        "w_type"       => $type,
                         "account"      => $account,
                         "modi_success" => MallConstant::MODI_SUCCESS,
                         "modi_message" => $rsData->Msg,
@@ -250,6 +255,7 @@ class EasySell extends MallApiAbstract
             }catch(Exception $e){
                 $logParams = [
                     "offer_id"     => $offerId,
+                    "w_type"       => $type,
                     "account"      => $account,
                     "modi_success" => MallConstant::MODI_FAIL,
                     "modi_message" => $e->getMessage(),
