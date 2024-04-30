@@ -2,6 +2,7 @@
     use App\Constants\ProductConstant;
     use App\Constants\MallConstant;
     use App\Constants\EasySellConstant;
+    use App\Constants\WConstant;
 @endphp
 @extends('dashboard.base')
 
@@ -217,7 +218,10 @@
                     "headers"    : {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
                     "type"       : "POST",
                     "url"        : "{{ route('mall.easySell.productRegist') }}",
-                    "data"       : { offer_ids },
+                    "data"       : {
+                        "offer_ids": offer_ids,
+                        "type"     : "{{ WConstant::WAPP_W1 }}"
+                    },
                     beforeSend: function () {
                     },
                     complete: function () {
@@ -270,7 +274,10 @@
                     "headers"    : {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
                     "type"       : "POST",
                     "url"        : "{{ route('mall.easySell.productRegist') }}",
-                    "data"       : { offer_ids },
+                    "data"       : {
+                        "offer_ids": offer_ids,
+                        "type"     : "{{ WConstant::WAPP_W1 }}"
+                    },
                     beforeSend: function () {
                     },
                     complete: function () {
