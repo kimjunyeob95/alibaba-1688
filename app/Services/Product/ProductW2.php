@@ -1913,4 +1913,40 @@ class ProductW2 extends ProductAbstract
 
         return $returnMsg;
     }
+
+    public function imageMainApply(array $aiImgIds): array
+    {
+        $returnMsg = $this->returnMsg;
+        try {
+            foreach ($aiImgIds as $aiImgId) {
+                $aiImgObj = GenuioImageData::with(["image"])->where("id", $aiImgId)->first();
+                if( $aiImgObj != null && $aiImgObj->image ){
+                    $imgObj = $aiImgObj->image;
+
+                    // 1. 기존 main 이미지 sub로 변경
+                    ProductImageData::where([
+                        "offer_id" => $imgObj->offer_id,
+                        "img_type" => ImageConstant::IMAGE_TYPE_MAIN,
+                    ])->update([
+                        "img_type" => ImageConstant::IMAGE_TYPE_SUB
+                    ]);
+
+                    // 2. 타켓 이미지 main으로 변경
+                    ProductImageData::where([
+                        "id" => $imgObj->id
+                    ])->update([
+                        "img_type" => ImageConstant::IMAGE_TYPE_MAIN
+                    ]);
+
+                    // 수정 상품 저장
+                    saveModiProduct($imgObj->offer_id);
+                }
+            }
+            $returnMsg = helpers_success_message();
+        } catch (Exception $e) {
+            $returnMsg = helpers_fail_message(false, $e->getMessage());
+        }
+
+        return $returnMsg;
+    }
 }

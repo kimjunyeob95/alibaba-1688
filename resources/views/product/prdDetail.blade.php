@@ -25,6 +25,26 @@
         font-size: 20px;
         font-weight: bold;
     }
+    .swiper-slide {
+        position: relative;
+        display: inline-block; /* 이미지와 텍스트를 인라인 블록으로 처리 */
+    }
+
+    .swiper-slide img {
+        display: block; /* 이미지가 div 크기에 맞춰서 확장되도록 설정 */
+        width: 100%; /* 이미지 너비를 div에 맞춤 */
+    }
+
+    .swiper-slide .badge {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background-color: rgba(255, 255, 255, 0.75); /* 텍스트 배경 투명도 설정 */
+        color: black; /* 텍스트 색상 설정 */
+        padding: 5px; /* 패딩 설정 */
+        border-radius: 0 0 0 5px; /* 오른쪽 상단 모서리 둥글게 처리 */
+    }
+
 </style>
 @endsection
 
@@ -86,6 +106,7 @@
                                 @if ($prdImg->img_type == "main")
                                     <div class="swiper-slide">
                                         <img src={{ $prdImg->img_url_trans}}>
+                                        <span class="badge fs-5">대표 이미지</span>
                                     </div>
                                 @endif
                                 @endforeach

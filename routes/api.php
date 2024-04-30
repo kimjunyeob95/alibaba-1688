@@ -61,6 +61,8 @@ Route::name('w.')->prefix('w')->group(function () {
         Route::post('/mdPrice/update', [WProductController::class, 'mdPriceUpdate'])->name('mdPriceUpdate');
         // 판매상태 변경
         Route::post('/status/update', [WProductController::class, 'statusUpdate'])->name('statusUpdate');
+        // 대표 이미지 적용
+        Route::post('/image/mainApply', [WProductController::class, 'imageMainApply'])->name('imageMainApply');
     });
 
     Route::name('category.')->prefix('category')->group(function () {

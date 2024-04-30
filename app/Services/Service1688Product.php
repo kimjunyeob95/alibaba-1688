@@ -370,6 +370,17 @@ class Service1688Product
       return $this->productAbstract->statusUpdate($offerIds, $status);
    }
 
+   /**
+     * @func imageMainApply
+     * @description '대표 이미지 적용'
+     * @param array $aiImgIds
+     * @return array
+   */
+   public function imageMainApply(array $aiImgIds): array
+   {
+      return $this->productAbstract->imageMainApply($aiImgIds);
+   }
+
    /****************************************** WApp W2 **********************************************/
 
    /**

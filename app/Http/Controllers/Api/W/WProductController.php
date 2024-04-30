@@ -441,4 +441,28 @@ class WProductController extends Controller
             return helpers_json_response(HttpConstant::BAD_REQUEST, [], $e->getMessage());
         }
     }
+
+    public function imageMainApply(): JsonResponse
+    {
+        try {
+            $validator = Validator::make($this->request->all(), [
+                'aiImgIds' => 'required|array',
+            ], [
+                'aiImgIds.required' => ImageErrorMessageConstant::getNotHaveErrorMessage("IMAGES_AI_ID"),
+            ]);
+            if ($validator->fails()) {
+                throw new Exception($validator->errors()->first());
+            }
+            
+            $aiImgIds = $this->request->post("aiImgIds");
+            $result   = $this->service1688Product->imageMainApply($aiImgIds);
+            if( $result["isSuccess"] == true ){
+                return helpers_json_response(HttpConstant::OK, $result);
+            } else {
+                return helpers_json_response(HttpConstant::BAD_REQUEST, [], $result["msg"]);
+            }
+        } catch (Exception $e) {
+            return helpers_json_response(HttpConstant::BAD_REQUEST, [], $e->getMessage());
+        }
+    }
 }

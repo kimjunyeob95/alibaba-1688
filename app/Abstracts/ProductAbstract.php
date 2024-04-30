@@ -219,4 +219,12 @@ abstract class ProductAbstract
      * @return array
     */
     abstract function statusUpdate(array $offerIds, string $status): array;
+
+    /**
+     * @func imageMainApply
+     * @description '대표 이미지 적용'
+     * @param array $aiImgIds
+     * @return array
+    */
+    abstract function imageMainApply(array $aiImgIds): array;
 }

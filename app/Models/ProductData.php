@@ -30,7 +30,7 @@ class ProductData extends Model
     }
 
     public function images () {
-        return $this->hasMany(ProductImageData::class, "offer_id", "offer_id")->orderBy('img_type', 'asc');
+        return $this->hasMany(ProductImageData::class, "offer_id", "offer_id")->orderBy('img_type', 'asc')->orderBy('id', 'asc');
     }
 
     public function options () {
