@@ -7,7 +7,7 @@ $(document).ready(function(){
 
     $('#allCheckbox').click(function(){
         let checked = $(this).is(":checked");
-        $(".chk-inp").prop("checked", checked);
+        $(".chk-inp:not(:disabled)").prop("checked", checked);
     });
 
     $(".lazy-img").lazy();
@@ -24,7 +24,7 @@ function fn_split(keyword) {
     text = text.filter(url => url);
     // 중복 제거
     text = [...new Set(text)];
-    
+
     return text;
 }
 
@@ -82,7 +82,7 @@ function dataURLtoFile(dataUrl, fileName) {
     const bstr = atob(arr[1]);
     let n = bstr.length;
     const u8arr = new Uint8Array(n);
-    
+
     while(n--){
         u8arr[n] = bstr.charCodeAt(n);
     }

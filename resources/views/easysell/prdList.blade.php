@@ -124,9 +124,15 @@
                         </thead>
                         <tbody>
                             @foreach ($datas as $index => $data)
+                                @php
+                                    $disabled = "";
+                                    if(count($data->options) == 0){
+                                        $disabled = "disabled";
+                                    }
+                                @endphp
                                 <tr>
                                     <td class="text-center">
-                                        <input class="form-check-input chk-inp" type="checkbox" value="{{ $data->offer_id }}">
+                                        <input class="form-check-input chk-inp" type="checkbox" value="{{ $data->offer_id }}" {{$disabled}}>
                                     </td>
                                     <td>
                                         {{ number_format(($datas->total() - $offset) - $index) }}
@@ -179,7 +185,7 @@
                                     </td>
                                     <td class="text-center">
                                         <button type="button" class="btn btn-sm btn-outline-success btn-detail" offerid={{ $data->offer_id }}>상세보기</button>
-                                        <button type="button" class="btn btn-sm btn-outline-primary btn-regist" offerid={{ $data->offer_id }}>상품전송</button>
+                                        <button type="button" class="btn btn-sm btn-outline-primary btn-regist" offerid={{ $data->offer_id }} {{ $disabled }}>상품전송</button>
                                     </td>
                                 </tr>
                             @endforeach
