@@ -8,7 +8,7 @@ use Illuminate\Console\Command;
 
 class EasySellCommand extends Command
 {
-    protected $signature   = 'easy_sell_command {--func=} {--offerids=}';
+    protected $signature   = 'easy_sell_command {--func=} {--offerids=} {--type=}';
     protected $description = 'easySell command';
 
     protected MallApiService $mallApiService;
@@ -28,12 +28,13 @@ class EasySellCommand extends Command
         switch ($func) {
             /**
              * 상품등록 커맨드
-             * php artisan easy_sell_command --func=productRegist --offerids=44798792934,562321147241
+             * php artisan easy_sell_command --func=productRegist --offerids=44798792934,562321147241 --type=W1
              */
             case 'productRegist':
                 $offerIds = explode(",", $this->option('offerids'));
+                $type = $this->option('type');
                 if (!empty($offerIds)) {
-                    $result = $this->mallApiService->productRegist($offerIds);
+                    $result = $this->mallApiService->productRegist($offerIds, $type);
                     dd($result);
                 }
                 break;

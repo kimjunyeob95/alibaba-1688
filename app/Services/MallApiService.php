@@ -32,9 +32,9 @@ class MallApiService
      * @param array $offerIds
      * @return array
     */
-    public function productRegist(array $offerIds): array
+    public function productRegist(array $offerIds, string $type): array
     {
-        return $this->mallApiAbstract->productRegist($offerIds);
+        return $this->mallApiAbstract->productRegist($offerIds, $type);
     }
 
     /**
