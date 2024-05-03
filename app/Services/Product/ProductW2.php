@@ -1251,7 +1251,7 @@ class ProductW2 extends ProductAbstract
             $data["productImage"]["images"] = $data["imageUrlList"];
             $data["soldOut"]                = $data["days90SoldOut"];
             $data["hasPrd"]                 = ProductConstant::HAS_PRD_N;
-            $prdCnt                         = ProductData::where("offer_id", $data["offerId"])->where("w_type", WConstant::WAPP_W2)->count();
+            $prdCnt                         = ProductData::where("offer_id", $data["offerId"])->count();
             if( $prdCnt > 0 ){
                 $data["hasPrd"] = ProductConstant::HAS_PRD_Y;
             }

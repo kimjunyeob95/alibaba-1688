@@ -1087,7 +1087,7 @@ class ProductW1 extends ProductAbstract
             $data["cus_price"]       = $ocPrice["cus_price"];
             $data["recom_cus_price"] = $ocPrice["recom_cus_price"];
             $data["hasPrd"]          = ProductConstant::HAS_PRD_N;
-            $prdCnt                  = ProductData::where("offer_id", $data["offerId"])->where("w_type", WConstant::WAPP_W1)->count();
+            $prdCnt                  = ProductData::where("offer_id", $data["offerId"])->count();
             if( $prdCnt > 0 ){
                 $data["hasPrd"] = ProductConstant::HAS_PRD_Y;
             }
