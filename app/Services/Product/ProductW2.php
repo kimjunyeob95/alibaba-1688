@@ -676,6 +676,9 @@ class ProductW2 extends ProductAbstract
         if( !isset($detailProduct["skuList"]) || empty($detailProduct["skuList"]) ){
             $status = ProductConstant::PRD_STATUS_MISS;
         }
+        if( !isset($detailW1Product["productSkuInfos"]) || empty($detailW1Product["productSkuInfos"]) ){
+            $status = ProductConstant::PRD_STATUS_MISS;
+        }
 
         // 1. 상품 이미지
         $product1688ImageDtoList = [];
@@ -965,15 +968,20 @@ class ProductW2 extends ProductAbstract
                     $opt_status = ProductConstant::OPTION_SEC_OUT_OF_STOCK_NUMBER;
                 }
 
-                $optionName        = "";
                 $optionNameTrans   = "";
                 $optionNameTransEn = "";
-                $prdOptionsEn = $detailEnProduct["skuList"][$optKey];
+                $optionNameTransW1 = "";
+
+                $prdOptionsEn      = $detailEnProduct["skuList"][$optKey];
+                $prdOptionsW1      = $detailW1Product["productSkuInfos"][$optKey];
                 foreach ($prdOptions["skuAttributeList"] as $skuKey => $prdOption) {
                     $optionNameTrans .= $prdOption["translateValue"] .  "_";
 
                     $prdOptionEn       = $prdOptionsEn["skuAttributeList"][$skuKey];
                     $optionNameTransEn .= $prdOptionEn["translateValue"] .  "_";
+
+                    $prdOptionW1        = $prdOptionsW1["skuAttributes"][$skuKey];
+                    $optionNameTransW1 .= $prdOptionW1["value"] .  "_";
                 }
                 $product1688OptionDto = new Product1688OptionDto();
                 $product1688OptionDto->bind([
@@ -982,7 +990,7 @@ class ProductW2 extends ProductAbstract
                     "specId"            => $prdOptions["specId"],
                     "status"            => $opt_status,
                     "price_1688"        => $price_1688,
-                    "optionName"        => rtrim($optionName, "_"),
+                    "optionName"        => rtrim($optionNameTransW1, "_"),
                     "optionNameTrans"   => rtrim($optionNameTrans, "_"),
                     "optionNameTransEn" => rtrim($optionNameTransEn, "_"),
                     "amountOnSale"      => $prdOptions["stock"],
