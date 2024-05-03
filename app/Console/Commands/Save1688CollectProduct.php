@@ -26,7 +26,7 @@ class Save1688CollectProduct extends Command
     public function handle()
     {
         $offerids = explode(",", $this->option('offerids'));
-        $type     = $this->option('type') ?? LogConstant::COLLECT_API_KEYWORDQUERY;
+        $type     = $this->option('type') ?? LogConstant::COLLECT_API_OFFERID;
         $wversion = $this->option('wversion') ?? WConstant::WAPP_W1;
 
         if( !empty($offerids) ){
