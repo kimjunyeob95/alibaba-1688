@@ -5,7 +5,6 @@ use App\Constants\LogConstant;
 use App\Constants\ProductConstant;
 use App\Constants\WConstant;
 use App\Models\ProductData;
-use App\Models\ProductW2Data;
 use App\Services\Service1688Product;
 use Illuminate\Console\Command;
 
@@ -32,14 +31,16 @@ class MissProductReCollect extends Command
         $type     = LogConstant::COLLECT_MISS_PRODUCT;
 
         if( $wversion == WConstant::WAPP_W1 ){
-            $offerIds = ProductData::where("status", ProductConstant::PRD_STATUS_MISS)->pluck('offer_id')
+            $offerIds = ProductData::where("status", ProductConstant::PRD_STATUS_MISS)
+            ->where("w_type", WConstant::WAPP_W1)->pluck('offer_id')
             ->toArray();
 
             if( !empty($offerIds) ){
                 $this->service1688Product->collectProduct($offerIds, $type);
             }
         } else if( $wversion == WConstant::WAPP_W2 ){
-            $offerIds = ProductW2Data::where("status", ProductConstant::PRD_STATUS_MISS)->pluck('offer_id')
+            $offerIds = ProductData::where("status", ProductConstant::PRD_STATUS_MISS)
+            ->where("w_type", WConstant::WAPP_W2)->pluck('offer_id')
             ->toArray();
 
             if( !empty($offerIds) ){
