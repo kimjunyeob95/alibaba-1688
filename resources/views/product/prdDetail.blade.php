@@ -512,7 +512,7 @@
                                         @endif
                                             <th class="bg-light">
                                                 <label class="form-check-label" for="gosiChk{{ $gosi->id }}">{{ $gosi->attribute_name_kr }}</label>
-                                                <input class="form-check-input chk-inp" type="checkbox" id="gosiChk{{ $gosi->id }}" value="{{ $gosi->id }}" @if( $gosi->is_except == GosiConstants::IS_EXCEPT_Y ) checked @endif>
+                                                <input class="form-check-input chk-inp" type="checkbox" id="gosiChk{{ $gosi->id }}" value="{{ $gosi->id }}" @if( $gosi->is_except == GosiConstants::IS_EXCEPT_N ) checked @endif>
                                             </th>
                                             <td>{{ $gosi->attribute_value_kr }}</td>
     
@@ -579,9 +579,9 @@
             let gosiList = [];
 
             $(".chk-inp").each(function(index, element){
-                let is_except = "N";
+                let is_except = "Y";
                 if( $(this).is(":checked") ){
-                    is_except = "Y";
+                    is_except = "N";
                 }
                 gosiList.push({
                     id: $(this).val(),
