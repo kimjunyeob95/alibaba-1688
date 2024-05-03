@@ -10,7 +10,7 @@ class Product1688NoticeDto extends Vo
     protected int $offer_id              = 0;
     protected int $attribute_id          = 0;
     protected int $notice_type           = GosiConstants::GOSI_CHANNEL_26;
-    protected int $is_except             = GosiConstants::IS_EXCEPT_N;
+    protected string $is_except          = GosiConstants::IS_EXCEPT_N;
     protected string $attribute_name     = "";
     protected string $attribute_value    = "";
     protected string $attribute_name_kr  = "";
