@@ -270,29 +270,33 @@ class ProductTest extends TestCase
             throw new Exception("파일이 존재하지 않습니다.");
         }
         foreach ($prdObjs as $prdObj) {
-            $prd_name_trans = $prdObj->prd_name_trans;
-            // $prd_name_trans = $prdObj->prd_name_trans_origin;
+            $forObj = ProductForbiddenData::where("offer_id", $prdObj->offer_id)->first();
+
+            if( $forObj != null ){
+                $prd_name_kr = $forObj->prd_name_trans_origin;
+            } else {
+                $prd_name_kr = $prdObj->prd_name_kr;
+            }
 
             // 1. 삭제어
-            $upText = $this->removeSpecialSequence($prd_name_trans, $removeWords);
+            $upText = $this->removeSpecialSequence($prd_name_kr, $removeWords);
 
             // 2. 교체어
             $upText = $this->replaceWord($upText, $replaceWords);
 
-            if( $prd_name_trans != $upText ){
+            $upText = trim($upText);
+
+            if( $prd_name_kr != $upText ){
                 ProductForbiddenData::updateOrCreate(
                     ["offer_id" => $prdObj->offer_id],
                     [
-                        "prd_name_trans_origin"    => $prd_name_trans,
+                        "prd_name_trans_origin"    => $prd_name_kr,
                         "prd_name_trans_forbidden" => $upText
                     ]
                 );
                 ProductData::where("id", $prdObj->id)->update([
-                    "prd_name_trans" => $upText
+                    "prd_name_kr" => $upText
                 ]);
-                // ProductData::where("offer_id", $prdObj->offer_id)->update([
-                //     "prd_name_trans" => $upText
-                // ]);
             }
         };
 
