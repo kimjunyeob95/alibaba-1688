@@ -187,6 +187,7 @@
                                     <input class="form-check-input" type="checkbox" id="allCheckbox">
                                 </th>
                                 <th scope="col" style="width: 50px">No</th>
+                                <th scope="col" style="width: 50px">W</th>
                                 <th scope="col" style="width: 150px">
                                     제품ID<br>
                                     (카테고리ID)
@@ -217,6 +218,9 @@
                                     </td>
                                     <td>
                                         {{ number_format(($datas->total() - $offset) - $index) }}
+                                    </td>
+                                    <td>
+                                        {{ $data->w_type }}
                                     </td>
                                     <td>
                                         <a href="https://detail.1688.com/offer/{{ $data->offer_id }}.html" target="_blank">{{ $data->offer_id }}</a>
