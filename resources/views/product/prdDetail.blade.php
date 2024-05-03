@@ -147,7 +147,7 @@
                         <div class="col-md-8"><a href="https://detail.1688.com/offer/{{ $prdObj->offer_id }}.html" target="_blank">{{ $prdObj->offer_id }}</a></div>
                     </div>
                     <div class="row mb-2">
-                        <div class="col-md-3 text-center">제품명</div>
+                        <div class="col-md-3 text-center">제품명(중문)</div>
                         <div class="col-md-8">{{ $prdObj->prd_name }}</div>
                     </div>
                     <div class="row mb-2">
@@ -221,7 +221,7 @@
                             <thead class="table-light">
                                 <tr class="text-center">
                                     <th scope="col">skuID</th>
-                                    <th scope="col">옵션명</th>
+                                    <th scope="col">옵션명(중문)</th>
                                     <th scope="col">옵션명(국문)</th>
                                     @if( $prdObj->w_type == WConstant::WAPP_W2 )
                                         <th scope="col">옵션명(영문)</th>
@@ -275,7 +275,7 @@
                 <hr style="margin-top: 20px">
                 <div class="row mt-3">
                     <div class="col">
-                        <h5>[고시정보]</h5>
+                        <h5>[고시정보(중문)]</h5>
                     </div>
 
                     <div class="table-responsive">
@@ -411,7 +411,7 @@
                         </div>
                     </div>
                     <div class="col-md-6">
-                        <h5>[제품상세 번역]</h5>
+                        <h5>[제품상세 번역(국문)]</h5>
                         @if ($prdObj->trans_status == ProductConstant::IMG_TRANS_Y)
                             <div class="d-flex justify-content-center">
                                 <div class="text-center prd-desc" >
