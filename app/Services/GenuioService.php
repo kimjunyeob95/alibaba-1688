@@ -8,13 +8,13 @@ use App\Constants\GenuioConstant;
 use App\Constants\ImageConstant;
 use App\Constants\ImageErrorMessageConstant;
 use App\Constants\TransApiConstant;
+use App\Constants\WConstant;
 use App\Models\ApiUser;
 use App\Models\GenuioImageData;
 use App\Models\GenuioQueueData;
 use App\Models\GenuioQueueDetailData;
 use App\Models\ProductData;
 use App\Models\ProductImageData;
-use App\Models\ProductImageDetailData;
 use App\Packages\JwtPackage;
 use App\Vo\Genuio\QueueDto;
 use App\Vo\Product\Product1688ImageDto;
@@ -119,6 +119,7 @@ class GenuioService extends TransApiAbstract
                     $imgObj = ProductImageData::where([
                         "offer_id"       => $product1688ImageDto->offer_id,
                         "img_type"       => $product1688ImageDto->img_type,
+                        "lang"           => $product1688ImageDto->lang,
                         "img_url_origin" => $product1688ImageDto->img_url_origin,
                     ])->first();
                     
@@ -486,30 +487,26 @@ class GenuioService extends TransApiAbstract
                 $product1688ImageDtoList = [];
                 
                 $offerId = (int)$offerId;
-                $imgObjs = ProductImageData::where("offer_id", $offerId)->get();
+                $imgObjs = ProductImageData::where("offer_id", $offerId)->where("lang", WConstant::WAPP_KR)->get();
                 foreach ($imgObjs as $imgObj) {
                     $is_except = $imgObj->is_except;
                     if( $is_except == ImageConstant::IS_EXCEPT_Y ){
                         continue;
                     }
 
-                    $imgDetailObj = ProductImageDetailData::where([
-                        "offer_id"       => $offerId,
-                        "img_url_origin" => $imgObj->img_url_origin,
-                        "img_type"       => $imgObj->img_type,
-                    ])->first();
                     $product1688ImageDto = new Product1688ImageDto();
                     $product1688ImageDto->bind([
                         "offerId"        => $offerId,
                         "imgType"        => $imgObj->img_type,
+                        "lang"           => $imgObj->lang,
                         "is_except"      => $is_except,
                         "img_url_origin" => $imgObj->img_url_origin,
                         "img_url_trans"  => "",
                         "isChangeImg"    => ImageConstant::IS_CHANGE_IMG,
-                        "width"          => $imgDetailObj->width,
-                        "height"         => $imgDetailObj->height,
-                        "byte"           => $imgDetailObj->byte,
-                        "mime"           => $imgDetailObj->mime,
+                        "width"          => 800,
+                        "height"         => 800,
+                        "byte"           => 8,
+                        "mime"           => "image/jpeg",
                     ]);
                     $product1688ImageDtoList[] = $product1688ImageDto;
                 }
@@ -713,30 +710,26 @@ class GenuioService extends TransApiAbstract
         }
 
         try {
-            $imgObjs = ProductImageData::where("offer_id", $offerId)->whereIn("img_type", [ImageConstant::IMAGE_TYPE_MAIN, ImageConstant::IMAGE_TYPE_SUB])->get();
+            $imgObjs = ProductImageData::where("offer_id", $offerId)->where("lang", WConstant::WAPP_KR)->whereIn("img_type", [ImageConstant::IMAGE_TYPE_MAIN, ImageConstant::IMAGE_TYPE_SUB])->get();
             foreach ($imgObjs as $imgObj) {
                 $is_except = $imgObj->is_except;
                 if( $is_except == ImageConstant::IS_EXCEPT_Y ){
                     continue;
                 }
 
-                $imgDetailObj = ProductImageDetailData::where([
-                    "offer_id"       => $offerId,
-                    "img_url_origin" => $imgObj->img_url_origin,
-                    "img_type"       => $imgObj->img_type,
-                ])->first();
                 $product1688ImageDto = new Product1688ImageDto();
                 $product1688ImageDto->bind([
                     "offerId"        => $offerId,
                     "imgType"        => $imgObj->img_type,
+                    "lang"           => $imgObj->lang,
                     "is_except"      => $is_except,
                     "img_url_origin" => $imgObj->img_url_origin,
                     "img_url_trans"  => "",
                     "isChangeImg"    => ImageConstant::IS_CHANGE_IMG,
-                    "width"          => $imgDetailObj->width,
-                    "height"         => $imgDetailObj->height,
-                    "byte"           => $imgDetailObj->byte,
-                    "mime"           => $imgDetailObj->mime,
+                    "width"          => 800,
+                    "height"         => 800,
+                    "byte"           => 8,
+                    "mime"           => "image/jpeg",
                 ]);
                 $product1688ImageDtoList[] = $product1688ImageDto;
             }
@@ -768,30 +761,26 @@ class GenuioService extends TransApiAbstract
         }
 
         try {
-            $imgObjs = ProductImageData::where("offer_id", $offerId)->where("img_type", ImageConstant::IMAGE_TYPE_DESC)->get();
+            $imgObjs = ProductImageData::where("offer_id", $offerId)->where("lang", WConstant::WAPP_KR)->where("img_type", ImageConstant::IMAGE_TYPE_DESC)->get();
             foreach ($imgObjs as $imgObj) {
                 $is_except = $imgObj->is_except;
                 if( $is_except == ImageConstant::IS_EXCEPT_Y ){
                     continue;
                 }
 
-                $imgDetailObj = ProductImageDetailData::where([
-                    "offer_id"       => $offerId,
-                    "img_url_origin" => $imgObj->img_url_origin,
-                    "img_type"       => $imgObj->img_type,
-                ])->first();
                 $product1688ImageDto = new Product1688ImageDto();
                 $product1688ImageDto->bind([
                     "offerId"        => $offerId,
                     "imgType"        => $imgObj->img_type,
+                    "lang"           => $imgObj->lang,
                     "is_except"      => $is_except,
                     "img_url_origin" => $imgObj->img_url_origin,
                     "img_url_trans"  => "",
                     "isChangeImg"    => ImageConstant::IS_CHANGE_IMG,
-                    "width"          => $imgDetailObj->width,
-                    "height"         => $imgDetailObj->height,
-                    "byte"           => $imgDetailObj->byte,
-                    "mime"           => $imgDetailObj->mime,
+                    "width"          => 800,
+                    "height"         => 800,
+                    "byte"           => 8,
+                    "mime"           => "image/jpeg",
                 ]);
                 $product1688ImageDtoList[] = $product1688ImageDto;
             }

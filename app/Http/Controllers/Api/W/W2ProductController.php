@@ -41,7 +41,7 @@ class W2ProductController extends Controller
             }
 
             $offerIds = $this->request->post("offer_ids");
-            $log_type = $this->request->post("log_type", LogConstant::COLLECT_API_KEYWORDQUERY);
+            $log_type = $this->request->post("log_type", LogConstant::COLLECT_API_OFFERID);
 
             $options = "--offerids=" . helperEscape(implode(",", $offerIds)) . " --type=" . helperEscape($log_type) . " --wversion=" . WConstant::WAPP_W2;
             $command = "nohup php artisan save_1688_collect_product " . $options . " > /dev/null 2>&1 &";

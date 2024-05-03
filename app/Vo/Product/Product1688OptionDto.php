@@ -6,35 +6,37 @@ use App\Vo\Vo;
 
 class Product1688OptionDto extends Vo
 {
-    protected int $offer_id             = 0;
-    protected int $sku_id               = 0;
-    protected string $spec_id           = "";
-    protected string $status            = "";
-    protected string $option_name       = "";
-    protected string $option_name_trans = "";
-    protected float $price_1688         = 0.0;
-    protected float $option_price       = 0.0;
-    protected float $md_price           = 0.0;
-    protected float $onch_price         = 0.0;
-    protected float $cus_price          = 0.0;
-    protected float $recom_cus_price    = 0.0;
-    protected int $amount_on_sale       = 0;
-    protected string $cargo_number      = "";
-    protected float $exchange_rate      = 0.0;
+    protected int $offer_id          = 0;
+    protected int $sku_id            = 0;
+    protected string $spec_id        = "";
+    protected string $status         = "";
+    protected string $option_name    = "";
+    protected string $option_name_kr = "";
+    protected string $option_name_en = "";
+    protected float $price_1688      = 0.0;
+    protected float $option_price    = 0.0;
+    protected float $md_price        = 0.0;
+    protected float $onch_price      = 0.0;
+    protected float $cus_price       = 0.0;
+    protected float $recom_cus_price = 0.0;
+    protected int $amount_on_sale    = 0;
+    protected string $cargo_number   = "";
+    protected float $exchange_rate   = 0.0;
 
     public function bind(mixed $data): void
     {
-        $this->offer_id          = $data["offerId"];
-        $this->sku_id            = $data["skuId"];
-        $this->spec_id           = $data["specId"];
-        $this->status            = $data["status"];
-        $this->option_name       = $data["optionName"];
-        $this->option_name_trans = $data["optionNameTrans"];
-        $this->price_1688        = (float)$data["price_1688"];
-        $this->md_price          = isset($data["md_price"]) ? (int)$data["md_price"] : 0;
-        $this->amount_on_sale    = $data["amountOnSale"];
-        $this->cargo_number      = $data["cargoNumber"];
-        $this->exchange_rate     = env("1688_EXCHANGE_RATE", 200);
+        $this->offer_id       = $data["offerId"];
+        $this->sku_id         = $data["skuId"];
+        $this->spec_id        = $data["specId"];
+        $this->status         = $data["status"];
+        $this->option_name    = $data["optionName"];
+        $this->option_name_kr = $data["optionNameTrans"];
+        $this->option_name_en = $data["optionNameTransEn"];
+        $this->price_1688     = (float)$data["price_1688"];
+        $this->md_price       = isset($data["md_price"]) ? (int)$data["md_price"] : 0;
+        $this->amount_on_sale = $data["amountOnSale"];
+        $this->cargo_number   = $data["cargoNumber"];
+        $this->exchange_rate  = env("1688_EXCHANGE_RATE", 200);
 
         $this->oc_bind();
     }

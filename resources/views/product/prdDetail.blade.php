@@ -1,5 +1,6 @@
 @php
     use App\Constants\ProductConstant;
+    use App\Constants\WConstant;
     use App\Constants\ImageConstant;
     $exchangeRate = env("1688_EXCHANGE_RATE", 200);
 @endphp
@@ -149,9 +150,15 @@
                         <div class="col-md-8">{{ $prdObj->prd_name }}</div>
                     </div>
                     <div class="row mb-2">
-                        <div class="col-md-3 text-center">제품명(번역)</div>
-                        <div class="col-md-8">{{ $prdObj->prd_name_trans }}</div>
+                        <div class="col-md-3 text-center">제품명(국문)</div>
+                        <div class="col-md-8">{{ $prdObj->prd_name_kr }}</div>
                     </div>
+                    @if( $prdObj->w_type == WConstant::WAPP_W2 )
+                        <div class="row mb-2">
+                            <div class="col-md-3 text-center">제품명(영문)</div>
+                            <div class="col-md-8">{{ $prdObj->prd_name_en }}</div>
+                        </div>
+                    @endif
                     <div class="row mb-2">
                         <div class="col-md-3 text-center">W 카테고리</div>
                         <div class="col-md-8">
@@ -214,7 +221,10 @@
                                 <tr class="text-center">
                                     <th scope="col">skuID</th>
                                     <th scope="col">옵션명</th>
-                                    <th scope="col">옵션명(번역)</th>
+                                    <th scope="col">옵션명(국문)</th>
+                                    @if( $prdObj->w_type == WConstant::WAPP_W2 )
+                                        <th scope="col">옵션명(영문)</th>
+                                    @endif
                                     <th scope="col">W 공급가(위안)</th>
                                     <th scope="col">W 공급가(원)</th>
                                     <th scope="col">적용 환율(원)</th>
@@ -232,8 +242,13 @@
                                             {{ $option->option_name }}
                                         </td>
                                         <td>
-                                            {{ $option->option_name_trans }}
+                                            {{ $option->option_name_kr }}
                                         </td>
+                                        @if( $prdObj->w_type == WConstant::WAPP_W2 )
+                                            <td>
+                                                {{ $option->option_name_en }}
+                                            </td>
+                                        @endif
                                         <td>
                                             {{ $option->price_1688 }}
                                         </td>
@@ -270,8 +285,8 @@
                                         <tr>
                                     @endif
 
-                                        <th class="bg-light">{{ $gosi->attribute_name_trans }}</th>
-                                        <td>{{ $gosi->attribute_value_trans }}</td>
+                                        <th class="bg-light">{{ $gosi->attribute_name_kr }}</th>
+                                        <td>{{ $gosi->attribute_value_kr }}</td>
 
                                     @if (($gosiKey + 1) % 4 == 0 || $loop->last)
                                         </tr>
@@ -323,7 +338,7 @@
                         @if ($prdObj->trans_status == ProductConstant::IMG_TRANS_Y)
                             <div class="d-flex justify-content-center">
                                 <div class="text-center prd-desc" >
-                                    {!! $prdObj->prd_desc_trans !!}
+                                    {!! $prdObj->prd_desc_kr !!}
                                 </div>
                             </div>
                         @else

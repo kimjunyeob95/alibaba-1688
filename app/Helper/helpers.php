@@ -486,15 +486,53 @@ if (!function_exists("getPrice1688V2")) {
 if (!function_exists("chkTransStatus")) {
     function chkTransStatus(int $offerId): void
     {
-       $TransCnt = ProductImageData::where("offer_id", $offerId)
-       ->whereRaw("REPLACE(img_url_trans, ' ', '') != ''")
-       ->where("is_except", ImageConstant::IS_EXCEPT_N)
-       ->whereNotNull("trans_dated_at")
-       ->whereNull("deleted_at")
-       ->count();
-       ProductData::where("offer_id", $offerId)->update([
-           "trans_status" => $TransCnt > 0 ? ProductConstant::TRANS_STATUS_Y : ProductConstant::TRANS_STATUS_N
-       ]);
+        $prdObj          = ProductData::where("offer_id", $offerId)->first();
+        $trans_status    = ProductConstant::TRANS_STATUS_N;
+        $trans_status_en = ProductConstant::TRANS_STATUS_N;
+        if( $prdObj != null ){
+            if( $prdObj->w_type == WConstant::WAPP_W1 ){
+                $transCnt = ProductImageData::where("offer_id", $offerId)
+                ->whereRaw("REPLACE(img_url_trans, ' ', '') != ''")
+                ->where("is_except", ImageConstant::IS_EXCEPT_N)
+                ->where("lang", WConstant::WAPP_KR)
+                ->whereNotNull("trans_dated_at")
+                ->whereNull("deleted_at")
+                ->count();
+
+                if( $transCnt > 0 ){
+                    $trans_status = ProductConstant::TRANS_STATUS_Y;
+                }
+            } else if( $prdObj->w_type == WConstant::WAPP_W2 ){
+                $transKrCnt = ProductImageData::where("offer_id", $offerId)
+                ->whereRaw("REPLACE(img_url_trans, ' ', '') != ''")
+                ->where("is_except", ImageConstant::IS_EXCEPT_N)
+                ->where("lang", WConstant::WAPP_KR)
+                ->whereNotNull("trans_dated_at")
+                ->whereNull("deleted_at")
+                ->count();
+
+                $transEnCnt = ProductImageData::where("offer_id", $offerId)
+                ->whereRaw("REPLACE(img_url_trans, ' ', '') != ''")
+                ->where("is_except", ImageConstant::IS_EXCEPT_N)
+                ->where("lang", WConstant::WAPP_EN)
+                ->whereNotNull("trans_dated_at")
+                ->whereNull("deleted_at")
+                ->count();
+
+                if( $transKrCnt > 0 ){
+                    $trans_status = ProductConstant::TRANS_STATUS_Y;
+                }
+
+                if( $transEnCnt > 0 ){
+                    $trans_status_en = ProductConstant::TRANS_STATUS_Y;
+                }
+            }
+
+            ProductData::where("offer_id", $offerId)->update([
+                "trans_status"    => $trans_status,
+                "trans_status_en" => $trans_status_en,
+            ]);
+        }
     }
 }
 
@@ -548,14 +586,14 @@ if (!function_exists("upPrdDescTrans")) {
     {
         $prdObj = ProductData::where("offer_id", $offerId)->first();
         if( $prdObj != null ){
-            $prd_desc = $prdObj->prd_desc;
 
-            $imgObjs = ProductImageData::where([
+            $prd_desc = $prdObj->prd_desc;
+            $imgKrObjs = ProductImageData::where([
                 "offer_id" => $offerId,
                 "img_type" => ImageConstant::IMAGE_TYPE_DESC,
+                "lang"     => WConstant::WAPP_KR
             ])->get();
-
-            foreach ($imgObjs as $imgObj) {
+            foreach ($imgKrObjs as $imgObj) {
                 if( $imgObj->is_except == ImageConstant::IS_EXCEPT_Y ){
                     $img_url_origin = $imgObj->img_url_origin;
                     $img_url_trans  = $imgObj->img_url_trans;
@@ -569,10 +607,38 @@ if (!function_exists("upPrdDescTrans")) {
                     $prd_desc = str_replace($imgObj->img_url_origin, $imgObj->img_url_trans, $prd_desc);
                 }
             }
-
             ProductData::where("id", $prdObj->id)->update([
-                "prd_desc_trans" => $prd_desc
+                "prd_desc_kr" => $prd_desc
             ]);
+
+            if( $prdObj->w_type == WConstant::WAPP_W2 ){
+                $prd_desc = $prdObj->prd_desc;
+    
+                $imgEnObjs = ProductImageData::where([
+                    "offer_id" => $offerId,
+                    "img_type" => ImageConstant::IMAGE_TYPE_DESC,
+                    "lang"     => WConstant::WAPP_EN
+                ])->get();
+    
+                foreach ($imgEnObjs as $imgObj) {
+                    if( $imgObj->is_except == ImageConstant::IS_EXCEPT_Y ){
+                        $img_url_origin = $imgObj->img_url_origin;
+                        $img_url_trans  = $imgObj->img_url_trans;
+    
+                        $pattern = '/<img[^>]+src\s*=\s*["\']' . preg_quote($img_url_origin, '/') . '["\'][^>]*>/i';
+                        $prd_desc = preg_replace($pattern, '', $prd_desc);
+    
+                        $pattern = '/<img[^>]+src\s*=\s*["\']' . preg_quote($img_url_trans, '/') . '["\'][^>]*>/i';
+                        $prd_desc = preg_replace($pattern, '', $prd_desc);
+                    } else {
+                        $prd_desc = str_replace($imgObj->img_url_origin, $imgObj->img_url_trans, $prd_desc);
+                    }
+                }
+    
+                ProductData::where("id", $prdObj->id)->update([
+                    "prd_desc_en" => $prd_desc
+                ]);
+            }
         }
     }
 }

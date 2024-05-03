@@ -25,6 +25,7 @@ class ProductController extends Controller
         $page           = $this->request->post("page", 1);
         $pageSize       = $this->request->post("pageSize", 50);
         $search_cls     = $this->request->get("search_cls", "offer_id");
+        $w_type         = $this->request->get("w_type", "");
         $keyword        = $this->request->get("keyword", "");
         $trans_status   = $this->request->get("trans_status", "");
         $mapping_status = $this->request->get("mapping_status", "");
@@ -37,6 +38,7 @@ class ProductController extends Controller
             "page"           => $page,
             "pageSize"       => $pageSize,
             "search_cls"     => $search_cls,
+            "w_type"         => $w_type,
             "keyword"        => $keyword,
             "trans_status"   => $trans_status,
             "mapping_status" => $mapping_status,
@@ -55,6 +57,7 @@ class ProductController extends Controller
             "offset"         => (int) $offset,
             "pageSize"       => (int) $pageSize,
             "search_cls"     => $search_cls,
+            "w_type"         => $w_type,
             "keyword"        => $keyword,
             "trans_status"   => $trans_status,
             "mapping_status" => $mapping_status,

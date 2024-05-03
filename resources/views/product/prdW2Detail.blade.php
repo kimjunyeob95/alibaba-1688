@@ -55,14 +55,14 @@
                     </div>
                     <div id="swiper-container1" class="swiper-container">
                         <div class="swiper-wrapper">
-                            @foreach ($prdObj->images as $prdImg)
+                            @foreach ($prdObj->en_images as $prdImg)
                             @if ($prdImg->img_type == "main")
                                 <div class="swiper-slide">
                                     <img src={{ $prdImg->img_url_origin}}>
                                 </div>
                             @endif
                             @endforeach
-                            @foreach ($prdObj->images as $prdImg)
+                            @foreach ($prdObj->en_images as $prdImg)
                             @if ($prdImg->img_type == "sub")
                                 <div class="swiper-slide">
                                     <img src={{ $prdImg->img_url_origin}}>
@@ -79,17 +79,17 @@
                     <div class="col">
                         <h5>[번역 이미지]</h5>
                     </div>
-                    @if ($prdObj->trans_status == ProductConstant::IMG_TRANS_Y)
+                    @if ($prdObj->trans_status_en == ProductConstant::IMG_TRANS_Y)
                         <div id="swiper-container2" class="swiper-container">
                             <div class="swiper-wrapper">
-                                @foreach ($prdObj->images as $prdImg)
+                                @foreach ($prdObj->en_images as $prdImg)
                                 @if ($prdImg->img_type == "main")
                                     <div class="swiper-slide">
                                         <img src={{ $prdImg->img_url_trans}}>
                                     </div>
                                 @endif
                                 @endforeach
-                                @foreach ($prdObj->images as $prdImg)
+                                @foreach ($prdObj->en_images as $prdImg)
                                 @if ($prdImg->img_type == "sub" && $prdImg->is_except == ImageConstant::IS_EXCEPT_N)
                                     <div class="swiper-slide">
                                         <img src={{ $prdImg->img_url_trans}}>
@@ -249,8 +249,8 @@
                                         <tr>
                                     @endif
 
-                                        <th class="bg-light">{{ $gosi->attribute_name_trans }}</th>
-                                        <td>{{ $gosi->attribute_value_trans }}</td>
+                                        <th class="bg-light">{{ $gosi->attribute_name_en }}</th>
+                                        <td>{{ $gosi->attribute_value_en }}</td>
 
                                     @if (($gosiKey + 1) % 4 == 0 || $loop->last)
                                         </tr>
@@ -273,10 +273,10 @@
                     </div>
                     <div class="col-md-6">
                         <h5>[제품상세 번역]</h5>
-                        @if ($prdObj->trans_status == ProductConstant::IMG_TRANS_Y)
+                        @if ($prdObj->trans_status_en == ProductConstant::IMG_TRANS_Y)
                             <div class="d-flex justify-content-center">
                                 <div class="text-center prd-desc" >
-                                    {!! $prdObj->prd_desc_trans !!}
+                                    {!! $prdObj->prd_desc_en !!}
                                 </div>
                             </div>
                         @else
