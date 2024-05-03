@@ -381,6 +381,17 @@ class Service1688Product
       return $this->productAbstract->imageMainApply($aiImgIds);
    }
 
+   /**
+     * @func gosiExcept
+     * @description '고시정보 제외 처리'
+     * @param array $gosiList
+     * @return array
+   */
+   public function gosiExcept(array $gosiList): array
+   {
+      return $this->productAbstract->gosiExcept($gosiList);
+   }
+
    /****************************************** WApp W2 **********************************************/
 
    /**

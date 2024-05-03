@@ -10,6 +10,7 @@ class Product1688NoticeDto extends Vo
     protected int $offer_id              = 0;
     protected int $attribute_id          = 0;
     protected int $notice_type           = GosiConstants::GOSI_CHANNEL_26;
+    protected int $is_except             = GosiConstants::IS_EXCEPT_N;
     protected string $attribute_name     = "";
     protected string $attribute_value    = "";
     protected string $attribute_name_kr  = "";
@@ -21,6 +22,7 @@ class Product1688NoticeDto extends Vo
     {
         $this->offer_id           = $data["offerId"];
         $this->attribute_id       = $data["attributeId"];
+        $this->is_except          = $data["is_except"];
         $this->attribute_name     = $data["attributeName"];
         $this->attribute_value    = $data["value"];
         $this->attribute_name_kr  = $data["attributeNameTrans"];

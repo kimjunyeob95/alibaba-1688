@@ -8,6 +8,7 @@ use App\Abstracts\UploadAbstract;
 use App\Constants\CategoryErrorMessageConstant;
 use App\Constants\Constant1688;
 use App\Constants\GenuioConstant;
+use App\Constants\GosiConstants;
 use App\Constants\ImageConstant;
 use App\Constants\ImageErrorMessageConstant;
 use App\Constants\LogConstant;
@@ -44,12 +45,14 @@ use ValueError;
 class ProductW2 extends ProductAbstract
 {
     private array $returnMsg;
+    private string $accessToken;
     private TransApiAbstract $transApiAbstract;
     private UploadAbstract $uploadAbstract;
 
     public function __construct(TransApiAbstract $transApiAbstract, UploadAbstract $uploadAbstract)
     {
         $this->returnMsg        = helpers_fail_message();
+        $this->accessToken      = env("1688_ACCESS_TOKEN");
         $this->transApiAbstract = $transApiAbstract;
         $this->uploadAbstract   = $uploadAbstract;
     }
@@ -520,7 +523,20 @@ class ProductW2 extends ProductAbstract
                     throw new Exception(ProductErrorMessageConstant::getFitErrorMessage("PRODUCT_SEARCH_QUERYPRODUCTDETAIL_W2_EN"));
                 }
 
-                $prdDto                   = $this->get1688ProductDto($detailResult, $detailEnResult);
+                $endPointW1 = "param2/1/com.alibaba.fenxiao.crossborder/product.search.queryProductDetail/";
+                $payloadW1  = [
+                    'access_token'     => $this->accessToken,
+                    'offerDetailParam' => [
+                        'offerId' => $offerId,
+                        'country' => Constant1688::LANGUAGE_KO,
+                    ]
+                ];
+                $detailW1Result = curl_1688("POST", $endPointW1, $payloadW1);
+                if( $detailW1Result["isSuccess"] != true || $detailW1Result["data"]["result"]["success"] != true ){
+                    throw new Exception(ProductErrorMessageConstant::getFitErrorMessage("PRODUCT_SEARCH_QUERYPRODUCTDETAIL"));
+                }
+
+                $prdDto                   = $this->get1688ProductDto($detailResult, $detailEnResult, $detailW1Result);
                 $product1688Dto           = $prdDto["product1688Dto"];
                 $product1688ExtendDto     = $prdDto["product1688ExtendDto"];
                 $product1688ImageDtoList  = $prdDto["product1688ImageDtoList"];
@@ -629,14 +645,19 @@ class ProductW2 extends ProductAbstract
         ]);
     }
 
-    public function get1688ProductDto(array $detailResult, array $detailEnResult = []): array
+    public function get1688ProductDto(array $detailResult, array $detailEnResult = [], array $detailW1Result = []): array
     {
         if( empty($detailEnResult) ){
             throw new Exception(ProductErrorMessageConstant::getFitErrorMessage("PRODUCT_SEARCH_QUERYPRODUCTDETAIL_W2_EN"));
         }
+        if( empty($detailW1Result) ){
+            throw new Exception(ProductErrorMessageConstant::getFitErrorMessage("PRODUCT_SEARCH_QUERYPRODUCTDETAIL"));
+        }
 
         $detailProduct   = $detailResult["data"]["result"]["result"];
         $detailEnProduct = $detailEnResult["data"]["result"]["result"];
+        $detailW1Product = $detailW1Result["data"]["result"]["result"];
+
         $offerId         = $detailProduct["offerId"];
         $categoryData    = $detailProduct["category"];
         if( isset($categoryData["cate3Id"]) ){
@@ -892,14 +913,26 @@ class ProductW2 extends ProductAbstract
         // 5. 상품 고시정보
         $product1688NoticeDtoList = [];
         foreach ($detailProduct["offerAttributeList"] as $noticeKey => $prdNotice) {
+            $is_except = GosiConstants::IS_EXCEPT_N;
+
+            $gosiObj = ProductNoticeData::where([
+                "offer_id"     => $offerId,
+                "attribute_id" => $prdNotice["attrId"]
+            ])->first();
+            if( $gosiObj != null ){
+                $is_except = $gosiObj->is_except;
+            }
+
             $prdNoticeEn = $detailEnProduct["offerAttributeList"][$noticeKey];
+            $prdNoticeW1 = $detailW1Product["productAttribute"][$noticeKey];
 
             $product1688NoticeDto = new Product1688NoticeDto();
             $product1688NoticeDto->bind([
                 "offerId"              => $offerId,
                 "attributeId"          => $prdNotice["attrId"],
-                "attributeName"        => "",
-                "value"                => "",
+                "is_except"            => $is_except,
+                "attributeName"        => $prdNoticeW1["attributeName"],
+                "value"                => $prdNoticeW1["value"],
                 "attributeNameTrans"   => $prdNotice["translateName"],
                 "valueTrans"           => $prdNotice["translateValue"],
                 "attributeNameTransEn" => $prdNoticeEn["translateName"],
@@ -2107,6 +2140,28 @@ class ProductW2 extends ProductAbstract
                     // 수정 상품 저장
                     saveModiProduct($imgObj->offer_id);
                 }
+            }
+            $returnMsg = helpers_success_message();
+        } catch (Exception $e) {
+            $returnMsg = helpers_fail_message(false, $e->getMessage());
+        }
+
+        return $returnMsg;
+    }
+
+    public function gosiExcept(array $gosiList): array
+    {
+        $returnMsg = $this->returnMsg;
+        try {
+            foreach ($gosiList as $gosi) {
+                ProductNoticeData::where("id", $gosi["id"])->update([
+                    "is_except" => $gosi["is_except"]
+                ]);
+
+                $gosiObj = ProductNoticeData::where("id", $gosi["id"])->first();
+
+                // 수정 상품 저장
+                saveModiProduct($gosiObj->offer_id);
             }
             $returnMsg = helpers_success_message();
         } catch (Exception $e) {

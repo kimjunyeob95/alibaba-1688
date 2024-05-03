@@ -227,4 +227,12 @@ abstract class ProductAbstract
      * @return array
     */
     abstract function imageMainApply(array $aiImgIds): array;
+
+    /**
+     * @func gosiExcept
+     * @description '고시정보 제외 처리'
+     * @param array $gosiList
+     * @return array
+    */
+    abstract function gosiExcept(array $gosiList): array;
 }

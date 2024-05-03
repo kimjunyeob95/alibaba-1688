@@ -6,6 +6,10 @@ namespace App\Constants;
  */
 class GosiConstants
 {
+    /** 고시 제외 여부 */
+    public const IS_EXCEPT_Y = "Y";
+    public const IS_EXCEPT_N = "N";
+    
     public const GOSI_CHANNEL_1 = 1;
     public const GOSI_CHANNEL_2 = 2;
     public const GOSI_CHANNEL_3 = 3;

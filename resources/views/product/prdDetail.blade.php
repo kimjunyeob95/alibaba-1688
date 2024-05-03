@@ -2,6 +2,7 @@
     use App\Constants\ProductConstant;
     use App\Constants\WConstant;
     use App\Constants\ImageConstant;
+    use App\Constants\GosiConstants;
     $exchangeRate = env("1688_EXCHANGE_RATE", 200);
 @endphp
 @extends('dashboard.base')
@@ -274,32 +275,6 @@
                 <hr style="margin-top: 20px">
                 <div class="row mt-3">
                     <div class="col">
-                        <h5>[고시정보(번역)]</h5>
-                    </div>
-
-                    <div class="table-responsive">
-                        <table class="table table-white bg-white">
-                            <tbody>
-                                @foreach ($prdObj->notices as $gosiKey => $gosi)
-                                    @if ( $gosiKey % 4 == 0)
-                                        <tr>
-                                    @endif
-
-                                        <th class="bg-light">{{ $gosi->attribute_name_kr }}</th>
-                                        <td>{{ $gosi->attribute_value_kr }}</td>
-
-                                    @if (($gosiKey + 1) % 4 == 0 || $loop->last)
-                                        </tr>
-                                    @endif
-                                @endforeach
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <hr style="margin-top: 20px">
-                <div class="row mt-3">
-                    <div class="col">
                         <h5>[고시정보]</h5>
                     </div>
 
@@ -311,10 +286,26 @@
                                         <tr>
                                     @endif
 
-                                        <th class="bg-light">{{ $gosi->attribute_name }}</th>
-                                        <td>{{ $gosi->attribute_value }}</td>
+                                        <th class="bg-light">
+                                            @if ($gosi->is_except == GosiConstants::IS_EXCEPT_Y)
+                                                <del>{{ $gosi->attribute_name }}</del>
+                                            @else
+                                                {{ $gosi->attribute_name }}
+                                            @endif
+                                        </th>
+                                        <td>
+                                            @if ($gosi->is_except == GosiConstants::IS_EXCEPT_Y)
+                                                <del>{{ $gosi->attribute_value }}</del>
+                                            @else
+                                                {{ $gosi->attribute_value }}
+                                            @endif
+                                        </td>
 
                                     @if (($gosiKey + 1) % 4 == 0 || $loop->last)
+                                        @php $remainingCols = 4 - (($gosiKey + 1) % 4); @endphp
+                                        @if ($loop->last && $remainingCols > 0 && $remainingCols < 4)
+                                            <td colspan="{{ $remainingCols * 2 }}"></td>
+                                        @endif
                                         </tr>
                                     @endif
                                 @endforeach
@@ -322,6 +313,92 @@
                         </table>
                     </div>
                 </div>
+
+                <hr style="margin-top: 20px">
+                <div class="row mt-3">
+                    <div class="col">
+                        <h5>[고시정보(국문)]</h5>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="table table-white bg-white">
+                            <tbody>
+                                @foreach ($prdObj->notices as $gosiKey => $gosi)
+                                    @if ( $gosiKey % 4 == 0)
+                                        <tr>
+                                    @endif
+
+                                        <th class="bg-light">
+                                            @if ($gosi->is_except == GosiConstants::IS_EXCEPT_Y)
+                                                <del>{{ $gosi->attribute_name_kr }}</del>
+                                            @else
+                                                {{ $gosi->attribute_name_kr }}
+                                            @endif
+                                        </th>
+                                        <td>
+                                            @if ($gosi->is_except == GosiConstants::IS_EXCEPT_Y)
+                                                <del>{{ $gosi->attribute_value_kr }}</del>
+                                            @else
+                                                {{ $gosi->attribute_value_kr }}
+                                            @endif
+                                        </td>
+
+                                    @if (($gosiKey + 1) % 4 == 0 || $loop->last)
+                                        @php $remainingCols = 4 - (($gosiKey + 1) % 4); @endphp
+                                        @if ($loop->last && $remainingCols > 0 && $remainingCols < 4)
+                                            <td colspan="{{ $remainingCols * 2 }}"></td>
+                                        @endif
+                                        </tr>
+                                    @endif
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                @if( $prdObj->w_type == WConstant::WAPP_W2 )
+                    <hr style="margin-top: 20px">
+                    <div class="row mt-3">
+                        <div class="col">
+                            <h5>[고시정보(영문)]</h5>
+                        </div>
+
+                        <div class="table-responsive">
+                            <table class="table table-white bg-white">
+                                <tbody>
+                                    @foreach ($prdObj->notices as $gosiKey => $gosi)
+                                        @if ( $gosiKey % 4 == 0)
+                                            <tr>
+                                        @endif
+
+                                            <th class="bg-light">
+                                                @if ($gosi->is_except == GosiConstants::IS_EXCEPT_Y)
+                                                    <del>{{ $gosi->attribute_name_en }}</del>
+                                                @else
+                                                    {{ $gosi->attribute_name_en }}
+                                                @endif
+                                            </th>
+                                            <td>
+                                                @if ($gosi->is_except == GosiConstants::IS_EXCEPT_Y)
+                                                    <del>{{ $gosi->attribute_value_en }}</del>
+                                                @else
+                                                    {{ $gosi->attribute_value_en }}
+                                                @endif
+                                            </td>
+
+                                        @if (($gosiKey + 1) % 4 == 0 || $loop->last)
+                                            @php $remainingCols = 4 - (($gosiKey + 1) % 4); @endphp
+                                            @if ($loop->last && $remainingCols > 0 && $remainingCols < 4)
+                                                <td colspan="{{ $remainingCols * 2 }}"></td>
+                                            @endif
+                                            </tr>
+                                        @endif
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                @endif
 
                 <hr style="margin-top: 20px">
                 <div class="row mt-3">
@@ -358,7 +435,9 @@
             <button type="button" class="btn btn-danger btn-xl text-white mb-2 btn-edit-status">
                 판매상태 변경
             </button>
-
+            <button type="button" class="btn btn-secondary btn-xl text-white mb-2 btn-edit-gosi">
+                정보고시 관리
+            </button>
             <a class="btn btn-primary btn-xl text-white text-decoration-none mb-2 btn-edit-img" type="all">
                 전체 이미지<br>번역요청
             </a>
@@ -410,6 +489,52 @@
                 </div>
             </div>
         </div>
+
+        <div class="modal fade" id="htmlModal2" tabindex="-1" role="dialog" aria-labelledby="htmlModalLabel2" aria-hidden="true">
+            <div class="modal-dialog modal-xl" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="htmlModalLabel">정보고시 관리</h5>
+                    </div>
+                    <div class="modal-body">   
+                        <p class="text-danger fs-6">
+                            *제외 처리 할 고시항목을 선택하세요.<br>
+                            *선택 되어진 항목은 제외처리 중입니다.
+                        </p>
+                        <button type="button" class="btn btn-success btn-gosi-all">일괄 선택</button>
+
+                        <div class="table-responsive mt-4">
+                            <table class="table table-white bg-white">
+                                <tbody>
+                                    @foreach ($prdObj->notices as $gosiKey => $gosi)
+                                        @if ( $gosiKey % 4 == 0)
+                                            <tr>
+                                        @endif
+                                            <th class="bg-light">
+                                                <label class="form-check-label" for="gosiChk{{ $gosi->id }}">{{ $gosi->attribute_name_kr }}</label>
+                                                <input class="form-check-input chk-inp" type="checkbox" id="gosiChk{{ $gosi->id }}" value="{{ $gosi->id }}" @if( $gosi->is_except == GosiConstants::IS_EXCEPT_Y ) checked @endif>
+                                            </th>
+                                            <td>{{ $gosi->attribute_value_kr }}</td>
+    
+                                            @if (($gosiKey + 1) % 4 == 0 || $loop->last)
+                                                @php $remainingCols = 4 - (($gosiKey + 1) % 4); @endphp
+                                                @if ($loop->last && $remainingCols > 0 && $remainingCols < 4)
+                                                    <td colspan="{{ $remainingCols * 2 }}"></td>
+                                                @endif
+                                                </tr>
+                                            @endif
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary btn-save-gosi">저장</button>
+                        <button type="button" class="btn btn-secondary htmlModalClose2">닫기</button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 <script type="text/javascript">
 
@@ -448,6 +573,59 @@
                     }
                 });
             }
+        });
+
+        $('.btn-save-gosi').click(function(){
+            let gosiList = [];
+
+            $(".chk-inp").each(function(index, element){
+                let is_except = "N";
+                if( $(this).is(":checked") ){
+                    is_except = "Y";
+                }
+                gosiList.push({
+                    id: $(this).val(),
+                    is_except: is_except
+                });
+            });
+
+            if( confirm("저장하시겠습니까?") ){
+                $.ajax({
+                    "headers"    : {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
+                    "type"       : "POST",
+                    "url"        : "{{ route('w.product.gosiExcept') }}",
+                    "data"       : { gosiList },
+                    beforeSend: function () {
+                        $("#loadingOverlay").show();
+                    },
+                    complete: function () {
+                        $("#loadingOverlay").hide();
+                    },
+                    success: function (resp) {
+                        alert(resp.msg);
+                        location.reload();
+                    },
+                    error: function error(request, status, _error) {
+                        let { error } = JSON.parse(request.responseText);
+                        alert(error.message);
+                    }
+                });
+            }
+        });
+
+        $('.btn-gosi-all').click(function(){
+            if( $(".chk-inp:checked").length > 0 ) {
+                $(".chk-inp").prop("checked", false);
+            } else {
+                $(".chk-inp").prop("checked", true);
+            }
+        });
+
+        $('.btn-edit-gosi').click(function(){
+            $("#htmlModal2").modal('show');
+        });
+        $(".htmlModalClose2").click(function(){
+            $("#htmlModal2").modal('hide');
         });
 
         $('.btn-edit-img').click(function(e){

@@ -1,6 +1,7 @@
 @php
     use App\Constants\ProductConstant;
     use App\Constants\ImageConstant;
+    use App\Constants\GosiConstants;
     $exchangeRate = env("1688_EXCHANGE_RATE", 200);
 @endphp
 @extends('dashboard.base')
@@ -238,7 +239,7 @@
                 <hr style="margin-top: 20px">
                 <div class="row mt-3">
                     <div class="col">
-                        <h5>[고시정보(번역)]</h5>
+                        <h5>[고시정보]</h5>
                     </div>
 
                     <div class="table-responsive">
@@ -249,10 +250,110 @@
                                         <tr>
                                     @endif
 
-                                        <th class="bg-light">{{ $gosi->attribute_name_en }}</th>
-                                        <td>{{ $gosi->attribute_value_en }}</td>
+                                        <th class="bg-light">
+                                            @if ($gosi->is_except == GosiConstants::IS_EXCEPT_Y)
+                                                <del>{{ $gosi->attribute_name }}</del>
+                                            @else
+                                                {{ $gosi->attribute_name }}
+                                            @endif
+                                        </th>
+                                        <td>
+                                            @if ($gosi->is_except == GosiConstants::IS_EXCEPT_Y)
+                                                <del>{{ $gosi->attribute_value }}</del>
+                                            @else
+                                                {{ $gosi->attribute_value }}
+                                            @endif
+                                        </td>
 
                                     @if (($gosiKey + 1) % 4 == 0 || $loop->last)
+                                        @php $remainingCols = 4 - (($gosiKey + 1) % 4); @endphp
+                                        @if ($loop->last && $remainingCols > 0 && $remainingCols < 4)
+                                            <td colspan="{{ $remainingCols * 2 }}"></td>
+                                        @endif
+                                        </tr>
+                                    @endif
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <hr style="margin-top: 20px">
+                <div class="row mt-3">
+                    <div class="col">
+                        <h5>[고시정보(국문)]</h5>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="table table-white bg-white">
+                            <tbody>
+                                @foreach ($prdObj->notices as $gosiKey => $gosi)
+                                    @if ( $gosiKey % 4 == 0)
+                                        <tr>
+                                    @endif
+
+                                        <th class="bg-light">
+                                            @if ($gosi->is_except == GosiConstants::IS_EXCEPT_Y)
+                                                <del>{{ $gosi->attribute_name_kr }}</del>
+                                            @else
+                                                {{ $gosi->attribute_name_kr }}
+                                            @endif
+                                        </th>
+                                        <td>
+                                            @if ($gosi->is_except == GosiConstants::IS_EXCEPT_Y)
+                                                <del>{{ $gosi->attribute_value_kr }}</del>
+                                            @else
+                                                {{ $gosi->attribute_value_kr }}
+                                            @endif
+                                        </td>
+
+                                    @if (($gosiKey + 1) % 4 == 0 || $loop->last)
+                                        @php $remainingCols = 4 - (($gosiKey + 1) % 4); @endphp
+                                        @if ($loop->last && $remainingCols > 0 && $remainingCols < 4)
+                                            <td colspan="{{ $remainingCols * 2 }}"></td>
+                                        @endif
+                                        </tr>
+                                    @endif
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <hr style="margin-top: 20px">
+                <div class="row mt-3">
+                    <div class="col">
+                        <h5>[고시정보(영문)]</h5>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="table table-white bg-white">
+                            <tbody>
+                                @foreach ($prdObj->notices as $gosiKey => $gosi)
+                                    @if ( $gosiKey % 4 == 0)
+                                        <tr>
+                                    @endif
+
+                                        <th class="bg-light">
+                                            @if ($gosi->is_except == GosiConstants::IS_EXCEPT_Y)
+                                                <del>{{ $gosi->attribute_name_en }}</del>
+                                            @else
+                                                {{ $gosi->attribute_name_en }}
+                                            @endif
+                                        </th>
+                                        <td>
+                                            @if ($gosi->is_except == GosiConstants::IS_EXCEPT_Y)
+                                                <del>{{ $gosi->attribute_value_en }}</del>
+                                            @else
+                                                {{ $gosi->attribute_value_en }}
+                                            @endif
+                                        </td>
+
+                                    @if (($gosiKey + 1) % 4 == 0 || $loop->last)
+                                        @php $remainingCols = 4 - (($gosiKey + 1) % 4); @endphp
+                                        @if ($loop->last && $remainingCols > 0 && $remainingCols < 4)
+                                            <td colspan="{{ $remainingCols * 2 }}"></td>
+                                        @endif
                                         </tr>
                                     @endif
                                 @endforeach

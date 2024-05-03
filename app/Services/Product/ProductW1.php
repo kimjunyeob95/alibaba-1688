@@ -7,6 +7,7 @@ use App\Abstracts\TransApiAbstract;
 use App\Abstracts\UploadAbstract;
 use App\Constants\Constant1688;
 use App\Constants\GenuioConstant;
+use App\Constants\GosiConstants;
 use App\Constants\ImageConstant;
 use App\Constants\ImageErrorMessageConstant;
 use App\Constants\LogConstant;
@@ -774,10 +775,20 @@ class ProductW1 extends ProductAbstract
         // 5. 상품 고시정보
         $product1688NoticeDtoList = [];
         foreach ($detailProduct["productAttribute"] as $prdNotice) {
+            $is_except = GosiConstants::IS_EXCEPT_N;
+
+            $gosiObj = ProductNoticeData::where([
+                "offer_id"     => $offerId,
+                "attribute_id" => $prdNotice["attributeId"]
+            ])->first();
+            if( $gosiObj != null ){
+                $is_except = $gosiObj->is_except;
+            }
             $product1688NoticeDto = new Product1688NoticeDto();
             $product1688NoticeDto->bind([
                 "offerId"              => $offerId,
                 "attributeId"          => $prdNotice["attributeId"],
+                "is_except"            => $is_except,
                 "attributeName"        => $prdNotice["attributeName"],
                 "value"                => $prdNotice["value"],
                 "attributeNameTrans"   => $prdNotice["attributeNameTrans"],
@@ -1990,6 +2001,28 @@ class ProductW1 extends ProductAbstract
                     // 수정 상품 저장
                     saveModiProduct($imgObj->offer_id);
                 }
+            }
+            $returnMsg = helpers_success_message();
+        } catch (Exception $e) {
+            $returnMsg = helpers_fail_message(false, $e->getMessage());
+        }
+
+        return $returnMsg;
+    }
+
+    public function gosiExcept(array $gosiList): array
+    {
+        $returnMsg = $this->returnMsg;
+        try {
+            foreach ($gosiList as $gosi) {
+                ProductNoticeData::where("id", $gosi["id"])->update([
+                    "is_except" => $gosi["is_except"]
+                ]);
+
+                $gosiObj = ProductNoticeData::where("id", $gosi["id"])->first();
+
+                // 수정 상품 저장
+                saveModiProduct($gosiObj->offer_id);
             }
             $returnMsg = helpers_success_message();
         } catch (Exception $e) {

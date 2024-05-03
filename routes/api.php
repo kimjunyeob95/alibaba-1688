@@ -63,6 +63,8 @@ Route::name('w.')->prefix('w')->group(function () {
         Route::post('/status/update', [WProductController::class, 'statusUpdate'])->name('statusUpdate');
         // 대표 이미지 적용
         Route::post('/image/mainApply', [WProductController::class, 'imageMainApply'])->name('imageMainApply');
+        // 고시정보 제외 처리
+        Route::post('/gosi/except', [WProductController::class, 'gosiExcept'])->name('gosiExcept');
     });
 
     Route::name('category.')->prefix('category')->group(function () {

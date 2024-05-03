@@ -467,4 +467,28 @@ class WProductController extends Controller
             return helpers_json_response(HttpConstant::BAD_REQUEST, [], $e->getMessage());
         }
     }
+
+    public function gosiExcept(): JsonResponse
+    {
+        try {
+            $validator = Validator::make($this->request->all(), [
+                'gosiList' => 'required|array',
+            ], [
+                'gosiList.required' => ProductErrorMessageConstant::getNotHaveErrorMessage("GOSILIST"),
+            ]);
+            if ($validator->fails()) {
+                throw new Exception($validator->errors()->first());
+            }
+            
+            $gosiList = $this->request->post("gosiList");
+            $result   = $this->service1688Product->gosiExcept($gosiList);
+            if( $result["isSuccess"] == true ){
+                return helpers_json_response(HttpConstant::OK, $result);
+            } else {
+                return helpers_json_response(HttpConstant::BAD_REQUEST, [], $result["msg"]);
+            }
+        } catch (Exception $e) {
+            return helpers_json_response(HttpConstant::BAD_REQUEST, [], $e->getMessage());
+        }
+    }
 }
