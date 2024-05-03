@@ -91,7 +91,7 @@ class ProductW2 extends ProductAbstract
                     ->orWhere("product_datas." . "prd_name_kr", "like", "%" . $keyword . "%")
                     ->orWhere("product_datas." . "prd_name_en", "like", "%" . $keyword . "%");
                 });
-            } else if( $search_cls == "option_name" || $search_cls == "option_name" ){
+            } else if( $search_cls == "option_name_kr" || $search_cls == "option_name" ){
                 $prdBuilder->whereHas('options', function ($query) use ($keyword, $search_cls) {
                     $query->where(function($query1) use ($keyword) {
                         $query1->where("option_name", "like", "%" . $keyword . "%")

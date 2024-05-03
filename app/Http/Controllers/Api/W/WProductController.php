@@ -229,7 +229,7 @@ class WProductController extends Controller
             $page           = $this->request->get("page", 1);
             $pageSize       = $this->request->get("pageSize", 50);
             if( $pageSize > 50 ) $pageSize = 50;
-            $search_cls     = $this->request->get("search_cls", "prd_name_trans");
+            $search_cls     = $this->request->get("search_cls", "prd_name_kr");
             $w_type         = $this->request->get("w_type", "");
             $keyword        = $this->request->get("keyword", "");
             $trans_status   = $this->request->get("trans_status", ProductConstant::TRANS_STATUS_Y);

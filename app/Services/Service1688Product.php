@@ -211,16 +211,16 @@ class Service1688Product
       $datas     = [];
       foreach ($paginator as $prdObj) {
          $data = [
-            "offer_id"       => $prdObj->offer_id,
-            "prd_name"       => $prdObj->prd_name,
-            "prd_name_trans" => $prdObj->prd_name_trans
+            "offer_id"    => $prdObj->offer_id,
+            "prd_name"    => $prdObj->prd_name,
+            "prd_name_kr" => $prdObj->prd_name_kr
          ];
 
          foreach ($prdObj->options as $option) {
             $data["options"][] = [
-               "id"                => $option->id,
-               "option_name"       => $option->option_name,
-               "option_name_trans" => $option->option_name_trans,
+               "id"             => $option->id,
+               "option_name"    => $option->option_name,
+               "option_name_kr" => $option->option_name_kr,
             ];
          }
          foreach ($prdObj->images as $key => $image) {

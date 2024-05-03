@@ -111,8 +111,8 @@
                                     <td style="width: 200px">
                                         <select class="form-select" name="search_cls">
                                             <option value="offer_id" @if($search_cls == "offer_id") selected @endif>제품 ID</option>
-                                            <option value="prd_name_trans" @if($search_cls == "prd_name_trans") selected @endif>상품명</option>
-                                            <option value="option_name_trans" @if($search_cls == "option_name_trans") selected @endif>옵션명</option>
+                                            <option value="prd_name" @if($search_cls == "prd_name") selected @endif>상품명</option>
+                                            <option value="option_name" @if($search_cls == "option_name") selected @endif>옵션명</option>
                                         </select>
                                     </td>
                                     <td colspan="2">
