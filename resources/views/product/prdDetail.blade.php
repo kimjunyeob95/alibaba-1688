@@ -497,10 +497,7 @@
                         <h5 class="modal-title" id="htmlModalLabel">정보고시 관리</h5>
                     </div>
                     <div class="modal-body">   
-                        <p class="text-danger fs-6">
-                            *제외 처리 할 고시항목을 선택하세요.<br>
-                            *선택 되어진 항목은 제외처리 중입니다.
-                        </p>
+                        <p class="text-danger fs-6">*상세 페이지에 노출할 정보를 선택하세요</p>
                         <button type="button" class="btn btn-success btn-gosi-all">일괄 선택</button>
 
                         <div class="table-responsive mt-4">
