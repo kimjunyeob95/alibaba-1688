@@ -514,7 +514,7 @@ class EasySell extends MallApiAbstract
                 "MinEa"                 => $prdObj->start_quantity
             ];
 
-            $vo = new EasySellProductVo();
+            $vo = new EasySellProductVo($type);
             $vo->bind($voParams);
 
             $apiParams = [
@@ -653,8 +653,8 @@ class EasySell extends MallApiAbstract
      *
      * @return void
      */
-    public function setGoodsStatus(int $ItemGoodCode){
-        $vo = new EasySellProductVo();
+    public function setGoodsStatus(string $type,int $ItemGoodCode){
+        $vo = new EasySellProductVo($type);
         $vo->bind(["ItemGoodCode" => $ItemGoodCode]);
 
         $params = [

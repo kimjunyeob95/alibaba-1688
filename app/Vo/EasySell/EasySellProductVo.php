@@ -4,10 +4,13 @@ namespace App\Vo\EasySell;
 
 use App\Constants\EasySellConstant;
 use App\Constants\GosiConstants;
+use App\Constants\WConstant;
 use App\Vo\Vo;
 
 class EasySellProductVo extends Vo
 {
+    protected string $referDetail;
+
     protected string $LinkerID;
     protected string $UserID;
     protected string $UserPW;
@@ -60,6 +63,12 @@ class EasySellProductVo extends Vo
     //상품 승인요청여부
     protected string $ItemApproveAuto;
 
+    // 이지셀/dropK 언어 설정 수정
+    public function __construct(string $type)
+    {
+        $this->referDetail = ($type == WConstant::WAPP_W1 ) ? "상세페이지 참조" : "See Details on Product Page";
+    }
+
     public function bind(mixed $data): void
     {
         $this->LinkerID              = EasySellConstant::LINKER_ID;
@@ -73,7 +82,7 @@ class EasySellProductVo extends Vo
         $this->ItemGoodCode          = $data['ItemGoodCode'] ?? NULL;
         $this->Itemkeyword           = $data['Itemkeyword'] ?? "";
         $this->Launchdate            = date("Y0101");
-        $this->ItemMaker             = $data['ItemMaker'] ?? "상세페이지 참조";
+        $this->ItemMaker             = $data['ItemMaker'] ?? $this->referDetail;
         $this->ItemMadeIn            = EasySellConstant::ITEM_MADE_IN;
         $this->ItemDesc              = $data['ItemDesc'] ?? "";
         $this->ItemDescDetail        = $data['ItemDescDetail'] ?? "";
@@ -95,17 +104,17 @@ class EasySellProductVo extends Vo
         $this->StockYn               = $data['StockYn'] ?? "002";
         $this->ItemMode              = $data['ItemMode'] ?? "";
 
-        $this->ItemNoRefund               = "상세설명참조";
-        $this->ItemReturnQualityAssurance = "상세설명참조";
-        $this->ItemCompensation           = "상세설명참조";
-        $this->ItemTroubleShooting        = "상세설명참조";
+        $this->ItemNoRefund               = $this->referDetail;
+        $this->ItemReturnQualityAssurance = $this->referDetail;
+        $this->ItemCompensation           = $this->referDetail;
+        $this->ItemTroubleShooting        = $this->referDetail;
         $this->TimeSaleUse                = $data['TimeSaleUse'] ?? "";
         $this->TimeSaleValidSdate         = $data['TimeSaleValidSdate'] ?? "";
         $this->TimeSaleValidEdate         = $data['TimeSaleValidEdate'] ?? "";
         $this->TimeSaleDC                 = $data['TimeSaleDC'] ?? "";
         $this->TimeSaleViewType           = $data['TimeSaleViewType'] ?? "";
         $this->TimeSaleSubjectTag         = $data['TimeSaleSubjectTag'] ?? "";
-        $this->ItemCertification          = "상세설명참조";
+        $this->ItemCertification          = $this->referDetail;
         $this->ItemCertificationInfo      = $data['ItemCertificationInfo'] ?? "";
         $this->OptIf                      = $data['OptIf'] ?? "N";
         $this->Exhibition                 = $data['Exhibition'] ?? "N";
@@ -119,36 +128,36 @@ class EasySellProductVo extends Vo
     {
         $gosiItem = [
             "ItemGoodsRequired"      => $noticeType,
-            "ItemKinds"              => "상세페이지 참조",
-            "ItemMaker"              => "상세페이지 참조",
+            "ItemKinds"              => $this->referDetail,
+            "ItemMaker"              => $this->referDetail,
             "Launchdate"             => $this->Launchdate,
-            "ItemServiceLife"        => "상세페이지 참조",
-            "ItemVolume"             => "상세페이지 참조",
-            "ItemMatiere"            => "상세페이지 참조",
-            "ItemIngredient"         => "상세페이지 참조",
-            "ItemCaution"            => "상세페이지 참조",
-            "ItemAsTel"              => "상세페이지 참조",
-            "ItemPartnerCode"        => "상세페이지 참조",
-            "ItemColors"             => "상세페이지 참조",
+            "ItemServiceLife"        => $this->referDetail,
+            "ItemVolume"             => $this->referDetail,
+            "ItemMatiere"            => $this->referDetail,
+            "ItemIngredient"         => $this->referDetail,
+            "ItemCaution"            => $this->referDetail,
+            "ItemAsTel"              => $this->referDetail,
+            "ItemPartnerCode"        => $this->referDetail,
+            "ItemColors"             => $this->referDetail,
             "ItemWarranty"           => "N",
             "ItemWarranty_number"    => "",
-            "ItemSizes"              => "상세페이지 참조",
-            "ItemQualityAssurance"   => "상세페이지 참조",
-            "ItemAsName"             => "상세페이지 참조",
-            "ItemSpec1"              => "상세페이지 참조",
-            "ItemEqualModelLaunchdt" => "상세페이지 참조",
-            "ItemSpec2"              => "상세페이지 참조",
-            "ItemUsages"             => "상세페이지 참조",
-            "ItemWarrantyGov"        => "상세페이지 참조",
-            "ItemUseAge"             => "상세페이지 참조",
-            "ItemOrigin"             => "상세페이지 참조",
-            "ItemImport"             => "상세페이지 참조",
-            "ItemImporter"           => "상세페이지 참조",
-            "ItemGoodscd"            => "상세페이지 참조",
-            "ItemQualityInfo"        => "상세페이지 참조",
-            "ItemSpecialFood"        => "상세페이지 참조",
-            "ItemGeneticallyMod"     => "상세페이지 참조",
-            "ItemMakeDtDetail"       => "상세페이지 참조"
+            "ItemSizes"              => $this->referDetail,
+            "ItemQualityAssurance"   => $this->referDetail,
+            "ItemAsName"             => $this->referDetail,
+            "ItemSpec1"              => $this->referDetail,
+            "ItemEqualModelLaunchdt" => $this->referDetail,
+            "ItemSpec2"              => $this->referDetail,
+            "ItemUsages"             => $this->referDetail,
+            "ItemWarrantyGov"        => $this->referDetail,
+            "ItemUseAge"             => $this->referDetail,
+            "ItemOrigin"             => $this->referDetail,
+            "ItemImport"             => $this->referDetail,
+            "ItemImporter"           => $this->referDetail,
+            "ItemGoodscd"            => $this->referDetail,
+            "ItemQualityInfo"        => $this->referDetail,
+            "ItemSpecialFood"        => $this->referDetail,
+            "ItemGeneticallyMod"     => $this->referDetail,
+            "ItemMakeDtDetail"       => $this->referDetail
         ];
 
         $this->ItemGoodsRequired = $gosiItem;
