@@ -76,7 +76,7 @@
                                         <select class="form-select" name="search_cls">
                                             <option value="offer_id" @if($search_cls == "offer_id") selected @endif>제품 ID</option>
                                             <option value="itemno" @if($search_cls == "itemno") selected @endif>이지셀 고유번호</option>
-                                            <option value="prd_name_trans" @if($search_cls == "prd_name_trans") selected @endif>상품명</option>
+                                            <option value="prd_name_kr" @if($search_cls == "prd_name_kr") selected @endif>상품명</option>
                                         </select>
                                     </td>
                                     <td colspan="2">
@@ -151,7 +151,7 @@
                                         @endif
                                     </td>
                                     <td>
-                                        {{ $data->prd_name_trans }}
+                                        {{ $data->prd_name_kr }}
                                     </td>
                                     <td class="text-center">
                                         @if (count($data->options) > 0)
