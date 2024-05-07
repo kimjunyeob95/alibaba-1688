@@ -35,6 +35,8 @@ Route::prefix("product")->name("product.")->group(function(){
 
     // 상품 리스트
     Route::get("/list", [ProductController::class, "getPrdList"])->name("list");
+    /** 판매제외 상품 리스트 */
+    Route::get("/except/list", [ProductController::class, "getPrdExceptList"])->name("getPrdExceptList");
     Route::get("/{offerId}", [ProductController::class, "getPrdDetail"])->name("detail");
     Route::get("/img/edit/{offerId}", [ProductController::class, "getPrdImageEdit"])->name("imgEdit");
 

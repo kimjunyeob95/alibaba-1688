@@ -151,11 +151,124 @@ class ProductW2 extends ProductAbstract
 
         if( !empty($prd_status) ){
             $prdBuilder->where("product_datas.status", $prd_status);
+        } else {
+            $prdBuilder->whereIn("product_datas.status", ProductConstant::PRD_SHOW_STATUS);
         }
 
-        $totalCnt  = ProductData::where("w_type", WConstant::WAPP_W2)->count();
-        $transYCnt = ProductData::where("w_type", WConstant::WAPP_W2)->where("trans_status_en", ProductConstant::TRANS_STATUS_Y)->count();
-        $transNCnt = ProductData::where("w_type", WConstant::WAPP_W2)->where("trans_status_en", ProductConstant::TRANS_STATUS_N)->count();
+        $totalCnt  = ProductData::whereIn("status", ProductConstant::PRD_SHOW_STATUS)->where("w_type", WConstant::WAPP_W2)->count();
+        $transYCnt = ProductData::whereIn("status", ProductConstant::PRD_SHOW_STATUS)->where("w_type", WConstant::WAPP_W2)->where("trans_status_en", ProductConstant::TRANS_STATUS_Y)->count();
+        $transNCnt = ProductData::whereIn("status", ProductConstant::PRD_SHOW_STATUS)->where("w_type", WConstant::WAPP_W2)->where("trans_status_en", ProductConstant::TRANS_STATUS_N)->count();
+
+        $lists = $prdBuilder->paginate($pageSize)->appends($params);
+        return [
+            "paginator" => $lists,
+            "totalCnt"  => $totalCnt,
+            "transYCnt" => $transYCnt,
+            "transNCnt" => $transNCnt,
+        ];
+    }
+
+    public function getPrdExceptList(array $params): array
+    {
+        $pageSize       = $params["pageSize"];
+        $search_cls     = $params["search_cls"];
+        $keyword        = $params["keyword"];
+        $trans_status   = $params["trans_status"];
+        $mapping_status = $params["mapping_status"];
+        $prd_status     = $params["prd_status"];
+        $mdPrice_status = $params["mdPrice_status"];
+        $sortArr        = explode("|", $params["sort"]);
+
+        $prdBuilder = ProductData::select(["product_datas.*"])->with([
+            "main_img",
+            "options", 
+            "images.ai_all_imgs"
+        ]);
+
+        $prdBuilder->where("w_type", WConstant::WAPP_W2);
+
+        if( !empty($keyword) ){
+            if( $search_cls == "offer_id"){
+                $keyword = preg_replace("/(\r\n|\r|\n)/", ",", trim($keyword));
+                $keyword = explode(",", $keyword);
+                // 각 배열 요소의 앞뒤 공백 제거
+                $keyword = array_map('trim', $keyword);
+                // 빈 값을 제거
+                $keyword = array_filter($keyword);
+                // 중복 제거
+                $keyword = array_unique($keyword);
+
+                $prdBuilder->whereIn("product_datas." . $search_cls, $keyword);
+            } else if( $search_cls == "prd_name_kr" || $search_cls == "prd_name"){
+                $prdBuilder->where(function($query1) use ($keyword) {
+                    $query1->where("product_datas." . "prd_name", "like", "%" . $keyword . "%")
+                    ->orWhere("product_datas." . "prd_name_kr", "like", "%" . $keyword . "%")
+                    ->orWhere("product_datas." . "prd_name_en", "like", "%" . $keyword . "%");
+                });
+            } else if( $search_cls == "option_name" || $search_cls == "option_name" ){
+                $prdBuilder->whereHas('options', function ($query) use ($keyword, $search_cls) {
+                    $query->where(function($query1) use ($keyword) {
+                        $query1->where("option_name", "like", "%" . $keyword . "%")
+                        ->orWhere("option_name_kr", "like", "%" . $keyword . "%")
+                        ->orWhere("option_name_en", "like", "%" . $keyword . "%");
+                    });
+                });
+            }
+        }
+        
+        if( in_array($sortArr[0], ["option_price", "md_price"]) || !empty($mdPrice_status) ){
+            $optSubquery = DB::table('product_option_datas');
+            $optSubquery->selectRaw('offer_id, md_price');
+            $prdBuilder->groupBy('product_datas.offer_id');
+
+            if( in_array($sortArr[0], ["option_price", "md_price"]) ){
+                if( $sortArr[0] == "option_price" ){
+                    $optSubquery->selectRaw('MAX(option_price) as max_price');
+                } else if( $sortArr[0] == "md_price" ) {
+                    $optSubquery->selectRaw('MAX(md_price) as max_price');
+                }
+                $optSubquery->groupBy('offer_id');
+                $prdBuilder->orderBy('opt_sub_qry.max_price', $sortArr[1]);
+            }
+
+            $prdBuilder->leftJoinSub($optSubquery, 'opt_sub_qry', function ($join) {
+                $join->on('product_datas.offer_id', '=', 'opt_sub_qry.offer_id');
+            });
+
+            if( !empty($mdPrice_status) ) {
+                if ($mdPrice_status == ProductConstant::MD_PRICE_Y) {
+                    $prdBuilder->where(function ($query) {
+                        $query->where('opt_sub_qry.md_price', '!=', 0)
+                                ->whereNotNull('opt_sub_qry.md_price');
+                    });
+                } else if ($mdPrice_status == ProductConstant::MD_PRICE_N) {
+                    $prdBuilder->where(function ($query) {
+                        $query->where('opt_sub_qry.md_price', '=', 0)
+                                ->orWhereNull('opt_sub_qry.md_price');
+                    });
+                }
+            }
+        } else {
+            $prdBuilder->orderBy("product_datas." . $sortArr[0], $sortArr[1]);
+        }
+
+        if( !empty($trans_status) ){
+            $prdBuilder->where("product_datas.trans_status", $trans_status);
+        }
+
+        if( !empty($mapping_status) ){
+            $prdBuilder->where("product_datas.mapping_status", $mapping_status);
+        }
+
+        if( !empty($prd_status) ){
+            $prdBuilder->where("product_datas.status", $prd_status);
+        } else {
+            $prdBuilder->whereIn("product_datas.status", ProductConstant::PRD_STATUS_EXCEPT);
+        }
+
+        $totalCnt  = ProductData::where("status", ProductConstant::PRD_STATUS_EXCEPT)->count();
+        $transYCnt = ProductData::where("status", ProductConstant::PRD_STATUS_EXCEPT)->where("trans_status", ProductConstant::TRANS_STATUS_Y)->count();
+        $transNCnt = ProductData::where("status", ProductConstant::PRD_STATUS_EXCEPT)->where("trans_status", ProductConstant::TRANS_STATUS_N)->count();
 
         $lists = $prdBuilder->paginate($pageSize)->appends($params);
         return [
@@ -678,6 +791,11 @@ class ProductW2 extends ProductAbstract
         }
         if( !isset($detailW1Product["productSkuInfos"]) || empty($detailW1Product["productSkuInfos"]) ){
             $status = ProductConstant::PRD_STATUS_MISS;
+        }
+
+        $prdObj = ProductData::where("offer_id", $offerId)->first();
+        if( $prdObj->status == ProductConstant::PRD_STATUS_EXCEPT ){
+            throw new Exception(ProductErrorMessageConstant::getFitErrorMessage("PRODUCT_EXCEPT"));
         }
 
         // 1. 상품 이미지

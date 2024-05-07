@@ -33,6 +33,17 @@ class Service1688Product
    }
 
    /**
+    * @func getPrdExceptList
+    * @description '판매제외 상품 리스트'
+    * @param array $params
+    * @return array
+   */
+   public function getPrdExceptList(array $params): array
+   {
+      return $this->productAbstract->getPrdExceptList($params);
+   }
+
+   /**
     * @func getPrdList
     * @description '1688API 수집 상품 디테일'
     * @param int $offerId

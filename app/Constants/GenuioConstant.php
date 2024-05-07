@@ -16,4 +16,7 @@ class GenuioConstant
     public const PRIORITY_TRUE  = true;
     public const PRIORITY_FALSE = false;
 
+    /** 큐 제거 응답값 */
+    public const REMOVE_QUEUE_OK  = "ok";
+
 }

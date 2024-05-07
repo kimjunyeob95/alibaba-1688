@@ -115,6 +115,11 @@
                         Drop.K 상품 리스트 (ENG)
                     </a>
                 </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/product/except/list">
+                        판매제외 상품 리스트
+                    </a>
+                </li>
             </ul>
         </li>
         <li class="nav-item">

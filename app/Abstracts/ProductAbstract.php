@@ -17,6 +17,14 @@ abstract class ProductAbstract
     abstract function getPrdList(array $params): array;
 
     /**
+    * @func getPrdExceptList
+    * @description '판매제외 상품 리스트'
+    * @param array $params
+    * @return array
+    */
+    abstract function getPrdExceptList(array $params): array;
+
+    /**
      * @func apiPrdDetail
      * @description 'w API 상품 상세 조회'
      * @param int $offerId

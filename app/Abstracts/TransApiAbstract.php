@@ -48,4 +48,12 @@ abstract class TransApiAbstract
      * @param array $offerIds
      */
     abstract function imgTransRequest(array $offerIds): array;
+
+    /**
+     * @func removeQueue
+     * @description '큐 삭제'
+     * @param int $queueId
+     * @return array
+     */
+    abstract function removeQueue(int $queueId): array;
 }

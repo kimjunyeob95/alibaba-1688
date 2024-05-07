@@ -11,11 +11,14 @@ use App\Constants\GosiConstants;
 use App\Constants\ImageConstant;
 use App\Constants\ImageErrorMessageConstant;
 use App\Constants\LogConstant;
+use App\Constants\MallConstant;
 use App\Constants\ProductConstant;
 use App\Constants\ProductErrorMessageConstant;
+use App\Constants\TransApiConstant;
 use App\Constants\WConstant;
 use App\Models\CategoryMapping;
 use App\Models\GenuioImageData;
+use App\Models\GenuioQueueData;
 use App\Models\ProductCollectDetailLog;
 use App\Models\ProductCollectLog;
 use App\Models\ProductData;
@@ -153,11 +156,125 @@ class ProductW1 extends ProductAbstract
 
         if( !empty($prd_status) ){
             $prdBuilder->where("product_datas.status", $prd_status);
+        } else {
+            $prdBuilder->whereIn("product_datas.status", ProductConstant::PRD_SHOW_STATUS);
         }
 
-        $totalCnt  = ProductData::count();
-        $transYCnt = ProductData::where("trans_status", ProductConstant::TRANS_STATUS_Y)->count();
-        $transNCnt = ProductData::where("trans_status", ProductConstant::TRANS_STATUS_N)->count();
+        $totalCnt  = ProductData::whereIn("status", ProductConstant::PRD_SHOW_STATUS)->count();
+        $transYCnt = ProductData::whereIn("status", ProductConstant::PRD_SHOW_STATUS)->where("trans_status", ProductConstant::TRANS_STATUS_Y)->count();
+        $transNCnt = ProductData::whereIn("status", ProductConstant::PRD_SHOW_STATUS)->where("trans_status", ProductConstant::TRANS_STATUS_N)->count();
+
+        $lists = $prdBuilder->paginate($pageSize)->appends($params);
+        return [
+            "paginator" => $lists,
+            "totalCnt"  => $totalCnt,
+            "transYCnt" => $transYCnt,
+            "transNCnt" => $transNCnt,
+        ];
+    }
+
+    public function getPrdExceptList(array $params): array
+    {
+        $pageSize       = $params["pageSize"];
+        $search_cls     = $params["search_cls"];
+        $w_type         = $params["w_type"];
+        $keyword        = $params["keyword"];
+        $trans_status   = $params["trans_status"];
+        $mapping_status = $params["mapping_status"];
+        $prd_status     = $params["prd_status"];
+        $mdPrice_status = $params["mdPrice_status"];
+        $sortArr        = explode("|", $params["sort"]);
+
+        $prdBuilder = ProductData::select(["product_datas.*"])->with([
+            "main_img",
+            "options", 
+            "images.ai_all_imgs"
+        ]);
+
+        if( !empty($keyword) ){
+            if( $search_cls == "offer_id"){
+                $keyword = preg_replace("/(\r\n|\r|\n)/", ",", trim($keyword));
+                $keyword = explode(",", $keyword);
+                // 각 배열 요소의 앞뒤 공백 제거
+                $keyword = array_map('trim', $keyword);
+                // 빈 값을 제거
+                $keyword = array_filter($keyword);
+                // 중복 제거
+                $keyword = array_unique($keyword);
+
+                $prdBuilder->whereIn("product_datas." . $search_cls, $keyword);
+            } else if( $search_cls == "prd_name_kr" || $search_cls == "prd_name"){
+                $prdBuilder->where(function($query1) use ($keyword) {
+                    $query1->where("product_datas." . "prd_name", "like", "%" . $keyword . "%")
+                    ->orWhere("product_datas." . "prd_name_kr", "like", "%" . $keyword . "%")
+                    ->orWhere("product_datas." . "prd_name_en", "like", "%" . $keyword . "%");
+                });
+            } else if( $search_cls == "option_name" || $search_cls == "option_name" ){
+                $prdBuilder->whereHas('options', function ($query) use ($keyword, $search_cls) {
+                    $query->where(function($query1) use ($keyword) {
+                        $query1->where("option_name", "like", "%" . $keyword . "%")
+                        ->orWhere("option_name_kr", "like", "%" . $keyword . "%")
+                        ->orWhere("option_name_en", "like", "%" . $keyword . "%");
+                    });
+                });
+            }
+        }
+        
+        if( in_array($sortArr[0], ["option_price", "md_price"]) || !empty($mdPrice_status) ){
+            $optSubquery = DB::table('product_option_datas');
+            $optSubquery->selectRaw('offer_id, md_price');
+            $prdBuilder->groupBy('product_datas.offer_id');
+
+            if( in_array($sortArr[0], ["option_price", "md_price"]) ){
+                if( $sortArr[0] == "option_price" ){
+                    $optSubquery->selectRaw('MAX(option_price) as max_price');
+                } else if( $sortArr[0] == "md_price" ) {
+                    $optSubquery->selectRaw('MAX(md_price) as max_price');
+                }
+                $optSubquery->groupBy('offer_id');
+                $prdBuilder->orderBy('opt_sub_qry.max_price', $sortArr[1]);
+            }
+
+            $prdBuilder->leftJoinSub($optSubquery, 'opt_sub_qry', function ($join) {
+                $join->on('product_datas.offer_id', '=', 'opt_sub_qry.offer_id');
+            });
+
+            if( !empty($mdPrice_status) ) {
+                if ($mdPrice_status == ProductConstant::MD_PRICE_Y) {
+                    $prdBuilder->where(function ($query) {
+                        $query->where('opt_sub_qry.md_price', '!=', 0)
+                                ->whereNotNull('opt_sub_qry.md_price');
+                    });
+                } else if ($mdPrice_status == ProductConstant::MD_PRICE_N) {
+                    $prdBuilder->where(function ($query) {
+                        $query->where('opt_sub_qry.md_price', '=', 0)
+                                ->orWhereNull('opt_sub_qry.md_price');
+                    });
+                }
+            }
+        } else {
+            $prdBuilder->orderBy("product_datas." . $sortArr[0], $sortArr[1]);
+        }
+
+        if( !empty($w_type) ){
+            $prdBuilder->where("product_datas.w_type", $w_type);
+        }
+
+        if( !empty($trans_status) ){
+            $prdBuilder->where("product_datas.trans_status", $trans_status);
+        }
+
+        if( !empty($mapping_status) ){
+            $prdBuilder->where("product_datas.mapping_status", $mapping_status);
+        }
+
+        if( !empty($prd_status) ){
+            $prdBuilder->where("product_datas.status", $prd_status);
+        }
+
+        $totalCnt  = ProductData::where("status", ProductConstant::PRD_STATUS_EXCEPT)->count();
+        $transYCnt = ProductData::where("status", ProductConstant::PRD_STATUS_EXCEPT)->where("trans_status", ProductConstant::TRANS_STATUS_Y)->count();
+        $transNCnt = ProductData::where("status", ProductConstant::PRD_STATUS_EXCEPT)->where("trans_status", ProductConstant::TRANS_STATUS_N)->count();
 
         $lists = $prdBuilder->paginate($pageSize)->appends($params);
         return [
@@ -638,6 +755,11 @@ class ProductW1 extends ProductAbstract
         }
         if( !isset($detailProduct["productSkuInfos"]) || empty($detailProduct["productSkuInfos"]) ){
             $status = ProductConstant::PRD_STATUS_MISS;
+        }
+
+        $prdObj = ProductData::where("offer_id", $offerId)->first();
+        if( $prdObj->status == ProductConstant::PRD_STATUS_EXCEPT ){
+            throw new Exception(ProductErrorMessageConstant::getFitErrorMessage("PRODUCT_EXCEPT"));
         }
 
         // 1. 상품 이미지
@@ -1964,6 +2086,20 @@ class ProductW1 extends ProductAbstract
             foreach ($offerIds as $offerId) {
                 // 수정 상품 저장
                 saveModiProduct($offerId);
+
+                if( $status == ProductConstant::PRD_STATUS_EXCEPT ){
+                    $geObj = GenuioQueueData::query()
+                    ->select('genuio_queue_datas.*')
+                    ->leftJoin('genuio_queue_datas as b', 'genuio_queue_datas.id', '=', 'b.parent_id')
+                    ->where('genuio_queue_datas.offer_id', $offerId)
+                    ->where('genuio_queue_datas.request_user', TransApiConstant::API_USER_COMPANY_OC)
+                    ->whereNull('b.id')
+                    ->first();
+    
+                    if( $geObj != null ){
+                        $this->transApiAbstract->removeQueue($geObj->id);
+                    }
+                }
             }
 
             $returnMsg = helpers_success_message([], "판매 상태가 변경되었습니다.");

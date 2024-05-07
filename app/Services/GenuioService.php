@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Abstracts\TransApiAbstract;
 use App\Abstracts\UploadAbstract;
 use App\Constants\GenuioConstant;
+use App\Constants\GenuioErrorMessageConstant;
 use App\Constants\ImageConstant;
 use App\Constants\ImageErrorMessageConstant;
 use App\Constants\TransApiConstant;
@@ -790,6 +791,47 @@ class GenuioService extends TransApiAbstract
             }
 
             $returnMsg = helpers_success_message([], "번역 요청이 완료되었습니다.");
+        } catch (Exception $e) {
+            $returnMsg = helpers_fail_message(false, $e->getMessage());
+        }
+
+        return $returnMsg;
+    }
+
+    /**
+     * @func removeQueue
+     * @description '큐 삭제'
+     * @param int $queueId
+     * @return array
+     */
+    public function removeQueue(int $queueId): array
+    {
+        $returnMsg = $this->returnMsg;
+
+        try {
+            $geObj = GenuioQueueData::where([
+                "id"           => $queueId,
+                "request_user" => TransApiConstant::API_USER_COMPANY_OC
+            ])->first();
+
+            if( $geObj != null ){
+                $resJson   = $geObj->response_json;
+                $resDecode = json_decode($resJson, JSON_UNESCAPED_UNICODE);
+
+                $internalJobId = $resDecode["internalJobId"];
+
+                if( $internalJobId ){
+                    $endPoint = "/translate-progress/remove/{$internalJobId}?queue=priority";
+                    $result = $this->apiCurl("POST", $endPoint);
+                    if( $result["status"] == GenuioConstant::REMOVE_QUEUE_OK ){
+                        GenuioQueueData::where("id", $geObj->id)->delete();
+                    } else {
+                        debug_log(json_encode($result, JSON_UNESCAPED_UNICODE), "genuio", "removeQueue");
+                    }
+                }
+            }
+
+            $returnMsg = helpers_success_message();
         } catch (Exception $e) {
             $returnMsg = helpers_fail_message(false, $e->getMessage());
         }
