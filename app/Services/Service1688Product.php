@@ -227,6 +227,7 @@ class Service1688Product
             $data["images"][$key] = [
                "id"             => $image->id,
                "img_type"       => $image->img_type,
+               "is_except"      => $image->is_except,
                "img_url_origin" => $image->img_url_origin,
                "img_url_trans"  => $image->img_url_trans,
             ];
