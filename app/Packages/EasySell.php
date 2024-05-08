@@ -434,26 +434,12 @@ class EasySell extends MallApiAbstract
             //     throw new Exception("상품명 길이가 100byte를 초과했습니다.");
             // }
 
-            $notice = "<table><tbody>";
-            foreach($prdObj->notices->where("is_except",GosiConstants::IS_EXCEPT_N) as $gosiKey => $gosi){
-                if( $gosiKey % 4 == 0){
-                    $notice .="<tr>";
-                }
-
-                if($type == WConstant::WAPP_W1){
-                    $attributeName  = $gosi->attribute_name_kr;
-                    $attributeValue = $gosi->attribute_value_kr;
-                }else if($type == WConstant::WAPP_W2){
-                    $attributeName  = $gosi->attribute_name_en;
-                    $attributeValue = $gosi->attribute_value_en;
-                }
-                $notice .= "<th style='background-color:#ebedef; padding:0.3rem 0.3rem; border-bottom: 1px solid #d8dbe0;'>{$attributeName}</th><td style='padding: 0.3rem 0.3rem; border-bottom: 1px solid #d8dbe0;'>{$attributeValue}</td>";
-
-                if(($gosiKey + 1) % 4 == 0 || ($gosiKey + 1) == count($prdObj->notices)){
-                    $notice .="</tr>";
-                }
+            if($type == WConstant::WAPP_W1){
+                $noticeInfo = $prdObj->notices->where("is_except",GosiConstants::IS_EXCEPT_N)->pluck("attribute_value_kr","attribute_name_kr")->toArray();
+            }else if($type == WConstant::WAPP_W2){
+                $noticeInfo = $prdObj->notices->where("is_except",GosiConstants::IS_EXCEPT_N)->pluck("attribute_value_en","attribute_name_en")->toArray();
             }
-            $notice .= "</tbody></table>";
+            $notice = getNoticeInfoTable($noticeInfo);
 
             $unitInfo   = "옵션|";
             $saleStatus = EasySellConstant::STATUS_STOP_SALE;
