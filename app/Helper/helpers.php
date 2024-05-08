@@ -613,28 +613,28 @@ if (!function_exists("upPrdDescTrans")) {
 
             if( $prdObj->w_type == WConstant::WAPP_W2 ){
                 $prd_desc = $prdObj->prd_desc;
-    
+
                 $imgEnObjs = ProductImageData::where([
                     "offer_id" => $offerId,
                     "img_type" => ImageConstant::IMAGE_TYPE_DESC,
                     "lang"     => WConstant::WAPP_EN
                 ])->get();
-    
+
                 foreach ($imgEnObjs as $imgObj) {
                     if( $imgObj->is_except == ImageConstant::IS_EXCEPT_Y ){
                         $img_url_origin = $imgObj->img_url_origin;
                         $img_url_trans  = $imgObj->img_url_trans;
-    
+
                         $pattern = '/<img[^>]+src\s*=\s*["\']' . preg_quote($img_url_origin, '/') . '["\'][^>]*>/i';
                         $prd_desc = preg_replace($pattern, '', $prd_desc);
-    
+
                         $pattern = '/<img[^>]+src\s*=\s*["\']' . preg_quote($img_url_trans, '/') . '["\'][^>]*>/i';
                         $prd_desc = preg_replace($pattern, '', $prd_desc);
                     } else {
                         $prd_desc = str_replace($imgObj->img_url_origin, $imgObj->img_url_trans, $prd_desc);
                     }
                 }
-    
+
                 ProductData::where("id", $prdObj->id)->update([
                     "prd_desc_en" => $prd_desc
                 ]);
@@ -700,5 +700,42 @@ if (!function_exists("saveModiProduct")) {
                 ]);
             }
         }
+    }
+}
+
+/**
+ * 고시 테이블 생성
+ * ["name" => "value"] 전달
+ */
+if (!function_exists("getNoticeInfoTable")) {
+    function getNoticeInfoTable(array $noticeInfo): string
+    {
+        $noticeTable = "<div style='width: 960px;margin:0 auto;'>
+            <h4 style='font-size:20px;font-weight: 900;color:#000;margin-bottom: 10px;line-height:normal;text-align:left;display:block;font-family: \"Noto Sans KR Bold\";'>상품일반정보</h4>
+            <table style='width: 100%;'>
+              <colgroup>
+                <col width='170'>
+                <col width='310'>
+                <col width='170'>
+                <col width='310'>
+              </colgroup>";
+        $idx = 0;
+        foreach($noticeInfo as $name => $value){
+            if( $idx % 2 == 0){
+                $noticeTable .="<tr>";
+            }
+            $noticeTable .= "<th style='background-color:#FFFDF5;padding:10px 14px;font-weight: bold;text-align: left;font-size:12px;word-break: keep-all;font-family: \"Noto Sans KR Bold\";border-bottom:2px solid #fff;line-height:150%;color:#000;'>{$name}</th>
+                    <td style='background-color:#FFFFFC;padding:10px 14px;text-align: left;font-size:12px;border-bottom:2px solid #fff;line-height:150%;color:#000;'>{$value}</td>";
+
+            if(($idx + 1) % 2 == 0 || ($idx + 1) == count($noticeInfo)){
+                $noticeTable .="</tr>";
+            }
+            $idx++;
+        }
+        $noticeTable .= "</table>
+            <p style='margin-top: 12px;font-size:12px;color:#8a9299;text-align:left;'>위 내용은 상품정보제공 고시에 따라 작성되었습니다.</p>
+        </div>";
+
+        return $noticeTable;
     }
 }

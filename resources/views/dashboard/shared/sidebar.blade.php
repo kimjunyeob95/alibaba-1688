@@ -11,7 +11,7 @@
                 </svg> Dashboard
             </a>
         </li>
-        
+
         <li class="nav-title">W1</li>
         <li class="nav-group">
             <a class="nav-link nav-group-toggle" href="javascript:;">
@@ -95,7 +95,7 @@
                 </li>
             </ul>
         </li>
-        
+
         <li class="nav-title">W App</li>
         <li class="nav-group">
             <a class="nav-link nav-group-toggle" href="javascript:;">
@@ -133,7 +133,7 @@
 
         <li class="nav-title">이지셀</li>
         <li class="nav-group">
-            {{-- <a class="nav-link nav-group-toggle" href="javascript:;">
+            <a class="nav-link nav-group-toggle" href="javascript:;">
                 <svg class="nav-icon">
                     <use xlink:href="/vendors/@coreui/icons/svg/free.svg#cil-3d"></use>
                 </svg>
@@ -145,7 +145,7 @@
                         상품 현황
                     </a>
                 </li>
-            </ul> --}}
+            </ul>
         </li>
     </ul>
     <button class="sidebar-toggler" type="button" data-coreui-toggle="unfoldable"></button>
