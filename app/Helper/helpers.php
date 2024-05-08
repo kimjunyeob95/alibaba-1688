@@ -710,18 +710,27 @@ if (!function_exists("saveModiProduct")) {
 if (!function_exists("getNoticeInfoTable")) {
     function getNoticeInfoTable(array $noticeInfo): string
     {
-        $noticeTable = "<div style='width: 480px;margin:0 auto;'>
+        $noticeTable = "<div style='width: 960px;margin:0 auto;'>
             <h4 style='font-size:20px;font-weight: 900;color:#000;margin-bottom: 10px;line-height:normal;text-align:left;display:block;font-family: \"Noto Sans KR Bold\";'>상품일반정보</h4>
             <table style='width: 100%;'>
               <colgroup>
                 <col width='170'>
-                <col>
+                <col width='310'>
+                <col width='170'>
+                <col width='310'>
               </colgroup>";
+        $idx = 0;
         foreach($noticeInfo as $name => $value){
-            $noticeTable .= "<tr>
-                    <th style='background-color:#FFFDF5;padding:10px 14px;font-weight: bold;text-align: left;font-size:12px;word-break: keep-all;font-family: \"Noto Sans KR Bold\";border-bottom:2px solid #fff;line-height:150%;color:#000;'>{$name}</th>
-                    <td style='background-color:#FFFFFC;padding:10px 14px;text-align: left;font-size:12px;border-bottom:2px solid #fff;line-height:150%;color:#000;'>{$value}</td>
-                </tr>";
+            if( $idx % 2 == 0){
+                $noticeTable .="<tr>";
+            }
+            $noticeTable .= "<th style='background-color:#FFFDF5;padding:10px 14px;font-weight: bold;text-align: left;font-size:12px;word-break: keep-all;font-family: \"Noto Sans KR Bold\";border-bottom:2px solid #fff;line-height:150%;color:#000;'>{$name}</th>
+                    <td style='background-color:#FFFFFC;padding:10px 14px;text-align: left;font-size:12px;border-bottom:2px solid #fff;line-height:150%;color:#000;'>{$value}</td>";
+
+            if(($idx + 1) % 2 == 0 || ($idx + 1) == count($noticeInfo)){
+                $noticeTable .="</tr>";
+            }
+            $idx++;
         }
         $noticeTable .= "</table>
             <p style='margin-top: 12px;font-size:12px;color:#8a9299;text-align:left;'>위 내용은 상품정보제공 고시에 따라 작성되었습니다.</p>
