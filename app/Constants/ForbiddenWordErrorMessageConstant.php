@@ -10,12 +10,13 @@ class ForbiddenWordErrorMessageConstant
     private static $defaultNotHaveMsg  = "Empty";
     private static $defaultFitErrorMsg = "Error";
 
-    public const ERROR_MESSAGE_ID              = "id";
-    public const ERROR_MESSAGE_IDS             = "ids";
-    public const ERROR_MESSAGE_KEYWORD_TYPE    = "keyword_type";
-    public const ERROR_MESSAGE_TARGET_KEYWORD  = "target_keyword";
-    public const ERROR_MESSAGE_REPLACE_KEYWORD = "replace_keyword";
-    public const ERROR_MESSAGE_APPLY_TYPE      = "apply_type";
+    public const ERROR_MESSAGE_ID                     = "id";
+    public const ERROR_MESSAGE_IDS                    = "ids";
+    public const ERROR_MESSAGE_KEYWORD_TYPE           = "keyword_type";
+    public const ERROR_MESSAGE_TARGET_KEYWORD         = "target_keyword";
+    public const ERROR_MESSAGE_REPLACE_KEYWORD        = "replace_keyword";
+    public const ERROR_MESSAGE_APPLY_TYPE             = "apply_type";
+    public const ERROR_MESSAGE_ALREADY_TARGET_KEYWORD = "이미 등록 된 키워드 입니다.";
  
     public static function getErrorMessageNotDefault($constantName): string
     {

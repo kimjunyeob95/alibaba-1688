@@ -22,6 +22,7 @@ use App\Models\ProductCollectDetailLog;
 use App\Models\ProductCollectLog;
 use App\Models\ProductData;
 use App\Models\ProductExtendData;
+use App\Models\ProductForbiddenData;
 use App\Models\ProductImageData;
 use App\Models\ProductImageDetailData;
 use App\Models\ProductNoticeData;
@@ -873,6 +874,25 @@ class ProductW1 extends ProductAbstract
         }
 
         $startQuantity = $detailProduct["productSaleInfo"]["priceRangeList"][0]["startQuantity"];
+
+        $subjectTrans = $detailProduct["subjectTrans"];
+        // 3-1. 삭제어
+        $subjectForbiddenTrans = $this->removeSpecialSequence($subjectTrans);
+        // 3-2. 교체어
+        $subjectForbiddenTrans = $this->replaceWord($subjectForbiddenTrans);
+
+        $subjectForbiddenTrans = trim($subjectForbiddenTrans);
+
+        if( $subjectTrans != $subjectForbiddenTrans ){ 
+            ProductForbiddenData::updateOrCreate(
+                ["offer_id" => $prdObj->offer_id],
+                [
+                    "prd_name_trans_origin"    => $subjectTrans,
+                    "prd_name_trans_forbidden" => $subjectForbiddenTrans
+                ]
+            );
+        }
+
         $product1688Dto = new Product1688Dto();
         $product1688Dto->bind([
             "offerId"        => $offerId,
@@ -880,7 +900,7 @@ class ProductW1 extends ProductAbstract
             "status"         => $status,
             "wType"          => WConstant::WAPP_W1,
             "subject"        => $detailProduct["subject"],
-            "subjectTrans"   => $detailProduct["subjectTrans"],
+            "subjectTrans"   => $subjectForbiddenTrans,
             "subjectTransEn" => "",
             "startQuantity"  => $startQuantity,
             "description"    => $detailProduct["description"],

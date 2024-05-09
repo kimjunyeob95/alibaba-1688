@@ -16,6 +16,7 @@ use App\Console\Commands\SaveWAppProductMapping;
 use App\Console\Commands\SaveWCategory;
 use App\Console\Commands\SaveWCategoryMapping;
 use App\Console\Commands\TestCommands;
+use App\Console\Commands\UpdateForbiddenWord;
 use App\Constants\WConstant;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
@@ -36,7 +37,10 @@ class Kernel extends ConsoleKernel
         SaveWAppProductMapping::class,
         EasySellCommand::class,
         TestCommands::class,
+        /** 정보부족 상품 재수집 */
         MissProductReCollect::class,
+        /** 금칙어 사전 적용 */
+        UpdateForbiddenWord::class,
     ];
 
     protected function schedule(Schedule $schedule)
@@ -44,6 +48,8 @@ class Kernel extends ConsoleKernel
         /** WApp */
         $schedule->command("miss_product_re_collect --wversion=". WConstant::WAPP_W1)->cron("0 */2 * * *")->description("정보부족 W1 상품 재수집")->withoutOverlapping()->runInBackground();
         $schedule->command("miss_product_re_collect --wversion=". WConstant::WAPP_W2)->cron("0 */2 * * *")->description("정보부족 W2 상품 재수집")->withoutOverlapping()->runInBackground();
+
+        $schedule->command("update_forbidden_word")->cron("0 0 * * *")->description("금칙어 사전 적용")->withoutOverlapping()->runInBackground();
 
         /** 이지셀 */
         $schedule->command("easy_sell_command --func=sendModiProduct")->cron("*/5 * * * *")->description("이지셀 수정 된 상품 전송")->withoutOverlapping()->runInBackground();

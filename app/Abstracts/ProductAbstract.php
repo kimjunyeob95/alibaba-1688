@@ -2,7 +2,9 @@
 
 namespace App\Abstracts;
 
+use App\Constants\ForbiddenWordConstant;
 use App\Constants\LogConstant;
+use App\Models\ForbiddenWordData;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Pagination\LengthAwarePaginator;
 
@@ -243,4 +245,61 @@ abstract class ProductAbstract
      * @return array
     */
     abstract function gosiExcept(array $gosiList): array;
+
+    /**
+     * @func removeSpecialSequence
+     * @description '삭제어 처리'
+     * @param string $text
+     * @return string
+     */
+    function removeSpecialSequence(string $text): string
+    {
+        $delObjs = ForbiddenWordData::where("keyword_type", ForbiddenWordConstant::KEYWORD_DELETE)->get();
+        foreach ($delObjs as $delObj) {
+            $removeWord = $delObj->target_keyword;
+
+            // 1. 삭제어 앞과 뒤에 공백이 없는 경우 삭제어만 삭제
+            //    예: "HelloWord"에서 "Word"를 삭제 -> "Hello"
+            $pattern1 = '/(?<!\s)' . preg_quote($removeWord, '/') . '(?!\s)/';
+            if (preg_match($pattern1, $text)) {
+                $text = preg_replace($pattern1, '', $text);
+            }
+
+            // 2. 삭제어 앞 또는 뒤에 공백이 있는 경우 삭제어만 삭제
+            //    예: "Hello Word "에서 "Word"를 삭제 -> "Hello "
+            $pattern2 = '/(?<=\s)' . preg_quote($removeWord, '/') . '(?!\s)|(?<!\s)' . preg_quote($removeWord, '/') . '(?=\s)/';
+            if (preg_match($pattern2, $text)) {
+                $text = preg_replace($pattern2, '', $text);
+            }
+
+            // 3. 삭제어 앞과 뒤에 공백이 있는 경우 하나의 공백과 삭제어만 삭제
+            //    예: "Hello Word Test"에서 "Word"를 삭제 -> "Hello Test"
+            $pattern3 = '/\s+' . preg_quote($removeWord, '/') . '\s+/';
+            if (preg_match($pattern3, $text)) {
+                $text = preg_replace($pattern3, ' ', $text);
+            }
+        }
+
+        return $text;
+    }
+
+    /**
+     * @func replaceWord
+     * @description '교체어 처리'
+     * @param string $text
+     * @return string
+     */
+    function replaceWord(string $text): string
+    {
+        $replaceObjs = ForbiddenWordData::where("keyword_type", ForbiddenWordConstant::KEYWORD_REPLACE)->get();
+        foreach ($replaceObjs as $replaceObj) {
+            $originWord  = $replaceObj->target_keyword;
+            $replaceWord = $replaceObj->replace_keyword;
+
+            // 1. 해당 텍스트가 originWord에 걸릴 시 replaceWord로 교체
+            $text = str_replace($originWord, $replaceWord, $text);
+        }
+
+        return $text;
+    }
 }

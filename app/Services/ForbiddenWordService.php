@@ -89,6 +89,18 @@ class ForbiddenWordService
                 $replace_keyword = "";
             }
 
+            $hadObj = ForbiddenWordData::where("target_keyword", $target_keyword)->first();
+            if( $hadObj != null ){
+                $errMsg = ForbiddenWordErrorMessageConstant::getFitErrorMessage("ALREADY_TARGET_KEYWORD") . "\r\n";
+
+                if( $hadObj->keyword_type == ForbiddenWordConstant::KEYWORD_DELETE ){
+                    $errMsg .= $target_keyword . " -> " . ForbiddenWordConstant::KEYWORD_STATUS[ForbiddenWordConstant::KEYWORD_DELETE];
+                } else {
+                    $errMsg .= $target_keyword . " -> " . $hadObj->replace_keyword;
+                }
+                throw new Exception($errMsg);
+            }
+
             ForbiddenWordData::create([
                 "keyword_type"    => $keyword_type,
                 "target_keyword"  => $target_keyword,
@@ -128,6 +140,21 @@ class ForbiddenWordService
 
             if( $keyword_type == ForbiddenWordConstant::KEYWORD_DELETE ){
                 $replace_keyword = "";
+            }
+
+            $hadObj = ForbiddenWordData::where("target_keyword", $target_keyword)
+            ->where("id", "!=", $id)
+            ->first();
+
+            if( $hadObj != null ){
+                $errMsg = ForbiddenWordErrorMessageConstant::getFitErrorMessage("ALREADY_TARGET_KEYWORD") . "\r\n";
+
+                if( $hadObj->keyword_type == ForbiddenWordConstant::KEYWORD_DELETE ){
+                    $errMsg .= $target_keyword . " -> " . ForbiddenWordConstant::KEYWORD_STATUS[ForbiddenWordConstant::KEYWORD_DELETE];
+                } else {
+                    $errMsg .= $target_keyword . " -> " . $hadObj->replace_keyword;
+                }
+                throw new Exception($errMsg);
             }
 
             ForbiddenWordData::where("id", $id)->update([
