@@ -446,7 +446,11 @@ class GenuioService extends TransApiAbstract
 
             
             if( isset($params["prdObj"]["prd_desc"]) && $params["prdObj"]["prd_desc"] ){
-                debug_log(json_encode($params["prdObj"], JSON_UNESCAPED_UNICODE), "genuio", "genuio-params");
+                $debugParam = [
+                    "offerId" => $offerId,
+                    "prdObj"  => $params["prdObj"],
+                ];
+                debug_log(json_encode($debugParam, JSON_UNESCAPED_UNICODE), "genuio", "genuio-params");
 
                 $trans_prd_desc = $params["prdObj"]["prd_desc"];
                 ProductData::where("offer_id", $offerId)
