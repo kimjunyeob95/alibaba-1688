@@ -5,7 +5,6 @@ namespace App\Services;
 use App\Abstracts\TransApiAbstract;
 use App\Abstracts\UploadAbstract;
 use App\Constants\GenuioConstant;
-use App\Constants\GenuioErrorMessageConstant;
 use App\Constants\ImageConstant;
 use App\Constants\ImageErrorMessageConstant;
 use App\Constants\TransApiConstant;

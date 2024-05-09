@@ -130,6 +130,14 @@
                 카테고리 관리
             </a>
         </li>
+        <li class="nav-item">
+            <a class="nav-link" href="/forbiddenWord/list">
+                <svg class="nav-icon">
+                    <use xlink:href="/vendors/@coreui/icons/svg/free.svg#cil-3d"></use>
+                </svg>
+                금칙어 관리
+            </a>
+        </li>
 
         <li class="nav-title">이지셀</li>
         <li class="nav-group">

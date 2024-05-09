@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\W\WProductController;
 use App\Http\Controllers\Api\GenuioController;
 use App\Http\Controllers\Api\MallController;
 use App\Http\Controllers\Api\W\W2ProductController;
+use App\Http\Controllers\Api\W\WForbiddenWordController;
 use Illuminate\Support\Facades\Route;
 
 /**
@@ -78,6 +79,17 @@ Route::name('w.')->prefix('w')->group(function () {
         Route::post('/infos', [WCategoryController::class, 'getInfos'])->name('getInfos');
         // W 하위 카테고리 조회
         Route::post('/wDepth', [WCategoryController::class, 'getWDepth'])->name('getWDepth');
+    });
+
+    Route::name('forbiddenWord.')->prefix('forbiddenWord')->group(function () {
+        /** 키워드 조회 */
+        Route::get('/{id}', [WForbiddenWordController::class, 'get'])->name('get');
+        /** 키워드 등록 */
+        Route::post('/create', [WForbiddenWordController::class, 'create'])->name('create');
+        /** 키워드 수정 */
+        Route::post('/update', [WForbiddenWordController::class, 'update'])->name('update');
+        /** 키워드 삭제 */
+        Route::post('/delete', [WForbiddenWordController::class, 'delete'])->name('delete');
     });
 });
 
