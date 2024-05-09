@@ -66,13 +66,23 @@ class EasySellProductVo extends Vo
     // 이지셀/dropK 언어 설정 수정
     public function __construct(string $type)
     {
-        $this->referDetail = ($type == WConstant::WAPP_W1 ) ? "상세페이지 참조" : "See Details on Product Page";
+        switch($type){
+            case WConstant::WAPP_W1 :
+                $this->UserID      = EasySellConstant::USER_ID_W;
+                $this->referDetail = "상세페이지 참조";
+                break;
+            case WConstant::WAPP_W2 :
+                $this->UserID      = EasySellConstant::USER_ID_W2;
+                $this->referDetail = "See Details on Product Page";
+                break;
+            default :
+                break;
+        }
     }
 
     public function bind(mixed $data): void
     {
         $this->LinkerID              = EasySellConstant::LINKER_ID;
-        $this->UserID                = EasySellConstant::USER_ID;
         $this->UserPW                = EasySellConstant::USER_PW;
         $this->ItemNo                = $data['ItemNo'] ?? 0;
         $this->ItemPartnerCode       = $data['ItemPartnerCode'] ?? "";
