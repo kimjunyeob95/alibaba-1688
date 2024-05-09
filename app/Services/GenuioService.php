@@ -437,6 +437,14 @@ class GenuioService extends TransApiAbstract
                 }
             }
 
+            if( isset($params["prdObj"]["prd_desc"]) && $params["prdObj"]["prd_desc"] ){
+                $trans_prd_desc = $params["prdObj"]["prd_desc"];
+                ProductData::where("offer_id", $offerId)
+                ->update([
+                    "prd_desc_kr" => $trans_prd_desc
+                ]);
+            };
+
             // 상세 이미지 업데이트
             upPrdDescTrans($offerId);
 
