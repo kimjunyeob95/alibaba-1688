@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Constants\ProductConstant;
 use App\Http\Controllers\Controller;
 use App\Services\Service1688Product;
 use Illuminate\Http\Request;

@@ -435,19 +435,21 @@
             <button type="button" class="btn btn-danger btn-xl text-white mb-2 btn-edit-status">
                 판매상태 변경
             </button>
-            <button type="button" class="btn btn-secondary btn-xl text-white mb-2 btn-edit-gosi">
-                정보고시 관리
-            </button>
-            <a class="btn btn-primary btn-xl text-white text-decoration-none mb-2 btn-edit-img" type="all">
-                전체 이미지<br>번역요청
-            </a>
-            <a class="btn btn-warning btn-xl text-white text-decoration-none mb-2 btn-edit-img" type="thumbnail">
-                썸네일 이미지<br>번역요청
-            </a>
-            <a class="btn btn-success btn-xl text-white text-decoration-none mb-2 btn-edit-img" type="desc">
-                상세 이미지<br>번역요청
-            </a>
-            <a class="btn btn-danger btn-xl text-white text-decoration-none mb-2 btn-edit-img" type="detail">이미지 수정</a>
+            @if ($prdObj->status != ProductConstant::PRD_STATUS_EXCEPT)    
+                <button type="button" class="btn btn-secondary btn-xl text-white mb-2 btn-edit-gosi">
+                    정보고시 관리
+                </button>
+                <a class="btn btn-primary btn-xl text-white text-decoration-none mb-2 btn-edit-img" type="all">
+                    전체 이미지<br>번역요청
+                </a>
+                <a class="btn btn-warning btn-xl text-white text-decoration-none mb-2 btn-edit-img" type="thumbnail">
+                    썸네일 이미지<br>번역요청
+                </a>
+                <a class="btn btn-success btn-xl text-white text-decoration-none mb-2 btn-edit-img" type="desc">
+                    상세 이미지<br>번역요청
+                </a>
+                <a class="btn btn-danger btn-xl text-white text-decoration-none mb-2 btn-edit-img" type="detail">이미지 수정</a>
+            @endif
         </div>
 
         <div class="modal fade" id="htmlModal" tabindex="-1" role="dialog" aria-labelledby="htmlModalLabel" aria-hidden="true">
