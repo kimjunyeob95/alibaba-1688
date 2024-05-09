@@ -381,7 +381,7 @@
 
         $(".allCheckbtn").click(function(){
             var type = $(this).attr("attr-type");
-            var flag = !$("."+type+"-container").find("input[name='selectImg']").prop("checked");
+            var flag = !$("."+type+"-container").find("input[name='selectImg']").is(":checked");
 
             $("."+type+"-container").find("input[name='selectImg']").prop("checked", false);
             $("."+type+"-container .swiper-slide-active").find("input[name='selectImg']").prop("checked", flag);
