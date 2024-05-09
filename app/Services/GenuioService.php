@@ -195,6 +195,14 @@ class GenuioService extends TransApiAbstract
                 throw new Exception(TransApiConstant::getFitErrorMessage("NOT_EQUAL_COUNT_IMAGE"));
             }
 
+            $childObj = GenuioQueueData::where([
+                "parent_id"    => $jobId,
+                "request_user" => TransApiConstant::API_USER_COMPANY_GENUIO
+            ])->first();
+            if( $childObj != null ){
+                throw new Exception(TransApiConstant::getFitErrorMessage("ALREADY_QUEUE"));
+            }
+
             $offerId = $getGenuioObj->offer_id;
 
             if( $getGenuioObj->send_type == GenuioConstant::IMG_TRANS ){
