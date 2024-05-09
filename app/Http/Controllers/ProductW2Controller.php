@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Constants\ProductConstant;
 use App\Http\Controllers\Controller;
 use App\Services\Service1688Product;
 use Illuminate\Http\Request;
@@ -22,45 +21,45 @@ class ProductW2Controller extends Controller
 
     public function getPrdList(): View
     {
-        $page           = $this->request->post("page", 1);
-        $pageSize       = $this->request->post("pageSize", 50);
-        $search_cls     = $this->request->get("search_cls", "offer_id");
-        $keyword        = $this->request->get("keyword", "");
-        $trans_status   = $this->request->get("trans_status", "");
-        $mapping_status = $this->request->get("mapping_status", "");
-        $prd_status     = $this->request->get("prd_status", "");
-        $mdPrice_status = $this->request->get("mdPrice_status", "");
-        $sort           = $this->request->get("sort", "updated_at|desc");
-        $offset         = ($page - 1) * $pageSize;
+        $page            = $this->request->post("page", 1);
+        $pageSize        = $this->request->post("pageSize", 50);
+        $search_cls      = $this->request->get("search_cls", "offer_id");
+        $keyword         = $this->request->get("keyword", "");
+        $trans_status_en = $this->request->get("trans_status_en", "");
+        $mapping_status  = $this->request->get("mapping_status", "");
+        $prd_status      = $this->request->get("prd_status", "");
+        $mdPrice_status  = $this->request->get("mdPrice_status", "");
+        $sort            = $this->request->get("sort", "updated_at|desc");
+        $offset          = ($page - 1) * $pageSize;
 
         $params = [
-            "page"           => $page,
-            "pageSize"       => $pageSize,
-            "search_cls"     => $search_cls,
-            "keyword"        => $keyword,
-            "trans_status"   => $trans_status,
-            "mapping_status" => $mapping_status,
-            "prd_status"     => $prd_status,
-            "mdPrice_status" => $mdPrice_status,
-            "sort"           => $sort,
+            "page"            => $page,
+            "pageSize"        => $pageSize,
+            "search_cls"      => $search_cls,
+            "keyword"         => $keyword,
+            "trans_status_en" => $trans_status_en,
+            "mapping_status"  => $mapping_status,
+            "prd_status"      => $prd_status,
+            "mdPrice_status"  => $mdPrice_status,
+            "sort"            => $sort,
         ];
         $result = $this->service1688Product->getPrdListW2($params);
 
         $viewParams = [
-            "datas"          => $result["paginator"],
-            "transYCnt"      => $result["transYCnt"],
-            "transNCnt"      => $result["transNCnt"],
-            "totalCnt"       => $result["totalCnt"],
-            "totalCnt"       => $result["totalCnt"],
-            "offset"         => (int) $offset,
-            "pageSize"       => (int) $pageSize,
-            "search_cls"     => $search_cls,
-            "keyword"        => $keyword,
-            "trans_status"   => $trans_status,
-            "mapping_status" => $mapping_status,
-            "prd_status"     => $prd_status,
-            "mdPrice_status" => $mdPrice_status,
-            "sort"           => $sort,
+            "datas"           => $result["paginator"],
+            "transYCnt"       => $result["transYCnt"],
+            "transNCnt"       => $result["transNCnt"],
+            "totalCnt"        => $result["totalCnt"],
+            "totalCnt"        => $result["totalCnt"],
+            "offset"          => (int) $offset,
+            "pageSize"        => (int) $pageSize,
+            "search_cls"      => $search_cls,
+            "keyword"         => $keyword,
+            "trans_status_en" => $trans_status_en,
+            "mapping_status"  => $mapping_status,
+            "prd_status"      => $prd_status,
+            "mdPrice_status"  => $mdPrice_status,
+            "sort"            => $sort,
         ];
 
         return view("product.prdW2List")->with($viewParams);

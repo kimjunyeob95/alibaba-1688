@@ -33,6 +33,17 @@ class Service1688Product
    }
 
    /**
+    * @func getPrdExceptList
+    * @description '판매제외 상품 리스트'
+    * @param array $params
+    * @return array
+   */
+   public function getPrdExceptList(array $params): array
+   {
+      return $this->productAbstract->getPrdExceptList($params);
+   }
+
+   /**
     * @func getPrdList
     * @description '1688API 수집 상품 디테일'
     * @param int $offerId
@@ -211,22 +222,23 @@ class Service1688Product
       $datas     = [];
       foreach ($paginator as $prdObj) {
          $data = [
-            "offer_id"       => $prdObj->offer_id,
-            "prd_name"       => $prdObj->prd_name,
-            "prd_name_trans" => $prdObj->prd_name_trans
+            "offer_id"    => $prdObj->offer_id,
+            "prd_name"    => $prdObj->prd_name,
+            "prd_name_kr" => $prdObj->prd_name_kr
          ];
 
          foreach ($prdObj->options as $option) {
             $data["options"][] = [
-               "id"                => $option->id,
-               "option_name"       => $option->option_name,
-               "option_name_trans" => $option->option_name_trans,
+               "id"             => $option->id,
+               "option_name"    => $option->option_name,
+               "option_name_kr" => $option->option_name_kr,
             ];
          }
          foreach ($prdObj->images as $key => $image) {
             $data["images"][$key] = [
                "id"             => $image->id,
                "img_type"       => $image->img_type,
+               "is_except"      => $image->is_except,
                "img_url_origin" => $image->img_url_origin,
                "img_url_trans"  => $image->img_url_trans,
             ];
@@ -368,6 +380,28 @@ class Service1688Product
    public function statusUpdate(array $offerIds, string $status): array
    {
       return $this->productAbstract->statusUpdate($offerIds, $status);
+   }
+
+   /**
+     * @func imageMainApply
+     * @description '대표 이미지 적용'
+     * @param array $aiImgIds
+     * @return array
+   */
+   public function imageMainApply(array $aiImgIds): array
+   {
+      return $this->productAbstract->imageMainApply($aiImgIds);
+   }
+
+   /**
+     * @func gosiExcept
+     * @description '고시정보 제외 처리'
+     * @param array $gosiList
+     * @return array
+   */
+   public function gosiExcept(array $gosiList): array
+   {
+      return $this->productAbstract->gosiExcept($gosiList);
    }
 
    /****************************************** WApp W2 **********************************************/

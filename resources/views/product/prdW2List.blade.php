@@ -23,7 +23,7 @@
                     </a>
                 </li>
                 <li class="breadcrumb-item">상품 리스트</li>
-                <li class="breadcrumb-item active" aria-current="page">수집 상품 리스트</li>
+                <li class="breadcrumb-item active" aria-current="page">Drop.K 상품 리스트 (ENG)</li>
             </ol>
         </nav>
 
@@ -31,7 +31,7 @@
             <div class="col-12 mb-3">
 
                 <form id="searchFrm">
-                    <input type="hidden" name="trans_status" value={{ $trans_status }}>
+                    <input type="hidden" name="trans_status_en" value={{ $trans_status_en }}>
                     <input type="hidden" name="mapping_status" value={{ $mapping_status }}>
                     <input type="hidden" name="prd_status" value={{ $prd_status }}>
                     <input type="hidden" name="mdPrice_status" value={{ $mdPrice_status }}>
@@ -61,11 +61,11 @@
                                 <tr class="align-middle">
                                     <th style="width: 120px">상품 번역</th>
                                     <td colspan="3">
-                                        <button type="button" name="trans_status" class="btn-status btn btn-md {{ $trans_status == "" ? "btn-primary" : "btn-dark" }}"
+                                        <button type="button" name="trans_status_en" class="btn-status btn btn-md {{ $trans_status_en == "" ? "btn-primary" : "btn-dark" }}"
                                         value="">전체</button>
-                                        <button type="button" name="trans_status" class="btn-status btn btn-md {{ $trans_status == ProductConstant::TRANS_STATUS_Y ? "btn-primary" : "btn-dark" }}"
+                                        <button type="button" name="trans_status_en" class="btn-status btn btn-md {{ $trans_status_en == ProductConstant::TRANS_STATUS_Y ? "btn-primary" : "btn-dark" }}"
                                         value="{{ ProductConstant::TRANS_STATUS_Y }}">완료</button>
-                                        <button type="button" name="trans_status" class="btn-status btn btn-md {{ $trans_status == ProductConstant::TRANS_STATUS_N ? "btn-primary" : "btn-dark" }}"
+                                        <button type="button" name="trans_status_en" class="btn-status btn btn-md {{ $trans_status_en == ProductConstant::TRANS_STATUS_N ? "btn-primary" : "btn-dark" }}"
                                         value="{{ ProductConstant::TRANS_STATUS_N }}">미완료</button>
                                     </td>
                                 </tr>
@@ -89,8 +89,10 @@
                                         value="{{ ProductConstant::PRD_STATUS_PUBLISH }}">정상판매</button>
                                         <button type="button" name="prd_status" class="btn-status btn btn-md {{ $prd_status == ProductConstant::PRD_STATUS_STOP ? "btn-primary" : "btn-dark" }}"
                                         value="{{ ProductConstant::PRD_STATUS_STOP }}">판매중지</button>
-                                        <button type="button" name="prd_status" class="btn-status btn btn-md {{ $prd_status == ProductConstant::PRD_STATUS_EXCEPT ? "btn-primary" : "btn-dark" }}"
-                                        value="{{ ProductConstant::PRD_STATUS_EXCEPT }}">판매제외</button>
+                                        {{-- <button type="button" name="prd_status" class="btn-status btn btn-md {{ $prd_status == ProductConstant::PRD_STATUS_EXCEPT ? "btn-primary" : "btn-dark" }}"
+                                        value="{{ ProductConstant::PRD_STATUS_EXCEPT }}">판매제외</button> --}}
+                                        <button type="button" name="prd_status" class="btn-status btn btn-md {{ $prd_status == ProductConstant::PRD_STATUS_MISS ? "btn-primary" : "btn-dark" }}"
+                                        value="{{ ProductConstant::PRD_STATUS_MISS }}">정보누락</button>
                                     </td>
                                 </tr>
                                 <tr class="align-middle">
@@ -109,8 +111,8 @@
                                     <td style="width: 200px">
                                         <select class="form-select" name="search_cls">
                                             <option value="offer_id" @if($search_cls == "offer_id") selected @endif>제품 ID</option>
-                                            <option value="prd_name_trans" @if($search_cls == "prd_name_trans") selected @endif>상품명</option>
-                                            <option value="option_name_trans" @if($search_cls == "option_name_trans") selected @endif>옵션명</option>
+                                            <option value="prd_name" @if($search_cls == "prd_name") selected @endif>상품명</option>
+                                            <option value="option_name" @if($search_cls == "option_name") selected @endif>옵션명</option>
                                         </select>
                                     </td>
                                     <td colspan="2">
@@ -176,7 +178,7 @@
                                     제품ID<br>
                                     (카테고리ID)
                                 </th>
-                                <th scope="col">제품명(국문)</th>
+                                <th scope="col">제품명(영문)</th>
                                 <th scope="col" style="width: 50px">최소 구매 수량</th>
                                 <th scope="col" style="width: 100px">원본이미지</th>
                                 <th scope="col" style="width: 100px">번역이미지</th>
@@ -217,7 +219,7 @@
                                         @endif
                                     </td>
                                     <td>
-                                        {{ $data->prd_name_kr }}
+                                        {{ $data->prd_name_en }}
                                         @if ($data->status != ProductConstant::PRD_STATUS_PUBLISH)
                                             <span class="bg-danger rounded text-white px-2 py-1 fs-6">{{ ProductConstant::PRD_STATUS[$data->status] }}</span>
                                         @endif
@@ -226,11 +228,11 @@
                                         {{ number_format($data->start_quantity) }}
                                     </td>
                                     <td>
-                                        <img class="lazy-img preview-image" data-src="{{ $data->main_img->img_url_origin }}" width=60 height=60/>
+                                        <img class="lazy-img preview-image" data-src="{{ $data->en_main_img->img_url_origin }}" width=60 height=60/>
                                     </td>
                                     <td>
-                                        @if( $data->main_img->img_url_trans )
-                                            <img class="lazy-img preview-image" data-src="{{ $data->main_img->img_url_trans }}" width=60 height=60/>
+                                        @if( $data->en_main_img->img_url_trans )
+                                            <img class="lazy-img preview-image" data-src="{{ $data->en_main_img->img_url_trans }}" width=60 height=60/>
                                         @else
                                             <img class="lazy-img preview-image" data-src='/assets/img/no_img.png'width=60 height=60>
                                         @endif
@@ -279,7 +281,7 @@
                                         @endif
                                     </td>
                                     <td class="text-center">
-                                        {{ ProductConstant::IMG_TRANS_STATUS[$data->trans_status] }}
+                                        {{ ProductConstant::IMG_TRANS_STATUS[$data->trans_status_en] }}
                                     </td>
                                     <td class="text-center">
                                         <button class="btn btn-sm btn-outline-success btn-detail" offerid={{ $data->offer_id }}>상세보기</button>

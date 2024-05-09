@@ -1,6 +1,8 @@
 @php
     use App\Constants\ProductConstant;
+    use App\Constants\WConstant;
     use App\Constants\ImageConstant;
+    use App\Constants\GosiConstants;
     $exchangeRate = env("1688_EXCHANGE_RATE", 200);
 @endphp
 @extends('dashboard.base')
@@ -25,6 +27,26 @@
         font-size: 20px;
         font-weight: bold;
     }
+    .swiper-slide {
+        position: relative;
+        display: inline-block; /* 이미지와 텍스트를 인라인 블록으로 처리 */
+    }
+
+    .swiper-slide img {
+        display: block; /* 이미지가 div 크기에 맞춰서 확장되도록 설정 */
+        width: 100%; /* 이미지 너비를 div에 맞춤 */
+    }
+
+    .swiper-slide .badge {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background-color: rgba(255, 255, 255, 0.75); /* 텍스트 배경 투명도 설정 */
+        color: black; /* 텍스트 색상 설정 */
+        padding: 5px; /* 패딩 설정 */
+        border-radius: 0 0 0 5px; /* 오른쪽 상단 모서리 둥글게 처리 */
+    }
+
 </style>
 @endsection
 
@@ -86,6 +108,7 @@
                                 @if ($prdImg->img_type == "main")
                                     <div class="swiper-slide">
                                         <img src={{ $prdImg->img_url_trans}}>
+                                        <span class="badge fs-5">대표 이미지</span>
                                     </div>
                                 @endif
                                 @endforeach
@@ -124,13 +147,19 @@
                         <div class="col-md-8"><a href="https://detail.1688.com/offer/{{ $prdObj->offer_id }}.html" target="_blank">{{ $prdObj->offer_id }}</a></div>
                     </div>
                     <div class="row mb-2">
-                        <div class="col-md-3 text-center">제품명</div>
+                        <div class="col-md-3 text-center">제품명(중문)</div>
                         <div class="col-md-8">{{ $prdObj->prd_name }}</div>
                     </div>
                     <div class="row mb-2">
-                        <div class="col-md-3 text-center">제품명(번역)</div>
-                        <div class="col-md-8">{{ $prdObj->prd_name_trans }}</div>
+                        <div class="col-md-3 text-center">제품명(국문)</div>
+                        <div class="col-md-8">{{ $prdObj->prd_name_kr }}</div>
                     </div>
+                    @if( $prdObj->w_type == WConstant::WAPP_W2 )
+                        <div class="row mb-2">
+                            <div class="col-md-3 text-center">제품명(영문)</div>
+                            <div class="col-md-8">{{ $prdObj->prd_name_en }}</div>
+                        </div>
+                    @endif
                     <div class="row mb-2">
                         <div class="col-md-3 text-center">W 카테고리</div>
                         <div class="col-md-8">
@@ -192,8 +221,11 @@
                             <thead class="table-light">
                                 <tr class="text-center">
                                     <th scope="col">skuID</th>
-                                    <th scope="col">옵션명</th>
-                                    <th scope="col">옵션명(번역)</th>
+                                    <th scope="col">옵션명(중문)</th>
+                                    <th scope="col">옵션명(국문)</th>
+                                    @if( $prdObj->w_type == WConstant::WAPP_W2 )
+                                        <th scope="col">옵션명(영문)</th>
+                                    @endif
                                     <th scope="col">W 공급가(위안)</th>
                                     <th scope="col">W 공급가(원)</th>
                                     <th scope="col">적용 환율(원)</th>
@@ -211,8 +243,13 @@
                                             {{ $option->option_name }}
                                         </td>
                                         <td>
-                                            {{ $option->option_name_trans }}
+                                            {{ $option->option_name_kr }}
                                         </td>
+                                        @if( $prdObj->w_type == WConstant::WAPP_W2 )
+                                            <td>
+                                                {{ $option->option_name_en }}
+                                            </td>
+                                        @endif
                                         <td>
                                             {{ $option->price_1688 }}
                                         </td>
@@ -238,7 +275,7 @@
                 <hr style="margin-top: 20px">
                 <div class="row mt-3">
                     <div class="col">
-                        <h5>[고시정보(번역)]</h5>
+                        <h5>[고시정보(중문)]</h5>
                     </div>
 
                     <div class="table-responsive">
@@ -249,10 +286,26 @@
                                         <tr>
                                     @endif
 
-                                        <th class="bg-light">{{ $gosi->attribute_name_trans }}</th>
-                                        <td>{{ $gosi->attribute_value_trans }}</td>
+                                        <th class="bg-light">
+                                            @if ($gosi->is_except == GosiConstants::IS_EXCEPT_Y)
+                                                <del>{{ $gosi->attribute_name }}</del>
+                                            @else
+                                                {{ $gosi->attribute_name }}
+                                            @endif
+                                        </th>
+                                        <td>
+                                            @if ($gosi->is_except == GosiConstants::IS_EXCEPT_Y)
+                                                <del>{{ $gosi->attribute_value }}</del>
+                                            @else
+                                                {{ $gosi->attribute_value }}
+                                            @endif
+                                        </td>
 
                                     @if (($gosiKey + 1) % 4 == 0 || $loop->last)
+                                        @php $remainingCols = 4 - (($gosiKey + 1) % 4); @endphp
+                                        @if ($loop->last && $remainingCols > 0 && $remainingCols < 4)
+                                            <td colspan="{{ $remainingCols * 2 }}"></td>
+                                        @endif
                                         </tr>
                                     @endif
                                 @endforeach
@@ -264,7 +317,7 @@
                 <hr style="margin-top: 20px">
                 <div class="row mt-3">
                     <div class="col">
-                        <h5>[고시정보]</h5>
+                        <h5>[고시정보(국문)]</h5>
                     </div>
 
                     <div class="table-responsive">
@@ -275,10 +328,26 @@
                                         <tr>
                                     @endif
 
-                                        <th class="bg-light">{{ $gosi->attribute_name }}</th>
-                                        <td>{{ $gosi->attribute_value }}</td>
+                                        <th class="bg-light">
+                                            @if ($gosi->is_except == GosiConstants::IS_EXCEPT_Y)
+                                                <del>{{ $gosi->attribute_name_kr }}</del>
+                                            @else
+                                                {{ $gosi->attribute_name_kr }}
+                                            @endif
+                                        </th>
+                                        <td>
+                                            @if ($gosi->is_except == GosiConstants::IS_EXCEPT_Y)
+                                                <del>{{ $gosi->attribute_value_kr }}</del>
+                                            @else
+                                                {{ $gosi->attribute_value_kr }}
+                                            @endif
+                                        </td>
 
                                     @if (($gosiKey + 1) % 4 == 0 || $loop->last)
+                                        @php $remainingCols = 4 - (($gosiKey + 1) % 4); @endphp
+                                        @if ($loop->last && $remainingCols > 0 && $remainingCols < 4)
+                                            <td colspan="{{ $remainingCols * 2 }}"></td>
+                                        @endif
                                         </tr>
                                     @endif
                                 @endforeach
@@ -286,6 +355,50 @@
                         </table>
                     </div>
                 </div>
+
+                @if( $prdObj->w_type == WConstant::WAPP_W2 )
+                    <hr style="margin-top: 20px">
+                    <div class="row mt-3">
+                        <div class="col">
+                            <h5>[고시정보(영문)]</h5>
+                        </div>
+
+                        <div class="table-responsive">
+                            <table class="table table-white bg-white">
+                                <tbody>
+                                    @foreach ($prdObj->notices as $gosiKey => $gosi)
+                                        @if ( $gosiKey % 4 == 0)
+                                            <tr>
+                                        @endif
+
+                                            <th class="bg-light">
+                                                @if ($gosi->is_except == GosiConstants::IS_EXCEPT_Y)
+                                                    <del>{{ $gosi->attribute_name_en }}</del>
+                                                @else
+                                                    {{ $gosi->attribute_name_en }}
+                                                @endif
+                                            </th>
+                                            <td>
+                                                @if ($gosi->is_except == GosiConstants::IS_EXCEPT_Y)
+                                                    <del>{{ $gosi->attribute_value_en }}</del>
+                                                @else
+                                                    {{ $gosi->attribute_value_en }}
+                                                @endif
+                                            </td>
+
+                                        @if (($gosiKey + 1) % 4 == 0 || $loop->last)
+                                            @php $remainingCols = 4 - (($gosiKey + 1) % 4); @endphp
+                                            @if ($loop->last && $remainingCols > 0 && $remainingCols < 4)
+                                                <td colspan="{{ $remainingCols * 2 }}"></td>
+                                            @endif
+                                            </tr>
+                                        @endif
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                @endif
 
                 <hr style="margin-top: 20px">
                 <div class="row mt-3">
@@ -298,11 +411,11 @@
                         </div>
                     </div>
                     <div class="col-md-6">
-                        <h5>[제품상세 번역]</h5>
+                        <h5>[제품상세 번역(국문)]</h5>
                         @if ($prdObj->trans_status == ProductConstant::IMG_TRANS_Y)
                             <div class="d-flex justify-content-center">
                                 <div class="text-center prd-desc" >
-                                    {!! $prdObj->prd_desc_trans !!}
+                                    {!! $prdObj->prd_desc_kr !!}
                                 </div>
                             </div>
                         @else
@@ -322,17 +435,21 @@
             <button type="button" class="btn btn-danger btn-xl text-white mb-2 btn-edit-status">
                 판매상태 변경
             </button>
-
-            <a class="btn btn-primary btn-xl text-white text-decoration-none mb-2 btn-edit-img" type="all">
-                전체 이미지<br>번역요청
-            </a>
-            <a class="btn btn-warning btn-xl text-white text-decoration-none mb-2 btn-edit-img" type="thumbnail">
-                썸네일 이미지<br>번역요청
-            </a>
-            <a class="btn btn-success btn-xl text-white text-decoration-none mb-2 btn-edit-img" type="desc">
-                상세 이미지<br>번역요청
-            </a>
-            <a class="btn btn-danger btn-xl text-white text-decoration-none mb-2 btn-edit-img" type="detail">이미지 수정</a>
+            @if ($prdObj->status != ProductConstant::PRD_STATUS_EXCEPT)    
+                <button type="button" class="btn btn-secondary btn-xl text-white mb-2 btn-edit-gosi">
+                    정보고시 관리
+                </button>
+                <a class="btn btn-primary btn-xl text-white text-decoration-none mb-2 btn-edit-img" type="all">
+                    전체 이미지<br>번역요청
+                </a>
+                <a class="btn btn-warning btn-xl text-white text-decoration-none mb-2 btn-edit-img" type="thumbnail">
+                    썸네일 이미지<br>번역요청
+                </a>
+                <a class="btn btn-success btn-xl text-white text-decoration-none mb-2 btn-edit-img" type="desc">
+                    상세 이미지<br>번역요청
+                </a>
+                <a class="btn btn-danger btn-xl text-white text-decoration-none mb-2 btn-edit-img" type="detail">이미지 수정</a>
+            @endif
         </div>
 
         <div class="modal fade" id="htmlModal" tabindex="-1" role="dialog" aria-labelledby="htmlModalLabel" aria-hidden="true">
@@ -370,6 +487,49 @@
                     <div class="modal-footer">
                         <button type="button" class="btn btn-primary btn-save">저장</button>
                         <button type="button" class="btn btn-secondary htmlModalClose">닫기</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade" id="htmlModal2" tabindex="-1" role="dialog" aria-labelledby="htmlModalLabel2" aria-hidden="true">
+            <div class="modal-dialog modal-xl" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="htmlModalLabel">정보고시 관리</h5>
+                    </div>
+                    <div class="modal-body">   
+                        <p class="text-danger fs-6">*상세 페이지에 노출할 정보를 선택하세요</p>
+                        <button type="button" class="btn btn-success btn-gosi-all">일괄 선택</button>
+
+                        <div class="table-responsive mt-4">
+                            <table class="table table-white bg-white">
+                                <tbody>
+                                    @foreach ($prdObj->notices as $gosiKey => $gosi)
+                                        @if ( $gosiKey % 4 == 0)
+                                            <tr>
+                                        @endif
+                                            <th class="bg-light">
+                                                <label class="form-check-label" for="gosiChk{{ $gosi->id }}">{{ $gosi->attribute_name_kr }}</label>
+                                                <input class="form-check-input chk-inp" type="checkbox" id="gosiChk{{ $gosi->id }}" value="{{ $gosi->id }}" @if( $gosi->is_except == GosiConstants::IS_EXCEPT_N ) checked @endif>
+                                            </th>
+                                            <td>{{ $gosi->attribute_value_kr }}</td>
+    
+                                            @if (($gosiKey + 1) % 4 == 0 || $loop->last)
+                                                @php $remainingCols = 4 - (($gosiKey + 1) % 4); @endphp
+                                                @if ($loop->last && $remainingCols > 0 && $remainingCols < 4)
+                                                    <td colspan="{{ $remainingCols * 2 }}"></td>
+                                                @endif
+                                                </tr>
+                                            @endif
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary btn-save-gosi">저장</button>
+                        <button type="button" class="btn btn-secondary htmlModalClose2">닫기</button>
                     </div>
                 </div>
             </div>
@@ -412,6 +572,59 @@
                     }
                 });
             }
+        });
+
+        $('.btn-save-gosi').click(function(){
+            let gosiList = [];
+
+            $(".chk-inp").each(function(index, element){
+                let is_except = "Y";
+                if( $(this).is(":checked") ){
+                    is_except = "N";
+                }
+                gosiList.push({
+                    id: $(this).val(),
+                    is_except: is_except
+                });
+            });
+
+            if( confirm("저장하시겠습니까?") ){
+                $.ajax({
+                    "headers"    : {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
+                    "type"       : "POST",
+                    "url"        : "{{ route('w.product.gosiExcept') }}",
+                    "data"       : { gosiList },
+                    beforeSend: function () {
+                        $("#loadingOverlay").show();
+                    },
+                    complete: function () {
+                        $("#loadingOverlay").hide();
+                    },
+                    success: function (resp) {
+                        alert(resp.msg);
+                        location.reload();
+                    },
+                    error: function error(request, status, _error) {
+                        let { error } = JSON.parse(request.responseText);
+                        alert(error.message);
+                    }
+                });
+            }
+        });
+
+        $('.btn-gosi-all').click(function(){
+            if( $(".chk-inp:checked").length > 0 ) {
+                $(".chk-inp").prop("checked", false);
+            } else {
+                $(".chk-inp").prop("checked", true);
+            }
+        });
+
+        $('.btn-edit-gosi').click(function(){
+            $("#htmlModal2").modal('show');
+        });
+        $(".htmlModalClose2").click(function(){
+            $("#htmlModal2").modal('hide');
         });
 
         $('.btn-edit-img').click(function(e){

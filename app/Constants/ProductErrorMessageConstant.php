@@ -10,24 +10,27 @@ class ProductErrorMessageConstant
     private static $defaultNotHaveMsg  = "Empty";
     private static $defaultFitErrorMsg = "Error";
 
-    public const ERROR_MESSAGE_PRODUCT                              = "Product";
-    public const ERROR_MESSAGE_PRODUCT_SEARCH_KEYWORDQUERY          = "product.search.keywordQuery";
-    public const ERROR_MESSAGE_PRODUCT_SEARCH_IMAGEQUERY            = "product.search.imageQuery";
-    public const ERROR_MESSAGE_PRODUCT_SEARCH_QUERYPRODUCTDETAIL    = "product.search.queryProductDetail";
-    public const ERROR_MESSAGE_PRODUCT_SEARCH_QUERYPRODUCTDETAIL_W2 = "product.search.queryProductDetail.W2";
-    public const ERROR_MESSAGE_PRODUCT_SKUINFOS                     = "productSkuInfos";
-    public const ERROR_MESSAGE_PRODUCT_PRICE_1688                   = "1688 Price";
-    public const ERROR_MESSAGE_PRODUCT_CONSIGN_PRICE                = "productSkuInfos consignPrice";
-    public const ERROR_MESSAGE_PRODUCT_TRANS_IMG                    = "Genuio imageTranslate";
-    public const ERROR_MESSAGE_PRODUCT_S3_IMG_UPLOAD                = "S3 image Upload";
-    public const ERROR_MESSAGE_PRODUCT_CHECK_IMG_SIZE               = "check img size";
-    public const ERROR_MESSAGE_PRODUCT_KEYWORD                      = "keyword";
-    public const ERROR_MESSAGE_PRODUCT_MAIN_IMG                     = "Main Img";
-    public const ERROR_MESSAGE_SEARCH_TITLE                         = "search_title";
-    public const ERROR_MESSAGE_OFFER_IDS                            = "offer ids";
-    public const ERROR_MESSAGE_MD_PRICE                             = "MD price";
-    public const ERROR_MESSAGE_STATUS                               = "status";
-    public const ERROR_MESSAGE_ALREADY_PRODUCT                      = "이미 수집 된 상품입니다.";
+    public const ERROR_MESSAGE_PRODUCT                                 = "Product";
+    public const ERROR_MESSAGE_PRODUCT_SEARCH_KEYWORDQUERY             = "product.search.keywordQuery";
+    public const ERROR_MESSAGE_PRODUCT_SEARCH_IMAGEQUERY               = "product.search.imageQuery";
+    public const ERROR_MESSAGE_PRODUCT_SEARCH_QUERYPRODUCTDETAIL       = "product.search.queryProductDetail";
+    public const ERROR_MESSAGE_PRODUCT_SEARCH_QUERYPRODUCTDETAIL_W2_KR = "product.search.queryProductDetail.W2.KR";
+    public const ERROR_MESSAGE_PRODUCT_SEARCH_QUERYPRODUCTDETAIL_W2_EN = "product.search.queryProductDetail.W2.EN";
+    public const ERROR_MESSAGE_PRODUCT_SKUINFOS                        = "productSkuInfos";
+    public const ERROR_MESSAGE_PRODUCT_PRICE_1688                      = "1688 Price";
+    public const ERROR_MESSAGE_PRODUCT_CONSIGN_PRICE                   = "productSkuInfos consignPrice";
+    public const ERROR_MESSAGE_PRODUCT_TRANS_IMG                       = "Genuio imageTranslate";
+    public const ERROR_MESSAGE_PRODUCT_S3_IMG_UPLOAD                   = "S3 image Upload";
+    public const ERROR_MESSAGE_PRODUCT_CHECK_IMG_SIZE                  = "check img size";
+    public const ERROR_MESSAGE_PRODUCT_KEYWORD                         = "keyword";
+    public const ERROR_MESSAGE_PRODUCT_MAIN_IMG                        = "Main Img";
+    public const ERROR_MESSAGE_SEARCH_TITLE                            = "search_title";
+    public const ERROR_MESSAGE_OFFER_IDS                               = "offer ids";
+    public const ERROR_MESSAGE_MD_PRICE                                = "MD price";
+    public const ERROR_MESSAGE_STATUS                                  = "status";
+    public const ERROR_MESSAGE_ALREADY_PRODUCT                         = "이미 수집 된 상품입니다.";
+    public const ERROR_MESSAGE_GOSILIST                                = "gosiList";
+    public const ERROR_MESSAGE_PRODUCT_EXCEPT                          = "판매제외 상품";
  
     public static function getErrorMessageNotDefault($constantName): string
     {

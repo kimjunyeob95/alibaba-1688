@@ -2,9 +2,13 @@
 
 use App\Constants\HttpConstant;
 use App\Constants\ImageConstant;
+use App\Constants\MallConstant;
 use App\Constants\ProductConstant;
+use App\Constants\WConstant;
+use App\Models\EasysellProductLog;
 use App\Models\ProductData;
 use App\Models\ProductImageData;
+use App\Models\ProductModiData;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
@@ -482,15 +486,53 @@ if (!function_exists("getPrice1688V2")) {
 if (!function_exists("chkTransStatus")) {
     function chkTransStatus(int $offerId): void
     {
-       $TransCnt = ProductImageData::where("offer_id", $offerId)
-       ->whereRaw("REPLACE(img_url_trans, ' ', '') != ''")
-       ->where("is_except", ImageConstant::IS_EXCEPT_N)
-       ->whereNotNull("trans_dated_at")
-       ->whereNull("deleted_at")
-       ->count();
-       ProductData::where("offer_id", $offerId)->update([
-           "trans_status" => $TransCnt > 0 ? ProductConstant::TRANS_STATUS_Y : ProductConstant::TRANS_STATUS_N
-       ]);
+        $prdObj          = ProductData::where("offer_id", $offerId)->first();
+        $trans_status    = ProductConstant::TRANS_STATUS_N;
+        $trans_status_en = ProductConstant::TRANS_STATUS_N;
+        if( $prdObj != null ){
+            if( $prdObj->w_type == WConstant::WAPP_W1 ){
+                $transCnt = ProductImageData::where("offer_id", $offerId)
+                ->whereRaw("REPLACE(img_url_trans, ' ', '') != ''")
+                ->where("is_except", ImageConstant::IS_EXCEPT_N)
+                ->where("lang", WConstant::WAPP_KR)
+                ->whereNotNull("trans_dated_at")
+                ->whereNull("deleted_at")
+                ->count();
+
+                if( $transCnt > 0 ){
+                    $trans_status = ProductConstant::TRANS_STATUS_Y;
+                }
+            } else if( $prdObj->w_type == WConstant::WAPP_W2 ){
+                $transKrCnt = ProductImageData::where("offer_id", $offerId)
+                ->whereRaw("REPLACE(img_url_trans, ' ', '') != ''")
+                ->where("is_except", ImageConstant::IS_EXCEPT_N)
+                ->where("lang", WConstant::WAPP_KR)
+                ->whereNotNull("trans_dated_at")
+                ->whereNull("deleted_at")
+                ->count();
+
+                $transEnCnt = ProductImageData::where("offer_id", $offerId)
+                ->whereRaw("REPLACE(img_url_trans, ' ', '') != ''")
+                ->where("is_except", ImageConstant::IS_EXCEPT_N)
+                ->where("lang", WConstant::WAPP_EN)
+                ->whereNotNull("trans_dated_at")
+                ->whereNull("deleted_at")
+                ->count();
+
+                if( $transKrCnt > 0 ){
+                    $trans_status = ProductConstant::TRANS_STATUS_Y;
+                }
+
+                if( $transEnCnt > 0 ){
+                    $trans_status_en = ProductConstant::TRANS_STATUS_Y;
+                }
+            }
+
+            ProductData::where("offer_id", $offerId)->update([
+                "trans_status"    => $trans_status,
+                "trans_status_en" => $trans_status_en,
+            ]);
+        }
     }
 }
 
@@ -544,14 +586,14 @@ if (!function_exists("upPrdDescTrans")) {
     {
         $prdObj = ProductData::where("offer_id", $offerId)->first();
         if( $prdObj != null ){
-            $prd_desc = $prdObj->prd_desc;
 
-            $imgObjs = ProductImageData::where([
+            $prd_desc = $prdObj->prd_desc;
+            $imgKrObjs = ProductImageData::where([
                 "offer_id" => $offerId,
                 "img_type" => ImageConstant::IMAGE_TYPE_DESC,
+                "lang"     => WConstant::WAPP_KR
             ])->get();
-
-            foreach ($imgObjs as $imgObj) {
+            foreach ($imgKrObjs as $imgObj) {
                 if( $imgObj->is_except == ImageConstant::IS_EXCEPT_Y ){
                     $img_url_origin = $imgObj->img_url_origin;
                     $img_url_trans  = $imgObj->img_url_trans;
@@ -565,10 +607,38 @@ if (!function_exists("upPrdDescTrans")) {
                     $prd_desc = str_replace($imgObj->img_url_origin, $imgObj->img_url_trans, $prd_desc);
                 }
             }
-
             ProductData::where("id", $prdObj->id)->update([
-                "prd_desc_trans" => $prd_desc
+                "prd_desc_kr" => $prd_desc
             ]);
+
+            if( $prdObj->w_type == WConstant::WAPP_W2 ){
+                $prd_desc = $prdObj->prd_desc;
+
+                $imgEnObjs = ProductImageData::where([
+                    "offer_id" => $offerId,
+                    "img_type" => ImageConstant::IMAGE_TYPE_DESC,
+                    "lang"     => WConstant::WAPP_EN
+                ])->get();
+
+                foreach ($imgEnObjs as $imgObj) {
+                    if( $imgObj->is_except == ImageConstant::IS_EXCEPT_Y ){
+                        $img_url_origin = $imgObj->img_url_origin;
+                        $img_url_trans  = $imgObj->img_url_trans;
+
+                        $pattern = '/<img[^>]+src\s*=\s*["\']' . preg_quote($img_url_origin, '/') . '["\'][^>]*>/i';
+                        $prd_desc = preg_replace($pattern, '', $prd_desc);
+
+                        $pattern = '/<img[^>]+src\s*=\s*["\']' . preg_quote($img_url_trans, '/') . '["\'][^>]*>/i';
+                        $prd_desc = preg_replace($pattern, '', $prd_desc);
+                    } else {
+                        $prd_desc = str_replace($imgObj->img_url_origin, $imgObj->img_url_trans, $prd_desc);
+                    }
+                }
+
+                ProductData::where("id", $prdObj->id)->update([
+                    "prd_desc_en" => $prd_desc
+                ]);
+            }
         }
     }
 }
@@ -603,5 +673,69 @@ if (!function_exists("compareWSalePrice")) {
         } else {
             return false;
         }
+    }
+}
+
+/** 수정 상품 저장 */
+if (!function_exists("saveModiProduct")) {
+    function saveModiProduct(int $offerId, string $wType = WConstant::WAPP_W1): void
+    {
+        foreach (MallConstant::MALL_LIST as $channel) {
+            $regCnt = 0;
+
+            if( $channel == MallConstant::MALL_EASYSELL ){
+                $regCnt = EasysellProductLog::where([
+                    "offer_id"       => $offerId,
+                    "regist_success" => MallConstant::REGIST_SUCCESS,
+                ])->count();
+            }
+
+            if( $regCnt > 0 ){
+                ProductModiData::firstOrCreate([
+                    "offer_id"      => $offerId,
+                    "w_type"        => $wType,
+                    "is_send"       => ProductConstant::IS_SEND_N,
+                    "channel"       => $channel,
+                    "send_dated_at" => Null,
+                ]);
+            }
+        }
+    }
+}
+
+/**
+ * 고시 테이블 생성
+ * ["name" => "value"] 전달
+ */
+if (!function_exists("getNoticeInfoTable")) {
+    function getNoticeInfoTable(array $noticeInfo): string
+    {
+        $noticeTable = "<div style='width: 960px;margin:0 auto;'>
+            <h4 style='font-size:20px;font-weight: 900;color:#000;margin-bottom: 10px;line-height:normal;text-align:left;display:block;font-family: \"Noto Sans KR Bold\";'>상품일반정보</h4>
+            <table style='width: 100%;'>
+              <colgroup>
+                <col width='170'>
+                <col width='310'>
+                <col width='170'>
+                <col width='310'>
+              </colgroup>";
+        $idx = 0;
+        foreach($noticeInfo as $name => $value){
+            if( $idx % 2 == 0){
+                $noticeTable .="<tr>";
+            }
+            $noticeTable .= "<th style='background-color:#FFFDF5;padding:10px 14px;font-weight: bold;text-align: left;font-size:12px;word-break: keep-all;font-family: \"Noto Sans KR Bold\";border-bottom:2px solid #fff;line-height:150%;color:#000;'>{$name}</th>
+                    <td style='background-color:#FFFFFC;padding:10px 14px;text-align: left;font-size:12px;border-bottom:2px solid #fff;line-height:150%;color:#000;'>{$value}</td>";
+
+            if(($idx + 1) % 2 == 0 || ($idx + 1) == count($noticeInfo)){
+                $noticeTable .="</tr>";
+            }
+            $idx++;
+        }
+        $noticeTable .= "</table>
+            <p style='margin-top: 12px;font-size:12px;color:#8a9299;text-align:left;'>위 내용은 상품정보제공 고시에 따라 작성되었습니다.</p>
+        </div>";
+
+        return $noticeTable;
     }
 }

@@ -4,10 +4,12 @@ namespace App\Packages;
 
 use App\Abstracts\MallApiAbstract;
 use App\Constants\EasySellConstant;
+use App\Constants\GosiConstants;
 use App\Constants\ImageConstant;
 use App\Constants\MallConstant;
 use App\Constants\MallErrorMessageConstant;
 use App\Constants\ProductConstant;
+use App\Constants\WConstant;
 use App\Models\CategoryMapping;
 use App\Models\EasysellProductLog;
 use App\Models\ProductData;
@@ -15,6 +17,7 @@ use App\Models\ProductModiData;
 use App\Vo\EasySell\EasySellProductVo;
 use Carbon\Carbon;
 use Exception;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 
@@ -29,9 +32,10 @@ class EasySell extends MallApiAbstract
      * @func productRegist
      * @description '상품등록'
      * @param array $offerIds
+     * @param string $type
      * @return array
     */
-    public function productRegist(array $offerIds): array
+    public function productRegist(array $offerIds, string $type = WConstant::WAPP_W1): array
     {
         $successIds = [];
         $failIds    = [];
@@ -40,13 +44,14 @@ class EasySell extends MallApiAbstract
         foreach ($offerIds as $offerId) {
             $easyObj      = null;
             $itemno       = 0;
-            $account      = EasySellConstant::USER_ID;
+            $account      = EasySellConstant::USER_ID_W;
             $modi_success = MallConstant::MODI_FAIL;
             $modi_message = "";
             try{
                 $easyObj = EasysellProductLog::where([
                     "offer_id"       => $offerId,
                     "regist_success" => MallConstant::REGIST_SUCCESS,
+                    "w_type"         => $type,
                 ])->first();
                 if( $easyObj != null ){
                     // throw new Exception(MallErrorMessageConstant::getFitErrorMessage("HAVE_REGIST"));
@@ -54,8 +59,23 @@ class EasySell extends MallApiAbstract
                     continue;
                 }
 
-                $prdObj = ProductData::with([
+                $prdObj = new ProductData();
+                switch($type){
+                    case WConstant::WAPP_W1 :
+                        $prdObj->whereIn("w_type",[WConstant::WAPP_W1, WConstant::WAPP_W2]);
+                        break;
+                    case WConstant::WAPP_W2 :
+                        $prdObj->where("w_type",WConstant::WAPP_W2);
+                        $account = EasySellConstant::USER_ID_W2;
+                        break;
+                    default :
+                        throw new Exception(MallErrorMessageConstant::getNotHaveErrorMessage("TYPE"));
+                        break;
+                }
+
+                $prdObj = $prdObj->with([
                     "images",
+                    "en_images",
                     "extends",
                     "options",
                     "notices",
@@ -72,8 +92,14 @@ class EasySell extends MallApiAbstract
                 if( $prdObj->mapping_status != ProductConstant::MAPPING_STATUS_Y ){
                     throw new Exception(MallErrorMessageConstant::getFitErrorMessage("NOT_MAPPING_CATE"));
                 }
+                if( $prdObj->status != ProductConstant::PRD_STATUS_PUBLISH ){
+                    throw new Exception(MallErrorMessageConstant::getFitErrorMessage("PRODUCT_STATUS"));
+                }
+                if( count($prdObj->options) == 0 ){
+                    throw new Exception(MallErrorMessageConstant::getFitErrorMessage("OPTION"));
+                }
 
-                $paramsResult = $this->_getPrdParams($prdObj, EasySellConstant::ITEM_REGIST);
+                $paramsResult = $this->_getPrdParams($prdObj, $type, EasySellConstant::ITEM_REGIST);
                 if( $paramsResult["isSuccess"] == true ){
                     $apiResult = $this->_apiCall("Goods", $paramsResult["data"]);
 
@@ -93,6 +119,7 @@ class EasySell extends MallApiAbstract
                     $logParams = [
                         "itemno"         => $itemno,
                         "offer_id"       => $offerId,
+                        "w_type"         => $type,
                         "account"        => $account,
                         "regist_success" => MallConstant::REGIST_SUCCESS,
                         "regist_message" => $rsData->Msg,
@@ -107,6 +134,7 @@ class EasySell extends MallApiAbstract
                 $logParams = [
                     "itemno"         => $itemno,
                     "offer_id"       => $offerId,
+                    "w_type"         => $type,
                     "account"        => $account,
                     "regist_success" => MallConstant::REGIST_FAIL,
                     "regist_message" => $e->getMessage(),
@@ -126,7 +154,7 @@ class EasySell extends MallApiAbstract
         }
 
         if(count($updateIds)){
-            $updateResult = $this->productModi($updateIds);
+            $updateResult = $this->productModi($updateIds, $type);
 
             $failIds    += $updateResult['data']['fail'];
             $successIds += $updateResult['data']['success'];
@@ -141,27 +169,44 @@ class EasySell extends MallApiAbstract
      * @func productModi
      * @description '상품수정'
      * @param array $offerIds
+     * @param string $type
      * @return array
     */
-    public function productModi(array $offerIds):array
+    public function productModi(array $offerIds, string $type):array
     {
         $successIds = [];
         $failIds    = [];
 
         foreach ($offerIds as $offerId) {
             $easyObj      = null;
-            $account      = EasySellConstant::USER_ID;
+            $account      = EasySellConstant::USER_ID_W;
             try{
                 $easyObj = EasysellProductLog::where([
                     "offer_id"       => $offerId,
                     "regist_success" => MallConstant::REGIST_SUCCESS,
+                    "w_type"         => $type,
                 ])->first();
                 if( $easyObj == null ){
                     throw new Exception(MallErrorMessageConstant::getFitErrorMessage("MODI_UNREGIST"));
                 }
 
-                $prdObj = ProductData::with([
+                $prdObj = new ProductData();
+                switch($type){
+                    case WConstant::WAPP_W1 :
+                        $prdObj->whereIn("w_type",[WConstant::WAPP_W1, WConstant::WAPP_W2]);
+                        break;
+                    case WConstant::WAPP_W2 :
+                        $prdObj->where("w_type",WConstant::WAPP_W2);
+                        $account = EasySellConstant::USER_ID_W2;
+                        break;
+                    default :
+                        throw new Exception(MallErrorMessageConstant::getNotHaveErrorMessage("TYPE"));
+                        break;
+                }
+
+                $prdObj = $prdObj->with([
                     "images",
+                    "en_images",
                     "extends",
                     "options",
                     "notices",
@@ -178,8 +223,14 @@ class EasySell extends MallApiAbstract
                 if( $prdObj->mapping_status != ProductConstant::MAPPING_STATUS_Y ){
                     throw new Exception(MallErrorMessageConstant::getFitErrorMessage("NOT_MAPPING_CATE"));
                 }
+                if( $prdObj->status != ProductConstant::PRD_STATUS_PUBLISH ){
+                    throw new Exception(MallErrorMessageConstant::getFitErrorMessage("PRODUCT_STATUS"));
+                }
+                if( count($prdObj->options) == 0 ){
+                    throw new Exception(MallErrorMessageConstant::getFitErrorMessage("OPTION"));
+                }
 
-                $paramsResult = $this->_getPrdParams($prdObj, EasySellConstant::ITEM_MODI, $easyObj->itemno);
+                $paramsResult = $this->_getPrdParams($prdObj, $type, EasySellConstant::ITEM_MODI, $easyObj->itemno);
                 if( $paramsResult["isSuccess"] == true ){
                     $apiResult = $this->_apiCall("Goods", $paramsResult["data"]);
 
@@ -197,6 +248,7 @@ class EasySell extends MallApiAbstract
 
                     $logParams = [
                         "offer_id"     => $offerId,
+                        "w_type"       => $type,
                         "account"      => $account,
                         "modi_success" => MallConstant::MODI_SUCCESS,
                         "modi_message" => $rsData->Msg,
@@ -208,6 +260,7 @@ class EasySell extends MallApiAbstract
             }catch(Exception $e){
                 $logParams = [
                     "offer_id"     => $offerId,
+                    "w_type"       => $type,
                     "account"      => $account,
                     "modi_success" => MallConstant::MODI_FAIL,
                     "modi_message" => $e->getMessage(),
@@ -318,7 +371,7 @@ class EasySell extends MallApiAbstract
         ->groupBy("offer_id", "w_type")
         ->get();
         foreach ($modiObjs as $modiObj) {
-            // easySell 전송 로직.....
+            $result = $this->productRegist([$modiObj->offer_id], $modiObj->w_type);
 
             $query = ProductModiData::where("is_send", ProductConstant::IS_SEND_N)
             ->where("created_at", "<=", $now)
@@ -326,17 +379,17 @@ class EasySell extends MallApiAbstract
             ->where("channel", MallConstant::MALL_EASYSELL)
             ->where("w_type", $modiObj->w_type);
 
-            if( false ){
-                // 1. 전송 성공 시 
+            if( in_array($modiObj->offer_id, $result["data"]["success"]) ){
+                // 1. 전송 성공 시
                 $query->update([
                     "is_send"       => ProductConstant::IS_SEND_Y,
                     "send_dated_at" => Carbon::now()
                 ]);
-            } else if( false ){
+            } else {
                 // 2. 전송 에러 시
                 $query->update([
                     "is_send" => ProductConstant::IS_SEND_E,
-                    "msg"     => "에러 내용.."
+                    "msg"     => $result["data"]["fail"][0]['msg']
                 ]);
             }
         }
@@ -345,12 +398,13 @@ class EasySell extends MallApiAbstract
     /**
      * api param 생성 - 상품 등록/수정 공통사용
      *
-     * @param ProductData $prdObj
+     * @param Model $prdObj
      * @param string $itemMode
+     * @param string $type
      * @param integer|null $ItemGoodCode - 수정시 필수
      * @return array
      */
-    private function _getPrdParams(ProductData $prdObj, string $itemMode = EasySellConstant::ITEM_REGIST, ?int $ItemGoodCode = NULL) :array
+    private function _getPrdParams(Model $prdObj, string $type, string $itemMode = EasySellConstant::ITEM_REGIST, ?int $ItemGoodCode = NULL) :array
     {
         $return = helpers_fail_message();
 
@@ -370,26 +424,28 @@ class EasySell extends MallApiAbstract
                 throw new Exception("연령제한 상품입니다");
             }
 
-            $ItemName = $prdObj->prd_name_trans;
+            if($type == WConstant::WAPP_W1){
+                $ItemName = $prdObj->prd_name_kr;
+                $prdDesc  = $prdObj->prd_desc_kr;
+                $optionTitle = "옵션";
+            }else if($type == WConstant::WAPP_W2){
+                $ItemName = $prdObj->prd_name_en;
+                $prdDesc  = $prdObj->prd_desc_en;
+                $optionTitle = "option";
+            }
+
             // if(!productNameValidation($ItemName, "", 100)){
             //     throw new Exception("상품명 길이가 100byte를 초과했습니다.");
             // }
 
-            $notice = "<table><tbody>";
-            foreach($prdObj->notices as $gosiKey => $gosi){
-                if( $gosiKey % 4 == 0){
-                    $notice .="<tr>";
-                }
-
-                $notice .= "<th style='background-color:#ebedef; padding:0.3rem 0.3rem; border-bottom: 1px solid #d8dbe0;'>{$gosi->attribute_name_trans}</th><td style='padding: 0.3rem 0.3rem; border-bottom: 1px solid #d8dbe0;'>{$gosi->attribute_value_trans}</td>";
-
-                if(($gosiKey + 1) % 4 == 0 || ($gosiKey + 1) == count($prdObj->notices)){
-                    $notice .="</tr>";
-                }
+            if($type == WConstant::WAPP_W1){
+                $noticeInfo = $prdObj->notices->where("is_except",GosiConstants::IS_EXCEPT_N)->pluck("attribute_value_kr","attribute_name_kr")->toArray();
+            }else if($type == WConstant::WAPP_W2){
+                $noticeInfo = $prdObj->notices->where("is_except",GosiConstants::IS_EXCEPT_N)->pluck("attribute_value_en","attribute_name_en")->toArray();
             }
-            $notice .= "</tbody></table>";
+            $notice = getNoticeInfoTable($noticeInfo);
 
-            $unitInfo   = "옵션|";
+            $unitInfo   = $optionTitle."|";
             $saleStatus = EasySellConstant::STATUS_STOP_SALE;
             foreach($prdObj->options as $idx => $option){
                 if(!$idx){
@@ -403,7 +459,12 @@ class EasySell extends MallApiAbstract
                 //옵션명
                 $replaceArr     = array("|",",","/");
                 $replacementArr = array("-","\,","-");
-                $optionNm       = str_replace($replaceArr, $replacementArr ,$option->option_name_trans);
+
+                if($type == WConstant::WAPP_W1){
+                    $optionNm = str_replace($replaceArr, $replacementArr ,$option->option_name_kr);
+                }else if($type == WConstant::WAPP_W2){
+                    $optionNm = str_replace($replaceArr, $replacementArr ,$option->option_name_en);
+                }
 
                 $stock = 0;
                 if($option->status == ProductConstant::OPTION_SEC_ON_SALE_NUMBER){
@@ -414,7 +475,12 @@ class EasySell extends MallApiAbstract
                 $unitInfo .= "{$optionNm}^^{$stock}^^{$setPrice}^^{$setPrice}^^{$option->option_price}::{$option->id}";
             }
 
-            $itemImage = implode("|", array_filter($prdObj->images->whereIn("img_type",["main","sub"])->where("is_except",ImageConstant::IS_EXCEPT_N)->pluck("img_url_trans")->toArray()));
+            if($type == WConstant::WAPP_W1){
+                $images = $prdObj->images;
+            }else if($type == WConstant::WAPP_W2){
+                $images = $prdObj->en_images;
+            }
+            $itemImage = implode("|", array_filter($images->whereIn("img_type",["main","sub"])->where("is_except",ImageConstant::IS_EXCEPT_N)->pluck("img_url_trans")->toArray()));
 
             $voParams = [
                 "ItemNo"                => $offerId,
@@ -423,7 +489,7 @@ class EasySell extends MallApiAbstract
                 "ItemName"              => $ItemName,
                 "ItemGoodCode"          => $ItemGoodCode,
                 "ItemDesc"              => $ItemName,
-                "ItemDescDetail"        => $prdObj->prd_desc_trans,
+                "ItemDescDetail"        => $prdDesc,
                 "ItemGoodsRequiredDesc" => $notice,
                 "ItemImage"             => $itemImage,
                 "TaxYn"                 => ($prdObj->tax_type) == ProductConstant::TAX_TAXATION ? EasySellConstant::TAX_TAXATION : EasySellConstant::TAX_EXEMPTION,
@@ -438,7 +504,7 @@ class EasySell extends MallApiAbstract
                 "MinEa"                 => $prdObj->start_quantity
             ];
 
-            $vo = new EasySellProductVo();
+            $vo = new EasySellProductVo($type);
             $vo->bind($voParams);
 
             $apiParams = [
@@ -570,5 +636,29 @@ class EasySell extends MallApiAbstract
         }
 
         return $returnMsg;
+    }
+
+    /**
+     * 이지셀 판매중단처리 api
+     *
+     * @return void
+     */
+    public function setGoodsStatus(string $type,int $ItemGoodCode){
+        $vo = new EasySellProductVo($type);
+        $vo->bind(["ItemGoodCode" => $ItemGoodCode]);
+
+        $params = [
+			"LinkerID"     => $vo->LinkerID,
+			"UserID"       => $vo->UserID,
+			"UserPW"       => $vo->UserPW,
+			"ItemGoodCode" => $vo->ItemGoodCode,
+			"SaleStatus"   => EasySellConstant::STATUS_STOP_SALE,
+			"Soldout"      => "N"
+        ];
+
+        $apiResult = $this->_apiCall("GoodsStatus",$params);
+        if( $apiResult["isSuccess"] != true ){
+            throw new Exception(MallErrorMessageConstant::getFitErrorMessage("EASYSELL_GOODS_API"));
+        }
     }
 }

@@ -80,7 +80,7 @@
                                                         <span class="text-danger">[수집완료]</span>
                                                     @endif
                                                     <br>
-                                                    {{ $detail->prd_name_trans }}
+                                                    {{ $detail->prd_name_kr }}
                                                     <br>
                                                     판매량: {{ number_format($detail->sold_out) }}
                                                     <br>

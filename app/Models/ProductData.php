@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Constants\ImageConstant;
 use App\Constants\ProductConstant;
+use App\Constants\WConstant;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -18,19 +19,35 @@ class ProductData extends Model
     protected $fillable   = [];
 
     public function main_img () {
-        return $this->hasOne(ProductImageData::class, "offer_id", "offer_id")->where("img_type", ImageConstant::IMAGE_TYPE_MAIN);
+        return $this->hasOne(ProductImageData::class, "offer_id", "offer_id")->where("lang", WConstant::WAPP_KR)->where("img_type", ImageConstant::IMAGE_TYPE_MAIN);
+    }
+
+    public function en_main_img () {
+        return $this->hasOne(ProductImageData::class, "offer_id", "offer_id")->where("lang", WConstant::WAPP_EN)->where("img_type", ImageConstant::IMAGE_TYPE_MAIN);
     }
 
     public function sub_imgs () {
-        return $this->hasMany(ProductImageData::class, "offer_id", "offer_id")->where("img_type", ImageConstant::IMAGE_TYPE_SUB);
+        return $this->hasMany(ProductImageData::class, "offer_id", "offer_id")->where("lang", WConstant::WAPP_KR)->where("img_type", ImageConstant::IMAGE_TYPE_SUB);
+    }
+
+    public function en_sub_imgs () {
+        return $this->hasMany(ProductImageData::class, "offer_id", "offer_id")->where("lang", WConstant::WAPP_EN)->where("img_type", ImageConstant::IMAGE_TYPE_SUB);
     }
 
     public function desc_imgs () {
-        return $this->hasMany(ProductImageData::class, "offer_id", "offer_id")->where("img_type", ImageConstant::IMAGE_TYPE_DESC);
+        return $this->hasMany(ProductImageData::class, "offer_id", "offer_id")->where("lang", WConstant::WAPP_KR)->where("img_type", ImageConstant::IMAGE_TYPE_DESC);
+    }
+
+    public function en_desc_imgs () {
+        return $this->hasMany(ProductImageData::class, "offer_id", "offer_id")->where("lang", WConstant::WAPP_EN)->where("img_type", ImageConstant::IMAGE_TYPE_DESC);
     }
 
     public function images () {
-        return $this->hasMany(ProductImageData::class, "offer_id", "offer_id")->orderBy('img_type', 'asc');
+        return $this->hasMany(ProductImageData::class, "offer_id", "offer_id")->where("lang", WConstant::WAPP_KR)->orderBy('img_type', 'asc')->orderBy('id', 'asc');
+    }
+
+    public function en_images () {
+        return $this->hasMany(ProductImageData::class, "offer_id", "offer_id")->where("lang", WConstant::WAPP_EN)->orderBy('img_type', 'asc')->orderBy('id', 'asc');
     }
 
     public function options () {

@@ -30,6 +30,7 @@ class TransApiConstant
     public const ERROR_MESSAGE_AI_IMG_ID             = "AI Image ID";
     public const ERROR_MESSAGE_PRODUCT               = "Product";
     public const ERROR_MESSAGE_1688_IMG              = "1688 원본 이미지";
+    public const ERROR_MESSAGE_ALREADY_QUEUE         = "이미 처리 된 큐입니다.";
  
     public static function getErrorMessageNotDefault($constantName): string
     {

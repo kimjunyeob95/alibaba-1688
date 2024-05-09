@@ -11,7 +11,7 @@
                 </svg> Dashboard
             </a>
         </li>
-        
+
         <li class="nav-title">W1</li>
         <li class="nav-group">
             <a class="nav-link nav-group-toggle" href="javascript:;">
@@ -95,7 +95,7 @@
                 </li>
             </ul>
         </li>
-        
+
         <li class="nav-title">W App</li>
         <li class="nav-group">
             <a class="nav-link nav-group-toggle" href="javascript:;">
@@ -107,12 +107,17 @@
             <ul class="nav-group-items">
                 <li class="nav-item">
                     <a class="nav-link" href="/product/list">
-                        수집 상품 리스트
+                        전체 상품 리스트 (KOR)
                     </a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="/product/w2/list">
-                        W2 수집 상품 리스트
+                        Drop.K 상품 리스트 (ENG)
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/product/except/list">
+                        판매제외 상품 리스트
                     </a>
                 </li>
             </ul>
@@ -123,6 +128,14 @@
                     <use xlink:href="/vendors/@coreui/icons/svg/free.svg#cil-3d"></use>
                 </svg>
                 카테고리 관리
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="/forbiddenWord/list">
+                <svg class="nav-icon">
+                    <use xlink:href="/vendors/@coreui/icons/svg/free.svg#cil-3d"></use>
+                </svg>
+                금칙어 관리
             </a>
         </li>
 

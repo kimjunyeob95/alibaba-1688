@@ -71,6 +71,7 @@
                     <div class="col-3">
                         <div class="row">
                             <img src="{{ $prdObj->main_img->img_url_trans }}" class="rounded img-fluid" alt="...">
+                            <span class="fs-6 text-center mt-3">(대표 이미지)</span>
                         </div>
                     </div>
                     <div class="col-3 position-relative swiper-box">
@@ -174,6 +175,9 @@
                                     <button type="button" class="btn btn-danger text-white exceptBtn" except="{{ ImageConstant::IS_EXCEPT_Y }}" imgid={{ $img->id }}>제외하기</button>
                                 @else
                                     <button type="button" class="btn btn-danger text-white exceptBtn" except="{{ ImageConstant::IS_EXCEPT_N }}" imgid={{ $img->id }}>제외 취소하기</button>
+                                @endif
+                                @if ($img->is_except == ImageConstant::IS_EXCEPT_N )
+                                    <button type="button" class="btn btn-info text-white mainApplyBtn">대표이미지로 적용하기</button>
                                 @endif
                             </div>
                         </div>
@@ -377,7 +381,7 @@
 
         $(".allCheckbtn").click(function(){
             var type = $(this).attr("attr-type");
-            var flag = !$("."+type+"-container").find("input[name='selectImg']").prop("checked");
+            var flag = !$("."+type+"-container").find("input[name='selectImg']").is(":checked");
 
             $("."+type+"-container").find("input[name='selectImg']").prop("checked", false);
             $("."+type+"-container .swiper-slide-active").find("input[name='selectImg']").prop("checked", flag);
@@ -536,7 +540,46 @@
                     });
                 }
             }
-        })
+        });
+
+        $(".mainApplyBtn").click(function(){
+            var checked = $(this).parent().prev(".swiper-box").find("input[name='selectImg']:checked");
+
+            if(!checked.length){
+                alert("선택된 이미지가 없습니다.");
+                return false;
+            }else{
+                let imgChecked = [];
+                checked.each(function(){
+                    imgChecked.push($(this).val());
+                });
+
+                if( imgChecked.length > 0 ){
+                    if(confirm(`선택한 이미지를 대표 이미지로 적용하시겠습니까?`)){
+                        $("#loadingOverlay").show();
+                        $.ajax({
+                            "headers"    : {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
+                            "type"       : "POST",
+                            "url"        : "{{ route('w.product.imageMainApply') }}",
+                            "data"       : { aiImgIds: imgChecked },
+                            beforeSend: function () {
+                            },
+                            complete: function () {
+                                $("#loadingOverlay").hide();
+                            },
+                            success: function (resp) {
+                                alert(resp.msg);
+                                location.reload();
+                            },
+                            error: function error(request, status, _error) {
+                                let { error } = JSON.parse(request.responseText);
+                                alert(error.message);
+                            }
+                        });
+                    }
+                }
+            }
+        });
     })
 
     function showModal(id) {

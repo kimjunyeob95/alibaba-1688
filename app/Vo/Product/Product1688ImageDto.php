@@ -3,12 +3,14 @@
 namespace App\Vo\Product;
 
 use App\Constants\ImageConstant;
+use App\Constants\WConstant;
 use App\Vo\Vo;
 
 class Product1688ImageDto extends Vo
 {
     protected int $offer_id          = 0;
     protected string $img_type       = ImageConstant::IMAGE_TYPE_MAIN;
+    protected string $lang           = WConstant::WAPP_KR;
     protected string $is_except      = ImageConstant::IS_EXCEPT_N;
     protected string $img_url_origin = "";
     protected string $img_url_trans  = "";
@@ -23,6 +25,7 @@ class Product1688ImageDto extends Vo
     {
         $this->offer_id       = $data["offerId"];
         $this->img_type       = $data["imgType"];
+        $this->lang           = $data["lang"];
         $this->is_except      = $data["is_except"];
         $this->img_url_origin = $data["img_url_origin"];
         $this->img_url_trans  = $data["img_url_trans"];

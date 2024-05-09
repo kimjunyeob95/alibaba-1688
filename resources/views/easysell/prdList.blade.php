@@ -2,6 +2,7 @@
     use App\Constants\ProductConstant;
     use App\Constants\MallConstant;
     use App\Constants\EasySellConstant;
+    use App\Constants\WConstant;
 @endphp
 @extends('dashboard.base')
 
@@ -75,7 +76,7 @@
                                         <select class="form-select" name="search_cls">
                                             <option value="offer_id" @if($search_cls == "offer_id") selected @endif>제품 ID</option>
                                             <option value="itemno" @if($search_cls == "itemno") selected @endif>이지셀 고유번호</option>
-                                            <option value="prd_name_trans" @if($search_cls == "prd_name_trans") selected @endif>상품명</option>
+                                            <option value="prd_name_kr" @if($search_cls == "prd_name_kr") selected @endif>상품명</option>
                                         </select>
                                     </td>
                                     <td colspan="2">
@@ -123,9 +124,15 @@
                         </thead>
                         <tbody>
                             @foreach ($datas as $index => $data)
+                                @php
+                                    $disabled = "";
+                                    if(count($data->options) == 0){
+                                        $disabled = "disabled";
+                                    }
+                                @endphp
                                 <tr>
                                     <td class="text-center">
-                                        <input class="form-check-input chk-inp" type="checkbox" value="{{ $data->offer_id }}">
+                                        <input class="form-check-input chk-inp" type="checkbox" value="{{ $data->offer_id }}" {{$disabled}}>
                                     </td>
                                     <td>
                                         {{ number_format(($datas->total() - $offset) - $index) }}
@@ -144,7 +151,7 @@
                                         @endif
                                     </td>
                                     <td>
-                                        {{ $data->prd_name_trans }}
+                                        {{ $data->prd_name_kr }}
                                     </td>
                                     <td class="text-center">
                                         @if (count($data->options) > 0)
@@ -178,7 +185,7 @@
                                     </td>
                                     <td class="text-center">
                                         <button type="button" class="btn btn-sm btn-outline-success btn-detail" offerid={{ $data->offer_id }}>상세보기</button>
-                                        <button type="button" class="btn btn-sm btn-outline-primary btn-regist" offerid={{ $data->offer_id }}>상품전송</button>
+                                        <button type="button" class="btn btn-sm btn-outline-primary btn-regist" offerid={{ $data->offer_id }} {{ $disabled }}>상품전송</button>
                                     </td>
                                 </tr>
                             @endforeach
@@ -217,7 +224,10 @@
                     "headers"    : {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
                     "type"       : "POST",
                     "url"        : "{{ route('mall.easySell.productRegist') }}",
-                    "data"       : { offer_ids },
+                    "data"       : {
+                        "offer_ids": offer_ids,
+                        "type"     : "{{ WConstant::WAPP_W1 }}"
+                    },
                     beforeSend: function () {
                     },
                     complete: function () {
@@ -270,7 +280,10 @@
                     "headers"    : {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
                     "type"       : "POST",
                     "url"        : "{{ route('mall.easySell.productRegist') }}",
-                    "data"       : { offer_ids },
+                    "data"       : {
+                        "offer_ids": offer_ids,
+                        "type"     : "{{ WConstant::WAPP_W1 }}"
+                    },
                     beforeSend: function () {
                     },
                     complete: function () {

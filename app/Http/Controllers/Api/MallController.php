@@ -54,14 +54,16 @@ class MallController extends Controller
         try {
             $validator = Validator::make($this->request->all(), [
                 'offer_ids' => 'required|array',
+                'type'      => 'required|string',
             ], [
                 'offer_ids.required' => 'offer_ids를 전달해주세요.',
+                'type.required'      => 'type을 전달해주세요.',
             ]);
             if ($validator->fails()) {
                 throw new Exception($validator->errors()->first());
             }
 
-            $result   = $this->mallApiService->productRegist($this->request->post("offer_ids"));
+            $result   = $this->mallApiService->productRegist($this->request->post("offer_ids"), $this->request->post("type"));
             if( $result["isSuccess"] == true ){
                 return helpers_json_response(HttpConstant::OK, $result);
             } else {

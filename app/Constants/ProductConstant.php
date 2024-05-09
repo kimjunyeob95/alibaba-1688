@@ -9,11 +9,19 @@ class ProductConstant
     public const PRD_STATUS_PUBLISH = "published";
     public const PRD_STATUS_STOP    = "stop";
     public const PRD_STATUS_EXCEPT  = "except";
+    public const PRD_STATUS_MISS    = "miss";
+
+    public const PRD_SHOW_STATUS = [
+        self::PRD_STATUS_PUBLISH,
+        self::PRD_STATUS_STOP,
+        self::PRD_STATUS_MISS
+    ];
 
     public const PRD_STATUS = [
         self::PRD_STATUS_PUBLISH => "정상판매",
         self::PRD_STATUS_STOP    => "판매중지",
         self::PRD_STATUS_EXCEPT  => "판매제외",
+        self::PRD_STATUS_MISS    => "정보누락",
     ];
 
     /** 전송상태 */

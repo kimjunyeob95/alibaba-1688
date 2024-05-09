@@ -1,5 +1,6 @@
 @php
     use App\Constants\ProductConstant;
+    use App\Constants\WConstant;
     $exchangeRate = env("1688_EXCHANGE_RATE", 200);
 @endphp
 @extends('dashboard.base')
@@ -23,7 +24,7 @@
                     </a>
                 </li>
                 <li class="breadcrumb-item">상품 리스트</li>
-                <li class="breadcrumb-item active" aria-current="page">수집 상품 리스트</li>
+                <li class="breadcrumb-item active" aria-current="page">전체 상품 리스트 (KOR)</li>
             </ol>
         </nav>
 
@@ -31,6 +32,7 @@
             <div class="col-12 mb-3">
 
                 <form id="searchFrm">
+                    <input type="hidden" name="w_type" value={{ $w_type }}>
                     <input type="hidden" name="trans_status" value={{ $trans_status }}>
                     <input type="hidden" name="mapping_status" value={{ $mapping_status }}>
                     <input type="hidden" name="prd_status" value={{ $prd_status }}>
@@ -56,6 +58,17 @@
                                                 {{ number_format($transNCnt) }}건
                                             </div>
                                         </div>
+                                    </td>
+                                </tr>
+                                <tr class="align-middle">
+                                    <th style="width: 120px">W type</th>
+                                    <td colspan="3">
+                                        <button type="button" name="w_type" class="btn-status btn btn-md {{ $w_type == "" ? "btn-primary" : "btn-dark" }}"
+                                        value="">전체</button>
+                                        <button type="button" name="w_type" class="btn-status btn btn-md {{ $w_type == WConstant::WAPP_W1 ? "btn-primary" : "btn-dark" }}"
+                                        value="{{ WConstant::WAPP_W1 }}">W1</button>
+                                        <button type="button" name="w_type" class="btn-status btn btn-md {{ $w_type == WConstant::WAPP_W2 ? "btn-primary" : "btn-dark" }}"
+                                        value="{{ WConstant::WAPP_W2}}">W2</button>
                                     </td>
                                 </tr>
                                 <tr class="align-middle">
@@ -89,8 +102,10 @@
                                         value="{{ ProductConstant::PRD_STATUS_PUBLISH }}">정상판매</button>
                                         <button type="button" name="prd_status" class="btn-status btn btn-md {{ $prd_status == ProductConstant::PRD_STATUS_STOP ? "btn-primary" : "btn-dark" }}"
                                         value="{{ ProductConstant::PRD_STATUS_STOP }}">판매중지</button>
-                                        <button type="button" name="prd_status" class="btn-status btn btn-md {{ $prd_status == ProductConstant::PRD_STATUS_EXCEPT ? "btn-primary" : "btn-dark" }}"
-                                        value="{{ ProductConstant::PRD_STATUS_EXCEPT }}">판매제외</button>
+                                        {{-- <button type="button" name="prd_status" class="btn-status btn btn-md {{ $prd_status == ProductConstant::PRD_STATUS_EXCEPT ? "btn-primary" : "btn-dark" }}"
+                                        value="{{ ProductConstant::PRD_STATUS_EXCEPT }}">판매제외</button> --}}
+                                        <button type="button" name="prd_status" class="btn-status btn btn-md {{ $prd_status == ProductConstant::PRD_STATUS_MISS ? "btn-primary" : "btn-dark" }}"
+                                        value="{{ ProductConstant::PRD_STATUS_MISS }}">정보누락</button>
                                     </td>
                                 </tr>
                                 <tr class="align-middle">
@@ -109,8 +124,8 @@
                                     <td style="width: 200px">
                                         <select class="form-select" name="search_cls">
                                             <option value="offer_id" @if($search_cls == "offer_id") selected @endif>제품 ID</option>
-                                            <option value="prd_name_trans" @if($search_cls == "prd_name_trans") selected @endif>상품명</option>
-                                            <option value="option_name_trans" @if($search_cls == "option_name_trans") selected @endif>옵션명</option>
+                                            <option value="prd_name" @if($search_cls == "prd_name") selected @endif>상품명</option>
+                                            <option value="option_name" @if($search_cls == "option_name") selected @endif>옵션명</option>
                                         </select>
                                     </td>
                                     <td colspan="2">
@@ -172,11 +187,12 @@
                                     <input class="form-check-input" type="checkbox" id="allCheckbox">
                                 </th>
                                 <th scope="col" style="width: 50px">No</th>
+                                <th scope="col" style="width: 50px">W</th>
                                 <th scope="col" style="width: 150px">
                                     제품ID<br>
                                     (카테고리ID)
                                 </th>
-                                <th scope="col">제품명(번역)</th>
+                                <th scope="col">제품명(국문)</th>
                                 <th scope="col" style="width: 50px">최소 구매 수량</th>
                                 <th scope="col" style="width: 100px">원본이미지</th>
                                 <th scope="col" style="width: 100px">번역이미지</th>
@@ -204,6 +220,9 @@
                                         {{ number_format(($datas->total() - $offset) - $index) }}
                                     </td>
                                     <td>
+                                        {{ $data->w_type }}
+                                    </td>
+                                    <td>
                                         <a href="https://detail.1688.com/offer/{{ $data->offer_id }}.html" target="_blank">{{ $data->offer_id }}</a>
                                         @if ($data->mapping_status == ProductConstant::MAPPING_STATUS_Y)
                                             <br>
@@ -217,7 +236,7 @@
                                         @endif
                                     </td>
                                     <td>
-                                        {{ $data->prd_name_trans }}
+                                        {{ $data->prd_name_kr }}
                                         @if ($data->status != ProductConstant::PRD_STATUS_PUBLISH)
                                             <span class="bg-danger rounded text-white px-2 py-1 fs-6">{{ ProductConstant::PRD_STATUS[$data->status] }}</span>
                                         @endif

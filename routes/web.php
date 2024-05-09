@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\EasySellController;
+use App\Http\Controllers\ForbiddenWordController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProductW2Controller;
 use Illuminate\Support\Facades\Route;
@@ -35,6 +36,8 @@ Route::prefix("product")->name("product.")->group(function(){
 
     // 상품 리스트
     Route::get("/list", [ProductController::class, "getPrdList"])->name("list");
+    /** 판매제외 상품 리스트 */
+    Route::get("/except/list", [ProductController::class, "getPrdExceptList"])->name("getPrdExceptList");
     Route::get("/{offerId}", [ProductController::class, "getPrdDetail"])->name("detail");
     Route::get("/img/edit/{offerId}", [ProductController::class, "getPrdImageEdit"])->name("imgEdit");
 
@@ -56,6 +59,14 @@ Route::prefix("product")->name("product.")->group(function(){
 Route::prefix("category")->name("category.")->group(function(){
     // 관리
     Route::get("/", [CategoryController::class, "manage"])->name("");
+});
+
+/**
+ * 금칙어
+ */
+Route::prefix("forbiddenWord")->name("forbiddenWord.")->group(function(){
+    /** 관리 */
+    Route::get("/list", [ForbiddenWordController::class, "list"])->name("list");
 });
 
 

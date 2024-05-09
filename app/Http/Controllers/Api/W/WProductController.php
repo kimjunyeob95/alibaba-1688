@@ -40,7 +40,7 @@ class WProductController extends Controller
             }
 
             $offerIds = $this->request->post("offer_ids");
-            $log_type = $this->request->post("log_type", LogConstant::COLLECT_API_KEYWORDQUERY);
+            $log_type = $this->request->post("log_type", LogConstant::COLLECT_API_OFFERID);
 
             $options = "--offerids=" . helperEscape(implode(",", $offerIds)) . " --type=" . helperEscape($log_type);
             $command = "nohup php artisan save_1688_collect_product " . $options . " > /dev/null 2>&1 &";
@@ -229,17 +229,23 @@ class WProductController extends Controller
             $page           = $this->request->get("page", 1);
             $pageSize       = $this->request->get("pageSize", 50);
             if( $pageSize > 50 ) $pageSize = 50;
-            $search_cls     = $this->request->get("search_cls", "prd_name_trans");
+            $search_cls     = $this->request->get("search_cls", "prd_name_kr");
+            $w_type         = $this->request->get("w_type", "");
             $keyword        = $this->request->get("keyword", "");
             $trans_status   = $this->request->get("trans_status", ProductConstant::TRANS_STATUS_Y);
+            $prd_status     = $this->request->get("prd_status", "");
+            $mdPrice_status = $this->request->get("mdPrice_status", "");
             $sort           = $this->request->get("sort", "updated_at|desc");
             
             $params = [
                 "page"           => $page,
                 "pageSize"       => $pageSize,
                 "search_cls"     => $search_cls,
+                "w_type"         => $w_type,
                 "keyword"        => $keyword,
                 "trans_status"   => $trans_status,
+                "prd_status"     => $prd_status,
+                "mdPrice_status" => $mdPrice_status,
                 "mapping_status" => ProductConstant::MAPPING_STATUS_Y,
                 "sort"           => $sort,
             ];
@@ -428,6 +434,54 @@ class WProductController extends Controller
             $offerIds = $this->request->post("offerIds");
             $status   = $this->request->post("status");
             $result   = $this->service1688Product->statusUpdate($offerIds, $status);
+            if( $result["isSuccess"] == true ){
+                return helpers_json_response(HttpConstant::OK, $result);
+            } else {
+                return helpers_json_response(HttpConstant::BAD_REQUEST, [], $result["msg"]);
+            }
+        } catch (Exception $e) {
+            return helpers_json_response(HttpConstant::BAD_REQUEST, [], $e->getMessage());
+        }
+    }
+
+    public function imageMainApply(): JsonResponse
+    {
+        try {
+            $validator = Validator::make($this->request->all(), [
+                'aiImgIds' => 'required|array',
+            ], [
+                'aiImgIds.required' => ImageErrorMessageConstant::getNotHaveErrorMessage("IMAGES_AI_ID"),
+            ]);
+            if ($validator->fails()) {
+                throw new Exception($validator->errors()->first());
+            }
+            
+            $aiImgIds = $this->request->post("aiImgIds");
+            $result   = $this->service1688Product->imageMainApply($aiImgIds);
+            if( $result["isSuccess"] == true ){
+                return helpers_json_response(HttpConstant::OK, $result);
+            } else {
+                return helpers_json_response(HttpConstant::BAD_REQUEST, [], $result["msg"]);
+            }
+        } catch (Exception $e) {
+            return helpers_json_response(HttpConstant::BAD_REQUEST, [], $e->getMessage());
+        }
+    }
+
+    public function gosiExcept(): JsonResponse
+    {
+        try {
+            $validator = Validator::make($this->request->all(), [
+                'gosiList' => 'required|array',
+            ], [
+                'gosiList.required' => ProductErrorMessageConstant::getNotHaveErrorMessage("GOSILIST"),
+            ]);
+            if ($validator->fails()) {
+                throw new Exception($validator->errors()->first());
+            }
+            
+            $gosiList = $this->request->post("gosiList");
+            $result   = $this->service1688Product->gosiExcept($gosiList);
             if( $result["isSuccess"] == true ){
                 return helpers_json_response(HttpConstant::OK, $result);
             } else {

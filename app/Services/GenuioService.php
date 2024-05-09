@@ -8,13 +8,13 @@ use App\Constants\GenuioConstant;
 use App\Constants\ImageConstant;
 use App\Constants\ImageErrorMessageConstant;
 use App\Constants\TransApiConstant;
+use App\Constants\WConstant;
 use App\Models\ApiUser;
 use App\Models\GenuioImageData;
 use App\Models\GenuioQueueData;
 use App\Models\GenuioQueueDetailData;
 use App\Models\ProductData;
 use App\Models\ProductImageData;
-use App\Models\ProductImageDetailData;
 use App\Packages\JwtPackage;
 use App\Vo\Genuio\QueueDto;
 use App\Vo\Product\Product1688ImageDto;
@@ -119,6 +119,7 @@ class GenuioService extends TransApiAbstract
                     $imgObj = ProductImageData::where([
                         "offer_id"       => $product1688ImageDto->offer_id,
                         "img_type"       => $product1688ImageDto->img_type,
+                        "lang"           => $product1688ImageDto->lang,
                         "img_url_origin" => $product1688ImageDto->img_url_origin,
                     ])->first();
                     
@@ -192,6 +193,14 @@ class GenuioService extends TransApiAbstract
 
             if( count($images) != $detailCnt ){
                 throw new Exception(TransApiConstant::getFitErrorMessage("NOT_EQUAL_COUNT_IMAGE"));
+            }
+
+            $childObj = GenuioQueueData::where([
+                "parent_id"    => $jobId,
+                "request_user" => TransApiConstant::API_USER_COMPANY_GENUIO
+            ])->first();
+            if( $childObj != null ){
+                throw new Exception(TransApiConstant::getFitErrorMessage("ALREADY_QUEUE"));
             }
 
             $offerId = $getGenuioObj->offer_id;
@@ -435,8 +444,26 @@ class GenuioService extends TransApiAbstract
                 }
             }
 
+            
+            if( isset($params["prdObj"]["prd_desc"]) && $params["prdObj"]["prd_desc"] ){
+                $debugParam = [
+                    "offerId" => $offerId,
+                    "prdObj"  => $params["prdObj"],
+                ];
+                debug_log(json_encode($debugParam, JSON_UNESCAPED_UNICODE), "genuio", "genuio-params");
+
+                $trans_prd_desc = $params["prdObj"]["prd_desc"];
+                ProductData::where("offer_id", $offerId)
+                ->update([
+                    "prd_desc_kr" => $trans_prd_desc
+                ]);
+            };
+
             // 상세 이미지 업데이트
             upPrdDescTrans($offerId);
+
+            // 수정 상품 저장
+            saveModiProduct($offerId);
 
             $returnMsg = helpers_success_message();
         } catch (Exception $e) {
@@ -483,30 +510,26 @@ class GenuioService extends TransApiAbstract
                 $product1688ImageDtoList = [];
                 
                 $offerId = (int)$offerId;
-                $imgObjs = ProductImageData::where("offer_id", $offerId)->get();
+                $imgObjs = ProductImageData::where("offer_id", $offerId)->where("lang", WConstant::WAPP_KR)->get();
                 foreach ($imgObjs as $imgObj) {
                     $is_except = $imgObj->is_except;
                     if( $is_except == ImageConstant::IS_EXCEPT_Y ){
                         continue;
                     }
 
-                    $imgDetailObj = ProductImageDetailData::where([
-                        "offer_id"       => $offerId,
-                        "img_url_origin" => $imgObj->img_url_origin,
-                        "img_type"       => $imgObj->img_type,
-                    ])->first();
                     $product1688ImageDto = new Product1688ImageDto();
                     $product1688ImageDto->bind([
                         "offerId"        => $offerId,
                         "imgType"        => $imgObj->img_type,
+                        "lang"           => $imgObj->lang,
                         "is_except"      => $is_except,
                         "img_url_origin" => $imgObj->img_url_origin,
                         "img_url_trans"  => "",
                         "isChangeImg"    => ImageConstant::IS_CHANGE_IMG,
-                        "width"          => $imgDetailObj->width,
-                        "height"         => $imgDetailObj->height,
-                        "byte"           => $imgDetailObj->byte,
-                        "mime"           => $imgDetailObj->mime,
+                        "width"          => 800,
+                        "height"         => 800,
+                        "byte"           => 8,
+                        "mime"           => "image/jpeg",
                     ]);
                     $product1688ImageDtoList[] = $product1688ImageDto;
                 }
@@ -597,6 +620,9 @@ class GenuioService extends TransApiAbstract
 
             // 상세이미지 업데이트
             upPrdDescTrans($offerId);
+            
+            // 수정 상품 저장
+            saveModiProduct($offerId);
 
             $returnMsg = helpers_success_message($resultImgs);
         } catch (Exception $e) {
@@ -707,30 +733,26 @@ class GenuioService extends TransApiAbstract
         }
 
         try {
-            $imgObjs = ProductImageData::where("offer_id", $offerId)->whereIn("img_type", [ImageConstant::IMAGE_TYPE_MAIN, ImageConstant::IMAGE_TYPE_SUB])->get();
+            $imgObjs = ProductImageData::where("offer_id", $offerId)->where("lang", WConstant::WAPP_KR)->whereIn("img_type", [ImageConstant::IMAGE_TYPE_MAIN, ImageConstant::IMAGE_TYPE_SUB])->get();
             foreach ($imgObjs as $imgObj) {
                 $is_except = $imgObj->is_except;
                 if( $is_except == ImageConstant::IS_EXCEPT_Y ){
                     continue;
                 }
 
-                $imgDetailObj = ProductImageDetailData::where([
-                    "offer_id"       => $offerId,
-                    "img_url_origin" => $imgObj->img_url_origin,
-                    "img_type"       => $imgObj->img_type,
-                ])->first();
                 $product1688ImageDto = new Product1688ImageDto();
                 $product1688ImageDto->bind([
                     "offerId"        => $offerId,
                     "imgType"        => $imgObj->img_type,
+                    "lang"           => $imgObj->lang,
                     "is_except"      => $is_except,
                     "img_url_origin" => $imgObj->img_url_origin,
                     "img_url_trans"  => "",
                     "isChangeImg"    => ImageConstant::IS_CHANGE_IMG,
-                    "width"          => $imgDetailObj->width,
-                    "height"         => $imgDetailObj->height,
-                    "byte"           => $imgDetailObj->byte,
-                    "mime"           => $imgDetailObj->mime,
+                    "width"          => 800,
+                    "height"         => 800,
+                    "byte"           => 8,
+                    "mime"           => "image/jpeg",
                 ]);
                 $product1688ImageDtoList[] = $product1688ImageDto;
             }
@@ -762,30 +784,26 @@ class GenuioService extends TransApiAbstract
         }
 
         try {
-            $imgObjs = ProductImageData::where("offer_id", $offerId)->where("img_type", ImageConstant::IMAGE_TYPE_DESC)->get();
+            $imgObjs = ProductImageData::where("offer_id", $offerId)->where("lang", WConstant::WAPP_KR)->where("img_type", ImageConstant::IMAGE_TYPE_DESC)->get();
             foreach ($imgObjs as $imgObj) {
                 $is_except = $imgObj->is_except;
                 if( $is_except == ImageConstant::IS_EXCEPT_Y ){
                     continue;
                 }
 
-                $imgDetailObj = ProductImageDetailData::where([
-                    "offer_id"       => $offerId,
-                    "img_url_origin" => $imgObj->img_url_origin,
-                    "img_type"       => $imgObj->img_type,
-                ])->first();
                 $product1688ImageDto = new Product1688ImageDto();
                 $product1688ImageDto->bind([
                     "offerId"        => $offerId,
                     "imgType"        => $imgObj->img_type,
+                    "lang"           => $imgObj->lang,
                     "is_except"      => $is_except,
                     "img_url_origin" => $imgObj->img_url_origin,
                     "img_url_trans"  => "",
                     "isChangeImg"    => ImageConstant::IS_CHANGE_IMG,
-                    "width"          => $imgDetailObj->width,
-                    "height"         => $imgDetailObj->height,
-                    "byte"           => $imgDetailObj->byte,
-                    "mime"           => $imgDetailObj->mime,
+                    "width"          => 800,
+                    "height"         => 800,
+                    "byte"           => 8,
+                    "mime"           => "image/jpeg",
                 ]);
                 $product1688ImageDtoList[] = $product1688ImageDto;
             }
@@ -795,6 +813,47 @@ class GenuioService extends TransApiAbstract
             }
 
             $returnMsg = helpers_success_message([], "번역 요청이 완료되었습니다.");
+        } catch (Exception $e) {
+            $returnMsg = helpers_fail_message(false, $e->getMessage());
+        }
+
+        return $returnMsg;
+    }
+
+    /**
+     * @func removeQueue
+     * @description '큐 삭제'
+     * @param int $queueId
+     * @return array
+     */
+    public function removeQueue(int $queueId): array
+    {
+        $returnMsg = $this->returnMsg;
+
+        try {
+            $geObj = GenuioQueueData::where([
+                "id"           => $queueId,
+                "request_user" => TransApiConstant::API_USER_COMPANY_OC
+            ])->first();
+
+            if( $geObj != null ){
+                $resJson   = $geObj->response_json;
+                $resDecode = json_decode($resJson, JSON_UNESCAPED_UNICODE);
+
+                $internalJobId = $resDecode["internalJobId"];
+
+                if( $internalJobId ){
+                    $endPoint = "/translate-progress/remove/{$internalJobId}?queue=priority";
+                    $result = $this->apiCurl("POST", $endPoint);
+                    if( $result["status"] == GenuioConstant::REMOVE_QUEUE_OK ){
+                        GenuioQueueData::where("id", $geObj->id)->delete();
+                    } else {
+                        debug_log(json_encode($result, JSON_UNESCAPED_UNICODE), "genuio", "removeQueue");
+                    }
+                }
+            }
+
+            $returnMsg = helpers_success_message();
         } catch (Exception $e) {
             $returnMsg = helpers_fail_message(false, $e->getMessage());
         }

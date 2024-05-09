@@ -5,21 +5,22 @@ use App\Http\Controllers\Api\W\WProductController;
 use App\Http\Controllers\Api\GenuioController;
 use App\Http\Controllers\Api\MallController;
 use App\Http\Controllers\Api\W\W2ProductController;
+use App\Http\Controllers\Api\W\WForbiddenWordController;
 use Illuminate\Support\Facades\Route;
 
 /**
  * W API List
  */
 Route::name('w.')->prefix('w')->group(function () {
-    Route::middleware(["oepnApi.jwt.verify"])->group(function () {
-        // 1688
-        Route::name('1688.')->prefix('1688')->group(function () {
-            // 1688에 상품ID 조회 endPoint를 호출 후 결과 반환
-            Route::get('/product/{offerId}', [WProductController::class, 'getProductData'])->name('getProductData');
-            // 1688에 카테고리 조회 endPoint를 호출 후 결과 반환
-            Route::get('/category/{categoryId?}', [WCategoryController::class, 'getMallCategory'])->name('getMallCategory');
-        });
+    // 1688
+    Route::name('1688.')->prefix('1688')->group(function () {
+        // 1688에 상품ID 조회 endPoint를 호출 후 결과 반환
+        Route::get('/product/{offerId}', [WProductController::class, 'getProductData'])->name('getProductData');
+        // 1688에 카테고리 조회 endPoint를 호출 후 결과 반환
+        Route::get('/category/{categoryId?}', [WCategoryController::class, 'getMallCategory'])->name('getMallCategory');
+    });
 
+    Route::middleware(["oepnApi.jwt.verify"])->group(function () {
         // 카테고리
         Route::name('category.')->prefix('category')->group(function () {
             // 1688에서 수집 한 카테고리를 단계별로 정리한 데이터 목록
@@ -61,6 +62,10 @@ Route::name('w.')->prefix('w')->group(function () {
         Route::post('/mdPrice/update', [WProductController::class, 'mdPriceUpdate'])->name('mdPriceUpdate');
         // 판매상태 변경
         Route::post('/status/update', [WProductController::class, 'statusUpdate'])->name('statusUpdate');
+        // 대표 이미지 적용
+        Route::post('/image/mainApply', [WProductController::class, 'imageMainApply'])->name('imageMainApply');
+        // 고시정보 제외 처리
+        Route::post('/gosi/except', [WProductController::class, 'gosiExcept'])->name('gosiExcept');
     });
 
     Route::name('category.')->prefix('category')->group(function () {
@@ -74,6 +79,17 @@ Route::name('w.')->prefix('w')->group(function () {
         Route::post('/infos', [WCategoryController::class, 'getInfos'])->name('getInfos');
         // W 하위 카테고리 조회
         Route::post('/wDepth', [WCategoryController::class, 'getWDepth'])->name('getWDepth');
+    });
+
+    Route::name('forbiddenWord.')->prefix('forbiddenWord')->group(function () {
+        /** 키워드 조회 */
+        Route::get('/{id}', [WForbiddenWordController::class, 'get'])->name('get');
+        /** 키워드 등록 */
+        Route::post('/create', [WForbiddenWordController::class, 'create'])->name('create');
+        /** 키워드 수정 */
+        Route::post('/update', [WForbiddenWordController::class, 'update'])->name('update');
+        /** 키워드 삭제 */
+        Route::post('/delete', [WForbiddenWordController::class, 'delete'])->name('delete');
     });
 });
 

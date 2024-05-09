@@ -41,7 +41,7 @@ class W2ProductController extends Controller
             }
 
             $offerIds = $this->request->post("offer_ids");
-            $log_type = $this->request->post("log_type", LogConstant::COLLECT_API_KEYWORDQUERY);
+            $log_type = $this->request->post("log_type", LogConstant::COLLECT_API_OFFERID);
 
             $options = "--offerids=" . helperEscape(implode(",", $offerIds)) . " --type=" . helperEscape($log_type) . " --wversion=" . WConstant::WAPP_W2;
             $command = "nohup php artisan save_1688_collect_product " . $options . " > /dev/null 2>&1 &";
@@ -230,7 +230,7 @@ class W2ProductController extends Controller
             $page           = $this->request->get("page", 1);
             $pageSize       = $this->request->get("pageSize", 50);
             if( $pageSize > 50 ) $pageSize = 50;
-            $search_cls     = $this->request->get("search_cls", "prd_name_trans");
+            $search_cls     = $this->request->get("search_cls", "prd_name_kr");
             $keyword        = $this->request->get("keyword", "");
             $trans_status   = $this->request->get("trans_status", ProductConstant::TRANS_STATUS_Y);
             $sort           = $this->request->get("sort", "updated_at|desc");

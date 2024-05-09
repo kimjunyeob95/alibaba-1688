@@ -16,7 +16,7 @@ class EasySellService
         $search_cls   = $params["search_cls"];
         $keyword      = $params["keyword"];
 
-        $prdBuilder = ProductData::select(["product_datas.offer_id","product_datas.prd_name_trans","epl.itemno","epl.regist_success","product_datas.category_id"])
+        $prdBuilder = ProductData::select(["product_datas.offer_id","product_datas.prd_name_kr","epl.itemno","epl.regist_success","product_datas.category_id"])
         ->with(["main_img", "options", "es_mapping", "es_fgn_mapping"])
         ->leftJoin("easysell_product_logs as epl","product_datas.offer_id","=","epl.offer_id")
         ->where("product_datas.trans_status", ProductConstant::TRANS_STATUS_Y)
@@ -25,8 +25,8 @@ class EasySellService
         $totalCnt = $prdBuilder->count();
 
         if(isset($search_cls) && !empty($keyword)){
-            if($search_cls == "prd_name_trans"){
-                $prdBuilder->where("product_datas.prd_name_trans", "like", "%{$keyword}%");
+            if($search_cls == "prd_name_kr"){
+                $prdBuilder->where("product_datas.prd_name_kr", "like", "%{$keyword}%");
             }else{
                 $keyword = preg_replace("/(\r\n|\r|\n)/", ",", trim($keyword));
                 $keyword = explode(",", $keyword);

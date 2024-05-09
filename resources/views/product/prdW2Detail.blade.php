@@ -1,6 +1,7 @@
 @php
     use App\Constants\ProductConstant;
     use App\Constants\ImageConstant;
+    use App\Constants\GosiConstants;
     $exchangeRate = env("1688_EXCHANGE_RATE", 200);
 @endphp
 @extends('dashboard.base')
@@ -55,14 +56,14 @@
                     </div>
                     <div id="swiper-container1" class="swiper-container">
                         <div class="swiper-wrapper">
-                            @foreach ($prdObj->images as $prdImg)
+                            @foreach ($prdObj->en_images as $prdImg)
                             @if ($prdImg->img_type == "main")
                                 <div class="swiper-slide">
                                     <img src={{ $prdImg->img_url_origin}}>
                                 </div>
                             @endif
                             @endforeach
-                            @foreach ($prdObj->images as $prdImg)
+                            @foreach ($prdObj->en_images as $prdImg)
                             @if ($prdImg->img_type == "sub")
                                 <div class="swiper-slide">
                                     <img src={{ $prdImg->img_url_origin}}>
@@ -79,17 +80,17 @@
                     <div class="col">
                         <h5>[번역 이미지]</h5>
                     </div>
-                    @if ($prdObj->trans_status == ProductConstant::IMG_TRANS_Y)
+                    @if ($prdObj->trans_status_en == ProductConstant::IMG_TRANS_Y)
                         <div id="swiper-container2" class="swiper-container">
                             <div class="swiper-wrapper">
-                                @foreach ($prdObj->images as $prdImg)
+                                @foreach ($prdObj->en_images as $prdImg)
                                 @if ($prdImg->img_type == "main")
                                     <div class="swiper-slide">
                                         <img src={{ $prdImg->img_url_trans}}>
                                     </div>
                                 @endif
                                 @endforeach
-                                @foreach ($prdObj->images as $prdImg)
+                                @foreach ($prdObj->en_images as $prdImg)
                                 @if ($prdImg->img_type == "sub" && $prdImg->is_except == ImageConstant::IS_EXCEPT_N)
                                     <div class="swiper-slide">
                                         <img src={{ $prdImg->img_url_trans}}>
@@ -120,16 +121,16 @@
                         <div class="col-md-8"><a href="https://detail.1688.com/offer/{{ $prdObj->offer_id }}.html" target="_blank">{{ $prdObj->offer_id }}</a></div>
                     </div>
                     <div class="row mb-2">
-                        <div class="col-md-3 text-center">제품명</div>
+                        <div class="col-md-3 text-center">제품명(중문)</div>
                         <div class="col-md-8">{{ $prdObj->prd_name }}</div>
-                    </div>
-                    <div class="row mb-2">
-                        <div class="col-md-3 text-center">제품명(영문)</div>
-                        <div class="col-md-8">{{ $prdObj->prd_name_en }}</div>
                     </div>
                     <div class="row mb-2">
                         <div class="col-md-3 text-center">제품명(국문)</div>
                         <div class="col-md-8">{{ $prdObj->prd_name_kr }}</div>
+                    </div>
+                    <div class="row mb-2">
+                        <div class="col-md-3 text-center">제품명(영문)</div>
+                        <div class="col-md-8">{{ $prdObj->prd_name_en }}</div>
                     </div>
                     <div class="row mb-2">
                         <div class="col-md-3 text-center">W 카테고리</div>
@@ -192,8 +193,9 @@
                             <thead class="table-light">
                                 <tr class="text-center">
                                     <th scope="col">skuID</th>
-                                    <th scope="col">옵션명(영문)</th>
+                                    <th scope="col">옵션명(중문)</th>
                                     <th scope="col">옵션명(국문)</th>
+                                    <th scope="col">옵션명(영문)</th>
                                     <th scope="col">W 공급가(위안)</th>
                                     <th scope="col">W 공급가(원)</th>
                                     <th scope="col">적용 환율(원)</th>
@@ -208,10 +210,13 @@
                                             {{ $option->sku_id }}
                                         </td>
                                         <td>
-                                            {{ $option->option_name_en }}
+                                            {{ $option->option_name }}
                                         </td>
                                         <td>
                                             {{ $option->option_name_kr }}
+                                        </td>
+                                        <td>
+                                            {{ $option->option_name_en }}
                                         </td>
                                         <td>
                                             {{ $option->price_1688 }}
@@ -238,7 +243,7 @@
                 <hr style="margin-top: 20px">
                 <div class="row mt-3">
                     <div class="col">
-                        <h5>[고시정보(번역)]</h5>
+                        <h5>[고시정보(중문)]</h5>
                     </div>
 
                     <div class="table-responsive">
@@ -249,10 +254,110 @@
                                         <tr>
                                     @endif
 
-                                        <th class="bg-light">{{ $gosi->attribute_name_trans }}</th>
-                                        <td>{{ $gosi->attribute_value_trans }}</td>
+                                        <th class="bg-light">
+                                            @if ($gosi->is_except == GosiConstants::IS_EXCEPT_Y)
+                                                <del>{{ $gosi->attribute_name }}</del>
+                                            @else
+                                                {{ $gosi->attribute_name }}
+                                            @endif
+                                        </th>
+                                        <td>
+                                            @if ($gosi->is_except == GosiConstants::IS_EXCEPT_Y)
+                                                <del>{{ $gosi->attribute_value }}</del>
+                                            @else
+                                                {{ $gosi->attribute_value }}
+                                            @endif
+                                        </td>
 
                                     @if (($gosiKey + 1) % 4 == 0 || $loop->last)
+                                        @php $remainingCols = 4 - (($gosiKey + 1) % 4); @endphp
+                                        @if ($loop->last && $remainingCols > 0 && $remainingCols < 4)
+                                            <td colspan="{{ $remainingCols * 2 }}"></td>
+                                        @endif
+                                        </tr>
+                                    @endif
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <hr style="margin-top: 20px">
+                <div class="row mt-3">
+                    <div class="col">
+                        <h5>[고시정보(국문)]</h5>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="table table-white bg-white">
+                            <tbody>
+                                @foreach ($prdObj->notices as $gosiKey => $gosi)
+                                    @if ( $gosiKey % 4 == 0)
+                                        <tr>
+                                    @endif
+
+                                        <th class="bg-light">
+                                            @if ($gosi->is_except == GosiConstants::IS_EXCEPT_Y)
+                                                <del>{{ $gosi->attribute_name_kr }}</del>
+                                            @else
+                                                {{ $gosi->attribute_name_kr }}
+                                            @endif
+                                        </th>
+                                        <td>
+                                            @if ($gosi->is_except == GosiConstants::IS_EXCEPT_Y)
+                                                <del>{{ $gosi->attribute_value_kr }}</del>
+                                            @else
+                                                {{ $gosi->attribute_value_kr }}
+                                            @endif
+                                        </td>
+
+                                    @if (($gosiKey + 1) % 4 == 0 || $loop->last)
+                                        @php $remainingCols = 4 - (($gosiKey + 1) % 4); @endphp
+                                        @if ($loop->last && $remainingCols > 0 && $remainingCols < 4)
+                                            <td colspan="{{ $remainingCols * 2 }}"></td>
+                                        @endif
+                                        </tr>
+                                    @endif
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <hr style="margin-top: 20px">
+                <div class="row mt-3">
+                    <div class="col">
+                        <h5>[고시정보(영문)]</h5>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="table table-white bg-white">
+                            <tbody>
+                                @foreach ($prdObj->notices as $gosiKey => $gosi)
+                                    @if ( $gosiKey % 4 == 0)
+                                        <tr>
+                                    @endif
+
+                                        <th class="bg-light">
+                                            @if ($gosi->is_except == GosiConstants::IS_EXCEPT_Y)
+                                                <del>{{ $gosi->attribute_name_en }}</del>
+                                            @else
+                                                {{ $gosi->attribute_name_en }}
+                                            @endif
+                                        </th>
+                                        <td>
+                                            @if ($gosi->is_except == GosiConstants::IS_EXCEPT_Y)
+                                                <del>{{ $gosi->attribute_value_en }}</del>
+                                            @else
+                                                {{ $gosi->attribute_value_en }}
+                                            @endif
+                                        </td>
+
+                                    @if (($gosiKey + 1) % 4 == 0 || $loop->last)
+                                        @php $remainingCols = 4 - (($gosiKey + 1) % 4); @endphp
+                                        @if ($loop->last && $remainingCols > 0 && $remainingCols < 4)
+                                            <td colspan="{{ $remainingCols * 2 }}"></td>
+                                        @endif
                                         </tr>
                                     @endif
                                 @endforeach
@@ -272,11 +377,11 @@
                         </div>
                     </div>
                     <div class="col-md-6">
-                        <h5>[제품상세 번역]</h5>
-                        @if ($prdObj->trans_status == ProductConstant::IMG_TRANS_Y)
+                        <h5>[제품상세 번역(영문)]</h5>
+                        @if ($prdObj->trans_status_en == ProductConstant::IMG_TRANS_Y)
                             <div class="d-flex justify-content-center">
                                 <div class="text-center prd-desc" >
-                                    {!! $prdObj->prd_desc_trans !!}
+                                    {!! $prdObj->prd_desc_en !!}
                                 </div>
                             </div>
                         @else

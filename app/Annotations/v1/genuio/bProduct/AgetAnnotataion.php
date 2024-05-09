@@ -33,7 +33,7 @@ namespace App\Annotations\v1\genuio\bProduct;
  *                   example="网红ins欧式水洗棉复古牛仔外套女2024春秋韩版宽松短款长袖衬衫"
  *               ),
  *               @OA\Property(
- *                   property="prd_name_trans",
+ *                   property="prd_name_kr",
  *                   type="string",
  *                   description="제품명 번역",
  *                   example="인터넷 유명 인사 유럽 스타일 씻은 면화 복고풍 데님 코트 여성의 2024 봄과 가을 한국 스타일 느슨한 짧은 긴 소매 셔츠"
@@ -56,7 +56,7 @@ namespace App\Annotations\v1\genuio\bProduct;
  *                          example="牛仔蓝_S 建议96斤内"
  *                      ),
  *                      @OA\Property(
- *                          property="option_name_trans",
+ *                          property="option_name_kr",
  *                          type="string",
  *                          description="옵션명 번역",
  *                          example="데님 블루_S 96 진 내에서 추천"
@@ -159,10 +159,10 @@ namespace App\Annotations\v1\genuio\bProduct;
  *         name="search_cls",
  *         in="query",
  *         required=false,
- *         description="검색 타입) prd_name_trans: 상품명, option_name_trans: 옵션명",
+ *         description="검색 타입) prd_name_kr: 상품명, option_name_kr: 옵션명",
  *         @OA\Schema(
  *             type="string",
- *             example="prd_name_trans"
+ *             example="prd_name_kr"
  *         )
  *     ),
  *     @OA\Parameter(

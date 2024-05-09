@@ -25,6 +25,7 @@ class ProductController extends Controller
         $page           = $this->request->post("page", 1);
         $pageSize       = $this->request->post("pageSize", 50);
         $search_cls     = $this->request->get("search_cls", "offer_id");
+        $w_type         = $this->request->get("w_type", "");
         $keyword        = $this->request->get("keyword", "");
         $trans_status   = $this->request->get("trans_status", "");
         $mapping_status = $this->request->get("mapping_status", "");
@@ -37,6 +38,7 @@ class ProductController extends Controller
             "page"           => $page,
             "pageSize"       => $pageSize,
             "search_cls"     => $search_cls,
+            "w_type"         => $w_type,
             "keyword"        => $keyword,
             "trans_status"   => $trans_status,
             "mapping_status" => $mapping_status,
@@ -55,6 +57,7 @@ class ProductController extends Controller
             "offset"         => (int) $offset,
             "pageSize"       => (int) $pageSize,
             "search_cls"     => $search_cls,
+            "w_type"         => $w_type,
             "keyword"        => $keyword,
             "trans_status"   => $trans_status,
             "mapping_status" => $mapping_status,
@@ -64,6 +67,55 @@ class ProductController extends Controller
         ];
 
         return view("product.prdList")->with($viewParams);
+    }
+
+    public function getPrdExceptList(): View
+    {
+        $page           = $this->request->post("page", 1);
+        $pageSize       = $this->request->post("pageSize", 50);
+        $search_cls     = $this->request->get("search_cls", "offer_id");
+        $w_type         = $this->request->get("w_type", "");
+        $keyword        = $this->request->get("keyword", "");
+        $trans_status   = $this->request->get("trans_status", "");
+        $mapping_status = $this->request->get("mapping_status", "");
+        $prd_status     = $this->request->get("prd_status", ProductConstant::PRD_STATUS_EXCEPT);
+        $mdPrice_status = $this->request->get("mdPrice_status", "");
+        $sort           = $this->request->get("sort", "updated_at|desc");
+        $offset         = ($page - 1) * $pageSize;
+
+        $params = [
+            "page"           => $page,
+            "pageSize"       => $pageSize,
+            "search_cls"     => $search_cls,
+            "w_type"         => $w_type,
+            "keyword"        => $keyword,
+            "trans_status"   => $trans_status,
+            "mapping_status" => $mapping_status,
+            "prd_status"     => $prd_status,
+            "mdPrice_status" => $mdPrice_status,
+            "sort"           => $sort,
+        ];
+        $result = $this->service1688Product->getPrdExceptList($params);
+
+        $viewParams = [
+            "datas"          => $result["paginator"],
+            "transYCnt"      => $result["transYCnt"],
+            "transNCnt"      => $result["transNCnt"],
+            "totalCnt"       => $result["totalCnt"],
+            "totalCnt"       => $result["totalCnt"],
+            "offset"         => (int) $offset,
+            "pageSize"       => (int) $pageSize,
+            "search_cls"     => $search_cls,
+            "w_type"         => $w_type,
+            "keyword"        => $keyword,
+            "trans_status"   => $trans_status,
+            "mapping_status" => $mapping_status,
+            "prd_status"     => $prd_status,
+            "mdPrice_status" => $mdPrice_status,
+            "sort"           => $sort,
+        ];
+
+        return view("product.prdExceptList")->with($viewParams);
     }
 
     public function getPrdDetail(int $offerId): View
