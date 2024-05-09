@@ -44,7 +44,7 @@ class EasySell extends MallApiAbstract
         foreach ($offerIds as $offerId) {
             $easyObj      = null;
             $itemno       = 0;
-            $account      = EasySellConstant::USER_ID;
+            $account      = EasySellConstant::USER_ID_W;
             $modi_success = MallConstant::MODI_FAIL;
             $modi_message = "";
             try{
@@ -66,6 +66,7 @@ class EasySell extends MallApiAbstract
                         break;
                     case WConstant::WAPP_W2 :
                         $prdObj->where("w_type",WConstant::WAPP_W2);
+                        $account = EasySellConstant::USER_ID_W2;
                         break;
                     default :
                         throw new Exception(MallErrorMessageConstant::getNotHaveErrorMessage("TYPE"));
@@ -178,7 +179,7 @@ class EasySell extends MallApiAbstract
 
         foreach ($offerIds as $offerId) {
             $easyObj      = null;
-            $account      = EasySellConstant::USER_ID;
+            $account      = EasySellConstant::USER_ID_W;
             try{
                 $easyObj = EasysellProductLog::where([
                     "offer_id"       => $offerId,
@@ -196,6 +197,7 @@ class EasySell extends MallApiAbstract
                         break;
                     case WConstant::WAPP_W2 :
                         $prdObj->where("w_type",WConstant::WAPP_W2);
+                        $account = EasySellConstant::USER_ID_W2;
                         break;
                     default :
                         throw new Exception(MallErrorMessageConstant::getNotHaveErrorMessage("TYPE"));
@@ -425,9 +427,11 @@ class EasySell extends MallApiAbstract
             if($type == WConstant::WAPP_W1){
                 $ItemName = $prdObj->prd_name_kr;
                 $prdDesc  = $prdObj->prd_desc_kr;
+                $optionTitle = "옵션";
             }else if($type == WConstant::WAPP_W2){
                 $ItemName = $prdObj->prd_name_en;
                 $prdDesc  = $prdObj->prd_desc_en;
+                $optionTitle = "option";
             }
 
             // if(!productNameValidation($ItemName, "", 100)){
@@ -441,7 +445,7 @@ class EasySell extends MallApiAbstract
             }
             $notice = getNoticeInfoTable($noticeInfo);
 
-            $unitInfo   = "옵션|";
+            $unitInfo   = $optionTitle."|";
             $saleStatus = EasySellConstant::STATUS_STOP_SALE;
             foreach($prdObj->options as $idx => $option){
                 if(!$idx){
