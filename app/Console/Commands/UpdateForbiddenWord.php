@@ -28,7 +28,7 @@ class UpdateForbiddenWord extends Command
     */
     public function handle()
     {
-        $prdObjs     = ProductData::limit(3)->get();
+        $prdObjs     = ProductData::get();
         $delObjs     = ForbiddenWordData::where("keyword_type", ForbiddenWordConstant::KEYWORD_DELETE)->get();
         $replaceObjs = ForbiddenWordData::where("keyword_type", ForbiddenWordConstant::KEYWORD_REPLACE)->get();
 
