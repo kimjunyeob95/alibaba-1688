@@ -1033,10 +1033,10 @@ class ProductW1 extends ProductAbstract
                     "optionNameTransEn" => "",
                     "amountOnSale"      => $prdOptions["amountOnSale"],
                     "cargoNumber"       => $prdOptions["cargoNumber"] ?? "",
-                    "width"             => number_format($width, 2),
-                    "length"            => number_format($length, 2),
-                    "height"            => number_format($height, 2),
-                    "weight"            => number_format($weight, 2),
+                    "width"             => (float) sprintf("%.2f", $width),
+                    "length"            => (float) sprintf("%.2f", $length),
+                    "height"            => (float) sprintf("%.2f", $height),
+                    "weight"            => (float) sprintf("%.2f", $weight),
                 ]);
                 $product1688OptionDtoList[] = $product1688OptionDto;
             }

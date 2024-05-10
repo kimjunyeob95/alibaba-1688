@@ -1127,10 +1127,10 @@ class ProductW2 extends ProductAbstract
                     $optionNameTransW1 .= $prdOptionW1["value"] .  "_";
                 }
 
-                $width  = 0;
-                $length = 0;
-                $height = 0;
-                $weight = 0;
+                $width  = 0.0;
+                $length = 0.0;
+                $height = 0.0;
+                $weight = 0.0;
 
                 if( isset($detailW1Product["productShippingInfo"]) ){
                     $productShippingInfo = $detailW1Product["productShippingInfo"];
@@ -1180,10 +1180,10 @@ class ProductW2 extends ProductAbstract
                     "optionNameTransEn" => rtrim($optionNameTransEn, "_"),
                     "amountOnSale"      => $prdOptions["stock"],
                     "cargoNumber"       => $prdOptions["cargoNumber"] ?? "",
-                    "width"             => number_format($width, 2),
-                    "length"            => number_format($length, 2),
-                    "height"            => number_format($height, 2),
-                    "weight"            => number_format($weight, 2),
+                    "width"             => (float) sprintf("%.2f", $width),
+                    "length"            => (float) sprintf("%.2f", $length),
+                    "height"            => (float) sprintf("%.2f", $height),
+                    "weight"            => (float) sprintf("%.2f", $weight),
                 ]);
                 $product1688OptionDtoList[] = $product1688OptionDto;
             }
@@ -2365,6 +2365,152 @@ class ProductW2 extends ProductAbstract
             $returnMsg = helpers_fail_message(false, $e->getMessage());
         }
 
+        return $returnMsg;
+    }
+
+    public function convertW1toW2(): void
+    {
+        $objs  = ProductData::where("w_type", WConstant::WAPP_W1)->get();
+        $count = 0;
+        $totalCnt = count($objs);
+
+        $msg = "시작";
+        debug_log($msg, "convertW1toW2", "convertW1toW2");
+
+        foreach ($objs as $obj) {
+            $offerId = $obj->offer_id;
+            try {
+                $endPoint       = "param2/1/com.alibaba.fenxiao.crossborder/overseas.product.detailQuery/";
+                $payload        = [
+                    'detailQueryParams' => [
+                        'offerId'  => $offerId,
+                        'region'   => Constant1688::REGION_KO,
+                        'language' => Constant1688::LANGUAGE_KO_KR,
+                        'currency' => Constant1688::CURRENCY_KO,
+                    ]
+                ];
+                $detailResult = curl_1688_v2("POST", $endPoint, $payload);
+                if( $detailResult["isSuccess"] != true || $detailResult["data"]["result"]["success"] != true ){
+                    throw new Exception(ProductErrorMessageConstant::getFitErrorMessage("PRODUCT_SEARCH_QUERYPRODUCTDETAIL_W2_KR"));
+                }
+
+                $payloadEn = [
+                    'detailQueryParams' => [
+                        'offerId'  => $offerId,
+                        'region'   => Constant1688::REGION_US,
+                        'language' => Constant1688::LANGUAGE_EN_US,
+                        'currency' => Constant1688::CURRENCY_US,
+                    ]
+                ];
+                $detailEnResult = curl_1688_v2("POST", $endPoint, $payloadEn);
+                if( $detailEnResult["isSuccess"] != true || $detailEnResult["data"]["result"]["success"] != true ){
+                    throw new Exception(ProductErrorMessageConstant::getFitErrorMessage("PRODUCT_SEARCH_QUERYPRODUCTDETAIL_W2_EN"));
+                }
+
+                $endPointW1 = "param2/1/com.alibaba.fenxiao.crossborder/product.search.queryProductDetail/";
+                $payloadW1  = [
+                    'access_token'     => $this->accessToken,
+                    'offerDetailParam' => [
+                        'offerId' => $offerId,
+                        'country' => Constant1688::LANGUAGE_KO,
+                    ]
+                ];
+                $detailW1Result = curl_1688("POST", $endPointW1, $payloadW1);
+                if( $detailW1Result["isSuccess"] != true || $detailW1Result["data"]["result"]["success"] != true ){
+                    throw new Exception(ProductErrorMessageConstant::getFitErrorMessage("PRODUCT_SEARCH_QUERYPRODUCTDETAIL"));
+                }
+
+                $prdDto                   = $this->get1688ProductDto($detailResult, $detailEnResult, $detailW1Result);
+                $product1688Dto           = $prdDto["product1688Dto"];
+                $product1688ExtendDto     = $prdDto["product1688ExtendDto"];
+                $product1688NoticeDtoList = $prdDto["product1688NoticeDtoList"];
+                $product1688OptionDtoList = $prdDto["product1688OptionDtoList"];
+
+                $saveResult = $this->convertSave1688ProductData($product1688Dto, $product1688ExtendDto, $product1688NoticeDtoList, $product1688OptionDtoList);
+                if( $saveResult["isSuccess"] != true ){
+                    throw new Exception($saveResult["msg"]);
+                }
+            } catch (Exception $e) {
+                $msg = "offerId: {$offerId} | error: " . $e->getMessage();
+                debug_log($msg, "convertW1toW2", "convertW1toW2", LogLevel::ERROR);
+            }
+
+            $count++;
+
+            $msg = "offerId: {$offerId} | 진행률 ({$count}/{$totalCnt})";
+            debug_log($msg, "convertW1toW2", "convertW1toW2");
+        }
+
+        $msg = "종료";
+        debug_log($msg, "convertW1toW2", "convertW1toW2");
+    }
+
+    public function convertSave1688ProductData(
+        Product1688Dto $product1688Dto, Product1688ExtendDto $product1688ExtendDto,
+        array $product1688NoticeDtoList, array $product1688OptionDtoList): array
+    {
+        $returnMsg = helpers_fail_message();
+        try {
+            $offerId = (int)$product1688Dto->offer_id;
+
+            // 1. product_datas upsert
+            $upsertWhere = $product1688Dto->getAllProperties();
+            unset($upsertWhere["offer_id"]);
+            unset($upsertWhere["prd_desc_kr"]);
+            unset($upsertWhere["prd_desc_en"]);
+            unset($upsertWhere["trans_status"]);
+            unset($upsertWhere["trans_status_en"]);
+            unset($upsertWhere["mapping_status"]);
+            ProductData::updateOrCreate(
+                ["offer_id" => $offerId],
+                $upsertWhere
+            );
+
+            // 2. product_extend_datas upsert
+            $upsertWhere = $product1688ExtendDto->getAllProperties();
+            unset($upsertWhere["offer_id"]);
+            ProductExtendData::updateOrCreate(
+                ["offer_id" => $offerId],
+                $upsertWhere
+            );
+
+            // 4. product_notice_datas upsert
+            foreach ($product1688NoticeDtoList as $product1688NoticeDto) {
+                $upsertWhere = $product1688NoticeDto->getAllProperties();
+                unset($upsertWhere["offer_id"]);
+                unset($upsertWhere["attribute_id"]);
+                ProductNoticeData::updateOrCreate(
+                    [
+                        "offer_id"     => $offerId,
+                        "attribute_id" => $product1688NoticeDto->attribute_id,
+                    ],
+                    $upsertWhere
+                );
+            }
+
+            // 5. product_option_datas upsert
+            // 5-1. 우선 전체 품절처리
+            ProductOptionData::where("offer_id", $offerId)->update(["status" => ProductConstant::OPTION_SEC_OUT_OF_STOCK_NUMBER]);
+            // 5-2. Upsert
+            foreach ($product1688OptionDtoList as $product1688OptionDto) {
+                $upsertWhere = $product1688OptionDto->getAllProperties();
+                unset($upsertWhere["offer_id"]);
+                unset($upsertWhere["sku_id"]);
+                unset($upsertWhere["spec_id"]);
+                ProductOptionData::updateOrCreate(
+                    [
+                        "offer_id" => $offerId,
+                        "sku_id"   => $product1688OptionDto->sku_id,
+                        "spec_id"  => $product1688OptionDto->spec_id,
+                    ],
+                    $upsertWhere
+                );
+            }
+
+            $returnMsg = helpers_success_message();
+        } catch (Exception $e) {
+            $returnMsg = helpers_fail_message(false, $e->getMessage());
+        }
         return $returnMsg;
     }
 }

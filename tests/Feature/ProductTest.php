@@ -10,6 +10,7 @@ use App\Models\ProductImageData;
 use App\Models\ProductOptionData;
 use App\Packages\S3;
 use App\Services\GenuioService;
+use App\Services\Product\ProductW2;
 use App\Vo\Product\Product1688ImageDto;
 use Exception;
 use Tests\TestCase;
@@ -116,26 +117,11 @@ class ProductTest extends TestCase
     }
 
     # testCode
-    # php artisan test --filter testCode
-    public function testCode()
+    # php artisan test --filter testConvertW1toW2
+    public function testConvertW1toW2()
     {
-        $prdObjs = ProductData::where("mapping_status", "N")->get();
-
-        foreach ($prdObjs as $prdObj) {
-            $cateObj = CategoryMapping::where("mapping_channel", "WApp")
-            ->where("mapping_code", "!=", "")
-            ->where("category_id", $prdObj->category_id)
-            ->first();
-
-            if( $cateObj != null ){
-                ProductData::where("id", $prdObj->id)
-                ->update([
-                    "mapping_status" => "Y"
-                ]);
-            }
-        }
-
-        dd("끝");
+        $productW2 = app(ProductW2::class);
+        $productW2->convertW1toW2();
     }
 
     # s3 upload
