@@ -22,6 +22,10 @@ class Product1688OptionDto extends Vo
     protected int $amount_on_sale    = 0;
     protected string $cargo_number   = "";
     protected float $exchange_rate   = 0.0;
+    protected float $width           = 0.0;
+    protected float $length          = 0.0;
+    protected float $height          = 0.0;
+    protected float $weight          = 0.0;
 
     public function bind(mixed $data): void
     {
@@ -37,6 +41,10 @@ class Product1688OptionDto extends Vo
         $this->amount_on_sale = $data["amountOnSale"];
         $this->cargo_number   = $data["cargoNumber"];
         $this->exchange_rate  = env("1688_EXCHANGE_RATE", 200);
+        $this->width          = $data["width"];
+        $this->length         = $data["length"];
+        $this->height         = $data["height"];
+        $this->weight         = $data["weight"];
 
         $this->oc_bind();
     }

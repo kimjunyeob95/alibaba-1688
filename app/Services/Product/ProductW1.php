@@ -758,7 +758,7 @@ class ProductW1 extends ProductAbstract
         }
 
         $prdObj = ProductData::where("offer_id", $offerId)->first();
-        if( $prdObj->status == ProductConstant::PRD_STATUS_EXCEPT ){
+        if( $prdObj != null && $prdObj->status == ProductConstant::PRD_STATUS_EXCEPT ){
             throw new Exception(ProductErrorMessageConstant::getFitErrorMessage("PRODUCT_EXCEPT"));
         }
 
@@ -885,7 +885,7 @@ class ProductW1 extends ProductAbstract
 
         if( $subjectTrans != $subjectForbiddenTrans ){ 
             ProductForbiddenData::updateOrCreate(
-                ["offer_id" => $prdObj->offer_id],
+                ["offer_id" => $offerId],
                 [
                     "prd_name_trans_origin"    => $subjectTrans,
                     "prd_name_trans_forbidden" => $subjectForbiddenTrans
@@ -893,6 +893,10 @@ class ProductW1 extends ProductAbstract
             );
         }
 
+        $soldOut = 0;
+        if( isset($detailProduct["soldOut"]) ){
+            $soldOut = (int)$detailProduct["soldOut"];
+        }
         $product1688Dto = new Product1688Dto();
         $product1688Dto->bind([
             "offerId"        => $offerId,
@@ -904,6 +908,7 @@ class ProductW1 extends ProductAbstract
             "subjectTransEn" => "",
             "startQuantity"  => $startQuantity,
             "description"    => $detailProduct["description"],
+            "soldOut"        => $soldOut,
             "mapping_status" => $mapping_status,
         ]);
 
@@ -974,6 +979,48 @@ class ProductW1 extends ProductAbstract
                     $optionName      .= $prdOption["value"] .  "_";
                     $optionNameTrans .= $prdOption["valueTrans"] .  "_";
                 }
+
+                $width  = 0;
+                $length = 0;
+                $height = 0;
+                $weight = 0;
+
+                if( isset($detailProduct["productShippingInfo"]) ){
+                    $productShippingInfo = $detailProduct["productShippingInfo"];
+                    if( isset($productShippingInfo["skuShippingInfoList"]) ){
+                        $skuShippingInfoList = $productShippingInfo["skuShippingInfoList"];
+                        foreach ($skuShippingInfoList as $skuShippingInfo) {
+                            if( $skuShippingInfo["skuId"] == $prdOptions["skuId"] ){
+                                if( isset($skuShippingInfo["width"]) ) {
+                                    $width = $skuShippingInfo["width"];
+                                }
+                                if( isset($skuShippingInfo["length"]) ) {
+                                    $length = $skuShippingInfo["length"];
+                                }
+                                if( isset($skuShippingInfo["height"]) ) {
+                                    $height = $skuShippingInfo["height"];
+                                }
+                                if( isset($skuShippingInfo["weight"]) ) {
+                                    $weight = $skuShippingInfo["weight"];
+                                }
+                            }
+                        }
+                    } else {
+                        if( isset($productShippingInfo["width"]) ) {
+                            $width = $productShippingInfo["width"];
+                        }
+                        if( isset($productShippingInfo["length"]) ) {
+                            $length = $productShippingInfo["length"];
+                        }
+                        if( isset($productShippingInfo["height"]) ) {
+                            $height = $productShippingInfo["height"];
+                        }
+                        if( isset($productShippingInfo["weight"]) ) {
+                            $weight = $productShippingInfo["weight"];
+                        }
+                    }
+                }
+
                 $product1688OptionDto = new Product1688OptionDto();
                 $product1688OptionDto->bind([
                     "offerId"           => $offerId,
@@ -986,6 +1033,10 @@ class ProductW1 extends ProductAbstract
                     "optionNameTransEn" => "",
                     "amountOnSale"      => $prdOptions["amountOnSale"],
                     "cargoNumber"       => $prdOptions["cargoNumber"] ?? "",
+                    "width"             => number_format($width, 2),
+                    "length"            => number_format($length, 2),
+                    "height"            => number_format($height, 2),
+                    "weight"            => number_format($weight, 2),
                 ]);
                 $product1688OptionDtoList[] = $product1688OptionDto;
             }
