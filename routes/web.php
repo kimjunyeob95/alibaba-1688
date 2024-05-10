@@ -24,7 +24,7 @@ Route::get("/", [ProductController::class, "getPrdList"]);
  * 상품
  */
 Route::prefix("product")->name("product.")->group(function(){
-    // 상품 수집 관리
+    /** 상품 수집 관리 */
     Route::get("/queryProductDetail", [ProductController::class, "queryProductDetail"])->name("queryProductDetail");
     Route::get("/keywordQuery", [ProductController::class, "keywordQuery"])->name("keywordQuery");
     Route::get("/urlQuery", [ProductController::class, "urlQuery"])->name("urlQuery");
@@ -33,6 +33,16 @@ Route::prefix("product")->name("product.")->group(function(){
     Route::get("/imageMultiQuery", [ProductController::class, "imageMultiQuery"])->name("imageMultiQuery");
     Route::get("/collectLogs", [ProductController::class, "prdCollectLogs"])->name("prdCollectLogs");
     Route::get("/collect/log/{logId}", [ProductController::class, "prdCollectLogDetail"])->name("prdCollectLogDetail");
+
+    /** 검수 중 */
+    Route::prefix("noInspect")->name("noInspect.")->group(function(){
+        /** 전체상품(KOR) */
+        Route::get("/list", [ProductController::class, "noInspectList"])->name("list");
+        /** Drop.Hub 상품(ENG) */
+        Route::get("/w2/list", [ProductW2Controller::class, "noInspectList"])->name("w2.list");
+        /** 판매제외 상품 리스트 */
+        Route::get("/except/list", [ProductController::class, "noInspectExceptList"])->name("except.list");
+    });
 
     /** 상품 리스트 */
     Route::get("/list", [ProductController::class, "getPrdList"])->name("list");
@@ -46,11 +56,11 @@ Route::prefix("product")->name("product.")->group(function(){
     Route::get("/img/edit/{offerId}", [ProductController::class, "getPrdImageEdit"])->name("imgEdit");
 
     Route::prefix("w2")->name("w2.")->group(function(){
-        // 상품 수집 관리
+        /** 상품 수집 관리 */
         Route::get("/queryProductDetail", [ProductW2Controller::class, "queryProductDetail"])->name("queryProductDetail");
         Route::get("/collectLogs", [ProductW2Controller::class, "prdCollectLogs"])->name("prdCollectLogs");
 
-        // 상품 리스트
+        /** 상품 리스트 */
         Route::get("/list", [ProductW2Controller::class, "getPrdList"])->name("list");
         Route::get("/{offerId}", [ProductW2Controller::class, "getPrdDetail"])->name("detail");
     });
@@ -61,7 +71,7 @@ Route::prefix("product")->name("product.")->group(function(){
  * 카테고리
  */
 Route::prefix("category")->name("category.")->group(function(){
-    // 관리
+    /** 관리 */
     Route::get("/", [CategoryController::class, "manage"])->name("");
 });
 
@@ -75,6 +85,6 @@ Route::prefix("forbiddenWord")->name("forbiddenWord.")->group(function(){
 
 
 Route::prefix("easySell")->name("easySell.")->group(function(){
-    // 상품 현황
+    /** 상품 현황 */
     Route::get("product/list", [EasySellController::class, "getPrdList"])->name("product/list");
 });

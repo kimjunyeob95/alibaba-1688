@@ -415,6 +415,17 @@ class Service1688Product
       return $this->productAbstract->update($params);
    }
 
+   /**
+     * @func inspectStatusUpdate
+     * @description '검수상태 update'
+     * @param array $params
+     * @return array
+   */
+   public function inspectStatusUpdate(array $params): array
+   {
+      return $this->productAbstract->inspectStatusUpdate($params);
+   }
+
    /****************************************** WApp W2 **********************************************/
 
    /**

@@ -539,4 +539,33 @@ class WProductController extends Controller
             return helpers_json_response(HttpConstant::BAD_REQUEST, [], $e->getMessage());
         }
     }
+
+    public function inspectStatusUpdate(): JsonResponse
+    {
+        try {
+            $validator = Validator::make($this->request->all(), [
+                'offerIds'            => 'required|array',
+                'inspect_img_status'  => 'required|string',
+                'inspect_prd_status'  => 'required|string',
+                'inspect_gosi_status' => 'required|string',
+            ], [
+                'offerIds.required'            => ProductErrorMessageConstant::getNotHaveErrorMessage("OFFER_IDS"),
+                'inspect_img_status.required'  => ProductErrorMessageConstant::getNotHaveErrorMessage("INSPECT_IMG_STATUS"),
+                'inspect_prd_status.required'  => ProductErrorMessageConstant::getNotHaveErrorMessage("INSPECT_PRD_STATUS"),
+                'inspect_gosi_status.required' => ProductErrorMessageConstant::getNotHaveErrorMessage("INSPECT_GOSI_STATUS"),
+            ]);
+            if ($validator->fails()) {
+                throw new Exception($validator->errors()->first());
+            }
+
+            $result   = $this->service1688Product->inspectStatusUpdate($this->request->all());
+            if( $result["isSuccess"] == true ){
+                return helpers_json_response(HttpConstant::OK, $result);
+            } else {
+                return helpers_json_response(HttpConstant::BAD_REQUEST, [], $result["msg"]);
+            }
+        } catch (Exception $e) {
+            return helpers_json_response(HttpConstant::BAD_REQUEST, [], $e->getMessage());
+        }
+    }
 }

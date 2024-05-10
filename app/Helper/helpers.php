@@ -2,12 +2,14 @@
 
 use App\Constants\HttpConstant;
 use App\Constants\ImageConstant;
+use App\Constants\InspectConstant;
 use App\Constants\MallConstant;
 use App\Constants\ProductConstant;
 use App\Constants\WConstant;
 use App\Models\EasysellProductLog;
 use App\Models\ProductData;
 use App\Models\ProductImageData;
+use App\Models\ProductInspectData;
 use App\Models\ProductModiData;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Carbon;
@@ -699,6 +701,23 @@ if (!function_exists("saveModiProduct")) {
                     "send_dated_at" => Null,
                 ]);
             }
+        }
+    }
+}
+
+/** 검수상태 최종 변경 */
+if (!function_exists("inspectStatusUpdate")) {
+    function inspectStatusUpdate(int $offerId): void
+    {
+        $inspectCnt = ProductInspectData::where([
+            "offer_id"   => $offerId,
+            "is_inspect" => InspectConstant::IS_INSPECT_Y
+        ])->whereIn("inspect_type", InspectConstant::INSPECT_STATUS)->count();
+
+        if( $inspectCnt == count(InspectConstant::INSPECT_STATUS) ){
+            ProductData::where("offer_id", $offerId)->update([
+                "inspect_status" => ProductConstant::INSPECT_STATUS_Y
+            ]);
         }
     }
 }

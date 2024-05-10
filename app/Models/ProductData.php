@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Constants\ImageConstant;
+use App\Constants\InspectConstant;
 use App\Constants\ProductConstant;
 use App\Constants\WConstant;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -84,5 +85,17 @@ class ProductData extends Model
 
     public function easysell () {
         return $this->hasOne(EasysellProductLog::class, "offer_id", "offer_id");
+    }
+
+    public function img_inspect () {
+        return $this->hasOne(ProductInspectData::class, "offer_id", "offer_id")->where("inspect_type", InspectConstant::INSPECT_IMAGE);
+    }
+
+    public function prd_inspect () {
+        return $this->hasOne(ProductInspectData::class, "offer_id", "offer_id")->where("inspect_type", InspectConstant::INSPECT_PRODUCT);
+    }
+
+    public function gosi_inspect () {
+        return $this->hasOne(ProductInspectData::class, "offer_id", "offer_id")->where("inspect_type", InspectConstant::INSPECT_NOTICE);
     }
 }

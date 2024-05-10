@@ -102,17 +102,42 @@
                 <svg class="nav-icon">
                     <use xlink:href="/vendors/@coreui/icons/svg/free.svg#cil-3d"></use>
                 </svg>
-                상품 리스트
+                수집 상품 관리(검수 중)
+            </a>
+            <ul class="nav-group-items">
+                <li class="nav-item">
+                    <a class="nav-link" href="/product/noInspect/list">
+                        전체 상품(KOR)
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/product/noInspect/w2/list">
+                        Drop.Hub 상품(ENG)
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/product/noInspect/except/list">
+                        판매제외 상품 리스트
+                    </a>
+                </li>
+            </ul>
+        </li>
+        <li class="nav-group">
+            <a class="nav-link nav-group-toggle" href="javascript:;">
+                <svg class="nav-icon">
+                    <use xlink:href="/vendors/@coreui/icons/svg/free.svg#cil-3d"></use>
+                </svg>
+                판매 상품 관리
             </a>
             <ul class="nav-group-items">
                 <li class="nav-item">
                     <a class="nav-link" href="/product/list">
-                        전체 상품 리스트 (KOR)
+                        전체 상품(KOR)
                     </a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="/product/w2/list">
-                        Drop.K 상품 리스트 (ENG)
+                        Drop.Hub 상품(ENG)
                     </a>
                 </li>
                 <li class="nav-item">

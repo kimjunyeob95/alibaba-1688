@@ -10,6 +10,7 @@ use App\Constants\GenuioConstant;
 use App\Constants\GosiConstants;
 use App\Constants\ImageConstant;
 use App\Constants\ImageErrorMessageConstant;
+use App\Constants\InspectConstant;
 use App\Constants\LogConstant;
 use App\Constants\OptionConstants;
 use App\Constants\ProductConstant;
@@ -26,6 +27,7 @@ use App\Models\ProductExtendData;
 use App\Models\ProductForbiddenData;
 use App\Models\ProductImageData;
 use App\Models\ProductImageDetailData;
+use App\Models\ProductInspectData;
 use App\Models\ProductNoticeData;
 use App\Models\ProductOptionData;
 use App\Models\ProductSearchData;
@@ -72,10 +74,30 @@ class ProductW1 extends ProductAbstract
         $mdPrice_status = $params["mdPrice_status"];
         $sortArr        = explode("|", $params["sort"]);
 
+        $inspect_status      = "";
+        $inspect_img_status  = "";
+        $inspect_prd_status  = "";
+        $inspect_gosi_status = "";
+        if( isset($params["inspect_status"]) ){
+            $inspect_status = $params["inspect_status"];
+        }
+        if( isset($params["inspect_img_status"]) ){
+            $inspect_img_status = $params["inspect_img_status"];
+        }
+        if( isset($params["inspect_prd_status"]) ){
+            $inspect_prd_status = $params["inspect_prd_status"];
+        }
+        if( isset($params["inspect_gosi_status"]) ){
+            $inspect_gosi_status = $params["inspect_gosi_status"];
+        }
+
         $prdBuilder = ProductData::select(["product_datas.*"])->with([
             "main_img",
             "options", 
-            "images.ai_all_imgs"
+            "images.ai_all_imgs",
+            "img_inspect",
+            "prd_inspect",
+            "gosi_inspect",
         ]);
 
         if( !empty($keyword) ){
@@ -155,22 +177,85 @@ class ProductW1 extends ProductAbstract
             $prdBuilder->where("product_datas.mapping_status", $mapping_status);
         }
 
+        if( !empty($inspect_status) ){
+            $prdBuilder->where("product_datas.inspect_status", $inspect_status );
+        }
+
+        if( !empty($inspect_img_status) || !empty($inspect_prd_status) || !empty($inspect_gosi_status) ){
+
+            $prdBuilder->leftJoin("product_inspect_datas as pid","product_datas.offer_id", "=", "pid.offer_id");
+
+            if( $inspect_img_status == InspectConstant::IS_INSPECT_Y ){
+                $prdBuilder->where([
+                    "pid.inspect_type" => InspectConstant::INSPECT_IMAGE,
+                    "pid.is_inspect"   => InspectConstant::IS_INSPECT_Y,
+                ]);
+            } else {
+                $prdBuilder->where(function ($query) {
+                    $query->where('pid.inspect_type', '=', InspectConstant::INSPECT_IMAGE)
+                    ->where('pid.is_inspect', '=', InspectConstant::IS_INSPECT_N)
+                    ->orWhereNull('pid.id');
+                });
+            }
+        }
+
         if( !empty($prd_status) ){
             $prdBuilder->where("product_datas.status", $prd_status);
         } else {
             $prdBuilder->whereIn("product_datas.status", ProductConstant::PRD_SHOW_STATUS);
         }
 
-        $totalCnt  = ProductData::whereIn("status", ProductConstant::PRD_SHOW_STATUS)->count();
-        $transYCnt = ProductData::whereIn("status", ProductConstant::PRD_SHOW_STATUS)->where("trans_status", ProductConstant::TRANS_STATUS_Y)->count();
-        $transNCnt = ProductData::whereIn("status", ProductConstant::PRD_SHOW_STATUS)->where("trans_status", ProductConstant::TRANS_STATUS_N)->count();
+        $totalCnt = ProductData::whereIn("status", ProductConstant::PRD_SHOW_STATUS)->where([
+            "inspect_status" => $inspect_status
+        ])->count();
+        $transYCnt = ProductData::whereIn("status", ProductConstant::PRD_SHOW_STATUS)
+        ->where([
+            "inspect_status" => $inspect_status,
+            "trans_status"   => ProductConstant::TRANS_STATUS_Y
+        ])->count();
+        $transNCnt = ProductData::whereIn("status", ProductConstant::PRD_SHOW_STATUS)
+        ->where([
+            "inspect_status" => $inspect_status,
+            "trans_status"   => ProductConstant::TRANS_STATUS_N
+        ])->count();
+
+        $imgInspectYCnt = ProductData::query()
+        ->join('product_inspect_datas as b', 'product_datas.offer_id', '=', 'b.offer_id')
+        ->where([
+            "b.inspect_type" => InspectConstant::INSPECT_IMAGE,
+            "b.is_inspect"   => InspectConstant::IS_INSPECT_Y
+        ])->count();
+        $imgInspectNCnt = $totalCnt - $imgInspectYCnt;
+
+        $prdInspectYCnt = ProductData::query()
+        ->join('product_inspect_datas as b', 'product_datas.offer_id', '=', 'b.offer_id')
+        ->where([
+            "b.inspect_type" => InspectConstant::INSPECT_PRODUCT,
+            "b.is_inspect"   => InspectConstant::IS_INSPECT_Y
+        ])->count();
+        $prdInspectNCnt = $totalCnt - $prdInspectYCnt;
+
+        $gosiInspectYCnt = ProductData::query()
+        ->join('product_inspect_datas as b', 'product_datas.offer_id', '=', 'b.offer_id')
+        ->where([
+            "b.inspect_type" => InspectConstant::INSPECT_NOTICE,
+            "b.is_inspect"   => InspectConstant::IS_INSPECT_Y
+        ])->count();
+        $gosiInspectNCnt = $totalCnt - $gosiInspectYCnt;
+
 
         $lists = $prdBuilder->paginate($pageSize)->appends($params);
         return [
-            "paginator" => $lists,
-            "totalCnt"  => $totalCnt,
-            "transYCnt" => $transYCnt,
-            "transNCnt" => $transNCnt,
+            "paginator"       => $lists,
+            "totalCnt"        => $totalCnt,
+            "transYCnt"       => $transYCnt,
+            "transNCnt"       => $transNCnt,
+            "imgInspectYCnt"  => $imgInspectYCnt,
+            "imgInspectNCnt"  => $imgInspectNCnt,
+            "prdInspectYCnt"  => $prdInspectYCnt,
+            "prdInspectNCnt"  => $prdInspectNCnt,
+            "gosiInspectYCnt" => $gosiInspectYCnt,
+            "gosiInspectNCnt" => $gosiInspectNCnt,
         ];
     }
 
@@ -186,10 +271,30 @@ class ProductW1 extends ProductAbstract
         $mdPrice_status = $params["mdPrice_status"];
         $sortArr        = explode("|", $params["sort"]);
 
+        $inspect_status      = "";
+        $inspect_img_status  = "";
+        $inspect_prd_status  = "";
+        $inspect_gosi_status = "";
+        if( isset($params["inspect_status"]) ){
+            $inspect_status = $params["inspect_status"];
+        }
+        if( isset($params["inspect_img_status"]) ){
+            $inspect_img_status = $params["inspect_img_status"];
+        }
+        if( isset($params["inspect_prd_status"]) ){
+            $inspect_prd_status = $params["inspect_prd_status"];
+        }
+        if( isset($params["inspect_gosi_status"]) ){
+            $inspect_gosi_status = $params["inspect_gosi_status"];
+        }
+
         $prdBuilder = ProductData::select(["product_datas.*"])->with([
             "main_img",
             "options", 
-            "images.ai_all_imgs"
+            "images.ai_all_imgs",
+            "img_inspect",
+            "prd_inspect",
+            "gosi_inspect",
         ]);
 
         if( !empty($keyword) ){
@@ -269,20 +374,86 @@ class ProductW1 extends ProductAbstract
             $prdBuilder->where("product_datas.mapping_status", $mapping_status);
         }
 
+        if( !empty($inspect_status) ){
+            $prdBuilder->where("product_datas.inspect_status", $inspect_status );
+        }
+
+        if( !empty($inspect_img_status) || !empty($inspect_prd_status) || !empty($inspect_gosi_status) ){
+
+            $prdBuilder->leftJoin("product_inspect_datas as pid","product_datas.offer_id", "=", "pid.offer_id");
+
+            if( $inspect_img_status == InspectConstant::IS_INSPECT_Y ){
+                $prdBuilder->where([
+                    "pid.inspect_type" => InspectConstant::INSPECT_IMAGE,
+                    "pid.is_inspect"   => InspectConstant::IS_INSPECT_Y,
+                ]);
+            } else {
+                $prdBuilder->where(function ($query) {
+                    $query->where('pid.inspect_type', '=', InspectConstant::INSPECT_IMAGE)
+                    ->where('pid.is_inspect', '=', InspectConstant::IS_INSPECT_N)
+                    ->orWhereNull('pid.id');
+                });
+            }
+        }
+
         if( !empty($prd_status) ){
             $prdBuilder->where("product_datas.status", $prd_status);
         }
 
-        $totalCnt  = ProductData::where("status", ProductConstant::PRD_STATUS_EXCEPT)->count();
-        $transYCnt = ProductData::where("status", ProductConstant::PRD_STATUS_EXCEPT)->where("trans_status", ProductConstant::TRANS_STATUS_Y)->count();
-        $transNCnt = ProductData::where("status", ProductConstant::PRD_STATUS_EXCEPT)->where("trans_status", ProductConstant::TRANS_STATUS_N)->count();
+        $totalCnt = ProductData::where([
+            "inspect_status" => $inspect_status,
+            "status"         => ProductConstant::PRD_STATUS_EXCEPT
+        ])->count();
+        $transYCnt = ProductData::where([
+            "inspect_status" => $inspect_status,
+            "trans_status"   => ProductConstant::TRANS_STATUS_Y,
+            "status"         => ProductConstant::PRD_STATUS_EXCEPT
+        ])->count();
+        $transNCnt = ProductData::where([
+            "inspect_status" => $inspect_status,
+            "trans_status"   => ProductConstant::TRANS_STATUS_N,
+            "status"         => ProductConstant::PRD_STATUS_EXCEPT
+        ])->count();
+
+        $imgInspectYCnt = ProductData::query()
+        ->join('product_inspect_datas as b', 'product_datas.offer_id', '=', 'b.offer_id')
+        ->where([
+            "b.inspect_type" => InspectConstant::INSPECT_IMAGE,
+            "b.is_inspect"   => InspectConstant::IS_INSPECT_Y,
+            "status"         => ProductConstant::PRD_STATUS_EXCEPT
+        ])->count();
+        $imgInspectNCnt = $totalCnt - $imgInspectYCnt;
+
+        $prdInspectYCnt = ProductData::query()
+        ->join('product_inspect_datas as b', 'product_datas.offer_id', '=', 'b.offer_id')
+        ->where([
+            "b.inspect_type" => InspectConstant::INSPECT_PRODUCT,
+            "b.is_inspect"   => InspectConstant::IS_INSPECT_Y,
+            "status"         => ProductConstant::PRD_STATUS_EXCEPT
+        ])->count();
+        $prdInspectNCnt = $totalCnt - $prdInspectYCnt;
+
+        $gosiInspectYCnt = ProductData::query()
+        ->join('product_inspect_datas as b', 'product_datas.offer_id', '=', 'b.offer_id')
+        ->where([
+            "b.inspect_type" => InspectConstant::INSPECT_NOTICE,
+            "b.is_inspect"   => InspectConstant::IS_INSPECT_Y,
+            "status"         => ProductConstant::PRD_STATUS_EXCEPT
+        ])->count();
+        $gosiInspectNCnt = $totalCnt - $gosiInspectYCnt;
 
         $lists = $prdBuilder->paginate($pageSize)->appends($params);
         return [
-            "paginator" => $lists,
-            "totalCnt"  => $totalCnt,
-            "transYCnt" => $transYCnt,
-            "transNCnt" => $transNCnt,
+            "paginator"       => $lists,
+            "totalCnt"        => $totalCnt,
+            "transYCnt"       => $transYCnt,
+            "transNCnt"       => $transNCnt,
+            "imgInspectYCnt"  => $imgInspectYCnt,
+            "imgInspectNCnt"  => $imgInspectNCnt,
+            "prdInspectYCnt"  => $prdInspectYCnt,
+            "prdInspectNCnt"  => $prdInspectNCnt,
+            "gosiInspectYCnt" => $gosiInspectYCnt,
+            "gosiInspectNCnt" => $gosiInspectNCnt,
         ];
     }
 
@@ -874,6 +1045,11 @@ class ProductW1 extends ProductAbstract
             $mapping_status = ProductConstant::MAPPING_STATUS_Y;
         }
 
+        $inspect_status = ProductConstant::INSPECT_STATUS_N;
+        if( $prdObj != null ){
+            $inspect_status = $prdObj->inspect_status;
+        }
+
         $startQuantity = $detailProduct["productSaleInfo"]["priceRangeList"][0]["startQuantity"];
 
         $subjectTrans = $detailProduct["subjectTrans"];
@@ -911,6 +1087,7 @@ class ProductW1 extends ProductAbstract
             "description"    => $detailProduct["description"],
             "soldOut"        => $soldOut,
             "mapping_status" => $mapping_status,
+            "inspect_status" => $inspect_status,
         ]);
 
         // 4. 상품 확장정보
@@ -2294,6 +2471,63 @@ class ProductW1 extends ProductAbstract
 
             // 수정 상품 저장
             saveModiProduct($offerId);
+
+            DB::commit();
+            $returnMsg = helpers_success_message();
+        } catch (Exception $e) {
+            DB::rollBack();
+            $returnMsg = helpers_fail_message(false, $e->getMessage());
+        }
+
+        return $returnMsg;
+    }
+
+    public function inspectStatusUpdate(array $params): array
+    {
+        $returnMsg = $this->returnMsg;
+
+        try {
+            DB::beginTransaction();
+
+            $offerIds            = $params["offerIds"];
+            $inspect_img_status  = $params["inspect_img_status"];
+            $inspect_prd_status  = $params["inspect_prd_status"];
+            $inspect_gosi_status = $params["inspect_gosi_status"];
+            
+            foreach ($offerIds as $offerId) {
+                ProductInspectData::updateOrCreate(
+                    [
+                        "offer_id"     => $offerId,
+                        "inspect_type" => InspectConstant::INSPECT_IMAGE,
+                    ],
+                    [
+                        "is_inspect" => $inspect_img_status,
+                    ]
+                );
+
+                ProductInspectData::updateOrCreate(
+                    [
+                        "offer_id"     => $offerId,
+                        "inspect_type" => InspectConstant::INSPECT_PRODUCT,
+                    ],
+                    [
+                        "is_inspect" => $inspect_prd_status,
+                    ]
+                );
+
+                ProductInspectData::updateOrCreate(
+                    [
+                        "offer_id"     => $offerId,
+                        "inspect_type" => InspectConstant::INSPECT_NOTICE,
+                    ],
+                    [
+                        "is_inspect" => $inspect_gosi_status,
+                    ]
+                );
+            }
+
+            /** 검수상태 최종 변경 */
+            inspectStatusUpdate($offerId);
 
             DB::commit();
             $returnMsg = helpers_success_message();

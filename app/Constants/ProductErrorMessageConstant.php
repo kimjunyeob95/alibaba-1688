@@ -17,7 +17,7 @@ class ProductErrorMessageConstant
     public const ERROR_MESSAGE_PRODUCT_SEARCH_QUERYPRODUCTDETAIL_W2_KR = "product.search.queryProductDetail.W2.KR";
     public const ERROR_MESSAGE_PRODUCT_SEARCH_QUERYPRODUCTDETAIL_W2_EN = "product.search.queryProductDetail.W2.EN";
     public const ERROR_MESSAGE_PRODUCT_SKUINFOS                        = "productSkuInfos";
-    public const ERROR_MESSAGE_PRODUCT_PRICE_1688                      = "1688 Price";
+    public const ERROR_MESSAGE_PRICE_1688                              = "1688 Price";
     public const ERROR_MESSAGE_PRODUCT_CONSIGN_PRICE                   = "productSkuInfos consignPrice";
     public const ERROR_MESSAGE_PRODUCT_TRANS_IMG                       = "Genuio imageTranslate";
     public const ERROR_MESSAGE_PRODUCT_S3_IMG_UPLOAD                   = "S3 image Upload";
@@ -47,6 +47,9 @@ class ProductErrorMessageConstant
     public const ERROR_MESSAGE_GOSIENLIST                              = "gosiEnList";
     public const ERROR_MESSAGE_GOSIENLIST_ID                           = "gosiEnList id";
     public const ERROR_MESSAGE_GOSIENLIST_IS_EXCEPT                    = "gosiEnList is_except";
+    public const ERROR_MESSAGE_INSPECT_IMG_STATUS                      = "inspect_img_status";
+    public const ERROR_MESSAGE_INSPECT_PRD_STATUS                      = "inspect_prd_status";
+    public const ERROR_MESSAGE_INSPECT_GOSI_STATUS                     = "inspect_gosi_status";
  
     public static function getErrorMessageNotDefault($constantName): string
     {
