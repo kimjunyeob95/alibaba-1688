@@ -2484,6 +2484,7 @@ class ProductW2 extends ProductAbstract
             "w_type" => WConstant::WAPP_W1
         ])
         ->where("status", "!=", ProductConstant::PRD_STATUS_EXCEPT)
+        ->orderBy("created_at", "desc")
         ->get();
 
         $count = 0;

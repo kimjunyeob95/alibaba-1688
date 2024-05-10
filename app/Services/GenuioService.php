@@ -905,7 +905,7 @@ class GenuioService extends TransApiAbstract
             $apiResult = json_decode($result, JSON_UNESCAPED_UNICODE);
             if(!is_array($apiResult)) throw new InvalidArgumentException("Error: {$result}");
 
-            return $apiResult;
+            $returnMsg = helpers_success_message($apiResult);
         } catch (JsonException $e) {
             $returnMsg = helpers_fail_message(false, "Error: 결과가 Json이 아닙니다.");
         } catch (InvalidArgumentException $e) {
