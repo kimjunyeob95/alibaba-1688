@@ -2,6 +2,7 @@
 
 namespace App\Vo\Product;
 
+use App\Constants\OptionConstants;
 use App\Vo\Vo;
 
 class Product1688OptionDto extends Vo
@@ -10,6 +11,7 @@ class Product1688OptionDto extends Vo
     protected int $sku_id            = 0;
     protected string $spec_id        = "";
     protected string $status         = "";
+    protected string $is_except      = OptionConstants::IS_EXCEPT_N;
     protected string $option_name    = "";
     protected string $option_name_kr = "";
     protected string $option_name_en = "";
@@ -33,6 +35,7 @@ class Product1688OptionDto extends Vo
         $this->sku_id         = $data["skuId"];
         $this->spec_id        = $data["specId"];
         $this->status         = $data["status"];
+        $this->is_except      = $data["is_except"];
         $this->option_name    = $data["optionName"];
         $this->option_name_kr = $data["optionNameTrans"];
         $this->option_name_en = $data["optionNameTransEn"];

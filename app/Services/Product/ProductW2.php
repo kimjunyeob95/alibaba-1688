@@ -1169,12 +1169,23 @@ class ProductW2 extends ProductAbstract
                     }
                 }
 
+                $is_except = OptionConstants::IS_EXCEPT_N;
+                $optionObj = ProductOptionData::where([
+                    "offer_id" => $offerId,
+                    "skuId"    => $prdOptions["skuId"],
+                    "specId"   => $prdOptions["specId"],
+                ])->first();
+                if( $optionObj != null ){
+                    $is_except = $optionObj->is_except;
+                }
+
                 $product1688OptionDto = new Product1688OptionDto();
                 $product1688OptionDto->bind([
                     "offerId"           => $offerId,
                     "skuId"             => $prdOptions["skuId"],
                     "specId"            => $prdOptions["specId"],
                     "status"            => $opt_status,
+                    "is_except"         => $is_except,
                     "price_1688"        => $price_1688,
                     "optionName"        => rtrim($optionNameTransW1, "_"),
                     "optionNameTrans"   => rtrim($optionNameTrans, "_"),
