@@ -2370,7 +2370,8 @@ class ProductW2 extends ProductAbstract
 
     public function convertW1toW2(): void
     {
-        $objs  = ProductData::where("w_type", WConstant::WAPP_W1)->get();
+        $objs = ProductData::where("w_type", WConstant::WAPP_W1)->get();
+
         $count = 0;
         $totalCnt = count($objs);
 
@@ -2423,10 +2424,11 @@ class ProductW2 extends ProductAbstract
                 $prdDto                   = $this->get1688ProductDto($detailResult, $detailEnResult, $detailW1Result);
                 $product1688Dto           = $prdDto["product1688Dto"];
                 $product1688ExtendDto     = $prdDto["product1688ExtendDto"];
+                $product1688ImageDtoList  = $prdDto["product1688ImageDtoList"];
                 $product1688NoticeDtoList = $prdDto["product1688NoticeDtoList"];
                 $product1688OptionDtoList = $prdDto["product1688OptionDtoList"];
 
-                $saveResult = $this->convertSave1688ProductData($product1688Dto, $product1688ExtendDto, $product1688NoticeDtoList, $product1688OptionDtoList);
+                $saveResult = $this->convertSave1688ProductData($product1688Dto, $product1688ExtendDto, $product1688ImageDtoList, $product1688NoticeDtoList, $product1688OptionDtoList);
                 if( $saveResult["isSuccess"] != true ){
                     throw new Exception($saveResult["msg"]);
                 }
@@ -2446,7 +2448,7 @@ class ProductW2 extends ProductAbstract
     }
 
     public function convertSave1688ProductData(
-        Product1688Dto $product1688Dto, Product1688ExtendDto $product1688ExtendDto,
+        Product1688Dto $product1688Dto, Product1688ExtendDto $product1688ExtendDto, array $product1688ImageDtoList,
         array $product1688NoticeDtoList, array $product1688OptionDtoList): array
     {
         $returnMsg = helpers_fail_message();
@@ -2473,6 +2475,44 @@ class ProductW2 extends ProductAbstract
                 ["offer_id" => $offerId],
                 $upsertWhere
             );
+
+            // 3. product_image_datas, product_image_detail_datas upsert
+            foreach ($product1688ImageDtoList as $product1688ImageDto) {
+
+                if( $product1688ImageDto->lang != WConstant::WAPP_KR ){
+                    // 메인 이미지
+                    if( $product1688ImageDto->is_change_img == true && $product1688ImageDto->img_type == ImageConstant::IMAGE_TYPE_MAIN ){
+                        ProductImageData::updateOrCreate(
+                            [
+                                "offer_id" => $offerId,
+                                "img_type" => ImageConstant::IMAGE_TYPE_MAIN,
+                                "lang"     => $product1688ImageDto->lang,
+                            ],
+                            [
+                                "img_url_origin" => $product1688ImageDto->img_url_origin,
+                                "img_url_trans"  => "",
+                                "trans_dated_at" => null
+                            ]
+                        );
+                    }
+                    // 서브 이미지 or 상세 이미지
+                    if( $product1688ImageDto->is_change_img == true && $product1688ImageDto->img_type != ImageConstant::IMAGE_TYPE_MAIN ){
+                        ProductImageData::updateOrCreate(
+                            [
+                                "offer_id"       => $offerId,
+                                "img_type"       => $product1688ImageDto->img_type,
+                                "img_url_origin" => $product1688ImageDto->img_url_origin,
+                                "lang"           => $product1688ImageDto->lang,
+                            ],
+                            [
+                                "img_url_trans" => "",
+                                "trans_dated_at" => null
+                            ]
+                        );
+                    }
+                }
+
+            }
 
             // 4. product_notice_datas upsert
             foreach ($product1688NoticeDtoList as $product1688NoticeDto) {
