@@ -158,9 +158,14 @@ class GenuioService extends TransApiAbstract
                 }
             }
 
-            chkTransStatus($offerId);
+            if( $apiResult["isSuccess"] == true ){
+                chkTransStatus($offerId);
 
-            $returnMsg = helpers_success_message();
+                $returnMsg = helpers_success_message();
+            } else {
+                $returnMsg = helpers_fail_message(false, $apiResult["msg"]);
+            }
+
         } catch (Exception $e) {
             $errorMsg  = "offerId: {$offerId} | errorTitle: " . TransApiConstant::getFitErrorMessage("TRANS_REQUEST_IMAGE") . "errorDesc: " . $e->getMessage();
             $returnMsg = helpers_fail_message(false, $errorMsg);
@@ -898,11 +903,11 @@ class GenuioService extends TransApiAbstract
 
         try {
             $apiResult = json_decode($result, JSON_UNESCAPED_UNICODE);
-            if(!is_array($apiResult)) throw new InvalidArgumentException("결과가 배열이 아닙니다.");
+            if(!is_array($apiResult)) throw new InvalidArgumentException("Error: {$result}");
 
             return $apiResult;
         } catch (JsonException $e) {
-            $returnMsg = helpers_fail_message(false, "결과가 Json이 아닙니다.");
+            $returnMsg = helpers_fail_message(false, "Error: 결과가 Json이 아닙니다.");
         } catch (InvalidArgumentException $e) {
             $returnMsg = helpers_fail_message(false, $e->getMessage());
         } catch (Exception $e) {
