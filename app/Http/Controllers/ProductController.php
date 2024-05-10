@@ -107,6 +107,7 @@ class ProductController extends Controller
             "keyword"        => $keyword,
             "trans_status"   => $trans_status,
             "mapping_status" => $mapping_status,
+            "inspect_status" => InspectConstant::IS_INSPECT_Y,
             "prd_status"     => $prd_status,
             "mdPrice_status" => $mdPrice_status,
             "sort"           => $sort,

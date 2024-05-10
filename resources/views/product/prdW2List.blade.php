@@ -1,5 +1,6 @@
 @php
     use App\Constants\ProductConstant;
+    use App\Constants\InspectConstant;
     $exchangeRate = env("1688_EXCHANGE_RATE", 200);
 @endphp
 @extends('dashboard.base')
@@ -22,8 +23,9 @@
                         <span>Home</span>
                     </a>
                 </li>
-                <li class="breadcrumb-item">상품 리스트</li>
-                <li class="breadcrumb-item active" aria-current="page">Drop.K 상품 리스트 (ENG)</li>
+                <li class="breadcrumb-item">W App</li>
+                <li class="breadcrumb-item">판매 상품 관리</li>
+                <li class="breadcrumb-item active" aria-current="page">Drop.Hub 상품(ENG)</li>
             </ol>
         </nav>
 
@@ -161,6 +163,7 @@
                 </form>
                 
                 <div class="mt-3 d-flex justify-content-end">
+                    <button class="btn btn-md btn-outline-primary me-2" id="btn-inspect-select">검수상태 변경</button>
                     <button class="btn btn-md btn-outline-danger me-2" id="btn-status-select">판매상태 변경</button>
                     {{-- <button class="btn btn-md btn-outline-dark me-2" id="btn-select">선택번역 요청</button> --}}
                 </div>
@@ -468,6 +471,79 @@
                     <div class="modal-footer">
                         <button type="button" class="btn btn-primary btn-status-save">저장</button>
                         <button type="button" class="btn btn-secondary htmlModalClose3">닫기</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade" id="htmlModal4" tabindex="-1" role="dialog" aria-labelledby="htmlModalLabel4" aria-hidden="true">
+            <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="htmlModalLabel4">검수상태 변경</h5>
+                    </div>
+                    <div class="modal-body">
+                        <input type="hidden" name="offer_ids[]" />
+
+                        <div>
+                            <div class="d-flex justify-content-evenly px-3">
+                                <div class="row w-100">
+                                    <div class="col-2">
+                                        <label class="fs-7">이미지</label>
+                                    </div>
+                                    <div class="col d-flex justify-content-around">
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="radio" name="inspect_img_status" id="inspect_img_status1" value="{{ InspectConstant::IS_INSPECT_Y }}">
+                                            <label class="form-check-label" for="inspect_img_status1">검수완료</label>
+                                        </div>
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="radio" name="inspect_img_status" id="inspect_img_status2" value="{{ InspectConstant::IS_INSPECT_N }}" checked>
+                                            <label class="form-check-label" for="inspect_img_status2">미완료</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <hr>
+                            <div class="d-flex justify-content-evenly px-3">
+                                <div class="row w-100">
+                                    <div class="col-2">
+                                        <label class="fs-7">상품정보</label>
+                                    </div>
+                                    <div class="col d-flex justify-content-around">
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="radio" name="inspect_prd_status" id="inspect_prd_status1" value="{{ InspectConstant::IS_INSPECT_Y }}">
+                                            <label class="form-check-label" for="inspect_prd_status1">검수완료</label>
+                                        </div>
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="radio" name="inspect_prd_status" id="inspect_prd_status2" value="{{ InspectConstant::IS_INSPECT_N }}" checked>
+                                            <label class="form-check-label" for="inspect_prd_status2">미완료</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <hr>
+                            <div class="d-flex justify-content-evenly px-3">
+                                <div class="row w-100">
+                                    <div class="col-2">
+                                        <label class="fs-7">정보고시</label>
+                                    </div>
+                                    <div class="col d-flex justify-content-around">
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="radio" name="inspect_gosi_status" id="inspect_gosi_status1" value="{{ InspectConstant::IS_INSPECT_Y }}">
+                                            <label class="form-check-label" for="inspect_gosi_status1">검수완료</label>
+                                        </div>
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="radio" name="inspect_gosi_status" id="inspect_gosi_status2" value="{{ InspectConstant::IS_INSPECT_N }}" checked>
+                                            <label class="form-check-label" for="inspect_gosi_status2">미완료</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary btn-inspect-save">저장</button>
+                        <button type="button" class="btn btn-secondary htmlModalClose4">닫기</button>
                     </div>
                 </div>
             </div>
@@ -813,6 +889,20 @@
             $("#htmlModal3").modal('show');
         });
 
+        $("#btn-inspect-select").click(function(){
+            let offerIds = [];
+
+            $(".chk-inp:checked").each(function(index, element){
+                offerIds.push($(this).val());
+            });
+
+            if(offerIds.length < 1){
+                return alert("선택 된 상품이 없습니다.");
+            }
+
+            $("#htmlModal4").modal('show');
+        });
+
         $(".btn-status-save").click(function(){
             let offerIds = [];
 
@@ -852,6 +942,54 @@
 
         $(".htmlModalClose3").click(function(){
             $("#htmlModal3").modal('hide');
+        });
+
+        $(".btn-inspect-save").click(function(){
+            let offerIds = [];
+
+            $(".chk-inp:checked").each(function(index, element){
+                offerIds.push($(this).val());
+            });
+
+            if(offerIds.length < 1){
+                return alert("선택 된 상품이 없습니다.");
+            }
+
+            let inspect_img_status = $("input[name=inspect_img_status]:checked").val();
+            let inspect_prd_status = $("input[name=inspect_prd_status]:checked").val();
+            let inspect_gosi_status = $("input[name=inspect_gosi_status]:checked").val();
+
+            if( confirm("검수상태를 변경 하시겠습니까?") ){
+                $.ajax({
+                    "headers"    : {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
+                    "type"       : "POST",
+                    "url"        : "{{ route('w.product.inspectStatusUpdate') }}",
+                    "data"       : { 
+                        offerIds,
+                        inspect_img_status,
+                        inspect_prd_status,
+                        inspect_gosi_status,
+                    },
+                    beforeSend: function () {
+                        $("#loadingOverlay").show();
+                    },
+                    complete: function () {
+                        $("#loadingOverlay").hide();
+                    },
+                    success: function (resp) {
+                        alert(resp.msg);
+                        location.reload();
+                    },
+                    error: function error(request, status, _error) {
+                        let { error } = JSON.parse(request.responseText);
+                        alert(error.message);
+                    }
+                });
+            }
+        });
+
+        $(".htmlModalClose4").click(function(){
+            $("#htmlModal4").modal('hide');
         });
 
     })

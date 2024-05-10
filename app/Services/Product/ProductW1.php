@@ -504,6 +504,9 @@ class ProductW1 extends ProductAbstract
                 "notices",
                 "category",
                 "w_mapping.w_cate_name",
+                "img_inspect",
+                "prd_inspect",
+                "gosi_inspect",
             ])->where("offer_id", $offerId)->first();
             if( $prdObj == null ){
                 throw new Exception("No Data");

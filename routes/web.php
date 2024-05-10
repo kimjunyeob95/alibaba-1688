@@ -44,24 +44,29 @@ Route::prefix("product")->name("product.")->group(function(){
         Route::get("/except/list", [ProductController::class, "noInspectExceptList"])->name("except.list");
     });
 
-    /** 상품 리스트 */
-    Route::get("/list", [ProductController::class, "getPrdList"])->name("list");
-    /** 판매제외 상품 리스트 */
-    Route::get("/except/list", [ProductController::class, "getPrdExceptList"])->name("getPrdExceptList");
-    /** 상품 상세 */
-    Route::get("/{offerId}", [ProductController::class, "getPrdDetail"])->name("detail");
-    /** 상품 수정 */
-    Route::get("/update/{offerId}", [ProductController::class, "update"])->name("update");
-    /** 이미지 수정 */
-    Route::get("/img/edit/{offerId}", [ProductController::class, "getPrdImageEdit"])->name("imgEdit");
+    /** 판매 중 */
+    Route::prefix("")->name("")->group(function(){
+        /** 전체상품(KOR) */
+        Route::get("/list", [ProductController::class, "getPrdList"])->name("list");
+        /** 판매제외 상품 리스트 */
+        Route::get("/except/list", [ProductController::class, "getPrdExceptList"])->name("getPrdExceptList");
+        /** 상품 상세 */
+        Route::get("/{offerId}", [ProductController::class, "getPrdDetail"])->name("detail");
+        /** 상품 수정 */
+        Route::get("/update/{offerId}", [ProductController::class, "update"])->name("update");
+        /** 이미지 수정 */
+        Route::get("/img/edit/{offerId}", [ProductController::class, "getPrdImageEdit"])->name("imgEdit");
+    });
+
 
     Route::prefix("w2")->name("w2.")->group(function(){
         /** 상품 수집 관리 */
         Route::get("/queryProductDetail", [ProductW2Controller::class, "queryProductDetail"])->name("queryProductDetail");
         Route::get("/collectLogs", [ProductW2Controller::class, "prdCollectLogs"])->name("prdCollectLogs");
 
-        /** 상품 리스트 */
+        /** Drop.Hub 상품(ENG) */
         Route::get("/list", [ProductW2Controller::class, "getPrdList"])->name("list");
+        /** W2 상품 상세 */
         Route::get("/{offerId}", [ProductW2Controller::class, "getPrdDetail"])->name("detail");
     });
 

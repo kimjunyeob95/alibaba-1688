@@ -26,7 +26,7 @@
                 </li>
                 <li class="breadcrumb-item">W App</li>
                 <li class="breadcrumb-item">수집 상품 관리(검수중)</li>
-                <li class="breadcrumb-item active" aria-current="page">Drop.K 상품 리스트 (ENG)</li>
+                <li class="breadcrumb-item active" aria-current="page">Drop.Hub 상품(ENG)</li>
             </ol>
         </nav>
 

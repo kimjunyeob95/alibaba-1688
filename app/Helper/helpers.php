@@ -714,9 +714,14 @@ if (!function_exists("inspectStatusUpdate")) {
             "is_inspect" => InspectConstant::IS_INSPECT_Y
         ])->whereIn("inspect_type", InspectConstant::INSPECT_STATUS)->count();
 
+        $qry = ProductData::where("offer_id", $offerId);
         if( $inspectCnt == count(InspectConstant::INSPECT_STATUS) ){
-            ProductData::where("offer_id", $offerId)->update([
+            $qry->update([
                 "inspect_status" => ProductConstant::INSPECT_STATUS_Y
+            ]);
+        } else {
+            $qry->update([
+                "inspect_status" => ProductConstant::INSPECT_STATUS_N
             ]);
         }
     }

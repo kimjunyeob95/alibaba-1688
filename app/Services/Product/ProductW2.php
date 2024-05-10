@@ -208,14 +208,12 @@ class ProductW2 extends ProductAbstract
         $transYCnt = ProductData::whereIn("status", ProductConstant::PRD_SHOW_STATUS)
         ->where([
             "inspect_status"  => $inspect_status,
-            "trans_status"    => ProductConstant::TRANS_STATUS_Y,
             "w_type"          => WConstant::WAPP_W2,
             "trans_status_en" => ProductConstant::TRANS_STATUS_Y
         ])->count();
         $transNCnt = ProductData::whereIn("status", ProductConstant::PRD_SHOW_STATUS)
         ->where([
             "inspect_status"  => $inspect_status,
-            "trans_status"    => ProductConstant::TRANS_STATUS_N,
             "w_type"          => WConstant::WAPP_W2,
             "trans_status_en" => ProductConstant::TRANS_STATUS_N
         ])->count();
