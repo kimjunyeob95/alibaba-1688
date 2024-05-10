@@ -8,6 +8,7 @@ use App\Constants\GosiConstants;
 use App\Constants\ImageConstant;
 use App\Constants\MallConstant;
 use App\Constants\MallErrorMessageConstant;
+use App\Constants\OptionConstants;
 use App\Constants\ProductConstant;
 use App\Constants\WConstant;
 use App\Models\CategoryMapping;
@@ -96,7 +97,7 @@ class EasySell extends MallApiAbstract
                 if( $prdObj->status != ProductConstant::PRD_STATUS_PUBLISH ){
                     throw new Exception(MallErrorMessageConstant::getFitErrorMessage("PRODUCT_STATUS"));
                 }
-                if( count($prdObj->options) == 0 ){
+                if( count($prdObj->options->where("is_except", OptionConstants::IS_EXCEPT_N)) == 0 ){
                     throw new Exception(MallErrorMessageConstant::getFitErrorMessage("OPTION"));
                 }
 
@@ -224,7 +225,7 @@ class EasySell extends MallApiAbstract
                 if( $prdObj->status != ProductConstant::PRD_STATUS_PUBLISH ){
                     throw new Exception(MallErrorMessageConstant::getFitErrorMessage("PRODUCT_STATUS"));
                 }
-                if( count($prdObj->options) == 0 ){
+                if( count($prdObj->options->where("is_except", OptionConstants::IS_EXCEPT_N)) == 0 ){
                     throw new Exception(MallErrorMessageConstant::getFitErrorMessage("OPTION"));
                 }
 
@@ -443,7 +444,8 @@ class EasySell extends MallApiAbstract
 
             $unitInfo   = $optionTitle."|";
             $saleStatus = EasySellConstant::STATUS_STOP_SALE;
-            foreach($prdObj->options as $idx => $option){
+            $idx = 0;
+            foreach($prdObj->options->where("is_except", OptionConstants::IS_EXCEPT_N) as $option){
                 if(!$idx){
                     $buyPrice  = $option->option_price; //셀러허브 공급가
                     $salePrice = $setPrice = calcEasySellSalePrice($option->option_price, $option->md_price);
@@ -469,6 +471,8 @@ class EasySell extends MallApiAbstract
                 }
 
                 $unitInfo .= "{$optionNm}^^{$stock}^^{$setPrice}^^{$setPrice}^^{$option->option_price}::{$option->id}";
+
+                $idx++;
             }
 
             if($type == WConstant::WAPP_W1){
