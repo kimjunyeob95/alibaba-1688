@@ -25,12 +25,28 @@ class ProductErrorMessageConstant
     public const ERROR_MESSAGE_PRODUCT_KEYWORD                         = "keyword";
     public const ERROR_MESSAGE_PRODUCT_MAIN_IMG                        = "Main Img";
     public const ERROR_MESSAGE_SEARCH_TITLE                            = "search_title";
+    public const ERROR_MESSAGE_OFFER_ID                                = "offer id";
     public const ERROR_MESSAGE_OFFER_IDS                               = "offer ids";
     public const ERROR_MESSAGE_MD_PRICE                                = "MD price";
     public const ERROR_MESSAGE_STATUS                                  = "status";
     public const ERROR_MESSAGE_ALREADY_PRODUCT                         = "이미 수집 된 상품입니다.";
-    public const ERROR_MESSAGE_GOSILIST                                = "gosiList";
     public const ERROR_MESSAGE_PRODUCT_EXCEPT                          = "판매제외 상품";
+    public const ERROR_MESSAGE_PRD_NAME_KR                             = "prd_name_kr";
+    public const ERROR_MESSAGE_PRD_NAME_EN                             = "prd_name_en";
+    public const ERROR_MESSAGE_OPTIONLIST                              = "optionList";
+    public const ERROR_MESSAGE_OPTIONLIST_ID                           = "optionList id";
+    public const ERROR_MESSAGE_OPTIONLIST_IS_EXCEPT                    = "optionList is_except";
+    public const ERROR_MESSAGE_OPTIONLIST_OPTION_NAME_KR               = "optionList option_name_kr";
+    public const ERROR_MESSAGE_OPTIONLIST_OPTION_NAME_EN               = "optionList option_name_en";
+    public const ERROR_MESSAGE_GOSILIST                                = "gosiList";
+    public const ERROR_MESSAGE_GOSILIST_ID                             = "gosiList id";
+    public const ERROR_MESSAGE_GOSILIST_IS_EXCEPT                      = "gosiList is_except";
+    public const ERROR_MESSAGE_GOSIKRLIST                              = "gosiKrList";
+    public const ERROR_MESSAGE_GOSIKRLIST_ID                           = "gosiKrList id";
+    public const ERROR_MESSAGE_GOSIKRLIST_IS_EXCEPT                    = "gosiKrList is_except";
+    public const ERROR_MESSAGE_GOSIENLIST                              = "gosiEnList";
+    public const ERROR_MESSAGE_GOSIENLIST_ID                           = "gosiEnList id";
+    public const ERROR_MESSAGE_GOSIENLIST_IS_EXCEPT                    = "gosiEnList is_except";
  
     public static function getErrorMessageNotDefault($constantName): string
     {

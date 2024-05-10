@@ -11,6 +11,7 @@ use App\Constants\GosiConstants;
 use App\Constants\ImageConstant;
 use App\Constants\ImageErrorMessageConstant;
 use App\Constants\LogConstant;
+use App\Constants\OptionConstants;
 use App\Constants\ProductConstant;
 use App\Constants\ProductErrorMessageConstant;
 use App\Constants\TransApiConstant;
@@ -2232,6 +2233,61 @@ class ProductW1 extends ProductAbstract
             }
             $returnMsg = helpers_success_message();
         } catch (Exception $e) {
+            $returnMsg = helpers_fail_message(false, $e->getMessage());
+        }
+
+        return $returnMsg;
+    }
+
+    public function update(array $params): array
+    {
+        $returnMsg = $this->returnMsg;
+
+        try {
+            DB::beginTransaction();
+
+            $offerId     = $params["offer_id"];
+            $prd_name_kr = trim($params["prd_name_kr"]);
+            $optionList  = $params["optionList"];
+            $gosiKrList  = $params["gosiKrList"];
+
+            if( $prd_name_kr ){
+                ProductData::where("offer_id", $offerId)
+                ->update([
+                    "prd_name_kr" => $prd_name_kr,
+                ]);
+            }
+
+            foreach ($optionList as $option) {
+                $qry = ProductOptionData::where("id", $option["id"]);
+                if( $option["is_except"] == OptionConstants::IS_EXCEPT_N ){
+                    $qry->update([
+                        "is_except"      => $option["is_except"],
+                        "option_name_kr" => $option["option_name_kr"]
+                    ]);
+                } else {
+                    $qry->update([
+                        "is_except" => $option["is_except"]
+                    ]);
+                }
+            }
+
+            foreach ($gosiKrList as $gosi) {
+                ProductNoticeData::where("id", $gosi["id"])
+                ->update([
+                    "is_except"          => $gosi["is_except"],
+                    "attribute_name_kr"  => $gosi["attribute_name_kr"],
+                    "attribute_value_kr" => $gosi["attribute_value_kr"],
+                ]);
+            }
+
+            // 수정 상품 저장
+            saveModiProduct($offerId);
+
+            DB::commit();
+            $returnMsg = helpers_success_message();
+        } catch (Exception $e) {
+            DB::rollBack();
             $returnMsg = helpers_fail_message(false, $e->getMessage());
         }
 

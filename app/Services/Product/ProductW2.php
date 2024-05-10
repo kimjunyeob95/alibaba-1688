@@ -12,6 +12,7 @@ use App\Constants\GosiConstants;
 use App\Constants\ImageConstant;
 use App\Constants\ImageErrorMessageConstant;
 use App\Constants\LogConstant;
+use App\Constants\OptionConstants;
 use App\Constants\ProductConstant;
 use App\Constants\ProductErrorMessageConstant;
 use App\Constants\WConstant;
@@ -2370,7 +2371,11 @@ class ProductW2 extends ProductAbstract
 
     public function convertW1toW2(): void
     {
-        $objs = ProductData::where("w_type", WConstant::WAPP_W1)->get();
+        $objs = ProductData::where([
+            "w_type" => WConstant::WAPP_W1
+        ])
+        ->where("status", "!=", ProductConstant::PRD_STATUS_EXCEPT)
+        ->get();
 
         $count = 0;
         $totalCnt = count($objs);
@@ -2551,6 +2556,74 @@ class ProductW2 extends ProductAbstract
         } catch (Exception $e) {
             $returnMsg = helpers_fail_message(false, $e->getMessage());
         }
+        return $returnMsg;
+    }
+
+    public function update(array $params): array
+    {
+        $returnMsg = $this->returnMsg;
+
+        try {
+            DB::beginTransaction();
+
+            $offerId     = $params["offer_id"];
+            $prd_name_kr = trim($params["prd_name_kr"]);
+            $prd_name_en = trim($params["prd_name_en"]);
+            $optionList  = $params["optionList"];
+            $gosiKrList  = $params["gosiKrList"];
+            $gosiEnList  = $params["gosiEnList"];
+
+            if( $prd_name_kr && $prd_name_en ){
+                ProductData::where("offer_id", $offerId)
+                ->update([
+                    "prd_name_kr" => $prd_name_kr,
+                    "prd_name_en" => $prd_name_en,
+                ]);
+            }
+
+            foreach ($optionList as $option) {
+                $qry = ProductOptionData::where("id", $option["id"]);
+                if( $option["is_except"] == OptionConstants::IS_EXCEPT_N ){
+                    $qry->update([
+                        "is_except"      => $option["is_except"],
+                        "option_name_kr" => $option["option_name_kr"],
+                        "option_name_en" => $option["option_name_en"],
+                    ]);
+                } else {
+                    $qry->update([
+                        "is_except" => $option["is_except"]
+                    ]);
+                }
+            }
+
+            foreach ($gosiKrList as $gosi) {
+                ProductNoticeData::where("id", $gosi["id"])
+                ->update([
+                    "is_except"          => $gosi["is_except"],
+                    "attribute_name_kr"  => $gosi["attribute_name_kr"],
+                    "attribute_value_kr" => $gosi["attribute_value_kr"],
+                ]);
+            }
+
+            foreach ($gosiEnList as $gosi) {
+                ProductNoticeData::where("id", $gosi["id"])
+                ->update([
+                    "is_except"          => $gosi["is_except"],
+                    "attribute_name_en"  => $gosi["attribute_name_en"],
+                    "attribute_value_en" => $gosi["attribute_value_en"],
+                ]);
+            }
+
+            // 수정 상품 저장
+            saveModiProduct($offerId);
+
+            DB::commit();
+            $returnMsg = helpers_success_message();
+        } catch (Exception $e) {
+            DB::rollBack();
+            $returnMsg = helpers_fail_message(false, $e->getMessage());
+        }
+
         return $returnMsg;
     }
 }

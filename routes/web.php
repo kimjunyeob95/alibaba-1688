@@ -34,11 +34,15 @@ Route::prefix("product")->name("product.")->group(function(){
     Route::get("/collectLogs", [ProductController::class, "prdCollectLogs"])->name("prdCollectLogs");
     Route::get("/collect/log/{logId}", [ProductController::class, "prdCollectLogDetail"])->name("prdCollectLogDetail");
 
-    // 상품 리스트
+    /** 상품 리스트 */
     Route::get("/list", [ProductController::class, "getPrdList"])->name("list");
     /** 판매제외 상품 리스트 */
     Route::get("/except/list", [ProductController::class, "getPrdExceptList"])->name("getPrdExceptList");
+    /** 상품 상세 */
     Route::get("/{offerId}", [ProductController::class, "getPrdDetail"])->name("detail");
+    /** 상품 수정 */
+    Route::get("/update/{offerId}", [ProductController::class, "update"])->name("update");
+    /** 이미지 수정 */
     Route::get("/img/edit/{offerId}", [ProductController::class, "getPrdImageEdit"])->name("imgEdit");
 
     Route::prefix("w2")->name("w2.")->group(function(){

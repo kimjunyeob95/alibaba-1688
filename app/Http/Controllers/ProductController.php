@@ -349,6 +349,19 @@ class ProductController extends Controller
         return view("product.prdCollectLogDetail")->with($viewParams);
     }
 
+    public function update(int $offerId): View
+    {
+        $result = $this->service1688Product->getPrdDetail($offerId);
+        if( $result["isSuccess"] == false ){
+            abort(404);
+        } else {
+            $viewParams = [
+                "prdObj" => $result["data"]
+            ];
+        }
+        return view("product.update")->with($viewParams);
+    }
+
     public function getPrdImageEdit(int $offerId): View
     {
         $result = $this->service1688Product->getPrdImageEdit($offerId);
