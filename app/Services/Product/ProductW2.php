@@ -1172,8 +1172,8 @@ class ProductW2 extends ProductAbstract
                 $is_except = OptionConstants::IS_EXCEPT_N;
                 $optionObj = ProductOptionData::where([
                     "offer_id" => $offerId,
-                    "skuId"    => $prdOptions["skuId"],
-                    "specId"   => $prdOptions["specId"],
+                    "sku_id"   => $prdOptions["skuId"],
+                    "spec_id"  => $prdOptions["specId"],
                 ])->first();
                 if( $optionObj != null ){
                     $is_except = $optionObj->is_except;
