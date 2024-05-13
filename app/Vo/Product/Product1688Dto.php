@@ -27,9 +27,11 @@ class Product1688Dto extends Vo
     protected int $supply_type        = ProductConstant::SUPP_SEC_2;
     protected int $prd_channel        = ProductConstant::CHANNE_FOREGIN_CHANNEL;
     protected int $prd_rule           = ProductConstant::CHANNE_PRICE_FREE;
+    protected int $sold_out           = 0;
     protected string $trans_status    = ProductConstant::TRANS_STATUS_N;
     protected string $trans_status_en = ProductConstant::TRANS_STATUS_N;
     protected string $mapping_status  = ProductConstant::MAPPING_STATUS_N;
+    protected string $inspect_status  = ProductConstant::INSPECT_STATUS_N;
 
     public function bind(mixed $data): void
     {
@@ -42,6 +44,8 @@ class Product1688Dto extends Vo
         $this->prd_name_en    = $data["subjectTransEn"];
         $this->start_quantity = $data["startQuantity"];
         $this->prd_desc       = $data["description"];
+        $this->sold_out       = $data["soldOut"];
         $this->mapping_status = $data["mapping_status"];
+        $this->inspect_status = $data["inspect_status"];
     }
 }

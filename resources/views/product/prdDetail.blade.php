@@ -3,6 +3,8 @@
     use App\Constants\WConstant;
     use App\Constants\ImageConstant;
     use App\Constants\GosiConstants;
+    use App\Constants\OptionConstants;
+    use App\Constants\InspectConstant;
     $exchangeRate = env("1688_EXCHANGE_RATE", 200);
 @endphp
 @extends('dashboard.base')
@@ -62,9 +64,7 @@
                         <span>Home</span>
                     </a>
                 </li>
-                <li class="breadcrumb-item">
-                    <a href="/">상품 리스트</a>
-                </li>
+                <li class="breadcrumb-item">W App</li>
                 <li class="breadcrumb-item active" aria-current="page">수집 상품 상세</li>
             </ol>
         </nav>
@@ -235,7 +235,7 @@
                             </thead>
                             <tbody>
                                 @foreach ($prdObj->options as $option)
-                                    <tr class="text-center">
+                                    <tr class="text-center @if($option->is_except == OptionConstants::IS_EXCEPT_Y) line-through @endif">
                                         <td>
                                             {{ $option->sku_id }}
                                         </td>
@@ -432,12 +432,15 @@
         </div>
 
         <div class="me-5 mb-4 fixed-bottom d-flex flex-column align-items-stretch" style="left: auto;">
+            <button type="button" class="btn btn-primary btn-xl text-white mb-2 btn-inspect-status">
+                검수상태 변경
+            </button>
             <button type="button" class="btn btn-danger btn-xl text-white mb-2 btn-edit-status">
                 판매상태 변경
             </button>
             @if ($prdObj->status != ProductConstant::PRD_STATUS_EXCEPT)    
-                <button type="button" class="btn btn-secondary btn-xl text-white mb-2 btn-edit-gosi">
-                    정보고시 관리
+                <button type="button" class="btn btn-secondary btn-xl text-white mb-2 btn-edit-product">
+                    상품정보 관리
                 </button>
                 <a class="btn btn-primary btn-xl text-white text-decoration-none mb-2 btn-edit-img" type="all">
                     전체 이미지<br>번역요청
@@ -493,42 +496,70 @@
         </div>
 
         <div class="modal fade" id="htmlModal2" tabindex="-1" role="dialog" aria-labelledby="htmlModalLabel2" aria-hidden="true">
-            <div class="modal-dialog modal-xl" role="document">
+            <div class="modal-dialog modal-lg" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="htmlModalLabel">정보고시 관리</h5>
+                        <h5 class="modal-title" id="htmlModalLabel2">검수상태 변경</h5>
                     </div>
-                    <div class="modal-body">   
-                        <p class="text-danger fs-6">*상세 페이지에 노출할 정보를 선택하세요</p>
-                        <button type="button" class="btn btn-success btn-gosi-all">일괄 선택</button>
-
-                        <div class="table-responsive mt-4">
-                            <table class="table table-white bg-white">
-                                <tbody>
-                                    @foreach ($prdObj->notices as $gosiKey => $gosi)
-                                        @if ( $gosiKey % 4 == 0)
-                                            <tr>
-                                        @endif
-                                            <th class="bg-light">
-                                                <label class="form-check-label" for="gosiChk{{ $gosi->id }}">{{ $gosi->attribute_name_kr }}</label>
-                                                <input class="form-check-input chk-inp" type="checkbox" id="gosiChk{{ $gosi->id }}" value="{{ $gosi->id }}" @if( $gosi->is_except == GosiConstants::IS_EXCEPT_N ) checked @endif>
-                                            </th>
-                                            <td>{{ $gosi->attribute_value_kr }}</td>
-    
-                                            @if (($gosiKey + 1) % 4 == 0 || $loop->last)
-                                                @php $remainingCols = 4 - (($gosiKey + 1) % 4); @endphp
-                                                @if ($loop->last && $remainingCols > 0 && $remainingCols < 4)
-                                                    <td colspan="{{ $remainingCols * 2 }}"></td>
-                                                @endif
-                                                </tr>
-                                            @endif
-                                    @endforeach
-                                </tbody>
-                            </table>
+                    <div class="modal-body">
+                        <div>
+                            <div class="d-flex justify-content-evenly px-3">
+                                <div class="row w-100">
+                                    <div class="col-2">
+                                        <label class="fs-7">이미지</label>
+                                    </div>
+                                    <div class="col d-flex justify-content-around">
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="radio" name="inspect_img_status" id="inspect_img_status1" value="{{ InspectConstant::IS_INSPECT_Y }}" @if($prdObj->img_inspect != null && $prdObj->img_inspect->is_inspect == InspectConstant::IS_INSPECT_Y) checked @endif>
+                                            <label class="form-check-label" for="inspect_img_status1">검수완료</label>
+                                        </div>
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="radio" name="inspect_img_status" id="inspect_img_status2" value="{{ InspectConstant::IS_INSPECT_N }}" @if($prdObj->img_inspect == null || $prdObj->img_inspect->is_inspect == InspectConstant::IS_INSPECT_N) checked @endif>
+                                            <label class="form-check-label" for="inspect_img_status2">미완료</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <hr>
+                            <div class="d-flex justify-content-evenly px-3">
+                                <div class="row w-100">
+                                    <div class="col-2">
+                                        <label class="fs-7">상품정보</label>
+                                    </div>
+                                    <div class="col d-flex justify-content-around">
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="radio" name="inspect_prd_status" id="inspect_prd_status1" value="{{ InspectConstant::IS_INSPECT_Y }}" @if($prdObj->prd_inspect != null && $prdObj->prd_inspect->is_inspect == InspectConstant::IS_INSPECT_Y) checked @endif>
+                                            <label class="form-check-label" for="inspect_prd_status1">검수완료</label>
+                                        </div>
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="radio" name="inspect_prd_status" id="inspect_prd_status2" value="{{ InspectConstant::IS_INSPECT_N }}" @if($prdObj->prd_inspect == null || $prdObj->prd_inspect->is_inspect == InspectConstant::IS_INSPECT_N) checked @endif>
+                                            <label class="form-check-label" for="inspect_prd_status2">미완료</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <hr>
+                            <div class="d-flex justify-content-evenly px-3">
+                                <div class="row w-100">
+                                    <div class="col-2">
+                                        <label class="fs-7">정보고시</label>
+                                    </div>
+                                    <div class="col d-flex justify-content-around">
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="radio" name="inspect_gosi_status" id="inspect_gosi_status1" value="{{ InspectConstant::IS_INSPECT_Y }}" @if($prdObj->gosi_inspect != null && $prdObj->gosi_inspect->is_inspect == InspectConstant::IS_INSPECT_Y) checked @endif>
+                                            <label class="form-check-label" for="inspect_gosi_status1">검수완료</label>
+                                        </div>
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="radio" name="inspect_gosi_status" id="inspect_gosi_status2" value="{{ InspectConstant::IS_INSPECT_N }}" @if($prdObj->gosi_inspect == null || $prdObj->gosi_inspect->is_inspect == InspectConstant::IS_INSPECT_N) checked @endif>
+                                            <label class="form-check-label" for="inspect_gosi_status2">미완료</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-primary btn-save-gosi">저장</button>
+                        <button type="button" class="btn btn-primary btn-inspect-save">저장</button>
                         <button type="button" class="btn btn-secondary htmlModalClose2">닫기</button>
                     </div>
                 </div>
@@ -538,6 +569,9 @@
 <script type="text/javascript">
 
     $(document).ready(function(){
+
+        var offer_id = "{{ $prdObj->offer_id }}";
+
         $('.btn-edit-status').click(function(){
             $("#htmlModal").modal('show');
         });
@@ -546,8 +580,51 @@
             $("#htmlModal").modal('hide');
         });
 
+        $('.btn-inspect-status').click(function(){
+            $("#htmlModal2").modal('show');
+        });
+
+        $(".htmlModalClose2").click(function(){
+            $("#htmlModal2").modal('hide');
+        });
+
+        $(".btn-inspect-save").click(function(){
+            let offerIds = [offer_id];
+
+            let inspect_img_status = $("input[name=inspect_img_status]:checked").val();
+            let inspect_prd_status = $("input[name=inspect_prd_status]:checked").val();
+            let inspect_gosi_status = $("input[name=inspect_gosi_status]:checked").val();
+
+            if( confirm("검수상태를 변경 하시겠습니까?") ){
+                $.ajax({
+                    "headers"    : {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
+                    "type"       : "POST",
+                    "url"        : "{{ route('w.product.inspectStatusUpdate') }}",
+                    "data"       : { 
+                        offerIds,
+                        inspect_img_status,
+                        inspect_prd_status,
+                        inspect_gosi_status,
+                    },
+                    beforeSend: function () {
+                        $("#loadingOverlay").show();
+                    },
+                    complete: function () {
+                        $("#loadingOverlay").hide();
+                    },
+                    success: function (resp) {
+                        alert(resp.msg);
+                        location.reload();
+                    },
+                    error: function error(request, status, _error) {
+                        let { error } = JSON.parse(request.responseText);
+                        alert(error.message);
+                    }
+                });
+            }
+        });
+
         $(".btn-save").click(function(){
-            let offer_id = "{{ $prdObj->offer_id }}";
             let status   = $("input[name=status]:checked").val();
 
             if( confirm("판매상태를 변경 하시겠습니까?") ){
@@ -574,57 +651,8 @@
             }
         });
 
-        $('.btn-save-gosi').click(function(){
-            let gosiList = [];
-
-            $(".chk-inp").each(function(index, element){
-                let is_except = "Y";
-                if( $(this).is(":checked") ){
-                    is_except = "N";
-                }
-                gosiList.push({
-                    id: $(this).val(),
-                    is_except: is_except
-                });
-            });
-
-            if( confirm("저장하시겠습니까?") ){
-                $.ajax({
-                    "headers"    : {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
-                    "type"       : "POST",
-                    "url"        : "{{ route('w.product.gosiExcept') }}",
-                    "data"       : { gosiList },
-                    beforeSend: function () {
-                        $("#loadingOverlay").show();
-                    },
-                    complete: function () {
-                        $("#loadingOverlay").hide();
-                    },
-                    success: function (resp) {
-                        alert(resp.msg);
-                        location.reload();
-                    },
-                    error: function error(request, status, _error) {
-                        let { error } = JSON.parse(request.responseText);
-                        alert(error.message);
-                    }
-                });
-            }
-        });
-
-        $('.btn-gosi-all').click(function(){
-            if( $(".chk-inp:checked").length > 0 ) {
-                $(".chk-inp").prop("checked", false);
-            } else {
-                $(".chk-inp").prop("checked", true);
-            }
-        });
-
-        $('.btn-edit-gosi').click(function(){
-            $("#htmlModal2").modal('show');
-        });
-        $(".htmlModalClose2").click(function(){
-            $("#htmlModal2").modal('hide');
+        $('.btn-edit-product').click(function(){
+            window.open(`/product/update/${offer_id}`, '_blank');
         });
 
         $('.btn-edit-img').click(function(e){
@@ -632,7 +660,6 @@
 
             let type         = $(this).attr("type");
             let trans_status = "{{ $prdObj->trans_status }}";
-            let offer_id     = "{{ $prdObj->offer_id }}";
 
             if( type == "all" ){
                 if( confirm("전체 이미지 번역요청을 하시겠습니까?") ){

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Constants\InspectConstant;
 use App\Http\Controllers\Controller;
 use App\Services\Service1688Product;
 use Illuminate\Http\Request;
@@ -39,6 +40,7 @@ class ProductW2Controller extends Controller
             "keyword"         => $keyword,
             "trans_status_en" => $trans_status_en,
             "mapping_status"  => $mapping_status,
+            "inspect_status"  => InspectConstant::IS_INSPECT_Y,
             "prd_status"      => $prd_status,
             "mdPrice_status"  => $mdPrice_status,
             "sort"            => $sort,
@@ -307,5 +309,72 @@ class ProductW2Controller extends Controller
         }
 
         return view("product.prdImageEdit")->with($viewParams);
+    }
+
+    public function noInspectList(): View
+    {
+        $page                = $this->request->post("page", 1);
+        $pageSize            = $this->request->post("pageSize", 50);
+        $search_cls          = $this->request->get("search_cls", "offer_id");
+        $w_type              = $this->request->get("w_type", "");
+        $keyword             = $this->request->get("keyword", "");
+        $trans_status        = $this->request->get("trans_status", "");
+        $trans_status_en     = $this->request->get("trans_status_en", "");
+        $mapping_status      = $this->request->get("mapping_status", "");
+        $prd_status          = $this->request->get("prd_status", "");
+        $mdPrice_status      = $this->request->get("mdPrice_status", "");
+        $sort                = $this->request->get("sort", "updated_at|desc");
+        $inspect_img_status  = $this->request->get("inspect_img_status", "");
+        $inspect_prd_status  = $this->request->get("inspect_prd_status", "");
+        $inspect_gosi_status = $this->request->get("inspect_gosi_status", "");
+        $offset              = ($page - 1) * $pageSize;
+
+        $params = [
+            "page"                => $page,
+            "pageSize"            => $pageSize,
+            "search_cls"          => $search_cls,
+            "inspect_status"      => InspectConstant::IS_INSPECT_N,
+            "w_type"              => $w_type,
+            "keyword"             => $keyword,
+            "trans_status"        => $trans_status,
+            "trans_status_en"     => $trans_status_en,
+            "mapping_status"      => $mapping_status,
+            "prd_status"          => $prd_status,
+            "mdPrice_status"      => $mdPrice_status,
+            "sort"                => $sort,
+            "inspect_img_status"  => $inspect_img_status,
+            "inspect_prd_status"  => $inspect_prd_status,
+            "inspect_gosi_status" => $inspect_gosi_status,
+        ];
+        $result = $this->service1688Product->getPrdListW2($params);
+
+        $viewParams = [
+            "datas"               => $result["paginator"],
+            "transYCnt"           => $result["transYCnt"],
+            "transNCnt"           => $result["transNCnt"],
+            "totalCnt"            => $result["totalCnt"],
+            "imgInspectYCnt"      => $result["imgInspectYCnt"],
+            "imgInspectNCnt"      => $result["imgInspectNCnt"],
+            "prdInspectYCnt"      => $result["prdInspectYCnt"],
+            "prdInspectNCnt"      => $result["prdInspectNCnt"],
+            "gosiInspectYCnt"     => $result["gosiInspectYCnt"],
+            "gosiInspectNCnt"     => $result["gosiInspectNCnt"],
+            "offset"              => (int) $offset,
+            "pageSize"            => (int) $pageSize,
+            "search_cls"          => $search_cls,
+            "w_type"              => $w_type,
+            "keyword"             => $keyword,
+            "trans_status"        => $trans_status,
+            "trans_status_en"     => $trans_status_en,
+            "mapping_status"      => $mapping_status,
+            "prd_status"          => $prd_status,
+            "mdPrice_status"      => $mdPrice_status,
+            "inspect_img_status"  => $inspect_img_status,
+            "inspect_prd_status"  => $inspect_prd_status,
+            "inspect_gosi_status" => $inspect_gosi_status,
+            "sort"                => $sort,
+        ];
+
+        return view("product.noInspectW2List")->with($viewParams);
     }
 }

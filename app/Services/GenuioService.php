@@ -10,6 +10,7 @@ use App\Constants\ImageErrorMessageConstant;
 use App\Constants\TransApiConstant;
 use App\Constants\WConstant;
 use App\Models\ApiUser;
+use App\Models\GenuioAiData;
 use App\Models\GenuioImageData;
 use App\Models\GenuioQueueData;
 use App\Models\GenuioQueueDetailData;
@@ -147,10 +148,14 @@ class GenuioService extends TransApiAbstract
             if( count($payload["images"]) > 0 ){
                 $apiResult = $this->apiCurl("post", "/translate-img", $payload);
 
-                $upWhere  = [
-                    "payload_json"  => json_encode($payload, JSON_UNESCAPED_UNICODE),
-                    "response_json" => json_encode($apiResult, JSON_UNESCAPED_UNICODE)
-                ];
+                $upWhere = [];
+                $upWhere["payload_json"] = json_encode($payload, JSON_UNESCAPED_UNICODE);
+
+                if( $apiResult["isSuccess"] == true ){
+                    $upWhere["response_json"] = json_encode($apiResult["data"], JSON_UNESCAPED_UNICODE);
+                } else {
+                    $upWhere["response_json"] = json_encode($apiResult, JSON_UNESCAPED_UNICODE);
+                }
                 GenuioQueueData::where("id", $nextId)->update($upWhere);
     
                 foreach ($queueDetailInsList as $queueDetailIns) {
@@ -158,9 +163,14 @@ class GenuioService extends TransApiAbstract
                 }
             }
 
-            chkTransStatus($offerId);
+            if( $apiResult["isSuccess"] == true ){
+                chkTransStatus($offerId);
 
-            $returnMsg = helpers_success_message();
+                $returnMsg = helpers_success_message();
+            } else {
+                $returnMsg = helpers_fail_message(false, $apiResult["msg"]);
+            }
+
         } catch (Exception $e) {
             $errorMsg  = "offerId: {$offerId} | errorTitle: " . TransApiConstant::getFitErrorMessage("TRANS_REQUEST_IMAGE") . "errorDesc: " . $e->getMessage();
             $returnMsg = helpers_fail_message(false, $errorMsg);
@@ -444,19 +454,19 @@ class GenuioService extends TransApiAbstract
                 }
             }
 
-            
             if( isset($params["prdObj"]["prd_desc"]) && $params["prdObj"]["prd_desc"] ){
-                $debugParam = [
-                    "offerId" => $offerId,
-                    "prdObj"  => $params["prdObj"],
-                ];
-                debug_log(json_encode($debugParam, JSON_UNESCAPED_UNICODE), "genuio", "genuio-params");
+                $prd_desc_kr = $params["prdObj"]["prd_desc"];
 
-                $trans_prd_desc = $params["prdObj"]["prd_desc"];
-                ProductData::where("offer_id", $offerId)
-                ->update([
-                    "prd_desc_kr" => $trans_prd_desc
-                ]);
+                GenuioAiData::updateOrCreate(
+                    [
+                        "offer_id"      => $offerId,
+                        "ai_apply" => GenuioConstant::AI_APPLY_DESC_KR
+                    ],
+                    [
+                        "origin_data" => $prdObj->prd_desc,
+                        "apply_data"  => $prd_desc_kr
+                    ]
+                );
             };
 
             // 상세 이미지 업데이트
@@ -898,11 +908,11 @@ class GenuioService extends TransApiAbstract
 
         try {
             $apiResult = json_decode($result, JSON_UNESCAPED_UNICODE);
-            if(!is_array($apiResult)) throw new InvalidArgumentException("결과가 배열이 아닙니다.");
+            if(!is_array($apiResult)) throw new InvalidArgumentException("Error: {$result}");
 
-            return $apiResult;
+            $returnMsg = helpers_success_message($apiResult);
         } catch (JsonException $e) {
-            $returnMsg = helpers_fail_message(false, "결과가 Json이 아닙니다.");
+            $returnMsg = helpers_fail_message(false, "Error: 결과가 Json이 아닙니다.");
         } catch (InvalidArgumentException $e) {
             $returnMsg = helpers_fail_message(false, $e->getMessage());
         } catch (Exception $e) {

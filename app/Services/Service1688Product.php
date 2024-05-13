@@ -404,6 +404,28 @@ class Service1688Product
       return $this->productAbstract->gosiExcept($gosiList);
    }
 
+   /**
+     * @func updateW1
+     * @description '상품 update'
+     * @param array $params
+     * @return array
+   */
+   public function updateW1(array $params): array
+   {
+      return $this->productAbstract->update($params);
+   }
+
+   /**
+     * @func inspectStatusUpdate
+     * @description '검수상태 update'
+     * @param array $params
+     * @return array
+   */
+   public function inspectStatusUpdate(array $params): array
+   {
+      return $this->productAbstract->inspectStatusUpdate($params);
+   }
+
    /****************************************** WApp W2 **********************************************/
 
    /**
@@ -472,5 +494,16 @@ class Service1688Product
    public function statusUpdateW2(array $offerIds, string $status): array
    {
       return $this->productAbstractW2->statusUpdate($offerIds, $status);
+   }
+
+   /**
+     * @func updateW2
+     * @description '상품 update'
+     * @param array $params
+     * @return array
+   */
+   public function updateW2(array $params): array
+   {
+      return $this->productAbstractW2->update($params);
    }
 }

@@ -247,6 +247,22 @@ abstract class ProductAbstract
     abstract function gosiExcept(array $gosiList): array;
 
     /**
+     * @func update
+     * @description '상품 update'
+     * @param array $params
+     * @return array
+    */
+    abstract function update(array $params): array;
+
+    /**
+     * @func inspectStatusUpdate
+     * @description '검수상태 update'
+     * @param array $params
+     * @return array
+    */
+    abstract function inspectStatusUpdate(array $params): array;
+
+    /**
      * @func removeSpecialSequence
      * @description '삭제어 처리'
      * @param string $text

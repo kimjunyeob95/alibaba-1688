@@ -2,6 +2,7 @@
 
 namespace App\Vo\Product;
 
+use App\Constants\OptionConstants;
 use App\Vo\Vo;
 
 class Product1688OptionDto extends Vo
@@ -10,6 +11,7 @@ class Product1688OptionDto extends Vo
     protected int $sku_id            = 0;
     protected string $spec_id        = "";
     protected string $status         = "";
+    protected string $is_except      = OptionConstants::IS_EXCEPT_N;
     protected string $option_name    = "";
     protected string $option_name_kr = "";
     protected string $option_name_en = "";
@@ -22,6 +24,10 @@ class Product1688OptionDto extends Vo
     protected int $amount_on_sale    = 0;
     protected string $cargo_number   = "";
     protected float $exchange_rate   = 0.0;
+    protected float $width           = 0.0;
+    protected float $length          = 0.0;
+    protected float $height          = 0.0;
+    protected float $weight          = 0.0;
 
     public function bind(mixed $data): void
     {
@@ -29,6 +35,7 @@ class Product1688OptionDto extends Vo
         $this->sku_id         = $data["skuId"];
         $this->spec_id        = $data["specId"];
         $this->status         = $data["status"];
+        $this->is_except      = $data["is_except"];
         $this->option_name    = $data["optionName"];
         $this->option_name_kr = $data["optionNameTrans"];
         $this->option_name_en = $data["optionNameTransEn"];
@@ -37,6 +44,10 @@ class Product1688OptionDto extends Vo
         $this->amount_on_sale = $data["amountOnSale"];
         $this->cargo_number   = $data["cargoNumber"];
         $this->exchange_rate  = env("1688_EXCHANGE_RATE", 200);
+        $this->width          = $data["width"];
+        $this->length         = $data["length"];
+        $this->height         = $data["height"];
+        $this->weight         = $data["weight"];
 
         $this->oc_bind();
     }

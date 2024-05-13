@@ -1,13 +1,17 @@
 <?php
 
+use App\Constants\GenuioConstant;
 use App\Constants\HttpConstant;
 use App\Constants\ImageConstant;
+use App\Constants\InspectConstant;
 use App\Constants\MallConstant;
 use App\Constants\ProductConstant;
 use App\Constants\WConstant;
 use App\Models\EasysellProductLog;
+use App\Models\GenuioAiData;
 use App\Models\ProductData;
 use App\Models\ProductImageData;
+use App\Models\ProductInspectData;
 use App\Models\ProductModiData;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Carbon;
@@ -587,7 +591,16 @@ if (!function_exists("upPrdDescTrans")) {
         $prdObj = ProductData::where("offer_id", $offerId)->first();
         if( $prdObj != null ){
 
-            $prd_desc = $prdObj->prd_desc;
+            $geKrObj = GenuioAiData::where([
+                "offer_id" => $offerId,
+                "ai_apply" => GenuioConstant::AI_APPLY_DESC_KR
+            ])->first();
+
+            if( $geKrObj != null ){
+                $prd_desc = $geKrObj->apply_data;
+            } else {
+                $prd_desc = $prdObj->prd_desc;
+            }
             $imgKrObjs = ProductImageData::where([
                 "offer_id" => $offerId,
                 "img_type" => ImageConstant::IMAGE_TYPE_DESC,
@@ -612,7 +625,16 @@ if (!function_exists("upPrdDescTrans")) {
             ]);
 
             if( $prdObj->w_type == WConstant::WAPP_W2 ){
-                $prd_desc = $prdObj->prd_desc;
+                $geEnObj = GenuioAiData::where([
+                    "offer_id"      => $offerId,
+                    "ai_apply" => GenuioConstant::AI_APPLY_DESC_EN
+                ])->first();
+    
+                if( $geEnObj != null ){
+                    $prd_desc = $geEnObj->apply_data;
+                } else {
+                    $prd_desc = $prdObj->prd_desc;
+                }
 
                 $imgEnObjs = ProductImageData::where([
                     "offer_id" => $offerId,
@@ -699,6 +721,28 @@ if (!function_exists("saveModiProduct")) {
                     "send_dated_at" => Null,
                 ]);
             }
+        }
+    }
+}
+
+/** 검수상태 최종 변경 */
+if (!function_exists("inspectStatusUpdate")) {
+    function inspectStatusUpdate(int $offerId): void
+    {
+        $inspectCnt = ProductInspectData::where([
+            "offer_id"   => $offerId,
+            "is_inspect" => InspectConstant::IS_INSPECT_Y
+        ])->whereIn("inspect_type", InspectConstant::INSPECT_STATUS)->count();
+
+        $qry = ProductData::where("offer_id", $offerId);
+        if( $inspectCnt == count(InspectConstant::INSPECT_STATUS) ){
+            $qry->update([
+                "inspect_status" => ProductConstant::INSPECT_STATUS_Y
+            ]);
+        } else {
+            $qry->update([
+                "inspect_status" => ProductConstant::INSPECT_STATUS_N
+            ]);
         }
     }
 }

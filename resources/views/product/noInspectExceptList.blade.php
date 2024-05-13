@@ -1,5 +1,6 @@
 @php
     use App\Constants\ProductConstant;
+    use App\Constants\WConstant;
     use App\Constants\InspectConstant;
     $exchangeRate = env("1688_EXCHANGE_RATE", 200);
 @endphp
@@ -24,8 +25,8 @@
                     </a>
                 </li>
                 <li class="breadcrumb-item">W App</li>
-                <li class="breadcrumb-item">판매 상품 관리</li>
-                <li class="breadcrumb-item active" aria-current="page">Drop.Hub 상품(ENG)</li>
+                <li class="breadcrumb-item">수집 상품 관리(검수중)</li>
+                <li class="breadcrumb-item active" aria-current="page">판메제외 상품 리스트</li>
             </ol>
         </nav>
 
@@ -33,17 +34,29 @@
             <div class="col-12 mb-3">
 
                 <form id="searchFrm">
-                    <input type="hidden" name="trans_status_en" value={{ $trans_status_en }}>
+                    <input type="hidden" name="w_type" value={{ $w_type }}>
+                    <input type="hidden" name="trans_status" value={{ $trans_status }}>
                     <input type="hidden" name="mapping_status" value={{ $mapping_status }}>
                     <input type="hidden" name="prd_status" value={{ $prd_status }}>
                     <input type="hidden" name="mdPrice_status" value={{ $mdPrice_status }}>
+                    <input type="hidden" name="inspect_img_status" value={{ $inspect_img_status }}>
+                    <input type="hidden" name="inspect_img_status" value={{ $inspect_img_status }}>
+                    <input type="hidden" name="inspect_prd_status" value={{ $inspect_prd_status }}>
 
                     <div class="card">
                         <div class="card-header">
                             <table class="table">
                                 <tr class="align-middle">
-                                    <th style="width: 120px">상품 현황</th>
-                                    <td colspan="3">
+                                    <th style="width: 120px">상품 번역</th>
+                                    <td>
+                                        <button type="button" name="trans_status" class="btn-status btn btn-md {{ $trans_status == "" ? "btn-primary" : "btn-dark" }}"
+                                        value="">전체</button>
+                                        <button type="button" name="trans_status" class="btn-status btn btn-md {{ $trans_status == ProductConstant::TRANS_STATUS_Y ? "btn-primary" : "btn-dark" }}"
+                                        value="{{ ProductConstant::TRANS_STATUS_Y }}">완료</button>
+                                        <button type="button" name="trans_status" class="btn-status btn btn-md {{ $trans_status == ProductConstant::TRANS_STATUS_N ? "btn-primary" : "btn-dark" }}"
+                                        value="{{ ProductConstant::TRANS_STATUS_N }}">미완료</button>
+                                    </td>
+                                    <td colspan="2">
                                         <div class="d-flex text-center">
                                             <div class="d-flex align-items-center justify-content-center flex-fill p-2 border rounded" style="height: 100px;">
                                                 전체<br>
@@ -61,14 +74,95 @@
                                     </td>
                                 </tr>
                                 <tr class="align-middle">
-                                    <th style="width: 120px">상품 번역</th>
-                                    <td colspan="3">
-                                        <button type="button" name="trans_status_en" class="btn-status btn btn-md {{ $trans_status_en == "" ? "btn-primary" : "btn-dark" }}"
+                                    <th style="width: 120px">이미지 검수</th>
+                                    <td>
+                                        <button type="button" name="inspect_img_status" class="btn-status btn btn-md {{ $inspect_img_status == "" ? "btn-primary" : "btn-dark" }}"
                                         value="">전체</button>
-                                        <button type="button" name="trans_status_en" class="btn-status btn btn-md {{ $trans_status_en == ProductConstant::TRANS_STATUS_Y ? "btn-primary" : "btn-dark" }}"
-                                        value="{{ ProductConstant::TRANS_STATUS_Y }}">완료</button>
-                                        <button type="button" name="trans_status_en" class="btn-status btn btn-md {{ $trans_status_en == ProductConstant::TRANS_STATUS_N ? "btn-primary" : "btn-dark" }}"
-                                        value="{{ ProductConstant::TRANS_STATUS_N }}">미완료</button>
+                                        <button type="button" name="inspect_img_status" class="btn-status btn btn-md {{ $inspect_img_status == InspectConstant::IS_INSPECT_Y ? "btn-primary" : "btn-dark" }}"
+                                        value="{{ InspectConstant::IS_INSPECT_Y }}">완료</button>
+                                        <button type="button" name="inspect_img_status" class="btn-status btn btn-md {{ $inspect_img_status == InspectConstant::IS_INSPECT_N ? "btn-primary" : "btn-dark" }}"
+                                        value="{{ InspectConstant::IS_INSPECT_N }}">미완료</button>
+                                    </td>
+                                    <td colspan="2">
+                                        <div class="d-flex text-center">
+                                            <div class="d-flex align-items-center justify-content-center flex-fill p-2 border rounded" style="height: 100px;">
+                                                전체<br>
+                                                {{ number_format($totalCnt) }}건
+                                            </div>
+                                            <div class="d-flex align-items-center justify-content-center flex-fill p-2 border rounded" style="height: 100px;">
+                                                완료<br>
+                                                {{ number_format($imgInspectYCnt) }}건
+                                            </div>
+                                            <div class="d-flex align-items-center justify-content-center flex-fill p-2 border rounded" style="height: 100px;">
+                                                미완료<br>
+                                                {{ number_format($imgInspectNCnt) }}건
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr class="align-middle">
+                                    <th style="width: 120px">상품정보 검수</th>
+                                    <td>
+                                        <button type="button" name="inspect_prd_status" class="btn-status btn btn-md {{ $inspect_prd_status == "" ? "btn-primary" : "btn-dark" }}"
+                                        value="">전체</button>
+                                        <button type="button" name="inspect_prd_status" class="btn-status btn btn-md {{ $inspect_prd_status == InspectConstant::IS_INSPECT_Y ? "btn-primary" : "btn-dark" }}"
+                                        value="{{ InspectConstant::IS_INSPECT_Y }}">완료</button>
+                                        <button type="button" name="inspect_prd_status" class="btn-status btn btn-md {{ $inspect_prd_status == InspectConstant::IS_INSPECT_N ? "btn-primary" : "btn-dark" }}"
+                                        value="{{ InspectConstant::IS_INSPECT_N }}">미완료</button>
+                                    </td>
+                                    <td colspan="2">
+                                        <div class="d-flex text-center">
+                                            <div class="d-flex align-items-center justify-content-center flex-fill p-2 border rounded" style="height: 100px;">
+                                                전체<br>
+                                                {{ number_format($totalCnt) }}건
+                                            </div>
+                                            <div class="d-flex align-items-center justify-content-center flex-fill p-2 border rounded" style="height: 100px;">
+                                                완료<br>
+                                                {{ number_format($prdInspectYCnt) }}건
+                                            </div>
+                                            <div class="d-flex align-items-center justify-content-center flex-fill p-2 border rounded" style="height: 100px;">
+                                                미완료<br>
+                                                {{ number_format($prdInspectNCnt) }}건
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr class="align-middle">
+                                    <th style="width: 120px">정보고시 검수</th>
+                                    <td>
+                                        <button type="button" name="inspect_gosi_status" class="btn-status btn btn-md {{ $inspect_gosi_status == "" ? "btn-primary" : "btn-dark" }}"
+                                        value="">전체</button>
+                                        <button type="button" name="inspect_gosi_status" class="btn-status btn btn-md {{ $inspect_gosi_status == InspectConstant::IS_INSPECT_Y ? "btn-primary" : "btn-dark" }}"
+                                        value="{{ InspectConstant::IS_INSPECT_Y }}">완료</button>
+                                        <button type="button" name="inspect_gosi_status" class="btn-status btn btn-md {{ $inspect_gosi_status == InspectConstant::IS_INSPECT_N ? "btn-primary" : "btn-dark" }}"
+                                        value="{{ InspectConstant::IS_INSPECT_N }}">미완료</button>
+                                    </td>
+                                    <td colspan="2">
+                                        <div class="d-flex text-center">
+                                            <div class="d-flex align-items-center justify-content-center flex-fill p-2 border rounded" style="height: 100px;">
+                                                전체<br>
+                                                {{ number_format($totalCnt) }}건
+                                            </div>
+                                            <div class="d-flex align-items-center justify-content-center flex-fill p-2 border rounded" style="height: 100px;">
+                                                완료<br>
+                                                {{ number_format($gosiInspectYCnt) }}건
+                                            </div>
+                                            <div class="d-flex align-items-center justify-content-center flex-fill p-2 border rounded" style="height: 100px;">
+                                                미완료<br>
+                                                {{ number_format($gosiInspectNCnt) }}건
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr class="align-middle">
+                                    <th style="width: 120px">W type</th>
+                                    <td colspan="3">
+                                        <button type="button" name="w_type" class="btn-status btn btn-md {{ $w_type == "" ? "btn-primary" : "btn-dark" }}"
+                                        value="">전체</button>
+                                        <button type="button" name="w_type" class="btn-status btn btn-md {{ $w_type == WConstant::WAPP_W1 ? "btn-primary" : "btn-dark" }}"
+                                        value="{{ WConstant::WAPP_W1 }}">W1</button>
+                                        <button type="button" name="w_type" class="btn-status btn btn-md {{ $w_type == WConstant::WAPP_W2 ? "btn-primary" : "btn-dark" }}"
+                                        value="{{ WConstant::WAPP_W2}}">W2</button>
                                     </td>
                                 </tr>
                                 <tr class="align-middle">
@@ -80,21 +174,6 @@
                                         value="{{ ProductConstant::MAPPING_STATUS_Y }}">맵핑</button>
                                         <button type="button" name="mapping_status" class="btn-status btn btn-md {{ $mapping_status == ProductConstant::MAPPING_STATUS_N ? "btn-primary" : "btn-dark" }}"
                                         value="{{ ProductConstant::MAPPING_STATUS_N }}">미맵핑</button>
-                                    </td>
-                                </tr>
-                                <tr class="align-middle">
-                                    <th style="width: 120px">판매 상태</th>
-                                    <td colspan="3">
-                                        <button type="button" name="prd_status" class="btn-status btn btn-md {{ $prd_status == "" ? "btn-primary" : "btn-dark" }}"
-                                        value="">전체</button>
-                                        <button type="button" name="prd_status" class="btn-status btn btn-md {{ $prd_status == ProductConstant::PRD_STATUS_PUBLISH ? "btn-primary" : "btn-dark" }}"
-                                        value="{{ ProductConstant::PRD_STATUS_PUBLISH }}">정상판매</button>
-                                        <button type="button" name="prd_status" class="btn-status btn btn-md {{ $prd_status == ProductConstant::PRD_STATUS_STOP ? "btn-primary" : "btn-dark" }}"
-                                        value="{{ ProductConstant::PRD_STATUS_STOP }}">판매중지</button>
-                                        {{-- <button type="button" name="prd_status" class="btn-status btn btn-md {{ $prd_status == ProductConstant::PRD_STATUS_EXCEPT ? "btn-primary" : "btn-dark" }}"
-                                        value="{{ ProductConstant::PRD_STATUS_EXCEPT }}">판매제외</button> --}}
-                                        <button type="button" name="prd_status" class="btn-status btn btn-md {{ $prd_status == ProductConstant::PRD_STATUS_MISS ? "btn-primary" : "btn-dark" }}"
-                                        value="{{ ProductConstant::PRD_STATUS_MISS }}">정보누락</button>
                                     </td>
                                 </tr>
                                 <tr class="align-middle">
@@ -154,7 +233,7 @@
                                 <tr class="align-middle text-left">
                                     <td colspan="6">
                                         <button type="button" class="btn btn-md btn-primary" id="form-submit">검색</button>
-                                        <button type="button" onclick="location.href='/product/w2/list'" class="btn btn-md btn-light btn-reset">초기화</button>
+                                        <button type="button" onclick="location.href='/product/noInspect/except/list'" class="btn btn-md btn-light btn-reset">초기화</button>
                                     </td>
                                 </tr>
                             </table>
@@ -177,11 +256,12 @@
                                     <input class="form-check-input" type="checkbox" id="allCheckbox">
                                 </th>
                                 <th scope="col" style="width: 50px">No</th>
+                                <th scope="col" style="width: 50px">W</th>
                                 <th scope="col" style="width: 150px">
                                     제품ID<br>
                                     (카테고리ID)
                                 </th>
-                                <th scope="col">제품명(영문)</th>
+                                <th scope="col">제품명(국문)</th>
                                 <th scope="col" style="width: 50px">최소 구매 수량</th>
                                 <th scope="col" style="width: 100px">원본이미지</th>
                                 <th scope="col" style="width: 100px">번역이미지</th>
@@ -193,9 +273,12 @@
                                     일반 판매가(원)
                                 </th>
                                 <th scope="col" style="width: 120px" class="text-center">
-                                    MD 판매가(원)
+                                    판매상태
                                 </th>
-                                <th scope="col" style="width: 100px" class="text-center">이미지<br>번역여부</th>
+                                <th style="width: 100px" class="text-center">
+                                    상품 검수<br>
+                                    (누락)
+                                </th> 
                                 <th style="width: 100px" class="text-center">관리</th> 
                             </tr>
                         </thead>
@@ -209,33 +292,33 @@
                                         {{ number_format(($datas->total() - $offset) - $index) }}
                                     </td>
                                     <td>
+                                        {{ $data->w_type }}
+                                    </td>
+                                    <td>
                                         <a href="https://detail.1688.com/offer/{{ $data->offer_id }}.html" target="_blank">{{ $data->offer_id }}</a>
                                         @if ($data->mapping_status == ProductConstant::MAPPING_STATUS_Y)
                                             <br>
                                             <span>({{ $data->category_id }})</span>
                                         @endif
                                         @if ($data->mapping_status == ProductConstant::MAPPING_STATUS_N)
-                                            {{-- <button class="btn btn-sm btn-outline-success btn-modal mt-1" cateid={{ $data->category_id }}>맵핑하기</button>
+                                            <button class="btn btn-sm btn-outline-success btn-modal mt-1" cateid={{ $data->category_id }}>맵핑하기</button>
                                             <br>
                                             <span class="text-danger">*카테고리 미맵핑</span>
-                                            <span class="text-danger">({{ $data->category_id }})</span> --}}
+                                            <span class="text-danger">({{ $data->category_id }})</span>
                                         @endif
                                     </td>
                                     <td>
-                                        {{ $data->prd_name_en }}
-                                        @if ($data->status != ProductConstant::PRD_STATUS_PUBLISH)
-                                            <span class="bg-danger rounded text-white px-2 py-1 fs-6">{{ ProductConstant::PRD_STATUS[$data->status] }}</span>
-                                        @endif
+                                        {{ $data->prd_name_kr }}
                                     </td>
                                     <td>
                                         {{ number_format($data->start_quantity) }}
                                     </td>
                                     <td>
-                                        <img class="lazy-img preview-image" data-src="{{ $data->en_main_img->img_url_origin }}" width=60 height=60/>
+                                        <img class="lazy-img preview-image" data-src="{{ $data->main_img->img_url_origin }}" width=60 height=60/>
                                     </td>
                                     <td>
-                                        @if( $data->en_main_img->img_url_trans )
-                                            <img class="lazy-img preview-image" data-src="{{ $data->en_main_img->img_url_trans }}" width=60 height=60/>
+                                        @if( $data->main_img->img_url_trans )
+                                            <img class="lazy-img preview-image" data-src="{{ $data->main_img->img_url_trans }}" width=60 height=60/>
                                         @else
                                             <img class="lazy-img preview-image" data-src='/assets/img/no_img.png'width=60 height=60>
                                         @endif
@@ -262,33 +345,23 @@
                                         @endif
                                     </td>
                                     <td class="text-center">
-                                        @if (count($data->options) > 0)
-                                            @php
-                                                $option = $data->options[0];
-                                            @endphp
-                                            {{-- @if ($option->md_price)
-                                                @php
-                                                    $salePrice = calcWSalePrice($option->option_price);
-                                                    $saleHigh = compareWSalePrice($salePrice, $option->md_price);
-                                                @endphp
-                                                @if ($saleHigh)
-                                                    <button class="btn btn-sm btn-primary btn-md-modi" offerid={{ $data->offer_id }} saleprice={{ $salePrice }} mdprice={{ $option->md_price }}>{{ number_format($option->md_price) }}</button>
-                                                @else
-                                                    <button class="btn btn-sm btn-danger btn-md-modi" offerid={{ $data->offer_id }} saleprice={{ $salePrice }} mdprice={{ $option->md_price }}>{{ number_format($option->md_price) }}</button>
-                                                @endif
-                                            @else
-                                                <button class="btn btn-sm btn-warning btn-md-modi" offerid={{ $data->offer_id }} saleprice={{ calcWSalePrice($option->option_price) }} mdprice=0>MD 가격 설정</button>
-                                            @endif --}}
-                                        @else
-                                            <p class="text-danger">옵션없음</p>
+                                        <span class="bg-danger rounded text-white px-2 py-1 fs-6">{{ ProductConstant::PRD_STATUS[$data->status] }}</span>
+                                    </td>
+                                    <td class="text-center">
+                                        @if ($data->img_inspect == null || $data->img_inspect->is_inspect == InspectConstant::IS_INSPECT_N)
+                                            <span class="text-danger">{{ InspectConstant::INSPECT_LIST[InspectConstant::INSPECT_IMAGE] }}</span>
+                                        @endif
+                                        @if ($data->prd_inspect == null || $data->prd_inspect->is_inspect == InspectConstant::IS_INSPECT_N)
+                                            <br>
+                                            <span class="text-danger">{{ InspectConstant::INSPECT_LIST[InspectConstant::INSPECT_PRODUCT] }}</span>
+                                        @endif
+                                        @if ($data->gosi_inspect == null || $data->gosi_inspect->is_inspect == InspectConstant::IS_INSPECT_N)
+                                            <br>
+                                            <span class="text-danger">{{ InspectConstant::INSPECT_LIST[InspectConstant::INSPECT_NOTICE] }}</span>
                                         @endif
                                     </td>
                                     <td class="text-center">
-                                        {{ ProductConstant::IMG_TRANS_STATUS[$data->trans_status_en] }}
-                                    </td>
-                                    <td class="text-center">
                                         <button class="btn btn-sm btn-outline-success btn-detail" offerid={{ $data->offer_id }}>상세보기</button>
-                                        {{-- <button class="btn btn-sm btn-outline-primary btn-trans-img mt-2" offerid={{ $data->offer_id }}>번역요청</button> --}}
                                     </td>
                                 </tr>
                             @endforeach
@@ -800,7 +873,7 @@
 
         $(".btn-detail").click(function(){
             let offer_id = $(this).attr("offerid");
-            location.href = `/product/w2/${offer_id}`;
+            location.href = `/product/${offer_id}`;
         });
 
         $("#form-submit").click(function(){
@@ -920,7 +993,7 @@
                 $.ajax({
                     "headers"    : {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
                     "type"       : "POST",
-                    "url"        : "{{ route('w2.product.statusUpdate') }}",
+                    "url"        : "{{ route('w.product.statusUpdate') }}",
                     "data"       : { offerIds, status },
                     beforeSend: function () {
                         $("#loadingOverlay").show();
@@ -938,10 +1011,6 @@
                     }
                 });
             }
-        });
-
-        $(".htmlModalClose3").click(function(){
-            $("#htmlModal3").modal('hide');
         });
 
         $(".btn-inspect-save").click(function(){
@@ -988,10 +1057,14 @@
             }
         });
 
+        $(".htmlModalClose3").click(function(){
+            $("#htmlModal3").modal('hide');
+        });
+
         $(".htmlModalClose4").click(function(){
             $("#htmlModal4").modal('hide');
         });
-
+        
     })
 </script>
 

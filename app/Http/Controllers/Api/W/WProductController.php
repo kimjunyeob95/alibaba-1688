@@ -6,6 +6,7 @@ use App\Constants\HttpConstant;
 use App\Constants\ImageConstant;
 use App\Constants\ImageErrorMessageConstant;
 use App\Constants\LogConstant;
+use App\Constants\OptionConstants;
 use App\Constants\ProductConstant;
 use App\Constants\ProductErrorMessageConstant;
 use App\Http\Controllers\Controller;
@@ -482,6 +483,82 @@ class WProductController extends Controller
             
             $gosiList = $this->request->post("gosiList");
             $result   = $this->service1688Product->gosiExcept($gosiList);
+            if( $result["isSuccess"] == true ){
+                return helpers_json_response(HttpConstant::OK, $result);
+            } else {
+                return helpers_json_response(HttpConstant::BAD_REQUEST, [], $result["msg"]);
+            }
+        } catch (Exception $e) {
+            return helpers_json_response(HttpConstant::BAD_REQUEST, [], $e->getMessage());
+        }
+    }
+
+    public function update(): JsonResponse
+    {
+        try {
+            $validator = Validator::make($this->request->all(), [
+                'offer_id'               => 'required|int',
+                'prd_name_kr'            => 'required|string',
+                'optionList'             => 'required|array',
+                'optionList.*.id'        => 'required|int',
+                'optionList.*.is_except' => 'required|string',
+                'gosiKrList'             => 'required|array',
+                'gosiKrList.*.id'        => 'required|int',
+                'gosiKrList.*.is_except' => 'required|string',
+            ], [
+                'offer_id.required'                    => ProductErrorMessageConstant::getNotHaveErrorMessage("OFFER_ID"),
+                'prd_name_kr.required'                 => ProductErrorMessageConstant::getNotHaveErrorMessage("PRD_NAME_KR"),
+                'optionList.required'                  => ProductErrorMessageConstant::getNotHaveErrorMessage("OPTIONLIST"),
+                'optionList.*.id.required'             => ProductErrorMessageConstant::getNotHaveErrorMessage("OPTIONLIST_ID"),
+                'optionList.*.option_name_kr.required' => ProductErrorMessageConstant::getNotHaveErrorMessage("OPTIONLIST_OPTION_NAME_KR"),
+                'optionList.*.is_except.required'      => ProductErrorMessageConstant::getNotHaveErrorMessage("OPTIONLIST_IS_EXCEPT"),
+                'gosiKrList.required'                  => ProductErrorMessageConstant::getNotHaveErrorMessage("GOSIKRLIST"),
+                'gosiKrList.*.id.required'             => ProductErrorMessageConstant::getNotHaveErrorMessage("GOSIKRLIST_ID"),
+                'gosiKrList.*.is_except.required'      => ProductErrorMessageConstant::getNotHaveErrorMessage("GOSIKRLIST_IS_EXCEPT"),
+            ]);
+
+            foreach ($this->request->post('optionList') as $key => $option) {
+                if ($option['is_except'] == OptionConstants::IS_EXCEPT_N) {
+                    $validator->sometimes('optionList.' . $key . '.option_name_kr', 'required|string', function () {
+                        return true;
+                    });
+                }
+            }
+
+            if ($validator->fails()) {
+                throw new Exception($validator->errors()->first());
+            }
+
+            $result   = $this->service1688Product->updateW1($this->request->all());
+            if( $result["isSuccess"] == true ){
+                return helpers_json_response(HttpConstant::OK, $result);
+            } else {
+                return helpers_json_response(HttpConstant::BAD_REQUEST, [], $result["msg"]);
+            }
+        } catch (Exception $e) {
+            return helpers_json_response(HttpConstant::BAD_REQUEST, [], $e->getMessage());
+        }
+    }
+
+    public function inspectStatusUpdate(): JsonResponse
+    {
+        try {
+            $validator = Validator::make($this->request->all(), [
+                'offerIds'            => 'required|array',
+                'inspect_img_status'  => 'required|string',
+                'inspect_prd_status'  => 'required|string',
+                'inspect_gosi_status' => 'required|string',
+            ], [
+                'offerIds.required'            => ProductErrorMessageConstant::getNotHaveErrorMessage("OFFER_IDS"),
+                'inspect_img_status.required'  => ProductErrorMessageConstant::getNotHaveErrorMessage("INSPECT_IMG_STATUS"),
+                'inspect_prd_status.required'  => ProductErrorMessageConstant::getNotHaveErrorMessage("INSPECT_PRD_STATUS"),
+                'inspect_gosi_status.required' => ProductErrorMessageConstant::getNotHaveErrorMessage("INSPECT_GOSI_STATUS"),
+            ]);
+            if ($validator->fails()) {
+                throw new Exception($validator->errors()->first());
+            }
+
+            $result   = $this->service1688Product->inspectStatusUpdate($this->request->all());
             if( $result["isSuccess"] == true ){
                 return helpers_json_response(HttpConstant::OK, $result);
             } else {

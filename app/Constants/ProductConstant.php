@@ -168,4 +168,8 @@ class ProductConstant
     /** MD 판매가 설정여부 */
     public const MD_PRICE_Y = "Y";
     public const MD_PRICE_N = "N";
+
+    /** 검수완료 여부 */
+    public const INSPECT_STATUS_Y = "Y";
+    public const INSPECT_STATUS_N = "N";
 }
