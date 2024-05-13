@@ -454,15 +454,8 @@ class GenuioService extends TransApiAbstract
                 }
             }
 
-            $prd_desc_kr = "";
             if( isset($params["prdObj"]["prd_desc"]) && $params["prdObj"]["prd_desc"] ){
                 $prd_desc_kr = $params["prdObj"]["prd_desc"];
-
-                $debugParam = [
-                    "offerId"     => $offerId,
-                    "prdObj"      => $params["prdObj"],
-                ];
-                debug_log(json_encode($debugParam, JSON_UNESCAPED_UNICODE), "genuio", "genuio-params");
 
                 GenuioAiData::updateOrCreate(
                     [
