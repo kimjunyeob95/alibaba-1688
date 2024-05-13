@@ -17,6 +17,9 @@ class MallErrorMessageConstant
     public const ERROR_MESSAGE_HAVE_REGIST        = "이미 전송한 상품입니다.";
     public const ERROR_MESSAGE_MODI_UNREGIST      = "등록되지 않은 상품입니다.";
     public const ERROR_MESSAGE_XML_PARSE          = "xml parse";
+    public const ERROR_MESSAGE_PRODUCT_STATUS     = "전송 불가한 상품상태 입니다";
+    public const ERROR_MESSAGE_TYPE               = "상품 구분이 설정되지 않았습니다";
+    public const ERROR_MESSAGE_OPTION             = "상품 옵션이 없습니다";
     public const ERROR_MESSAGE_EASYSELL_GOODS_API = "easySell_Goods_Api";
 
     public static function getErrorMessageNotDefault($constantName): string

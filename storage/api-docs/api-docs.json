@@ -316,11 +316,11 @@
                     {
                         "name": "search_cls",
                         "in": "query",
-                        "description": "검색 타입) prd_name_trans: 상품명, option_name_trans: 옵션명",
+                        "description": "검색 타입) prd_name_kr: 상품명, option_name_kr: 옵션명",
                         "required": false,
                         "schema": {
                             "type": "string",
-                            "example": "prd_name_trans"
+                            "example": "prd_name_kr"
                         }
                     },
                     {
@@ -341,6 +341,75 @@
                             "application/json": {
                                 "schema": {
                                     "$ref": "#/components/schemas/ProductListSuccessResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Authorization Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/401ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/400ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/500ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/w/products/{offerId}": {
+            "get": {
+                "tags": [
+                    "상품"
+                ],
+                "summary": "WApp 상품 상세",
+                "description": "WApp 상품 상세 endPoint",
+                "operationId": "01dd57d9e2d9b0c7243f54ae4fd88ea3",
+                "parameters": [
+                    {
+                        "name": "offerId",
+                        "in": "path",
+                        "description": "상품 ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 730301197041
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SuccessResponse"
                                 }
                             }
                         }
@@ -792,7 +861,7 @@
                                             "type": "string",
                                             "example": "网红ins欧式水洗棉复古牛仔外套女2024春秋韩版宽松短款长袖衬衫"
                                         },
-                                        "prd_name_trans": {
+                                        "prd_name_kr": {
                                             "description": "제품명 번역",
                                             "type": "string",
                                             "example": "인터넷 유명 인사 유럽 스타일 씻은 면화 복고풍 데님 코트 여성의 2024 봄과 가을 한국 스타일 느슨한 짧은 긴 소매 셔츠"
@@ -811,7 +880,7 @@
                                                         "type": "string",
                                                         "example": "牛仔蓝_S 建议96斤内"
                                                     },
-                                                    "option_name_trans": {
+                                                    "option_name_kr": {
                                                         "description": "옵션명 번역",
                                                         "type": "string",
                                                         "example": "데님 블루_S 96 진 내에서 추천"

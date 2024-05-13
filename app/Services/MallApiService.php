@@ -32,9 +32,9 @@ class MallApiService
      * @param array $offerIds
      * @return array
     */
-    public function productRegist(array $offerIds): array
+    public function productRegist(array $offerIds, string $type): array
     {
-        return $this->mallApiAbstract->productRegist($offerIds);
+        return $this->mallApiAbstract->productRegist($offerIds, $type);
     }
 
     /**
@@ -62,11 +62,20 @@ class MallApiService
     /**
      * @func categoryMapping
      * @description '카테고리 매핑'
-     *
      * @return array
      */
     public function categoryMapping() :array
     {
         return $this->mallApiAbstract->categoryMapping();
+    }
+
+    /**
+     * @func sendModiProduct
+     * @description '수정 된 상품 전송'
+     * @return void
+     */
+    public function sendModiProduct(): void
+    {
+        $this->mallApiAbstract->sendModiProduct();
     }
 }

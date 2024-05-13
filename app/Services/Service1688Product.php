@@ -10,12 +10,15 @@ use Illuminate\Http\UploadedFile;
 class Service1688Product
 {
    private ProductAbstract $productAbstract;
+   private ProductAbstract $productAbstractW2;
 
    public function __construct(
-      ProductAbstract $productAbstract
+      ProductAbstract $productAbstract,
+      ProductAbstract $productAbstractW2
    )
    {
-      $this->productAbstract  = $productAbstract;
+      $this->productAbstract   = $productAbstract;
+      $this->productAbstractW2 = $productAbstractW2;
    }
 
    /**
@@ -27,6 +30,17 @@ class Service1688Product
    public function getPrdList(array $params): array
    {
       return $this->productAbstract->getPrdList($params);
+   }
+
+   /**
+    * @func getPrdExceptList
+    * @description '판매제외 상품 리스트'
+    * @param array $params
+    * @return array
+   */
+   public function getPrdExceptList(array $params): array
+   {
+      return $this->productAbstract->getPrdExceptList($params);
    }
 
    /**
@@ -208,22 +222,23 @@ class Service1688Product
       $datas     = [];
       foreach ($paginator as $prdObj) {
          $data = [
-            "offer_id"       => $prdObj->offer_id,
-            "prd_name"       => $prdObj->prd_name,
-            "prd_name_trans" => $prdObj->prd_name_trans
+            "offer_id"    => $prdObj->offer_id,
+            "prd_name"    => $prdObj->prd_name,
+            "prd_name_kr" => $prdObj->prd_name_kr
          ];
 
          foreach ($prdObj->options as $option) {
             $data["options"][] = [
-               "id"                => $option->id,
-               "option_name"       => $option->option_name,
-               "option_name_trans" => $option->option_name_trans,
+               "id"             => $option->id,
+               "option_name"    => $option->option_name,
+               "option_name_kr" => $option->option_name_kr,
             ];
          }
          foreach ($prdObj->images as $key => $image) {
             $data["images"][$key] = [
                "id"             => $image->id,
                "img_type"       => $image->img_type,
+               "is_except"      => $image->is_except,
                "img_url_origin" => $image->img_url_origin,
                "img_url_trans"  => $image->img_url_trans,
             ];
@@ -341,5 +356,154 @@ class Service1688Product
    public function imageAccept(array $aiImgIds): array
    {
       return $this->productAbstract->imageAccept($aiImgIds);
+   }
+
+   /**
+     * @func mdPriceUpdate
+     * @description 'MD price 수정'
+     * @param array $offerIds
+     * @param int $mdPrice
+     * @return array
+   */
+   public function mdPriceUpdate(array $offerIds, int $mdPrice): array
+   {
+      return $this->productAbstract->mdPriceUpdate($offerIds, $mdPrice);
+   }
+
+   /**
+     * @func statusUpdate
+     * @description '판매상태 변경'
+     * @param array $offerIds
+     * @param string $status
+     * @return array
+   */
+   public function statusUpdate(array $offerIds, string $status): array
+   {
+      return $this->productAbstract->statusUpdate($offerIds, $status);
+   }
+
+   /**
+     * @func imageMainApply
+     * @description '대표 이미지 적용'
+     * @param array $aiImgIds
+     * @return array
+   */
+   public function imageMainApply(array $aiImgIds): array
+   {
+      return $this->productAbstract->imageMainApply($aiImgIds);
+   }
+
+   /**
+     * @func gosiExcept
+     * @description '고시정보 제외 처리'
+     * @param array $gosiList
+     * @return array
+   */
+   public function gosiExcept(array $gosiList): array
+   {
+      return $this->productAbstract->gosiExcept($gosiList);
+   }
+
+   /**
+     * @func updateW1
+     * @description '상품 update'
+     * @param array $params
+     * @return array
+   */
+   public function updateW1(array $params): array
+   {
+      return $this->productAbstract->update($params);
+   }
+
+   /**
+     * @func inspectStatusUpdate
+     * @description '검수상태 update'
+     * @param array $params
+     * @return array
+   */
+   public function inspectStatusUpdate(array $params): array
+   {
+      return $this->productAbstract->inspectStatusUpdate($params);
+   }
+
+   /****************************************** WApp W2 **********************************************/
+
+   /**
+     * @func getQueryProductDetailW2
+     * @description '상품ID로 조회'
+     * @param array $offerIds
+     * @return array
+   */
+   public function getQueryProductDetailW2(array $offerIds): array
+   {
+      return $this->productAbstractW2->getQueryProductDetail($offerIds);
+   }
+
+   /**
+     * @func collectProductW2
+     * @description '1688API 제품ID로 조회 후 DB저장'
+     * @param array $offerIds '제품ID'
+     * @param string $type '요청 페이지'
+     * @return void
+   */
+   public function collectProductW2(array $offerIds, string $type = LogConstant::COLLECT_API_KEYWORDQUERY): void
+   {
+      $this->productAbstractW2->collectProduct($offerIds, $type);
+   }
+
+   /**
+     * @func getPrdCollectLogListW2
+     * @description '상품 수집현황 조회'
+     * @param array $params
+     * @return LengthAwarePaginator
+   */
+   public function getPrdCollectLogListW2(array $params): LengthAwarePaginator
+   {
+      return $this->productAbstractW2->getPrdCollectLogList($params);
+   }
+
+   /**
+    * @func getPrdListW2
+    * @description '1688 수집 상품 리스트'
+    * @param array $params
+    * @return array
+   */
+   public function getPrdListW2(array $params): array
+   {
+      return $this->productAbstractW2->getPrdList($params);
+   }
+
+   /**
+    * @func getPrdDetailW2
+    * @description '1688API 수집 상품 디테일'
+    * @param int $offerId
+    * @return array
+   */
+   public function getPrdDetailW2(int $offerId): array
+   {
+      return $this->productAbstractW2->getPrdDetail($offerId);
+   }
+
+   /**
+     * @func statusUpdateW2
+     * @description '판매상태 변경'
+     * @param array $offerIds
+     * @param string $status
+     * @return array
+   */
+   public function statusUpdateW2(array $offerIds, string $status): array
+   {
+      return $this->productAbstractW2->statusUpdate($offerIds, $status);
+   }
+
+   /**
+     * @func updateW2
+     * @description '상품 update'
+     * @param array $params
+     * @return array
+   */
+   public function updateW2(array $params): array
+   {
+      return $this->productAbstractW2->update($params);
    }
 }

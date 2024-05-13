@@ -16,7 +16,7 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\File;
 use Psr\Log\LogLevel;
 
-class CategoryV1 extends CategoryAbstract
+class CategoryW1 extends CategoryAbstract
 {
     private array $returnMsg;
     private string $accessToken;
@@ -753,8 +753,11 @@ class CategoryV1 extends CategoryAbstract
             $cate_fourth = $params["cate_fourth"];
             $keyword     = $params["keyword"];
 
-            $builder = WCategory::where("cate_first", $cate_first);
+            $builder = WCategory::query();
             
+            if( $cate_first != "" ){
+                $builder->where("cate_first", $cate_first);
+            }
             if( $cate_second != "" ){
                 $builder->where("cate_second", $cate_second);
             }

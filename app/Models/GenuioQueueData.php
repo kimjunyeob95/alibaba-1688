@@ -14,4 +14,9 @@ class GenuioQueueData extends Model
     protected $table      = 'genuio_queue_datas';
     protected $guarded    = [];
     protected $fillable   = [];
+
+    public function childrenObj()
+    {
+        return $this->hasOne(GenuioQueueData::class, 'parent_id');
+    }
 }

@@ -6,6 +6,7 @@ use App\Constants\HttpConstant;
 use App\Constants\ImageConstant;
 use App\Constants\ImageErrorMessageConstant;
 use App\Constants\LogConstant;
+use App\Constants\OptionConstants;
 use App\Constants\ProductConstant;
 use App\Constants\ProductErrorMessageConstant;
 use App\Http\Controllers\Controller;
@@ -40,7 +41,7 @@ class WProductController extends Controller
             }
 
             $offerIds = $this->request->post("offer_ids");
-            $log_type = $this->request->post("log_type", LogConstant::COLLECT_API_KEYWORDQUERY);
+            $log_type = $this->request->post("log_type", LogConstant::COLLECT_API_OFFERID);
 
             $options = "--offerids=" . helperEscape(implode(",", $offerIds)) . " --type=" . helperEscape($log_type);
             $command = "nohup php artisan save_1688_collect_product " . $options . " > /dev/null 2>&1 &";
@@ -229,17 +230,25 @@ class WProductController extends Controller
             $page           = $this->request->get("page", 1);
             $pageSize       = $this->request->get("pageSize", 50);
             if( $pageSize > 50 ) $pageSize = 50;
-            $search_cls     = $this->request->get("search_cls", "prd_name_trans");
+            $search_cls     = $this->request->get("search_cls", "prd_name_kr");
+            $w_type         = $this->request->get("w_type", "");
             $keyword        = $this->request->get("keyword", "");
             $trans_status   = $this->request->get("trans_status", ProductConstant::TRANS_STATUS_Y);
+            $prd_status     = $this->request->get("prd_status", "");
+            $mdPrice_status = $this->request->get("mdPrice_status", "");
+            $sort           = $this->request->get("sort", "updated_at|desc");
             
             $params = [
                 "page"           => $page,
                 "pageSize"       => $pageSize,
                 "search_cls"     => $search_cls,
+                "w_type"         => $w_type,
                 "keyword"        => $keyword,
                 "trans_status"   => $trans_status,
-                "mapping_status" => ProductConstant::MAPPING_STATUS_Y
+                "prd_status"     => $prd_status,
+                "mdPrice_status" => $mdPrice_status,
+                "mapping_status" => ProductConstant::MAPPING_STATUS_Y,
+                "sort"           => $sort,
             ];
             $result = $this->service1688Product->apiPrdList($params);
 
@@ -372,6 +381,184 @@ class WProductController extends Controller
             
             $aiImgIds = $this->request->post("aiImgIds");
             $result   = $this->service1688Product->imageAccept($aiImgIds);
+            if( $result["isSuccess"] == true ){
+                return helpers_json_response(HttpConstant::OK, $result);
+            } else {
+                return helpers_json_response(HttpConstant::BAD_REQUEST, [], $result["msg"]);
+            }
+        } catch (Exception $e) {
+            return helpers_json_response(HttpConstant::BAD_REQUEST, [], $e->getMessage());
+        }
+    }
+
+    public function mdPriceUpdate(): JsonResponse
+    {
+        try {
+            $validator = Validator::make($this->request->all(), [
+                'offerIds' => 'required|array',
+                'mdPrice'  => 'required|int',
+            ], [
+                'offerIds.required' => ProductErrorMessageConstant::getNotHaveErrorMessage("OFFER_IDS"),
+                'mdPrice.required'  => ProductErrorMessageConstant::getNotHaveErrorMessage("MD_PRICE"),
+            ]);
+            if ($validator->fails()) {
+                throw new Exception($validator->errors()->first());
+            }
+            
+            $offerIds = $this->request->post("offerIds");
+            $mdPrice  = $this->request->post("mdPrice");
+            $result   = $this->service1688Product->mdPriceUpdate($offerIds, $mdPrice);
+            if( $result["isSuccess"] == true ){
+                return helpers_json_response(HttpConstant::OK, $result);
+            } else {
+                return helpers_json_response(HttpConstant::BAD_REQUEST, [], $result["msg"]);
+            }
+        } catch (Exception $e) {
+            return helpers_json_response(HttpConstant::BAD_REQUEST, [], $e->getMessage());
+        }
+    }
+
+    public function statusUpdate(): JsonResponse
+    {
+        try {
+            $validator = Validator::make($this->request->all(), [
+                'offerIds' => 'required|array',
+                'status'   => 'required|string',
+            ], [
+                'offerIds.required' => ProductErrorMessageConstant::getNotHaveErrorMessage("OFFER_IDS"),
+                'status.required'   => ProductErrorMessageConstant::getNotHaveErrorMessage("STATUS"),
+            ]);
+            if ($validator->fails()) {
+                throw new Exception($validator->errors()->first());
+            }
+            
+            $offerIds = $this->request->post("offerIds");
+            $status   = $this->request->post("status");
+            $result   = $this->service1688Product->statusUpdate($offerIds, $status);
+            if( $result["isSuccess"] == true ){
+                return helpers_json_response(HttpConstant::OK, $result);
+            } else {
+                return helpers_json_response(HttpConstant::BAD_REQUEST, [], $result["msg"]);
+            }
+        } catch (Exception $e) {
+            return helpers_json_response(HttpConstant::BAD_REQUEST, [], $e->getMessage());
+        }
+    }
+
+    public function imageMainApply(): JsonResponse
+    {
+        try {
+            $validator = Validator::make($this->request->all(), [
+                'aiImgIds' => 'required|array',
+            ], [
+                'aiImgIds.required' => ImageErrorMessageConstant::getNotHaveErrorMessage("IMAGES_AI_ID"),
+            ]);
+            if ($validator->fails()) {
+                throw new Exception($validator->errors()->first());
+            }
+            
+            $aiImgIds = $this->request->post("aiImgIds");
+            $result   = $this->service1688Product->imageMainApply($aiImgIds);
+            if( $result["isSuccess"] == true ){
+                return helpers_json_response(HttpConstant::OK, $result);
+            } else {
+                return helpers_json_response(HttpConstant::BAD_REQUEST, [], $result["msg"]);
+            }
+        } catch (Exception $e) {
+            return helpers_json_response(HttpConstant::BAD_REQUEST, [], $e->getMessage());
+        }
+    }
+
+    public function gosiExcept(): JsonResponse
+    {
+        try {
+            $validator = Validator::make($this->request->all(), [
+                'gosiList' => 'required|array',
+            ], [
+                'gosiList.required' => ProductErrorMessageConstant::getNotHaveErrorMessage("GOSILIST"),
+            ]);
+            if ($validator->fails()) {
+                throw new Exception($validator->errors()->first());
+            }
+            
+            $gosiList = $this->request->post("gosiList");
+            $result   = $this->service1688Product->gosiExcept($gosiList);
+            if( $result["isSuccess"] == true ){
+                return helpers_json_response(HttpConstant::OK, $result);
+            } else {
+                return helpers_json_response(HttpConstant::BAD_REQUEST, [], $result["msg"]);
+            }
+        } catch (Exception $e) {
+            return helpers_json_response(HttpConstant::BAD_REQUEST, [], $e->getMessage());
+        }
+    }
+
+    public function update(): JsonResponse
+    {
+        try {
+            $validator = Validator::make($this->request->all(), [
+                'offer_id'               => 'required|int',
+                'prd_name_kr'            => 'required|string',
+                'optionList'             => 'required|array',
+                'optionList.*.id'        => 'required|int',
+                'optionList.*.is_except' => 'required|string',
+                'gosiKrList'             => 'required|array',
+                'gosiKrList.*.id'        => 'required|int',
+                'gosiKrList.*.is_except' => 'required|string',
+            ], [
+                'offer_id.required'                    => ProductErrorMessageConstant::getNotHaveErrorMessage("OFFER_ID"),
+                'prd_name_kr.required'                 => ProductErrorMessageConstant::getNotHaveErrorMessage("PRD_NAME_KR"),
+                'optionList.required'                  => ProductErrorMessageConstant::getNotHaveErrorMessage("OPTIONLIST"),
+                'optionList.*.id.required'             => ProductErrorMessageConstant::getNotHaveErrorMessage("OPTIONLIST_ID"),
+                'optionList.*.option_name_kr.required' => ProductErrorMessageConstant::getNotHaveErrorMessage("OPTIONLIST_OPTION_NAME_KR"),
+                'optionList.*.is_except.required'      => ProductErrorMessageConstant::getNotHaveErrorMessage("OPTIONLIST_IS_EXCEPT"),
+                'gosiKrList.required'                  => ProductErrorMessageConstant::getNotHaveErrorMessage("GOSIKRLIST"),
+                'gosiKrList.*.id.required'             => ProductErrorMessageConstant::getNotHaveErrorMessage("GOSIKRLIST_ID"),
+                'gosiKrList.*.is_except.required'      => ProductErrorMessageConstant::getNotHaveErrorMessage("GOSIKRLIST_IS_EXCEPT"),
+            ]);
+
+            foreach ($this->request->post('optionList') as $key => $option) {
+                if ($option['is_except'] == OptionConstants::IS_EXCEPT_N) {
+                    $validator->sometimes('optionList.' . $key . '.option_name_kr', 'required|string', function () {
+                        return true;
+                    });
+                }
+            }
+
+            if ($validator->fails()) {
+                throw new Exception($validator->errors()->first());
+            }
+
+            $result   = $this->service1688Product->updateW1($this->request->all());
+            if( $result["isSuccess"] == true ){
+                return helpers_json_response(HttpConstant::OK, $result);
+            } else {
+                return helpers_json_response(HttpConstant::BAD_REQUEST, [], $result["msg"]);
+            }
+        } catch (Exception $e) {
+            return helpers_json_response(HttpConstant::BAD_REQUEST, [], $e->getMessage());
+        }
+    }
+
+    public function inspectStatusUpdate(): JsonResponse
+    {
+        try {
+            $validator = Validator::make($this->request->all(), [
+                'offerIds'            => 'required|array',
+                'inspect_img_status'  => 'required|string',
+                'inspect_prd_status'  => 'required|string',
+                'inspect_gosi_status' => 'required|string',
+            ], [
+                'offerIds.required'            => ProductErrorMessageConstant::getNotHaveErrorMessage("OFFER_IDS"),
+                'inspect_img_status.required'  => ProductErrorMessageConstant::getNotHaveErrorMessage("INSPECT_IMG_STATUS"),
+                'inspect_prd_status.required'  => ProductErrorMessageConstant::getNotHaveErrorMessage("INSPECT_PRD_STATUS"),
+                'inspect_gosi_status.required' => ProductErrorMessageConstant::getNotHaveErrorMessage("INSPECT_GOSI_STATUS"),
+            ]);
+            if ($validator->fails()) {
+                throw new Exception($validator->errors()->first());
+            }
+
+            $result   = $this->service1688Product->inspectStatusUpdate($this->request->all());
             if( $result["isSuccess"] == true ){
                 return helpers_json_response(HttpConstant::OK, $result);
             } else {

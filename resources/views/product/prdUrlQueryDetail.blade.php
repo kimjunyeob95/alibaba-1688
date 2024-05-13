@@ -68,7 +68,7 @@
                                             <div class="position-relative">
                                                 <img src="{{ $detail->prd_image }}" class="card-img-top img-limited" alt="이미지 설명">
                                                 <div class="position-absolute" style="top: 10px; left: 10px;">
-                                                    <input type="checkbox" class="form-check-input chk-inp" value="{{ $detail->offer_id }}">
+                                                    <input type="checkbox" class="form-check-input chk-inp" value="{{ $detail->offer_id }}" hasprd={{ $detail->hasPrd }}>
                                                 </div>
                                             </div>
                                             <div class="card-body body-limited">
@@ -76,8 +76,11 @@
                                                     <a href="https://detail.1688.com/offer/{{ $detail->offer_id }}.html" target="_blank">
                                                         offerID: {{ $detail->offer_id }}
                                                     </a>
+                                                    @if( $detail->hasPrd == ProductConstant::HAS_PRD_Y )
+                                                        <span class="text-danger">[수집완료]</span>
+                                                    @endif
                                                     <br>
-                                                    {{ $detail->prd_name_trans }}
+                                                    {{ $detail->prd_name_kr }}
                                                     <br>
                                                     판매량: {{ number_format($detail->sold_out) }}
                                                     <br>
@@ -118,16 +121,23 @@
 
         $("#btn-select").click(function(){
             let offer_ids = [];
-            
+            let hasPrd    = false;
+
             $(".chk-inp:checked").each(function(index, element){
-                offer_ids.push($(this).val());
+                if( $(this).attr("hasPrd") == "N" ){
+                    offer_ids.push($(this).val());
+                } else {
+                    hasPrd = true;
+                }
             });
 
-            if(offer_ids.length < 1){
-                return alert("선택 된 상품이 없습니다.");
+            if(offer_ids.length < 1 && hasPrd == true){
+                return alert("수집 완료 된 상품만 선택했습니다.");
+            }else if(offer_ids.length < 1 ){
+                return alert("검색 된 상품이 없습니다.");
             }
 
-            if(confirm(`${offer_ids.length}건의 상품을 수집 하시겠습니까?`)){
+            if(confirm(`${offer_ids.length}건의 상품을 수집 하시겠습니까?\n이미 수집 된 상품은 수집 대상에서 제외 됩니다.`)){
                 $.ajax({
                     "headers"    : {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
                     "type"       : "POST",
@@ -150,16 +160,23 @@
 
         $("#btn-all").click(function(){
             let offer_ids = [];
+            let hasPrd    = false;
 
             $(".chk-inp").each(function(index, element){
-                offer_ids.push($(this).val());
+                if( $(this).attr("hasPrd") == "N" ){
+                    offer_ids.push($(this).val());
+                } else {
+                    hasPrd = true;
+                }
             });
 
-            if(offer_ids.length < 1){
+            if(offer_ids.length < 1 && hasPrd == true){
+                return alert("수집 완료 된 상품만 선택했습니다.");
+            }else if(offer_ids.length < 1 ){
                 return alert("검색 된 상품이 없습니다.");
             }
 
-            if(confirm(`${offer_ids.length}건의 상품을 수집 하시겠습니까?`)){
+            if(confirm(`${offer_ids.length}건의 상품을 수집 하시겠습니까?\n이미 수집 된 상품은 수집 대상에서 제외 됩니다.`)){
                 $.ajax({
                     "headers"    : {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
                     "type"       : "POST",

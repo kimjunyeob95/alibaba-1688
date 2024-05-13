@@ -1,4 +1,5 @@
 @php
+    use App\Constants\ProductConstant;
     $exchangeRate = env("1688_EXCHANGE_RATE", 200);
 @endphp
 @extends('dashboard.base')
@@ -111,10 +112,13 @@
                             @foreach ($datas as $index => $data)
                                 <tr>
                                     <td class="text-center">
-                                        <input class="form-check-input chk-inp" type="checkbox" value="{{ $data["offerId"] }}">
+                                        <input class="form-check-input chk-inp" type="checkbox" value="{{ $data["offerId"] }}" hasprd={{ $data["hasPrd"] }}>
                                     </td>
                                     <td>
                                         <a href="https://detail.1688.com/offer/{{ $data["offerId"] }}.html" target="_blank">{{ $data["offerId"] }}</a>
+                                        @if( $data["hasPrd"] == ProductConstant::HAS_PRD_Y )
+                                            <p class="text-danger">[수집완료]</p>
+                                        @endif
                                     </td>
                                     <td>
                                         {{ $data["subject"] }}
@@ -203,16 +207,23 @@
 
         $("#btn-select").click(function(){
             let offer_ids = [];
-            
+            let hasPrd    = false;
+
             $(".chk-inp:checked").each(function(index, element){
-                offer_ids.push($(this).val());
+                if( $(this).attr("hasPrd") == "N" ){
+                    offer_ids.push($(this).val());
+                } else {
+                    hasPrd = true;
+                }
             });
 
-            if(offer_ids.length < 1){
-                return alert("선택 된 상품이 없습니다.");
+            if(offer_ids.length < 1 && hasPrd == true){
+                return alert("수집 완료 된 상품만 선택했습니다.");
+            }else if(offer_ids.length < 1 ){
+                return alert("검색 된 상품이 없습니다.");
             }
 
-            if(confirm(`${offer_ids.length}건의 상품을 수집 하시겠습니까?`)){
+            if(confirm(`${offer_ids.length}건의 상품을 수집 하시겠습니까?\n이미 수집 된 상품은 수집 대상에서 제외 됩니다.`)){
                 $.ajax({
                     "headers"    : {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
                     "type"       : "POST",
@@ -244,7 +255,7 @@
                 return alert("이미지 ID가 없습니다. 이미지를 등록하세요.");
             }
 
-            if(confirm(`${totalRecords}건의 상품을 수집 하시겠습니까?`)){
+            if(confirm(`${totalRecords}건의 상품을 수집 하시겠습니까?\n이미 수집 된 상품은 수집 대상에서 제외 됩니다.`)){
                 $.ajax({
                     "headers"    : {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
                     "type"       : "POST",

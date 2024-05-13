@@ -20,3 +20,9 @@ du -sh storage/
 
 # 세션과 상관없이 백그라운드에서 실행
 nohup php artisan save_1688_product_by_category_id --categoryid=1037021 > /dev/null 2>&1 &
+
+# laravel 작업중으로 전환
+php artisan down --render="errors::dev"
+
+# laravel 서비스로 전환
+php artisan up

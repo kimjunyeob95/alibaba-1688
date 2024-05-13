@@ -5,8 +5,35 @@ namespace App\Constants;
 
 class ProductConstant
 {
-    // 상품상태
-    public const PRD_STATUS = "published"; // 게시됨
+    /** 상품상태 */
+    public const PRD_STATUS_PUBLISH = "published";
+    public const PRD_STATUS_STOP    = "stop";
+    public const PRD_STATUS_EXCEPT  = "except";
+    public const PRD_STATUS_MISS    = "miss";
+
+    public const PRD_SHOW_STATUS = [
+        self::PRD_STATUS_PUBLISH,
+        self::PRD_STATUS_STOP,
+        self::PRD_STATUS_MISS
+    ];
+
+    public const PRD_STATUS = [
+        self::PRD_STATUS_PUBLISH => "정상판매",
+        self::PRD_STATUS_STOP    => "판매중지",
+        self::PRD_STATUS_EXCEPT  => "판매제외",
+        self::PRD_STATUS_MISS    => "정보누락",
+    ];
+
+    /** 전송상태 */
+    public const IS_SEND_Y = "Y";
+    public const IS_SEND_N = "N";
+    public const IS_SEND_E = "E";
+
+    public const IS_SEND = [
+        self::IS_SEND_Y => "전송완료",
+        self::IS_SEND_N => "전송미완료",
+        self::IS_SEND_E => "에러",
+    ];
 
     // 제품채널
     public const CHANNE_PRICE_FREE             = 1;
@@ -99,6 +126,7 @@ class ProductConstant
     public const MAPPING_WAPP       = "WApp";
     public const MAPPING_OC_CHANNEL = "onchannel";
     public const MAPPING_ES_CHANNEL = "easySell";
+    public const MAPPING_ES_FGN_CHANNEL = "easySellFgn";
 
     // 번역 여부
     public const TRANS_STATUS_Y = "Y"; // 번역 완료
@@ -133,4 +161,15 @@ class ProductConstant
 
     public const IS_SEARCH_Y = "Y";
     public const IS_SEARCH_N = "N";
+
+    public const HAS_PRD_Y = "Y";
+    public const HAS_PRD_N = "N";
+
+    /** MD 판매가 설정여부 */
+    public const MD_PRICE_Y = "Y";
+    public const MD_PRICE_N = "N";
+
+    /** 검수완료 여부 */
+    public const INSPECT_STATUS_Y = "Y";
+    public const INSPECT_STATUS_N = "N";
 }

@@ -7,19 +7,27 @@ use App\Abstracts\TransApiAbstract;
 use App\Abstracts\UploadAbstract;
 use App\Constants\Constant1688;
 use App\Constants\GenuioConstant;
+use App\Constants\GosiConstants;
 use App\Constants\ImageConstant;
 use App\Constants\ImageErrorMessageConstant;
+use App\Constants\InspectConstant;
 use App\Constants\LogConstant;
+use App\Constants\OptionConstants;
 use App\Constants\ProductConstant;
 use App\Constants\ProductErrorMessageConstant;
+use App\Constants\TransApiConstant;
+use App\Constants\WConstant;
 use App\Models\CategoryMapping;
 use App\Models\GenuioImageData;
+use App\Models\GenuioQueueData;
 use App\Models\ProductCollectDetailLog;
 use App\Models\ProductCollectLog;
 use App\Models\ProductData;
 use App\Models\ProductExtendData;
+use App\Models\ProductForbiddenData;
 use App\Models\ProductImageData;
 use App\Models\ProductImageDetailData;
+use App\Models\ProductInspectData;
 use App\Models\ProductNoticeData;
 use App\Models\ProductOptionData;
 use App\Models\ProductSearchData;
@@ -34,11 +42,12 @@ use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\DB;
 use Psr\Log\LogLevel;
 use UnexpectedValueException;
 use ValueError;
 
-class ProductV1 extends ProductAbstract
+class ProductW1 extends ProductAbstract
 {
     private array $returnMsg;
     private string $accessToken;
@@ -57,15 +66,39 @@ class ProductV1 extends ProductAbstract
     {
         $pageSize       = $params["pageSize"];
         $search_cls     = $params["search_cls"];
+        $w_type         = $params["w_type"];
         $keyword        = $params["keyword"];
         $trans_status   = $params["trans_status"];
         $mapping_status = $params["mapping_status"];
+        $prd_status     = $params["prd_status"];
+        $mdPrice_status = $params["mdPrice_status"];
+        $sortArr        = explode("|", $params["sort"]);
 
-        $prdBuilder = ProductData::with([
-                "main_img",
-                "options", 
-                "images.ai_all_imgs"
-        ])->whereNull("deleted_at")->orderBy("created_at", "desc");
+        $inspect_status      = "";
+        $inspect_img_status  = "";
+        $inspect_prd_status  = "";
+        $inspect_gosi_status = "";
+        if( isset($params["inspect_status"]) ){
+            $inspect_status = $params["inspect_status"];
+        }
+        if( isset($params["inspect_img_status"]) ){
+            $inspect_img_status = $params["inspect_img_status"];
+        }
+        if( isset($params["inspect_prd_status"]) ){
+            $inspect_prd_status = $params["inspect_prd_status"];
+        }
+        if( isset($params["inspect_gosi_status"]) ){
+            $inspect_gosi_status = $params["inspect_gosi_status"];
+        }
+
+        $prdBuilder = ProductData::select(["product_datas.*"])->with([
+            "main_img",
+            "options", 
+            "images.ai_all_imgs",
+            "img_inspect",
+            "prd_inspect",
+            "gosi_inspect",
+        ]);
 
         if( !empty($keyword) ){
             if( $search_cls == "offer_id"){
@@ -78,34 +111,349 @@ class ProductV1 extends ProductAbstract
                 // 중복 제거
                 $keyword = array_unique($keyword);
 
-                $prdBuilder->whereIn($search_cls, $keyword);
-            } else if( $search_cls == "prd_name_trans" || $search_cls == "prd_name"){
-                $prdBuilder->where($search_cls, "like", "%" . $keyword . "%");
-            } else if( $search_cls == "option_name_trans" || $search_cls == "option_name" ){
+                $prdBuilder->whereIn("product_datas." . $search_cls, $keyword);
+            } else if( $search_cls == "prd_name_kr" || $search_cls == "prd_name"){
+                $prdBuilder->where(function($query1) use ($keyword) {
+                    $query1->where("product_datas." . "prd_name", "like", "%" . $keyword . "%")
+                    ->orWhere("product_datas." . "prd_name_kr", "like", "%" . $keyword . "%")
+                    ->orWhere("product_datas." . "prd_name_en", "like", "%" . $keyword . "%");
+                });
+            } else if( $search_cls == "option_name" || $search_cls == "option_name" ){
                 $prdBuilder->whereHas('options', function ($query) use ($keyword, $search_cls) {
-                    $query->where($search_cls, 'like', "%" . $keyword . "%");
+                    $query->where(function($query1) use ($keyword) {
+                        $query1->where("option_name", "like", "%" . $keyword . "%")
+                        ->orWhere("option_name_kr", "like", "%" . $keyword . "%")
+                        ->orWhere("option_name_en", "like", "%" . $keyword . "%");
+                    });
+                });
+            }
+        }
+        
+        if( in_array($sortArr[0], ["option_price", "md_price"]) || !empty($mdPrice_status) ){
+            $optSubquery = DB::table('product_option_datas');
+            $optSubquery->selectRaw('offer_id, md_price');
+            $prdBuilder->groupBy('product_datas.offer_id');
+
+            if( in_array($sortArr[0], ["option_price", "md_price"]) ){
+                if( $sortArr[0] == "option_price" ){
+                    $optSubquery->selectRaw('MAX(option_price) as max_price');
+                } else if( $sortArr[0] == "md_price" ) {
+                    $optSubquery->selectRaw('MAX(md_price) as max_price');
+                }
+                $optSubquery->groupBy('offer_id');
+                $prdBuilder->orderBy('opt_sub_qry.max_price', $sortArr[1]);
+            }
+
+            $prdBuilder->leftJoinSub($optSubquery, 'opt_sub_qry', function ($join) {
+                $join->on('product_datas.offer_id', '=', 'opt_sub_qry.offer_id');
+            });
+
+            if( !empty($mdPrice_status) ) {
+                if ($mdPrice_status == ProductConstant::MD_PRICE_Y) {
+                    $prdBuilder->where(function ($query) {
+                        $query->where('opt_sub_qry.md_price', '!=', 0)
+                                ->whereNotNull('opt_sub_qry.md_price');
+                    });
+                } else if ($mdPrice_status == ProductConstant::MD_PRICE_N) {
+                    $prdBuilder->where(function ($query) {
+                        $query->where('opt_sub_qry.md_price', '=', 0)
+                                ->orWhereNull('opt_sub_qry.md_price');
+                    });
+                }
+            }
+        } else {
+            $prdBuilder->orderBy("product_datas." . $sortArr[0], $sortArr[1]);
+        }
+
+        if( !empty($w_type) ){
+            $prdBuilder->where("product_datas.w_type", $w_type);
+        }
+
+        if( !empty($trans_status) ){
+            $prdBuilder->where("product_datas.trans_status", $trans_status);
+        }
+
+        if( !empty($mapping_status) ){
+            $prdBuilder->where("product_datas.mapping_status", $mapping_status);
+        }
+
+        if( !empty($inspect_status) ){
+            $prdBuilder->where("product_datas.inspect_status", $inspect_status );
+        }
+
+        if( !empty($inspect_img_status) || !empty($inspect_prd_status) || !empty($inspect_gosi_status) ){
+
+            $prdBuilder->leftJoin("product_inspect_datas as pid","product_datas.offer_id", "=", "pid.offer_id");
+
+            if( $inspect_img_status == InspectConstant::IS_INSPECT_Y ){
+                $prdBuilder->where([
+                    "pid.inspect_type" => InspectConstant::INSPECT_IMAGE,
+                    "pid.is_inspect"   => InspectConstant::IS_INSPECT_Y,
+                ]);
+            } else {
+                $prdBuilder->where(function ($query) {
+                    $query->where('pid.inspect_type', '=', InspectConstant::INSPECT_IMAGE)
+                    ->where('pid.is_inspect', '=', InspectConstant::IS_INSPECT_N)
+                    ->orWhereNull('pid.id');
                 });
             }
         }
 
-        if( !empty($trans_status) ){
-            $prdBuilder->where("trans_status", $trans_status);
+        if( !empty($prd_status) ){
+            $prdBuilder->where("product_datas.status", $prd_status);
+        } else {
+            $prdBuilder->whereIn("product_datas.status", ProductConstant::PRD_SHOW_STATUS);
         }
 
-        if( !empty($mapping_status) ){
-            $prdBuilder->where("mapping_status", $mapping_status);
-        }
+        $totalCnt = ProductData::whereIn("status", ProductConstant::PRD_SHOW_STATUS)->where([
+            "inspect_status" => $inspect_status
+        ])->count();
+        $transYCnt = ProductData::whereIn("status", ProductConstant::PRD_SHOW_STATUS)
+        ->where([
+            "inspect_status" => $inspect_status,
+            "trans_status"   => ProductConstant::TRANS_STATUS_Y
+        ])->count();
+        $transNCnt = ProductData::whereIn("status", ProductConstant::PRD_SHOW_STATUS)
+        ->where([
+            "inspect_status" => $inspect_status,
+            "trans_status"   => ProductConstant::TRANS_STATUS_N
+        ])->count();
 
-        $totalCnt  = ProductData::whereNull("deleted_at")->count();
-        $transYCnt = ProductData::where("trans_status", ProductConstant::TRANS_STATUS_Y)->whereNull("deleted_at")->count();
-        $transNCnt = ProductData::where("trans_status", ProductConstant::TRANS_STATUS_N)->whereNull("deleted_at")->count();
+        $imgInspectYCnt = ProductData::query()
+        ->join('product_inspect_datas as b', 'product_datas.offer_id', '=', 'b.offer_id')
+        ->where([
+            "b.inspect_type" => InspectConstant::INSPECT_IMAGE,
+            "b.is_inspect"   => InspectConstant::IS_INSPECT_Y
+        ])->count();
+        $imgInspectNCnt = $totalCnt - $imgInspectYCnt;
+
+        $prdInspectYCnt = ProductData::query()
+        ->join('product_inspect_datas as b', 'product_datas.offer_id', '=', 'b.offer_id')
+        ->where([
+            "b.inspect_type" => InspectConstant::INSPECT_PRODUCT,
+            "b.is_inspect"   => InspectConstant::IS_INSPECT_Y
+        ])->count();
+        $prdInspectNCnt = $totalCnt - $prdInspectYCnt;
+
+        $gosiInspectYCnt = ProductData::query()
+        ->join('product_inspect_datas as b', 'product_datas.offer_id', '=', 'b.offer_id')
+        ->where([
+            "b.inspect_type" => InspectConstant::INSPECT_NOTICE,
+            "b.is_inspect"   => InspectConstant::IS_INSPECT_Y
+        ])->count();
+        $gosiInspectNCnt = $totalCnt - $gosiInspectYCnt;
+
 
         $lists = $prdBuilder->paginate($pageSize)->appends($params);
         return [
-            "paginator" => $lists,
-            "totalCnt"  => $totalCnt,
-            "transYCnt" => $transYCnt,
-            "transNCnt" => $transNCnt,
+            "paginator"       => $lists,
+            "totalCnt"        => $totalCnt,
+            "transYCnt"       => $transYCnt,
+            "transNCnt"       => $transNCnt,
+            "imgInspectYCnt"  => $imgInspectYCnt,
+            "imgInspectNCnt"  => $imgInspectNCnt,
+            "prdInspectYCnt"  => $prdInspectYCnt,
+            "prdInspectNCnt"  => $prdInspectNCnt,
+            "gosiInspectYCnt" => $gosiInspectYCnt,
+            "gosiInspectNCnt" => $gosiInspectNCnt,
+        ];
+    }
+
+    public function getPrdExceptList(array $params): array
+    {
+        $pageSize       = $params["pageSize"];
+        $search_cls     = $params["search_cls"];
+        $w_type         = $params["w_type"];
+        $keyword        = $params["keyword"];
+        $trans_status   = $params["trans_status"];
+        $mapping_status = $params["mapping_status"];
+        $prd_status     = $params["prd_status"];
+        $mdPrice_status = $params["mdPrice_status"];
+        $sortArr        = explode("|", $params["sort"]);
+
+        $inspect_status      = "";
+        $inspect_img_status  = "";
+        $inspect_prd_status  = "";
+        $inspect_gosi_status = "";
+        if( isset($params["inspect_status"]) ){
+            $inspect_status = $params["inspect_status"];
+        }
+        if( isset($params["inspect_img_status"]) ){
+            $inspect_img_status = $params["inspect_img_status"];
+        }
+        if( isset($params["inspect_prd_status"]) ){
+            $inspect_prd_status = $params["inspect_prd_status"];
+        }
+        if( isset($params["inspect_gosi_status"]) ){
+            $inspect_gosi_status = $params["inspect_gosi_status"];
+        }
+
+        $prdBuilder = ProductData::select(["product_datas.*"])->with([
+            "main_img",
+            "options", 
+            "images.ai_all_imgs",
+            "img_inspect",
+            "prd_inspect",
+            "gosi_inspect",
+        ]);
+
+        if( !empty($keyword) ){
+            if( $search_cls == "offer_id"){
+                $keyword = preg_replace("/(\r\n|\r|\n)/", ",", trim($keyword));
+                $keyword = explode(",", $keyword);
+                // 각 배열 요소의 앞뒤 공백 제거
+                $keyword = array_map('trim', $keyword);
+                // 빈 값을 제거
+                $keyword = array_filter($keyword);
+                // 중복 제거
+                $keyword = array_unique($keyword);
+
+                $prdBuilder->whereIn("product_datas." . $search_cls, $keyword);
+            } else if( $search_cls == "prd_name_kr" || $search_cls == "prd_name"){
+                $prdBuilder->where(function($query1) use ($keyword) {
+                    $query1->where("product_datas." . "prd_name", "like", "%" . $keyword . "%")
+                    ->orWhere("product_datas." . "prd_name_kr", "like", "%" . $keyword . "%")
+                    ->orWhere("product_datas." . "prd_name_en", "like", "%" . $keyword . "%");
+                });
+            } else if( $search_cls == "option_name" || $search_cls == "option_name" ){
+                $prdBuilder->whereHas('options', function ($query) use ($keyword, $search_cls) {
+                    $query->where(function($query1) use ($keyword) {
+                        $query1->where("option_name", "like", "%" . $keyword . "%")
+                        ->orWhere("option_name_kr", "like", "%" . $keyword . "%")
+                        ->orWhere("option_name_en", "like", "%" . $keyword . "%");
+                    });
+                });
+            }
+        }
+        
+        if( in_array($sortArr[0], ["option_price", "md_price"]) || !empty($mdPrice_status) ){
+            $optSubquery = DB::table('product_option_datas');
+            $optSubquery->selectRaw('offer_id, md_price');
+            $prdBuilder->groupBy('product_datas.offer_id');
+
+            if( in_array($sortArr[0], ["option_price", "md_price"]) ){
+                if( $sortArr[0] == "option_price" ){
+                    $optSubquery->selectRaw('MAX(option_price) as max_price');
+                } else if( $sortArr[0] == "md_price" ) {
+                    $optSubquery->selectRaw('MAX(md_price) as max_price');
+                }
+                $optSubquery->groupBy('offer_id');
+                $prdBuilder->orderBy('opt_sub_qry.max_price', $sortArr[1]);
+            }
+
+            $prdBuilder->leftJoinSub($optSubquery, 'opt_sub_qry', function ($join) {
+                $join->on('product_datas.offer_id', '=', 'opt_sub_qry.offer_id');
+            });
+
+            if( !empty($mdPrice_status) ) {
+                if ($mdPrice_status == ProductConstant::MD_PRICE_Y) {
+                    $prdBuilder->where(function ($query) {
+                        $query->where('opt_sub_qry.md_price', '!=', 0)
+                                ->whereNotNull('opt_sub_qry.md_price');
+                    });
+                } else if ($mdPrice_status == ProductConstant::MD_PRICE_N) {
+                    $prdBuilder->where(function ($query) {
+                        $query->where('opt_sub_qry.md_price', '=', 0)
+                                ->orWhereNull('opt_sub_qry.md_price');
+                    });
+                }
+            }
+        } else {
+            $prdBuilder->orderBy("product_datas." . $sortArr[0], $sortArr[1]);
+        }
+
+        if( !empty($w_type) ){
+            $prdBuilder->where("product_datas.w_type", $w_type);
+        }
+
+        if( !empty($trans_status) ){
+            $prdBuilder->where("product_datas.trans_status", $trans_status);
+        }
+
+        if( !empty($mapping_status) ){
+            $prdBuilder->where("product_datas.mapping_status", $mapping_status);
+        }
+
+        if( !empty($inspect_status) ){
+            $prdBuilder->where("product_datas.inspect_status", $inspect_status );
+        }
+
+        if( !empty($inspect_img_status) || !empty($inspect_prd_status) || !empty($inspect_gosi_status) ){
+
+            $prdBuilder->leftJoin("product_inspect_datas as pid","product_datas.offer_id", "=", "pid.offer_id");
+
+            if( $inspect_img_status == InspectConstant::IS_INSPECT_Y ){
+                $prdBuilder->where([
+                    "pid.inspect_type" => InspectConstant::INSPECT_IMAGE,
+                    "pid.is_inspect"   => InspectConstant::IS_INSPECT_Y,
+                ]);
+            } else {
+                $prdBuilder->where(function ($query) {
+                    $query->where('pid.inspect_type', '=', InspectConstant::INSPECT_IMAGE)
+                    ->where('pid.is_inspect', '=', InspectConstant::IS_INSPECT_N)
+                    ->orWhereNull('pid.id');
+                });
+            }
+        }
+
+        if( !empty($prd_status) ){
+            $prdBuilder->where("product_datas.status", $prd_status);
+        }
+
+        $totalCnt = ProductData::where([
+            "inspect_status" => $inspect_status,
+            "status"         => ProductConstant::PRD_STATUS_EXCEPT
+        ])->count();
+        $transYCnt = ProductData::where([
+            "inspect_status" => $inspect_status,
+            "trans_status"   => ProductConstant::TRANS_STATUS_Y,
+            "status"         => ProductConstant::PRD_STATUS_EXCEPT
+        ])->count();
+        $transNCnt = ProductData::where([
+            "inspect_status" => $inspect_status,
+            "trans_status"   => ProductConstant::TRANS_STATUS_N,
+            "status"         => ProductConstant::PRD_STATUS_EXCEPT
+        ])->count();
+
+        $imgInspectYCnt = ProductData::query()
+        ->join('product_inspect_datas as b', 'product_datas.offer_id', '=', 'b.offer_id')
+        ->where([
+            "b.inspect_type" => InspectConstant::INSPECT_IMAGE,
+            "b.is_inspect"   => InspectConstant::IS_INSPECT_Y,
+            "status"         => ProductConstant::PRD_STATUS_EXCEPT
+        ])->count();
+        $imgInspectNCnt = $totalCnt - $imgInspectYCnt;
+
+        $prdInspectYCnt = ProductData::query()
+        ->join('product_inspect_datas as b', 'product_datas.offer_id', '=', 'b.offer_id')
+        ->where([
+            "b.inspect_type" => InspectConstant::INSPECT_PRODUCT,
+            "b.is_inspect"   => InspectConstant::IS_INSPECT_Y,
+            "status"         => ProductConstant::PRD_STATUS_EXCEPT
+        ])->count();
+        $prdInspectNCnt = $totalCnt - $prdInspectYCnt;
+
+        $gosiInspectYCnt = ProductData::query()
+        ->join('product_inspect_datas as b', 'product_datas.offer_id', '=', 'b.offer_id')
+        ->where([
+            "b.inspect_type" => InspectConstant::INSPECT_NOTICE,
+            "b.is_inspect"   => InspectConstant::IS_INSPECT_Y,
+            "status"         => ProductConstant::PRD_STATUS_EXCEPT
+        ])->count();
+        $gosiInspectNCnt = $totalCnt - $gosiInspectYCnt;
+
+        $lists = $prdBuilder->paginate($pageSize)->appends($params);
+        return [
+            "paginator"       => $lists,
+            "totalCnt"        => $totalCnt,
+            "transYCnt"       => $transYCnt,
+            "transNCnt"       => $transNCnt,
+            "imgInspectYCnt"  => $imgInspectYCnt,
+            "imgInspectNCnt"  => $imgInspectNCnt,
+            "prdInspectYCnt"  => $prdInspectYCnt,
+            "prdInspectNCnt"  => $prdInspectNCnt,
+            "gosiInspectYCnt" => $gosiInspectYCnt,
+            "gosiInspectNCnt" => $gosiInspectNCnt,
         ];
     }
 
@@ -138,7 +486,7 @@ class ProductV1 extends ProductAbstract
     {
         $pageSize  = $params["pageSize"];
 
-        $prdBuilder = ProductCollectLog::orderBy("created_at", "desc");
+        $prdBuilder = ProductCollectLog::where("version", WConstant::WAPP_W1)->orderBy("created_at", "desc");
         $lists = $prdBuilder->paginate($pageSize)->appends($params);
 
         return $lists;
@@ -156,6 +504,9 @@ class ProductV1 extends ProductAbstract
                 "notices",
                 "category",
                 "w_mapping.w_cate_name",
+                "img_inspect",
+                "prd_inspect",
+                "gosi_inspect",
             ])->where("offer_id", $offerId)->first();
             if( $prdObj == null ){
                 throw new Exception("No Data");
@@ -436,6 +787,7 @@ class ProductV1 extends ProductAbstract
             "status"     => LogConstant::COLLECT_RUNNING,
             "payload"    => implode(", ", $offerIds),
             "log_count"  => 0,
+            "version"    => WConstant::WAPP_W1,
             "created_at" => Carbon::now()
         ]);
         $successCnt = 0;
@@ -505,6 +857,7 @@ class ProductV1 extends ProductAbstract
             "status"     => LogConstant::COLLECT_RUNNING,
             "payload"    => implode(", ", $offerIds),
             "log_count"  => 0,
+            "version"    => WConstant::WAPP_W1,
             "created_at" => Carbon::now()
         ]);
         $successCnt = 0;
@@ -572,6 +925,17 @@ class ProductV1 extends ProductAbstract
         $offerId       = $detailProduct["offerId"];
         $prdCategoryId = $detailProduct["categoryId"];
         $status        = $detailProduct["status"];
+        if( $status != ProductConstant::PRD_STATUS_PUBLISH ){
+            $status = ProductConstant::PRD_STATUS_STOP;
+        }
+        if( !isset($detailProduct["productSkuInfos"]) || empty($detailProduct["productSkuInfos"]) ){
+            $status = ProductConstant::PRD_STATUS_MISS;
+        }
+
+        $prdObj = ProductData::where("offer_id", $offerId)->first();
+        if( $prdObj != null && $prdObj->status == ProductConstant::PRD_STATUS_EXCEPT ){
+            throw new Exception(ProductErrorMessageConstant::getFitErrorMessage("PRODUCT_EXCEPT"));
+        }
 
         // 1. 상품 이미지
         $product1688ImageDtoList = [];
@@ -586,6 +950,7 @@ class ProductV1 extends ProductAbstract
                 "offer_id"       => $offerId,
                 "img_type"       => $imgType,
                 "img_url_origin" => $prdImage,
+                "lang"           => WConstant::WAPP_KR,
             ])->first();
             if( $imgObj != null ){
                 $is_except = $imgObj->is_except;
@@ -610,6 +975,7 @@ class ProductV1 extends ProductAbstract
             $product1688ImageDto->bind([
                 "offerId"        => $offerId,
                 "imgType"        => $imgType,
+                "lang"           => WConstant::WAPP_KR,
                 "is_except"      => $is_except,
                 "img_url_origin" => $prdImage,
                 "img_url_trans"  => "",
@@ -622,7 +988,7 @@ class ProductV1 extends ProductAbstract
             $product1688ImageDtoList[] = $product1688ImageDto;
         }
 
-        // 1-1. 상품 상세 이미지
+        // 2. 상품 상세 이미지
         $prdDescription = $detailProduct["description"];
         preg_match_all('/<img[^>]+src="([^">]+)"/', $prdDescription, $matches);
         $imageSrcs = $matches[1];
@@ -633,6 +999,7 @@ class ProductV1 extends ProductAbstract
                 "offer_id"       => $offerId,
                 "img_type"       => $imgType,
                 "img_url_origin" => $imageSrc,
+                "lang"           => WConstant::WAPP_KR,
             ])->first();
             if( $imgObj != null ){
                 $is_except = $imgObj->is_except;
@@ -657,6 +1024,7 @@ class ProductV1 extends ProductAbstract
             $product1688ImageDto->bind([
                 "offerId"        => $offerId,
                 "imgType"        => $imgType,
+                "lang"           => WConstant::WAPP_KR,
                 "is_except"      => $is_except,
                 "img_url_origin" => $imageSrc,
                 "img_url_trans"  => "",
@@ -669,7 +1037,7 @@ class ProductV1 extends ProductAbstract
             $product1688ImageDtoList[] = $product1688ImageDto;
         }
 
-        // 2. 상품 기본정보
+        // 3. 상품 기본정보
         $mapping_status = ProductConstant::MAPPING_STATUS_N;
         $getCategoryMappingObj = CategoryMapping::select(["mapping_code"])
         ->where([
@@ -680,45 +1048,89 @@ class ProductV1 extends ProductAbstract
             $mapping_status = ProductConstant::MAPPING_STATUS_Y;
         }
 
+        $inspect_status = ProductConstant::INSPECT_STATUS_N;
+        if( $prdObj != null ){
+            $inspect_status = $prdObj->inspect_status;
+        }
+
         $startQuantity = $detailProduct["productSaleInfo"]["priceRangeList"][0]["startQuantity"];
+
+        $subjectTrans = $detailProduct["subjectTrans"];
+        // 3-1. 삭제어
+        $subjectForbiddenTrans = $this->removeSpecialSequence($subjectTrans);
+        // 3-2. 교체어
+        $subjectForbiddenTrans = $this->replaceWord($subjectForbiddenTrans);
+
+        $subjectForbiddenTrans = trim($subjectForbiddenTrans);
+
+        if( $subjectTrans != $subjectForbiddenTrans ){ 
+            ProductForbiddenData::updateOrCreate(
+                ["offer_id" => $offerId],
+                [
+                    "prd_name_trans_origin"    => $subjectTrans,
+                    "prd_name_trans_forbidden" => $subjectForbiddenTrans
+                ]
+            );
+        }
+
+        $soldOut = 0;
+        if( isset($detailProduct["soldOut"]) ){
+            $soldOut = (int)$detailProduct["soldOut"];
+        }
         $product1688Dto = new Product1688Dto();
         $product1688Dto->bind([
             "offerId"        => $offerId,
             "categoryId"     => $prdCategoryId,
             "status"         => $status,
+            "wType"          => WConstant::WAPP_W1,
             "subject"        => $detailProduct["subject"],
-            "subjectTrans"   => $detailProduct["subjectTrans"],
+            "subjectTrans"   => $subjectForbiddenTrans,
+            "subjectTransEn" => "",
             "startQuantity"  => $startQuantity,
             "description"    => $detailProduct["description"],
+            "soldOut"        => $soldOut,
             "mapping_status" => $mapping_status,
+            "inspect_status" => $inspect_status,
         ]);
 
-        // 2. 상품 확장정보
+        // 4. 상품 확장정보
         $product1688ExtendDto = new Product1688ExtendDto();
         $product1688ExtendDto->bind([
             "offerId" => $offerId,
         ]);
 
-        // 4. 상품 고시정보
+        // 5. 상품 고시정보
         $product1688NoticeDtoList = [];
         foreach ($detailProduct["productAttribute"] as $prdNotice) {
+            $is_except = GosiConstants::IS_EXCEPT_N;
+
+            $gosiObj = ProductNoticeData::where([
+                "offer_id"     => $offerId,
+                "attribute_id" => $prdNotice["attributeId"]
+            ])->first();
+            if( $gosiObj != null ){
+                $is_except = $gosiObj->is_except;
+            }
             $product1688NoticeDto = new Product1688NoticeDto();
             $product1688NoticeDto->bind([
-                "offerId"            => $offerId,
-                "attributeId"        => $prdNotice["attributeId"],
-                "attributeName"      => $prdNotice["attributeName"],
-                "value"              => $prdNotice["value"],
-                "attributeNameTrans" => $prdNotice["attributeNameTrans"],
-                "valueTrans"         => $prdNotice["valueTrans"]
+                "offerId"              => $offerId,
+                "attributeId"          => $prdNotice["attributeId"],
+                "is_except"            => $is_except,
+                "attributeName"        => $prdNotice["attributeName"],
+                "value"                => $prdNotice["value"],
+                "attributeNameTrans"   => $prdNotice["attributeNameTrans"],
+                "valueTrans"           => $prdNotice["valueTrans"],
+                "attributeNameTransEn" => "",
+                "valueTransEn"         => "",
             ]);
             $product1688NoticeDtoList[] = $product1688NoticeDto;
         }
 
-        // 5. 상품 옵션정보
+        // 6. 상품 옵션정보
         $product1688OptionDtoList = [];
 
         $price_1688 = 0;
-        // 5-1. price 컬럼이 있을 경우
+        // 6-1. price 컬럼이 있을 경우
         if( isset($detailProduct["productSkuInfos"][0]["price"]) ){
             foreach ($detailProduct["productSkuInfos"] as $prdOptions) {
                 if( $prdOptions["price"] > $price_1688 ){
@@ -735,31 +1147,91 @@ class ProductV1 extends ProductAbstract
             throw new Exception(ProductErrorMessageConstant::getFitErrorMessage("PRICE_1688"));
         }
 
-        foreach ($detailProduct["productSkuInfos"] as $prdOptions) {
-            $opt_status = ProductConstant::OPTION_SEC_ON_SALE_NUMBER;
-            if( $status != ProductConstant::PRD_STATUS ){
-                $opt_status = ProductConstant::OPTION_SEC_OUT_OF_STOCK_NUMBER;
-            }
+        if( isset($detailProduct["productSkuInfos"]) ){
+            foreach ($detailProduct["productSkuInfos"] as $prdOptions) {
+                $opt_status = ProductConstant::OPTION_SEC_ON_SALE_NUMBER;
+                if( $status != ProductConstant::PRD_STATUS_PUBLISH ){
+                    $opt_status = ProductConstant::OPTION_SEC_OUT_OF_STOCK_NUMBER;
+                }
+    
+                $optionName      = "";
+                $optionNameTrans = "";
+                foreach ($prdOptions["skuAttributes"] as $prdOption) {
+                    $optionName      .= $prdOption["value"] .  "_";
+                    $optionNameTrans .= $prdOption["valueTrans"] .  "_";
+                }
 
-            $optionName      = "";
-            $optionNameTrans = "";
-            foreach ($prdOptions["skuAttributes"] as $prdOption) {
-                $optionName      .= $prdOption["value"] .  "_";
-                $optionNameTrans .= $prdOption["valueTrans"] .  "_";
+                $width  = 0;
+                $length = 0;
+                $height = 0;
+                $weight = 0;
+
+                if( isset($detailProduct["productShippingInfo"]) ){
+                    $productShippingInfo = $detailProduct["productShippingInfo"];
+                    if( isset($productShippingInfo["skuShippingInfoList"]) ){
+                        $skuShippingInfoList = $productShippingInfo["skuShippingInfoList"];
+                        foreach ($skuShippingInfoList as $skuShippingInfo) {
+                            if( $skuShippingInfo["skuId"] == $prdOptions["skuId"] ){
+                                if( isset($skuShippingInfo["width"]) ) {
+                                    $width = $skuShippingInfo["width"];
+                                }
+                                if( isset($skuShippingInfo["length"]) ) {
+                                    $length = $skuShippingInfo["length"];
+                                }
+                                if( isset($skuShippingInfo["height"]) ) {
+                                    $height = $skuShippingInfo["height"];
+                                }
+                                if( isset($skuShippingInfo["weight"]) ) {
+                                    $weight = $skuShippingInfo["weight"];
+                                }
+                            }
+                        }
+                    } else {
+                        if( isset($productShippingInfo["width"]) ) {
+                            $width = $productShippingInfo["width"];
+                        }
+                        if( isset($productShippingInfo["length"]) ) {
+                            $length = $productShippingInfo["length"];
+                        }
+                        if( isset($productShippingInfo["height"]) ) {
+                            $height = $productShippingInfo["height"];
+                        }
+                        if( isset($productShippingInfo["weight"]) ) {
+                            $weight = $productShippingInfo["weight"];
+                        }
+                    }
+                }
+
+                $is_except = OptionConstants::IS_EXCEPT_N;
+                $optionObj = ProductOptionData::where([
+                    "offer_id" => $offerId,
+                    "sku_id"   => $prdOptions["skuId"],
+                    "spec_id"  => $prdOptions["specId"],
+                ])->first();
+                if( $optionObj != null ){
+                    $is_except = $optionObj->is_except;
+                }
+
+                $product1688OptionDto = new Product1688OptionDto();
+                $product1688OptionDto->bind([
+                    "offerId"           => $offerId,
+                    "skuId"             => $prdOptions["skuId"],
+                    "specId"            => $prdOptions["specId"],
+                    "status"            => $opt_status,
+                    "is_except"         => $is_except,
+                    "price_1688"        => $price_1688,
+                    "optionName"        => rtrim($optionName, "_"),
+                    "optionNameTrans"   => rtrim($optionNameTrans, "_"),
+                    "optionNameTransEn" => "",
+                    "amountOnSale"      => $prdOptions["amountOnSale"],
+                    "cargoNumber"       => $prdOptions["cargoNumber"] ?? "",
+                    "width"             => (float) sprintf("%.2f", $width),
+                    "length"            => (float) sprintf("%.2f", $length),
+                    "height"            => (float) sprintf("%.2f", $height),
+                    "weight"            => (float) sprintf("%.2f", $weight),
+                ]);
+                $product1688OptionDtoList[] = $product1688OptionDto;
             }
-            $product1688OptionDto = new Product1688OptionDto();
-            $product1688OptionDto->bind([
-                "offerId"         => $offerId,
-                "skuId"           => $prdOptions["skuId"],
-                "specId"          => $prdOptions["specId"],
-                "status"          => $opt_status,
-                "price_1688"      => $price_1688,
-                "optionName"      => rtrim($optionName, "_"),
-                "optionNameTrans" => rtrim($optionNameTrans, "_"),
-                "amountOnSale"    => $prdOptions["amountOnSale"],
-                "cargoNumber"     => $prdOptions["cargoNumber"] ?? "",
-            ]);
-            $product1688OptionDtoList[] = $product1688OptionDto;
         }
 
         return [
@@ -803,6 +1275,7 @@ class ProductV1 extends ProductAbstract
                         [
                             "offer_id" => $offerId,
                             "img_type" => ImageConstant::IMAGE_TYPE_MAIN,
+                            "lang"     => $product1688ImageDto->lang,
                         ],
                         [
                             "img_url_origin" => $product1688ImageDto->img_url_origin,
@@ -818,31 +1291,12 @@ class ProductV1 extends ProductAbstract
                             "offer_id"       => $offerId,
                             "img_type"       => $product1688ImageDto->img_type,
                             "img_url_origin" => $product1688ImageDto->img_url_origin,
+                            "lang"           => $product1688ImageDto->lang,
                         ],
                         [
                             "img_url_trans" => "",
                             "trans_dated_at" => null
                         ]
-                    );
-                }
-
-                $upsertDetailWhere = [];
-                if( $product1688ImageDto->is_change_img == true ){
-                    $upsertDetailWhere = [
-                        "width"  => $product1688ImageDto->width,
-                        "height" => $product1688ImageDto->height,
-                        "byte"   => $product1688ImageDto->byte,
-                        "mime"   => $product1688ImageDto->mime,
-                    ];
-                }
-                if( !empty($upsertDetailWhere) ){
-                    ProductImageDetailData::updateOrCreate(
-                        [
-                            "offer_id"       => $offerId,
-                            "img_type"       => $product1688ImageDto->img_type,
-                            "img_url_origin" => $product1688ImageDto->img_url_origin,
-                        ],
-                        $upsertDetailWhere
                     );
                 }
             }
@@ -884,7 +1338,7 @@ class ProductV1 extends ProductAbstract
             $this->delProductImage($product1688ImageDtoList);
 
             // 7. 이미지 번역 요청 통신
-            if( env("APP_ENV", "local") == "production" ) {
+            if( env("APP_ENV", "local") == "production" && $product1688Dto->status == ProductConstant::PRD_STATUS_PUBLISH ) {
                 $transResult = $this->transApiAbstract->createTransProductImg($product1688ImageDtoList, $offerId);
                 if( $transResult["isSuccess"] == false ){
                     throw new Exception($transResult["msg"]);
@@ -920,6 +1374,7 @@ class ProductV1 extends ProductAbstract
             ProductImageData::where('img_type', ImageConstant::IMAGE_TYPE_MAIN)
             ->where('offer_id', $offer_id)
             ->where('is_except', ImageConstant::IS_EXCEPT_N)
+            ->where('lang', WConstant::WAPP_KR)
             ->where('img_url_origin', '!=', $mainImg)
             ->delete();
         }
@@ -929,6 +1384,7 @@ class ProductV1 extends ProductAbstract
             ProductImageData::where('img_type', ImageConstant::IMAGE_TYPE_SUB)
             ->where('offer_id', $offer_id)
             ->where('is_except', ImageConstant::IS_EXCEPT_N)
+            ->where('lang', WConstant::WAPP_KR)
             ->whereNotIn('img_url_origin', $subImg)
             ->delete();
         }
@@ -938,6 +1394,7 @@ class ProductV1 extends ProductAbstract
             ProductImageData::where('img_type', ImageConstant::IMAGE_TYPE_DESC)
             ->where('offer_id', $offer_id)
             ->where('is_except', ImageConstant::IS_EXCEPT_N)
+            ->where('lang', WConstant::WAPP_KR)
             ->whereNotIn('img_url_origin', $descImg)
             ->delete();
         }
@@ -1024,6 +1481,11 @@ class ProductV1 extends ProductAbstract
             $data["option_price"]    = $ocPrice["option_price"];
             $data["cus_price"]       = $ocPrice["cus_price"];
             $data["recom_cus_price"] = $ocPrice["recom_cus_price"];
+            $data["hasPrd"]          = ProductConstant::HAS_PRD_N;
+            $prdCnt                  = ProductData::where("offer_id", $data["offerId"])->count();
+            if( $prdCnt > 0 ){
+                $data["hasPrd"] = ProductConstant::HAS_PRD_Y;
+            }
         }
 
         return $datas;
@@ -1062,6 +1524,11 @@ class ProductV1 extends ProductAbstract
             $data["option_price"]    = $ocPrice["option_price"];
             $data["cus_price"]       = $ocPrice["cus_price"];
             $data["recom_cus_price"] = $ocPrice["recom_cus_price"];
+            $data["hasPrd"]          = ProductConstant::HAS_PRD_N;
+            $prdCnt                  = ProductData::where("offer_id", $data["offerId"])->count();
+            if( $prdCnt > 0 ){
+                $data["hasPrd"] = ProductConstant::HAS_PRD_Y;
+            }
         }
 
         return [
@@ -1104,6 +1571,7 @@ class ProductV1 extends ProductAbstract
                 "status"     => LogConstant::COLLECT_RUNNING,
                 "payload"    => $payload_json,
                 "log_count"  => 0,
+                "version"    => WConstant::WAPP_W1,
                 "created_at" => Carbon::now()
             ]);
 
@@ -1154,7 +1622,12 @@ class ProductV1 extends ProductAbstract
                 $successCnt   = 0;
                 foreach ($productDatas as $productData) {
                     try {
-                        $offerId        = $productData["offerId"];
+                        $offerId = $productData["offerId"];
+                        $prdCnt  = ProductData::where("offer_id", $offerId)->count();
+                        if( $prdCnt > 0 ){
+                            throw new Exception(ProductErrorMessageConstant::getFitErrorMessage("ALREADY_PRODUCT"));
+                        }
+
                         $endPoint       = "param2/1/com.alibaba.fenxiao.crossborder/product.search.queryProductDetail/";
                         $payload_detail = [
                             'access_token'     => $this->accessToken,
@@ -1285,6 +1758,11 @@ class ProductV1 extends ProductAbstract
             $data["option_price"]    = $ocPrice["option_price"];
             $data["cus_price"]       = $ocPrice["cus_price"];
             $data["recom_cus_price"] = $ocPrice["recom_cus_price"];
+            $data["hasPrd"]          = ProductConstant::HAS_PRD_N;
+            $prdCnt                  = ProductData::where("offer_id", $data["offerId"])->count();
+            if( $prdCnt > 0 ){
+                $data["hasPrd"] = ProductConstant::HAS_PRD_Y;
+            }
         }
 
         return [
@@ -1317,6 +1795,7 @@ class ProductV1 extends ProductAbstract
                 "status"     => LogConstant::COLLECT_RUNNING,
                 "payload"    => implode(",", $imageIds),
                 "log_count"  => 0,
+                "version"    => WConstant::WAPP_W1,
                 "created_at" => Carbon::now()
             ]);
 
@@ -1378,7 +1857,12 @@ class ProductV1 extends ProductAbstract
                 $successCnt   = 0;
                 foreach ($productDatas as $productData) {
                     try {
-                        $offerId        = $productData["offerId"];
+                        $offerId = $productData["offerId"];
+                        $prdCnt  = ProductData::where("offer_id", $offerId)->count();
+                        if( $prdCnt > 0 ){
+                            throw new Exception(ProductErrorMessageConstant::getFitErrorMessage("ALREADY_PRODUCT"));
+                        }
+
                         $endPoint       = "param2/1/com.alibaba.fenxiao.crossborder/product.search.queryProductDetail/";
                         $payload_detail = [
                             'access_token'     => $this->accessToken,
@@ -1461,6 +1945,16 @@ class ProductV1 extends ProductAbstract
 
         try {
             $searchObjs = ProductSearchData::with(["details"])->where("id", $searchId)->orderBy("created_at", "desc")->first();
+            if( $searchObjs != null ){
+                foreach ($searchObjs->details as &$detail) {
+                    $prdCnt = ProductData::where("offer_id", $detail->offer_id)->count();
+                    if( $prdCnt > 0 ){
+                        $detail->hasPrd = ProductConstant::HAS_PRD_Y;
+                    } else {
+                        $detail->hasPrd = ProductConstant::HAS_PRD_N;
+                    }
+                }
+            }
             $returnMsg  = helpers_success_message($searchObjs);
         } catch (Exception $e) {
             $returnMsg = helpers_fail_message(false, $e->getMessage());
@@ -1498,6 +1992,9 @@ class ProductV1 extends ProductAbstract
 
                     $img_url_origin = $imgObj->img_url_origin;
                     $mime           = pathinfo($img_url_origin, PATHINFO_EXTENSION);
+                    if (preg_match('/^(jpg|jpeg|png|gif)/i', $mime, $matches)) {
+                        $mime = $matches[0];
+                    }
                     if( $imgObj->img_type == ImageConstant::IMAGE_TYPE_MAIN ){
                         $imgName  = "/product/" . $dateName . "/" . $offerId . "_" . $imgObj->img_type . "." . $mime;
                     } else {
@@ -1769,9 +2266,19 @@ class ProductV1 extends ProductAbstract
     {
         $returnMsg = $this->returnMsg;
         try {
-            ProductImageData::whereIn("id", $imgIds)->update([
-                "is_except" => $is_except
-            ]);
+            foreach ($imgIds as $imgId) {
+                $imgObj = ProductImageData::where("id", $imgId)->first();
+                if( $imgObj != null && $imgObj->img_type != ImageConstant::IMAGE_TYPE_MAIN ){
+                    ProductImageData::where("id", $imgId)->update([
+                        "is_except" => $is_except
+                    ]);
+                    // 상세이미지 업데이트
+                    upPrdDescTrans($imgObj->offer_id);
+                    
+                    // 수정 상품 저장
+                    saveModiProduct($imgObj->offer_id);
+                }
+            }
             $returnMsg = helpers_success_message();
         } catch (Exception $e) {
             $returnMsg = helpers_fail_message(false, $e->getMessage());
@@ -1795,11 +2302,240 @@ class ProductV1 extends ProductAbstract
 
                         // 상세이미지 업데이트
                         upPrdDescTrans($imgObj->offer_id);
+
+                        // 수정 상품 저장
+                        saveModiProduct($imgObj->offer_id);
                     }
                 }
             }
             $returnMsg = helpers_success_message();
         } catch (Exception $e) {
+            $returnMsg = helpers_fail_message(false, $e->getMessage());
+        }
+
+        return $returnMsg;
+    }
+
+    public function mdPriceUpdate(array $offerIds, int $mdPrice): array
+    {
+        $returnMsg = $this->returnMsg;
+        try {
+            foreach ($offerIds as $offerId) {
+                ProductOptionData::where("offer_id", $offerId)->update([
+                    "md_price" => $mdPrice
+                ]);
+
+                // 수정 상품 저장
+                saveModiProduct($offerId);
+            }
+
+            $returnMsg = helpers_success_message();
+        } catch (Exception $e) {
+            $returnMsg = helpers_fail_message(false, $e->getMessage());
+        }
+
+        return $returnMsg;
+    }
+
+    public function statusUpdate(array $offerIds, string $status): array
+    {
+        $returnMsg = $this->returnMsg;
+        try {
+            ProductData::whereIn("offer_id", $offerIds)->update([
+                "status" => $status
+            ]);
+
+            foreach ($offerIds as $offerId) {
+                // 수정 상품 저장
+                saveModiProduct($offerId);
+
+                if( $status == ProductConstant::PRD_STATUS_EXCEPT ){
+                    $geObj = GenuioQueueData::query()
+                    ->select('genuio_queue_datas.*')
+                    ->leftJoin('genuio_queue_datas as b', 'genuio_queue_datas.id', '=', 'b.parent_id')
+                    ->where('genuio_queue_datas.offer_id', $offerId)
+                    ->where('genuio_queue_datas.request_user', TransApiConstant::API_USER_COMPANY_OC)
+                    ->whereNull('b.id')
+                    ->first();
+    
+                    if( $geObj != null ){
+                        $this->transApiAbstract->removeQueue($geObj->id);
+                    }
+                }
+            }
+
+            $returnMsg = helpers_success_message([], "판매 상태가 변경되었습니다.");
+        } catch (Exception $e) {
+            $returnMsg = helpers_fail_message(false, $e->getMessage());
+        }
+
+        return $returnMsg;
+    }
+
+    public function imageMainApply(array $aiImgIds): array
+    {
+        $returnMsg = $this->returnMsg;
+        try {
+            foreach ($aiImgIds as $aiImgId) {
+                $aiImgObj = GenuioImageData::with(["image"])->where("id", $aiImgId)->first();
+                if( $aiImgObj != null && $aiImgObj->image ){
+                    $imgObj = $aiImgObj->image;
+
+                    // 1. 기존 main 이미지 sub로 변경
+                    ProductImageData::where([
+                        "offer_id" => $imgObj->offer_id,
+                        "img_type" => ImageConstant::IMAGE_TYPE_MAIN,
+                    ])->update([
+                        "img_type" => ImageConstant::IMAGE_TYPE_SUB
+                    ]);
+
+                    // 2. 타켓 이미지 main으로 변경
+                    ProductImageData::where([
+                        "id" => $imgObj->id
+                    ])->update([
+                        "img_type" => ImageConstant::IMAGE_TYPE_MAIN
+                    ]);
+
+                    // 수정 상품 저장
+                    saveModiProduct($imgObj->offer_id);
+                }
+            }
+            $returnMsg = helpers_success_message();
+        } catch (Exception $e) {
+            $returnMsg = helpers_fail_message(false, $e->getMessage());
+        }
+
+        return $returnMsg;
+    }
+
+    public function gosiExcept(array $gosiList): array
+    {
+        $returnMsg = $this->returnMsg;
+        try {
+            foreach ($gosiList as $gosi) {
+                ProductNoticeData::where("id", $gosi["id"])->update([
+                    "is_except" => $gosi["is_except"]
+                ]);
+
+                $gosiObj = ProductNoticeData::where("id", $gosi["id"])->first();
+
+                // 수정 상품 저장
+                saveModiProduct($gosiObj->offer_id);
+            }
+            $returnMsg = helpers_success_message();
+        } catch (Exception $e) {
+            $returnMsg = helpers_fail_message(false, $e->getMessage());
+        }
+
+        return $returnMsg;
+    }
+
+    public function update(array $params): array
+    {
+        $returnMsg = $this->returnMsg;
+
+        try {
+            DB::beginTransaction();
+
+            $offerId     = $params["offer_id"];
+            $prd_name_kr = trim($params["prd_name_kr"]);
+            $optionList  = $params["optionList"];
+            $gosiKrList  = $params["gosiKrList"];
+
+            if( $prd_name_kr ){
+                ProductData::where("offer_id", $offerId)
+                ->update([
+                    "prd_name_kr" => $prd_name_kr,
+                ]);
+            }
+
+            foreach ($optionList as $option) {
+                $qry = ProductOptionData::where("id", $option["id"]);
+                if( $option["is_except"] == OptionConstants::IS_EXCEPT_N ){
+                    $qry->update([
+                        "is_except"      => $option["is_except"],
+                        "option_name_kr" => $option["option_name_kr"]
+                    ]);
+                } else {
+                    $qry->update([
+                        "is_except" => $option["is_except"]
+                    ]);
+                }
+            }
+
+            foreach ($gosiKrList as $gosi) {
+                ProductNoticeData::where("id", $gosi["id"])
+                ->update([
+                    "is_except"          => $gosi["is_except"],
+                    "attribute_name_kr"  => $gosi["attribute_name_kr"],
+                    "attribute_value_kr" => $gosi["attribute_value_kr"],
+                ]);
+            }
+
+            // 수정 상품 저장
+            saveModiProduct($offerId);
+
+            DB::commit();
+            $returnMsg = helpers_success_message();
+        } catch (Exception $e) {
+            DB::rollBack();
+            $returnMsg = helpers_fail_message(false, $e->getMessage());
+        }
+
+        return $returnMsg;
+    }
+
+    public function inspectStatusUpdate(array $params): array
+    {
+        $returnMsg = $this->returnMsg;
+
+        try {
+            DB::beginTransaction();
+
+            $offerIds            = $params["offerIds"];
+            $inspect_img_status  = $params["inspect_img_status"];
+            $inspect_prd_status  = $params["inspect_prd_status"];
+            $inspect_gosi_status = $params["inspect_gosi_status"];
+            
+            foreach ($offerIds as $offerId) {
+                ProductInspectData::updateOrCreate(
+                    [
+                        "offer_id"     => $offerId,
+                        "inspect_type" => InspectConstant::INSPECT_IMAGE,
+                    ],
+                    [
+                        "is_inspect" => $inspect_img_status,
+                    ]
+                );
+
+                ProductInspectData::updateOrCreate(
+                    [
+                        "offer_id"     => $offerId,
+                        "inspect_type" => InspectConstant::INSPECT_PRODUCT,
+                    ],
+                    [
+                        "is_inspect" => $inspect_prd_status,
+                    ]
+                );
+
+                ProductInspectData::updateOrCreate(
+                    [
+                        "offer_id"     => $offerId,
+                        "inspect_type" => InspectConstant::INSPECT_NOTICE,
+                    ],
+                    [
+                        "is_inspect" => $inspect_gosi_status,
+                    ]
+                );
+            }
+
+            /** 검수상태 최종 변경 */
+            inspectStatusUpdate($offerId);
+
+            DB::commit();
+            $returnMsg = helpers_success_message();
+        } catch (Exception $e) {
+            DB::rollBack();
             $returnMsg = helpers_fail_message(false, $e->getMessage());
         }
 

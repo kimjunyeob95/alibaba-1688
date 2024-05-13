@@ -3,6 +3,7 @@
 namespace App\Console;
 
 use App\Console\Commands\EasySellCommand;
+use App\Console\Commands\MissProductReCollect;
 use App\Console\Commands\Save1688AllCategory;
 use App\Console\Commands\Save1688AllProducts;
 use App\Console\Commands\Save1688Category;
@@ -15,12 +16,15 @@ use App\Console\Commands\SaveWAppProductMapping;
 use App\Console\Commands\SaveWCategory;
 use App\Console\Commands\SaveWCategoryMapping;
 use App\Console\Commands\TestCommands;
+use App\Console\Commands\UpdateForbiddenWord;
+use App\Constants\WConstant;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 
 class Kernel extends ConsoleKernel
 {
     protected $commands = [
+        TestCommands::class,
         Save1688AllCategory::class,
         Save1688Category::class,
         Save1688CategoryMapping::class,
@@ -32,13 +36,27 @@ class Kernel extends ConsoleKernel
         Save1688AllProducts::class,
         Save1688CollectProduct::class,
         SaveWAppProductMapping::class,
+        /** 이지셀 */
         EasySellCommand::class,
-        TestCommands::class,
+        /** 정보부족 상품 재수집 */
+        MissProductReCollect::class,
+        /** 금칙어 사전 적용 */
+        UpdateForbiddenWord::class,
     ];
 
     protected function schedule(Schedule $schedule)
     {
-        // $schedule->command('inspire')->hourly();
+        if (app()->environment('production')) {
+
+            /** WApp */
+            $schedule->command("miss_product_re_collect --wversion=". WConstant::WAPP_W1)->cron("0 */2 * * *")->description("정보부족 W1 상품 재수집")->withoutOverlapping()->runInBackground();
+            $schedule->command("miss_product_re_collect --wversion=". WConstant::WAPP_W2)->cron("0 */2 * * *")->description("정보부족 W2 상품 재수집")->withoutOverlapping()->runInBackground();
+
+            $schedule->command("update_forbidden_word")->cron("0 0 * * *")->description("금칙어 사전 적용")->withoutOverlapping()->runInBackground();
+
+            /** 이지셀 */
+            $schedule->command("easy_sell_command --func=sendModiProduct")->cron("*/5 * * * *")->description("이지셀 수정 된 상품 전송")->withoutOverlapping()->runInBackground();
+        }
     }
 
     /**

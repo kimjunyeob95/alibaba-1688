@@ -3,13 +3,18 @@
 namespace Tests\Feature;
 
 use App\Constants\ImageConstant;
+use App\Models\CategoryMapping;
 use App\Models\ProductData;
+use App\Models\ProductForbiddenData;
 use App\Models\ProductImageData;
 use App\Models\ProductOptionData;
 use App\Packages\S3;
 use App\Services\GenuioService;
+use App\Services\Product\ProductW2;
 use App\Vo\Product\Product1688ImageDto;
+use Exception;
 use Tests\TestCase;
+use Illuminate\Support\Facades\File;
 
 class ProductTest extends TestCase
 {
@@ -112,27 +117,11 @@ class ProductTest extends TestCase
     }
 
     # testCode
-    # php artisan test --filter testCode
-    public function testCode()
+    # php artisan test --filter testConvertW1toW2
+    public function testConvertW1toW2()
     {
-        $offerId = 719991111764; 
-        
-        $prdObj  = ProductData::where("offer_id", $offerId)->first();
-        $imgObjs = ProductImageData::where("offer_id", $offerId)->where("is_except", "Y")->get();
-        $prd_desc     = $prdObj->prd_desc;
-        $prd_desc_new = $prdObj->prd_desc;
-
-        foreach ($imgObjs as $imgObj) {
-            $img_url_origin = $imgObj->img_url_origin;
-            $img_url_trans  = $imgObj->img_url_trans;
-
-            $pattern = '/<img[^>]+src\s*=\s*["\']' . preg_quote($img_url_origin, '/') . '["\'][^>]*>/i';
-            $prd_desc_new = preg_replace($pattern, '', $prd_desc_new);
-
-            $pattern = '/<img[^>]+src\s*=\s*["\']' . preg_quote($img_url_trans, '/') . '["\'][^>]*>/i';
-            $prd_desc_new = preg_replace($pattern, '', $prd_desc_new);
-        }
-        dd($prd_desc, $prd_desc_new);
+        $productW2 = app(ProductW2::class);
+        $productW2->convertW1toW2();
     }
 
     # s3 upload
@@ -179,7 +168,7 @@ class ProductTest extends TestCase
     # php artisan test --filter testGenuioImgCreate
     public function testGenuioImgCreate()
     {
-        $offerId                 = 773387095350;
+        $offerId                 = 740275289359;
         $product1688ImageDtoList = [];
         $imgObjs                 = ProductImageData::where("offer_id", $offerId)->get();
         foreach ($imgObjs as $imgObj) {
@@ -187,6 +176,7 @@ class ProductTest extends TestCase
             $product1688ImageDto->bind([
                 "offerId"        => $offerId,
                 "imgType"        => $imgObj->img_type,
+                "is_except"      => $imgObj->is_except,
                 "img_url_origin" => $imgObj->img_url_origin,
                 "img_url_trans"  => "",
                 "isChangeImg"    => true,
@@ -231,4 +221,111 @@ class ProductTest extends TestCase
         dd("끝");
     }
 
+    # php artisan test --filter testProductName
+    public function testProductName()
+    {
+        $prdObjs = ProductData::get();
+        // $prdObjs = ProductForbiddenData::get();
+
+        $filePath     = public_path('app/w_forbidden_word.txt');
+        $removeWords  = [];
+        $replaceWords = [];
+        if (File::exists($filePath)) {
+            $lines = File::lines($filePath);
+            foreach ($lines as $line) {
+                $lineArr = explode(',', $line);
+
+                $type     = $lineArr[0];
+                $status   = $lineArr[1];
+                $offerId  = $lineArr[2];
+                $prevWord = $lineArr[3];
+                $nextWord = $lineArr[4];
+
+                if( $status == "검토완료" ){
+                    if( $type == "삭제어" ){
+                        $removeWords[] = $prevWord;
+                    } else if( $type == "교체어" ){
+                        $replaceWords[] = [
+                            "prevWord" => $prevWord,
+                            "nextWord" => $nextWord,
+                        ];
+                    }
+                }
+            }
+        } else {
+            throw new Exception("파일이 존재하지 않습니다.");
+        }
+        foreach ($prdObjs as $prdObj) {
+            $forObj = ProductForbiddenData::where("offer_id", $prdObj->offer_id)->first();
+
+            if( $forObj != null ){
+                $prd_name_kr = $forObj->prd_name_trans_origin;
+            } else {
+                $prd_name_kr = $prdObj->prd_name_kr;
+            }
+
+            // 1. 삭제어
+            $upText = $this->removeSpecialSequence($prd_name_kr, $removeWords);
+
+            // 2. 교체어
+            $upText = $this->replaceWord($upText, $replaceWords);
+
+            $upText = trim($upText);
+
+            if( $prd_name_kr != $upText ){
+                ProductForbiddenData::updateOrCreate(
+                    ["offer_id" => $prdObj->offer_id],
+                    [
+                        "prd_name_trans_origin"    => $prd_name_kr,
+                        "prd_name_trans_forbidden" => $upText
+                    ]
+                );
+                ProductData::where("id", $prdObj->id)->update([
+                    "prd_name_kr" => $upText
+                ]);
+            }
+        };
+
+        dd("끝");
+    }
+
+    function removeSpecialSequence(string $text, array $removeWords)
+    {
+        foreach ($removeWords as $removeWord) {
+            // 1. 삭제어 앞과 뒤에 공백이 없는 경우 삭제어만 삭제
+            //    예: "HelloWord"에서 "Word"를 삭제 -> "Hello"
+            $pattern1 = '/(?<!\s)' . preg_quote($removeWord, '/') . '(?!\s)/';
+            if (preg_match($pattern1, $text)) {
+                $text = preg_replace($pattern1, '', $text);
+            }
+
+            // 2. 삭제어 앞 또는 뒤에 공백이 있는 경우 삭제어만 삭제
+            //    예: "Hello Word "에서 "Word"를 삭제 -> "Hello "
+            $pattern2 = '/(?<=\s)' . preg_quote($removeWord, '/') . '(?!\s)|(?<!\s)' . preg_quote($removeWord, '/') . '(?=\s)/';
+            if (preg_match($pattern2, $text)) {
+                $text = preg_replace($pattern2, '', $text);
+            }
+
+            // 3. 삭제어 앞과 뒤에 공백이 있는 경우 하나의 공백과 삭제어만 삭제
+            //    예: "Hello Word Test"에서 "Word"를 삭제 -> "Hello Test"
+            $pattern3 = '/\s+' . preg_quote($removeWord, '/') . '\s+/';
+            if (preg_match($pattern3, $text)) {
+                $text = preg_replace($pattern3, ' ', $text);
+            }
+        }
+        return $text;
+    }
+
+    function replaceWord(string $text, array $replaceWords)
+    {
+        foreach ($replaceWords as $replaceWordArr) {
+            $originWord  = $replaceWordArr["prevWord"];
+            $replaceWord = $replaceWordArr["nextWord"];
+
+            // 1. 해당 텍스트가 originWord에 걸릴 시 replaceWord로 교체
+            $text = str_replace($originWord, $replaceWord, $text);
+    
+        }
+        return $text;
+    }
 }

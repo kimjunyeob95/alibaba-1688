@@ -1,6 +1,8 @@
 @php
     use App\Constants\ProductConstant;
     use App\Constants\MallConstant;
+    use App\Constants\EasySellConstant;
+    use App\Constants\WConstant;
 @endphp
 @extends('dashboard.base')
 
@@ -74,7 +76,7 @@
                                         <select class="form-select" name="search_cls">
                                             <option value="offer_id" @if($search_cls == "offer_id") selected @endif>제품 ID</option>
                                             <option value="itemno" @if($search_cls == "itemno") selected @endif>이지셀 고유번호</option>
-                                            <option value="prd_name_trans" @if($search_cls == "prd_name_trans") selected @endif>상품명</option>
+                                            <option value="prd_name_kr" @if($search_cls == "prd_name_kr") selected @endif>상품명</option>
                                         </select>
                                     </td>
                                     <td colspan="2">
@@ -114,17 +116,23 @@
                                 <th scope="col" style="width: 100px" class="text-center">이미지</th>
                                 <th scope="col" style="width: 150px" class="text-center">제품ID</th>
                                 <th scope="col">상품명</th>
-                                <th scope="col" style="width: 130px">w 공급가(원)</th>
-                                <th scope="col" style="width: 130px">이지셀 판매가(원)</th>
+                                <th scope="col" style="width: 130px">일반 판매가(원)</th>
+                                <th scope="col" style="width: 130px">MD 판매가(원)</th>
                                 <th scope="col" style="width: 100px" class="text-center">이지셀 전송</th>
                                 <th scope="col" style="width: 200px" class="text-center">관리</th>
                             </tr>
                         </thead>
                         <tbody>
                             @foreach ($datas as $index => $data)
+                                @php
+                                    $disabled = "";
+                                    if(count($data->options) == 0){
+                                        $disabled = "disabled";
+                                    }
+                                @endphp
                                 <tr>
                                     <td class="text-center">
-                                        <input class="form-check-input chk-inp" type="checkbox" value="{{ $data->offer_id }}">
+                                        <input class="form-check-input chk-inp" type="checkbox" value="{{ $data->offer_id }}" {{$disabled}}>
                                     </td>
                                     <td>
                                         {{ number_format(($datas->total() - $offset) - $index) }}
@@ -138,16 +146,19 @@
                                     </td>
                                     <td>
                                         {{ $data->offer_id }}
+                                        @if(empty($data->es_mapping) || empty($data->es_fgn_mapping))
+                                        <br><span class="text-danger">*카테고리 미맵핑 ({{ $data->category_id }})</span>
+                                        @endif
                                     </td>
                                     <td>
-                                        {{ $data->prd_name_trans }}
+                                        {{ $data->prd_name_kr }}
                                     </td>
                                     <td class="text-center">
                                         @if (count($data->options) > 0)
                                             @php
                                                 $option = $data->options[0];
                                             @endphp
-                                            {{ number_format($option->onch_price) }}<br>
+                                            {{ number_format(calcEasySellSalePrice($option->option_price, $option->md_price, "static")) }}
                                         @else
                                             <p class="text-danger">옵션없음</p>
                                         @endif
@@ -157,21 +168,24 @@
                                             @php
                                                 $option = $data->options[0];
                                             @endphp
-                                            {{ number_format(calcEasySellSalePrice($option->onch_price)) }}<br>
+                                            @if(!empty($option->md_price))
+                                            {{ number_format( $option->md_price ) }}
+                                            @endif
                                         @else
                                             <p class="text-danger">옵션없음</p>
                                         @endif
                                     </td>
                                     <td class="text-center">
                                         @if($data->regist_success == MallConstant::REGIST_SUCCESS)
-                                            {{$data->itemno}}
+                                            {{ $data->itemno }} <br>
+                                            <small>({{ EasySellConstant::CATEGORY_NAME[substr($data->es_fgn_mapping->mapping_code,0,6)] }})</small>
                                         @else
                                             <span class="text-danger">미등록</span>
                                         @endisset
                                     </td>
                                     <td class="text-center">
                                         <button type="button" class="btn btn-sm btn-outline-success btn-detail" offerid={{ $data->offer_id }}>상세보기</button>
-                                        <button type="button" class="btn btn-sm btn-outline-primary btn-regist" offerid={{ $data->offer_id }}>상품전송</button>
+                                        <button type="button" class="btn btn-sm btn-outline-primary btn-regist" offerid={{ $data->offer_id }} {{ $disabled }}>상품전송</button>
                                     </td>
                                 </tr>
                             @endforeach
@@ -210,7 +224,10 @@
                     "headers"    : {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
                     "type"       : "POST",
                     "url"        : "{{ route('mall.easySell.productRegist') }}",
-                    "data"       : { offer_ids },
+                    "data"       : {
+                        "offer_ids": offer_ids,
+                        "type"     : "{{ WConstant::WAPP_W1 }}"
+                    },
                     beforeSend: function () {
                     },
                     complete: function () {
@@ -263,7 +280,10 @@
                     "headers"    : {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
                     "type"       : "POST",
                     "url"        : "{{ route('mall.easySell.productRegist') }}",
-                    "data"       : { offer_ids },
+                    "data"       : {
+                        "offer_ids": offer_ids,
+                        "type"     : "{{ WConstant::WAPP_W1 }}"
+                    },
                     beforeSend: function () {
                     },
                     complete: function () {
