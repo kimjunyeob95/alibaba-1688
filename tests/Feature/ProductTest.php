@@ -18,12 +18,20 @@ use Illuminate\Support\Facades\File;
 
 class ProductTest extends TestCase
 {
-    # testCode
     # php artisan test --filter testConvertW1toW2
     public function testConvertW1toW2()
     {
         $productW2 = app(ProductW2::class);
         $productW2->convertW1toW2();
+    }
+
+    # php artisan test --filter testPublishedState
+    public function testPublishedState()
+    {
+        ProductData::where([
+            "trans_status"   => "Y",
+            "mapping_status" => "Y",
+        ]);
     }
 
     # s3 upload
