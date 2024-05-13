@@ -1,5 +1,6 @@
 <?php
 
+use App\Constants\GenuioConstant;
 use App\Constants\HttpConstant;
 use App\Constants\ImageConstant;
 use App\Constants\InspectConstant;
@@ -7,6 +8,7 @@ use App\Constants\MallConstant;
 use App\Constants\ProductConstant;
 use App\Constants\WConstant;
 use App\Models\EasysellProductLog;
+use App\Models\GenuioAiData;
 use App\Models\ProductData;
 use App\Models\ProductImageData;
 use App\Models\ProductInspectData;
@@ -589,8 +591,13 @@ if (!function_exists("upPrdDescTrans")) {
         $prdObj = ProductData::where("offer_id", $offerId)->first();
         if( $prdObj != null ){
 
-            if( $prdObj->prd_des_kr ){
-                $prd_desc = $prdObj->prd_desc_kr;
+            $geKrObj = GenuioAiData::where([
+                "offer_id"      => $offerId,
+                "ai_apply_type" => GenuioConstant::AI_APPLY_DESC_KR
+            ])->first();
+
+            if( $geKrObj != null ){
+                $prd_desc = $geKrObj->apply_data;
             } else {
                 $prd_desc = $prdObj->prd_desc;
             }
@@ -618,8 +625,13 @@ if (!function_exists("upPrdDescTrans")) {
             ]);
 
             if( $prdObj->w_type == WConstant::WAPP_W2 ){
-                if( $prdObj->prd_desc_en ){
-                    $prd_desc = $prdObj->prd_desc_en;
+                $geEnObj = GenuioAiData::where([
+                    "offer_id"      => $offerId,
+                    "ai_apply_type" => GenuioConstant::AI_APPLY_DESC_EN
+                ])->first();
+    
+                if( $geEnObj != null ){
+                    $prd_desc = $geEnObj->apply_data;
                 } else {
                     $prd_desc = $prdObj->prd_desc;
                 }

@@ -10,6 +10,7 @@ use App\Constants\ImageErrorMessageConstant;
 use App\Constants\TransApiConstant;
 use App\Constants\WConstant;
 use App\Models\ApiUser;
+use App\Models\GenuioAiData;
 use App\Models\GenuioImageData;
 use App\Models\GenuioQueueData;
 use App\Models\GenuioQueueDetailData;
@@ -453,9 +454,9 @@ class GenuioService extends TransApiAbstract
                 }
             }
 
-            
+            $prd_desc_kr = "";
             if( isset($params["prdObj"]["prd_desc"]) && $params["prdObj"]["prd_desc"] ){
-                $trans_prd_desc = $params["prdObj"]["prd_desc"];
+                $prd_desc_kr = $params["prdObj"]["prd_desc"];
 
                 $debugParam = [
                     "offerId"     => $offerId,
@@ -463,9 +464,16 @@ class GenuioService extends TransApiAbstract
                 ];
                 debug_log(json_encode($debugParam, JSON_UNESCAPED_UNICODE), "genuio", "genuio-params");
 
-                ProductData::where("offer_id", $offerId)->update([
-                    "prd_desc_kr" => $trans_prd_desc
-                ]);
+                GenuioAiData::updateOrCreate(
+                    [
+                        "offer_id"      => $offerId,
+                        "ai_apply_type" => GenuioConstant::AI_APPLY_DESC_KR
+                    ],
+                    [
+                        "origin_data" => $prdObj->prd_desc,
+                        "apply_data"  => $prd_desc_kr
+                    ]
+                );
             };
 
             // 상세 이미지 업데이트
