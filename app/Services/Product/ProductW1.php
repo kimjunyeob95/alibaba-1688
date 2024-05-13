@@ -988,6 +988,66 @@ class ProductW1 extends ProductAbstract
             $product1688ImageDtoList[] = $product1688ImageDto;
         }
 
+        if( isset($detailProduct["productSkuInfos"]) ){
+            foreach ($detailProduct["productSkuInfos"] as $prdOptions) {
+                if( isset($prdOptions["skuAttributes"]) ){
+
+                    $prdImage = "";
+                    foreach ($prdOptions["skuAttributes"] as $prdOption) {
+                        if( isset($prdOption["skuImageUrl"]) ){
+                            $prdImage = $prdOption["skuImageUrl"];
+                        }
+                    }
+                    if( $prdImage == "" ){
+                        continue;
+                    }
+
+                    $imgType   = ImageConstant::IMAGE_TYPE_SUB;
+                    $is_except = ImageConstant::IS_EXCEPT_N;
+                    $imgObj    = ProductImageData::where([
+                        "offer_id"       => $offerId,
+                        "img_type"       => $imgType,
+                        "img_url_origin" => $prdImage,
+                        "lang"           => WConstant::WAPP_KR,
+                    ])->first();
+                    if( $imgObj != null ){
+                        $is_except = $imgObj->is_except;
+                    }
+                    if( $is_except == ImageConstant::IS_EXCEPT_Y ){
+                        continue;
+                    }
+    
+                    $isChangeImg = $this->isChangeImage($offerId, $prdImage, $imgType);
+                    $imgWidth    = 0;
+                    $imgHeight   = 0;
+                    $imgByte     = 0;
+                    $imgMime     = "";
+                    if( $isChangeImg == true ){
+                        $imageInfo = $this->checkImageSize($prdImage);
+                        $imgWidth  = $imageInfo["width"];
+                        $imgHeight = $imageInfo["height"];
+                        $imgByte   = $imageInfo["byte"];
+                        $imgMime   = $imageInfo["mime"];
+                    }
+                    $product1688ImageDto = new Product1688ImageDto();
+                    $product1688ImageDto->bind([
+                        "offerId"        => $offerId,
+                        "imgType"        => $imgType,
+                        "lang"           => WConstant::WAPP_KR,
+                        "is_except"      => $is_except,
+                        "img_url_origin" => $prdImage,
+                        "img_url_trans"  => "",
+                        "isChangeImg"    => $isChangeImg,
+                        "width"          => $imgWidth,
+                        "height"         => $imgHeight,
+                        "byte"           => $imgByte,
+                        "mime"           => $imgMime
+                    ]);
+                    $product1688ImageDtoList[] = $product1688ImageDto;
+                }
+            }
+        }
+
         // 2. 상품 상세 이미지
         $prdDescription = $detailProduct["description"];
         preg_match_all('/<img[^>]+src="([^">]+)"/', $prdDescription, $matches);
