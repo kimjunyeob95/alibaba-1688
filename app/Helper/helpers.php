@@ -592,8 +592,8 @@ if (!function_exists("upPrdDescTrans")) {
         if( $prdObj != null ){
 
             $geKrObj = GenuioAiData::where([
-                "offer_id"      => $offerId,
-                "ai_apply_type" => GenuioConstant::AI_APPLY_DESC_KR
+                "offer_id" => $offerId,
+                "ai_apply" => GenuioConstant::AI_APPLY_DESC_KR
             ])->first();
 
             if( $geKrObj != null ){
@@ -627,7 +627,7 @@ if (!function_exists("upPrdDescTrans")) {
             if( $prdObj->w_type == WConstant::WAPP_W2 ){
                 $geEnObj = GenuioAiData::where([
                     "offer_id"      => $offerId,
-                    "ai_apply_type" => GenuioConstant::AI_APPLY_DESC_EN
+                    "ai_apply" => GenuioConstant::AI_APPLY_DESC_EN
                 ])->first();
     
                 if( $geEnObj != null ){

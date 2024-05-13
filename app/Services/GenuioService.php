@@ -467,7 +467,7 @@ class GenuioService extends TransApiAbstract
                 GenuioAiData::updateOrCreate(
                     [
                         "offer_id"      => $offerId,
-                        "ai_apply_type" => GenuioConstant::AI_APPLY_DESC_KR
+                        "ai_apply" => GenuioConstant::AI_APPLY_DESC_KR
                     ],
                     [
                         "origin_data" => $prdObj->prd_desc,
