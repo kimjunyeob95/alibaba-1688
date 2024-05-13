@@ -40,8 +40,8 @@
                     <input type="hidden" name="prd_status" value={{ $prd_status }}>
                     <input type="hidden" name="mdPrice_status" value={{ $mdPrice_status }}>
                     <input type="hidden" name="inspect_img_status" value={{ $inspect_img_status }}>
-                    <input type="hidden" name="inspect_img_status" value={{ $inspect_img_status }}>
                     <input type="hidden" name="inspect_prd_status" value={{ $inspect_prd_status }}>
+                    <input type="hidden" name="inspect_gosi_status" value={{ $inspect_gosi_status }}>
 
                     <div class="card">
                         <div class="card-header">

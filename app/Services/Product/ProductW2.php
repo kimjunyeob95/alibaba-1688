@@ -186,9 +186,35 @@ class ProductW2 extends ProductAbstract
                     "pid.inspect_type" => InspectConstant::INSPECT_IMAGE,
                     "pid.is_inspect"   => InspectConstant::IS_INSPECT_Y,
                 ]);
-            } else {
+            } else if( $inspect_img_status == InspectConstant::IS_INSPECT_N ){
                 $prdBuilder->where(function ($query) {
                     $query->where('pid.inspect_type', '=', InspectConstant::INSPECT_IMAGE)
+                    ->where('pid.is_inspect', '=', InspectConstant::IS_INSPECT_N)
+                    ->orWhereNull('pid.id');
+                });
+            }
+
+            if( $inspect_prd_status == InspectConstant::IS_INSPECT_Y ){
+                $prdBuilder->where([
+                    "pid.inspect_type" => InspectConstant::INSPECT_PRODUCT,
+                    "pid.is_inspect"   => InspectConstant::IS_INSPECT_Y,
+                ]);
+            } else if( $inspect_prd_status == InspectConstant::IS_INSPECT_N ){
+                $prdBuilder->where(function ($query) {
+                    $query->where('pid.inspect_type', '=', InspectConstant::INSPECT_PRODUCT)
+                    ->where('pid.is_inspect', '=', InspectConstant::IS_INSPECT_N)
+                    ->orWhereNull('pid.id');
+                });
+            }
+
+            if( $inspect_gosi_status == InspectConstant::IS_INSPECT_Y ){
+                $prdBuilder->where([
+                    "pid.inspect_type" => InspectConstant::INSPECT_NOTICE,
+                    "pid.is_inspect"   => InspectConstant::IS_INSPECT_Y,
+                ]);
+            } else if( $inspect_gosi_status == InspectConstant::IS_INSPECT_N ){
+                $prdBuilder->where(function ($query) {
+                    $query->where('pid.inspect_type', '=', InspectConstant::INSPECT_NOTICE)
                     ->where('pid.is_inspect', '=', InspectConstant::IS_INSPECT_N)
                     ->orWhereNull('pid.id');
                 });
