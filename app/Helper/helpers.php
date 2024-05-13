@@ -589,7 +589,11 @@ if (!function_exists("upPrdDescTrans")) {
         $prdObj = ProductData::where("offer_id", $offerId)->first();
         if( $prdObj != null ){
 
-            $prd_desc = $prdObj->prd_desc;
+            if( $prdObj->prd_des_kr ){
+                $prd_desc = $prdObj->prd_desc_kr;
+            } else {
+                $prd_desc = $prdObj->prd_desc;
+            }
             $imgKrObjs = ProductImageData::where([
                 "offer_id" => $offerId,
                 "img_type" => ImageConstant::IMAGE_TYPE_DESC,
@@ -614,7 +618,11 @@ if (!function_exists("upPrdDescTrans")) {
             ]);
 
             if( $prdObj->w_type == WConstant::WAPP_W2 ){
-                $prd_desc = $prdObj->prd_desc;
+                if( $prdObj->prd_desc_en ){
+                    $prd_desc = $prdObj->prd_desc_en;
+                } else {
+                    $prd_desc = $prdObj->prd_desc;
+                }
 
                 $imgEnObjs = ProductImageData::where([
                     "offer_id" => $offerId,
