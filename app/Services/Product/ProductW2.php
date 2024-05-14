@@ -245,8 +245,10 @@ class ProductW2 extends ProductAbstract
         ])->count();
 
         $imgInspectYCnt = ProductData::query()
+        ->whereIn("status", ProductConstant::PRD_SHOW_STATUS)
         ->join('product_inspect_datas as b', 'product_datas.offer_id', '=', 'b.offer_id')
         ->where([
+            "inspect_status" => $inspect_status,
             "b.inspect_type" => InspectConstant::INSPECT_IMAGE,
             "b.is_inspect"   => InspectConstant::IS_INSPECT_Y,
             "w_type"         => WConstant::WAPP_W2
@@ -254,8 +256,10 @@ class ProductW2 extends ProductAbstract
         $imgInspectNCnt = $totalCnt - $imgInspectYCnt;
 
         $prdInspectYCnt = ProductData::query()
+        ->whereIn("status", ProductConstant::PRD_SHOW_STATUS)
         ->join('product_inspect_datas as b', 'product_datas.offer_id', '=', 'b.offer_id')
         ->where([
+            "inspect_status" => $inspect_status,
             "b.inspect_type" => InspectConstant::INSPECT_PRODUCT,
             "b.is_inspect"   => InspectConstant::IS_INSPECT_Y,
             "w_type"         => WConstant::WAPP_W2
@@ -263,8 +267,10 @@ class ProductW2 extends ProductAbstract
         $prdInspectNCnt = $totalCnt - $prdInspectYCnt;
 
         $gosiInspectYCnt = ProductData::query()
+        ->whereIn("status", ProductConstant::PRD_SHOW_STATUS)
         ->join('product_inspect_datas as b', 'product_datas.offer_id', '=', 'b.offer_id')
         ->where([
+            "inspect_status" => $inspect_status,
             "b.inspect_type" => InspectConstant::INSPECT_NOTICE,
             "b.is_inspect"   => InspectConstant::IS_INSPECT_Y,
             "w_type"         => WConstant::WAPP_W2
