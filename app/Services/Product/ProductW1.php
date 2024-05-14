@@ -183,45 +183,58 @@ class ProductW1 extends ProductAbstract
 
         if( !empty($inspect_img_status) || !empty($inspect_prd_status) || !empty($inspect_gosi_status) ){
 
-            $prdBuilder->leftJoin("product_inspect_datas as pid","product_datas.offer_id", "=", "pid.offer_id");
-
-            if( $inspect_img_status == InspectConstant::IS_INSPECT_Y ){
-                $prdBuilder->where([
-                    "pid.inspect_type" => InspectConstant::INSPECT_IMAGE,
-                    "pid.is_inspect"   => InspectConstant::IS_INSPECT_Y,
-                ]);
-            } else if( $inspect_img_status == InspectConstant::IS_INSPECT_N ){
-                $prdBuilder->where(function ($query) {
-                    $query->where('pid.inspect_type', '=', InspectConstant::INSPECT_IMAGE)
-                    ->where('pid.is_inspect', '=', InspectConstant::IS_INSPECT_N)
-                    ->orWhereNull('pid.id');
+            if( !empty($inspect_img_status) ){
+                $prdBuilder->leftJoin('product_inspect_datas as pid1', function ($join) {
+                    $join->on('product_datas.offer_id', '=', 'pid1.offer_id')
+                         ->where('pid1.inspect_type', InspectConstant::INSPECT_IMAGE);
                 });
+
+                if( $inspect_img_status == InspectConstant::IS_INSPECT_Y ){
+                    $prdBuilder->where([
+                        "pid1.is_inspect" => InspectConstant::IS_INSPECT_Y,
+                    ]);
+                } else if( $inspect_img_status == InspectConstant::IS_INSPECT_N ){
+                    $prdBuilder->where(function ($query) {
+                        $query->where('pid1.is_inspect', InspectConstant::IS_INSPECT_N)
+                        ->orWhereNull('pid1.id');
+                    });
+                }
             }
 
-            if( $inspect_prd_status == InspectConstant::IS_INSPECT_Y ){
-                $prdBuilder->where([
-                    "pid.inspect_type" => InspectConstant::INSPECT_PRODUCT,
-                    "pid.is_inspect"   => InspectConstant::IS_INSPECT_Y,
-                ]);
-            } else if( $inspect_prd_status == InspectConstant::IS_INSPECT_N ){
-                $prdBuilder->where(function ($query) {
-                    $query->where('pid.inspect_type', '=', InspectConstant::INSPECT_PRODUCT)
-                    ->where('pid.is_inspect', '=', InspectConstant::IS_INSPECT_N)
-                    ->orWhereNull('pid.id');
+            if( !empty($inspect_prd_status) ){
+                $prdBuilder->leftJoin('product_inspect_datas as pid2', function ($join) {
+                    $join->on('product_datas.offer_id', '=', 'pid2.offer_id')
+                         ->where('pid2.inspect_type', InspectConstant::INSPECT_PRODUCT);
                 });
+
+                if( $inspect_prd_status == InspectConstant::IS_INSPECT_Y ){
+                    $prdBuilder->where([
+                        "pid2.is_inspect" => InspectConstant::IS_INSPECT_Y,
+                    ]);
+                } else if( $inspect_prd_status == InspectConstant::IS_INSPECT_N ){
+                    $prdBuilder->where(function ($query) {
+                        $query->where('pid2.is_inspect', InspectConstant::IS_INSPECT_N)
+                        ->orWhereNull('pid2.id');
+                    });
+                }
             }
 
-            if( $inspect_gosi_status == InspectConstant::IS_INSPECT_Y ){
-                $prdBuilder->where([
-                    "pid.inspect_type" => InspectConstant::INSPECT_NOTICE,
-                    "pid.is_inspect"   => InspectConstant::IS_INSPECT_Y,
-                ]);
-            } else if( $inspect_gosi_status == InspectConstant::IS_INSPECT_N ){
-                $prdBuilder->where(function ($query) {
-                    $query->where('pid.inspect_type', '=', InspectConstant::INSPECT_NOTICE)
-                    ->where('pid.is_inspect', '=', InspectConstant::IS_INSPECT_N)
-                    ->orWhereNull('pid.id');
+            if( !empty($inspect_gosi_status) ){
+                $prdBuilder->leftJoin('product_inspect_datas as pid3', function ($join) {
+                    $join->on('product_datas.offer_id', '=', 'pid3.offer_id')
+                         ->where('pid3.inspect_type', InspectConstant::INSPECT_NOTICE);
                 });
+
+                if( $inspect_gosi_status == InspectConstant::IS_INSPECT_Y ){
+                    $prdBuilder->where([
+                        "pid3.is_inspect" => InspectConstant::IS_INSPECT_Y,
+                    ]);
+                } else if( $inspect_gosi_status == InspectConstant::IS_INSPECT_N ){
+                    $prdBuilder->where(function ($query) {
+                        $query->where('pid3.is_inspect', InspectConstant::IS_INSPECT_N)
+                        ->orWhereNull('pid3.id');
+                    });
+                }
             }
         }
 
@@ -239,11 +252,7 @@ class ProductW1 extends ProductAbstract
             "inspect_status" => $inspect_status,
             "trans_status"   => ProductConstant::TRANS_STATUS_Y
         ])->count();
-        $transNCnt = ProductData::whereIn("status", ProductConstant::PRD_SHOW_STATUS)
-        ->where([
-            "inspect_status" => $inspect_status,
-            "trans_status"   => ProductConstant::TRANS_STATUS_N
-        ])->count();
+        $transNCnt = $totalCnt - $transYCnt;
 
         $imgInspectYCnt = ProductData::query()
         ->join('product_inspect_datas as b', 'product_datas.offer_id', '=', 'b.offer_id')
@@ -256,8 +265,8 @@ class ProductW1 extends ProductAbstract
         $imgInspectNCnt = $totalCnt - $imgInspectYCnt;
 
         $prdInspectYCnt = ProductData::query()
-        ->whereIn("status", ProductConstant::PRD_SHOW_STATUS)
         ->join('product_inspect_datas as b', 'product_datas.offer_id', '=', 'b.offer_id')
+        ->whereIn("status", ProductConstant::PRD_SHOW_STATUS)
         ->where([
             "inspect_status" => $inspect_status,
             "b.inspect_type" => InspectConstant::INSPECT_PRODUCT,
@@ -266,15 +275,14 @@ class ProductW1 extends ProductAbstract
         $prdInspectNCnt = $totalCnt - $prdInspectYCnt;
 
         $gosiInspectYCnt = ProductData::query()
-        ->whereIn("status", ProductConstant::PRD_SHOW_STATUS)
         ->join('product_inspect_datas as b', 'product_datas.offer_id', '=', 'b.offer_id')
+        ->whereIn("status", ProductConstant::PRD_SHOW_STATUS)
         ->where([
             "inspect_status" => $inspect_status,
             "b.inspect_type" => InspectConstant::INSPECT_NOTICE,
             "b.is_inspect"   => InspectConstant::IS_INSPECT_Y
         ])->count();
         $gosiInspectNCnt = $totalCnt - $gosiInspectYCnt;
-
 
         $lists = $prdBuilder->paginate($pageSize)->appends($params);
         return [
@@ -412,48 +420,60 @@ class ProductW1 extends ProductAbstract
 
         if( !empty($inspect_img_status) || !empty($inspect_prd_status) || !empty($inspect_gosi_status) ){
 
-            $prdBuilder->leftJoin("product_inspect_datas as pid","product_datas.offer_id", "=", "pid.offer_id");
-
-            if( $inspect_img_status == InspectConstant::IS_INSPECT_Y ){
-                $prdBuilder->where([
-                    "pid.inspect_type" => InspectConstant::INSPECT_IMAGE,
-                    "pid.is_inspect"   => InspectConstant::IS_INSPECT_Y,
-                ]);
-            } else if( $inspect_img_status == InspectConstant::IS_INSPECT_N ){
-                $prdBuilder->where(function ($query) {
-                    $query->where('pid.inspect_type', '=', InspectConstant::INSPECT_IMAGE)
-                    ->where('pid.is_inspect', '=', InspectConstant::IS_INSPECT_N)
-                    ->orWhereNull('pid.id');
+            if( !empty($inspect_img_status) ){
+                $prdBuilder->leftJoin('product_inspect_datas as pid1', function ($join) {
+                    $join->on('product_datas.offer_id', '=', 'pid1.offer_id')
+                         ->where('pid1.inspect_type', InspectConstant::INSPECT_IMAGE);
                 });
+
+                if( $inspect_img_status == InspectConstant::IS_INSPECT_Y ){
+                    $prdBuilder->where([
+                        "pid1.is_inspect" => InspectConstant::IS_INSPECT_Y,
+                    ]);
+                } else if( $inspect_img_status == InspectConstant::IS_INSPECT_N ){
+                    $prdBuilder->where(function ($query) {
+                        $query->where('pid1.is_inspect', InspectConstant::IS_INSPECT_N)
+                        ->orWhereNull('pid1.id');
+                    });
+                }
             }
 
-            if( $inspect_prd_status == InspectConstant::IS_INSPECT_Y ){
-                $prdBuilder->where([
-                    "pid.inspect_type" => InspectConstant::INSPECT_PRODUCT,
-                    "pid.is_inspect"   => InspectConstant::IS_INSPECT_Y,
-                ]);
-            } else if( $inspect_prd_status == InspectConstant::IS_INSPECT_N ){
-                $prdBuilder->where(function ($query) {
-                    $query->where('pid.inspect_type', '=', InspectConstant::INSPECT_PRODUCT)
-                    ->where('pid.is_inspect', '=', InspectConstant::IS_INSPECT_N)
-                    ->orWhereNull('pid.id');
+            if( !empty($inspect_prd_status) ){
+                $prdBuilder->leftJoin('product_inspect_datas as pid2', function ($join) {
+                    $join->on('product_datas.offer_id', '=', 'pid2.offer_id')
+                         ->where('pid2.inspect_type', InspectConstant::INSPECT_PRODUCT);
                 });
+
+                if( $inspect_prd_status == InspectConstant::IS_INSPECT_Y ){
+                    $prdBuilder->where([
+                        "pid2.is_inspect" => InspectConstant::IS_INSPECT_Y,
+                    ]);
+                } else if( $inspect_prd_status == InspectConstant::IS_INSPECT_N ){
+                    $prdBuilder->where(function ($query) {
+                        $query->where('pid2.is_inspect', InspectConstant::IS_INSPECT_N)
+                        ->orWhereNull('pid2.id');
+                    });
+                }
             }
 
-            if( $inspect_gosi_status == InspectConstant::IS_INSPECT_Y ){
-                $prdBuilder->where([
-                    "pid.inspect_type" => InspectConstant::INSPECT_NOTICE,
-                    "pid.is_inspect"   => InspectConstant::IS_INSPECT_Y,
-                ]);
-            } else if( $inspect_gosi_status == InspectConstant::IS_INSPECT_N ){
-                $prdBuilder->where(function ($query) {
-                    $query->where('pid.inspect_type', '=', InspectConstant::INSPECT_NOTICE)
-                    ->where('pid.is_inspect', '=', InspectConstant::IS_INSPECT_N)
-                    ->orWhereNull('pid.id');
+            if( !empty($inspect_gosi_status) ){
+                $prdBuilder->leftJoin('product_inspect_datas as pid3', function ($join) {
+                    $join->on('product_datas.offer_id', '=', 'pid3.offer_id')
+                         ->where('pid3.inspect_type', InspectConstant::INSPECT_NOTICE);
                 });
+
+                if( $inspect_gosi_status == InspectConstant::IS_INSPECT_Y ){
+                    $prdBuilder->where([
+                        "pid3.is_inspect" => InspectConstant::IS_INSPECT_Y,
+                    ]);
+                } else if( $inspect_gosi_status == InspectConstant::IS_INSPECT_N ){
+                    $prdBuilder->where(function ($query) {
+                        $query->where('pid3.is_inspect', InspectConstant::IS_INSPECT_N)
+                        ->orWhereNull('pid3.id');
+                    });
+                }
             }
         }
-
         if( !empty($prd_status) ){
             $prdBuilder->where("product_datas.status", $prd_status);
         }
