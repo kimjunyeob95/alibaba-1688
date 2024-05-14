@@ -116,7 +116,7 @@ class OnchannelTest extends TestCase
                 'Authorization: Bearer '.$token,
             );
             $result = helpers_curl("POST", $endPoint, $header, $payload);
-            
+            sleep(1);
             try {
                 if( $result["isSuccess"] == true ){
                     OnchannelProductLog::updateOrCreate(
@@ -156,6 +156,8 @@ class OnchannelTest extends TestCase
                         "message"        => $e->getMessage(),
                     ]
                 );
+
+                debug_log($e->getMessage(), "registOnchannel", "registOnchannel");
             }
             
             
