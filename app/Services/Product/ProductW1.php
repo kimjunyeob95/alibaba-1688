@@ -6,6 +6,7 @@ use App\Abstracts\ProductAbstract;
 use App\Abstracts\TransApiAbstract;
 use App\Abstracts\UploadAbstract;
 use App\Constants\Constant1688;
+use App\Constants\ForbiddenWordConstant;
 use App\Constants\GenuioConstant;
 use App\Constants\GosiConstants;
 use App\Constants\ImageConstant;
@@ -18,6 +19,8 @@ use App\Constants\ProductErrorMessageConstant;
 use App\Constants\TransApiConstant;
 use App\Constants\WConstant;
 use App\Models\CategoryMapping;
+use App\Models\ForbiddenNoticeWordData;
+use App\Models\ForbiddenWordData;
 use App\Models\GenuioImageData;
 use App\Models\GenuioQueueData;
 use App\Models\ProductCollectDetailLog;
@@ -1018,6 +1021,11 @@ class ProductW1 extends ProductAbstract
             throw new Exception(ProductErrorMessageConstant::getFitErrorMessage("PRODUCT_EXCEPT"));
         }
 
+        $deletePrdForbiddenWords     = ForbiddenWordData::where("keyword_type", ForbiddenWordConstant::KEYWORD_DELETE)->get();
+        $replacePrdForbiddenWords    = ForbiddenWordData::where("keyword_type", ForbiddenWordConstant::KEYWORD_REPLACE)->get();
+        $deleteNoticeForbiddenWords  = ForbiddenNoticeWordData::where("keyword_type", ForbiddenWordConstant::KEYWORD_DELETE)->get();
+        $replaceNoticeForbiddenWords = ForbiddenNoticeWordData::where("keyword_type", ForbiddenWordConstant::KEYWORD_REPLACE)->get();
+
         // 1. 상품 이미지
         $product1688ImageDtoList = [];
         foreach ($detailProduct["productImage"]["images"] as $imgKey => $prdImage) {
@@ -1197,19 +1205,23 @@ class ProductW1 extends ProductAbstract
         $startQuantity = $detailProduct["productSaleInfo"]["priceRangeList"][0]["startQuantity"];
 
         $subjectTrans = $detailProduct["subjectTrans"];
+
         // 3-1. 삭제어
-        $subjectForbiddenTrans = $this->removeSpecialSequence($subjectTrans);
+        $subjectForbiddenTrans = $this->removeForbiddenText($deletePrdForbiddenWords, $subjectTrans, ForbiddenWordConstant::KEYWORD_APPLY_TITLE);
         // 3-2. 교체어
-        $subjectForbiddenTrans = $this->replaceWord($subjectForbiddenTrans);
+        $subjectForbiddenTrans = $this->replaceForbiddenText($replacePrdForbiddenWords, $subjectForbiddenTrans, ForbiddenWordConstant::KEYWORD_APPLY_TITLE);
 
         $subjectForbiddenTrans = trim($subjectForbiddenTrans);
 
         if( $subjectTrans != $subjectForbiddenTrans ){ 
             ProductForbiddenData::updateOrCreate(
-                ["offer_id" => $offerId],
                 [
-                    "prd_name_trans_origin"    => $subjectTrans,
-                    "prd_name_trans_forbidden" => $subjectForbiddenTrans
+                    "offer_id"   => $offerId,
+                    "apply_type" => ForbiddenWordConstant::KEYWORD_APPLY_TITLE
+                ],
+                [
+                    "origin_text" => $subjectTrans,
+                    "trans_text"  => $subjectForbiddenTrans
                 ]
             );
         }
@@ -1252,6 +1264,46 @@ class ProductW1 extends ProductAbstract
             if( $gosiObj != null ){
                 $is_except = $gosiObj->is_except;
             }
+
+            $attributeNameTrans = $prdNotice["attributeNameTrans"];
+            $attrValueTrans     = $prdNotice["valueTrans"];
+
+            // 고시명 삭제어
+            $nameTrans = $this->removeForbiddenText($deleteNoticeForbiddenWords, $attributeNameTrans, ForbiddenWordConstant::KEYWORD_APPLY_ATTR_NAME);
+            // 고시명 교체어
+            $nameTrans = $this->replaceForbiddenText($replaceNoticeForbiddenWords, $nameTrans, ForbiddenWordConstant::KEYWORD_APPLY_ATTR_NAME);
+            $nameTrans = trim($nameTrans);
+            if( $attributeNameTrans != $nameTrans ){ 
+                ProductForbiddenData::updateOrCreate(
+                    [
+                        "offer_id"   => $offerId,
+                        "apply_type" => ForbiddenWordConstant::KEYWORD_APPLY_ATTR_NAME,
+                        "origin_text" => $attributeNameTrans,
+                    ],
+                    [
+                        "trans_text"  => $nameTrans
+                    ]
+                );
+            }
+
+            // 고시값 삭제어
+            $valueTrans = $this->removeForbiddenText($deleteNoticeForbiddenWords, $attrValueTrans, ForbiddenWordConstant::KEYWORD_APPLY_ATTR_VALUE);
+            // 고시값 교체어
+            $valueTrans = $this->replaceForbiddenText($replaceNoticeForbiddenWords, $valueTrans, ForbiddenWordConstant::KEYWORD_APPLY_ATTR_VALUE);
+            $valueTrans = trim($valueTrans);
+            if( $attrValueTrans != $valueTrans ){ 
+                ProductForbiddenData::updateOrCreate(
+                    [
+                        "offer_id"   => $offerId,
+                        "apply_type" => ForbiddenWordConstant::KEYWORD_APPLY_ATTR_VALUE,
+                        "origin_text" => $attrValueTrans,
+                    ],
+                    [
+                        "trans_text"  => $valueTrans
+                    ]
+                );
+            }
+
             $product1688NoticeDto = new Product1688NoticeDto();
             $product1688NoticeDto->bind([
                 "offerId"              => $offerId,
@@ -1259,8 +1311,8 @@ class ProductW1 extends ProductAbstract
                 "is_except"            => $is_except,
                 "attributeName"        => $prdNotice["attributeName"],
                 "value"                => $prdNotice["value"],
-                "attributeNameTrans"   => $prdNotice["attributeNameTrans"],
-                "valueTrans"           => $prdNotice["valueTrans"],
+                "attributeNameTrans"   => $nameTrans,
+                "valueTrans"           => $valueTrans,
                 "attributeNameTransEn" => "",
                 "valueTransEn"         => "",
             ]);

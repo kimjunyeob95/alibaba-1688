@@ -222,10 +222,10 @@ class ProductTest extends TestCase
             }
 
             // 1. 삭제어
-            $upText = $this->removeSpecialSequence($prd_name_kr, $removeWords);
+            $upText = $this->removeProductText($prd_name_kr, $removeWords);
 
             // 2. 교체어
-            $upText = $this->replaceWord($upText, $replaceWords);
+            $upText = $this->replaceProductText($upText, $replaceWords);
 
             $upText = trim($upText);
 
@@ -246,7 +246,7 @@ class ProductTest extends TestCase
         dd("끝");
     }
 
-    function removeSpecialSequence(string $text, array $removeWords)
+    function removeProductText(string $text, array $removeWords)
     {
         foreach ($removeWords as $removeWord) {
             // 1. 삭제어 앞과 뒤에 공백이 없는 경우 삭제어만 삭제
@@ -273,7 +273,7 @@ class ProductTest extends TestCase
         return $text;
     }
 
-    function replaceWord(string $text, array $replaceWords)
+    function replaceProductText(string $text, array $replaceWords)
     {
         foreach ($replaceWords as $replaceWordArr) {
             $originWord  = $replaceWordArr["prevWord"];

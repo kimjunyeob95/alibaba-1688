@@ -84,8 +84,10 @@ Route::prefix("category")->name("category.")->group(function(){
  * 금칙어
  */
 Route::prefix("forbiddenWord")->name("forbiddenWord.")->group(function(){
-    /** 관리 */
+    /** 상품정보 관리 */
     Route::get("/list", [ForbiddenWordController::class, "list"])->name("list");
+    /** 정보고시 관리 */
+    Route::get("/notice/list", [ForbiddenWordController::class, "noticeList"])->name("noticeList");
 });
 
 

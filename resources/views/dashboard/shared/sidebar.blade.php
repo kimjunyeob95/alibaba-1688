@@ -155,13 +155,25 @@
                 카테고리 관리
             </a>
         </li>
-        <li class="nav-item">
-            <a class="nav-link" href="/forbiddenWord/list">
+        <li class="nav-group">
+            <a class="nav-link nav-group-toggle" href="javascript:;">
                 <svg class="nav-icon">
                     <use xlink:href="/vendors/@coreui/icons/svg/free.svg#cil-3d"></use>
                 </svg>
                 금칙어 관리
             </a>
+            <ul class="nav-group-items">
+                <li class="nav-item">
+                    <a class="nav-link" href="/forbiddenWord/list">
+                        상품정보 관리
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/forbiddenWord/notice/list">
+                        정보고시 관리
+                    </a>
+                </li>
+            </ul>
         </li>
 
         <li class="nav-title">이지셀</li>

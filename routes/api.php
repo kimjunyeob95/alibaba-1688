@@ -86,14 +86,22 @@ Route::name('w.')->prefix('w')->group(function () {
     });
 
     Route::name('forbiddenWord.')->prefix('forbiddenWord')->group(function () {
-        /** 키워드 조회 */
+        /** 상품정보 키워드 조회 */
         Route::get('/{id}', [WForbiddenWordController::class, 'get'])->name('get');
-        /** 키워드 등록 */
+        /** 상품정보 키워드 등록 */
         Route::post('/create', [WForbiddenWordController::class, 'create'])->name('create');
-        /** 키워드 수정 */
+        /** 상품정보 키워드 수정 */
         Route::post('/update', [WForbiddenWordController::class, 'update'])->name('update');
-        /** 키워드 삭제 */
+        /** 상품정보 키워드 삭제 */
         Route::post('/delete', [WForbiddenWordController::class, 'delete'])->name('delete');
+        /** 정보고시 키워드 조회 */
+        Route::get('/notice/{id}', [WForbiddenWordController::class, 'getNotice'])->name('getNotice');
+        /** 정보고시 키워드 등록 */
+        Route::post('/notice/create', [WForbiddenWordController::class, 'createNotice'])->name('createNotice');
+        /** 정보고시 키워드 수정 */
+        Route::post('/notice/update', [WForbiddenWordController::class, 'updateNotice'])->name('updateNotice');
+        /** 정보고시 키워드 삭제 */
+        Route::post('/notice/delete', [WForbiddenWordController::class, 'deleteNotice'])->name('deleteNotice');
     });
 });
 

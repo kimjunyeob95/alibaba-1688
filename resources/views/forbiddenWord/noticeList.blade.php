@@ -22,7 +22,7 @@
                     </a>
                 </li>
                 <li class="breadcrumb-item">금칙어 관리</li>
-                <li class="breadcrumb-item active" aria-current="page">상품정보 관리</li>
+                <li class="breadcrumb-item active" aria-current="page">정보고시 관리</li>
             </ol>
         </nav>
 
@@ -68,7 +68,7 @@
                                 <tr class="align-middle text-left">
                                     <td colspan="6">
                                         <button type="button" class="btn btn-md btn-primary" id="form-submit">검색</button>
-                                        <button type="button" onclick="location.href='/forbiddenWord/list'" class="btn btn-md btn-light btn-reset">초기화</button>
+                                        <button type="button" onclick="location.href='/forbiddenWord/notice/list'" class="btn btn-md btn-light btn-reset">초기화</button>
                                     </td>
                                 </tr>
                             </table>
@@ -120,7 +120,7 @@
                                         @endif
                                     </td>
                                     <td>
-                                        {{ ForbiddenWordConstant::KEYWORD_APPLY_STATUS[$data->apply_type] }}
+                                        {{ ForbiddenWordConstant::KEYWORD_APPLY_ATTR_STATUS[$data->apply_type] }}
                                     </td>
                                     <td class="text-center">
                                         <button class="btn btn-sm btn-outline-success btn-modi" dataid={{ $data->id }}>수정</button>
@@ -197,15 +197,15 @@
                                     <div class="col d-flex">
                                         <div class="form-check form-check-inline">
                                             <input class="form-check-input" type="radio" name="apply_type" id="apply_type1" value="{{ ForbiddenWordConstant::KEYWORD_APPLY_ALL }}" checked>
-                                            <label class="form-check-label" for="apply_type1">{{ ForbiddenWordConstant::KEYWORD_APPLY_STATUS[ForbiddenWordConstant::KEYWORD_APPLY_ALL] }}</label>
+                                            <label class="form-check-label" for="apply_type1">{{ ForbiddenWordConstant::KEYWORD_APPLY_ATTR_STATUS[ForbiddenWordConstant::KEYWORD_APPLY_ALL] }}</label>
                                         </div>
                                         <div class="form-check form-check-inline">
-                                            <input class="form-check-input" type="radio" name="apply_type" id="apply_type2" value="{{ ForbiddenWordConstant::KEYWORD_APPLY_TITLE }}">
-                                            <label class="form-check-label" for="apply_type2">{{ ForbiddenWordConstant::KEYWORD_APPLY_STATUS[ForbiddenWordConstant::KEYWORD_APPLY_TITLE] }}</label>
+                                            <input class="form-check-input" type="radio" name="apply_type" id="apply_type2" value="{{ ForbiddenWordConstant::KEYWORD_APPLY_ATTR_NAME }}">
+                                            <label class="form-check-label" for="apply_type2">{{ ForbiddenWordConstant::KEYWORD_APPLY_ATTR_STATUS[ForbiddenWordConstant::KEYWORD_APPLY_ATTR_NAME] }}</label>
                                         </div>
                                         <div class="form-check form-check-inline">
-                                            <input class="form-check-input" type="radio" name="apply_type" id="apply_type3" value="{{ ForbiddenWordConstant::KEYWORD_APPLY_DESC }}">
-                                            <label class="form-check-label" for="apply_type3">{{ ForbiddenWordConstant::KEYWORD_APPLY_STATUS[ForbiddenWordConstant::KEYWORD_APPLY_DESC] }}</label>
+                                            <input class="form-check-input" type="radio" name="apply_type" id="apply_type3" value="{{ ForbiddenWordConstant::KEYWORD_APPLY_ATTR_VALUE }}">
+                                            <label class="form-check-label" for="apply_type3">{{ ForbiddenWordConstant::KEYWORD_APPLY_ATTR_STATUS[ForbiddenWordConstant::KEYWORD_APPLY_ATTR_VALUE] }}</label>
                                         </div>
                                     </div>
                                 </div>
@@ -282,15 +282,15 @@
                                     <div class="col d-flex">
                                         <div class="form-check form-check-inline">
                                             <input class="form-check-input" type="radio" name="apply_modi_type" id="apply_modi_type1" value="{{ ForbiddenWordConstant::KEYWORD_APPLY_ALL }}" checked>
-                                            <label class="form-check-label" for="apply_modi_type1">{{ ForbiddenWordConstant::KEYWORD_APPLY_STATUS[ForbiddenWordConstant::KEYWORD_APPLY_ALL] }}</label>
+                                            <label class="form-check-label" for="apply_modi_type1">{{ ForbiddenWordConstant::KEYWORD_APPLY_ATTR_STATUS[ForbiddenWordConstant::KEYWORD_APPLY_ALL] }}</label>
                                         </div>
                                         <div class="form-check form-check-inline">
-                                            <input class="form-check-input" type="radio" name="apply_modi_type" id="apply_modi_type2" value="{{ ForbiddenWordConstant::KEYWORD_APPLY_TITLE }}">
-                                            <label class="form-check-label" for="apply_modi_type2">{{ ForbiddenWordConstant::KEYWORD_APPLY_STATUS[ForbiddenWordConstant::KEYWORD_APPLY_TITLE] }}</label>
+                                            <input class="form-check-input" type="radio" name="apply_modi_type" id="apply_modi_type2" value="{{ ForbiddenWordConstant::KEYWORD_APPLY_ATTR_NAME }}">
+                                            <label class="form-check-label" for="apply_modi_type2">{{ ForbiddenWordConstant::KEYWORD_APPLY_ATTR_STATUS[ForbiddenWordConstant::KEYWORD_APPLY_ATTR_NAME] }}</label>
                                         </div>
                                         <div class="form-check form-check-inline">
-                                            <input class="form-check-input" type="radio" name="apply_modi_type" id="apply_modi_type3" value="{{ ForbiddenWordConstant::KEYWORD_APPLY_DESC }}">
-                                            <label class="form-check-label" for="apply_modi_type3">{{ ForbiddenWordConstant::KEYWORD_APPLY_STATUS[ForbiddenWordConstant::KEYWORD_APPLY_DESC] }}</label>
+                                            <input class="form-check-input" type="radio" name="apply_modi_type" id="apply_modi_type3" value="{{ ForbiddenWordConstant::KEYWORD_APPLY_ATTR_VALUE }}">
+                                            <label class="form-check-label" for="apply_modi_type3">{{ ForbiddenWordConstant::KEYWORD_APPLY_ATTR_STATUS[ForbiddenWordConstant::KEYWORD_APPLY_ATTR_VALUE] }}</label>
                                         </div>
                                     </div>
                                 </div>
@@ -360,7 +360,7 @@
             $.ajax({
                 "headers"    : {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
                 "type"       : "GET",
-                "url"        : `/api/w/forbiddenWord/${id}`,
+                "url"        : `/api/w/forbiddenWord/notice/${id}`,
                 "data"       : {},
                 beforeSend: function () {
                     $("#loadingOverlay").show();
@@ -411,7 +411,7 @@
                 $.ajax({
                     "headers"    : {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
                     "type"       : "POST",
-                    "url"        : "{{ route('w.forbiddenWord.delete') }}",
+                    "url"        : "{{ route('w.forbiddenWord.deleteNotice') }}",
                     "data"       : { ids },
                     beforeSend: function () {
                         $("#loadingOverlay").show();
@@ -437,7 +437,7 @@
                 $.ajax({
                     "headers"    : {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
                     "type"       : "POST",
-                    "url"        : "{{ route('w.forbiddenWord.delete') }}",
+                    "url"        : "{{ route('w.forbiddenWord.deleteNotice') }}",
                     "data"       : { ids: [id] },
                     beforeSend: function () {
                         $("#loadingOverlay").show();
@@ -477,7 +477,7 @@
                 $.ajax({
                     "headers"    : {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
                     "type"       : "POST",
-                    "url"        : "{{ route('w.forbiddenWord.create') }}",
+                    "url"        : "{{ route('w.forbiddenWord.createNotice') }}",
                     "data"       : { 
                         keyword_type,
                         target_keyword,
@@ -523,7 +523,7 @@
                 $.ajax({
                     "headers"    : {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
                     "type"       : "POST",
-                    "url"        : "{{ route('w.forbiddenWord.update') }}",
+                    "url"        : "{{ route('w.forbiddenWord.updateNotice') }}",
                     "data"       : {
                         id,
                         keyword_type,
