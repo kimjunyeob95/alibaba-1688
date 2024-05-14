@@ -29,8 +29,9 @@ class OnchannelTest extends TestCase
             "w_mapping"
         ])
         ->where("status", "!=", "miss")
+        ->where("mapping_status", "Y")
         ->where([
-            
+
         ])
         ->get();
         foreach ($getPrdObjs as $getPrdObj) {
