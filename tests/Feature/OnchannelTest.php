@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Constants\GosiConstants;
 use App\Models\OnchannelProductLog;
 use App\Models\ProductData;
 use Carbon\Carbon;
@@ -16,20 +17,25 @@ class OnchannelTest extends TestCase
     public function testOnchProductCreate()
     {
         $token    = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJtZW1iZXJfaWQiOiJvbmNoMTY4OCIsIm1tYnJfdHlwZSI6Im9uY2htYW4iLCJ0aW1lc3RhbXAiOjQ4NjkxODE5ODJ9.AijywuhAP6ZkxySsZWOqEU-ID8XoesePcm8lSB1w1rw";
-        $endPoint = "http://192.168.10.198:8084/api/v1/product/regist";
+        $endPoint = "https://task.onch3.co.kr/api/v1/product/regist";
 
         $getPrdObjs = ProductData::with([
             "main_img",
             "no_except_sub_imgs",
             "extends",
             "options",
+            "notices",
             "category",
             "w_mapping"
-        ])->where([
-
-        ])->orderBy("created_at", "asc")->limit(10)->get();
+        ])
+        ->select(["product_datas.*"])
+        ->leftjoin("onchannel_product_logs as b", "product_datas.offer_id", "=", "b.offer_id")
+        ->where("b.regist_success", "!=", "Y")
+        ->where("product_datas.status", "!=", "miss")
+        ->where([
+        ])->orderBy("created_at", "asc")->get();
         foreach ($getPrdObjs as $getPrdObj) {
-
+            
             $ocObj = OnchannelProductLog::where([
                 "offer_id" => $getPrdObj->offer_id,
                 "prd_code" => "Y",
@@ -37,7 +43,12 @@ class OnchannelTest extends TestCase
 
             if( $ocObj != null ) continue;
 
-            $payload = [
+            $prd_desc    = $getPrdObj->prd_desc;
+            $noticeInfo  = $getPrdObj->notices->where("is_except",GosiConstants::IS_EXCEPT_N)->pluck("attribute_value_kr","attribute_name_kr")->toArray();
+            $notice_desc = getNoticeInfoTable($noticeInfo);
+            $prd_desc .= $notice_desc;
+
+            $payload     = [
                 "nat_sec"         => "KR",
                 "supp_sec"        => 3,
                 "jejo_code"       => $getPrdObj->offer_id,
@@ -45,7 +56,7 @@ class OnchannelTest extends TestCase
                 "prd_char1"       => $getPrdObj->minor_not_sale,
                 "trans_info"      => "오후5시/온채널/7일 이상 소요",
                 "send_check"      => 1,
-                "send_price"      => (int)$getPrdObj->extends->send_default_price,
+                "send_price"      => (int)0,
                 "jeju_send_price" => (int)$getPrdObj->extends->send_jeju_price,
                 "etc_send_price"  => (int)$getPrdObj->extends->send_etc_price,
                 "trans_nm"        => "대한통운",
@@ -55,7 +66,7 @@ class OnchannelTest extends TestCase
                 "return_comment"  => $getPrdObj->return_comment,
                 "sec_tax"         => "N",
                 "subject"         => $getPrdObj->prd_name_kr,
-                "contents"        => $getPrdObj->prd_desc,
+                "contents"        => $prd_desc,
                 "img_url"         => $getPrdObj->main_img->img_url_origin,
                 "img_nm_550"      => $getPrdObj->no_except_sub_imgs[0]->img_url_origin,
                 "img_nm_300"      => $getPrdObj->no_except_sub_imgs[1]->img_url_origin,
@@ -88,13 +99,13 @@ class OnchannelTest extends TestCase
                 $options[] = [
                     "op_rank"         => "1",
                     "option_nm"       => $option->option_name_kr,
-                    "cus_price"       => (int)$option->cus_price,
+                    "cus_price"       => (int)$option->cus_price + 12000,
                     "disc_price"      => 0,
-                    "option_price"    => (int)$option->option_price,
+                    "option_price"    => 0,
                     "vendor_price"    => 0,
-                    "onch_price"      => (int)$option->option_price,
+                    "onch_price"      => (int)$option->option_price + 12000,
                     "total_count"     => 0,
-                    "weight"          => 0,
+                    "weight"          => $option->weight,
                     "volume"          => "",
                     "amount"          => 0
                 ];
