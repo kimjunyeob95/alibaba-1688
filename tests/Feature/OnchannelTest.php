@@ -28,17 +28,16 @@ class OnchannelTest extends TestCase
             "category",
             "w_mapping"
         ])
-        ->select(["product_datas.*"])
-        ->leftjoin("onchannel_product_logs as b", "product_datas.offer_id", "=", "b.offer_id")
-        ->where("b.regist_success", "!=", "Y")
-        ->where("product_datas.status", "!=", "miss")
+        ->where("status", "!=", "miss")
         ->where([
-        ])->orderBy("created_at", "asc")->get();
+            
+        ])
+        ->get();
         foreach ($getPrdObjs as $getPrdObj) {
             
             $ocObj = OnchannelProductLog::where([
-                "offer_id" => $getPrdObj->offer_id,
-                "prd_code" => "Y",
+                "offer_id"       => $getPrdObj->offer_id,
+                "regist_success" => "Y",
             ])->first();
 
             if( $ocObj != null ) continue;
