@@ -20,7 +20,7 @@ class OnchannelTest extends TestCase
         $token    = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJtZW1iZXJfaWQiOiJvbmNoMTY4OCIsIm1tYnJfdHlwZSI6Im9uY2htYW4iLCJ0aW1lc3RhbXAiOjQ4NjkxODE5ODJ9.AijywuhAP6ZkxySsZWOqEU-ID8XoesePcm8lSB1w1rw";
         $endPoint = "https://task.onch3.co.kr/api/v1/product/regist";
 
-        $perPage = 300;
+        $perPage = 900;
 
         $getPrdObjs = ProductData::with([
             "main_img",
@@ -36,27 +36,27 @@ class OnchannelTest extends TestCase
         ->where("mapping_status", "Y")
         ->orderBy("product_datas.created_at", "desc");
 
-        // $getPrdObjs->where(function($qry){
-        //     $qry->where("b.regist_success", "!=", "Y")
-        //     ->orWhereNull("b.id");
-        // });
-
         $getPrdObjs->where(function($qry){
             $qry->orWhereNull("b.id");
         });
 
         $totalCount = $getPrdObjs->count();
-
         $totalPages = ceil($totalCount / $perPage);
-        
+
         debug_log("실행", "registOnchannel", "registOnchannel");
         for ($page = 1; $page <= $totalPages; $page++) {
 
             Paginator::currentPageResolver(function () use ($page) {
                 return $page;
             });
+        
+            // paginate 메소드는 새 Paginator 인스턴스를 반환합니다.
+            $pagedData = $getPrdObjs->paginate($perPage);
+            $results = $pagedData->items();
 
-            $results = $getPrdObjs->paginate($perPage)->items();
+            $msg = "(" . $page . "/" . $totalPages. ") prdCnt: " . count($results);
+            debug_log($msg, "registOnchannel", "registOnchannel");
+
             foreach ($results as $getPrdObj) {
                 $ocObj = OnchannelProductLog::where([
                     "offer_id"       => $getPrdObj->offer_id,
@@ -196,8 +196,6 @@ class OnchannelTest extends TestCase
 
                 sleep(1);
             }
-            $msg = "(" . $page . "/" . $totalPages. ")";
-            debug_log($msg, "registOnchannel", "registOnchannel");
         }
 
         debug_log("종료", "registOnchannel", "registOnchannel");
