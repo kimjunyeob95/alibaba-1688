@@ -216,7 +216,7 @@ class ProductTest extends TestCase
             $forObj = ProductForbiddenData::where("offer_id", $prdObj->offer_id)->first();
 
             if( $forObj != null ){
-                $prd_name_kr = $forObj->prd_name_trans_origin;
+                $prd_name_kr = $forObj->origin_text;
             } else {
                 $prd_name_kr = $prdObj->prd_name_kr;
             }

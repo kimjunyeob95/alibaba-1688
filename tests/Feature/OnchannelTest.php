@@ -36,9 +36,13 @@ class OnchannelTest extends TestCase
         ->where("mapping_status", "Y")
         ->orderBy("product_datas.created_at", "desc");
 
+        // $getPrdObjs->where(function($qry){
+        //     $qry->where("b.regist_success", "!=", "Y")
+        //     ->orWhereNull("b.id");
+        // });
+
         $getPrdObjs->where(function($qry){
-            $qry->where("b.regist_success", "!=", "Y")
-            ->orWhereNull("b.id");
+            $qry->orWhereNull("b.id");
         });
 
         $totalCount = $getPrdObjs->count();
