@@ -6,6 +6,7 @@ use App\Constants\ProductConstant;
 use App\Services\EasySellService;
 use Illuminate\View\View;
 use Illuminate\Http\Request;
+use PhpParser\Node\Expr\Cast\Array_;
 
 class EasySellController extends Controller
 {
@@ -55,11 +56,11 @@ class EasySellController extends Controller
         $page           = $this->request->post("page", 1);
         $pageSize       = $this->request->post("pageSize", 50);
         $keyword        = $this->request->get("keyword", "");
-        $mapping_status = $this->request->get("mapping_status", ProductConstant::TRANS_STATUS_Y);
+        $mapping_status = $this->request->get("mapping_status", "");
         $cate_first     = $this->request->get("cate_first", "");
         $cate_second    = $this->request->get("cate_second", "");
         $cate_third     = $this->request->get("cate_third", "");
-        $cate_third     = $this->request->get("cate_fourth", "");
+        $cate_fourth     = $this->request->get("cate_fourth", "");
         $offset         = ($page - 1) * $pageSize;
 
         $params = [
@@ -69,7 +70,8 @@ class EasySellController extends Controller
             "mapping_status" => $mapping_status,
             "cate_first"     => $cate_first,
             "cate_second"    => $cate_second,
-            "cate_third"     => $cate_third
+            "cate_third"     => $cate_third,
+            "cate_fourth"    => $cate_fourth
         ];
         $result = $this->easySellService->cateList($params);
 
@@ -78,10 +80,30 @@ class EasySellController extends Controller
             "keyword"        => $keyword,
             "offset"         => $offset,
             "datas"          => $result["paginator"],
+            "cateFirstList"  => $result["cateFirstList"],
+            "cateSecondList" => $result["cateSecondList"],
+            "cateThirdList"  => $result["cateThirdList"],
+            "cateFourthList" => $result["cateFourthList"],
             "cate_first"     => $cate_first,
             "cate_second"    => $cate_second,
-            "cate_third"     => $cate_third
+            "cate_third"     => $cate_third,
+            "cate_fourth"    => $cate_fourth
         ];
         return view("easysell.categoryManage")->with($viewParams);
+    }
+
+    public function categoryDepth():array
+    {
+        $cateFirst  = $this->request->post("cateFirst");
+        $categoryNm = $this->request->post("categoryNm");
+        $level      = $this->request->post("level");
+
+        $params = [
+            "cateFirst"  => $cateFirst,
+            "categoryNm" => $categoryNm,
+            "level"      => $level,
+        ];
+        $result = $this->easySellService->categoryDepth($params);
+        return $result;
     }
 }

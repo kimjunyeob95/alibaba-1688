@@ -71,20 +71,105 @@ class EasySellService
     public function cateList($params) :array
     {
         $pageSize       = $params["pageSize"];
-        $mapping_status = $params["mapping_status"];
+        $mapping_status = $params["mapping_status"] ?? "";
         $keyword        = $params["keyword"];
 
-        $categoryBuilder = CategoryMapping::select(["a.mapping_code as mapping_code", "b.mapping_code as es_mapping_code", "b.category_id"])
-            ->with(["w_cate_name", "es_category"])
-            ->from("category_mappings as a")
-            ->leftJoin("category_mappings as b","a.category_id","=","b.category_id")
-            ->where("a.mapping_channel",ProductConstant::MAPPING_WAPP)
-            ->where("b.mapping_channel",ProductConstant::MAPPING_ES_CHANNEL);
+        $cate_first     = $params["cate_first"];
+        $cate_second    = $params["cate_second"];
+        $cate_third     = $params["cate_third"];
+        $cate_fourth    = $params["cate_fourth"];
+
+
+        $cateFirstList  = [];
+        $cateSecondList = [];
+        $cateThirdList  = [];
+        $cateFourthList = [];
+
+        $categoryBuilder = WCategory::select(["a.cate_first","a.cate_second","a.cate_third","a.cate_fourth","a.mapping_code","b.category_id","c.mapping_code as es_mapping_code"])
+            ->from("w_categories as a")
+            ->with(["es_category"])
+            ->leftJoin('category_mappings as b', function($join) {
+                $join->on('a.mapping_code', '=', 'b.mapping_code')
+                    ->where('b.mapping_channel', ProductConstant::MAPPING_WAPP);
+            })
+            ->leftJoin('category_mappings as c', function($join) {
+                $join->on('b.category_id', '=', 'c.category_id')
+                    ->where('c.mapping_channel', ProductConstant::MAPPING_ES_CHANNEL);
+            })
+            ->groupBy("a.mapping_code");
+
+        if(!empty($mapping_status)){
+            if($mapping_status == "Y"){
+                $categoryBuilder->whereNotNull("c.mapping_code");
+            }else if($mapping_status == "N"){
+                $categoryBuilder->where(function($query){
+                    $query->whereNull("c.mapping_code");
+                });
+            }
+        }
+
+        if(!empty($keyword)){
+            $categoryBuilder->where(function($query) use ($keyword) {
+                $query->where("a.cate_first", "like", "%" . $keyword . "%")
+                    ->orWhere("a.cate_second", "like", "%" . $keyword . "%")
+                    ->orWhere("a.cate_third", "like", "%" . $keyword . "%")
+                    ->orWhere("a.cate_fourth", "like", "%" . $keyword . "%");
+            });
+        }
+
+        $cateList  = new WCategory;
+        $cateFirstList  = $cateList->pluck("cate_first")->unique()->filter();
+        if(!empty($cate_first)){
+            $cateSecondList = $cateList->where("cate_first",$cate_first)->pluck("cate_second")->unique()->filter();
+            $categoryBuilder->where("a.cate_first", $cate_first);
+        }
+        if(!empty($cate_second)){
+            $cateThirdList = $cateList->where("cate_second",$cate_second)->pluck("cate_third")->unique()->filter();
+            $categoryBuilder->where("a.cate_second", $cate_second);
+        }
+        if(!empty($cate_third)){
+            $cateFourthList = $cateList->where("cate_third",$cate_third)->pluck("cate_fourth")->unique()->filter();
+            $categoryBuilder->where("a.cate_third", $cate_third);
+        }
+        if(!empty($cate_fourth)){
+            $categoryBuilder->where("a.cate_fourth", $cate_fourth);
+        }
 
         $lists = $categoryBuilder->paginate($pageSize)->appends($params);
 
         return [
-            "paginator"  => $lists,
+            "cateFirstList"  => $cateFirstList,
+            "cateSecondList" => $cateSecondList,
+            "cateThirdList"  => $cateThirdList,
+            "cateFourthList" => $cateFourthList,
+            "paginator"      => $lists,
+        ];
+    }
+
+    public function categoryDepth(array $params){
+        $categoryList = [];
+
+        $cateListBuilder = WCategory::where("cate_first",$params['cateFirst']);
+        if(isset($params['level'])){
+            if($params['level'] == 1){
+                $categoryList = $cateListBuilder->groupBy("cate_second")
+                ->pluck("cate_second")
+                ->filter();
+            }else if($params['level'] == 2){
+                $categoryList = $cateListBuilder->where("cate_second", $params['categoryNm'])
+                    ->groupBy("cate_third")
+                    ->pluck("cate_third")
+                    ->filter();
+            }else if($params['level'] == 3){
+                $categoryList =  $cateListBuilder->where("cate_third", $params['categoryNm'])
+                    ->groupBy("cate_fourth")
+                    ->pluck("cate_fourth")
+                    ->filter();
+            }
+        }
+
+        return [
+            "categoryList" => $categoryList
         ];
     }
 }

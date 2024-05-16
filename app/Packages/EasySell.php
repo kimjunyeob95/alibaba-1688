@@ -409,10 +409,27 @@ class EasySell extends MallApiAbstract
             $offerId = $prdObj->offer_id;
 
             //카테고리 매핑
-            if(!isset($prdObj->es_mapping) || empty($prdObj->es_mapping->mapping_code) || !isset($prdObj->es_fgn_mapping) || empty($prdObj->es_fgn_mapping->mapping_code)){
+            if(!isset($prdObj->es_mapping) || empty($prdObj->es_mapping->mapping_code)){
                 throw new Exception("카테고리 정보가 없습니다");
             }
-            $categoryId = $prdObj->es_mapping->mapping_code."|".$prdObj->es_fgn_mapping->mapping_code;
+            $categoryId = $prdObj->es_mapping->mapping_code;
+
+            if($type == WConstant::WAPP_W1){
+                $ItemName = $prdObj->prd_name_kr;
+                $prdDesc  = $prdObj->prd_desc_kr;
+                $optionTitle = "옵션";
+            }else if($type == WConstant::WAPP_W2){
+                //카테고리 매핑
+                if( !isset($prdObj->es_fgn_mapping) || empty($prdObj->es_fgn_mapping->mapping_code)){
+                    throw new Exception("카테고리 정보가 없습니다");
+                }
+                $categoryId .= "|".$prdObj->es_fgn_mapping->mapping_code;
+
+                $ItemName = $prdObj->prd_name_en;
+                $prdDesc  = $prdObj->prd_desc_en;
+                $optionTitle = "option";
+            }
+
             $ItemBrand = EasySellConstant::CATEGORY_MAPPING[substr($prdObj->es_fgn_mapping->mapping_code,0,6)];
             $noticeType = $this->_getNoticeType($prdObj->es_fgn_mapping->mapping_code);
 
@@ -420,20 +437,6 @@ class EasySell extends MallApiAbstract
             if($prdObj->minor_not_sale == ProductConstant::MINOR_NOT_SALE_YES){
                 throw new Exception("연령제한 상품입니다");
             }
-
-            if($type == WConstant::WAPP_W1){
-                $ItemName = $prdObj->prd_name_kr;
-                $prdDesc  = $prdObj->prd_desc_kr;
-                $optionTitle = "옵션";
-            }else if($type == WConstant::WAPP_W2){
-                $ItemName = $prdObj->prd_name_en;
-                $prdDesc  = $prdObj->prd_desc_en;
-                $optionTitle = "option";
-            }
-
-            // if(!productNameValidation($ItemName, "", 100)){
-            //     throw new Exception("상품명 길이가 100byte를 초과했습니다.");
-            // }
 
             if($type == WConstant::WAPP_W1){
                 $noticeInfo = $prdObj->notices->where("is_except",GosiConstants::IS_EXCEPT_N)->pluck("attribute_value_kr","attribute_name_kr")->toArray();

@@ -26,9 +26,4 @@ class CategoryMapping extends Model
     {
         return $this->hasOne(OnchCategoryExcelDataCopy2::class, "codenum", "mapping_code");
     }
-
-    public function es_category()
-    {
-        return $this->hasOne(SellerhubCategory::class, "sellerhub_cate", "es_mapping_code");
-    }
 }
