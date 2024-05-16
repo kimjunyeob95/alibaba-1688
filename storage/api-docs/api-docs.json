@@ -943,75 +943,40 @@
                 "type": "object"
             },
             "OrderCreateSchema": {
-                "required": [
-                    "productParamList"
-                ],
                 "properties": {
-                    "productParamList": {
+                    "offer_id": {
+                        "description": "제품 ID",
+                        "type": "integer",
+                        "example": 715819550080
+                    },
+                    "optionParamList": {
                         "description": "주문 생성 제품 정보",
                         "type": "array",
                         "items": {
                             "required": [
-                                "offer_id",
-                                "optionParamList"
+                                "option_id",
+                                "quantity"
                             ],
                             "properties": {
-                                "offer_id": {
-                                    "description": "제품 ID",
-                                    "type": "integer",
-                                    "example": 774890948567
+                                "option_id": {
+                                    "description": "옵션 ID",
+                                    "type": "integer"
                                 },
-                                "optionParamList": {
-                                    "type": "array",
-                                    "items": {
-                                        "required": [
-                                            "option_id",
-                                            "quantity"
-                                        ],
-                                        "properties": {
-                                            "option_id": {
-                                                "description": "옵션 ID",
-                                                "type": "integer",
-                                                "example": 196443
-                                            },
-                                            "quantity": {
-                                                "description": "구매 수량",
-                                                "type": "integer",
-                                                "example": 3
-                                            }
-                                        },
-                                        "type": "object"
-                                    }
+                                "quantity": {
+                                    "description": "구매 수량",
+                                    "type": "integer"
                                 }
                             },
                             "type": "object"
                         },
                         "example": [
                             {
-                                "offer_id": 774890948567,
-                                "optionParamList": [
-                                    {
-                                        "option_id": 196443,
-                                        "quantity": 3
-                                    },
-                                    {
-                                        "option_id": 196444,
-                                        "quantity": 2
-                                    }
-                                ]
+                                "option_id": 217126,
+                                "quantity": 1
                             },
                             {
-                                "offer_id": 715819550080,
-                                "optionParamList": [
-                                    {
-                                        "option_id": 217126,
-                                        "quantity": 1
-                                    },
-                                    {
-                                        "option_id": 217127,
-                                        "quantity": 2
-                                    }
-                                ]
+                                "option_id": 217127,
+                                "quantity": 2
                             }
                         ]
                     }

@@ -92,17 +92,15 @@ class MallController extends Controller
     {
         try {
             $validator = Validator::make($this->request->all(), [
-                'productParamList'                               => 'required|array',
-                'productParamList.*.offer_id'                    => 'required|int',
-                'productParamList.*.optionParamList'             => 'required|array',
-                'productParamList.*.optionParamList.*.option_id' => 'required|int',
-                'productParamList.*.optionParamList.*.quantity'  => 'required|int',
+                'offer_id'                    => 'required|int',
+                'optionParamList'             => 'required|array',
+                'optionParamList.*.option_id' => 'required|int',
+                'optionParamList.*.quantity'  => 'required|int',
             ], [
-                'productParamList.required'                               => OrderErrorMessageConstant::getNotHaveErrorMessage("PRODUCTPARAMLIST"),
-                'productParamList.*.offer_id.required'                    => OrderErrorMessageConstant::getNotHaveErrorMessage("OFFER_ID"),
-                'productParamList.*.optionParamList.required'             => OrderErrorMessageConstant::getNotHaveErrorMessage("OPTIONPARAMLIST"),
-                'productParamList.*.optionParamList.*.option_id.required' => OrderErrorMessageConstant::getNotHaveErrorMessage("OPTION_ID"),
-                'productParamList.*.optionParamList.*.quantity.required'  => OrderErrorMessageConstant::getNotHaveErrorMessage("QUANTITY"),
+                'offer_id.required'                    => OrderErrorMessageConstant::getNotHaveErrorMessage("OFFER_ID"),
+                'optionParamList.required'             => OrderErrorMessageConstant::getNotHaveErrorMessage("OPTIONPARAMLIST"),
+                'optionParamList.*.option_id.required' => OrderErrorMessageConstant::getNotHaveErrorMessage("OPTION_ID"),
+                'optionParamList.*.quantity.required'  => OrderErrorMessageConstant::getNotHaveErrorMessage("QUANTITY"),
             ]);
             if ($validator->fails()) {
                 throw new Exception($validator->errors()->first());

@@ -14,67 +14,39 @@ namespace App\Annotations\v1\W\cOrder;
  * 
  * @OA\Schema(
  *     schema="OrderCreateSchema",
- *     required={"productParamList"},
  *     @OA\Property(
- *         property="productParamList",
+ *         property="offer_id",
+ *         type="integer",
+ *         example=715819550080,
+ *         description="제품 ID"
+ *     ),
+ *     @OA\Property(
+ *         property="optionParamList",
  *         type="array",
  *         @OA\Items(
  *             type="object",
- *             required={"offer_id", "optionParamList"},
+ *             required={"option_id", "quantity"},
  *             @OA\Property(
- *                 property="offer_id",
- *                 type="integer",
- *                 example=774890948567,
- *                 description="제품 ID"
- *             ),
- *             @OA\Property(
- *                 property="optionParamList",
- *                 type="array",
- *                 @OA\Items(
- *                     type="object",
- *                     required={"option_id", "quantity"},
- *                     @OA\Property(
- *                          property="option_id",
- *                          type="integer",
- *                          description="옵션 ID",
- *                          example=196443
- *                      ),
- *                      @OA\Property(
- *                          property="quantity",
- *                          type="integer",
- *                          description="구매 수량",
- *                          example=3
- *                      ),
- *                 )
- *             ),
+ *                  property="option_id",
+ *                  type="integer",
+ *                  description="옵션 ID"
+ *              ),
+ *              @OA\Property(
+ *                  property="quantity",
+ *                  type="integer",
+ *                  description="구매 수량"
+ *              ),
  *         ),
- *         example={
- *                   {
- *                      "offer_id": 774890948567,
- *                      "optionParamList": {
- *                        {
- *                            "option_id": 196443,
- *                            "quantity": 3
- *                        },
- *                        {
- *                            "option_id": 196444,
- *                            "quantity": 2
- *                        }
- *                       }
- *                   },
- *                   {
- *                      "offer_id": 715819550080,
- *                      "optionParamList": {
- *                        {
- *                            "option_id": 217126,
- *                            "quantity": 1
- *                        },
- *                        {
- *                            "option_id": 217127,
- *                            "quantity": 2
- *                        }
- *                      }
- *                   }
+ *         example=
+ *         {
+ *             {
+ *                 "option_id": 217126,
+ *                 "quantity": 1
+ *             },
+ *             {
+ *                 "option_id": 217127,
+ *                 "quantity": 2
+ *             }
  *         },
  *         description="주문 생성 제품 정보"
  *     )
