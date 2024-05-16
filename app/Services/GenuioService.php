@@ -224,8 +224,6 @@ class GenuioService extends TransApiAbstract
 
                 $dateName = $prdObj->created_at->format('Y/m/d');
 
-                debug_log(json_encode($params, JSON_UNESCAPED_UNICODE), "genuio", "genuio-response");
-
                 // 1. product_image_datas update
                 foreach ($images as $image) {
                     try {
@@ -252,7 +250,7 @@ class GenuioService extends TransApiAbstract
                         $uploadResult   = false;
                         $errorImgFlag   = false;
                         $imgTransBase64 = "";
-                        $$img_url_trans = "";
+                        $img_url_trans  = "";
                         $mime           = pathinfo($img_url_origin, PATHINFO_EXTENSION);
                         if (preg_match('/^(jpg|jpeg|png|gif)/i', $mime, $matches)) {
                             $mime = $matches[0];
