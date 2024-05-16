@@ -229,7 +229,7 @@ class GenuioService extends TransApiAbstract
                     try {
                         $imgId     = (int)$image["id"];
                         $is_except = ImageConstant::IS_EXCEPT_N;
-                        if( isset($params["excluded"]) && $params["excluded"] === true ) {
+                        if( isset($image["excluded"]) && $image["excluded"] === true ) {
                             $is_except = ImageConstant::IS_EXCEPT_Y;
                         }
 
@@ -332,9 +332,16 @@ class GenuioService extends TransApiAbstract
     
                         if( $errorImgFlag == true ) {
                             // 1688 측 이미지 자체가 유효하지 않은 상태 기록
-                            $errMsg = "원본 이미지 upload error | img: " . $img_url_origin;
-                            debug_log(json_encode($errMsg, JSON_UNESCAPED_UNICODE), "genuio", "genuio-img");
+                            // $errMsg = "원본 이미지 upload error | img: " . $img_url_origin;
+                            // debug_log(json_encode($errMsg, JSON_UNESCAPED_UNICODE), "genuio", "genuio-img");
                         }
+
+                        $errMsg = [
+                            "img_id"         => $image["id"],
+                            "excluded"       => $is_except,
+                            "imgTransBase64" => $image["imgTransBase64"],
+                        ];
+                        debug_log(json_encode($errMsg, JSON_UNESCAPED_UNICODE), "genuio", "genuio-response");
         
                         GenuioQueueDetailData::where([
                             "queue_id"     => $jobId,
@@ -357,7 +364,7 @@ class GenuioService extends TransApiAbstract
                     try {
                         $imgId     = (int)$image["id"];
                         $is_except = ImageConstant::IS_EXCEPT_N;
-                        if( isset($params["excluded"]) && $params["excluded"] === true ) {
+                        if( isset($image["excluded"]) && $image["excluded"] === true ) {
                             $is_except = ImageConstant::IS_EXCEPT_Y;
                         }
 
@@ -433,9 +440,16 @@ class GenuioService extends TransApiAbstract
 
                         if( $errorImgFlag == true ) {
                             // 1688 측 이미지 자체가 유효하지 않은 상태 기록
-                            $errMsg = "원본 이미지 upload error | img: " . $img_url_ai_origin;
-                            debug_log(json_encode($errMsg, JSON_UNESCAPED_UNICODE), "genuio", "genuio-ai-img");
+                            // $errMsg = "원본 이미지 upload error | img: " . $img_url_ai_origin;
+                            // debug_log(json_encode($errMsg, JSON_UNESCAPED_UNICODE), "genuio", "genuio-ai-img");
                         }
+
+                        $errMsg = [
+                            "img_id"         => $image["id"],
+                            "excluded"       => $is_except,
+                            "imgTransBase64" => $image["imgTransBase64"],
+                        ];
+                        debug_log(json_encode($errMsg, JSON_UNESCAPED_UNICODE), "genuio", "genuio-response");
         
                         GenuioQueueDetailData::where([
                             "queue_id"     => $jobId,
