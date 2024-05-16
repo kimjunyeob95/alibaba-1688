@@ -223,7 +223,9 @@ class GenuioService extends TransApiAbstract
                 }
 
                 $dateName = $prdObj->created_at->format('Y/m/d');
-    
+
+                debug_log(json_encode($params, JSON_UNESCAPED_UNICODE), "genuio", "genuio-response");
+
                 // 1. product_image_datas update
                 foreach ($images as $image) {
                     try {
