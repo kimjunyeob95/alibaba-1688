@@ -340,6 +340,8 @@ class GenuioService extends TransApiAbstract
                             "img_id"         => $image["id"],
                             "excluded"       => $is_except,
                             "imgTransBase64" => $imgTransBase64,
+                            "uploadResult"   => $uploadResult,
+                            "errorImgFlag"   => $errorImgFlag,
                         ];
                         debug_log(json_encode($errMsg, JSON_UNESCAPED_UNICODE), "genuio", "genuio-response");
         
@@ -448,6 +450,8 @@ class GenuioService extends TransApiAbstract
                             "img_id"         => $image["id"],
                             "excluded"       => $is_except,
                             "imgTransBase64" => $imgTransBase64,
+                            "uploadResult"   => $uploadResult,
+                            "errorImgFlag"   => $errorImgFlag,
                         ];
                         debug_log(json_encode($errMsg, JSON_UNESCAPED_UNICODE), "genuio", "genuio-response");
         
