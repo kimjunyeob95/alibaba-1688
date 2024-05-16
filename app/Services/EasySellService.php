@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Constants\MallConstant;
 use App\Constants\ProductConstant;
+use App\Constants\WConstant;
 use App\Models\EasysellProductLog;
 use App\Models\ProductData;
 
@@ -17,11 +18,15 @@ class EasySellService
         $keyword      = $params["keyword"];
 
         $prdBuilder = ProductData::select(["product_datas.offer_id","product_datas.prd_name_kr","epl.itemno","epl.regist_success","product_datas.category_id"])
-        ->with(["main_img", "options", "es_mapping", "es_fgn_mapping"])
-        ->leftJoin("easysell_product_logs as epl","product_datas.offer_id","=","epl.offer_id")
-        ->where("product_datas.trans_status", ProductConstant::TRANS_STATUS_Y)
-        ->where("product_datas.mapping_status", ProductConstant::MAPPING_STATUS_Y)
-        ->whereNull("product_datas.deleted_at")->orderBy("product_datas.created_at", "desc");
+            ->with(["main_img", "options", "es_mapping", "es_fgn_mapping"])
+            ->leftJoin("easysell_product_logs as epl","product_datas.offer_id","=","epl.offer_id")
+            ->whereIn("product_datas.w_type", [ WConstant::WAPP_W1, WConstant::WAPP_W2 ])
+            ->where("product_datas.status", ProductConstant::PRD_STATUS_PUBLISH)
+            ->where("product_datas.trans_status", ProductConstant::TRANS_STATUS_Y)
+            ->where("product_datas.mapping_status", ProductConstant::MAPPING_STATUS_Y)
+            ->where("product_datas.inspect_status", ProductConstant::INSPECT_STATUS_Y)
+            ->whereNull("product_datas.deleted_at")->orderBy("product_datas.created_at", "desc");
+
         $totalCnt = $prdBuilder->count();
 
         if(isset($search_cls) && !empty($keyword)){
