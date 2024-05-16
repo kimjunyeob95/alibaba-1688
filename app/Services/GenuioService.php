@@ -315,6 +315,10 @@ class GenuioService extends TransApiAbstract
                                     "ai_type"    => GenuioConstant::IMG_Ai_TRANS,
                                     "is_origin"  => GenuioConstant::IS_ORIGIN_N,
                                 ]);
+                            } else {
+                                GenuioImageData::where("id", $aiImgObj->id)->update([
+                                    "updated_at" => Carbon::now()
+                                ]);
                             }
                         } else {
                             ProductImageData::where("id", $imgId)->update([
