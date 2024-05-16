@@ -339,7 +339,7 @@ class GenuioService extends TransApiAbstract
                         $errMsg = [
                             "img_id"         => $image["id"],
                             "excluded"       => $is_except,
-                            "imgTransBase64" => $image["imgTransBase64"],
+                            "imgTransBase64" => $imgTransBase64,
                         ];
                         debug_log(json_encode($errMsg, JSON_UNESCAPED_UNICODE), "genuio", "genuio-response");
         
@@ -447,7 +447,7 @@ class GenuioService extends TransApiAbstract
                         $errMsg = [
                             "img_id"         => $image["id"],
                             "excluded"       => $is_except,
-                            "imgTransBase64" => $image["imgTransBase64"],
+                            "imgTransBase64" => $imgTransBase64,
                         ];
                         debug_log(json_encode($errMsg, JSON_UNESCAPED_UNICODE), "genuio", "genuio-response");
         
