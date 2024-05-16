@@ -564,7 +564,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/SuccessResponse"
+                                    "$ref": "#/components/schemas/OrderCreateSuccessResponse"
                                 }
                             }
                         }
@@ -944,59 +944,120 @@
             },
             "OrderCreateSchema": {
                 "required": [
-                    "cargoParamList",
-                    "receive_name",
-                    "receive_tell",
-                    "receive_phone"
+                    "productParamList"
                 ],
                 "properties": {
-                    "cargoParamList": {
+                    "productParamList": {
                         "description": "주문 생성 제품 정보",
                         "type": "array",
                         "items": {
                             "required": [
                                 "offer_id",
-                                "option_id"
+                                "optionParamList"
                             ],
                             "properties": {
                                 "offer_id": {
                                     "description": "제품 ID",
                                     "type": "integer",
-                                    "example": 630519988300
+                                    "example": 774890948567
                                 },
-                                "option_id": {
-                                    "description": "제품 옵션 ID",
+                                "optionParamList": {
+                                    "type": "array",
+                                    "items": {
+                                        "required": [
+                                            "option_id",
+                                            "quantity"
+                                        ],
+                                        "properties": {
+                                            "option_id": {
+                                                "description": "옵션 ID",
+                                                "type": "integer",
+                                                "example": 196443
+                                            },
+                                            "quantity": {
+                                                "description": "구매 수량",
+                                                "type": "integer",
+                                                "example": 3
+                                            }
+                                        },
+                                        "type": "object"
+                                    }
+                                }
+                            },
+                            "type": "object"
+                        },
+                        "example": [
+                            {
+                                "offer_id": 774890948567,
+                                "optionParamList": [
+                                    {
+                                        "option_id": 196443,
+                                        "quantity": 3
+                                    },
+                                    {
+                                        "option_id": 196444,
+                                        "quantity": 2
+                                    }
+                                ]
+                            },
+                            {
+                                "offer_id": 715819550080,
+                                "optionParamList": [
+                                    {
+                                        "option_id": 217126,
+                                        "quantity": 1
+                                    },
+                                    {
+                                        "option_id": 217127,
+                                        "quantity": 2
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                "type": "object"
+            },
+            "OrderCreateSuccessResponse": {
+                "properties": {
+                    "status": {
+                        "type": "integer",
+                        "example": 200
+                    },
+                    "meta": {
+                        "properties": {
+                            "timestamp": {
+                                "type": "string",
+                                "example": "2023-12-19 17:45:50"
+                            },
+                            "apiType": {
+                                "type": "string",
+                                "example": "mall"
+                            }
+                        },
+                        "type": "object"
+                    },
+                    "data": {
+                        "type": "array",
+                        "items": {
+                            "required": [
+                                "order_id",
+                                "isSuccess"
+                            ],
+                            "properties": {
+                                "order_id": {
+                                    "description": "주문 ID",
                                     "type": "integer",
-                                    "example": 291
+                                    "example": 3890000700554135493
                                 },
-                                "quantity": {
-                                    "description": "제품 수량",
-                                    "type": "integer",
-                                    "example": "1"
+                                "isSuccess": {
+                                    "description": "성공 여부",
+                                    "type": "boolean",
+                                    "example": true
                                 }
                             },
                             "type": "object"
                         }
-                    },
-                    "receive_name": {
-                        "description": "수취인 이름",
-                        "type": "string",
-                        "example": "홍길동"
-                    },
-                    "receive_tell": {
-                        "description": "수취인 전화번호",
-                        "type": "string",
-                        "example": "021231324"
-                    },
-                    "receive_phone": {
-                        "description": "수취인 휴대폰번호",
-                        "type": "string",
-                        "example": "01012345678"
-                    },
-                    "message": {
-                        "description": "주문 메모",
-                        "type": "string",
-                        "example": "문 앞에 놔주세요."
                     }
                 },
                 "type": "object"

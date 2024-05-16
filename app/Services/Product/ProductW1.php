@@ -56,13 +56,19 @@ class ProductW1 extends ProductAbstract
     private string $accessToken;
     private TransApiAbstract $transApiAbstract;
     private UploadAbstract $uploadAbstract;
+    private ProductAbstract $productW2;
 
-    public function __construct(TransApiAbstract $transApiAbstract, UploadAbstract $uploadAbstract)
+    public function __construct(
+        TransApiAbstract $transApiAbstract,
+        UploadAbstract $uploadAbstract,
+        ProductAbstract $productAbstract
+    )
     {
         $this->returnMsg        = helpers_fail_message();
         $this->accessToken      = env("1688_ACCESS_TOKEN");
         $this->transApiAbstract = $transApiAbstract;
         $this->uploadAbstract   = $uploadAbstract;
+        $this->productW2        = $productAbstract;
     }
 
     public function getPrdList(array $params): array

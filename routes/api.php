@@ -145,7 +145,7 @@ Route::name('w2.')->prefix('w2')->group(function () {
 Route::name('mall.')->prefix('mall')->group(function () {
     Route::post('/{channel}/token/create', [MallController::class, "tokenCreate"])->name("tokenCreate");
 
-    Route::name('easySell.')->prefix('easySell')->group(function () {
+    Route::name('{channel}.')->prefix('{channel}')->group(function () {
         Route::post('/product/regist', [MallController::class, "productRegist"])->name('productRegist');
 
         Route::middleware(["oepnApi.jwt.verify"])->group(function () {
