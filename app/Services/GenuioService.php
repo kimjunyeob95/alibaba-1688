@@ -216,8 +216,7 @@ class GenuioService extends TransApiAbstract
             $offerId = $getGenuioObj->offer_id;
 
             if( $getGenuioObj->send_type == GenuioConstant::IMG_TRANS ){
-                $descTransImgs = [];
-                $prdObj  = ProductData::where("offer_id", $offerId)->first();
+                $prdObj = ProductData::where("offer_id", $offerId)->first();
                 if( $prdObj == null ){
                     throw new ValueError(TransApiConstant::getNotHaveErrorMessage("PRODUCT"));
                 }
@@ -317,13 +316,6 @@ class GenuioService extends TransApiAbstract
                                     "is_origin"  => GenuioConstant::IS_ORIGIN_N,
                                 ]);
                             }
-                    
-                            if( $imgObj->img_type == ImageConstant::IMAGE_TYPE_DESC ){
-                                $descTransImgs[] = [
-                                    "img_url_origin" => $img_url_origin,
-                                    "img_url_trans"  => $img_url_trans
-                                ];
-                            }
                         } else {
                             ProductImageData::where("id", $imgId)->update([
                                 "img_url_trans"  => $img_url_trans,
@@ -336,16 +328,6 @@ class GenuioService extends TransApiAbstract
                             // $errMsg = "원본 이미지 upload error | img: " . $img_url_origin;
                             // debug_log(json_encode($errMsg, JSON_UNESCAPED_UNICODE), "genuio", "genuio-img");
                         }
-
-                        $errMsg = [
-                            "img_id"         => $image["id"],
-                            "excluded"       => $is_except,
-                            "img_url_trans"  => $img_url_trans,
-                            "imgTransBase64" => $imgTransBase64,
-                            "uploadResult"   => $uploadResult,
-                            "errorImgFlag"   => $errorImgFlag,
-                        ];
-                        debug_log(json_encode($errMsg, JSON_UNESCAPED_UNICODE), "genuio", "genuio-response");
         
                         GenuioQueueDetailData::where([
                             "queue_id"     => $jobId,
@@ -447,15 +429,6 @@ class GenuioService extends TransApiAbstract
                             // $errMsg = "원본 이미지 upload error | img: " . $img_url_ai_origin;
                             // debug_log(json_encode($errMsg, JSON_UNESCAPED_UNICODE), "genuio", "genuio-ai-img");
                         }
-
-                        $errMsg = [
-                            "img_id"         => $image["id"],
-                            "excluded"       => $is_except,
-                            "imgTransBase64" => $imgTransBase64,
-                            "uploadResult"   => $uploadResult,
-                            "errorImgFlag"   => $errorImgFlag,
-                        ];
-                        debug_log(json_encode($errMsg, JSON_UNESCAPED_UNICODE), "genuio", "genuio-response");
         
                         GenuioQueueDetailData::where([
                             "queue_id"     => $jobId,

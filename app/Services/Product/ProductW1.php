@@ -2359,7 +2359,10 @@ class ProductW1 extends ProductAbstract
         $returnMsg = $this->returnMsg;
 
         try {
-            $imgObjs = ProductImageData::where("offer_id", $offerId)
+            $imgObjs = ProductImageData::where([
+                "offer_id" => $offerId,
+                "lang"     => WConstant::WAPP_KR,
+            ])
             ->where("img_url_trans", "!=", "")->get();
             foreach ($imgObjs as $imgObj) {
                 $gObj = GenuioImageData::where([
