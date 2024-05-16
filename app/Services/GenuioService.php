@@ -250,6 +250,7 @@ class GenuioService extends TransApiAbstract
                         $uploadResult   = false;
                         $errorImgFlag   = false;
                         $imgTransBase64 = "";
+                        $$img_url_trans = "";
                         $mime           = pathinfo($img_url_origin, PATHINFO_EXTENSION);
                         if (preg_match('/^(jpg|jpeg|png|gif)/i', $mime, $matches)) {
                             $mime = $matches[0];
@@ -325,7 +326,7 @@ class GenuioService extends TransApiAbstract
                             }
                         } else {
                             ProductImageData::where("id", $imgId)->update([
-                                "img_url_trans"  => "",
+                                "img_url_trans"  => $img_url_trans,
                                 "trans_dated_at" => null,
                             ]);
                         }
@@ -339,6 +340,7 @@ class GenuioService extends TransApiAbstract
                         $errMsg = [
                             "img_id"         => $image["id"],
                             "excluded"       => $is_except,
+                            "img_url_trans"  => $img_url_trans,
                             "imgTransBase64" => $imgTransBase64,
                             "uploadResult"   => $uploadResult,
                             "errorImgFlag"   => $errorImgFlag,
