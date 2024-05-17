@@ -432,6 +432,9 @@
         </div>
 
         <div class="me-5 mb-4 fixed-bottom d-flex flex-column align-items-stretch" style="left: auto;">
+            <button type="button" class="btn btn-danger btn-xl text-white mb-2 btn-recollect">
+                재 수집 요청
+            </button>
             <button type="button" class="btn btn-primary btn-xl text-white mb-2 btn-inspect-status">
                 검수상태 변경
             </button>
@@ -615,6 +618,32 @@
                     success: function (resp) {
                         alert(resp.msg);
                         location.reload();
+                    },
+                    error: function error(request, status, _error) {
+                        let { error } = JSON.parse(request.responseText);
+                        alert(error.message);
+                    }
+                });
+            }
+        });
+
+        $(".btn-recollect").click(function(){
+            let offerIds = [offer_id];
+
+            if(confirm(`재 수집 시 저장 된 상품의 정보가 초기화 됩니다.\n재 수집을 진행하시겠습니까?`)){
+                $.ajax({
+                    "headers"    : {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
+                    "type"       : "POST",
+                    "url"        : "{{ route('w.product.reCollectProduct') }}",
+                    "data"       : { offer_ids: offerIds },
+                    beforeSend: function () {
+                        $("#loadingOverlay").show();
+                    },
+                    complete: function () {
+                        $("#loadingOverlay").hide();
+                    },
+                    success: function (resp) {
+                        alert(resp.msg);
                     },
                     error: function error(request, status, _error) {
                         let { error } = JSON.parse(request.responseText);

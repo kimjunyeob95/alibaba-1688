@@ -38,7 +38,6 @@ class App1688Provider extends ServiceProvider
             return new ProductW1($transApiAbstract, $uploadAbstract, $productAbstract);
         });
 
-
         $this->app->bind(Service1688Category::class, function ($app) {
             $categoryAbstract  = $app->make(CategoryW1::class);
 

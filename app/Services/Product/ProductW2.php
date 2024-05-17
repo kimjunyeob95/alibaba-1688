@@ -831,6 +831,73 @@ class ProductW2 extends ProductAbstract
         ]);
     }
 
+    public function collectProductNotLog(int $offerId): array
+    {
+        $returnMsg = helpers_fail_message();
+        
+        try {
+            $endPoint       = "param2/1/com.alibaba.fenxiao.crossborder/overseas.product.detailQuery/";
+            $payload        = [
+                'detailQueryParams' => [
+                    'offerId'  => $offerId,
+                    'region'   => Constant1688::REGION_KO,
+                    'language' => Constant1688::LANGUAGE_KO_KR,
+                    'currency' => Constant1688::CURRENCY_KO,
+                ]
+            ];
+            $detailResult = curl_1688_v2("POST", $endPoint, $payload);
+            if( $detailResult["isSuccess"] != true || $detailResult["data"]["result"]["success"] != true ){
+                throw new Exception(ProductErrorMessageConstant::getFitErrorMessage("PRODUCT_SEARCH_QUERYPRODUCTDETAIL_W2_KR"));
+            }
+
+            $payloadEn = [
+                'detailQueryParams' => [
+                    'offerId'  => $offerId,
+                    'region'   => Constant1688::REGION_US,
+                    'language' => Constant1688::LANGUAGE_EN_US,
+                    'currency' => Constant1688::CURRENCY_US,
+                ]
+            ];
+            $detailEnResult = curl_1688_v2("POST", $endPoint, $payloadEn);
+            if( $detailEnResult["isSuccess"] != true || $detailEnResult["data"]["result"]["success"] != true ){
+                throw new Exception(ProductErrorMessageConstant::getFitErrorMessage("PRODUCT_SEARCH_QUERYPRODUCTDETAIL_W2_EN"));
+            }
+
+            $endPointW1 = "param2/1/com.alibaba.fenxiao.crossborder/product.search.queryProductDetail/";
+            $payloadW1  = [
+                'access_token'     => $this->accessToken,
+                'offerDetailParam' => [
+                    'offerId' => $offerId,
+                    'country' => Constant1688::LANGUAGE_KO,
+                ]
+            ];
+            $detailW1Result = curl_1688("POST", $endPointW1, $payloadW1);
+            if( $detailW1Result["isSuccess"] != true || $detailW1Result["data"]["result"]["success"] != true ){
+                throw new Exception(ProductErrorMessageConstant::getFitErrorMessage("PRODUCT_SEARCH_QUERYPRODUCTDETAIL"));
+            }
+
+            $prdDto                   = $this->get1688ProductDto($detailResult, $detailEnResult, $detailW1Result);
+            $product1688Dto           = $prdDto["product1688Dto"];
+            $product1688ExtendDto     = $prdDto["product1688ExtendDto"];
+            $product1688ImageDtoList  = $prdDto["product1688ImageDtoList"];
+            $product1688NoticeDtoList = $prdDto["product1688NoticeDtoList"];
+            $product1688OptionDtoList = $prdDto["product1688OptionDtoList"];
+
+            $saveResult = $this->save1688ProductData($product1688Dto, $product1688ExtendDto, $product1688ImageDtoList, $product1688NoticeDtoList, $product1688OptionDtoList);
+            if( $saveResult["isSuccess"] != true ){
+                throw new Exception($saveResult["msg"]);
+            }
+
+            $returnMsg = helpers_success_message();
+        } catch (Exception $e) {
+            $msg = "offerId: {$offerId} | error: " . $e->getMessage();
+
+            $returnMsg = helpers_fail_message(false, $msg);
+        }
+
+        return $returnMsg;
+    }
+
     public function collectProductImage(array $offerIds): void
     {
         $logId = ProductCollectLog::insertGetId([
@@ -1617,10 +1684,10 @@ class ProductW2 extends ProductAbstract
 
             // 7. 이미지 번역 요청 통신
             if( env("APP_ENV", "local") == "production" && $product1688Dto->status == ProductConstant::PRD_STATUS_PUBLISH ) {
-                // $transResult = $this->transApiAbstract->createTransProductImg($product1688ImageDtoList, $offerId);
-                // if( $transResult["isSuccess"] == false ){
-                //     throw new Exception($transResult["msg"]);
-                // }
+                $transResult = $this->transApiAbstract->createTransProductImg($product1688ImageDtoList, $offerId);
+                if( $transResult["isSuccess"] == false ){
+                    throw new Exception($transResult["msg"]);
+                }
             }
 
             $returnMsg = helpers_success_message();

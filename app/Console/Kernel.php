@@ -34,7 +34,9 @@ class Kernel extends ConsoleKernel
         Save1688ProductByCategotyId::class,
         Save1688ProductByImageId::class,
         Save1688AllProducts::class,
+        /** 제품ID로 수집 후 DB저장 */
         Save1688CollectProduct::class,
+        /** wapp 상품 미맵핑 컬럼 업데이트 */
         SaveWAppProductMapping::class,
         /** 이지셀 */
         EasySellCommand::class,

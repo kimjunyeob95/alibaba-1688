@@ -156,6 +156,14 @@ abstract class ProductAbstract
     abstract function collectProduct(array $offerIds, string $type = LogConstant::COLLECT_API_KEYWORDQUERY): void;
 
     /**
+     * @func collectProductNotLog
+     * @description '1688API 제품ID로 조회 후 DB저장 로그X'
+     * @param int $offerId '제품ID'
+     * @return array
+     */
+    abstract function collectProductNotLog(int $offerId): array;
+
+    /**
      * @func productsUpdateImages
      * @description '상품 이미지 업데이트'
      * @param int $offerId

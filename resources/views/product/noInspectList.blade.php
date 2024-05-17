@@ -57,7 +57,7 @@
                                         <button type="button" name="trans_status" class="btn-status btn btn-md {{ $trans_status == ProductConstant::TRANS_STATUS_N ? "btn-primary" : "btn-dark" }}"
                                         value="{{ ProductConstant::TRANS_STATUS_N }}">미완료</button>
                                     </td>
-                                    <td colspan="2">
+                                    <td>
                                         <div class="d-flex text-center">
                                             <div class="d-flex align-items-center justify-content-center flex-fill p-2 border rounded" style="height: 100px;">
                                                 전체<br>
@@ -84,7 +84,7 @@
                                         <button type="button" name="inspect_img_status" class="btn-status btn btn-md {{ $inspect_img_status == InspectConstant::IS_INSPECT_N ? "btn-primary" : "btn-dark" }}"
                                         value="{{ InspectConstant::IS_INSPECT_N }}">미완료</button>
                                     </td>
-                                    <td colspan="2">
+                                    <td>
                                         <div class="d-flex text-center">
                                             <div class="d-flex align-items-center justify-content-center flex-fill p-2 border rounded" style="height: 100px;">
                                                 전체<br>
@@ -111,7 +111,7 @@
                                         <button type="button" name="inspect_prd_status" class="btn-status btn btn-md {{ $inspect_prd_status == InspectConstant::IS_INSPECT_N ? "btn-primary" : "btn-dark" }}"
                                         value="{{ InspectConstant::IS_INSPECT_N }}">미완료</button>
                                     </td>
-                                    <td colspan="2">
+                                    <td>
                                         <div class="d-flex text-center">
                                             <div class="d-flex align-items-center justify-content-center flex-fill p-2 border rounded" style="height: 100px;">
                                                 전체<br>
@@ -138,7 +138,7 @@
                                         <button type="button" name="inspect_gosi_status" class="btn-status btn btn-md {{ $inspect_gosi_status == InspectConstant::IS_INSPECT_N ? "btn-primary" : "btn-dark" }}"
                                         value="{{ InspectConstant::IS_INSPECT_N }}">미완료</button>
                                     </td>
-                                    <td colspan="2">
+                                    <td>
                                         <div class="d-flex text-center">
                                             <div class="d-flex align-items-center justify-content-center flex-fill p-2 border rounded" style="height: 100px;">
                                                 전체<br>
@@ -256,6 +256,7 @@
                 </form>
                 
                 <div class="mt-3 d-flex justify-content-end">
+                    <button class="btn btn-md btn-outline-danger me-2" id="btn-recollect-select">재 수집 요청</button>
                     <button class="btn btn-md btn-outline-primary me-2" id="btn-inspect-select">검수상태 변경</button>
                     <button class="btn btn-md btn-outline-danger me-2" id="btn-status-select">판매상태 변경</button>
                     <button class="btn btn-md btn-outline-dark me-2" id="btn-select">선택번역 요청</button>
@@ -665,6 +666,42 @@
 <script type="text/javascript">
 
     $(document).ready(function(){
+
+        $("#btn-recollect-select").click(function(){
+            let offerIds = [];
+
+            $(".chk-inp:checked").each(function(index, element){
+                offerIds.push($(this).val());
+            });
+
+            if(offerIds.length < 1){
+                return alert("선택 된 상품이 없습니다.");
+            }
+
+            if(confirm(`재 수집 시 저장 된 상품의 정보가 초기화 됩니다.\n재 수집을 진행하시겠습니까?`)){
+                $("#loadingOverlay").show();
+
+                $.ajax({
+                    "headers"    : {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
+                    "type"       : "POST",
+                    "url"        : "{{ route('w.product.reCollectProduct') }}",
+                    "data"       : { offer_ids: offerIds },
+                    beforeSend: function () {
+                    },
+                    complete: function () {
+                        $("#loadingOverlay").hide();
+                    },
+                    success: function (resp) {
+                        alert(resp.msg);
+                    },
+                    error: function error(request, status, _error) {
+                        let { error } = JSON.parse(request.responseText);
+                        alert(error.message);
+                    }
+                });
+            }
+        });
+
         $(".btn-md-modi").click(function(){
             let offerIds  = [$(this).attr("offerid")];
             let mdPrice   = Number($(this).attr("mdprice"));

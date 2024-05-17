@@ -12,7 +12,7 @@
             </a>
         </li>
 
-        <li class="nav-title">W1</li>
+        <li class="nav-title">W</li>
         <li class="nav-group">
             <a class="nav-link nav-group-toggle" href="javascript:;">
                 <svg class="nav-icon">
@@ -64,7 +64,7 @@
             </ul>
         </li>
 
-        <li class="nav-title">W2</li>
+        {{-- <li class="nav-title">W2</li>
         <li class="nav-group">
             <a class="nav-link nav-group-toggle" href="javascript:;">
                 <svg class="nav-icon">
@@ -94,7 +94,7 @@
                     </ul>
                 </li>
             </ul>
-        </li>
+        </li> --}}
 
         <li class="nav-title">W App</li>
         <li class="nav-group">
