@@ -151,9 +151,9 @@ class OnchannelTest extends TestCase
                             [
                                 "offer_id"       => $getPrdObj->offer_id,
                                 "member_id"      => "onch1688",
-                                "prd_code"       => $result["prd_code"],
                             ],
                             [
+                                "prd_code"       => $result["prd_code"],
                                 "regist_success" => "Y",
                                 "message"        => "",
                                 "registed_at"      => Carbon::now(),

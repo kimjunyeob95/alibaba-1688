@@ -3,6 +3,7 @@
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\EasySellController;
 use App\Http\Controllers\ForbiddenWordController;
+use App\Http\Controllers\OnchannelController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProductW2Controller;
 use Illuminate\Support\Facades\Route;
@@ -90,8 +91,18 @@ Route::prefix("forbiddenWord")->name("forbiddenWord.")->group(function(){
     Route::get("/notice/list", [ForbiddenWordController::class, "noticeList"])->name("noticeList");
 });
 
-
+/**
+ * 이지셀
+ */
 Route::prefix("easySell")->name("easySell.")->group(function(){
     /** 상품 현황 */
     Route::get("product/list", [EasySellController::class, "getPrdList"])->name("product/list");
+});
+
+/**
+ * 온채널
+ */
+Route::prefix("onchannel")->name("onchannel.")->group(function(){
+    /** 상품 현황 */
+    Route::get("product/list", [OnchannelController::class, "getPrdList"])->name("productList");
 });

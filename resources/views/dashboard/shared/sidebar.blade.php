@@ -192,6 +192,23 @@
                 </li>
             </ul>
         </li>
+
+        <li class="nav-title">온채널</li>
+        <li class="nav-group">
+            <a class="nav-link nav-group-toggle" href="javascript:;">
+                <svg class="nav-icon">
+                    <use xlink:href="/vendors/@coreui/icons/svg/free.svg#cil-3d"></use>
+                </svg>
+                상품관리
+            </a>
+            <ul class="nav-group-items">
+                <li class="nav-item">
+                    <a class="nav-link" href="/onchannel/product/list">
+                        상품 현황
+                    </a>
+                </li>
+            </ul>
+        </li>
     </ul>
     <button class="sidebar-toggler" type="button" data-coreui-toggle="unfoldable"></button>
 </div>

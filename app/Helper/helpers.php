@@ -678,6 +678,14 @@ if (!function_exists("calcEasySellSalePrice")) {
     }
 }
 
+/** 온채널 판매가 */
+if (!function_exists("calcOnchannelSalePrice")) {
+    function calcOnchannelSalePrice(int $option_price): int
+    {
+        return $option_price + env("ONCHANNEL_DELIVERY_PRICE", 12000);
+    }
+}
+
 // WApp 일반 판매가 계산
 if (!function_exists("calcWSalePrice")) {
     function calcWSalePrice(int $option_price = 0): int
