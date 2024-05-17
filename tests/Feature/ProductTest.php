@@ -6,6 +6,8 @@ use App\Constants\ImageConstant;
 use App\Constants\InspectConstant;
 use App\Constants\ProductConstant;
 use App\Models\CategoryMapping;
+use App\Models\CategoryTree;
+use App\Models\OnchannelProductLog;
 use App\Models\ProductData;
 use App\Models\ProductForbiddenData;
 use App\Models\ProductImageData;
@@ -21,6 +23,34 @@ use Illuminate\Support\Facades\File;
 
 class ProductTest extends TestCase
 {
+    # php artisan test --filter testCategoryList
+    public function testCategoryList()
+    {
+        $cate_first       = ["건축 자재", "계측", "고무 및 플라스틱", "공작 기계", "교통", "기계 및 산업 장비", "농업", "새로운 에너지", "성인 용품", "스틸", "신선한 케이터링", "아동복", "야금 광물", "에너지", "에이전트", "음식 술꾼", "의학, 유지 보수", "장난감", "전자 부품", "조명", "주택 개량 건축 자재", "중고 장비의 전송", "처리", "프로젝트 협력", "화학"];
+        $cate_column      = ["cate_first", "cate_second", "cate_third"];
+        $cate_select_list = ["어린이", "어린이용", "어린이 용", "유아", "유아 용", "유아용", "아동", "아동용", "아동 용", "유모차", "보행기", "학용품", "완구", "전선", "코드", "케이블", "정수기", "개폐기", "커패시터", "캐패시터", "전원 필터", "전기설비", "전기 설비", "찜질기", "보온기", "전기 충전기", "전기 충전", "건전지", "충전기", "램프 홀더", "안정기", "리튬전지", "리튬 전지", "컴프레셔", "정수기", "전기 온수", "온수매트", "포장기기", "포장 기기", "변압기", "라이터", "펌프", "재생", "재사용", "전기헬스", "전기 헬스", "전기 욕조", "유체 펌프", "비비탄", "컴퓨터 전원", "pc 전원", "컴퓨터전원", "pc전원", "재생 타이어", "재생타이어", "가습기용", "가습기 용", "소독제", "보존제", "살충제", "기피제", "살균제", "방역"];
+
+        $qry = CategoryTree::whereIn("cate_first", $cate_first);
+
+        foreach ($cate_column as $column) {
+            foreach ($cate_select_list as $cate_select) {
+                $qry->orWhere($column, 'LIKE', '%' . $cate_select . '%');
+            }
+        }
+    
+        $category_ids = $qry->pluck("category_id")->toArray();
+
+        $qry1 = ProductData::join("onchannel_product_logs as b", "product_datas.offer_id", "=", "b.offer_id");
+        $qry1 = $qry1->where([
+            "b.regist_success" => "Y"
+        ])->whereIn("category_id", $category_ids)->get();
+
+        foreach ($qry1 as $row) {
+            echo $row->offer_id . " : " . $row->prd_code."\r\n";
+        }
+
+    }
+
     # php artisan test --filter testConvertW1toW2
     public function testConvertW1toW2()
     {
