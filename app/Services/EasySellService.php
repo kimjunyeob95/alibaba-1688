@@ -25,7 +25,7 @@ class EasySellService
             ->where("product_datas.trans_status", ProductConstant::TRANS_STATUS_Y)
             ->where("product_datas.mapping_status", ProductConstant::MAPPING_STATUS_Y)
             ->where("product_datas.inspect_status", ProductConstant::INSPECT_STATUS_Y)
-            ->whereNull("product_datas.deleted_at")->orderBy("product_datas.created_at", "desc");
+            ->orderBy("product_datas.created_at", "desc");
 
         $totalCnt = $prdBuilder->count();
 
@@ -60,8 +60,8 @@ class EasySellService
             }
         }
         $successCnt = EasysellProductLog::where("regist_success",MallConstant::REGIST_SUCCESS)->count();
-        $failCnt    = $totalCnt - $successCnt;
         $lists      = $prdBuilder->paginate($pageSize)->appends($params);
+        $failCnt    = $lists->total() - $successCnt;
 
         return [
             "paginator"  => $lists,

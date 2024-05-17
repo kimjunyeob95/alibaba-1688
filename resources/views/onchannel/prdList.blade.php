@@ -79,7 +79,7 @@
                                     </td>
                                 </tr>
                                 <tr class="align-middle text-left">
-                                    <td colspan="6">
+                                    <td colspan="3">
                                         <button type="button" class="btn btn-md btn-primary" id="form-submit">검색</button>
                                         <a href="/onchannel/product/list" class="btn btn-md btn-light btn-reset" role="button">초기화</button>
                                     </td>
@@ -91,7 +91,7 @@
                     <div class="mt-3 d-flex justify-content-between">
                         <div>
                             <select id="selectPageSize" class="form-select" name="pageSize">
-                                <option value=50 @if($pageSize == 100) selected @endif>100개 노출</option>
+                                <option value=100 @if($pageSize == 100) selected @endif>100개 노출</option>
                                 <option value=30 @if($pageSize == 30) selected @endif>30개 노출</option>
                                 <option value=10 @if($pageSize == 10) selected @endif>10개 노출</option>
                             </select>

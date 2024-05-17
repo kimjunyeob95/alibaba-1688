@@ -57,17 +57,13 @@
                                 </tr>
                                 <tr class="align-middle">
                                     <th style="width: 120px">등록 상태</th>
-                                    <td style="width: 200px">
-                                        <div class="btn-group bg-white" role="group">
-                                            <input type="radio" class="btn-check" name="registStatus" value="" id="regist-all" autocomplete="off" {{$registStatus == "" ? "checked" : ""}}>
-                                            <label class="btn btn-outline-dark" for="regist-all">전체</label>
-                                            <input type="radio" class="btn-check" name="registStatus" value="Y" id="regist-success" autocomplete="off" {{$registStatus == MallConstant::REGISTED ? "checked" : ""}}>
-                                            <label class="btn btn-outline-dark" for="regist-success">완료</label>
-                                            <input type="radio" class="btn-check" name="registStatus" value="S" id="regist-none" autocomplete="off" {{$registStatus == MallConstant::UNREGIST ? "checked" : ""}}>
-                                            <label class="btn btn-outline-dark" for="regist-none">미등록</label>
-                                        </div>
-                                    </td>
-                                    <td colspan="2">
+                                    <td colspan="3">
+                                        <button type="button" name="registStatus" class="btn-status btn btn-md {{ $registStatus == "" ? "btn-primary" : "btn-dark" }}"
+                                        value="">전체</button>
+                                        <button type="button" name="registStatus" class="btn-status btn btn-md {{ $registStatus == MallConstant::REGISTED ? "btn-primary" : "btn-dark" }}"
+                                        value="{{ MallConstant::REGISTED }}">완료</button>
+                                        <button type="button" name="registStatus" class="btn-status btn btn-md {{ $registStatus == MallConstant::UNREGIST ? "btn-primary" : "btn-dark" }}"
+                                        value="{{ MallConstant::UNREGIST}}">미등록</button>
                                     </td>
                                 </tr>
                                 <tr class="align-middle">
@@ -84,7 +80,7 @@
                                     </td>
                                 </tr>
                                 <tr class="align-middle text-left">
-                                    <td colspan="6">
+                                    <td colspan="3">
                                         <button type="button" class="btn btn-md btn-primary" id="form-submit">검색</button>
                                         <a href="/easySell/product/list" class="btn btn-md btn-light btn-reset" role="button">초기화</button>
                                     </td>
@@ -96,7 +92,7 @@
                     <div class="mt-3 d-flex justify-content-between">
                         <div>
                             <select id="selectPageSize" class="form-select" name="pageSize">
-                                <option value=50 @if($pageSize == 100) selected @endif>100개 노출</option>
+                                <option value=100 @if($pageSize == 100) selected @endif>100개 노출</option>
                                 <option value=30 @if($pageSize == 30) selected @endif>30개 노출</option>
                                 <option value=10 @if($pageSize == 10) selected @endif>10개 노출</option>
                             </select>
@@ -203,6 +199,12 @@
 <script type="text/javascript">
 
     $(document).ready(function(){
+        $(".btn-status").click(function(){
+            let name = $(this).attr("name");
+            $(`input[name=${name}]`).val($(this).val());
+            $("#searchFrm").submit();            
+        });
+
         $(".btn-detail").click(function(){
             let offer_id = $(this).attr("offerid");
             location.href = `/product/${offer_id}`;
