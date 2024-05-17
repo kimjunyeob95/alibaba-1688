@@ -164,14 +164,14 @@
             <div class="modal-dialog modal-xl" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="htmlModalLabel">카테고리 맵핑</h5>
+                        <h5 class="modal-title" id="htmlModalLabel">매칭 카테고리 : <span></span></h5>
                     </div>
                     <div class="modal-body">
                         <input type="hidden" name="chkCateIds[]" />
 
                         <div>
                             <div class="d-flex align-items-center">
-                                <label class="fs-7">W 카테고리</label>
+                                <label class="fs-7">카테고리 매칭하기</label>
                             </div>
                             <div class="d-flex justify-content-evenly px-3">
                                 <div class="row w-100 cate-1688-list">
@@ -181,28 +181,11 @@
 
                             <div class="d-flex justify-content-evenly px-3">
                                 <div class="row w-100">
-                                    <div class="col">
-                                        <label class="fs-7">WApp 카테고리</label>
+                                    <div class="col-2">
+                                        <label class="fs-7">키워드</label>
                                     </div>
                                     <div class="col">
-                                        <select class="form-control select-opt-w" name="w_cate_first" level="1">
-                                            <option value="">1차 분류</option>
-                                        </select>
-                                    </div>
-                                    <div class="col">
-                                        <select class="form-control select-opt-w" name="w_cate_second" level="2">
-                                            <option value="">2차 분류</option>
-                                        </select>
-                                    </div>
-                                    <div class="col">
-                                        <select class="form-control select-opt-w" name="w_cate_third" level="3">
-                                            <option value="">3차 분류</option>
-                                        </select>
-                                    </div>
-                                    <div class="col">
-                                        <select class="form-control select-opt-w" name="w_cate_fourth" level="4">
-                                            <option value="">4차 분류</option>
-                                        </select>
+                                        <input type="text" class="form-control" name="cate_keyword" placeholder="검색어를 입력하세요." value="">
                                     </div>
                                 </div>
                             </div>
@@ -210,30 +193,45 @@
 
                             <div class="d-flex justify-content-evenly px-3">
                                 <div class="row w-100">
-                                    <div class="col-2">
-                                        <label class="fs-7">WApp 카테고리 키워드</label>
+                                    <div class="col">
+                                        <label class="fs-7">카테고리</label>
                                     </div>
                                     <div class="col">
-                                        <input type="text" class="form-control" name="w_cate_keyword" placeholder="검색어를 입력하세요." value="">
+                                        <select class="form-control select-opt-es" name="cate_first" level="1">
+                                            <option value="">1차 분류</option>
+                                        </select>
+                                    </div>
+                                    <div class="col">
+                                        <select class="form-control select-opt-es" name="cate_second" level="2">
+                                            <option value="">2차 분류</option>
+                                        </select>
+                                    </div>
+                                    <div class="col">
+                                        <select class="form-control select-opt-es" name="cate_third" level="3">
+                                            <option value="">3차 분류</option>
+                                        </select>
+                                    </div>
+                                    <div class="col">
+                                        <select class="form-control select-opt-es" name="cate_fourth" level="4">
+                                            <option value="">4차 분류</option>
+                                        </select>
                                     </div>
                                 </div>
                             </div>
                             <hr>
 
                             <div class="text-left">
-                                <button type="button" class="btn btn-primary btn-w-cate-search">검색</button>
+                                <button type="button" class="btn btn-primary btn-cate-search">검색</button>
                             </div>
                             <hr>
 
                             <table class="table table-white bg-white w-cate-table">
                                 <thead class="table-light">
                                     <tr>
-                                        <th scope="col" style="width: 200px">WApp 1차 카테고리</th>
-                                        <th scope="col" style="width: 200px">WApp 2차 카테고리</th>
-                                        <th scope="col" style="width: 200px">WApp 3차 카테고리</th>
-                                        <th scope="col" style="width: 200px">WApp 4차 카테고리</th>
-                                        <th scope="col" style="width: 200px">맵핑 코드</th>
-                                        <th scope="col" style="width: 100px">맵핑</th>
+                                        <th scope="col" style="width: 200px">1차 카테고리</th>
+                                        <th scope="col" style="width: 200px">2차 카테고리</th>
+                                        <th scope="col" style="width: 200px">3차 카테고리</th>
+                                        <th scope="col" style="width: 200px">4차 카테고리</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -242,6 +240,7 @@
                         </div>
                     </div>
                     <div class="modal-footer">
+                        <button type="button" class="btn btn-primary">확인</button>
                         <button type="button" class="btn btn-secondary htmlModalClose">닫기</button>
                     </div>
                 </div>
@@ -326,9 +325,9 @@
                     });
                     $('input[name="chkCateIds[]"]').val(category_ids);
 
-                    $(`.select-opt-w[level=1]`).html(`<option value="">1차 분류</option>`);
+                    $(`.select-opt-es[level=1]`).html(`<option value="">1차 분류</option>`);
                     resp.data.wCateDepth1.map(function(obj){
-                        $(`.select-opt-w[level=1]`).append(`<option value="${obj.cate_first}">${obj.cate_first}</option>`)
+                        $(`.select-opt-es[level=1]`).append(`<option value="${obj.cate_first}">${obj.cate_first}</option>`)
                     });
                     $("#htmlModal").modal('show');
                 },
