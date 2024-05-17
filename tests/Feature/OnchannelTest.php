@@ -206,7 +206,7 @@ class OnchannelTest extends TestCase
     public function testOnchProductModi()
     {
         $token    = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJtZW1iZXJfaWQiOiJvbmNoMTY4OCIsIm1tYnJfdHlwZSI6Im9uY2htYW4iLCJ0aW1lc3RhbXAiOjQ4NjkxODE5ODJ9.AijywuhAP6ZkxySsZWOqEU-ID8XoesePcm8lSB1w1rw";
-        $endPoint = "https://task.onch3.co.kr/api/v1/product/regist";
+        $endPoint = "https://task.onch3.co.kr/api/w/product/edit";
 
         $getPrdObjs = ProductData::with([
             "images",
