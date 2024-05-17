@@ -7,7 +7,7 @@ class GenuioConstant
 {
     /** 이미지 수정 */
     public const IMG_TRANS       = "imgTrans";
-    public const IMG_TRANS_AGAIN = "imgTransAgin";
+    public const IMG_TRANS_AGAIN = "imgTransAgain";
     public const IMG_Ai_TRANS    = "imgAiTrans";
 
     public const IS_ORIGIN_Y = "Y";
