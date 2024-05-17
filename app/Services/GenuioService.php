@@ -216,20 +216,19 @@ class GenuioService extends TransApiAbstract
             $offerId = $getGenuioObj->offer_id;
 
             if( $getGenuioObj->send_type == GenuioConstant::IMG_TRANS ){
-                $descTransImgs = [];
-                $prdObj  = ProductData::where("offer_id", $offerId)->first();
+                $prdObj = ProductData::where("offer_id", $offerId)->first();
                 if( $prdObj == null ){
                     throw new ValueError(TransApiConstant::getNotHaveErrorMessage("PRODUCT"));
                 }
 
                 $dateName = $prdObj->created_at->format('Y/m/d');
-    
+
                 // 1. product_image_datas update
                 foreach ($images as $image) {
                     try {
                         $imgId     = (int)$image["id"];
                         $is_except = ImageConstant::IS_EXCEPT_N;
-                        if( isset($params["excluded"]) && $params["excluded"] === true ) {
+                        if( isset($image["excluded"]) && $image["excluded"] === true ) {
                             $is_except = ImageConstant::IS_EXCEPT_Y;
                         }
 
@@ -250,6 +249,7 @@ class GenuioService extends TransApiAbstract
                         $uploadResult   = false;
                         $errorImgFlag   = false;
                         $imgTransBase64 = "";
+                        $img_url_trans  = "";
                         $mime           = pathinfo($img_url_origin, PATHINFO_EXTENSION);
                         if (preg_match('/^(jpg|jpeg|png|gif)/i', $mime, $matches)) {
                             $mime = $matches[0];
@@ -315,25 +315,22 @@ class GenuioService extends TransApiAbstract
                                     "ai_type"    => GenuioConstant::IMG_Ai_TRANS,
                                     "is_origin"  => GenuioConstant::IS_ORIGIN_N,
                                 ]);
-                            }
-                    
-                            if( $imgObj->img_type == ImageConstant::IMAGE_TYPE_DESC ){
-                                $descTransImgs[] = [
-                                    "img_url_origin" => $img_url_origin,
-                                    "img_url_trans"  => $img_url_trans
-                                ];
+                            } else {
+                                GenuioImageData::where("id", $aiImgObj->id)->update([
+                                    "updated_at" => Carbon::now()
+                                ]);
                             }
                         } else {
                             ProductImageData::where("id", $imgId)->update([
-                                "img_url_trans"  => "",
+                                "img_url_trans"  => $img_url_trans,
                                 "trans_dated_at" => null,
                             ]);
                         }
     
                         if( $errorImgFlag == true ) {
                             // 1688 측 이미지 자체가 유효하지 않은 상태 기록
-                            $errMsg = "원본 이미지 upload error | img: " . $img_url_origin;
-                            debug_log(json_encode($errMsg, JSON_UNESCAPED_UNICODE), "genuio", "genuio-img");
+                            // $errMsg = "원본 이미지 upload error | img: " . $img_url_origin;
+                            // debug_log(json_encode($errMsg, JSON_UNESCAPED_UNICODE), "genuio", "genuio-img");
                         }
         
                         GenuioQueueDetailData::where([
@@ -357,7 +354,7 @@ class GenuioService extends TransApiAbstract
                     try {
                         $imgId     = (int)$image["id"];
                         $is_except = ImageConstant::IS_EXCEPT_N;
-                        if( isset($params["excluded"]) && $params["excluded"] === true ) {
+                        if( isset($image["excluded"]) && $image["excluded"] === true ) {
                             $is_except = ImageConstant::IS_EXCEPT_Y;
                         }
 
@@ -433,8 +430,8 @@ class GenuioService extends TransApiAbstract
 
                         if( $errorImgFlag == true ) {
                             // 1688 측 이미지 자체가 유효하지 않은 상태 기록
-                            $errMsg = "원본 이미지 upload error | img: " . $img_url_ai_origin;
-                            debug_log(json_encode($errMsg, JSON_UNESCAPED_UNICODE), "genuio", "genuio-ai-img");
+                            // $errMsg = "원본 이미지 upload error | img: " . $img_url_ai_origin;
+                            // debug_log(json_encode($errMsg, JSON_UNESCAPED_UNICODE), "genuio", "genuio-ai-img");
                         }
         
                         GenuioQueueDetailData::where([

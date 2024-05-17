@@ -39,8 +39,8 @@
                     <input type="hidden" name="prd_status" value={{ $prd_status }}>
                     <input type="hidden" name="mdPrice_status" value={{ $mdPrice_status }}>
                     <input type="hidden" name="inspect_img_status" value={{ $inspect_img_status }}>
-                    <input type="hidden" name="inspect_img_status" value={{ $inspect_img_status }}>
                     <input type="hidden" name="inspect_prd_status" value={{ $inspect_prd_status }}>
+                    <input type="hidden" name="inspect_gosi_status" value={{ $inspect_gosi_status }}>
 
                     <div class="card">
                         <div class="card-header">
@@ -372,15 +372,13 @@
                                     </td>
                                     <td class="text-center">
                                         @if ($data->img_inspect == null || $data->img_inspect->is_inspect == InspectConstant::IS_INSPECT_N)
-                                            <span class="text-danger">{{ InspectConstant::INSPECT_LIST[InspectConstant::INSPECT_IMAGE] }}</span>
+                                            <label class="text-danger">{{ InspectConstant::INSPECT_LIST[InspectConstant::INSPECT_IMAGE] }}</label>
                                         @endif
                                         @if ($data->prd_inspect == null || $data->prd_inspect->is_inspect == InspectConstant::IS_INSPECT_N)
-                                            <br>
-                                            <span class="text-danger">{{ InspectConstant::INSPECT_LIST[InspectConstant::INSPECT_PRODUCT] }}</span>
+                                            <label class="text-danger">{{ InspectConstant::INSPECT_LIST[InspectConstant::INSPECT_PRODUCT] }}</label>
                                         @endif
                                         @if ($data->gosi_inspect == null || $data->gosi_inspect->is_inspect == InspectConstant::IS_INSPECT_N)
-                                            <br>
-                                            <span class="text-danger">{{ InspectConstant::INSPECT_LIST[InspectConstant::INSPECT_NOTICE] }}</span>
+                                            <label class="text-danger">{{ InspectConstant::INSPECT_LIST[InspectConstant::INSPECT_NOTICE] }}</label>
                                         @endif
                                     </td>
                                     <td class="text-center">

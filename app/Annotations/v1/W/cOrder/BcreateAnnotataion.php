@@ -14,38 +14,73 @@ namespace App\Annotations\v1\W\cOrder;
  * 
  * @OA\Schema(
  *     schema="OrderCreateSchema",
- *     required={"cargoParamList", "receive_name", "receive_tell", "receive_phone"},
  *     @OA\Property(
- *         property="cargoParamList",
+ *         property="offer_id",
+ *         type="integer",
+ *         example=715819550080,
+ *         description="제품 ID"
+ *     ),
+ *     @OA\Property(
+ *         property="optionParamList",
  *         type="array",
  *         @OA\Items(
  *             type="object",
- *             required={"offer_id", "option_id"},
+ *             required={"option_id", "quantity"},
  *             @OA\Property(
- *                 property="offer_id",
- *                 type="integer",
- *                 example=630519988300,
- *                 description="제품 ID"
- *             ),
- *             @OA\Property(
- *                 property="option_id",
- *                 type="integer",
- *                 example=291,
- *                 description="제품 옵션 ID"
- *             ),
- *             @OA\Property(
- *                 property="quantity",
- *                 type="integer",
- *                 example="1",
- *                 description="제품 수량"
- *             ),
+ *                  property="option_id",
+ *                  type="integer",
+ *                  description="옵션 ID"
+ *              ),
+ *              @OA\Property(
+ *                  property="quantity",
+ *                  type="integer",
+ *                  description="구매 수량"
+ *              ),
  *         ),
+ *         example=
+ *         {
+ *             {
+ *                 "option_id": 217126,
+ *                 "quantity": 1
+ *             },
+ *             {
+ *                 "option_id": 217127,
+ *                 "quantity": 2
+ *             }
+ *         },
  *         description="주문 생성 제품 정보"
+ *     )
+ * )
+ * 
+ * @OA\Schema(
+ *     schema="OrderCreateSuccessResponse",
+ *     @OA\Property(property="status", type="integer", example=200),
+ *     @OA\Property(
+ *         property="meta", 
+ *         type="object",
+ *         @OA\Property(property="timestamp", type="string", example="2023-12-19 17:45:50"),
+ *         @OA\Property(property="apiType", type="string", example="mall")
  *     ),
- *     @OA\Property(property="receive_name", type="string", description="수취인 이름", example="홍길동"),
- *     @OA\Property(property="receive_tell", type="string", description="수취인 전화번호", example="021231324"),
- *     @OA\Property(property="receive_phone", type="string", description="수취인 휴대폰번호", example="01012345678"),
- *     @OA\Property(property="message", type="string", description="주문 메모", example="문 앞에 놔주세요.")
+ *     @OA\Property(
+ *         property="data", 
+ *         type="array",
+ *         @OA\Items(
+ *            type="object",
+ *            required={"order_id", "isSuccess"},
+ *            @OA\Property(
+ *                property="order_id",
+ *                type="integer",
+ *                description="주문 ID",
+ *                example=3890000700554135493
+ *            ),
+ *            @OA\Property(
+ *                property="isSuccess",
+ *                type="boolean",
+ *                description="성공 여부",
+ *                example=true
+ *            )
+ *         ),
+ *      )
  * )
  *
  * @OA\Post(
@@ -65,12 +100,12 @@ namespace App\Annotations\v1\W\cOrder;
  *     security={{"BearerAuth": {}}},
  *     @OA\RequestBody(
  *         required=true,
- *         @OA\JsonContent(ref="#/components/schemas/OrderCreateSchema")
+ *         @OA\JsonContent(ref="#/components/schemas/OrderCreateSchema"),
  *     ),
  *     @OA\Response(
  *         response=200,
  *         description="Successful operation",
- *         @OA\JsonContent(ref="#/components/schemas/SuccessResponse")
+ *         @OA\JsonContent(ref="#/components/schemas/OrderCreateSuccessResponse"),
  *     ),
  *     @OA\Response(
  *         response=401,

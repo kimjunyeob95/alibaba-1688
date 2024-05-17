@@ -24,4 +24,14 @@ class ForbiddenWordConstant
         self::KEYWORD_APPLY_TITLE => "상품명",
         self::KEYWORD_APPLY_DESC  => "상세페이지"
     ];
+
+    /** 정보고시 키워드 적용 */
+    public const KEYWORD_APPLY_ATTR_NAME  = "attr_name";
+    public const KEYWORD_APPLY_ATTR_VALUE = "attr_value";
+
+    public const KEYWORD_APPLY_ATTR_STATUS = [
+        self::KEYWORD_APPLY_ALL        => "항목명, 항목값",
+        self::KEYWORD_APPLY_ATTR_NAME  => "항목명",
+        self::KEYWORD_APPLY_ATTR_VALUE => "항목값"
+    ];
 }

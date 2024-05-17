@@ -6,6 +6,7 @@ use App\Abstracts\ProductAbstract;
 use App\Abstracts\TransApiAbstract;
 use App\Abstracts\UploadAbstract;
 use App\Constants\Constant1688;
+use App\Constants\ForbiddenWordConstant;
 use App\Constants\GenuioConstant;
 use App\Constants\GosiConstants;
 use App\Constants\ImageConstant;
@@ -18,6 +19,8 @@ use App\Constants\ProductErrorMessageConstant;
 use App\Constants\TransApiConstant;
 use App\Constants\WConstant;
 use App\Models\CategoryMapping;
+use App\Models\ForbiddenNoticeWordData;
+use App\Models\ForbiddenWordData;
 use App\Models\GenuioImageData;
 use App\Models\GenuioQueueData;
 use App\Models\ProductCollectDetailLog;
@@ -53,13 +56,19 @@ class ProductW1 extends ProductAbstract
     private string $accessToken;
     private TransApiAbstract $transApiAbstract;
     private UploadAbstract $uploadAbstract;
+    private ProductAbstract $productW2;
 
-    public function __construct(TransApiAbstract $transApiAbstract, UploadAbstract $uploadAbstract)
+    public function __construct(
+        TransApiAbstract $transApiAbstract,
+        UploadAbstract $uploadAbstract,
+        ProductAbstract $productAbstract
+    )
     {
         $this->returnMsg        = helpers_fail_message();
         $this->accessToken      = env("1688_ACCESS_TOKEN");
         $this->transApiAbstract = $transApiAbstract;
         $this->uploadAbstract   = $uploadAbstract;
+        $this->productW2        = $productAbstract;
     }
 
     public function getPrdList(array $params): array
@@ -183,19 +192,58 @@ class ProductW1 extends ProductAbstract
 
         if( !empty($inspect_img_status) || !empty($inspect_prd_status) || !empty($inspect_gosi_status) ){
 
-            $prdBuilder->leftJoin("product_inspect_datas as pid","product_datas.offer_id", "=", "pid.offer_id");
-
-            if( $inspect_img_status == InspectConstant::IS_INSPECT_Y ){
-                $prdBuilder->where([
-                    "pid.inspect_type" => InspectConstant::INSPECT_IMAGE,
-                    "pid.is_inspect"   => InspectConstant::IS_INSPECT_Y,
-                ]);
-            } else {
-                $prdBuilder->where(function ($query) {
-                    $query->where('pid.inspect_type', '=', InspectConstant::INSPECT_IMAGE)
-                    ->where('pid.is_inspect', '=', InspectConstant::IS_INSPECT_N)
-                    ->orWhereNull('pid.id');
+            if( !empty($inspect_img_status) ){
+                $prdBuilder->leftJoin('product_inspect_datas as pid1', function ($join) {
+                    $join->on('product_datas.offer_id', '=', 'pid1.offer_id')
+                         ->where('pid1.inspect_type', InspectConstant::INSPECT_IMAGE);
                 });
+
+                if( $inspect_img_status == InspectConstant::IS_INSPECT_Y ){
+                    $prdBuilder->where([
+                        "pid1.is_inspect" => InspectConstant::IS_INSPECT_Y,
+                    ]);
+                } else if( $inspect_img_status == InspectConstant::IS_INSPECT_N ){
+                    $prdBuilder->where(function ($query) {
+                        $query->where('pid1.is_inspect', InspectConstant::IS_INSPECT_N)
+                        ->orWhereNull('pid1.id');
+                    });
+                }
+            }
+
+            if( !empty($inspect_prd_status) ){
+                $prdBuilder->leftJoin('product_inspect_datas as pid2', function ($join) {
+                    $join->on('product_datas.offer_id', '=', 'pid2.offer_id')
+                         ->where('pid2.inspect_type', InspectConstant::INSPECT_PRODUCT);
+                });
+
+                if( $inspect_prd_status == InspectConstant::IS_INSPECT_Y ){
+                    $prdBuilder->where([
+                        "pid2.is_inspect" => InspectConstant::IS_INSPECT_Y,
+                    ]);
+                } else if( $inspect_prd_status == InspectConstant::IS_INSPECT_N ){
+                    $prdBuilder->where(function ($query) {
+                        $query->where('pid2.is_inspect', InspectConstant::IS_INSPECT_N)
+                        ->orWhereNull('pid2.id');
+                    });
+                }
+            }
+
+            if( !empty($inspect_gosi_status) ){
+                $prdBuilder->leftJoin('product_inspect_datas as pid3', function ($join) {
+                    $join->on('product_datas.offer_id', '=', 'pid3.offer_id')
+                         ->where('pid3.inspect_type', InspectConstant::INSPECT_NOTICE);
+                });
+
+                if( $inspect_gosi_status == InspectConstant::IS_INSPECT_Y ){
+                    $prdBuilder->where([
+                        "pid3.is_inspect" => InspectConstant::IS_INSPECT_Y,
+                    ]);
+                } else if( $inspect_gosi_status == InspectConstant::IS_INSPECT_N ){
+                    $prdBuilder->where(function ($query) {
+                        $query->where('pid3.is_inspect', InspectConstant::IS_INSPECT_N)
+                        ->orWhereNull('pid3.id');
+                    });
+                }
             }
         }
 
@@ -213,15 +261,13 @@ class ProductW1 extends ProductAbstract
             "inspect_status" => $inspect_status,
             "trans_status"   => ProductConstant::TRANS_STATUS_Y
         ])->count();
-        $transNCnt = ProductData::whereIn("status", ProductConstant::PRD_SHOW_STATUS)
-        ->where([
-            "inspect_status" => $inspect_status,
-            "trans_status"   => ProductConstant::TRANS_STATUS_N
-        ])->count();
+        $transNCnt = $totalCnt - $transYCnt;
 
         $imgInspectYCnt = ProductData::query()
         ->join('product_inspect_datas as b', 'product_datas.offer_id', '=', 'b.offer_id')
+        ->whereIn("status", ProductConstant::PRD_SHOW_STATUS)
         ->where([
+            "inspect_status" => $inspect_status,
             "b.inspect_type" => InspectConstant::INSPECT_IMAGE,
             "b.is_inspect"   => InspectConstant::IS_INSPECT_Y
         ])->count();
@@ -229,7 +275,9 @@ class ProductW1 extends ProductAbstract
 
         $prdInspectYCnt = ProductData::query()
         ->join('product_inspect_datas as b', 'product_datas.offer_id', '=', 'b.offer_id')
+        ->whereIn("status", ProductConstant::PRD_SHOW_STATUS)
         ->where([
+            "inspect_status" => $inspect_status,
             "b.inspect_type" => InspectConstant::INSPECT_PRODUCT,
             "b.is_inspect"   => InspectConstant::IS_INSPECT_Y
         ])->count();
@@ -237,12 +285,13 @@ class ProductW1 extends ProductAbstract
 
         $gosiInspectYCnt = ProductData::query()
         ->join('product_inspect_datas as b', 'product_datas.offer_id', '=', 'b.offer_id')
+        ->whereIn("status", ProductConstant::PRD_SHOW_STATUS)
         ->where([
+            "inspect_status" => $inspect_status,
             "b.inspect_type" => InspectConstant::INSPECT_NOTICE,
             "b.is_inspect"   => InspectConstant::IS_INSPECT_Y
         ])->count();
         $gosiInspectNCnt = $totalCnt - $gosiInspectYCnt;
-
 
         $lists = $prdBuilder->paginate($pageSize)->appends($params);
         return [
@@ -380,22 +429,60 @@ class ProductW1 extends ProductAbstract
 
         if( !empty($inspect_img_status) || !empty($inspect_prd_status) || !empty($inspect_gosi_status) ){
 
-            $prdBuilder->leftJoin("product_inspect_datas as pid","product_datas.offer_id", "=", "pid.offer_id");
-
-            if( $inspect_img_status == InspectConstant::IS_INSPECT_Y ){
-                $prdBuilder->where([
-                    "pid.inspect_type" => InspectConstant::INSPECT_IMAGE,
-                    "pid.is_inspect"   => InspectConstant::IS_INSPECT_Y,
-                ]);
-            } else {
-                $prdBuilder->where(function ($query) {
-                    $query->where('pid.inspect_type', '=', InspectConstant::INSPECT_IMAGE)
-                    ->where('pid.is_inspect', '=', InspectConstant::IS_INSPECT_N)
-                    ->orWhereNull('pid.id');
+            if( !empty($inspect_img_status) ){
+                $prdBuilder->leftJoin('product_inspect_datas as pid1', function ($join) {
+                    $join->on('product_datas.offer_id', '=', 'pid1.offer_id')
+                         ->where('pid1.inspect_type', InspectConstant::INSPECT_IMAGE);
                 });
+
+                if( $inspect_img_status == InspectConstant::IS_INSPECT_Y ){
+                    $prdBuilder->where([
+                        "pid1.is_inspect" => InspectConstant::IS_INSPECT_Y,
+                    ]);
+                } else if( $inspect_img_status == InspectConstant::IS_INSPECT_N ){
+                    $prdBuilder->where(function ($query) {
+                        $query->where('pid1.is_inspect', InspectConstant::IS_INSPECT_N)
+                        ->orWhereNull('pid1.id');
+                    });
+                }
+            }
+
+            if( !empty($inspect_prd_status) ){
+                $prdBuilder->leftJoin('product_inspect_datas as pid2', function ($join) {
+                    $join->on('product_datas.offer_id', '=', 'pid2.offer_id')
+                         ->where('pid2.inspect_type', InspectConstant::INSPECT_PRODUCT);
+                });
+
+                if( $inspect_prd_status == InspectConstant::IS_INSPECT_Y ){
+                    $prdBuilder->where([
+                        "pid2.is_inspect" => InspectConstant::IS_INSPECT_Y,
+                    ]);
+                } else if( $inspect_prd_status == InspectConstant::IS_INSPECT_N ){
+                    $prdBuilder->where(function ($query) {
+                        $query->where('pid2.is_inspect', InspectConstant::IS_INSPECT_N)
+                        ->orWhereNull('pid2.id');
+                    });
+                }
+            }
+
+            if( !empty($inspect_gosi_status) ){
+                $prdBuilder->leftJoin('product_inspect_datas as pid3', function ($join) {
+                    $join->on('product_datas.offer_id', '=', 'pid3.offer_id')
+                         ->where('pid3.inspect_type', InspectConstant::INSPECT_NOTICE);
+                });
+
+                if( $inspect_gosi_status == InspectConstant::IS_INSPECT_Y ){
+                    $prdBuilder->where([
+                        "pid3.is_inspect" => InspectConstant::IS_INSPECT_Y,
+                    ]);
+                } else if( $inspect_gosi_status == InspectConstant::IS_INSPECT_N ){
+                    $prdBuilder->where(function ($query) {
+                        $query->where('pid3.is_inspect', InspectConstant::IS_INSPECT_N)
+                        ->orWhereNull('pid3.id');
+                    });
+                }
             }
         }
-
         if( !empty($prd_status) ){
             $prdBuilder->where("product_datas.status", $prd_status);
         }
@@ -418,6 +505,7 @@ class ProductW1 extends ProductAbstract
         $imgInspectYCnt = ProductData::query()
         ->join('product_inspect_datas as b', 'product_datas.offer_id', '=', 'b.offer_id')
         ->where([
+            "inspect_status" => $inspect_status,
             "b.inspect_type" => InspectConstant::INSPECT_IMAGE,
             "b.is_inspect"   => InspectConstant::IS_INSPECT_Y,
             "status"         => ProductConstant::PRD_STATUS_EXCEPT
@@ -427,6 +515,7 @@ class ProductW1 extends ProductAbstract
         $prdInspectYCnt = ProductData::query()
         ->join('product_inspect_datas as b', 'product_datas.offer_id', '=', 'b.offer_id')
         ->where([
+            "inspect_status" => $inspect_status,
             "b.inspect_type" => InspectConstant::INSPECT_PRODUCT,
             "b.is_inspect"   => InspectConstant::IS_INSPECT_Y,
             "status"         => ProductConstant::PRD_STATUS_EXCEPT
@@ -436,6 +525,7 @@ class ProductW1 extends ProductAbstract
         $gosiInspectYCnt = ProductData::query()
         ->join('product_inspect_datas as b', 'product_datas.offer_id', '=', 'b.offer_id')
         ->where([
+            "inspect_status" => $inspect_status,
             "b.inspect_type" => InspectConstant::INSPECT_NOTICE,
             "b.is_inspect"   => InspectConstant::IS_INSPECT_Y,
             "status"         => ProductConstant::PRD_STATUS_EXCEPT
@@ -937,6 +1027,11 @@ class ProductW1 extends ProductAbstract
             throw new Exception(ProductErrorMessageConstant::getFitErrorMessage("PRODUCT_EXCEPT"));
         }
 
+        $deletePrdForbiddenWords     = ForbiddenWordData::where("keyword_type", ForbiddenWordConstant::KEYWORD_DELETE)->get();
+        $replacePrdForbiddenWords    = ForbiddenWordData::where("keyword_type", ForbiddenWordConstant::KEYWORD_REPLACE)->get();
+        $deleteNoticeForbiddenWords  = ForbiddenNoticeWordData::where("keyword_type", ForbiddenWordConstant::KEYWORD_DELETE)->get();
+        $replaceNoticeForbiddenWords = ForbiddenNoticeWordData::where("keyword_type", ForbiddenWordConstant::KEYWORD_REPLACE)->get();
+
         // 1. 상품 이미지
         $product1688ImageDtoList = [];
         foreach ($detailProduct["productImage"]["images"] as $imgKey => $prdImage) {
@@ -986,6 +1081,66 @@ class ProductW1 extends ProductAbstract
                 "mime"           => $imgMime
             ]);
             $product1688ImageDtoList[] = $product1688ImageDto;
+        }
+
+        if( isset($detailProduct["productSkuInfos"]) ){
+            foreach ($detailProduct["productSkuInfos"] as $prdOptions) {
+                if( isset($prdOptions["skuAttributes"]) ){
+
+                    $prdImage = "";
+                    foreach ($prdOptions["skuAttributes"] as $prdOption) {
+                        if( isset($prdOption["skuImageUrl"]) ){
+                            $prdImage = $prdOption["skuImageUrl"];
+                        }
+                    }
+                    if( $prdImage == "" ){
+                        continue;
+                    }
+
+                    $imgType   = ImageConstant::IMAGE_TYPE_SUB;
+                    $is_except = ImageConstant::IS_EXCEPT_N;
+                    $imgObj    = ProductImageData::where([
+                        "offer_id"       => $offerId,
+                        "img_type"       => $imgType,
+                        "img_url_origin" => $prdImage,
+                        "lang"           => WConstant::WAPP_KR,
+                    ])->first();
+                    if( $imgObj != null ){
+                        $is_except = $imgObj->is_except;
+                    }
+                    if( $is_except == ImageConstant::IS_EXCEPT_Y ){
+                        continue;
+                    }
+    
+                    $isChangeImg = $this->isChangeImage($offerId, $prdImage, $imgType);
+                    $imgWidth    = 0;
+                    $imgHeight   = 0;
+                    $imgByte     = 0;
+                    $imgMime     = "";
+                    if( $isChangeImg == true ){
+                        $imageInfo = $this->checkImageSize($prdImage);
+                        $imgWidth  = $imageInfo["width"];
+                        $imgHeight = $imageInfo["height"];
+                        $imgByte   = $imageInfo["byte"];
+                        $imgMime   = $imageInfo["mime"];
+                    }
+                    $product1688ImageDto = new Product1688ImageDto();
+                    $product1688ImageDto->bind([
+                        "offerId"        => $offerId,
+                        "imgType"        => $imgType,
+                        "lang"           => WConstant::WAPP_KR,
+                        "is_except"      => $is_except,
+                        "img_url_origin" => $prdImage,
+                        "img_url_trans"  => "",
+                        "isChangeImg"    => $isChangeImg,
+                        "width"          => $imgWidth,
+                        "height"         => $imgHeight,
+                        "byte"           => $imgByte,
+                        "mime"           => $imgMime
+                    ]);
+                    $product1688ImageDtoList[] = $product1688ImageDto;
+                }
+            }
         }
 
         // 2. 상품 상세 이미지
@@ -1056,19 +1211,23 @@ class ProductW1 extends ProductAbstract
         $startQuantity = $detailProduct["productSaleInfo"]["priceRangeList"][0]["startQuantity"];
 
         $subjectTrans = $detailProduct["subjectTrans"];
+
         // 3-1. 삭제어
-        $subjectForbiddenTrans = $this->removeSpecialSequence($subjectTrans);
+        $subjectForbiddenTrans = $this->removeForbiddenText($deletePrdForbiddenWords, $subjectTrans, ForbiddenWordConstant::KEYWORD_APPLY_TITLE);
         // 3-2. 교체어
-        $subjectForbiddenTrans = $this->replaceWord($subjectForbiddenTrans);
+        $subjectForbiddenTrans = $this->replaceForbiddenText($replacePrdForbiddenWords, $subjectForbiddenTrans, ForbiddenWordConstant::KEYWORD_APPLY_TITLE);
 
         $subjectForbiddenTrans = trim($subjectForbiddenTrans);
 
         if( $subjectTrans != $subjectForbiddenTrans ){ 
             ProductForbiddenData::updateOrCreate(
-                ["offer_id" => $offerId],
                 [
-                    "prd_name_trans_origin"    => $subjectTrans,
-                    "prd_name_trans_forbidden" => $subjectForbiddenTrans
+                    "offer_id"   => $offerId,
+                    "apply_type" => ForbiddenWordConstant::KEYWORD_APPLY_TITLE
+                ],
+                [
+                    "origin_text" => $subjectTrans,
+                    "trans_text"  => $subjectForbiddenTrans
                 ]
             );
         }
@@ -1111,6 +1270,46 @@ class ProductW1 extends ProductAbstract
             if( $gosiObj != null ){
                 $is_except = $gosiObj->is_except;
             }
+
+            $attributeNameTrans = $prdNotice["attributeNameTrans"];
+            $attrValueTrans     = $prdNotice["valueTrans"];
+
+            // 고시명 삭제어
+            $nameTrans = $this->removeForbiddenText($deleteNoticeForbiddenWords, $attributeNameTrans, ForbiddenWordConstant::KEYWORD_APPLY_ATTR_NAME);
+            // 고시명 교체어
+            $nameTrans = $this->replaceForbiddenText($replaceNoticeForbiddenWords, $nameTrans, ForbiddenWordConstant::KEYWORD_APPLY_ATTR_NAME);
+            $nameTrans = trim($nameTrans);
+            if( $attributeNameTrans != $nameTrans ){ 
+                ProductForbiddenData::updateOrCreate(
+                    [
+                        "offer_id"   => $offerId,
+                        "apply_type" => ForbiddenWordConstant::KEYWORD_APPLY_ATTR_NAME,
+                        "origin_text" => $attributeNameTrans,
+                    ],
+                    [
+                        "trans_text"  => $nameTrans
+                    ]
+                );
+            }
+
+            // 고시값 삭제어
+            $valueTrans = $this->removeForbiddenText($deleteNoticeForbiddenWords, $attrValueTrans, ForbiddenWordConstant::KEYWORD_APPLY_ATTR_VALUE);
+            // 고시값 교체어
+            $valueTrans = $this->replaceForbiddenText($replaceNoticeForbiddenWords, $valueTrans, ForbiddenWordConstant::KEYWORD_APPLY_ATTR_VALUE);
+            $valueTrans = trim($valueTrans);
+            if( $attrValueTrans != $valueTrans ){ 
+                ProductForbiddenData::updateOrCreate(
+                    [
+                        "offer_id"   => $offerId,
+                        "apply_type" => ForbiddenWordConstant::KEYWORD_APPLY_ATTR_VALUE,
+                        "origin_text" => $attrValueTrans,
+                    ],
+                    [
+                        "trans_text"  => $valueTrans
+                    ]
+                );
+            }
+
             $product1688NoticeDto = new Product1688NoticeDto();
             $product1688NoticeDto->bind([
                 "offerId"              => $offerId,
@@ -1118,8 +1317,8 @@ class ProductW1 extends ProductAbstract
                 "is_except"            => $is_except,
                 "attributeName"        => $prdNotice["attributeName"],
                 "value"                => $prdNotice["value"],
-                "attributeNameTrans"   => $prdNotice["attributeNameTrans"],
-                "valueTrans"           => $prdNotice["valueTrans"],
+                "attributeNameTrans"   => $nameTrans,
+                "valueTrans"           => $valueTrans,
                 "attributeNameTransEn" => "",
                 "valueTransEn"         => "",
             ]);
@@ -2166,7 +2365,10 @@ class ProductW1 extends ProductAbstract
         $returnMsg = $this->returnMsg;
 
         try {
-            $imgObjs = ProductImageData::where("offer_id", $offerId)
+            $imgObjs = ProductImageData::where([
+                "offer_id" => $offerId,
+                "lang"     => WConstant::WAPP_KR,
+            ])
             ->where("img_url_trans", "!=", "")->get();
             foreach ($imgObjs as $imgObj) {
                 $gObj = GenuioImageData::where([

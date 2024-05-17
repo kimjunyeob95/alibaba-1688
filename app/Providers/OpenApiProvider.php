@@ -8,6 +8,7 @@ use App\Constants\MallConstant;
 use App\Constants\TransApiConstant;
 use App\Packages\EasySell;
 use App\Packages\JwtPackage;
+use App\Packages\Onchannel;
 use App\Packages\S3;
 use App\Services\GenuioService;
 use Illuminate\Support\ServiceProvider;
@@ -20,12 +21,16 @@ class OpenApiProvider extends ServiceProvider
      */
     public function register(): void
     {
-        // EasySell 싱글톤으로 등록
+        /** EasySell 싱글톤으로 등록 */
         $this->app->singleton(EasySell::class, function () {
             return new EasySell(MallConstant::MALL_EASYSELL);
         });
+        /** Onchannel 싱글톤으로 등록 */
+        $this->app->singleton(Onchannel::class, function () {
+            return new Onchannel(MallConstant::MALL_ONCHANNEL);
+        });
 
-        // JwtPackage 싱글톤으로 등록
+        /** JwtPackage 싱글톤으로 등록 */
         $this->app->singleton(JwtPackage::class, function () {
             return new JwtPackage();
         });
@@ -39,6 +44,8 @@ class OpenApiProvider extends ServiceProvider
             $currentUrl = $app['request']->fullUrl();
             if(strpos($currentUrl, MallConstant::MALL_EASYSELL) !== false){
                 return app(EasySell::class);
+            } else if(strpos($currentUrl, MallConstant::MALL_ONCHANNEL) !== false){
+                return app(Onchannel::class);
             };
         });
         /**
