@@ -271,7 +271,7 @@ class OnchannelTest extends TestCase
 
                     $result = helpers_curl("POST", $endPoint, $header, $payload);
                     
-                    if( $result["isSuccess"] != true ){
+                    if( !isset($result["isSuccess"]) || $result["isSuccess"] != true ){
                         $res = [
                             "offer_id" => $offer_id,
                             "prd_code" => $prdObj->prd_code,
@@ -283,7 +283,7 @@ class OnchannelTest extends TestCase
                     $res = [
                         "offer_id" => $offer_id,
                         "prd_code" => $prdObj->prd_code,
-                        "error"   => $e->getMessage()
+                        "error"    => $e->getMessage()
                     ];
                     debug_log(json_encode($res, JSON_UNESCAPED_UNICODE), "onchannel", "modiOnchannel");
                 }
