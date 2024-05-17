@@ -274,17 +274,21 @@ class OnchannelTest extends TestCase
                     if( $result["isSuccess"] != true ){
                         $res = [
                             "offer_id" => $offer_id,
+                            "prd_code" => $prdObj->prd_code,
                             "result"   => $result
                         ];
-                        debug_log(json_encode($res, JSON_UNESCAPED_UNICODE), "registOnchannel", "registOnchannel");
+                        debug_log(json_encode($res, JSON_UNESCAPED_UNICODE), "onchannel", "modiOnchannel");
                     }
                 } catch (Exception $e) {
                     $res = [
                         "offer_id" => $offer_id,
+                        "prd_code" => $prdObj->prd_code,
                         "error"   => $e->getMessage()
                     ];
                     debug_log(json_encode($res, JSON_UNESCAPED_UNICODE), "onchannel", "modiOnchannel");
                 }
+
+                sleep(1);
             }
         }
         
