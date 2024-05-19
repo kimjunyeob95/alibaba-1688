@@ -96,11 +96,27 @@ class MallController extends Controller
                 'optionParamList'             => 'required|array',
                 'optionParamList.*.option_id' => 'required|int',
                 'optionParamList.*.quantity'  => 'required|int',
+                'option_price'                => 'required|int',
+                'buyer_name'                  => 'required|string',
+                'buyer_clearance_number'      => 'required|string',
+                'buyer_number'                => 'required|string',
+                'buyer_phone'                 => 'required|string',
+                'buyer_zipcode'               => 'required|string',
+                'buyer_address'               => 'required|string',
+                'buyer_memo'                  => 'required|string',
             ], [
                 'offer_id.required'                    => OrderErrorMessageConstant::getNotHaveErrorMessage("OFFER_ID"),
                 'optionParamList.required'             => OrderErrorMessageConstant::getNotHaveErrorMessage("OPTIONPARAMLIST"),
                 'optionParamList.*.option_id.required' => OrderErrorMessageConstant::getNotHaveErrorMessage("OPTION_ID"),
                 'optionParamList.*.quantity.required'  => OrderErrorMessageConstant::getNotHaveErrorMessage("QUANTITY"),
+                'option_price.required'                => OrderErrorMessageConstant::getNotHaveErrorMessage("OPTION_PRICE"),
+                'buyer_name.required'                  => OrderErrorMessageConstant::getNotHaveErrorMessage("BUYER_NAME"),
+                'buyer_clearance_number.required'      => OrderErrorMessageConstant::getNotHaveErrorMessage("BUYER_CLEARANCE_NUMBER"),
+                'buyer_number.required'                => OrderErrorMessageConstant::getNotHaveErrorMessage("BUYER_NUMBER"),
+                'buyer_phone.required'                 => OrderErrorMessageConstant::getNotHaveErrorMessage("BUYER_PHONE"),
+                'buyer_zipcode.required'               => OrderErrorMessageConstant::getNotHaveErrorMessage("BUYER_ZIPCODE"),
+                'buyer_address.required'               => OrderErrorMessageConstant::getNotHaveErrorMessage("BUYER_ADDRESS"),
+                'buyer_memo.required'                  => OrderErrorMessageConstant::getNotHaveErrorMessage("BUYER_MEMO"),
             ]);
             if ($validator->fails()) {
                 throw new Exception($validator->errors()->first());

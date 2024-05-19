@@ -943,6 +943,18 @@
                 "type": "object"
             },
             "OrderCreateSchema": {
+                "required": [
+                    "offer_id",
+                    "optionParamList",
+                    "option_price",
+                    "buyer_name",
+                    "buyer_clearance_number",
+                    "buyer_number",
+                    "buyer_phone",
+                    "buyer_zipcode",
+                    "buyer_address",
+                    "buyer_memo"
+                ],
                 "properties": {
                     "offer_id": {
                         "description": "제품 ID",
@@ -979,6 +991,45 @@
                                 "quantity": 2
                             }
                         ]
+                    },
+                    "option_price": {
+                        "description": "채널에 등록 된 제품 가격(WAPP에서 전송한 가격)",
+                        "type": "integer",
+                        "example": 6180
+                    },
+                    "buyer_name": {
+                        "description": "구매자명",
+                        "example": "홍길동"
+                    },
+                    "buyer_clearance_number": {
+                        "description": "구매자 개인통관번호",
+                        "type": "string",
+                        "example": "1234567891011"
+                    },
+                    "buyer_number": {
+                        "description": "구매자 전화번호",
+                        "type": "string",
+                        "example": "01012345678"
+                    },
+                    "buyer_phone": {
+                        "description": "구매자 핸드폰번호",
+                        "type": "string",
+                        "example": "01012345678"
+                    },
+                    "buyer_zipcode": {
+                        "description": "구매자 우편번호",
+                        "type": "string",
+                        "example": "12345"
+                    },
+                    "buyer_address": {
+                        "description": "구매자 주소",
+                        "type": "string",
+                        "example": "서울특별시 강남구 삼성동 144-5 401호"
+                    },
+                    "buyer_memo": {
+                        "description": "배송 요청사항",
+                        "type": "string",
+                        "example": "문 앞에 놓아주세요."
                     }
                 },
                 "type": "object"
