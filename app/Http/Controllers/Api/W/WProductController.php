@@ -56,6 +56,34 @@ class WProductController extends Controller
         }
     }
 
+    public function reCollectProduct(): JsonResponse
+    {
+        try {
+            $validator = Validator::make($this->request->all(), [
+                'offer_ids' => 'required|array',
+            ], [
+                'offer_ids.required' => 'offer_ids를 입력하세요.',
+            ]);
+            if ($validator->fails()) {
+                throw new Exception($validator->errors()->first());
+            }
+
+            $offerIds = $this->request->post("offer_ids");
+            $log_type = $this->request->post("log_type", LogConstant::RE_COLLECT_API_OFFERID);
+
+            $options = "--offerids=" . helperEscape(implode(",", $offerIds)) . " --type=" . helperEscape($log_type);
+            $command = "nohup php artisan save_1688_collect_product " . $options . " > /dev/null 2>&1 &";
+            $process = Process::fromShellCommandline($command);
+            $process->setWorkingDirectory(env("WORK_DIRECTORY", "/web1/1688"));
+            $process->setTimeout(null); // 실행 시간 제한 없음
+            $process->start();
+
+            return helpers_json_response(HttpConstant::OK, helpers_success_message([], "재 수집 요청 완료"));
+        } catch (Exception $e) {
+            return helpers_json_response(HttpConstant::BAD_REQUEST, [], $e->getMessage());
+        }
+    }
+
     public function collectKeywordQuery(): JsonResponse
     {
         try {

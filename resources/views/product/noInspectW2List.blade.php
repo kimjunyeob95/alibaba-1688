@@ -243,6 +243,7 @@
                 </form>
                 
                 <div class="mt-3 d-flex justify-content-end">
+                    {{-- <button class="btn btn-md btn-outline-danger me-2" id="btn-recollect-select">재 수집 요청</button> --}}
                     <button class="btn btn-md btn-outline-primary me-2" id="btn-inspect-select">검수상태 변경</button>
                     <button class="btn btn-md btn-outline-danger me-2" id="btn-status-select">판매상태 변경</button>
                     {{-- <button class="btn btn-md btn-outline-dark me-2" id="btn-select">선택번역 요청</button> --}}

@@ -40,6 +40,8 @@ Route::name('w.')->prefix('w')->group(function () {
     Route::name('product.')->prefix('product')->group(function () {
         /** 1688 상품ID 별 수집 */
         Route::post('/collect', [WProductController::class, 'collectProduct'])->name('collectProduct');
+        /** 1688 상품ID 별 재수집 */
+        Route::post('/reCollect', [WProductController::class, 'reCollectProduct'])->name('reCollectProduct');
         /** 1688 keywordQuery 수집 */
         Route::post('/collectKeywordQuery', [WProductController::class, 'collectKeywordQuery'])->name('collectKeywordQuery');
         /** 1688 이미지ID 생성 */

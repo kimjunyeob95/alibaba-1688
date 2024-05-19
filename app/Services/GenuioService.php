@@ -116,6 +116,103 @@ class GenuioService extends TransApiAbstract
 
             $queueDetailInsList = [];
             foreach ($product1688ImageDtoList as $product1688ImageDto) {
+                if( $product1688ImageDto->is_change_img == true && $product1688ImageDto->lang == WConstant::WAPP_KR ){
+                    $imgObj = ProductImageData::where([
+                        "offer_id"       => $product1688ImageDto->offer_id,
+                        "img_type"       => $product1688ImageDto->img_type,
+                        "lang"           => $product1688ImageDto->lang,
+                        "img_url_origin" => $product1688ImageDto->img_url_origin,
+                    ])->first();
+                    
+                    $isThumbnail = false;
+                    if( $imgObj->img_type != ImageConstant::IMAGE_TYPE_DESC ){
+                        $isThumbnail = true;
+                    }
+                    $payload["images"][] = [
+                        "id"          => $imgObj->id,
+                        "imagePath"   => $product1688ImageDto->img_url_origin,
+                        "isThumbnail" => $isThumbnail,
+                        "priority"    => $priority
+                    ];
+
+                    $queueDetailInsList[] = [
+                        "queue_id"     => $nextId,
+                        "img_id"       => $imgObj->id,
+                        "trans_status" => TransApiConstant::QUEUE_STAY,
+                        "base64"       => "",
+                        "created_at"   => Carbon::now()
+                    ];
+                }
+            }
+
+            if( count($payload["images"]) > 0 ){
+                $apiResult = $this->apiCurl("post", "/translate-img", $payload);
+
+                $upWhere = [];
+                $upWhere["payload_json"] = json_encode($payload, JSON_UNESCAPED_UNICODE);
+
+                if( $apiResult["isSuccess"] == true ){
+                    $upWhere["response_json"] = json_encode($apiResult["data"], JSON_UNESCAPED_UNICODE);
+                } else {
+                    $upWhere["response_json"] = json_encode($apiResult, JSON_UNESCAPED_UNICODE);
+                }
+                GenuioQueueData::where("id", $nextId)->update($upWhere);
+    
+                foreach ($queueDetailInsList as $queueDetailIns) {
+                    GenuioQueueDetailData::insert($queueDetailIns);
+                }
+            }
+
+            if( $apiResult["isSuccess"] == true ){
+                chkTransStatus($offerId);
+
+                $returnMsg = helpers_success_message();
+            } else {
+                $returnMsg = helpers_fail_message(false, $apiResult["msg"]);
+            }
+
+        } catch (Exception $e) {
+            $errorMsg  = "offerId: {$offerId} | errorTitle: " . TransApiConstant::getFitErrorMessage("TRANS_REQUEST_IMAGE") . "errorDesc: " . $e->getMessage();
+            $returnMsg = helpers_fail_message(false, $errorMsg);
+        }
+
+        return $returnMsg;
+    }
+
+    /**
+     * @func createTransProductImgAgain
+     * @description '추가 이미지 번역 통신'
+     * @param array $product1688ImageDtoList
+     * @param int $offerId
+     */
+    public function createTransProductImgAgain(array $product1688ImageDtoList, int $offerId, bool $priority = GenuioConstant::PRIORITY_FALSE): array
+    {
+        $returnMsg = $this->returnMsg;
+        try {
+            $insWhere  = [
+                "offer_id"      => $offerId,
+                "parent_id"     => 0,
+                "send_type"     => GenuioConstant::IMG_TRANS_AGAIN,
+                "payload_json"  => "",
+                "request_user"  => TransApiConstant::API_USER_COMPANY_OC,
+                "response_json" => "",
+                "created_at"    => Carbon::now()
+            ];
+            $nextId = GenuioQueueData::insertGetId($insWhere);
+
+            $prdObj = ProductData::with([
+                "options",
+                "notices",
+            ])->where("offer_id", $offerId)->first();
+
+            $payload = [
+                "jobId"  => $nextId,
+                "images" => [],
+                "prdObj" => $prdObj->toArray()
+            ];
+
+            $queueDetailInsList = [];
+            foreach ($product1688ImageDtoList as $product1688ImageDto) {
                 if( $product1688ImageDto->is_change_img == true ){
                     $imgObj = ProductImageData::where([
                         "offer_id"       => $product1688ImageDto->offer_id,
@@ -215,11 +312,12 @@ class GenuioService extends TransApiAbstract
 
             $offerId = $getGenuioObj->offer_id;
 
+            $prdObj = ProductData::where("offer_id", $offerId)->first();
+            if( $prdObj == null ){
+                throw new ValueError(TransApiConstant::getNotHaveErrorMessage("PRODUCT"));
+            }
+
             if( $getGenuioObj->send_type == GenuioConstant::IMG_TRANS ){
-                $prdObj = ProductData::where("offer_id", $offerId)->first();
-                if( $prdObj == null ){
-                    throw new ValueError(TransApiConstant::getNotHaveErrorMessage("PRODUCT"));
-                }
 
                 $dateName = $prdObj->created_at->format('Y/m/d');
 
@@ -345,7 +443,7 @@ class GenuioService extends TransApiAbstract
                             "img"   => $image,
                             "error" => $ve->getMessage()
                         ];
-                        debug_log(json_encode($errMsg, JSON_UNESCAPED_UNICODE), "genuio", "genuio-img");
+                        debug_log(json_encode($errMsg, JSON_UNESCAPED_UNICODE), "genuio", GenuioConstant::IMG_TRANS);
                     }
                 }
 
@@ -365,15 +463,15 @@ class GenuioService extends TransApiAbstract
                             throw new ValueError(TransApiConstant::getNotHaveErrorMessage("AI_IMG_ID"));
                         }
 
-                        $parentImgCnt = GenuioImageData::where("img_id", $imgObj->img_id)->count();
+                        $parentImgCnt = GenuioImageData::where("img_id", $imgId)->count();
 
-                        $prdImgObj = ProductImageData::where("id", $imgObj->img_id)->first();
+                        $prdImgObj = ProductImageData::where("id", $imgId)->first();
                         if( $prdImgObj == null ){
                             throw new ValueError(TransApiConstant::getNotHaveErrorMessage("IMG_ID"));
                         }
 
                         if( $is_except == ImageConstant::IS_EXCEPT_Y || $prdImgObj->is_except == ImageConstant::IS_EXCEPT_Y ){
-                            ProductImageData::where("id", $imgObj->img_id)->update([
+                            ProductImageData::where("id", $imgId)->update([
                                 "is_except" => ImageConstant::IS_EXCEPT_Y
                             ]);
                             throw new ValueError(ImageErrorMessageConstant::getFitErrorMessage("EXCEPT_IMG"));
@@ -389,7 +487,7 @@ class GenuioService extends TransApiAbstract
                         if (preg_match('/^(jpg|jpeg|png|gif)/i', $mime, $matches)) {
                             $mime = $matches[0];
                         }
-                        $imgName = "/genuio/ai-img/" . $dateName . "/" . $offerId . "_" . $prdImgObj->id . "_" . ($parentImgCnt+1) . "_" . $prdImgObj->img_type . "." . $mime;
+                        $imgName = "/genuio/ai-img/" . $dateName . "/" . $offerId . "_" . $imgId . "_" . ($parentImgCnt+1) . "_" . $prdImgObj->img_type . "." . $mime;
                         if( isset($image["imgTransBase64"]) && !empty($image["imgTransBase64"]) ){
                             $imgTransBase64 = $image["imgTransBase64"];
                             $uploadResult   = $this->uploadAbstract->uploadFile($imgName, base64_decode($imgTransBase64));
@@ -423,15 +521,9 @@ class GenuioService extends TransApiAbstract
                                 "img_url_ai" => $img_url_ai,
                             ]);
 
-                            ProductImageData::where("id", $prdImgObj->id)->update([
+                            ProductImageData::where("id", $imgId)->update([
                                 "img_url_trans" => $img_url_ai
                             ]);
-                        }
-
-                        if( $errorImgFlag == true ) {
-                            // 1688 측 이미지 자체가 유효하지 않은 상태 기록
-                            // $errMsg = "원본 이미지 upload error | img: " . $img_url_ai_origin;
-                            // debug_log(json_encode($errMsg, JSON_UNESCAPED_UNICODE), "genuio", "genuio-ai-img");
                         }
         
                         GenuioQueueDetailData::where([
@@ -446,9 +538,127 @@ class GenuioService extends TransApiAbstract
                             "img"   => $image,
                             "error" => $ve->getMessage()
                         ];
-                        debug_log(json_encode($errMsg, JSON_UNESCAPED_UNICODE), "genuio", "genuio-ai-img");
+                        debug_log(json_encode($errMsg, JSON_UNESCAPED_UNICODE), "genuio", GenuioConstant::IMG_Ai_TRANS);
                     }
                 }
+            } else if( $getGenuioObj->send_type == GenuioConstant::IMG_TRANS_AGAIN ){
+                foreach ($images as $image) {
+                    try {
+                        $imgId     = (int)$image["id"];
+                        $is_except = ImageConstant::IS_EXCEPT_N;
+                        if( isset($image["excluded"]) && $image["excluded"] === true ) {
+                            $is_except = ImageConstant::IS_EXCEPT_Y;
+                        }
+                        
+                        $imgObj = ProductImageData::where("id", $imgId)->first();
+                        if( $imgObj == null ){
+                            throw new ValueError(TransApiConstant::getNotHaveErrorMessage("IMG_ID"));
+                        }
+                        
+                        if( $is_except == ImageConstant::IS_EXCEPT_Y || $imgObj->is_except == ImageConstant::IS_EXCEPT_Y ){
+                            ProductImageData::where("id", $imgId)->update([
+                                "is_except" => ImageConstant::IS_EXCEPT_Y
+                            ]);
+                            throw new ValueError(ImageErrorMessageConstant::getFitErrorMessage("EXCEPT_IMG"));
+                        }
+                        
+                        $parentImgCnt = GenuioImageData::where("img_id", $imgId)->count();
+
+                        $img_url_origin = $imgObj->img_url_origin;
+                        $uploadResult   = false;
+                        $errorImgFlag   = false;
+                        $imgTransBase64 = "";
+                        $img_url_trans  = "";
+                        $mime           = pathinfo($img_url_origin, PATHINFO_EXTENSION);
+                        $dateName       = Carbon::now()->format('Y/m/d');
+                        if (preg_match('/^(jpg|jpeg|png|gif)/i', $mime, $matches)) {
+                            $mime = $matches[0];
+                        }
+                        $imgName = "/genuio/ai-img/" . $dateName . "/" . $offerId . "_" . $imgObj->id . "_" . ($parentImgCnt+1) . "_" . $imgObj->img_type . "." . $mime;
+                        if( isset($image["imgTransBase64"]) && !empty($image["imgTransBase64"]) ){
+                            $imgTransBase64 = $image["imgTransBase64"];
+                            $uploadResult   = $this->uploadAbstract->uploadFile($imgName, base64_decode($imgTransBase64));
+                        } else {
+                            try {
+                                $fileContent = fileContents($img_url_origin);
+                                $status      = "";
+                                if( isset($image["status"]) ) {
+                                    $status = $image["status"];
+                                }
+                                $message = "";
+                                if( isset($image["message"]) ) {
+                                    $message = $image["message"];
+                                }
+                                $imgTransBase64  = "status: {$status} / message: {$message}";
+                                $imgEncodeBase64 = base64_encode($fileContent);
+                                $uploadResult    = $this->uploadAbstract->uploadFile($imgName, base64_decode($imgEncodeBase64));
+                            } catch (Exception $th) {
+                                $errorImgFlag   = true;
+                                $imgTransBase64 = TransApiConstant::getFitErrorMessage("1688_IMG");
+                            }
+                        }
+    
+                        if( $uploadResult == true ) {
+                            $img_url_trans = env("AWS_URL") . $imgName;
+                            ProductImageData::where("id", $imgId)->update([
+                                "img_url_trans"  => $img_url_trans,
+                                "trans_dated_at" => Carbon::now(),
+                            ]);
+
+                            // 1. origin 이미지
+                            GenuioImageData::updateOrCreate([
+                                "offer_id"  => $offerId,
+                                "img_id"    => $imgId,
+                                "ai_type"   => GenuioConstant::IMG_Ai_TRANS,
+                                "is_origin" => GenuioConstant::IS_ORIGIN_Y,
+                            ],[
+                                "img_url_ai" => $img_url_origin,
+                            ]);
+
+                            // 2. 최초 번역 이미지
+                            $aiImgObj = GenuioImageData::where([
+                                "offer_id"   => $offerId,
+                                "img_id"     => $imgId,
+                                "img_url_ai" => $img_url_trans,
+                                "ai_type"    => GenuioConstant::IMG_Ai_TRANS,
+                                "is_origin"  => GenuioConstant::IS_ORIGIN_N
+                            ])->first();
+                            if( $aiImgObj == null ){
+                                GenuioImageData::create([
+                                    "offer_id"   => $offerId,
+                                    "img_id"     => $imgId,
+                                    "img_url_ai" => $img_url_trans,
+                                    "ai_type"    => GenuioConstant::IMG_Ai_TRANS,
+                                    "is_origin"  => GenuioConstant::IS_ORIGIN_N,
+                                ]);
+                            } else {
+                                GenuioImageData::where("id", $imgId)->update([
+                                    "updated_at" => Carbon::now()
+                                ]);
+                            }
+                        } else {
+                            ProductImageData::where("id", $imgId)->update([
+                                "img_url_trans"  => $img_url_trans,
+                                "trans_dated_at" => null,
+                            ]);
+                        }
+        
+                        GenuioQueueDetailData::where([
+                            "queue_id"     => $jobId,
+                            "img_id"       => $imgId,
+                            "trans_status" => TransApiConstant::QUEUE_STAY,
+                        ])->update([
+                            "trans_status" => $uploadResult == true ? TransApiConstant::QUEUE_SUCCESS : TransApiConstant::QUEUE_FAIL
+                        ]);
+                    } catch (ValueError $ve) {
+                        $errMsg = [
+                            "img"   => $image,
+                            "error" => $ve->getMessage()
+                        ];
+                        debug_log(json_encode($errMsg, JSON_UNESCAPED_UNICODE), "genuio", GenuioConstant::IMG_TRANS_AGAIN);
+                    }
+                }
+
             }
 
             if( isset($params["prdObj"]["prd_desc"]) && $params["prdObj"]["prd_desc"] ){
@@ -540,7 +750,7 @@ class GenuioService extends TransApiAbstract
                     ]);
                     $product1688ImageDtoList[] = $product1688ImageDto;
                 }
-                $createResult = $this->createTransProductImg($product1688ImageDtoList, $offerId, GenuioConstant::PRIORITY_TRUE);
+                $createResult = $this->createTransProductImgAgain($product1688ImageDtoList, $offerId, GenuioConstant::PRIORITY_TRUE);
                 if( $createResult["isSuccess"] != true ){
                     throw new Exception($createResult["msg"]);
                 }
@@ -763,7 +973,7 @@ class GenuioService extends TransApiAbstract
                 ]);
                 $product1688ImageDtoList[] = $product1688ImageDto;
             }
-            $createResult = $this->createTransProductImg($product1688ImageDtoList, $offerId, GenuioConstant::PRIORITY_TRUE);
+            $createResult = $this->createTransProductImgAgain($product1688ImageDtoList, $offerId, GenuioConstant::PRIORITY_TRUE);
             if( $createResult["isSuccess"] != true ){
                 throw new Exception($createResult["msg"]);
             }
@@ -814,7 +1024,7 @@ class GenuioService extends TransApiAbstract
                 ]);
                 $product1688ImageDtoList[] = $product1688ImageDto;
             }
-            $createResult = $this->createTransProductImg($product1688ImageDtoList, $offerId, GenuioConstant::PRIORITY_TRUE);
+            $createResult = $this->createTransProductImgAgain($product1688ImageDtoList, $offerId, GenuioConstant::PRIORITY_TRUE);
             if( $createResult["isSuccess"] != true ){
                 throw new Exception($createResult["msg"]);
             }

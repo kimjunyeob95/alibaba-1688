@@ -698,39 +698,43 @@ class ProductW1 extends ProductAbstract
             $apiResult = $apiDatas["data"]["result"]["result"];
             if( isset($apiResult["data"]) ){
                 $productDatas = $apiResult["data"];
-                $successCnt   = 0;
                 foreach ($productDatas as $productData) {
                     try {
-                        $offerId        = $productData["offerId"];
-                        $endPoint       = "param2/1/com.alibaba.fenxiao.crossborder/product.search.queryProductDetail/";
-                        $payload        = [
-                            'access_token'     => $this->accessToken,
-                            'offerDetailParam' => [
-                                'offerId' => $offerId,
-                                'country' => Constant1688::LANGUAGE_KO,
-                            ]
-                        ];
-                        $detailResult = curl_1688("POST", $endPoint, $payload);
-                        if( $detailResult["isSuccess"] != true || $detailResult["data"]["result"]["success"] != true ){
-                            throw new Exception(ProductErrorMessageConstant::getFitErrorMessage("PRODUCT_SEARCH_QUERYPRODUCTDETAIL"));
-                        }
+                        $offerId = $productData["offerId"];
 
-                        $detailProduct = $detailResult["data"]["result"]["result"];
-                        $prdCategoryId = $detailProduct["categoryId"];
+                        /** 1. W2로 수집 시도 */
+                        $resultW2 = $this->productW2->collectProductNotLog($offerId);
 
-                        $prdDto                   = $this->get1688ProductDto($detailResult);
-                        $product1688Dto           = $prdDto["product1688Dto"];
-                        $product1688ExtendDto     = $prdDto["product1688ExtendDto"];
-                        $product1688ImageDtoList  = $prdDto["product1688ImageDtoList"];
-                        $product1688NoticeDtoList = $prdDto["product1688NoticeDtoList"];
-                        $product1688OptionDtoList = $prdDto["product1688OptionDtoList"];
+                        /** 2. W2로 수집 실패 시 W1으로 수집 시도 */
+                        if( $resultW2["isSuccess"] != true ){
+                            $endPoint       = "param2/1/com.alibaba.fenxiao.crossborder/product.search.queryProductDetail/";
+                            $payload        = [
+                                'access_token'     => $this->accessToken,
+                                'offerDetailParam' => [
+                                    'offerId' => $offerId,
+                                    'country' => Constant1688::LANGUAGE_KO,
+                                ]
+                            ];
+                            $detailResult = curl_1688("POST", $endPoint, $payload);
+                            if( $detailResult["isSuccess"] != true || $detailResult["data"]["result"]["success"] != true ){
+                                throw new Exception(ProductErrorMessageConstant::getFitErrorMessage("PRODUCT_SEARCH_QUERYPRODUCTDETAIL"));
+                            }
 
-                        $saveResult = $this->save1688ProductData($product1688Dto, $product1688ExtendDto, $product1688ImageDtoList, $product1688NoticeDtoList, $product1688OptionDtoList);
+                            $detailProduct = $detailResult["data"]["result"]["result"];
+                            $prdCategoryId = $detailProduct["categoryId"];
 
-                        if( $saveResult["isSuccess"] == true ){
-                            $successCnt++;
-                        }else{
-                            throw new Exception($saveResult["msg"]);
+                            $prdDto                   = $this->get1688ProductDto($detailResult);
+                            $product1688Dto           = $prdDto["product1688Dto"];
+                            $product1688ExtendDto     = $prdDto["product1688ExtendDto"];
+                            $product1688ImageDtoList  = $prdDto["product1688ImageDtoList"];
+                            $product1688NoticeDtoList = $prdDto["product1688NoticeDtoList"];
+                            $product1688OptionDtoList = $prdDto["product1688OptionDtoList"];
+
+                            $saveResult = $this->save1688ProductData($product1688Dto, $product1688ExtendDto, $product1688ImageDtoList, $product1688NoticeDtoList, $product1688OptionDtoList);
+
+                            if( $saveResult["isSuccess"] != true ){
+                                throw new Exception($saveResult["msg"]);
+                            }
                         }
                     } catch (Exception $de) {
                         $msg = $de->getMessage() . " | page: {$page} | offerId: {$offerId} | categoryId: {$categoryId} | prdCategoryId: {$prdCategoryId}";
@@ -808,39 +812,43 @@ class ProductW1 extends ProductAbstract
             $apiResult = $apiDatas["data"]["result"]["result"];
             if( isset($apiResult["data"]) ){
                 $productDatas = $apiResult["data"];
-                $successCnt   = 0;
                 foreach ($productDatas as $productData) {
                     try {
-                        $offerId        = $productData["offerId"];
-                        $endPoint       = "param2/1/com.alibaba.fenxiao.crossborder/product.search.queryProductDetail/";
-                        $payload        = [
-                            'access_token'     => $this->accessToken,
-                            'offerDetailParam' => [
-                                'offerId' => $offerId,
-                                'country' => Constant1688::LANGUAGE_KO,
-                            ]
-                        ];
-                        $detailResult = curl_1688("POST", $endPoint, $payload);
-                        if( $detailResult["isSuccess"] != true || $detailResult["data"]["result"]["success"] != true ){
-                            throw new Exception(ProductErrorMessageConstant::getFitErrorMessage("PRODUCT_SEARCH_QUERYPRODUCTDETAIL"));
-                        }
+                        $offerId = $productData["offerId"];
 
-                        $detailProduct = $detailResult["data"]["result"]["result"];
-                        $prdCategoryId = $detailProduct["categoryId"];
+                        /** 1. W2로 수집 시도 */
+                        $resultW2 = $this->productW2->collectProductNotLog($offerId);
 
-                        $prdDto                   = $this->get1688ProductDto($detailResult);
-                        $product1688Dto           = $prdDto["product1688Dto"];
-                        $product1688ExtendDto     = $prdDto["product1688ExtendDto"];
-                        $product1688ImageDtoList  = $prdDto["product1688ImageDtoList"];
-                        $product1688NoticeDtoList = $prdDto["product1688NoticeDtoList"];
-                        $product1688OptionDtoList = $prdDto["product1688OptionDtoList"];
+                        /** 2. W2로 수집 실패 시 W1으로 수집 시도 */
+                        if( $resultW2["isSuccess"] != true ){
+                            $endPoint       = "param2/1/com.alibaba.fenxiao.crossborder/product.search.queryProductDetail/";
+                            $payload        = [
+                                'access_token'     => $this->accessToken,
+                                'offerDetailParam' => [
+                                    'offerId' => $offerId,
+                                    'country' => Constant1688::LANGUAGE_KO,
+                                ]
+                            ];
+                            $detailResult = curl_1688("POST", $endPoint, $payload);
+                            if( $detailResult["isSuccess"] != true || $detailResult["data"]["result"]["success"] != true ){
+                                throw new Exception(ProductErrorMessageConstant::getFitErrorMessage("PRODUCT_SEARCH_QUERYPRODUCTDETAIL"));
+                            }
 
-                        $saveResult = $this->save1688ProductData($product1688Dto, $product1688ExtendDto, $product1688ImageDtoList, $product1688NoticeDtoList, $product1688OptionDtoList);
+                            $detailProduct = $detailResult["data"]["result"]["result"];
+                            $prdCategoryId = $detailProduct["categoryId"];
 
-                        if( $saveResult["isSuccess"] == true ){
-                            $successCnt++;
-                        }else{
-                            throw new Exception($saveResult["msg"]);
+                            $prdDto                   = $this->get1688ProductDto($detailResult);
+                            $product1688Dto           = $prdDto["product1688Dto"];
+                            $product1688ExtendDto     = $prdDto["product1688ExtendDto"];
+                            $product1688ImageDtoList  = $prdDto["product1688ImageDtoList"];
+                            $product1688NoticeDtoList = $prdDto["product1688NoticeDtoList"];
+                            $product1688OptionDtoList = $prdDto["product1688OptionDtoList"];
+
+                            $saveResult = $this->save1688ProductData($product1688Dto, $product1688ExtendDto, $product1688ImageDtoList, $product1688NoticeDtoList, $product1688OptionDtoList);
+
+                            if( $saveResult["isSuccess"] != true ){
+                                throw new Exception($saveResult["msg"]);
+                            }
                         }
                     } catch (Exception $de) {
                         $msg = $de->getMessage() . " | page: {$page} | offerId: {$offerId} | imageId: {$imageId} | prdCategoryId: {$prdCategoryId}";
@@ -885,29 +893,36 @@ class ProductW1 extends ProductAbstract
         foreach ($offerIds as $offerId) {
             $offerId = trim($offerId);
             try {
-                $endPoint = "param2/1/com.alibaba.fenxiao.crossborder/product.search.queryProductDetail/";
-                $payload  = [
-                    'access_token'     => $this->accessToken,
-                    'offerDetailParam' => [
-                        'offerId' => $offerId,
-                        'country' => Constant1688::LANGUAGE_KO,
-                    ]
-                ];
-                $detailResult = curl_1688("POST", $endPoint, $payload);
-                if( $detailResult["isSuccess"] != true || $detailResult["data"]["result"]["success"] != true ){
-                    throw new Exception(ProductErrorMessageConstant::getFitErrorMessage("PRODUCT_SEARCH_QUERYPRODUCTDETAIL"));
-                }
 
-                $prdDto                   = $this->get1688ProductDto($detailResult);
-                $product1688Dto           = $prdDto["product1688Dto"];
-                $product1688ExtendDto     = $prdDto["product1688ExtendDto"];
-                $product1688ImageDtoList  = $prdDto["product1688ImageDtoList"];
-                $product1688NoticeDtoList = $prdDto["product1688NoticeDtoList"];
-                $product1688OptionDtoList = $prdDto["product1688OptionDtoList"];
+                /** 1. W2로 수집 시도 */
+                $resultW2 = $this->productW2->collectProductNotLog($offerId);
 
-                $saveResult = $this->save1688ProductData($product1688Dto, $product1688ExtendDto, $product1688ImageDtoList, $product1688NoticeDtoList, $product1688OptionDtoList);
-                if( $saveResult["isSuccess"] != true ){
-                    throw new Exception($saveResult["msg"]);
+                /** 2. W2로 수집 실패 시 W1으로 수집 시도 */
+                if( $resultW2["isSuccess"] != true ){
+                    $endPoint = "param2/1/com.alibaba.fenxiao.crossborder/product.search.queryProductDetail/";
+                    $payload  = [
+                        'access_token'     => $this->accessToken,
+                        'offerDetailParam' => [
+                            'offerId' => $offerId,
+                            'country' => Constant1688::LANGUAGE_KO,
+                        ]
+                    ];
+                    $detailResult = curl_1688("POST", $endPoint, $payload);
+                    if( $detailResult["isSuccess"] != true || $detailResult["data"]["result"]["success"] != true ){
+                        throw new Exception(ProductErrorMessageConstant::getFitErrorMessage("PRODUCT_SEARCH_QUERYPRODUCTDETAIL"));
+                    }
+    
+                    $prdDto                   = $this->get1688ProductDto($detailResult);
+                    $product1688Dto           = $prdDto["product1688Dto"];
+                    $product1688ExtendDto     = $prdDto["product1688ExtendDto"];
+                    $product1688ImageDtoList  = $prdDto["product1688ImageDtoList"];
+                    $product1688NoticeDtoList = $prdDto["product1688NoticeDtoList"];
+                    $product1688OptionDtoList = $prdDto["product1688OptionDtoList"];
+    
+                    $saveResult = $this->save1688ProductData($product1688Dto, $product1688ExtendDto, $product1688ImageDtoList, $product1688NoticeDtoList, $product1688OptionDtoList);
+                    if( $saveResult["isSuccess"] != true ){
+                        throw new Exception($saveResult["msg"]);
+                    }
                 }
 
                 ProductCollectDetailLog::create([
@@ -938,6 +953,46 @@ class ProductW1 extends ProductAbstract
             "log_count"    => $successCnt + $failCnt,
             "completed_at" => Carbon::now()
         ]);
+    }
+
+    public function collectProductNotLog(int $offerId): array
+    {
+        $returnMsg = helpers_fail_message();
+        
+        try {
+            $endPoint = "param2/1/com.alibaba.fenxiao.crossborder/product.search.queryProductDetail/";
+            $payload  = [
+                'access_token'     => $this->accessToken,
+                'offerDetailParam' => [
+                    'offerId' => $offerId,
+                    'country' => Constant1688::LANGUAGE_KO,
+                ]
+            ];
+            $detailResult = curl_1688("POST", $endPoint, $payload);
+            if( $detailResult["isSuccess"] != true || $detailResult["data"]["result"]["success"] != true ){
+                throw new Exception(ProductErrorMessageConstant::getFitErrorMessage("PRODUCT_SEARCH_QUERYPRODUCTDETAIL"));
+            }
+
+            $prdDto                   = $this->get1688ProductDto($detailResult);
+            $product1688Dto           = $prdDto["product1688Dto"];
+            $product1688ExtendDto     = $prdDto["product1688ExtendDto"];
+            $product1688ImageDtoList  = $prdDto["product1688ImageDtoList"];
+            $product1688NoticeDtoList = $prdDto["product1688NoticeDtoList"];
+            $product1688OptionDtoList = $prdDto["product1688OptionDtoList"];
+
+            $saveResult = $this->save1688ProductData($product1688Dto, $product1688ExtendDto, $product1688ImageDtoList, $product1688NoticeDtoList, $product1688OptionDtoList);
+            if( $saveResult["isSuccess"] != true ){
+                throw new Exception($saveResult["msg"]);
+            }
+
+            $returnMsg = helpers_success_message();
+        } catch (Exception $e) {
+            $msg = "offerId: {$offerId} | error: " . $e->getMessage();
+
+            $returnMsg = helpers_fail_message(false, $msg);
+        }
+
+        return $returnMsg;
     }
 
     public function collectProductImage(array $offerIds): void
@@ -1818,41 +1873,40 @@ class ProductW1 extends ProductAbstract
             $apiResult = $apiDatas["data"]["result"]["result"];
             if( isset($apiResult["data"]) ){
                 $productDatas = $apiResult["data"];
-                $successCnt   = 0;
                 foreach ($productDatas as $productData) {
                     try {
                         $offerId = $productData["offerId"];
-                        $prdCnt  = ProductData::where("offer_id", $offerId)->count();
-                        if( $prdCnt > 0 ){
-                            throw new Exception(ProductErrorMessageConstant::getFitErrorMessage("ALREADY_PRODUCT"));
-                        }
 
-                        $endPoint       = "param2/1/com.alibaba.fenxiao.crossborder/product.search.queryProductDetail/";
-                        $payload_detail = [
-                            'access_token'     => $this->accessToken,
-                            'offerDetailParam' => [
-                                'offerId' => $offerId,
-                                'country' => Constant1688::LANGUAGE_KO,
-                            ]
-                        ];
-                        $detailResult = curl_1688("POST", $endPoint, $payload_detail);
-                        if( $detailResult["isSuccess"] != true || $detailResult["data"]["result"]["success"] != true ){
-                            throw new Exception(ProductErrorMessageConstant::getFitErrorMessage("PRODUCT_SEARCH_QUERYPRODUCTDETAIL"));
-                        }
+                        /** 1. W2로 수집 시도 */
+                        $resultW2 = $this->productW2->collectProductNotLog($offerId);
 
-                        $prdDto                   = $this->get1688ProductDto($detailResult);
-                        $product1688Dto           = $prdDto["product1688Dto"];
-                        $product1688ExtendDto     = $prdDto["product1688ExtendDto"];
-                        $product1688ImageDtoList  = $prdDto["product1688ImageDtoList"];
-                        $product1688NoticeDtoList = $prdDto["product1688NoticeDtoList"];
-                        $product1688OptionDtoList = $prdDto["product1688OptionDtoList"];
+                        /** 2. W2로 수집 실패 시 W1으로 수집 시도 */
+                        if( $resultW2["isSuccess"] != true ){
+                            $endPoint       = "param2/1/com.alibaba.fenxiao.crossborder/product.search.queryProductDetail/";
+                            $payload_detail = [
+                                'access_token'     => $this->accessToken,
+                                'offerDetailParam' => [
+                                    'offerId' => $offerId,
+                                    'country' => Constant1688::LANGUAGE_KO,
+                                ]
+                            ];
+                            $detailResult = curl_1688("POST", $endPoint, $payload_detail);
+                            if( $detailResult["isSuccess"] != true || $detailResult["data"]["result"]["success"] != true ){
+                                throw new Exception(ProductErrorMessageConstant::getFitErrorMessage("PRODUCT_SEARCH_QUERYPRODUCTDETAIL"));
+                            }
 
-                        $saveResult = $this->save1688ProductData($product1688Dto, $product1688ExtendDto, $product1688ImageDtoList, $product1688NoticeDtoList, $product1688OptionDtoList);
+                            $prdDto                   = $this->get1688ProductDto($detailResult);
+                            $product1688Dto           = $prdDto["product1688Dto"];
+                            $product1688ExtendDto     = $prdDto["product1688ExtendDto"];
+                            $product1688ImageDtoList  = $prdDto["product1688ImageDtoList"];
+                            $product1688NoticeDtoList = $prdDto["product1688NoticeDtoList"];
+                            $product1688OptionDtoList = $prdDto["product1688OptionDtoList"];
 
-                        if( $saveResult["isSuccess"] == true ){
-                            $successCnt++;
-                        }else{
-                            throw new Exception($saveResult["msg"]);
+                            $saveResult = $this->save1688ProductData($product1688Dto, $product1688ExtendDto, $product1688ImageDtoList, $product1688NoticeDtoList, $product1688OptionDtoList);
+
+                            if( $saveResult["isSuccess"] != true ){
+                                throw new Exception($saveResult["msg"]);
+                            }
                         }
 
                         ProductCollectDetailLog::create([
@@ -2053,41 +2107,40 @@ class ProductW1 extends ProductAbstract
             $apiResult = $apiDatas["data"]["result"]["result"];
             if( isset($apiResult["data"]) ){
                 $productDatas = $apiResult["data"];
-                $successCnt   = 0;
                 foreach ($productDatas as $productData) {
                     try {
                         $offerId = $productData["offerId"];
-                        $prdCnt  = ProductData::where("offer_id", $offerId)->count();
-                        if( $prdCnt > 0 ){
-                            throw new Exception(ProductErrorMessageConstant::getFitErrorMessage("ALREADY_PRODUCT"));
-                        }
 
-                        $endPoint       = "param2/1/com.alibaba.fenxiao.crossborder/product.search.queryProductDetail/";
-                        $payload_detail = [
-                            'access_token'     => $this->accessToken,
-                            'offerDetailParam' => [
-                                'offerId' => $offerId,
-                                'country' => Constant1688::LANGUAGE_KO,
-                            ]
-                        ];
-                        $detailResult = curl_1688("POST", $endPoint, $payload_detail);
-                        if( $detailResult["isSuccess"] != true || $detailResult["data"]["result"]["success"] != true ){
-                            throw new Exception(ProductErrorMessageConstant::getFitErrorMessage("PRODUCT_SEARCH_QUERYPRODUCTDETAIL"));
-                        }
+                        /** 1. W2로 수집 시도 */
+                        $resultW2 = $this->productW2->collectProductNotLog($offerId);
 
-                        $prdDto                   = $this->get1688ProductDto($detailResult);
-                        $product1688Dto           = $prdDto["product1688Dto"];
-                        $product1688ExtendDto     = $prdDto["product1688ExtendDto"];
-                        $product1688ImageDtoList  = $prdDto["product1688ImageDtoList"];
-                        $product1688NoticeDtoList = $prdDto["product1688NoticeDtoList"];
-                        $product1688OptionDtoList = $prdDto["product1688OptionDtoList"];
+                        /** 2. W2로 수집 실패 시 W1으로 수집 시도 */
+                        if( $resultW2["isSuccess"] != true ){
+                            $endPoint       = "param2/1/com.alibaba.fenxiao.crossborder/product.search.queryProductDetail/";
+                            $payload_detail = [
+                                'access_token'     => $this->accessToken,
+                                'offerDetailParam' => [
+                                    'offerId' => $offerId,
+                                    'country' => Constant1688::LANGUAGE_KO,
+                                ]
+                            ];
+                            $detailResult = curl_1688("POST", $endPoint, $payload_detail);
+                            if( $detailResult["isSuccess"] != true || $detailResult["data"]["result"]["success"] != true ){
+                                throw new Exception(ProductErrorMessageConstant::getFitErrorMessage("PRODUCT_SEARCH_QUERYPRODUCTDETAIL"));
+                            }
 
-                        $saveResult = $this->save1688ProductData($product1688Dto, $product1688ExtendDto, $product1688ImageDtoList, $product1688NoticeDtoList, $product1688OptionDtoList);
+                            $prdDto                   = $this->get1688ProductDto($detailResult);
+                            $product1688Dto           = $prdDto["product1688Dto"];
+                            $product1688ExtendDto     = $prdDto["product1688ExtendDto"];
+                            $product1688ImageDtoList  = $prdDto["product1688ImageDtoList"];
+                            $product1688NoticeDtoList = $prdDto["product1688NoticeDtoList"];
+                            $product1688OptionDtoList = $prdDto["product1688OptionDtoList"];
 
-                        if( $saveResult["isSuccess"] == true ){
-                            $successCnt++;
-                        }else{
-                            throw new Exception($saveResult["msg"]);
+                            $saveResult = $this->save1688ProductData($product1688Dto, $product1688ExtendDto, $product1688ImageDtoList, $product1688NoticeDtoList, $product1688OptionDtoList);
+
+                            if( $saveResult["isSuccess"] != true ){
+                                throw new Exception($saveResult["msg"]);
+                            }
                         }
 
                         ProductCollectDetailLog::create([

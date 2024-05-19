@@ -1,7 +1,6 @@
 @php
     use App\Constants\ProductConstant;
     use App\Constants\MallConstant;
-    use App\Constants\EasySellConstant;
     use App\Constants\WConstant;
 @endphp
 @extends('dashboard.base')
@@ -21,7 +20,7 @@
                         <span>Home</span>
                     </a>
                 </li>
-                <li class="breadcrumb-item">이지셀</li>
+                <li class="breadcrumb-item">온채널</li>
                 <li class="breadcrumb-item">상품관리</li>
                 <li class="breadcrumb-item active" aria-current="page">상품현황</li>
             </ol>
@@ -71,7 +70,7 @@
                                     <td style="width: 200px">
                                         <select class="form-select" name="search_cls">
                                             <option value="offer_id" @if($search_cls == "offer_id") selected @endif>제품 ID</option>
-                                            <option value="itemno" @if($search_cls == "itemno") selected @endif>이지셀 고유번호</option>
+                                            <option value="prd_code" @if($search_cls == "prd_code") selected @endif>온채널 고유번호</option>
                                             <option value="prd_name_kr" @if($search_cls == "prd_name_kr") selected @endif>상품명</option>
                                         </select>
                                     </td>
@@ -82,7 +81,7 @@
                                 <tr class="align-middle text-left">
                                     <td colspan="3">
                                         <button type="button" class="btn btn-md btn-primary" id="form-submit">검색</button>
-                                        <a href="/easySell/product/list" class="btn btn-md btn-light btn-reset" role="button">초기화</button>
+                                        <a href="/onchannel/product/list" class="btn btn-md btn-light btn-reset" role="button">초기화</button>
                                     </td>
                                 </tr>
                             </table>
@@ -97,7 +96,7 @@
                                 <option value=10 @if($pageSize == 10) selected @endif>10개 노출</option>
                             </select>
                         </div>
-                        <button type="button" class="btn btn-md btn-outline-dark me-2" id="btn-select">상품전송</button>
+                        {{-- <button type="button" class="btn btn-md btn-outline-dark me-2" id="btn-select">상품전송</button> --}}
                     </div>
                 </form>
 
@@ -112,9 +111,12 @@
                                 <th scope="col" style="width: 100px" class="text-center">이미지</th>
                                 <th scope="col" style="width: 150px" class="text-center">제품ID</th>
                                 <th scope="col">상품명</th>
-                                <th scope="col" style="width: 130px">일반 판매가(원)</th>
-                                <th scope="col" style="width: 130px">MD 판매가(원)</th>
-                                <th scope="col" style="width: 100px" class="text-center">이지셀 전송</th>
+                                <th scope="col" style="width: 130px">W 공급가(원)</th>
+                                <th scope="col" style="width: 130px">온채널 공급가(원)</th>
+                                <th scope="col" style="width: 100px" class="text-center">
+                                    온채널 코드<br>
+                                    맵핑 코드
+                                </th>
                                 <th scope="col" style="width: 200px" class="text-center">관리</th>
                             </tr>
                         </thead>
@@ -134,16 +136,16 @@
                                         {{ number_format(($datas->total() - $offset) - $index) }}
                                     </td>
                                     <td class="text-center">
-                                        @if( !empty($data->main_img->img_url_trans) )
-                                            <img class="lazy-img preview-image" data-src="{{ $data->main_img->img_url_trans }}" width=60 height=60/>
+                                        @if( !empty($data->main_img->img_url_origin) )
+                                            <img class="lazy-img preview-image" data-src="{{ $data->main_img->img_url_origin }}" width=60 height=60/>
                                         @else
                                             <img class="lazy-img preview-image" data-src='/assets/img/no_img.png'width=60 height=60>
                                         @endif
                                     </td>
                                     <td>
                                         {{ $data->offer_id }}
-                                        @if(empty($data->es_mapping) || empty($data->es_fgn_mapping))
-                                        <br><span class="text-danger">*카테고리 미맵핑 ({{ $data->category_id }})</span>
+                                        @if( $data->mapping_status != ProductConstant::MAPPING_STATUS_Y )
+                                            <br><span class="text-danger">*카테고리 미맵핑 ({{ $data->category_id }})</span>
                                         @endif
                                     </td>
                                     <td>
@@ -154,7 +156,7 @@
                                             @php
                                                 $option = $data->options[0];
                                             @endphp
-                                            {{ number_format(calcEasySellSalePrice($option->option_price, $option->md_price, "static")) }}
+                                            {{ number_format($option->option_price) }}
                                         @else
                                             <p class="text-danger">옵션없음</p>
                                         @endif
@@ -164,24 +166,26 @@
                                             @php
                                                 $option = $data->options[0];
                                             @endphp
-                                            @if(!empty($option->md_price))
-                                            {{ number_format( $option->md_price ) }}
-                                            @endif
+                                            {{ number_format(calcOnchannelSalePrice($option->option_price)) }}
                                         @else
                                             <p class="text-danger">옵션없음</p>
                                         @endif
                                     </td>
                                     <td class="text-center">
                                         @if($data->regist_success == MallConstant::REGIST_SUCCESS)
-                                            {{ $data->itemno }} <br>
-                                            <small>({{ EasySellConstant::CATEGORY_NAME[substr($data->es_fgn_mapping->mapping_code,0,6)] }})</small>
+                                            {{ $data->prd_code }} <br>
+                                            @if ($data->w_mapping)
+                                                <small>({{ $data->w_mapping->mapping_code }})</small>
+                                            @endif
+                                        @elseif($data->regist_success == MallConstant::REGIST_FAIL)
+                                            <span class="text-danger">전송실패 사유: ({{ $data->message }})</span>
                                         @else
                                             <span class="text-danger">미등록</span>
-                                        @endisset
+                                        @endif
                                     </td>
                                     <td class="text-center">
                                         <button type="button" class="btn btn-sm btn-outline-success btn-detail" offerid={{ $data->offer_id }}>상세보기</button>
-                                        <button type="button" class="btn btn-sm btn-outline-primary btn-regist" offerid={{ $data->offer_id }} {{ $disabled }}>상품전송</button>
+                                        {{-- <button type="button" class="btn btn-sm btn-outline-primary btn-regist" offerid={{ $data->offer_id }} {{ $disabled }}>상품전송</button> --}}
                                     </td>
                                 </tr>
                             @endforeach
@@ -204,7 +208,7 @@
             $(`input[name=${name}]`).val($(this).val());
             $("#searchFrm").submit();            
         });
-
+        
         $(".btn-detail").click(function(){
             let offer_id = $(this).attr("offerid");
             location.href = `/product/${offer_id}`;

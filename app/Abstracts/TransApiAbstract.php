@@ -22,6 +22,14 @@ abstract class TransApiAbstract
     abstract function createTransProductImg(array $product1688ImageDtoList, int $offerId): array;
 
     /**
+     * @func createTransProductImgAgain
+     * @description '추가 이미지 번역 통신'
+     * @param array $product1688ImageDtoList
+     * @param int $offerId
+     */
+    abstract function createTransProductImgAgain(array $product1688ImageDtoList, int $offerId): array;
+
+    /**
      * @func translateImage
      * @description '이미지 번역'
      * @param string $imgPath
