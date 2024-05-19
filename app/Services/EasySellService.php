@@ -5,9 +5,13 @@ namespace App\Services;
 use App\Constants\MallConstant;
 use App\Constants\ProductConstant;
 use App\Constants\WConstant;
+use App\Models\CategoryMapping;
 use App\Models\EasysellProductLog;
 use App\Models\ProductData;
+use App\Models\SellerhubCategory;
 use App\Models\WCategory;
+use Exception;
+use Illuminate\Support\Facades\DB;
 
 class EasySellService
 {
@@ -139,21 +143,31 @@ class EasySellService
             $categoryBuilder->where("a.cate_fourth", $cate_fourth);
         }
 
+        $esCateFirstList  = SellerhubCategory::pluck("cate_first")->unique()->filter();
+
         $lists = $categoryBuilder->paginate($pageSize)->appends($params);
 
         return [
-            "cateFirstList"  => $cateFirstList,
-            "cateSecondList" => $cateSecondList,
-            "cateThirdList"  => $cateThirdList,
-            "cateFourthList" => $cateFourthList,
-            "paginator"      => $lists,
+            "esCateFirstList" => $esCateFirstList,
+            "cateFirstList"   => $cateFirstList,
+            "cateSecondList"  => $cateSecondList,
+            "cateThirdList"   => $cateThirdList,
+            "cateFourthList"  => $cateFourthList,
+            "paginator"       => $lists,
         ];
     }
 
-    public function categoryDepth(array $params){
+    public function categoryDepth(array $params):array
+    {
         $categoryList = [];
 
-        $cateListBuilder = WCategory::where("cate_first",$params['cateFirst']);
+        if($params['cateType'] == 'select-opt') {
+            $category = new WCategory();
+        }else{
+            $category = new SellerhubCategory();
+        }
+
+        $cateListBuilder = $category::where("cate_first",$params['cateFirst']);
         if(isset($params['level'])){
             if($params['level'] == 1){
                 $categoryList = $cateListBuilder->groupBy("cate_second")
@@ -175,5 +189,102 @@ class EasySellService
         return [
             "categoryList" => $categoryList
         ];
+    }
+
+    public function categoryInfo(array $params) :array
+    {
+        $categoryCode = $params['categoryCode'];
+        $cateNm       = "";
+        $cateParams   = [];
+
+        if(isset($categoryCode)){
+            $cateObj = WCategory::where("mapping_code", $categoryCode)->first();
+            if(isset($cateObj)){
+                if(!empty($cateObj->cate_first)){
+                    $cateNm = $cateObj->cate_first;
+                }
+                if(!empty($cateObj->cate_second)){
+                    $cateNm .= " > ".$cateObj->cate_second;
+                }
+                if(!empty($cateObj->cate_third)){
+                    $cateNm .= " > ".$cateObj->cate_third;
+                }
+                if(!empty($cateObj->cate_fourth)){
+                    $cateNm .= " > ".$cateObj->cate_fourth;
+                }
+            }
+        }else{
+            $cateParams = $params;
+        }
+
+        return [
+            "cateNm" => $cateNm,
+            "cateList" => $this->categoryList($cateParams)
+        ];
+    }
+
+    public function categoryList(array $params = []){
+        $cateBuilder = SellerhubCategory::query();
+
+        if(isset($params['cate_first'])){
+            $cateBuilder->where("cate_first",$params['cate_first']);
+        }
+        if(isset($params['cate_second'])){
+            $cateBuilder->where("cate_second",$params['cate_second']);
+        }
+        if(isset($params['cate_third'])){
+            $cateBuilder->where("cate_third",$params['cate_third']);
+        }
+        if(isset($params['cate_fourth'])){
+            $cateBuilder->where("cate_fourth",$params['cate_fourth']);
+        }
+
+        if(!empty($params['keyword'])){
+            $keyword = $params['keyword'];
+            $cateBuilder->where(function($query) use ($keyword) {
+                $query->where("cate_first", "like", "%" . $keyword . "%")
+                    ->orWhere("cate_second", "like", "%" . $keyword . "%")
+                    ->orWhere("cate_third", "like", "%" . $keyword . "%")
+                    ->orWhere("cate_fourth", "like", "%" . $keyword . "%");
+            });
+        }
+
+        return $cateBuilder->get()->toArray();
+    }
+
+    public function categoryMapping(array $params):array
+    {
+        $rtMsg = helpers_fail_message();
+
+        $cateId       = $params["cateId"];
+        $selectedCate = $params["selectedCate"];
+
+        try{
+            DB::beginTransaction();
+
+            $selCateObj = CategoryMapping::where("mapping_code", $cateId)
+                ->where("mapping_channel", ProductConstant::MAPPING_WAPP)
+                ->get();
+
+            if(count($selCateObj) == 0){
+                throw new Exception("WApp 카테고리 매핑 정보가 없습니다");
+            }
+
+            foreach($selCateObj as $cate){
+                CategoryMapping::updateOrCreate([
+                        "mapping_channel" => ProductConstant::MAPPING_ES_CHANNEL,
+                        "category_id"     => $cate->category_id
+                    ], [ "mapping_code" => $selectedCate ]);
+            }
+
+            DB::commit();
+            $rtMsg = helpers_success_message();
+        }catch(Exception $e){
+            DB::rollback();
+
+            $rtMsg = helpers_fail_message(false, $e->getMessage());
+        }
+
+        return $rtMsg;
     }
 }

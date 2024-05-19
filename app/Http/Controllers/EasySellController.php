@@ -76,34 +76,70 @@ class EasySellController extends Controller
         $result = $this->easySellService->cateList($params);
 
         $viewParams = [
-            "mapping_status" => $mapping_status,
-            "keyword"        => $keyword,
-            "offset"         => $offset,
-            "datas"          => $result["paginator"],
-            "cateFirstList"  => $result["cateFirstList"],
-            "cateSecondList" => $result["cateSecondList"],
-            "cateThirdList"  => $result["cateThirdList"],
-            "cateFourthList" => $result["cateFourthList"],
-            "cate_first"     => $cate_first,
-            "cate_second"    => $cate_second,
-            "cate_third"     => $cate_third,
-            "cate_fourth"    => $cate_fourth
+            "mapping_status"  => $mapping_status,
+            "keyword"         => $keyword,
+            "offset"          => $offset,
+            "datas"           => $result["paginator"],
+            "esCateFirstList" => $result["esCateFirstList"],
+            "cateFirstList"   => $result["cateFirstList"],
+            "cateSecondList"  => $result["cateSecondList"],
+            "cateThirdList"   => $result["cateThirdList"],
+            "cateFourthList"  => $result["cateFourthList"],
+            "cate_first"      => $cate_first,
+            "cate_second"     => $cate_second,
+            "cate_third"      => $cate_third,
+            "cate_fourth"     => $cate_fourth
         ];
         return view("easysell.categoryManage")->with($viewParams);
     }
 
     public function categoryDepth():array
     {
+        $cateType   = $this->request->post("cateType");
         $cateFirst  = $this->request->post("cateFirst");
         $categoryNm = $this->request->post("categoryNm");
         $level      = $this->request->post("level");
 
         $params = [
+            "cateType"   => $cateType,
             "cateFirst"  => $cateFirst,
             "categoryNm" => $categoryNm,
             "level"      => $level,
         ];
         $result = $this->easySellService->categoryDepth($params);
+        return $result;
+    }
+
+    public function categoryInfo():array
+    {
+        $categoryCode = $this->request->post("categoryCode");
+        $cate_first   = $this->request->post("cate_first", "");
+        $cate_second  = $this->request->post("cate_second", "");
+        $cate_third   = $this->request->post("cate_third", "");
+        $cate_fourth  = $this->request->post("cate_fourth", "");
+
+        $params = [
+            "categoryCode" => $categoryCode,
+            "cate_first"   => $cate_first,
+            "cate_second"  => $cate_second,
+            "cate_third"   => $cate_third,
+            "cate_fourth"  => $cate_fourth,
+        ];
+        $result = $this->easySellService->categoryInfo($params);
+
+        return $result;
+    }
+
+    public function categoryMapping(){
+        $cateId       = $this->request->post("cateId");
+        $selectedCate = $this->request->post("selectedCate");
+
+        $params = [
+            "cateId"       => $cateId,
+            "selectedCate" => $selectedCate,
+        ];
+        $result = $this->easySellService->categoryMapping($params);
+
         return $result;
     }
 }

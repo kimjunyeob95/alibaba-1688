@@ -5,7 +5,30 @@
 
 @section('styles')
 <style>
+.cate-table tbody {
+  display: block;
+  max-height: 350px;
+  overflow-y: auto;
+}
 
+.cate-table thead,
+.cate-table tbody tr {
+  display: table;
+  width: 100%;
+}
+
+.cate-table thead tr td,
+.cate-table tbody tr td{
+    width: 25%;
+}
+
+.cate-table tbody tr{
+    cursor: pointer;
+}
+
+input[name='easySellCategory']{
+    visibility: hidden;
+}
 </style>
 @endsection
 
@@ -141,12 +164,23 @@
                                             </span>
                                         @else
                                             @isset($data->es_category)
-                                                {{ $data->es_category->sellerhub_cate_nm }}
+                                                @if(!empty($data->es_category->cate_first))
+                                                    {{ $data->es_category->cate_first }}
+                                                @endif
+                                                @if(!empty($data->es_category->cate_second))
+                                                    > {{ $data->es_category->cate_second }}
+                                                @endif
+                                                @if(!empty($data->es_category->cate_third))
+                                                    > {{ $data->es_category->cate_third }}
+                                                @endif
+                                                @if(!empty($data->es_category->cate_fourth))
+                                                    > {{ $data->es_category->cate_fourth }}
+                                                @endif
                                             @endisset
                                         @endempty
                                     </td>
                                     <td class="text-center">
-                                        <button class="btn btn-sm btn-outline-success btn-modal" cateid="">맵핑하기</button>
+                                        <button class="btn btn-sm btn-outline-success btn-modal" cateid="{{$data->mapping_code}}">맵핑하기</button>
                                     </td>
                                 </tr>
                             @endforeach
@@ -164,21 +198,16 @@
             <div class="modal-dialog modal-xl" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="htmlModalLabel">매칭 카테고리 : <span></span></h5>
+                        <h5 class="modal-title" id="htmlModalLabel">매칭 카테고리 : <span class="mapping-cate-nm"></span></h5>
                     </div>
                     <div class="modal-body">
-                        <input type="hidden" name="chkCateIds[]" />
+                        <input type="hidden" name="cateId" />
 
                         <div>
                             <div class="d-flex align-items-center">
                                 <label class="fs-7">카테고리 매칭하기</label>
                             </div>
-                            <div class="d-flex justify-content-evenly px-3">
-                                <div class="row w-100 cate-1688-list">
-                                </div>
-                            </div>
                             <hr>
-
                             <div class="d-flex justify-content-evenly px-3">
                                 <div class="row w-100">
                                     <div class="col-2">
@@ -197,23 +226,26 @@
                                         <label class="fs-7">카테고리</label>
                                     </div>
                                     <div class="col">
-                                        <select class="form-control select-opt-es" name="cate_first" level="1">
-                                            <option value="">1차 분류</option>
+                                        <select class="form-control select-opt-es" name="es_cate_first" level="1">
+                                            <option value="" hidden>1차 분류</option>
+                                            @foreach($esCateFirstList as $cate)
+                                            <option value="{{ $cate }}">{{ $cate }}</option>
+                                            @endforeach
                                         </select>
                                     </div>
                                     <div class="col">
-                                        <select class="form-control select-opt-es" name="cate_second" level="2">
-                                            <option value="">2차 분류</option>
+                                        <select class="form-control select-opt-es" name="es_cate_second" level="2">
+                                            <option value="" hidden>2차 분류</option>
                                         </select>
                                     </div>
                                     <div class="col">
-                                        <select class="form-control select-opt-es" name="cate_third" level="3">
-                                            <option value="">3차 분류</option>
+                                        <select class="form-control select-opt-es" name="es_cate_third" level="3">
+                                            <option value="" hidden>3차 분류</option>
                                         </select>
                                     </div>
                                     <div class="col">
-                                        <select class="form-control select-opt-es" name="cate_fourth" level="4">
-                                            <option value="">4차 분류</option>
+                                        <select class="form-control select-opt-es" name="es_cate_fourth" level="4">
+                                            <option value="" hidden>4차 분류</option>
                                         </select>
                                     </div>
                                 </div>
@@ -225,7 +257,7 @@
                             </div>
                             <hr>
 
-                            <table class="table table-white bg-white w-cate-table">
+                            <table class="table table-white bg-white cate-table">
                                 <thead class="table-light">
                                     <tr>
                                         <th scope="col" style="width: 200px">1차 카테고리</th>
@@ -240,7 +272,7 @@
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-primary">확인</button>
+                        <button type="button" class="btn btn-primary btn-save">확인</button>
                         <button type="button" class="btn btn-secondary htmlModalClose">닫기</button>
                     </div>
                 </div>
@@ -257,13 +289,20 @@
             $("#searchFrm").submit();
         });
 
-        $('.select-opt').change(function(){
+        $('.select-opt, .select-opt-es').on('change', function() {
             let selectedLevel = parseInt($(this).attr('level'));
             let categoryNm   = $(this).val();
 
+            var classNm = "";
+            if($(this).hasClass('select-opt')){
+                classNm = 'select-opt';
+            }else{
+                classNm = 'select-opt-es';
+            }
+
             if( selectedLevel < 4 ){
                 var cateFirst = "";
-                $('.select-opt').each(function(idx) {
+                $('.'+classNm).each(function(idx) {
                     if(idx == 0){
                         cateFirst = $(this).val();
                     }
@@ -277,8 +316,9 @@
                     $.ajax({
                         "headers" : {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
                         "type"    : "POST",
-                        "url"        : "{{ route('easySell.category.categoryDepth') }}",
+                        "url"        : "{{ route('easySell.category.depth') }}",
                         "data"       : {
+                            "cateType"    : classNm,
                             "cateFirst" : cateFirst,
                             "categoryNm": categoryNm,
                             "level"     : selectedLevel
@@ -291,7 +331,7 @@
                         },
                         success : function (resp) {
                             $.each(resp.categoryList, function(idx,value) {
-                                $(`.select-opt[level=${selectedLevel+1}]`).append(`<option value="${value}">${value}</option>`)
+                                $(`.`+classNm+`[level=${selectedLevel+1}]`).append(`<option value="${value}">${value}</option>`)
                             });
                         },
                         error: function (request) {
@@ -310,25 +350,36 @@
             $.ajax({
                 "headers" : {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
                 "type"    : "POST",
-                "url"        : "{{ route('w.category.getInfos') }}",
-                "data"    : { categoryIds: [cateId] },
+                "url"        : "{{ route('easySell.category.info') }}",
+                "data"    : { "categoryCode" : cateId },
                 beforeSend: function () {},
                 complete  : function(xhr, status) {
                     $("#loadingOverlay").hide();
                 },
                 success : function (resp) {
-                    $(`.cate-1688-list`).html("");
-                    let category_ids = [];
-                    resp.data.cateResult.map(function(obj){
-                        category_ids.push(obj.category_id);
-                        $(`.cate-1688-list`).append(`<p>- ${obj.cate_name}</p>`)
+                    $(`.mapping-cate-nm`).text(resp.cateNm);
+                    $("input[name='cateId']").val(cateId);
+                    $(".cate-table tbody").html("");
+                    resp.cateList.map(function(obj){
+                        $(`.cate-table tbody`).append(`
+                            <tr>
+                                <td>
+                                    <input type='radio' name='easySellCategory' value='${obj.sellerhub_cate}'>
+                                    ${obj.cate_first}
+                                </td>
+                                <td>
+                                    ${obj.cate_second}
+                                </td>
+                                <td>
+                                    ${obj.cate_third}
+                                </td>
+                                <td>
+                                    ${obj.cate_fourth}
+                                </td>
+                            </tr
+                        `);
                     });
-                    $('input[name="chkCateIds[]"]').val(category_ids);
 
-                    $(`.select-opt-es[level=1]`).html(`<option value="">1차 분류</option>`);
-                    resp.data.wCateDepth1.map(function(obj){
-                        $(`.select-opt-es[level=1]`).append(`<option value="${obj.cate_first}">${obj.cate_first}</option>`)
-                    });
                     $("#htmlModal").modal('show');
                 },
                 error: function (request) {
@@ -337,6 +388,94 @@
                 }
             });
         });
+
+        $('.cate-table').on('click', 'tr', function() {
+            $(this).find('input[type="radio"]').prop('checked', true);
+
+            $('.cate-table tr').removeClass('bg-secondary');
+            $(this).addClass("bg-secondary");
+        });
+
+        $(".btn-cate-search").click(function(){
+            var keyword = $("input[name='cate_keyword']").val();
+            var cate_first  = $("select[name='es_cate_first']").val();
+            var cate_second = $("select[name='es_cate_second']").val();
+            var cate_third  = $("select[name='es_cate_third']").val();
+            var cate_fourth = $("select[name='es_cate_fourth']").val();
+
+            $.ajax({
+                "headers" : {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
+                "type"    : "POST",
+                "url"        : "{{ route('easySell.category.info') }}",
+                "data"    : {
+                    "keyword"    : keyword,
+                    "cate_first" : cate_first,
+                    "cate_second": cate_second,
+                    "cate_third" : cate_third,
+                    "cate_fourth": cate_fourth,
+                },
+                beforeSend: function () {},
+                complete  : function(xhr, status) {
+                    $("#loadingOverlay").hide();
+                },
+                success : function (resp) {
+                    $(".cate-table tbody").html("");
+                    resp.cateList.map(function(obj){
+                        $(`.cate-table tbody`).append(`
+                            <tr mapping-code="${obj.mapping_code}">
+                                <td>
+                                    ${obj.cate_first}
+                                </td>
+                                <td>
+                                    ${obj.cate_second}
+                                </td>
+                                <td>
+                                    ${obj.cate_third}
+                                </td>
+                                <td>
+                                    ${obj.cate_fourth}
+                                </td>
+                            </tr
+                        `);
+                    });
+                },
+                error: function (request) {
+                    let { error } = JSON.parse(request.responseText);
+                    alert(error.message);
+                }
+            });
+        })
+
+        $(".btn-save").click(function(){
+            var selectedCate = $("input[name='easySellCategory']:checked").val();
+            var cateId       = $("input[name='cateId']").val();
+
+            $.ajax({
+                "headers" : {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
+                "type"    : "POST",
+                "url"        : "{{ route('easySell.category.mapping') }}",
+                "data"       : {
+                    "cateId"      : cateId,
+                    "selectedCate": selectedCate,
+                },
+                beforeSend: function () {
+                    $("#loadingOverlay").show();
+                },
+                complete  : function(xhr, status) {
+                    $("#loadingOverlay").hide();
+                },
+                success : function (resp) {
+                    alert(resp.msg);
+                    if(resp.isSuccess == true){
+                        location.reload();
+                    }
+                },
+                error: function (request) {
+                    let { error } = JSON.parse(request.responseText);
+                    alert(error.message);
+                }
+            });
+        })
     });
 </script>
 
