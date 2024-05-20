@@ -3,6 +3,7 @@
 namespace App\Abstracts;
 
 use App\Constants\MallErrorMessageConstant;
+use App\Constants\OrderErrorMessageConstant;
 use App\Constants\ProductErrorMessageConstant;
 use App\Models\ApiUser;
 use App\Models\OrderData;
@@ -145,6 +146,12 @@ abstract class MallApiAbstract
                 $orderDetailDto->bind($orderDetailDtoBind);
 
                 $orderDetailDtos[] = $orderDetailDto;
+            }
+
+            if( $prdObj->start_quantity > $totalQuantity ){
+                $startQuantity = $prdObj->start_quantity;
+                $errMsg = OrderErrorMessageConstant::getFitErrorMessage("START_QUANTITY") . " 최수 구매 수량: {$startQuantity} | 요청 수량: {$totalQuantity}";
+                throw new Exception($errMsg);
             }
 
             $payload = [

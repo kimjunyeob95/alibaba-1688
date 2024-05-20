@@ -28,6 +28,7 @@ class OrderErrorMessageConstant
     public const ERROR_MESSAGE_BUYER_ZIPCODE          = "buyer_zipcode";
     public const ERROR_MESSAGE_BUYER_ADDRESS          = "buyer_address";
     public const ERROR_MESSAGE_BUYER_MEMO             = "buyer_memo";
+    public const ERROR_MESSAGE_START_QUANTITY         = "최소 구매 수량 이상으로 주문을 요청해주세요.";
  
     public static function getErrorMessageNotDefault($constantName): string
     {
