@@ -120,7 +120,10 @@ abstract class MallApiAbstract
                 $optionId = $option["option_id"];
                 $quantity = $option["quantity"];
 
-                $optObj = ProductOptionData::where("id", $optionId)->first();
+                $optObj = ProductOptionData::where([
+                    "id"       => $optionId,
+                    "offer_id" => $offerId,
+                ])->first();
                 if( $optObj == null ){
                     throw new Exception(ProductErrorMessageConstant::getNotHaveErrorMessage("OPTION"));
                 }
