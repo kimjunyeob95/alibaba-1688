@@ -24,7 +24,7 @@ class EasySellCommand extends Command
 
         if( !$func ) return null;
 
-        $this->mallApiService = new MallApiService(new EasySell(MallConstant::MALL_EASYSELL));
+        $this->mallApiService = new MallApiService(app(EasySell::class));
         switch ($func) {
             /**
              * 상품등록 커맨드
