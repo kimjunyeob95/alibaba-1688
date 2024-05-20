@@ -1056,7 +1056,7 @@
                     "data": {
                         "required": [
                             "order_id",
-                            "isSuccess"
+                            "success"
                         ],
                         "properties": {
                             "order_id": {
@@ -1064,7 +1064,7 @@
                                 "type": "integer",
                                 "example": 3890000700554135493
                             },
-                            "isSuccess": {
+                            "success": {
                                 "description": "성공 여부",
                                 "type": "boolean",
                                 "example": true

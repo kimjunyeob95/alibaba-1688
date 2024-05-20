@@ -112,7 +112,7 @@ namespace App\Annotations\v1\W\cOrder;
  *     @OA\Property(
  *         property="data", 
  *         type="object",
- *         required={"order_id", "isSuccess"},
+ *         required={"order_id", "success"},
  *         @OA\Property(
  *             property="order_id",
  *             type="integer",
@@ -120,7 +120,7 @@ namespace App\Annotations\v1\W\cOrder;
  *             example=3890000700554135493
  *         ),
  *         @OA\Property(
- *             property="isSuccess",
+ *             property="success",
  *             type="boolean",
  *             description="성공 여부",
  *             example=true
