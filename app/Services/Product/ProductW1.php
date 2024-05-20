@@ -1299,7 +1299,7 @@ class ProductW1 extends ProductAbstract
             "wType"          => WConstant::WAPP_W1,
             "subject"        => $detailProduct["subject"],
             "subjectTrans"   => $subjectForbiddenTrans,
-            "subjectTransEn" => "",
+            "subjectTransEn" => $prdObj != null ? $prdObj->prd_name_en : "",
             "startQuantity"  => $startQuantity,
             "description"    => $detailProduct["description"],
             "soldOut"        => $soldOut,
@@ -1337,8 +1337,8 @@ class ProductW1 extends ProductAbstract
             if( $attributeNameTrans != $nameTrans ){ 
                 ProductForbiddenData::updateOrCreate(
                     [
-                        "offer_id"   => $offerId,
-                        "apply_type" => ForbiddenWordConstant::KEYWORD_APPLY_ATTR_NAME,
+                        "offer_id"    => $offerId,
+                        "apply_type"  => ForbiddenWordConstant::KEYWORD_APPLY_ATTR_NAME,
                         "origin_text" => $attributeNameTrans,
                     ],
                     [
@@ -1374,8 +1374,8 @@ class ProductW1 extends ProductAbstract
                 "value"                => $prdNotice["value"],
                 "attributeNameTrans"   => $nameTrans,
                 "valueTrans"           => $valueTrans,
-                "attributeNameTransEn" => "",
-                "valueTransEn"         => "",
+                "attributeNameTransEn" => $gosiObj != null ? $gosiObj->attribute_name_en : "",
+                "valueTransEn"         => $gosiObj != null ? $gosiObj->attribute_value_en : "",
             ]);
             $product1688NoticeDtoList[] = $product1688NoticeDto;
         }
@@ -1476,7 +1476,7 @@ class ProductW1 extends ProductAbstract
                     "price_1688"        => $price_1688,
                     "optionName"        => rtrim($optionName, "_"),
                     "optionNameTrans"   => rtrim($optionNameTrans, "_"),
-                    "optionNameTransEn" => "",
+                    "optionNameTransEn" => $optionObj != null ? $optionObj->option_name_en : "",
                     "amountOnSale"      => $prdOptions["amountOnSale"],
                     "cargoNumber"       => $prdOptions["cargoNumber"] ?? "",
                     "width"             => (float) sprintf("%.2f", $width),
