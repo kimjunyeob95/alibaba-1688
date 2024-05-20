@@ -1699,10 +1699,10 @@ class ProductW2 extends ProductAbstract
 
     public function delProductImage(array $product1688ImageDtoList): void
     {
-        $mainImgs   = [];
+        $mainImg    = "";
         $subImgs    = [];
         $descImgs   = [];
-        $mainEnImgs = [];
+        $mainEnImg  = "";
         $subEnImgs  = [];
         $descEnImgs = [];
         $offerId    = 0;
@@ -1710,7 +1710,7 @@ class ProductW2 extends ProductAbstract
             $offerId = $product1688ImageDto->offer_id;
             if( $product1688ImageDto->lang == WConstant::WAPP_KR ){
                 if( $product1688ImageDto->img_type == ImageConstant::IMAGE_TYPE_MAIN ){
-                    $mainImgs[] = $product1688ImageDto->img_url_origin;
+                    $mainImg = $product1688ImageDto->img_url_origin;
                 }
                 if( $product1688ImageDto->img_type == ImageConstant::IMAGE_TYPE_SUB ){
                     $subImgs[] = $product1688ImageDto->img_url_origin;
@@ -1720,7 +1720,7 @@ class ProductW2 extends ProductAbstract
                 }
             } else if( $product1688ImageDto->lang == WConstant::WAPP_EN ){
                 if( $product1688ImageDto->img_type == ImageConstant::IMAGE_TYPE_MAIN ){
-                    $mainEnImgs[] = $product1688ImageDto->img_url_origin;
+                    $mainEnImg = $product1688ImageDto->img_url_origin;
                 }
                 if( $product1688ImageDto->img_type == ImageConstant::IMAGE_TYPE_SUB ){
                     $subEnImgs[] = $product1688ImageDto->img_url_origin;
@@ -1733,20 +1733,20 @@ class ProductW2 extends ProductAbstract
 
         if( $offerId ){
             // 1. 메인 이미지 삭제
-            if( !empty($mainImgs) ){
+            if( $mainImg ){
                 ProductImageData::where('img_type', ImageConstant::IMAGE_TYPE_MAIN)
                 ->where('offer_id', $offerId)
                 ->where('is_except', ImageConstant::IS_EXCEPT_N)
                 ->where('lang', WConstant::WAPP_KR)
-                ->whereNotIn('img_url_origin', $mainImgs)
+                ->where('img_url_origin', '!=', $mainImg)
                 ->delete();
             }
-            if( !empty($mainEnImgs) ){
+            if( $mainEnImg ){
                 ProductImageData::where('img_type', ImageConstant::IMAGE_TYPE_MAIN)
                 ->where('offer_id', $offerId)
                 ->where('is_except', ImageConstant::IS_EXCEPT_N)
                 ->where('lang', WConstant::WAPP_EN)
-                ->whereNotIn('img_url_origin', $mainEnImgs)
+                ->where('img_url_origin', '!=', $mainEnImg)
                 ->delete();
             }
 

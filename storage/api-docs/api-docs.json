@@ -1061,8 +1061,8 @@
                         "properties": {
                             "order_id": {
                                 "description": "주문 ID",
-                                "type": "integer",
-                                "example": 3890000700554135493
+                                "type": "string",
+                                "example": "3890000700554135493"
                             },
                             "success": {
                                 "description": "성공 여부",

@@ -115,9 +115,9 @@ namespace App\Annotations\v1\W\cOrder;
  *         required={"order_id", "success"},
  *         @OA\Property(
  *             property="order_id",
- *             type="integer",
+ *             type="string",
  *             description="주문 ID",
- *             example=3890000700554135493
+ *             example="3890000700554135493"
  *         ),
  *         @OA\Property(
  *             property="success",

@@ -161,7 +161,7 @@ abstract class MallApiAbstract
             $result = $this->orderW1->createWOrder($payload);
 
             if( $result["isSuccess"] === true && isset($result["data"]["orderId"]) ){
-                $orderId = (int)$result["data"]["orderId"];
+                $orderId = $result["data"]["orderId"];
 
                 try {
                     DB::beginTransaction();
@@ -199,6 +199,7 @@ abstract class MallApiAbstract
                         "orderId" => $orderId,
                         "success" => $result["data"]["success"],
                     ];
+
                     $returnMsg = helpers_success_message($returnPayload);
                 } catch (Exception $ee) {
                     DB::rollBack();

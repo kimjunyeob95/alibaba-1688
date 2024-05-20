@@ -1608,14 +1608,14 @@ class ProductW1 extends ProductAbstract
 
     public function delProductImage(array $product1688ImageDtoList): void
     {
-        $mainImgs = [];
+        $mainImg  = "";
         $subImgs  = [];
         $descImgs = [];
         $offerId  = 0;
         foreach ($product1688ImageDtoList as $product1688ImageDto) {
             $offerId = $product1688ImageDto->offer_id;
             if( $product1688ImageDto->img_type == ImageConstant::IMAGE_TYPE_MAIN ){
-                $mainImgs[] = $product1688ImageDto->img_url_origin;
+                $mainImg = $product1688ImageDto->img_url_origin;
             }
             if( $product1688ImageDto->img_type == ImageConstant::IMAGE_TYPE_SUB ){
                 $subImgs[] = $product1688ImageDto->img_url_origin;
@@ -1626,13 +1626,13 @@ class ProductW1 extends ProductAbstract
         }
 
         if( $offerId ){
-            if( !empty($mainImgs) ){
+            if( $mainImg ){
                 // 1. 메인 이미지 삭제
                 ProductImageData::where('img_type', ImageConstant::IMAGE_TYPE_MAIN)
                 ->where('offer_id', $offerId)
                 ->where('is_except', ImageConstant::IS_EXCEPT_N)
                 ->where('lang', WConstant::WAPP_KR)
-                ->whereNotIn('img_url_origin', $mainImgs)
+                ->where('img_url_origin', "!=", $mainImg)
                 ->delete();
             }
     
