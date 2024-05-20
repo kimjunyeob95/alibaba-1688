@@ -1611,46 +1611,49 @@ class ProductW1 extends ProductAbstract
         $mainImgs = [];
         $subImgs  = [];
         $descImgs = [];
+        $offerId  = 0;
         foreach ($product1688ImageDtoList as $product1688ImageDto) {
+            $offerId = $product1688ImageDto->offer_id;
             if( $product1688ImageDto->img_type == ImageConstant::IMAGE_TYPE_MAIN ){
-                $mainImgs[$product1688ImageDto->offer_id][] = $product1688ImageDto->img_url_origin;
+                $mainImgs[] = $product1688ImageDto->img_url_origin;
             }
             if( $product1688ImageDto->img_type == ImageConstant::IMAGE_TYPE_SUB ){
-                $subImgs[$product1688ImageDto->offer_id][] = $product1688ImageDto->img_url_origin;
+                $subImgs[] = $product1688ImageDto->img_url_origin;
             }
             if( $product1688ImageDto->img_type == ImageConstant::IMAGE_TYPE_DESC ){
-                $descImgs[$product1688ImageDto->offer_id][] = $product1688ImageDto->img_url_origin;
+                $descImgs[] = $product1688ImageDto->img_url_origin;
             }
         }
 
-        // 1. 메인 이미지 삭제
-        foreach ($mainImgs as $offer_id => $mainImg) {
-            ProductImageData::where('img_type', ImageConstant::IMAGE_TYPE_MAIN)
-            ->where('offer_id', $offer_id)
-            ->where('is_except', ImageConstant::IS_EXCEPT_N)
-            ->where('lang', WConstant::WAPP_KR)
-            ->where('img_url_origin', '!=', $mainImg)
-            ->delete();
-        }
-
-        // 2. 서브 이미지 삭제
-        foreach ($subImgs as $offer_id => $subImg) {
-            ProductImageData::where('img_type', ImageConstant::IMAGE_TYPE_SUB)
-            ->where('offer_id', $offer_id)
-            ->where('is_except', ImageConstant::IS_EXCEPT_N)
-            ->where('lang', WConstant::WAPP_KR)
-            ->whereNotIn('img_url_origin', $subImg)
-            ->delete();
-        }
-
-        // 3. 상세 이미지 삭제
-        foreach ($descImgs as $offer_id => $descImg) {
-            ProductImageData::where('img_type', ImageConstant::IMAGE_TYPE_DESC)
-            ->where('offer_id', $offer_id)
-            ->where('is_except', ImageConstant::IS_EXCEPT_N)
-            ->where('lang', WConstant::WAPP_KR)
-            ->whereNotIn('img_url_origin', $descImg)
-            ->delete();
+        if( $offerId ){
+            if( !empty($mainImgs) ){
+                // 1. 메인 이미지 삭제
+                ProductImageData::where('img_type', ImageConstant::IMAGE_TYPE_MAIN)
+                ->where('offer_id', $offerId)
+                ->where('is_except', ImageConstant::IS_EXCEPT_N)
+                ->where('lang', WConstant::WAPP_KR)
+                ->whereNotIn('img_url_origin', $mainImgs)
+                ->delete();
+            }
+    
+            if( !empty($subImgs) ){
+                // 2. 서브 이미지 삭제
+                ProductImageData::where('img_type', ImageConstant::IMAGE_TYPE_SUB)
+                ->where('offer_id', $offerId)
+                ->where('is_except', ImageConstant::IS_EXCEPT_N)
+                ->where('lang', WConstant::WAPP_KR)
+                ->whereNotIn('img_url_origin', $subImgs)
+                ->delete();
+            }
+    
+            if( !empty($descImgs) ){
+                ProductImageData::where('img_type', ImageConstant::IMAGE_TYPE_DESC)
+                ->where('offer_id', $offerId)
+                ->where('is_except', ImageConstant::IS_EXCEPT_N)
+                ->where('lang', WConstant::WAPP_KR)
+                ->whereNotIn('img_url_origin', $descImgs)
+                ->delete();
+            }
         }
     }
 
