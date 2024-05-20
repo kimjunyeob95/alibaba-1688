@@ -439,8 +439,11 @@ class GenuioService extends TransApiAbstract
                             "trans_status" => $uploadResult == true ? TransApiConstant::QUEUE_SUCCESS : TransApiConstant::QUEUE_FAIL
                         ]);
                     } catch (ValueError $ve) {
+                        $imgData = $image;
+                        unset($imgData["imgTransBase64"]);
+
                         $errMsg = [
-                            "img"   => $image,
+                            "img"   => $imgData,
                             "error" => $ve->getMessage()
                         ];
                         debug_log(json_encode($errMsg, JSON_UNESCAPED_UNICODE), "genuio", GenuioConstant::IMG_TRANS);
@@ -534,8 +537,11 @@ class GenuioService extends TransApiAbstract
                             "trans_status" => $uploadResult == true ? TransApiConstant::QUEUE_SUCCESS : TransApiConstant::QUEUE_FAIL
                         ]);
                     } catch (ValueError $ve) {
+                        $imgData = $image;
+                        unset($imgData["imgTransBase64"]);
+
                         $errMsg = [
-                            "img"   => $image,
+                            "img"   => $imgData,
                             "error" => $ve->getMessage()
                         ];
                         debug_log(json_encode($errMsg, JSON_UNESCAPED_UNICODE), "genuio", GenuioConstant::IMG_Ai_TRANS);
@@ -651,8 +657,11 @@ class GenuioService extends TransApiAbstract
                             "trans_status" => $uploadResult == true ? TransApiConstant::QUEUE_SUCCESS : TransApiConstant::QUEUE_FAIL
                         ]);
                     } catch (ValueError $ve) {
+                        $imgData = $image;
+                        unset($imgData["imgTransBase64"]);
+
                         $errMsg = [
-                            "img"   => $image,
+                            "img"   => $imgData,
                             "error" => $ve->getMessage()
                         ];
                         debug_log(json_encode($errMsg, JSON_UNESCAPED_UNICODE), "genuio", GenuioConstant::IMG_TRANS_AGAIN);
