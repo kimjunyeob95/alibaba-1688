@@ -111,23 +111,20 @@ namespace App\Annotations\v1\W\cOrder;
  *     ),
  *     @OA\Property(
  *         property="data", 
- *         type="array",
- *         @OA\Items(
- *            type="object",
- *            required={"order_id", "isSuccess"},
- *            @OA\Property(
- *                property="order_id",
- *                type="integer",
- *                description="주문 ID",
- *                example=3890000700554135493
- *            ),
- *            @OA\Property(
- *                property="isSuccess",
- *                type="boolean",
- *                description="성공 여부",
- *                example=true
- *            )
+ *         type="object",
+ *         required={"order_id", "isSuccess"},
+ *         @OA\Property(
+ *             property="order_id",
+ *             type="integer",
+ *             description="주문 ID",
+ *             example=3890000700554135493
  *         ),
+ *         @OA\Property(
+ *             property="isSuccess",
+ *             type="boolean",
+ *             description="성공 여부",
+ *             example=true
+ *         )
  *      )
  * )
  *

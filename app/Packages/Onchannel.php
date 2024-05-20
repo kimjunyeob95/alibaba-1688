@@ -3,6 +3,7 @@
 namespace App\Packages;
 
 use App\Abstracts\MallApiAbstract;
+use App\Abstracts\OrderAbstract;
 use App\Constants\MallConstant;
 use App\Constants\ProductConstant;
 use App\Constants\WConstant;
@@ -15,9 +16,13 @@ use Illuminate\Support\Facades\File;
 
 class Onchannel extends MallApiAbstract
 {
-    public function __construct(string $channel)
+    public function __construct(
+        JwtPackage $jwtPackage,
+        string $channel,
+        OrderAbstract $orderW1
+    )
     {
-        parent::__construct(app(JwtPackage::class), $channel);
+        parent::__construct($jwtPackage, $channel, $orderW1);
     }
 
     /**
@@ -68,18 +73,6 @@ class Onchannel extends MallApiAbstract
         $returnMsg = $this->returnMsg;
         try {
             $returnMsg = helpers_success_message(["orderId" => $orderId]);
-        } catch (Exception $e) {
-            $returnMsg = helpers_fail_message($e->getMessage());
-        }
-
-        return $returnMsg;
-    }
-
-    public function orderCreate(array $params): array
-    {
-        $returnMsg = $this->returnMsg;
-        try {
-            $returnMsg = helpers_success_message($params);
         } catch (Exception $e) {
             $returnMsg = helpers_fail_message($e->getMessage());
         }

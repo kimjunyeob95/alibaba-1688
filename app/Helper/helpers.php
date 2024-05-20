@@ -144,10 +144,10 @@ if (!function_exists("helpers_default_message")) {
 }
 
 if (!function_exists("helpers_fail_message")) {
-    function helpers_fail_message(bool $isSuccess = false, string $message = "변경 사항이 없거나 처리가 실패하였습니다. 관리자에 문의 바랍니다.", array $data = []): array
+    function helpers_fail_message(string $message = "변경 사항이 없거나 처리가 실패하였습니다. 관리자에 문의 바랍니다.", array $data = []): array
     {
         return [
-            "isSuccess" => $isSuccess,
+            "isSuccess" => false,
             "msg"       => $message,
             "data"      => $data,
         ];
@@ -317,11 +317,11 @@ if (!function_exists("curl_1688")) {
 
             $returnMsg = helpers_success_message($apiResult);
         } catch (JsonException $e) {
-            $returnMsg = helpers_fail_message(false, "결과가 Json이 아닙니다.");
+            $returnMsg = helpers_fail_message("결과가 Json이 아닙니다.");
         } catch (InvalidArgumentException $e) {
-            $returnMsg = helpers_fail_message(false, $e->getMessage());
+            $returnMsg = helpers_fail_message($e->getMessage());
         } catch (Exception $e) {
-            $returnMsg = helpers_fail_message(false, $e->getMessage());
+            $returnMsg = helpers_fail_message($e->getMessage());
         }
 
         return $returnMsg;
@@ -418,11 +418,11 @@ if (!function_exists("curl_1688_v2")) {
 
             $returnMsg = helpers_success_message($apiResult);
         } catch (JsonException $e) {
-            $returnMsg = helpers_fail_message(false, "결과가 Json이 아닙니다.");
+            $returnMsg = helpers_fail_message("결과가 Json이 아닙니다.");
         } catch (InvalidArgumentException $e) {
-            $returnMsg = helpers_fail_message(false, $e->getMessage());
+            $returnMsg = helpers_fail_message($e->getMessage());
         } catch (Exception $e) {
-            $returnMsg = helpers_fail_message(false, $e->getMessage());
+            $returnMsg = helpers_fail_message($e->getMessage());
         }
 
         return $returnMsg;

@@ -513,7 +513,7 @@ class ProductW2 extends ProductAbstract
             ];
             $returnMsg = curl_1688("post", $endPoint, $payload);
         } catch (Exception $e) {
-            $returnMsg = helpers_fail_message(false, $e->getMessage());
+            $returnMsg = helpers_fail_message($e->getMessage());
         }
         return $returnMsg;
     }
@@ -892,7 +892,7 @@ class ProductW2 extends ProductAbstract
         } catch (Exception $e) {
             $msg = "offerId: {$offerId} | error: " . $e->getMessage();
 
-            $returnMsg = helpers_fail_message(false, $msg);
+            $returnMsg = helpers_fail_message($msg);
         }
 
         return $returnMsg;
@@ -1692,7 +1692,7 @@ class ProductW2 extends ProductAbstract
 
             $returnMsg = helpers_success_message();
         } catch (Exception $e) {
-            $returnMsg = helpers_fail_message(false, $e->getMessage());
+            $returnMsg = helpers_fail_message($e->getMessage());
         }
         return $returnMsg;
     }
@@ -2307,7 +2307,7 @@ class ProductW2 extends ProductAbstract
             $searchObjs = ProductSearchData::with(["details"])->where("id", $searchId)->orderBy("created_at", "desc")->first();
             $returnMsg  = helpers_success_message($searchObjs);
         } catch (Exception $e) {
-            $returnMsg = helpers_fail_message(false, $e->getMessage());
+            $returnMsg = helpers_fail_message($e->getMessage());
         }
 
         return $returnMsg;
@@ -2393,7 +2393,7 @@ class ProductW2 extends ProductAbstract
 
             $returnMsg = helpers_success_message($resultImgs);
         } catch (Exception $e) {
-            $returnMsg = helpers_fail_message(false, $e->getMessage());
+            $returnMsg = helpers_fail_message($e->getMessage());
         }
 
         return $returnMsg;
@@ -2504,7 +2504,7 @@ class ProductW2 extends ProductAbstract
             }
             $returnMsg = helpers_success_message();
         } catch (Exception $e) {
-            $returnMsg = helpers_fail_message(false, $e->getMessage());
+            $returnMsg = helpers_fail_message($e->getMessage());
         }
 
         return $returnMsg;
@@ -2559,7 +2559,7 @@ class ProductW2 extends ProductAbstract
             // dd($prdObj->toArray());
             $returnMsg = helpers_success_message($prdObj);
         } catch (Exception $e) {
-            $returnMsg = helpers_fail_message(false, $e->getMessage());
+            $returnMsg = helpers_fail_message($e->getMessage());
         }
 
         return $returnMsg;
@@ -2631,7 +2631,7 @@ class ProductW2 extends ProductAbstract
             }
             $returnMsg = helpers_success_message();
         } catch (Exception $e) {
-            $returnMsg = helpers_fail_message(false, $e->getMessage());
+            $returnMsg = helpers_fail_message($e->getMessage());
         }
 
         return $returnMsg;
@@ -2660,7 +2660,7 @@ class ProductW2 extends ProductAbstract
             }
             $returnMsg = helpers_success_message();
         } catch (Exception $e) {
-            $returnMsg = helpers_fail_message(false, $e->getMessage());
+            $returnMsg = helpers_fail_message($e->getMessage());
         }
 
         return $returnMsg;
@@ -2678,7 +2678,7 @@ class ProductW2 extends ProductAbstract
 
             $returnMsg = helpers_success_message();
         } catch (Exception $e) {
-            $returnMsg = helpers_fail_message(false, $e->getMessage());
+            $returnMsg = helpers_fail_message($e->getMessage());
         }
 
         return $returnMsg;
@@ -2694,7 +2694,7 @@ class ProductW2 extends ProductAbstract
 
             $returnMsg = helpers_success_message([], "판매 상태가 변경되었습니다."); 
         } catch (Exception $e) {
-            $returnMsg = helpers_fail_message(false, $e->getMessage());
+            $returnMsg = helpers_fail_message($e->getMessage());
         }
 
         return $returnMsg;
@@ -2730,7 +2730,7 @@ class ProductW2 extends ProductAbstract
             }
             $returnMsg = helpers_success_message();
         } catch (Exception $e) {
-            $returnMsg = helpers_fail_message(false, $e->getMessage());
+            $returnMsg = helpers_fail_message($e->getMessage());
         }
 
         return $returnMsg;
@@ -2752,7 +2752,7 @@ class ProductW2 extends ProductAbstract
             }
             $returnMsg = helpers_success_message();
         } catch (Exception $e) {
-            $returnMsg = helpers_fail_message(false, $e->getMessage());
+            $returnMsg = helpers_fail_message($e->getMessage());
         }
 
         return $returnMsg;
@@ -2944,7 +2944,7 @@ class ProductW2 extends ProductAbstract
 
             $returnMsg = helpers_success_message();
         } catch (Exception $e) {
-            $returnMsg = helpers_fail_message(false, $e->getMessage());
+            $returnMsg = helpers_fail_message($e->getMessage());
         }
         return $returnMsg;
     }
@@ -3011,7 +3011,7 @@ class ProductW2 extends ProductAbstract
             $returnMsg = helpers_success_message();
         } catch (Exception $e) {
             DB::rollBack();
-            $returnMsg = helpers_fail_message(false, $e->getMessage());
+            $returnMsg = helpers_fail_message($e->getMessage());
         }
 
         return $returnMsg;
@@ -3068,7 +3068,7 @@ class ProductW2 extends ProductAbstract
             $returnMsg = helpers_success_message();
         } catch (Exception $e) {
             DB::rollBack();
-            $returnMsg = helpers_fail_message(false, $e->getMessage());
+            $returnMsg = helpers_fail_message($e->getMessage());
         }
 
         return $returnMsg;

@@ -76,7 +76,7 @@ class GenuioService extends TransApiAbstract
                 throw new Exception($result["msg"]);
             }
         } catch (Exception $e) {
-            $returnMsg = helpers_fail_message(false, $e->getMessage());
+            $returnMsg = helpers_fail_message($e->getMessage());
         }
 
         return $returnMsg;
@@ -168,12 +168,12 @@ class GenuioService extends TransApiAbstract
 
                 $returnMsg = helpers_success_message();
             } else {
-                $returnMsg = helpers_fail_message(false, $apiResult["msg"]);
+                $returnMsg = helpers_fail_message($apiResult["msg"]);
             }
 
         } catch (Exception $e) {
             $errorMsg  = "offerId: {$offerId} | errorTitle: " . TransApiConstant::getFitErrorMessage("TRANS_REQUEST_IMAGE") . "errorDesc: " . $e->getMessage();
-            $returnMsg = helpers_fail_message(false, $errorMsg);
+            $returnMsg = helpers_fail_message($errorMsg);
         }
 
         return $returnMsg;
@@ -265,12 +265,12 @@ class GenuioService extends TransApiAbstract
 
                 $returnMsg = helpers_success_message();
             } else {
-                $returnMsg = helpers_fail_message(false, $apiResult["msg"]);
+                $returnMsg = helpers_fail_message($apiResult["msg"]);
             }
 
         } catch (Exception $e) {
             $errorMsg  = "offerId: {$offerId} | errorTitle: " . TransApiConstant::getFitErrorMessage("TRANS_REQUEST_IMAGE") . "errorDesc: " . $e->getMessage();
-            $returnMsg = helpers_fail_message(false, $errorMsg);
+            $returnMsg = helpers_fail_message($errorMsg);
         }
 
         return $returnMsg;
@@ -684,7 +684,7 @@ class GenuioService extends TransApiAbstract
 
             $returnMsg = helpers_success_message();
         } catch (Exception $e) {
-            $returnMsg = helpers_fail_message(false, $e->getMessage());
+            $returnMsg = helpers_fail_message($e->getMessage());
         }
 
         if( $getGenuioObj != null ){
@@ -719,7 +719,7 @@ class GenuioService extends TransApiAbstract
         $returnMsg = $this->returnMsg;
 
         if( env("APP_ENV", "local") != "production" ){
-            return helpers_fail_message(false, "운영 환경에서만 사용 가능합니다.");
+            return helpers_fail_message("운영 환경에서만 사용 가능합니다.");
         }
 
         try {
@@ -758,7 +758,7 @@ class GenuioService extends TransApiAbstract
 
             $returnMsg = helpers_success_message(true, "번역 요청이 완료되었습니다.");
         } catch (Exception $e) {
-            $returnMsg = helpers_fail_message(false, $e->getMessage());
+            $returnMsg = helpers_fail_message($e->getMessage());
         }
         
         return $returnMsg;
@@ -843,7 +843,7 @@ class GenuioService extends TransApiAbstract
 
             $returnMsg = helpers_success_message($resultImgs);
         } catch (Exception $e) {
-            $returnMsg = helpers_fail_message(false, $e->getMessage());
+            $returnMsg = helpers_fail_message($e->getMessage());
         }
 
         return $returnMsg;
@@ -860,7 +860,7 @@ class GenuioService extends TransApiAbstract
         $returnMsg = $this->returnMsg;
 
         if( env("APP_ENV", "local") != "production" ){
-            return helpers_fail_message(false, "운영 환경에서만 사용 가능합니다.");
+            return helpers_fail_message("운영 환경에서만 사용 가능합니다.");
         }
 
         try {
@@ -923,13 +923,13 @@ class GenuioService extends TransApiAbstract
                     $returnMsg = helpers_success_message();
                 } catch (Exception $e) {
                     $errorMsg  = "offerId: {$offerId} | errorTitle: " . TransApiConstant::getFitErrorMessage("TRANS_REQUEST_IMAGE") . "errorDesc: " . $e->getMessage();
-                    $returnMsg = helpers_fail_message(false, $errorMsg);
+                    $returnMsg = helpers_fail_message($errorMsg);
                 }
             }
 
             $returnMsg = helpers_success_message();
         } catch (Exception $e) {
-            $returnMsg = helpers_fail_message(false, $e->getMessage());
+            $returnMsg = helpers_fail_message($e->getMessage());
         }
 
         return $returnMsg;
@@ -946,7 +946,7 @@ class GenuioService extends TransApiAbstract
         $returnMsg = $this->returnMsg;
 
         if( env("APP_ENV", "local") != "production" ){
-            return helpers_fail_message(false, "운영 환경에서만 사용 가능합니다.");
+            return helpers_fail_message("운영 환경에서만 사용 가능합니다.");
         }
 
         try {
@@ -980,7 +980,7 @@ class GenuioService extends TransApiAbstract
 
             $returnMsg = helpers_success_message([], "번역 요청이 완료되었습니다.");
         } catch (Exception $e) {
-            $returnMsg = helpers_fail_message(false, $e->getMessage());
+            $returnMsg = helpers_fail_message($e->getMessage());
         }
 
         return $returnMsg;
@@ -997,7 +997,7 @@ class GenuioService extends TransApiAbstract
         $returnMsg = $this->returnMsg;
 
         if( env("APP_ENV", "local") != "production" ){
-            return helpers_fail_message(false, "운영 환경에서만 사용 가능합니다.");
+            return helpers_fail_message("운영 환경에서만 사용 가능합니다.");
         }
 
         try {
@@ -1031,7 +1031,7 @@ class GenuioService extends TransApiAbstract
 
             $returnMsg = helpers_success_message([], "번역 요청이 완료되었습니다.");
         } catch (Exception $e) {
-            $returnMsg = helpers_fail_message(false, $e->getMessage());
+            $returnMsg = helpers_fail_message($e->getMessage());
         }
 
         return $returnMsg;
@@ -1072,7 +1072,7 @@ class GenuioService extends TransApiAbstract
 
             $returnMsg = helpers_success_message();
         } catch (Exception $e) {
-            $returnMsg = helpers_fail_message(false, $e->getMessage());
+            $returnMsg = helpers_fail_message($e->getMessage());
         }
 
         return $returnMsg;
@@ -1119,11 +1119,11 @@ class GenuioService extends TransApiAbstract
 
             $returnMsg = helpers_success_message($apiResult);
         } catch (JsonException $e) {
-            $returnMsg = helpers_fail_message(false, "Error: 결과가 Json이 아닙니다.");
+            $returnMsg = helpers_fail_message("Error: 결과가 Json이 아닙니다.");
         } catch (InvalidArgumentException $e) {
-            $returnMsg = helpers_fail_message(false, $e->getMessage());
+            $returnMsg = helpers_fail_message($e->getMessage());
         } catch (Exception $e) {
-            $returnMsg = helpers_fail_message(false, $e->getMessage());
+            $returnMsg = helpers_fail_message($e->getMessage());
         }
 
         return $returnMsg;

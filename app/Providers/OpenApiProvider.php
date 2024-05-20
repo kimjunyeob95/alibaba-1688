@@ -11,6 +11,7 @@ use App\Packages\JwtPackage;
 use App\Packages\Onchannel;
 use App\Packages\S3;
 use App\Services\GenuioService;
+use App\Services\Order\OrderW1;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Route;
 
@@ -21,19 +22,21 @@ class OpenApiProvider extends ServiceProvider
      */
     public function register(): void
     {
-        /** EasySell 싱글톤으로 등록 */
-        $this->app->singleton(EasySell::class, function () {
-            return new EasySell(MallConstant::MALL_EASYSELL);
-        });
-        /** Onchannel 싱글톤으로 등록 */
-        $this->app->singleton(Onchannel::class, function () {
-            return new Onchannel(MallConstant::MALL_ONCHANNEL);
-        });
 
         /** JwtPackage 싱글톤으로 등록 */
         $this->app->singleton(JwtPackage::class, function () {
             return new JwtPackage();
         });
+
+        /** EasySell 싱글톤으로 등록 */
+        $this->app->singleton(EasySell::class, function () {
+            return new EasySell(app(JwtPackage::class), MallConstant::MALL_EASYSELL, app(OrderW1::class));
+        });
+        /** Onchannel 싱글톤으로 등록 */
+        $this->app->singleton(Onchannel::class, function () {
+            return new Onchannel(app(JwtPackage::class), MallConstant::MALL_ONCHANNEL, app(OrderW1::class));
+        });
+
 
         /**
          * channel API 의존성 설정

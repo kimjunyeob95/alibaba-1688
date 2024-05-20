@@ -18,6 +18,7 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('order_id')->nullable(false)->unique()->comment('주문ID');
             $table->unsignedBigInteger('offer_id')->nullable(false)->comment('제품ID');
+            $table->string('channel', 20)->nullable(false)->comment('채널');
             $table->text('buyer_name')->nullable(false)->comment('구매자명');
             $table->text('buyer_clearance_number')->nullable(false)->comment('구매자 개인통관번호');
             $table->text('buyer_number')->nullable(false)->comment('구매자 전화번호');
@@ -34,6 +35,7 @@ return new class extends Migration
             $table->foreign('offer_id')->references('offer_id')->on('product_datas')->onDelete('restrict');
             $table->index('order_id');
             $table->index('offer_id');
+            $table->index('channel');
             $table->index('total_quantity');
             $table->index('total_price');
         });

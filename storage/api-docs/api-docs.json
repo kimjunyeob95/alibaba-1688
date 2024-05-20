@@ -1054,26 +1054,23 @@
                         "type": "object"
                     },
                     "data": {
-                        "type": "array",
-                        "items": {
-                            "required": [
-                                "order_id",
-                                "isSuccess"
-                            ],
-                            "properties": {
-                                "order_id": {
-                                    "description": "주문 ID",
-                                    "type": "integer",
-                                    "example": 3890000700554135493
-                                },
-                                "isSuccess": {
-                                    "description": "성공 여부",
-                                    "type": "boolean",
-                                    "example": true
-                                }
+                        "required": [
+                            "order_id",
+                            "isSuccess"
+                        ],
+                        "properties": {
+                            "order_id": {
+                                "description": "주문 ID",
+                                "type": "integer",
+                                "example": 3890000700554135493
                             },
-                            "type": "object"
-                        }
+                            "isSuccess": {
+                                "description": "성공 여부",
+                                "type": "boolean",
+                                "example": true
+                            }
+                        },
+                        "type": "object"
                     }
                 },
                 "type": "object"
