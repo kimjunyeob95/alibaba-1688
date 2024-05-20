@@ -23,7 +23,7 @@ class EasySellService
         $keyword      = $params["keyword"];
 
         $prdBuilder = ProductData::select(["product_datas.offer_id","product_datas.prd_name_kr","epl.itemno","epl.regist_success","product_datas.category_id"])
-            ->with(["main_img", "options", "es_mapping", "es_fgn_mapping"])
+            ->with(["main_img", "options", "es_mapping", "es_fgn_mapping", "w_mapping"])
             ->leftJoin("easysell_product_logs as epl","product_datas.offer_id","=","epl.offer_id")
             ->whereIn("product_datas.w_type", [ WConstant::WAPP_W1, WConstant::WAPP_W2 ])
             ->where("product_datas.status", ProductConstant::PRD_STATUS_PUBLISH)
@@ -68,11 +68,14 @@ class EasySellService
         $lists      = $prdBuilder->paginate($pageSize)->appends($params);
         $failCnt    = $lists->total() - $successCnt;
 
+        $esCateFirstList  = SellerhubCategory::pluck("cate_first")->unique()->filter();
+
         return [
-            "paginator"  => $lists,
-            "totalCnt"   => $totalCnt,
-            "successCnt" => $successCnt,
-            "failCnt"    => $failCnt,
+            "esCateFirstList" => $esCateFirstList,
+            "paginator"       => $lists,
+            "totalCnt"        => $totalCnt,
+            "successCnt"      => $successCnt,
+            "failCnt"         => $failCnt,
         ];
     }
 

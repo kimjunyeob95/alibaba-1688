@@ -38,15 +38,16 @@ class EasySellController extends Controller
         $result = $this->easySellService->getPrdList($params);
 
         $viewParams = [
-            "datas"        => $result["paginator"],
-            "totalCnt"     => $result["totalCnt"],
-            "successCnt"   => $result["successCnt"],
-            "failCnt"      => $result["failCnt"],
-            "registStatus" => $registStatus,
-            "search_cls"   => $search_cls,
-            "keyword"      => $keyword,
-            "offset"       => (int) $offset,
-            "pageSize"     => (int) $pageSize
+            "datas"           => $result["paginator"],
+            "totalCnt"        => $result["totalCnt"],
+            "successCnt"      => $result["successCnt"],
+            "failCnt"         => $result["failCnt"],
+            "esCateFirstList" => $result["esCateFirstList"],
+            "registStatus"    => $registStatus,
+            "search_cls"      => $search_cls,
+            "keyword"         => $keyword,
+            "offset"          => (int) $offset,
+            "pageSize"        => (int) $pageSize,
         ];
         return view("easysell.prdList")->with($viewParams);
     }

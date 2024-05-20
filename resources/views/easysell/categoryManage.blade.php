@@ -422,8 +422,9 @@ input[name='easySellCategory']{
                     $(".cate-table tbody").html("");
                     resp.cateList.map(function(obj){
                         $(`.cate-table tbody`).append(`
-                            <tr mapping-code="${obj.mapping_code}">
+                            <tr>
                                 <td>
+                                    <input type='radio' name='easySellCategory' value='${obj.sellerhub_cate}'>
                                     ${obj.cate_first}
                                 </td>
                                 <td>
