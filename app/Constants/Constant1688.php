@@ -29,4 +29,5 @@ class Constant1688
     public const ADDRESS             = "柳林惠友路3号鸿泉服装院西";
     public const DISTRICTCODE        = "371002";
     public const PRESELECTPAYCHANNEL = "alipay";
+    public const WEBSITE             = "1688";
 }

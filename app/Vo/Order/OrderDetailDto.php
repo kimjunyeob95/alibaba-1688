@@ -6,7 +6,7 @@ use App\Vo\Vo;
 
 class OrderDetailDto extends Vo
 {
-    protected int $order_id               = 0;
+    protected string $order_id            = "";
     protected int $option_id              = 0;
     protected int $quantity               = 0;
     protected float $origin_option_price  = 0.0;

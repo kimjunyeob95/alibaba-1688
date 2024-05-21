@@ -284,18 +284,6 @@ class EasySell extends MallApiAbstract
         return helpers_success_message($result);
     }
 
-    public function orderInfo(int $orderId): array
-    {
-        $returnMsg = $this->returnMsg;
-        try {
-            $returnMsg = helpers_success_message(["orderId" => $orderId]);
-        } catch (Exception $e) {
-            $returnMsg = helpers_fail_message($e->getMessage());
-        }
-
-        return $returnMsg;
-    }
-
     /**
      * @func categoryMapping
      * @description '카테고리 매핑 저장'

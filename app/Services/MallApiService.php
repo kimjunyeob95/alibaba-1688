@@ -40,10 +40,10 @@ class MallApiService
     /**
      * @func orderInfo
      * @description '주문 조회'
-     * @param int $orderId
+     * @param string $orderId
      * @return array
     */
-    public function orderInfo(int $orderId): array
+    public function orderInfo(string $orderId): array
     {
         return $this->mallApiAbstract->orderInfo($orderId);
     }

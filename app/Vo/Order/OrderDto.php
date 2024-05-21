@@ -6,7 +6,7 @@ use App\Vo\Vo;
 
 class OrderDto extends Vo
 {
-    protected int $order_id                  = 0;
+    protected string $order_id               = "";
     protected int $offer_id                  = 0;
     protected string $channel                = "";
     protected string $buyer_name             = "";

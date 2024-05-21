@@ -83,10 +83,35 @@ abstract class MallApiAbstract
     /**
      * @func orderInfo
      * @description '주문 조회'
-     * @param int $orderId
+     * @param string $orderId
      * @return array
     */
-    abstract function orderInfo(int $orderId): array;
+    public function orderInfo(string $orderId): array
+    {
+        $returnMsg = $this->returnMsg;
+
+        try {
+            $orderObj = OrderData::where([
+                "channel"  => $this->channel,
+                "order_id" => $orderId,
+            ]);
+
+            if( $orderObj == null ){
+                throw new Exception(OrderErrorMessageConstant::getNotHaveErrorMessage("ORDER"));
+            }
+
+            $result = $this->orderW1->getWOrder($orderId);
+            if( $result["isSuccess"] === true && isset($result["data"]["result"]) ){
+                $returnMsg = helpers_success_message($result["data"]["result"]);
+            } else {
+                $returnMsg = helpers_fail_message($result["msg"]);
+            }
+        } catch (Exception $e) {
+            $returnMsg = helpers_fail_message($e->getMessage());
+        }
+
+        return $returnMsg;
+    }
 
     /**
      * @func orderCreate

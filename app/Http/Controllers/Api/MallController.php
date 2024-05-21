@@ -74,7 +74,7 @@ class MallController extends Controller
         }
     }
 
-    public function orderInfo(int $orderId): JsonResponse
+    public function orderInfo(string $channel, string $orderId): JsonResponse
     {
         try {
             $result = $this->mallApiService->orderInfo($orderId);

@@ -17,6 +17,42 @@ class OrderW1 extends OrderAbstract
         $this->accessToken      = env("1688_ACCESS_TOKEN");
     }
 
+    public function getWOrder(string $orderId): array
+    {
+        $returnMsg = $this->returnMsg;
+
+        try {
+
+            $endPoint = "param2/1/com.alibaba.trade/alibaba.trade.get.buyerView/";
+            $payload = [
+                'access_token' => $this->accessToken,
+                'webSite'      => Constant1688::WEBSITE,
+                'orderId'      => (int)$orderId,
+            ];
+            $result = curl_1688("post", $endPoint, $payload);
+
+            if( $result["isSuccess"] === true &&
+                isset($result["data"]) &&
+                isset($result["data"]["result"])
+            ){
+                $returnMsg = helpers_success_message($result["data"]);
+            } else {
+                $errorMsg = "";
+                if( isset($result["data"]["errorMessage"]) ){
+                    $errorMsg = $result["data"]["errorMessage"];
+                } else if( isset($result["data"]["error_message"]) ){
+                    $errorMsg = $result["data"]["error_message"];
+                }
+
+                $returnMsg = helpers_fail_message($errorMsg, $result["data"]);
+            }
+        } catch (Exception $e) {
+            $returnMsg = helpers_fail_message($e->getMessage());
+        }
+
+        return $returnMsg;
+    }
+
     public function createWOrder(array $params): array
     {
         $returnMsg = $this->returnMsg;
