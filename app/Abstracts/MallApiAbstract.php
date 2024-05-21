@@ -23,17 +23,20 @@ abstract class MallApiAbstract
     protected JwtPackage $jwtPackage;
     protected string $channel;
     protected OrderAbstract $orderW1;
+    private TransApiAbstract $transApiAbstract;
     
     public function __construct(
         JwtPackage $jwtPackage,
         string $channel,
-        OrderAbstract $orderW1
+        OrderAbstract $orderW1,
+        TransApiAbstract $transApiAbstract
     )
     {
-        $this->returnMsg  = helpers_fail_message();
-        $this->jwtPackage = $jwtPackage;
-        $this->channel    = $channel;
-        $this->orderW1    = $orderW1;
+        $this->returnMsg        = helpers_fail_message();
+        $this->jwtPackage       = $jwtPackage;
+        $this->channel          = $channel;
+        $this->orderW1          = $orderW1;
+        $this->transApiAbstract = $transApiAbstract;
     }
 
     /**
@@ -253,4 +256,52 @@ abstract class MallApiAbstract
      * @return void
     */
     abstract function sendModiProduct(): void;
+
+    /**
+     * @func imgTransRequest
+     * @description '이미지 번역 요청'
+     * @param array $params
+     * @return array
+    */
+    public function imgTransRequest($params): array
+    {
+        $returnMsg = $this->returnMsg;
+
+        try {
+            $result = $this->transApiAbstract->channelImgTransRequest($this->channel, $params);
+            if( $result["isSuccess"] === true && isset($result["data"]) ){
+                $returnMsg = helpers_success_message($result["data"]);
+            } else {
+                $returnMsg = helpers_fail_message($result["msg"]);
+            }
+        } catch (Exception $e) {
+            $returnMsg = helpers_fail_message($e->getMessage());
+        }
+
+        return $returnMsg;
+    }
+
+    /**
+     * @func imgTrans
+     * @description '번역 된 이미지 처리'
+     * @param array $params
+     * @return array
+    */
+    public function imgTrans($params): array
+    {
+        $returnMsg = $this->returnMsg;
+
+        try {
+            $result = $this->transApiAbstract->channelImgTrans($this->channel, $params);
+            if( $result["isSuccess"] === true && isset($result["data"]) ){
+                $returnMsg = helpers_success_message($result["data"]);
+            } else {
+                $returnMsg = helpers_fail_message($result["msg"]);
+            }
+        } catch (Exception $e) {
+            $returnMsg = helpers_fail_message($e->getMessage());
+        }
+
+        return $returnMsg;
+    }
 }

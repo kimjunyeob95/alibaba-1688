@@ -665,7 +665,8 @@ class CategoryW1 extends CategoryAbstract
                 }
             }
 
-            $qryBuilder = CategoryTree::from("category_trees as a")
+            $qryBuilder = CategoryTree::with(["weight_category"])
+            ->from("category_trees as a")
             ->select([
                 "a.*",
                 "c.mapping_code",

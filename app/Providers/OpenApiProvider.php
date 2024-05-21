@@ -22,42 +22,6 @@ class OpenApiProvider extends ServiceProvider
      */
     public function register(): void
     {
-
-        /** JwtPackage 싱글톤으로 등록 */
-        $this->app->singleton(JwtPackage::class, function () {
-            return new JwtPackage();
-        });
-
-        /** EasySell 싱글톤으로 등록 */
-        $this->app->singleton(EasySell::class, function () {
-            return new EasySell(app(JwtPackage::class), MallConstant::MALL_EASYSELL, app(OrderW1::class));
-        });
-        /** Onchannel 싱글톤으로 등록 */
-        $this->app->singleton(Onchannel::class, function () {
-            return new Onchannel(app(JwtPackage::class), MallConstant::MALL_ONCHANNEL, app(OrderW1::class));
-        });
-
-
-        /**
-         * channel API 의존성 설정
-         * start
-         * 
-        */
-        $this->app->bind(MallApiAbstract::class, function ($app) {
-            $currentUrl = $app['request']->fullUrl();
-
-            if(strpos(strtoupper($currentUrl), strtoupper(MallConstant::MALL_EASYSELL)) !== false){
-                return app(EasySell::class);
-            } else if(strpos(strtoupper($currentUrl), strtoupper(MallConstant::MALL_ONCHANNEL)) !== false){
-                return app(Onchannel::class);
-            };
-        });
-        /**
-         * channel API 의존성 설정
-         * end
-         * 
-        */
-
         /**
          * Genuio API 의존성 설정
          * start
@@ -78,6 +42,41 @@ class OpenApiProvider extends ServiceProvider
         });
         /**
          * Genuio API 의존성 설정
+         * end
+         * 
+        */
+
+        /** JwtPackage 싱글톤으로 등록 */
+        $this->app->singleton(JwtPackage::class, function () {
+            return new JwtPackage();
+        });
+
+        /** EasySell 싱글톤으로 등록 */
+        $this->app->singleton(EasySell::class, function () {
+            return new EasySell(app(JwtPackage::class), MallConstant::MALL_EASYSELL, app(OrderW1::class), app(GenuioService::class));
+        });
+        /** Onchannel 싱글톤으로 등록 */
+        $this->app->singleton(Onchannel::class, function () {
+            return new Onchannel(app(JwtPackage::class), MallConstant::MALL_ONCHANNEL, app(OrderW1::class), app(GenuioService::class));
+        });
+
+
+        /**
+         * channel API 의존성 설정
+         * start
+         * 
+        */
+        $this->app->bind(MallApiAbstract::class, function ($app) {
+            $currentUrl = $app['request']->fullUrl();
+
+            if(strpos(strtoupper($currentUrl), strtoupper(MallConstant::MALL_EASYSELL)) !== false){
+                return app(EasySell::class);
+            } else if(strpos(strtoupper($currentUrl), strtoupper(MallConstant::MALL_ONCHANNEL)) !== false){
+                return app(Onchannel::class);
+            };
+        });
+        /**
+         * channel API 의존성 설정
          * end
          * 
         */

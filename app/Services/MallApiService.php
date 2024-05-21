@@ -79,4 +79,26 @@ class MallApiService
     {
         $this->mallApiAbstract->sendModiProduct();
     }
+
+    /**
+     * @func imgTransRequest
+     * @description '이미지 번역 요청'
+     * @param array $params
+     * @return array
+    */
+    public function imgTransRequest(array $params) :array
+    {
+        return $this->mallApiAbstract->imgTransRequest($params);
+    }
+
+    /**
+     * @func imgTrans
+     * @description '번역 된 이미지 처리'
+     * @param array $params
+     * @return array
+    */
+    public function imgTrans(array $params) :array
+    {
+        return $this->mallApiAbstract->imgTrans($params);
+    }
 }

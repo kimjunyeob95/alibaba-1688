@@ -1,5 +1,6 @@
 @php
     use App\Constants\ProductConstant;
+    use App\Constants\CategoryConstant;
 @endphp
 @extends('dashboard.base')
 
@@ -113,6 +114,8 @@
                                 <th scope="col" style="width: 200px">W 3차 분류</th>
                                 <th scope="col">WApp 맵핑 카테고리</th>
                                 <th scope="col" style="width: 100px">맵핑여부</th>
+                                <th scope="col" style="width: 100px">표준 중량(kg)</th>
+                                <th scope="col" style="width: 100px">배송비(원)</th>
                                 <th style="width: 100px" class="text-center">관리</th> 
                             </tr>
                         </thead>
@@ -161,6 +164,20 @@
                                             <p class="text-danger">
                                                 {{ ProductConstant::MAPPING_STATUS[ProductConstant::MAPPING_STATUS_N] }}
                                             </p>
+                                        @endif
+                                    </td>
+                                    <td>
+                                        @if ($data->weight_category == null)
+                                            0
+                                        @else
+                                            {{ $data->weight_category->weight }}
+                                        @endif
+                                    </td>
+                                    <td>
+                                        @if ($data->weight_category == null)
+                                            {{ number_format(CategoryConstant::WEIGHTS[0]) }}
+                                        @else
+                                            {{ number_format(CategoryConstant::WEIGHTS[$data->weight_category->weight]) }}
                                         @endif
                                     </td>
                                     <td class="text-center">

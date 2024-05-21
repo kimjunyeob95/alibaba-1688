@@ -4,6 +4,7 @@ namespace App\Packages;
 
 use App\Abstracts\MallApiAbstract;
 use App\Abstracts\OrderAbstract;
+use App\Abstracts\TransApiAbstract;
 use App\Constants\EasySellConstant;
 use App\Constants\GosiConstants;
 use App\Constants\ImageConstant;
@@ -28,10 +29,11 @@ class EasySell extends MallApiAbstract
     public function __construct(
         JwtPackage $jwtPackage,
         string $channel,
-        OrderAbstract $orderW1
+        OrderAbstract $orderW1,
+        TransApiAbstract $transApiAbstract
     )
     {
-        parent::__construct($jwtPackage, $channel, $orderW1);
+        parent::__construct($jwtPackage, $channel, $orderW1, $transApiAbstract);
     }
 
     /**

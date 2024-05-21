@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Constants\HttpConstant;
+use App\Constants\MallErrorMessageConstant;
 use App\Constants\OrderErrorMessageConstant;
 use App\Constants\WConstant;
 use App\Http\Controllers\Controller;
@@ -122,6 +123,61 @@ class MallController extends Controller
                 throw new Exception($validator->errors()->first());
             }
             $result = $this->mallApiService->orderCreate($this->request->all());
+            if( $result["isSuccess"] == true ){
+                return helpers_json_response(HttpConstant::OK, $result);
+            } else {
+                return helpers_json_response(HttpConstant::BAD_REQUEST, [], $result["msg"]);
+            }
+        } catch (Exception $e) {
+            return helpers_json_response(HttpConstant::BAD_REQUEST, [], $e->getMessage());
+        }
+    }
+
+    public function imgTransRequest(): JsonResponse
+    {
+        try {
+            $validator = Validator::make($this->request->all(), [
+                'channel_queue_id'    => 'required|int',
+                'member_id'           => 'required|string',
+                'images'              => 'required|array',
+                'images.*.origin_url' => 'required|string'
+            ], [
+                'channel_queue_id.required'    => MallErrorMessageConstant::getNotHaveErrorMessage("CHANNEL_QUEUE_ID"),
+                'member_id.required'           => MallErrorMessageConstant::getNotHaveErrorMessage("MEMBER_ID"),
+                'images.required'              => MallErrorMessageConstant::getNotHaveErrorMessage("IMAGES"),
+                'images.*.origin_url.required' => MallErrorMessageConstant::getNotHaveErrorMessage("IMAGES_ORIGIN_URL"),
+            ]);
+            if ($validator->fails()) {
+                throw new Exception($validator->errors()->first());
+            }
+            $result = $this->mallApiService->imgTransRequest($this->request->all());
+            if( $result["isSuccess"] == true ){
+                return helpers_json_response(HttpConstant::OK, $result);
+            } else {
+                return helpers_json_response(HttpConstant::BAD_REQUEST, [], $result["msg"]);
+            }
+        } catch (Exception $e) {
+            return helpers_json_response(HttpConstant::BAD_REQUEST, [], $e->getMessage());
+        }
+    }
+
+    public function imgTrans(): JsonResponse
+    {
+        try {
+            $validator = Validator::make($this->request->all(), [
+                'jobId'               => 'required|string',
+                'images'              => 'required|array',
+                'images.*.id'         => 'required|string',
+                'images.*.origin_url' => 'required|string',
+            ], [
+                'jobId.required'               => MallErrorMessageConstant::getNotHaveErrorMessage("JOB_ID"),
+                'images.required'              => MallErrorMessageConstant::getNotHaveErrorMessage("IMAGES"),
+                'images.*.origin_url.required' => MallErrorMessageConstant::getNotHaveErrorMessage("IMAGES_ORIGIN_URL"),
+            ]);
+            if ($validator->fails()) {
+                throw new Exception($validator->errors()->first());
+            }
+            $result = $this->mallApiService->imgTrans($this->request->all());
             if( $result["isSuccess"] == true ){
                 return helpers_json_response(HttpConstant::OK, $result);
             } else {
