@@ -1148,6 +1148,7 @@ class GenuioService extends TransApiAbstract
                 }
                 if( $originUrl ){
                     $payload["images"][] = [
+                        "id"          => generateRandom10DigitNumber(),
                         "imagePath"   => $originUrl,
                         "isThumbnail" => $isThumbnail,
                         "priority"    => $priority
