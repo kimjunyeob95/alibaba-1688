@@ -1149,7 +1149,7 @@ class GenuioService extends TransApiAbstract
                 if( $originUrl ){
                     $payload["images"][] = [
                         "id"          => generateRandom10DigitNumber(),
-                        "imagePath"   => $originUrl,
+                        "origin_url"  => $originUrl,
                         "isThumbnail" => $isThumbnail,
                         "priority"    => $priority
                     ];
@@ -1260,7 +1260,7 @@ class GenuioService extends TransApiAbstract
                             $img_url_trans = env("AWS_URL") . $imgName;
                             $resPayload["images"][] = [
                                 "origin_url" => $img_url_origin,
-                                "trans_url" => $img_url_trans,
+                                "trans_url"  => $img_url_trans,
                             ];
                         } else {
                             $img_url_trans = $img_url_origin;
