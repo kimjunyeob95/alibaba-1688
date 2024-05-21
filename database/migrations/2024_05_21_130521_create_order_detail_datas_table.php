@@ -16,7 +16,7 @@ return new class extends Migration
     {
         Schema::create('order_detail_datas', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('order_id')->nullable(false)->comment('주문ID');
+            $table->string('order_id', 25)->nullable(false)->comment('주문ID');
             $table->unsignedBigInteger('option_id')->nullable(false)->comment('옵션 ID');
             $table->integer('quantity')->default(1)->nullable(false)->comment('옵션 수량');
             $table->decimal('origin_option_price', 8, 2)->default(0)->nullable(false)->comment('기존 옵션 금액');

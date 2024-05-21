@@ -230,6 +230,8 @@ abstract class MallApiAbstract
                     DB::rollBack();
                     $returnMsg = helpers_fail_message($ee->getMessage());
                 }
+            } else {
+                $returnMsg = helpers_fail_message($result["msg"]);
             }
         } catch (Exception $e) {
             $returnMsg = helpers_fail_message($e->getMessage());

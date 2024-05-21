@@ -16,7 +16,7 @@ return new class extends Migration
     {
         Schema::create('order_datas', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('order_id')->nullable(false)->unique()->comment('주문ID');
+            $table->string('order_id', 25)->nullable(false)->unique()->comment('주문ID');
             $table->unsignedBigInteger('offer_id')->nullable(false)->comment('제품ID');
             $table->string('channel', 20)->nullable(false)->comment('채널');
             $table->text('buyer_name')->nullable(false)->comment('구매자명');

@@ -37,14 +37,14 @@ class OrderW1 extends OrderAbstract
             ){
                 $returnMsg = helpers_success_message($result["data"]);
             } else {
-                $errorMsg = "";
+                $errorMsg = $this->returnMsg["msg"];
                 if( isset($result["data"]["errorMessage"]) ){
                     $errorMsg = $result["data"]["errorMessage"];
                 } else if( isset($result["data"]["error_message"]) ){
                     $errorMsg = $result["data"]["error_message"];
                 }
 
-                $returnMsg = helpers_fail_message($errorMsg, $result["data"]);
+                $returnMsg = helpers_fail_message($errorMsg);
             }
         } catch (Exception $e) {
             $returnMsg = helpers_fail_message($e->getMessage());
@@ -98,6 +98,15 @@ class OrderW1 extends OrderAbstract
             ){
                 $returnMsg = helpers_success_message($result["data"]["result"]);
             } else {
+                $errorMsg = $this->returnMsg["msg"];
+                if( isset($result["data"]["message"]) ){
+                    $errorMsg = $result["data"]["message"];
+                } else if( isset($result["data"]["code"]) ){
+                    $errorMsg = $result["data"]["code"];
+                }
+
+                $returnMsg = helpers_fail_message($errorMsg);
+
                 debug_log(json_encode($result, JSON_UNESCAPED_UNICODE), "createWOrder", "createWOrder");
             }
         } catch (Exception $e) {
