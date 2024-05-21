@@ -1109,7 +1109,7 @@ class GenuioService extends TransApiAbstract
             switch ($channel) {
                 case MallConstant::MALL_ONCHANNEL:
                 default:
-                    $callback_url = $wappDomain . "/mall/{$channel}/genuio/img/trans";
+                    $callback_url = $wappDomain . "/api/mall/{$channel}/genuio/img/trans";
                     $qry = OcGeQueueData::class;
                     break;
             }
