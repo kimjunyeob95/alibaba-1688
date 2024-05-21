@@ -5,9 +5,13 @@ namespace App\Packages;
 use App\Abstracts\MallApiAbstract;
 use App\Abstracts\OrderAbstract;
 use App\Constants\MallConstant;
+use App\Constants\MallErrorMessageConstant;
+use App\Constants\OnchannelConstant;
 use App\Constants\ProductConstant;
 use App\Constants\WConstant;
 use App\Models\CategoryMapping;
+use App\Models\OnchannelProductLog;
+use App\Models\ProductData;
 use App\Models\ProductModiData;
 use Carbon\Carbon;
 use Exception;
@@ -16,6 +20,9 @@ use Illuminate\Support\Facades\File;
 
 class Onchannel extends MallApiAbstract
 {
+    private string $token;
+    private string $domain;
+
     public function __construct(
         JwtPackage $jwtPackage,
         string $channel,
@@ -23,6 +30,8 @@ class Onchannel extends MallApiAbstract
     )
     {
         parent::__construct($jwtPackage, $channel, $orderW1);
+        $this->token = env("ON_TOKEN");
+        $this->domain = env("OC_DOMAIN", "https://task.onch3.co.kr");
     }
 
     /**
@@ -39,7 +48,97 @@ class Onchannel extends MallApiAbstract
         $updateIds  = [];
 
         foreach ($offerIds as $offerId) {
-           
+            $regCnt = OnchannelProductLog::where([
+                "offer_id"       => $offerId,
+                "member_id"      => OnchannelConstant::ONCH1688,
+                "regist_success" => MallConstant::REGIST_SUCCESS
+            ])->count();
+
+            if( $regCnt > 0 ){
+                try {
+                    $prdObj = ProductData::with([
+                        "main_img",
+                        "no_except_sub_imgs",
+                        "extends",
+                        "no_except_options",
+                        "no_except_notices",
+                        "w_mapping"
+                    ])->where("offer_id", $offerId)->first();
+
+                    if( $prdObj == null ){
+                        throw new Exception(MallErrorMessageConstant::getNotHaveErrorMessage("PRODUCT"));
+                    }
+
+                    $prd_desc     = $prdObj->prd_desc;
+                    $noticeInfo   = $prdObj->notices->pluck("attribute_value_kr","attribute_name_kr")->toArray();
+                    $notice_desc  = getNoticeInfoTable($noticeInfo);
+                    $prd_desc    .= $notice_desc;
+        
+                    $payload = [
+                        "nat_sec"         => OnchannelConstant::NAT_SEC,
+                        "supp_sec"        => OnchannelConstant::SUPP_SEC,
+                        "jejo_code"       => $prdObj->offer_id,
+                        "product_nm"      => $prdObj->prd_name_kr,
+                        "prd_char1"       => $prdObj->minor_not_sale,
+                        "trans_info"      => OnchannelConstant::TRANS_INFO,
+                        "send_check"      => OnchannelConstant::SEND_CHECK,
+                        "send_price"      => (int)0,
+                        "jeju_send_price" => (int)$prdObj->extends->send_jeju_price,
+                        "etc_send_price"  => (int)$prdObj->extends->send_etc_price,
+                        "trans_nm"        => OnchannelConstant::TRANS_NM,
+                        "prd_channel"     => OnchannelConstant::PRD_CHANNEL,
+                        "sale_num"        => OnchannelConstant::SALE_NUM,
+                        "etc_comment"     => OnchannelConstant::ETC_COMMENT,
+                        "return_comment"  => $prdObj->return_comment,
+                        "sec_tax"         => OnchannelConstant::SEC_TAX,
+                        "subject"         => $prdObj->prd_name_kr,
+                        "contents"        => $prd_desc,
+                        "img_url"         => $prdObj->main_img->img_url_origin,
+                        "img_nm_550"      => $prdObj->no_except_sub_imgs[0]->img_url_origin,
+                        "img_nm_300"      => $prdObj->no_except_sub_imgs[1]->img_url_origin,
+                        "img_nm_130"      => $prdObj->no_except_sub_imgs[2]->img_url_origin,
+                        "cate_num"        => 26,
+                        "store_code"      => (string)$prdObj->w_mapping->mapping_code,
+                        "brand_info"      => OnchannelConstant::BRAND_INFO
+                    ];
+        
+                    $options = [];
+                    foreach ($prdObj->options as $option) {
+                        $options[] = [
+                            "op_rank"         => "1",
+                            "option_nm"       => $option->option_name_kr,
+                            "cus_price"       => (int)$option->cus_price + 12000,
+                            "disc_price"      => 0,
+                            "option_price"    => 0,
+                            "vendor_price"    => 0,
+                            "onch_price"      => (int)$option->option_price + 12000,
+                            "total_count"     => 0,
+                            "weight"          => $option->weight,
+                            "volume"          => "",
+                            "amount"          => 0
+                        ];
+                    }
+                    $payload["options"] = $options;
+                    $header = array(
+                        'Content-type: application/json',
+                        'Authorization: Bearer ' . $this->token,
+                    );
+
+                    $endPoint = $this->domain . "/api/v1/product/regist";
+                    $result = helpers_curl("POST", $endPoint, $header, $payload);
+
+
+                } catch (Exception $e) {
+                    $failIds[] = [
+                        "offer_id" => $offerId,
+                        "msg"      => $e->getMessage()
+                    ];
+                }
+
+
+            } else {
+                $updateIds[] = $offerId;
+            }
         }
 
         $result = ["success" => $successIds, "fail" => $failIds];

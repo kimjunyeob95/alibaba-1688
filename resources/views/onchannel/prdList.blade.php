@@ -229,10 +229,9 @@
                 $.ajax({
                     "headers"    : {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
                     "type"       : "POST",
-                    "url"        : "/api/mall/easySell/product/regist",
+                    "url"        : "/api/mall/onchannel/product/regist",
                     "data"       : {
-                        "offer_ids": offer_ids,
-                        "type"     : "{{ WConstant::WAPP_W1 }}"
+                        "offer_ids": offer_ids
                     },
                     beforeSend: function () {
                     },
@@ -285,10 +284,9 @@
                 $.ajax({
                     "headers"    : {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
                     "type"       : "POST",
-                    "url"        : "/api/mall/easySell/product/regist",
+                    "url"        : "/api/mall/onchannel/product/regist",
                     "data"       : {
                         "offer_ids": offer_ids,
-                        "type"     : "{{ WConstant::WAPP_W1 }}"
                     },
                     beforeSend: function () {
                     },

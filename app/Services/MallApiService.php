@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Abstracts\MallApiAbstract;
+use App\Constants\WConstant;
 
 class MallApiService
 {
@@ -32,7 +33,7 @@ class MallApiService
      * @param array $offerIds
      * @return array
     */
-    public function productRegist(array $offerIds, string $type): array
+    public function productRegist(array $offerIds, string $type = WConstant::WAPP_W1): array
     {
         return $this->mallApiAbstract->productRegist($offerIds, $type);
     }
