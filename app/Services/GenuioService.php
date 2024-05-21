@@ -1099,8 +1099,12 @@ class GenuioService extends TransApiAbstract
     public function channelImgTransRequest(string $channel = MallConstant::MALL_ONCHANNEL, array $params): array
     {
         $returnMsg = $this->returnMsg;
-        try {
 
+        if( env("APP_ENV", "local") != "production" ){
+            return helpers_fail_message("운영 환경에서만 사용 가능합니다.");
+        }
+
+        try {
             $wappDomain = env("WAPP_DOMAIN", "https://task-1688.onch3.co.kr");
             switch ($channel) {
                 case MallConstant::MALL_ONCHANNEL:
@@ -1123,6 +1127,7 @@ class GenuioService extends TransApiAbstract
             $payload = [
                 "jobId"            => $nextId,
                 "channel_queue_id" => $params["channel_queue_id"],
+                "member_id"        => $params["member_id"],
                 "channel"          => $channel,
                 "callback_url"     => $callback_url,
                 "images"           => [],
