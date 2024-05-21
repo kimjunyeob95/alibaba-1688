@@ -44,8 +44,6 @@
                                         value="{{ ForbiddenWordConstant::KEYWORD_DELETE }}">키워드 삭제</button>
                                         <button type="button" name="keyword_type" class="btn-status btn btn-md {{ $keyword_type == ForbiddenWordConstant::KEYWORD_REPLACE ? "btn-primary" : "btn-dark" }}"
                                         value="{{ ForbiddenWordConstant::KEYWORD_REPLACE}}">키워드 교체</button>
-                                        <button type="button" name="keyword_type" class="btn-status btn btn-md {{ $keyword_type == ForbiddenWordConstant::KEYWORD_EXCEPT ? "btn-primary" : "btn-dark" }}"
-                                        value="{{ ForbiddenWordConstant::KEYWORD_EXCEPT}}">적용 제외</button>
                                     </td>
                                 </tr>
                                 <tr class="align-middle">
@@ -208,10 +206,6 @@
                                         <div class="form-check form-check-inline">
                                             <input class="form-check-input" type="radio" name="apply_type" id="apply_type2" value="{{ ForbiddenWordConstant::KEYWORD_APPLY_ATTR_NAME }}">
                                             <label class="form-check-label" for="apply_type2">{{ ForbiddenWordConstant::KEYWORD_APPLY_ATTR_STATUS[ForbiddenWordConstant::KEYWORD_APPLY_ATTR_NAME] }}</label>
-                                        </div>
-                                        <div class="form-check form-check-inline">
-                                            <input class="form-check-input" type="radio" name="apply_type" id="apply_type3" value="{{ ForbiddenWordConstant::KEYWORD_APPLY_ATTR_VALUE }}">
-                                            <label class="form-check-label" for="apply_type3">{{ ForbiddenWordConstant::KEYWORD_APPLY_ATTR_STATUS[ForbiddenWordConstant::KEYWORD_APPLY_ATTR_VALUE] }}</label>
                                         </div>
                                     </div>
                                 </div>
