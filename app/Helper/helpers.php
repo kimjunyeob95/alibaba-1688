@@ -791,16 +791,3 @@ if (!function_exists("getNoticeInfoTable")) {
         return $noticeTable;
     }
 }
-
-/** 검수상태 최종 변경 */
-if (!function_exists("generateRandom10DigitNumber")) {
-    function generateRandom10DigitNumber()
-    {
-        // 1부터 9999999999 사이의 숫자를 생성합니다.
-        $min = 1;
-        $max = 9999999999;
-        
-        // 랜덤 숫자를 생성하고 10자리로 패딩합니다.
-        return str_pad(random_int($min, $max), 10, '0', STR_PAD_LEFT);
-    }
-}

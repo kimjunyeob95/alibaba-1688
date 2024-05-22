@@ -25,6 +25,7 @@ class MallErrorMessageConstant
     public const ERROR_MESSAGE_IMAGES_ORIGIN_URL  = "images origin_url";
     public const ERROR_MESSAGE_CHANNEL_QUEUE_ID   = "channel_queue_id";
     public const ERROR_MESSAGE_JOB_ID             = "job_id";
+    public const ERROR_MESSAGE_IMAGE_ID           = "image_id";
     public const ERROR_MESSAGE_MEMBER_ID          = "member_id";
 
     public static function getErrorMessageNotDefault($constantName): string

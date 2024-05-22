@@ -1134,6 +1134,7 @@ class GenuioService extends TransApiAbstract
             ];
 
             foreach ($params["images"] as $data) {
+                $imgId       = $data["id"];
                 $originUrl   = "";
                 $isThumbnail = false;
                 $priority    = false;
@@ -1148,7 +1149,7 @@ class GenuioService extends TransApiAbstract
                 }
                 if( $originUrl ){
                     $payload["images"][] = [
-                        "id"          => generateRandom10DigitNumber(),
+                        "id"          => $imgId,
                         "origin_url"  => $originUrl,
                         "isThumbnail" => $isThumbnail,
                         "priority"    => $priority

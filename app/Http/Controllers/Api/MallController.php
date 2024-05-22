@@ -140,11 +140,13 @@ class MallController extends Controller
                 'channel_queue_id'    => 'required|int',
                 'member_id'           => 'required|string',
                 'images'              => 'required|array',
+                'images.*.id'         => 'required|int',
                 'images.*.origin_url' => 'required|string'
             ], [
                 'channel_queue_id.required'    => MallErrorMessageConstant::getNotHaveErrorMessage("CHANNEL_QUEUE_ID"),
                 'member_id.required'           => MallErrorMessageConstant::getNotHaveErrorMessage("MEMBER_ID"),
                 'images.required'              => MallErrorMessageConstant::getNotHaveErrorMessage("IMAGES"),
+                'images.*.id.required'         => MallErrorMessageConstant::getNotHaveErrorMessage("IMAGE_ID"),
                 'images.*.origin_url.required' => MallErrorMessageConstant::getNotHaveErrorMessage("IMAGES_ORIGIN_URL"),
             ]);
             if ($validator->fails()) {
