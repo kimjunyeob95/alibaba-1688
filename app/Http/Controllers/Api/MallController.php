@@ -169,17 +169,46 @@ class MallController extends Controller
             $validator = Validator::make($this->request->all(), [
                 'jobId'               => 'required|string',
                 'images'              => 'required|array',
-                'images.*.id'         => 'required|string',
+                'images.*.id'         => 'required|int',
                 'images.*.origin_url' => 'required|string',
             ], [
                 'jobId.required'               => MallErrorMessageConstant::getNotHaveErrorMessage("JOB_ID"),
                 'images.required'              => MallErrorMessageConstant::getNotHaveErrorMessage("IMAGES"),
+                'images.*.id.required'         => MallErrorMessageConstant::getNotHaveErrorMessage("IMAGE_ID"),
                 'images.*.origin_url.required' => MallErrorMessageConstant::getNotHaveErrorMessage("IMAGES_ORIGIN_URL"),
             ]);
             if ($validator->fails()) {
                 throw new Exception($validator->errors()->first());
             }
             $result = $this->mallApiService->imgTrans($this->request->all());
+            if( $result["isSuccess"] == true ){
+                return helpers_json_response(HttpConstant::OK, $result);
+            } else {
+                return helpers_json_response(HttpConstant::BAD_REQUEST, [], $result["msg"]);
+            }
+        } catch (Exception $e) {
+            return helpers_json_response(HttpConstant::BAD_REQUEST, [], $e->getMessage());
+        }
+    }
+
+    public function imgUpload(): JsonResponse
+    {
+        try {
+            $validator = Validator::make($this->request->all(), [
+                'member_id'       => 'required|string',
+                'images'          => 'required|array',
+                'images.*.id'     => 'required|int',
+                'images.*.base64' => 'required|string',
+            ], [
+                'member_id.required'       => MallErrorMessageConstant::getNotHaveErrorMessage("MEMBER_ID"),
+                'images.required'          => MallErrorMessageConstant::getNotHaveErrorMessage("IMAGES"),
+                'images.*.id.required'     => MallErrorMessageConstant::getNotHaveErrorMessage("IMAGE_ID"),
+                'images.*.base64.required' => MallErrorMessageConstant::getNotHaveErrorMessage("IMAGE_BASE64"),
+            ]);
+            if ($validator->fails()) {
+                throw new Exception($validator->errors()->first());
+            }
+            $result = $this->mallApiService->imgUpload($this->request->all());
             if( $result["isSuccess"] == true ){
                 return helpers_json_response(HttpConstant::OK, $result);
             } else {

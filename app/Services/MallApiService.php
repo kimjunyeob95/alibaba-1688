@@ -101,4 +101,15 @@ class MallApiService
     {
         return $this->mallApiAbstract->imgTrans($params);
     }
+
+    /**
+     * @func imgUpload
+     * @description '이미지 S3 upload'
+     * @param array $params
+     * @return array
+    */
+    public function imgUpload(array $params) :array
+    {
+        return $this->mallApiAbstract->imgUpload($params);
+    }
 }

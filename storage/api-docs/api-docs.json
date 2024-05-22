@@ -684,6 +684,84 @@
                     }
                 ]
             }
+        },
+        "/api/mall/{channel}/img/upload": {
+            "post": {
+                "tags": [
+                    "이미지"
+                ],
+                "summary": "이미지 번역 요청 queue 등록",
+                "description": "이미지 번역 요청 queue 등록 endPoint",
+                "operationId": "3bef2716a072a27b793c9fd0743c0446",
+                "parameters": [
+                    {
+                        "name": "channel",
+                        "in": "path",
+                        "description": "채널 ID",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ImageUploadSchema"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SuccessResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Authorization Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/401ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/400ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/500ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            }
         }
     },
     "components": {
@@ -1188,6 +1266,43 @@
                                     "description": "번역 이미지 url",
                                     "type": "string",
                                     "example": "https://cbu01-overseas.1688.com/img/ibank/O1CN01AD7ffR26MNdlfhHsv_!!2201111757647-0-cib.jpg"
+                                }
+                            },
+                            "type": "object"
+                        }
+                    }
+                },
+                "type": "object"
+            },
+            "ImageUploadSchema": {
+                "required": [
+                    "member_id",
+                    "images"
+                ],
+                "properties": {
+                    "member_id": {
+                        "description": "판매자 계정 이름",
+                        "type": "string",
+                        "example": "tester123"
+                    },
+                    "images": {
+                        "description": "이미지 정보",
+                        "type": "array",
+                        "items": {
+                            "required": [
+                                "id",
+                                "base64"
+                            ],
+                            "properties": {
+                                "id": {
+                                    "description": "채널에서 관리하는 이미지 고유 ID",
+                                    "type": "integer",
+                                    "example": 1
+                                },
+                                "base64": {
+                                    "description": "이미지 파일 base64 인코딩",
+                                    "type": "string",
+                                    "example": "~~~"
                                 }
                             },
                             "type": "object"

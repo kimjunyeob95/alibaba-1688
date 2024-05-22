@@ -5,14 +5,8 @@ namespace App\Annotations\v1\W\dImage;
 /**
  * 
  * @OA\Schema(
- *     schema="ImageQueueSchema",
- *     required={"channel_queue_id", "member_id", "images"},
- *     @OA\Property(
- *         property="channel_queue_id",
- *         type="integer",
- *         example=1,
- *         description="채널 Queue ID"
- *     ),
+ *     schema="ImageUploadSchema",
+ *     required={"member_id", "images"},
  *     @OA\Property(
  *         property="member_id",
  *         type="string",
@@ -24,7 +18,7 @@ namespace App\Annotations\v1\W\dImage;
  *         type="array",
  *         @OA\Items(
  *             type="object",
- *             required={"id", "origin_url"},
+ *             required={"id", "base64"},
  *             @OA\Property(
  *                  property="id",
  *                  type="integer",
@@ -32,10 +26,10 @@ namespace App\Annotations\v1\W\dImage;
  *                  description="채널에서 관리하는 이미지 고유 ID"
  *              ),
  *              @OA\Property(
- *                  property="origin_url",
+ *                  property="base64",
  *                  type="string",
- *                  example="https://cbu01-overseas.1688.com/img/ibank/O1CN01AD7ffR26MNdlfhHsv_!!2201111757647-0-cib.jpg",
- *                  description="번역 이미지 url"
+ *                  example="~~~",
+ *                  description="이미지 파일 base64 인코딩"
  *              ),
  *         ),
  *         description="이미지 정보"
@@ -44,7 +38,7 @@ namespace App\Annotations\v1\W\dImage;
  * 
  *
  * @OA\Post(
- *     path="/api/mall/{channel}/genuio/img/trans/request",
+ *     path="/api/mall/{channel}/img/upload",
  *     @OA\Parameter(
  *         name="channel",
  *         in="path",
@@ -60,7 +54,7 @@ namespace App\Annotations\v1\W\dImage;
  *     security={{"BearerAuth": {}}},
  *     @OA\RequestBody(
  *         required=true,
- *         @OA\JsonContent(ref="#/components/schemas/ImageQueueSchema"),
+ *         @OA\JsonContent(ref="#/components/schemas/ImageUploadSchema"),
  *     ),
  *     @OA\Response(
  *         response=200,
@@ -86,5 +80,5 @@ namespace App\Annotations\v1\W\dImage;
 */
 
 
-class AimgQueueAnnotation{
+class BimgUploadAnnotation{
 }

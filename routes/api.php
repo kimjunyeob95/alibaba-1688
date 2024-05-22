@@ -156,6 +156,9 @@ Route::name('mall.')->prefix('mall')->group(function () {
             /** 주문 생성 */
             Route::post('/order/create', [MallController::class, "orderCreate"])->name("orderCreate");
 
+            /** 이미지 S3 upload */
+            Route::post('/img/upload', [MallController::class, "imgUpload"])->name("imgUpload");
+
             /** Genuio */
             Route::name('genuio.')->prefix('genuio')->group(function () {
                 /** 이미지 번역 요청 */

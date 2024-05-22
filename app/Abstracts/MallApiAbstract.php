@@ -304,4 +304,15 @@ abstract class MallApiAbstract
 
         return $returnMsg;
     }
+
+    /**
+     * @func imgUpload
+     * @description '이미지 S3 upload'
+     * @param array $params
+     * @return array
+    */
+    public function imgUpload($params): array
+    {
+        return $this->transApiAbstract->imgUpload($params);
+    }
 }

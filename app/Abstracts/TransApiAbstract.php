@@ -82,4 +82,12 @@ abstract class TransApiAbstract
      * @return array
      */
     abstract function channelImgTrans(string $channel, array $params): array;
+
+    /**
+     * @func imgUpload
+     * @description '이미지 S3 upload'
+     * @param array $params
+     * @return array
+    */
+    abstract function imgUpload(array $params): array;
 }

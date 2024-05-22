@@ -1223,18 +1223,20 @@ class GenuioService extends TransApiAbstract
                 "images"           => []
             ];
             if( $getGenuioObj->send_type == GenuioConstant::IMG_TRANS ){
-                foreach ($images as $key => $image) {
+                foreach ($images as $image) {
                     try {
+                        $img_id         = $image["id"];
                         $img_url_origin = $image["origin_url"];
                         $uploadResult   = false;
                         $base64         = "";
                         $img_url_trans  = "";
                         $mime           = pathinfo($img_url_origin, PATHINFO_EXTENSION);
+                        $dateName       = Carbon::now()->format('Ymd_His');
                         if (preg_match('/^(jpg|jpeg|png|gif)/i', $mime, $matches)) {
                             $mime = $matches[0];
                         }
 
-                        $imgName  = $member_id . "/product/" . $jobId . "_" . $key . "." . $mime;
+                        $imgName  = "/" . $member_id . "/product/" . $dateName . "_" . $img_id . "." . $mime;
                         if( isset($image["base64"]) && !empty($image["base64"]) ){
                             $base64       = $image["base64"];
                             $uploadResult = $this->uploadAbstract->uploadFile($imgName, base64_decode($base64));
@@ -1294,6 +1296,55 @@ class GenuioService extends TransApiAbstract
                 "response_json" => json_encode($returnMsg, JSON_UNESCAPED_UNICODE),
             ];
             $qry::create($bindParam);
+        }
+
+        return $returnMsg;
+    }
+
+    /**
+     * @func imgUpload
+     * @description '이미지 S3 upload'
+     * @param array $params
+     * @return array
+    */
+    public function imgUpload(array $params): array
+    {
+        $returnMsg = $this->returnMsg;
+        try {
+            $member_id = $params["member_id"];
+            $images    = $params["images"];
+
+            $resPayload = [];
+            foreach ($images as $key => $image) {
+                try {
+                    $img_id        = $image["id"];
+                    $uploadResult  = false;
+                    $base64        = "";
+                    $img_url_trans = "";
+                    $dateName      = Carbon::now()->format('Ymd_His');
+
+                    if( isset($image["base64"]) && !empty($image["base64"]) ){
+                        $base64       = $image["base64"];
+                        $mime         = getExtensionFromBase64($base64);
+                        $imgName      = "/" . $member_id . "/product/" . $dateName . "_" . $img_id . "." . $mime;
+                        $uploadResult = $this->uploadAbstract->uploadFile($imgName, base64_decode($base64));
+                    }
+
+                    $resPayload["images"][] = [
+                        "trans_url" => $img_url_trans,
+                        "upload"    => $uploadResult
+                    ];
+
+                } catch (ValueError $ve) {
+                    $resPayload["images"][] = [
+                        "trans_url" => "",
+                        "error"     => $ve->getMessage(),
+                    ];
+                }
+            }
+            $returnMsg = helpers_success_message($resPayload);
+        } catch (Exception $e) {
+            $returnMsg = helpers_fail_message($e->getMessage());
         }
 
         return $returnMsg;

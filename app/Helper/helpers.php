@@ -15,6 +15,7 @@ use App\Models\ProductInspectData;
 use App\Models\ProductModiData;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
 use Psr\Log\LogLevel;
@@ -789,5 +790,53 @@ if (!function_exists("getNoticeInfoTable")) {
         </div>";
 
         return $noticeTable;
+    }
+}
+
+/**
+ * base64 확장자 추출
+*/
+if (!function_exists("getExtensionFromBase64")) {
+    function getExtensionFromBase64($base64String) {
+        // Base64 문자열에서 데이터 부분만 추출
+        $data = explode(',', $base64String);
+        if (count($data) > 1) {
+            $base64String = $data[1];
+        } else {
+            $base64String = $data[0];
+        }
+
+        // 디코딩하여 바이너리 데이터로 변환
+        $binaryData = base64_decode($base64String);
+
+        // 파일 정보 객체 생성
+        $finfo = new finfo(FILEINFO_MIME_TYPE);
+        $mimeType = $finfo->buffer($binaryData);
+
+        // MIME 타입에서 확장자 추출
+        $extension = getExtensionFromMimeType($mimeType);
+
+        return $extension;
+    }
+}
+
+/**
+ * base64 확장자 추출
+*/
+if (!function_exists("getExtensionFromMimeType")) {
+    function getExtensionFromMimeType($mimeType) {
+        $mimeMap = [
+            'image/jpeg'      => 'jpg',
+            'image/png'       => 'png',
+            'image/gif'       => 'gif',
+            'image/bmp'       => 'bmp',
+            'image/webp'      => 'webp',
+            'text/plain'      => 'txt',
+            'text/html'       => 'html',
+            'application/pdf' => 'pdf',
+            // 필요한 MIME 타입들을 추가하세요
+        ];
+
+        return isset($mimeMap[$mimeType]) ? $mimeMap[$mimeType] : 'jpg';
     }
 }
