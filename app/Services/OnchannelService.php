@@ -25,6 +25,7 @@ class OnchannelService
             ->whereIn("product_datas.w_type", [ WConstant::WAPP_W1, WConstant::WAPP_W2])
             ->where("product_datas.mapping_status", ProductConstant::MAPPING_STATUS_Y)
             ->where("product_datas.status", "!=", ProductConstant::PRD_STATUS_MISS)
+            ->orderBy("b.registed_at", "desc")
             ->orderBy("product_datas.updated_at", "desc");
 
         $totalCnt = ProductData::where("mapping_status", ProductConstant::MAPPING_STATUS_Y)
