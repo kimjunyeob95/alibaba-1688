@@ -180,6 +180,8 @@ class Onchannel extends MallApiAbstract
                         "msg"      => $e->getMessage()
                     ];
                 }
+
+                sleep(1);
             } else {
                 $updateIds[] = $offerId;
             }
