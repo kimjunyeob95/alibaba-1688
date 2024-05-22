@@ -25,7 +25,7 @@ class OnchannelService
             ->whereIn("product_datas.w_type", [ WConstant::WAPP_W1, WConstant::WAPP_W2])
             ->where("product_datas.mapping_status", ProductConstant::MAPPING_STATUS_Y)
             ->where("product_datas.status", "!=", ProductConstant::PRD_STATUS_MISS)
-            ->orderBy("b.updated_at", "desc");
+            ->orderBy("product_datas.updated_at", "desc");
 
         $totalCnt = ProductData::where("mapping_status", ProductConstant::MAPPING_STATUS_Y)
         ->where("product_datas.status", "!=", ProductConstant::PRD_STATUS_MISS)->count();
@@ -63,7 +63,7 @@ class OnchannelService
         $successCnt = OnchannelProductLog::where("regist_success", MallConstant::REGIST_SUCCESS)->count();
         $failCnt    = $totalCnt - $successCnt;
         $lists      = $prdBuilder->paginate($pageSize)->appends($params);
-        // dd($lists->toArray());
+
         return [
             "paginator"  => $lists,
             "totalCnt"   => $totalCnt,

@@ -5,6 +5,7 @@ namespace App\Packages;
 use App\Abstracts\MallApiAbstract;
 use App\Abstracts\OrderAbstract;
 use App\Abstracts\TransApiAbstract;
+use App\Constants\ImageConstant;
 use App\Constants\MallConstant;
 use App\Constants\MallErrorMessageConstant;
 use App\Constants\OnchannelConstant;
@@ -56,12 +57,13 @@ class Onchannel extends MallApiAbstract
                 "regist_success" => MallConstant::REGIST_SUCCESS
             ])->count();
 
-            if( $regCnt > 0 ){
+            if( $regCnt == 0 ){
                 try {
                     $prdObj = ProductData::with([
                         "main_img",
                         "no_except_sub_imgs",
                         "extends",
+                        "images",
                         "no_except_options",
                         "no_except_notices",
                         "w_mapping"
@@ -71,11 +73,24 @@ class Onchannel extends MallApiAbstract
                         throw new Exception(MallErrorMessageConstant::getNotHaveErrorMessage("PRODUCT"));
                     }
 
+                    if(count($prdObj->no_except_sub_imgs) < 3){
+                        throw new Exception(MallErrorMessageConstant::getNotHaveErrorMessage("IMAGES"));
+                    }
+
                     $prd_desc     = $prdObj->prd_desc;
                     $noticeInfo   = $prdObj->notices->pluck("attribute_value_kr","attribute_name_kr")->toArray();
                     $notice_desc  = getNoticeInfoTable($noticeInfo);
                     $prd_desc    .= $notice_desc;
         
+                    $images = [];
+                    foreach ($prdObj->images as $imgObj) {
+                        if( $imgObj->is_except == ImageConstant::IS_EXCEPT_N && $imgObj->lang == WConstant::WAPP_KR ){
+                            $images[] = [
+                                "img_type" => $imgObj->img_type,
+                                "img_url"  => $imgObj->img_url_origin
+                            ];
+                        }
+                    }
                     $payload = [
                         "nat_sec"         => OnchannelConstant::NAT_SEC,
                         "supp_sec"        => OnchannelConstant::SUPP_SEC,
@@ -99,6 +114,8 @@ class Onchannel extends MallApiAbstract
                         "img_nm_550"      => $prdObj->no_except_sub_imgs[0]->img_url_origin,
                         "img_nm_300"      => $prdObj->no_except_sub_imgs[1]->img_url_origin,
                         "img_nm_130"      => $prdObj->no_except_sub_imgs[2]->img_url_origin,
+                        "min_count"       => $prdObj->start_quantity,
+                        "images"          => $images,
                         "cate_num"        => 26,
                         "store_code"      => (string)$prdObj->w_mapping->mapping_code,
                         "brand_info"      => OnchannelConstant::BRAND_INFO
@@ -107,17 +124,18 @@ class Onchannel extends MallApiAbstract
                     $options = [];
                     foreach ($prdObj->options as $option) {
                         $options[] = [
-                            "op_rank"         => "1",
-                            "option_nm"       => $option->option_name_kr,
-                            "cus_price"       => (int)$option->cus_price + 12000,
-                            "disc_price"      => 0,
-                            "option_price"    => 0,
-                            "vendor_price"    => 0,
-                            "onch_price"      => (int)$option->option_price + 12000,
-                            "total_count"     => 0,
-                            "weight"          => $option->weight,
-                            "volume"          => "",
-                            "amount"          => 0
+                            "op_rank"      => "1",
+                            "op_code"      => $option->id,
+                            "option_nm"    => $option->option_name_kr,
+                            "cus_price"    => (int)$option->cus_price + 12000,
+                            "disc_price"   => 0,
+                            "option_price" => 0,
+                            "vendor_price" => 0,
+                            "onch_price"   => (int)$option->option_price + 12000,
+                            "total_count"  => 0,
+                            "weight"       => $option->weight,
+                            "volume"       => "",
+                            "amount"       => 0
                         ];
                     }
                     $payload["options"] = $options;
@@ -129,15 +147,39 @@ class Onchannel extends MallApiAbstract
                     $endPoint = $this->domain . "/api/v1/product/regist";
                     $result = helpers_curl("POST", $endPoint, $header, $payload);
 
-
+                    if( isset($result["prd_code"]) && $result["prd_code"] ){
+                        OnchannelProductLog::updateOrCreate(
+                            [
+                                "offer_id"       => $offerId,
+                                "member_id"      => OnchannelConstant::ONCH1688,
+                            ],
+                            [
+                                "prd_code"       => $result["prd_code"],
+                                "regist_success" => MallConstant::REGIST_SUCCESS,
+                                "message"        => "",
+                                "registed_at"      => Carbon::now(),
+                            ]
+                        );
+                        $successIds[] = $offerId;
+                    } else {
+                        OnchannelProductLog::updateOrCreate(
+                            [
+                                "offer_id"       => $offerId,
+                                "member_id"      =>OnchannelConstant::ONCH1688,
+                            ],
+                            [
+                                "prd_code"       => 0,
+                                "regist_success" => MallConstant::REGIST_FAIL,
+                                "message"        => $result["msg"],
+                            ]
+                        );
+                    }
                 } catch (Exception $e) {
                     $failIds[] = [
                         "offer_id" => $offerId,
                         "msg"      => $e->getMessage()
                     ];
                 }
-
-
             } else {
                 $updateIds[] = $offerId;
             }
