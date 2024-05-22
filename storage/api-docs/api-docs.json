@@ -690,8 +690,8 @@
                 "tags": [
                     "이미지"
                 ],
-                "summary": "이미지 번역 요청 queue 등록",
-                "description": "이미지 번역 요청 queue 등록 endPoint",
+                "summary": "이미지 S3 업로드",
+                "description": "이미지 S3 업로드 endPoint",
                 "operationId": "3bef2716a072a27b793c9fd0743c0446",
                 "parameters": [
                     {

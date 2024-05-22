@@ -48,8 +48,8 @@ namespace App\Annotations\v1\W\dImage;
  *             type="string"
  *         )
  *     ),
- *     summary="이미지 번역 요청 queue 등록",
- *     description="이미지 번역 요청 queue 등록 endPoint",
+ *     summary="이미지 S3 업로드",
+ *     description="이미지 S3 업로드 endPoint",
  *     tags={"이미지"},
  *     security={{"BearerAuth": {}}},
  *     @OA\RequestBody(
