@@ -1148,7 +1148,7 @@ class CategoryW1 extends CategoryAbstract
         
         try {
             if( empty($categoryIds) ) {
-                throw new Exception(CategoryErrorMessageConstant::getNotHaveErrorMessage("CATEGORYID"));                
+                throw new Exception(CategoryErrorMessageConstant::getNotHaveErrorMessage("CATEGORYID"));
             }
 
             foreach ($categoryIds as $categoryId) {

@@ -72,6 +72,8 @@ Route::name('w.')->prefix('w')->group(function () {
         Route::post('/update', [WProductController::class, 'update'])->name('update');
         /** 검수상태 update */
         Route::post('/inspect/update', [WProductController::class, 'inspectStatusUpdate'])->name('inspectStatusUpdate');
+        /** 상품 중량 저장 */
+        Route::post('/weight/save', [WProductController::class, 'weightSave'])->name('weightSave');
     });
 
     Route::name('category.')->prefix('category')->group(function () {

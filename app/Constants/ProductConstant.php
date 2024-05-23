@@ -172,4 +172,22 @@ class ProductConstant
     /** 검수완료 여부 */
     public const INSPECT_STATUS_Y = "Y";
     public const INSPECT_STATUS_N = "N";
+
+    /** 배송비적용 여부 */
+    public const WEIGHT_STATUS_PRODUCT    = "product";
+    public const WEIGHT_STATUS_CATEGORY   = "category";
+    public const WEIGHT_STATUS_NONE       = "none";
+    public const WEIGHT_STATUS_NONE_PRICE = 12000;
+
+    public const WEIGHT_STATUS = [
+        self::WEIGHT_STATUS_PRODUCT  => "상품 배송비",
+        self::WEIGHT_STATUS_CATEGORY => "표준 배송비",
+        self::WEIGHT_STATUS_NONE     => "대표 배송비",
+    ];
+    public const WEIGHT_STATUS_SHORT = [
+        self::WEIGHT_STATUS_PRODUCT  => "상품",
+        self::WEIGHT_STATUS_CATEGORY => "표준",
+        self::WEIGHT_STATUS_NONE     => "대표",
+    ];
+
 }

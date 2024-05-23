@@ -112,4 +112,8 @@ class ProductData extends Model
     public function gosi_inspect () {
         return $this->hasOne(ProductInspectData::class, "offer_id", "offer_id")->where("inspect_type", InspectConstant::INSPECT_NOTICE);
     }
+
+    public function weight_delivery () {
+        return $this->hasOne(ProductWeightData::class, "offer_id", "offer_id");
+    }
 }

@@ -432,6 +432,7 @@ class ProductController extends Controller
         $mapping_status      = $this->request->get("mapping_status", "");
         $prd_status          = $this->request->get("prd_status", "");
         $mdPrice_status      = $this->request->get("mdPrice_status", "");
+        $weight_status       = $this->request->get("weight_status", "");
         $sort                = $this->request->get("sort", "updated_at|desc");
         $inspect_img_status  = $this->request->get("inspect_img_status", "");
         $inspect_prd_status  = $this->request->get("inspect_prd_status", "");
@@ -449,6 +450,7 @@ class ProductController extends Controller
             "mapping_status"      => $mapping_status,
             "prd_status"          => $prd_status,
             "mdPrice_status"      => $mdPrice_status,
+            "weight_status"       => $weight_status,
             "sort"                => $sort,
             "inspect_img_status"  => $inspect_img_status,
             "inspect_prd_status"  => $inspect_prd_status,
@@ -474,6 +476,7 @@ class ProductController extends Controller
             "keyword"             => $keyword,
             "trans_status"        => $trans_status,
             "mapping_status"      => $mapping_status,
+            "weight_status"       => $weight_status,
             "prd_status"          => $prd_status,
             "mdPrice_status"      => $mdPrice_status,
             "inspect_img_status"  => $inspect_img_status,

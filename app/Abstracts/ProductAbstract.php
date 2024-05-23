@@ -331,4 +331,13 @@ abstract class ProductAbstract
 
         return $text;
     }
+    
+    /**
+     * @func weightSave
+     * @description '상품 중량 저장'
+     * @param array $offerIds '제품 ID'
+     * @param int $weight '표준 중량'
+     * @return array
+    */
+    abstract function weightSave(array $offerIds, int $weight): array;
 }

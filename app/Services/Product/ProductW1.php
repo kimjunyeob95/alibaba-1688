@@ -5,6 +5,7 @@ namespace App\Services\Product;
 use App\Abstracts\ProductAbstract;
 use App\Abstracts\TransApiAbstract;
 use App\Abstracts\UploadAbstract;
+use App\Constants\CategoryConstant;
 use App\Constants\Constant1688;
 use App\Constants\ForbiddenWordConstant;
 use App\Constants\GenuioConstant;
@@ -35,6 +36,7 @@ use App\Models\ProductNoticeData;
 use App\Models\ProductOptionData;
 use App\Models\ProductSearchData;
 use App\Models\ProductSearchDetailData;
+use App\Models\ProductWeightData;
 use App\Models\WCategory;
 use App\Vo\Product\Product1688Dto;
 use App\Vo\Product\Product1688ExtendDto;
@@ -81,6 +83,7 @@ class ProductW1 extends ProductAbstract
         $mapping_status = $params["mapping_status"];
         $prd_status     = $params["prd_status"];
         $mdPrice_status = $params["mdPrice_status"];
+        $weight_status  = "";
         $sortArr        = explode("|", $params["sort"]);
 
         $inspect_status      = "";
@@ -99,6 +102,9 @@ class ProductW1 extends ProductAbstract
         if( isset($params["inspect_gosi_status"]) ){
             $inspect_gosi_status = $params["inspect_gosi_status"];
         }
+        if( isset($params["weight_status"]) ){
+            $weight_status = $params["weight_status"];
+        }
 
         $prdBuilder = ProductData::select(["product_datas.*"])->with([
             "main_img",
@@ -107,6 +113,7 @@ class ProductW1 extends ProductAbstract
             "img_inspect",
             "prd_inspect",
             "gosi_inspect",
+            "weight_delivery"
         ]);
 
         if( !empty($keyword) ){
@@ -2793,6 +2800,49 @@ class ProductW1 extends ProductAbstract
             inspectStatusUpdate($offerId);
 
             DB::commit();
+            $returnMsg = helpers_success_message();
+        } catch (Exception $e) {
+            DB::rollBack();
+            $returnMsg = helpers_fail_message($e->getMessage());
+        }
+
+        return $returnMsg;
+    }
+
+    public function weightSave(array $offerIds, int $weight): array
+    {
+        $returnMsg = $this->returnMsg;
+
+        try {
+
+            if( empty($offerIds) ) {
+                throw new Exception(ProductErrorMessageConstant::getNotHaveErrorMessage("OFFER_IDS"));
+            }
+
+            foreach ($offerIds as $offerId) {
+                try {
+                    $deliveryPrice = CategoryConstant::WEIGHTS[$weight];
+                } catch (Exception $e) {
+                    $weight        = 0;
+                    $deliveryPrice = CategoryConstant::WEIGHTS[$weight];
+                }
+
+                $prdObj = ProductWeightData::where("offer_id", $offerId)->first();
+
+                if( $prdObj != null ){
+                    ProductWeightData::where("offer_id", $offerId)->update([
+                        'weight'         => $weight,
+                        'delivery_price' => $deliveryPrice,
+                    ]);
+                } else {
+                    ProductWeightData::create([
+                        'offer_id'       => $offerId,
+                        'weight_type'    => ProductConstant::WEIGHT_STATUS_NONE,
+                        'weight'         => $weight,
+                        'delivery_price' => $deliveryPrice,
+                    ]);
+                }
+            }
             $returnMsg = helpers_success_message();
         } catch (Exception $e) {
             DB::rollBack();

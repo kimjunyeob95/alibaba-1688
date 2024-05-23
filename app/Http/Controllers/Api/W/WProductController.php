@@ -596,4 +596,27 @@ class WProductController extends Controller
             return helpers_json_response(HttpConstant::BAD_REQUEST, [], $e->getMessage());
         }
     }
+
+    public function weightSave(): JsonResponse
+    {
+        $validator = Validator::make($this->request->all(), [
+            'offerIds' => 'required|array',
+            'weight'   => 'required|int',
+        ], [
+            'offerIds.required' => ProductErrorMessageConstant::getNotHaveErrorMessage("OFFER_IDS"),
+            'weight.required'   => ProductErrorMessageConstant::getNotHaveErrorMessage("WEIGHT"),
+        ]);
+        if ($validator->fails()) {
+            throw new Exception($validator->errors()->first());
+        }
+
+        $offerIds = $this->request->post("offerIds");
+        $weight   = $this->request->post("weight");
+        $result   = $this->service1688Product->weightSave($offerIds, $weight);
+        if( $result["isSuccess"] == true ){
+            return helpers_json_response(HttpConstant::OK, $result);
+        } else {
+            return helpers_json_response(HttpConstant::BAD_REQUEST, [], $result["msg"]);
+        }
+    }
 }

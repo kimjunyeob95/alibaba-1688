@@ -426,6 +426,18 @@ class Service1688Product
       return $this->productAbstract->inspectStatusUpdate($params);
    }
 
+   /**
+     * @func weightSave
+     * @description '상품 중량 저장'
+     * @param array $offerIds '제품 ID'
+     * @param int $weight '표준 중량'
+     * @return array
+   */
+   public function weightSave(array $offerIds, int $weight): array
+   {
+      return $this->productAbstract->weightSave($offerIds, $weight);
+   }
+
    /****************************************** WApp W2 **********************************************/
 
    /**
