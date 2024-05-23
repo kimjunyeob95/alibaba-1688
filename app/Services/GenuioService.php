@@ -1306,7 +1306,7 @@ class GenuioService extends TransApiAbstract
             $bindParam = [
                 "parent_id"     => $getGenuioObj->id,
                 "send_type"     => $getGenuioObj->send_type,
-                "payload_json"  => "", // base64가 너무 길어 그냥 ""처리
+                "payload_json"  => $resPayload,
                 "request_user"  => TransApiConstant::API_USER_COMPANY_GENUIO,
                 "response_json" => json_encode($returnMsg, JSON_UNESCAPED_UNICODE),
             ];
