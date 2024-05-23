@@ -231,10 +231,14 @@
                                         {{ number_format($data->start_quantity) }}
                                     </td>
                                     <td>
-                                        <img class="lazy-img preview-image" data-src="{{ $data->en_main_img->img_url_origin }}" width=60 height=60/>
+                                        @if( $data->en_main_img )
+                                            <img class="lazy-img preview-image" data-src="{{ $data->en_main_img->img_url_origin }}" width=60 height=60/>
+                                        @else
+                                            <img class="lazy-img preview-image" data-src='/assets/img/no_img.png'width=60 height=60>
+                                        @endif
                                     </td>
                                     <td>
-                                        @if( $data->en_main_img->img_url_trans )
+                                        @if( $data->en_main_img )
                                             <img class="lazy-img preview-image" data-src="{{ $data->en_main_img->img_url_trans }}" width=60 height=60/>
                                         @else
                                             <img class="lazy-img preview-image" data-src='/assets/img/no_img.png'width=60 height=60>

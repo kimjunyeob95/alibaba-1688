@@ -44,6 +44,7 @@
                     <input type="hidden" name="inspect_img_status" value={{ $inspect_img_status }}>
                     <input type="hidden" name="inspect_prd_status" value={{ $inspect_prd_status }}>
                     <input type="hidden" name="inspect_gosi_status" value={{ $inspect_gosi_status }}>
+                    <input type="hidden" name="weight_status" value={{ $weight_status }}>
 
                     <div class="card">
                         <div class="card-header">
@@ -208,11 +209,11 @@
                                         <button type="button" name="weight_status" class="btn-status btn btn-md {{ $weight_status == "" ? "btn-primary" : "btn-dark" }}"
                                         value="">전체</button>
                                         <button type="button" name="weight_status" class="btn-status btn btn-md {{ $weight_status == ProductConstant::WEIGHT_STATUS_PRODUCT ? "btn-primary" : "btn-dark" }}"
-                                        value="{{ ProductConstant::MD_PRICE_Y }}">{{ ProductConstant::WEIGHT_STATUS[ProductConstant::WEIGHT_STATUS_PRODUCT] }}</button>
+                                        value="{{ ProductConstant::WEIGHT_STATUS_PRODUCT }}">{{ ProductConstant::WEIGHT_STATUS[ProductConstant::WEIGHT_STATUS_PRODUCT] }}</button>
                                         <button type="button" name="weight_status" class="btn-status btn btn-md {{ $weight_status == ProductConstant::WEIGHT_STATUS_CATEGORY ? "btn-primary" : "btn-dark" }}"
-                                        value="{{ ProductConstant::MD_PRICE_N }}">{{ ProductConstant::WEIGHT_STATUS[ProductConstant::WEIGHT_STATUS_CATEGORY] }}</button>
+                                        value="{{ ProductConstant::WEIGHT_STATUS_CATEGORY }}">{{ ProductConstant::WEIGHT_STATUS[ProductConstant::WEIGHT_STATUS_CATEGORY] }}</button>
                                         <button type="button" name="weight_status" class="btn-status btn btn-md {{ $weight_status == ProductConstant::WEIGHT_STATUS_NONE ? "btn-primary" : "btn-dark" }}"
-                                        value="{{ ProductConstant::MD_PRICE_N }}">{{ ProductConstant::WEIGHT_STATUS[ProductConstant::WEIGHT_STATUS_NONE] }}</button>
+                                        value="{{ ProductConstant::WEIGHT_STATUS_NONE }}">{{ ProductConstant::WEIGHT_STATUS[ProductConstant::WEIGHT_STATUS_NONE] }}</button>
                                     </td>
                                 </tr>
                                 <tr class="align-middle">
@@ -372,7 +373,7 @@
                                         @endif
                                     </td>
                                     <td class="text-center">
-                                        @if( $data->weight_delivery == null )
+                                        @if( $data->weight_type == null )
                                             <button class="btn btn-sm btn-warning btn-weight-modi" offerid={{ $data->offer_id }} weight=0 price={{ ProductConstant::WEIGHT_STATUS_NONE_PRICE }} statusname='{{ ProductConstant::WEIGHT_STATUS[ProductConstant::WEIGHT_STATUS_NONE] }}'>
                                                 {{ ProductConstant::WEIGHT_STATUS_SHORT[ProductConstant::WEIGHT_STATUS_NONE] }}: 0
                                             </button>
@@ -381,12 +382,12 @@
                                                 {{ number_format(ProductConstant::WEIGHT_STATUS_NONE_PRICE) }}
                                             </span>
                                         @else
-                                            <button class="btn btn-sm btn-warning btn-weight-modi" offerid={{ $data->offer_id }} weight={{ $data->weight_delivery->weight }} price={{ $data->weight_delivery->delivery_price }} statusname='{{ ProductConstant::WEIGHT_STATUS[$data->weight_delivery->weight_type] }}'>
-                                                {{ ProductConstant::WEIGHT_STATUS_SHORT[$data->weight_delivery->weight_type] }}: {{ $data->weight_delivery->weight }}
+                                            <button class="btn btn-sm btn-warning btn-weight-modi" offerid={{ $data->offer_id }} weight={{ $data->weight }} price={{ $data->delivery_price }} statusname='{{ ProductConstant::WEIGHT_STATUS[$data->weight_type] }}'>
+                                                {{ ProductConstant::WEIGHT_STATUS_SHORT[$data->weight_type] }}: {{ $data->weight }}
                                             </button>
                                             <br>
                                             <span class="text-danger">
-                                                {{ number_format($data->weight_delivery->delivery_price) }}
+                                                {{ number_format($data->delivery_price) }}
                                             </span>
                                         @endif
                                     </td>
@@ -395,8 +396,8 @@
                                             @php
                                                 $option         = $data->options[0];
                                                 $delivery_price = ProductConstant::WEIGHT_STATUS_NONE_PRICE;
-                                                if( $data->weight_delivery != null ){
-                                                    $delivery_price = $data->weight_delivery->delivery_price;
+                                                if( $data->weight_type != null ){
+                                                    $delivery_price = $data->delivery_price;
                                                 }
                                             @endphp
                                                 {{ number_format(calcWSalePrice($option->option_price, $delivery_price)) }} 
@@ -409,8 +410,8 @@
                                             @php
                                                 $option         = $data->options[0];
                                                 $delivery_price = ProductConstant::WEIGHT_STATUS_NONE_PRICE;
-                                                if( $data->weight_delivery != null ){
-                                                    $delivery_price = $data->weight_delivery->delivery_price;
+                                                if( $data->weight_type != null ){
+                                                    $delivery_price = $data->delivery_price;
                                                 }
                                             @endphp
                                             @if ($option->md_price)

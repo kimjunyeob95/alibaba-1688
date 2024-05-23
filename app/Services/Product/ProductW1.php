@@ -106,14 +106,15 @@ class ProductW1 extends ProductAbstract
             $weight_status = $params["weight_status"];
         }
 
-        $prdBuilder = ProductData::select(["product_datas.*"])->with([
+        $prdBuilder = ProductData::select([
+            "product_datas.*",
+        ])->with([
             "main_img",
             "options", 
             "images.ai_all_imgs",
             "img_inspect",
             "prd_inspect",
             "gosi_inspect",
-            "weight_delivery"
         ]);
 
         if( !empty($keyword) ){
@@ -195,6 +196,23 @@ class ProductW1 extends ProductAbstract
 
         if( !empty($inspect_status) ){
             $prdBuilder->where("product_datas.inspect_status", $inspect_status );
+        }
+
+        if( !empty($weight_status) ){
+            $prdBuilder->leftJoin('product_weight_datas as pwd', function ($join) {
+                $join->on('product_datas.offer_id', '=', 'pwd.offer_id');
+            });
+
+            $prdBuilder->addSelect("pwd.weight_type", "pwd.weight", "pwd.delivery_price");
+
+            if( $weight_status != ProductConstant::WEIGHT_STATUS_NONE ){
+                $prdBuilder->where("pwd.weight_type", $weight_status);
+            } else if( $weight_status == ProductConstant::WEIGHT_STATUS_NONE ) {
+                $prdBuilder->where(function($query1) {
+                    $query1->whereNull("pwd.weight_type")
+                    ->orWhere("pwd.weight_type", ProductConstant::WEIGHT_STATUS_NONE);
+                });
+            }
         }
 
         if( !empty($inspect_img_status) || !empty($inspect_prd_status) || !empty($inspect_gosi_status) ){
