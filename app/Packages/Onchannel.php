@@ -150,22 +150,22 @@ class Onchannel extends MallApiAbstract
                     if( isset($result["prd_code"]) && $result["prd_code"] ){
                         OnchannelProductLog::updateOrCreate(
                             [
-                                "offer_id"       => $offerId,
-                                "member_id"      => OnchannelConstant::ONCH1688,
+                                "offer_id"  => $offerId,
+                                "member_id" => OnchannelConstant::ONCH1688,
                             ],
                             [
                                 "prd_code"       => $result["prd_code"],
                                 "regist_success" => MallConstant::REGIST_SUCCESS,
                                 "message"        => "",
-                                "registed_at"      => Carbon::now(),
+                                "registed_at"    => Carbon::now(),
                             ]
                         );
                         $successIds[] = $offerId;
                     } else {
                         OnchannelProductLog::updateOrCreate(
                             [
-                                "offer_id"       => $offerId,
-                                "member_id"      =>OnchannelConstant::ONCH1688,
+                                "offer_id"  => $offerId,
+                                "member_id" => OnchannelConstant::ONCH1688,
                             ],
                             [
                                 "prd_code"       => 0,
@@ -182,8 +182,8 @@ class Onchannel extends MallApiAbstract
 
                     OnchannelProductLog::updateOrCreate(
                         [
-                            "offer_id"       => $offerId,
-                            "member_id"      =>OnchannelConstant::ONCH1688,
+                            "offer_id"  => $offerId,
+                            "member_id" => OnchannelConstant::ONCH1688,
                         ],
                         [
                             "prd_code"       => 0,
