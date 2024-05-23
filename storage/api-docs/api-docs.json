@@ -720,7 +720,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/SuccessResponse"
+                                    "$ref": "#/components/schemas/ImageUploadSuccessResponse"
                                 }
                             }
                         }
@@ -1307,6 +1307,65 @@
                             },
                             "type": "object"
                         }
+                    }
+                },
+                "type": "object"
+            },
+            "ImageUploadSuccessResponse": {
+                "properties": {
+                    "status": {
+                        "type": "integer",
+                        "example": 200
+                    },
+                    "meta": {
+                        "properties": {
+                            "timestamp": {
+                                "type": "string",
+                                "example": "2023-12-19 17:45:50"
+                            },
+                            "apiType": {
+                                "type": "string",
+                                "example": "mall"
+                            }
+                        },
+                        "type": "object"
+                    },
+                    "data": {
+                        "required": [
+                            "images"
+                        ],
+                        "properties": {
+                            "images": {
+                                "description": "이미지 결과 Response",
+                                "type": "array",
+                                "items": {
+                                    "required": [
+                                        "trans_url",
+                                        "upload",
+                                        "error"
+                                    ],
+                                    "properties": {
+                                        "trans_url": {
+                                            "description": "S3 upload img url",
+                                            "type": "string",
+                                            "example": "https://namver.png"
+                                        },
+                                        "upload": {
+                                            "description": "업로드 성공 여부",
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "error": {
+                                            "description": "에러 메세지",
+                                            "type": "string",
+                                            "example": ""
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        },
+                        "type": "object"
                     }
                 },
                 "type": "object"

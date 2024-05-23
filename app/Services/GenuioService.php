@@ -1236,7 +1236,7 @@ class GenuioService extends TransApiAbstract
                             $mime = $matches[0];
                         }
 
-                        $imgName  = "/" . $member_id . "/product/" . $dateName . "_" . $img_id . "." . $mime;
+                        $imgName  = "/" . $channel . "/" . $member_id . "/product/" . $dateName . "_" . $img_id . "." . $mime;
                         if( isset($image["base64"]) && !empty($image["base64"]) ){
                             $base64       = $image["base64"];
                             $uploadResult = $this->uploadAbstract->uploadFile($imgName, base64_decode($base64));
@@ -1264,19 +1264,21 @@ class GenuioService extends TransApiAbstract
                             $resPayload["images"][] = [
                                 "origin_url" => $img_url_origin,
                                 "trans_url"  => $img_url_trans,
+                                "error"      => "",
                             ];
                         } else {
                             $img_url_trans = $img_url_origin;
                             $resPayload["images"][] = [
-                                "origin_url"   => $img_url_origin,
-                                "trans_url"    => $img_url_trans,
-                                "file_message" => $fileMessage,
+                                "origin_url" => $img_url_origin,
+                                "trans_url"  => $img_url_trans,
+                                "error"      => $fileMessage,
                             ];
                         }
 
                     } catch (ValueError $ve) {
                         $resPayload["images"][] = [
                             "origin_url" => $image["origin_url"],
+                            "trans_url"  => "",
                             "error"      => $ve->getMessage(),
                         ];
                     }
@@ -1304,10 +1306,11 @@ class GenuioService extends TransApiAbstract
     /**
      * @func imgUpload
      * @description '이미지 S3 upload'
+     * @param string $channel
      * @param array $params
      * @return array
     */
-    public function imgUpload(array $params): array
+    public function imgUpload(string $channel, array $params): array
     {
         $returnMsg = $this->returnMsg;
         try {
@@ -1315,7 +1318,7 @@ class GenuioService extends TransApiAbstract
             $images    = $params["images"];
 
             $resPayload = [];
-            foreach ($images as $key => $image) {
+            foreach ($images as $image) {
                 try {
                     $img_id        = $image["id"];
                     $uploadResult  = false;
@@ -1326,13 +1329,18 @@ class GenuioService extends TransApiAbstract
                     if( isset($image["base64"]) && !empty($image["base64"]) ){
                         $base64       = $image["base64"];
                         $mime         = getExtensionFromBase64($base64);
-                        $imgName      = "/" . $member_id . "/product/" . $dateName . "_" . $img_id . "." . $mime;
+                        $imgName      = "/" . $channel . "/" . $member_id . "/product/" . $dateName . "_" . $img_id . "." . $mime;
                         $uploadResult = $this->uploadAbstract->uploadFile($imgName, base64_decode($base64));
+                    }
+
+                    if( $uploadResult === true ){
+                        $img_url_trans = env("AWS_URL") . $imgName;
                     }
 
                     $resPayload["images"][] = [
                         "trans_url" => $img_url_trans,
-                        "upload"    => $uploadResult
+                        "upload"    => $uploadResult,
+                        "error"     => "",
                     ];
 
                 } catch (ValueError $ve) {

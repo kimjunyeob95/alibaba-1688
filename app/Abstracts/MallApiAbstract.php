@@ -313,6 +313,7 @@ abstract class MallApiAbstract
     */
     public function imgUpload($params): array
     {
-        return $this->transApiAbstract->imgUpload($params);
+        $channel = $this->channel;
+        return $this->transApiAbstract->imgUpload($channel, $params);
     }
 }

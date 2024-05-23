@@ -86,8 +86,9 @@ abstract class TransApiAbstract
     /**
      * @func imgUpload
      * @description '이미지 S3 upload'
+     * @param string $channel
      * @param array $params
      * @return array
     */
-    abstract function imgUpload(array $params): array;
+    abstract function imgUpload(string $channel, array $params): array;
 }
