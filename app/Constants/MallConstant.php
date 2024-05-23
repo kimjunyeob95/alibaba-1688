@@ -14,12 +14,13 @@ class MallConstant
         self::MALL_ONCHANNEL,
     ];
 
-    //상품등록상태 (등록 / 미등록)
+    /** 상품등록상태 (등록 / 미등록) */
     public const UNREGIST = "S";
     public const REGISTED = "Y";
-
+    
     public const REGIST_SUCCESS = "Y";
     public const REGIST_FAIL    = "N";
+    public const REGIST_ERROR   = "E";
 
     public const MODI_SUCCESS = "Y";
     public const MODI_FAIL    = "N";

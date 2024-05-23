@@ -169,7 +169,7 @@ class Onchannel extends MallApiAbstract
                             ],
                             [
                                 "prd_code"       => 0,
-                                "regist_success" => MallConstant::REGIST_FAIL,
+                                "regist_success" => MallConstant::REGIST_ERROR,
                                 "message"        => $result["msg"],
                             ]
                         );
@@ -179,6 +179,18 @@ class Onchannel extends MallApiAbstract
                         "offer_id" => $offerId,
                         "msg"      => $e->getMessage()
                     ];
+
+                    OnchannelProductLog::updateOrCreate(
+                        [
+                            "offer_id"       => $offerId,
+                            "member_id"      =>OnchannelConstant::ONCH1688,
+                        ],
+                        [
+                            "prd_code"       => 0,
+                            "regist_success" => MallConstant::REGIST_ERROR,
+                            "message"        => $e->getMessage(),
+                        ]
+                    );
                 }
 
                 sleep(1);

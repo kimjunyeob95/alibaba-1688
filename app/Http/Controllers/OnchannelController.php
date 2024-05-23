@@ -40,6 +40,7 @@ class OnchannelController extends Controller
             "totalCnt"     => $result["totalCnt"],
             "successCnt"   => $result["successCnt"],
             "failCnt"      => $result["failCnt"],
+            "errorCnt"     => $result["errorCnt"],
             "registStatus" => $registStatus,
             "search_cls"   => $search_cls,
             "keyword"      => $keyword,

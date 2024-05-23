@@ -51,6 +51,10 @@
                                                 미등록<br>
                                                 {{ number_format($failCnt) }}건
                                             </li>
+                                            <li class="list-group-item text-center small" style="width: 100%;">
+                                                에러<br>
+                                                {{ number_format($errorCnt) }}건
+                                            </li>
                                         </ul>
                                     </td>
                                 </tr>
@@ -63,6 +67,8 @@
                                         value="{{ MallConstant::REGISTED }}">완료</button>
                                         <button type="button" name="registStatus" class="btn-status btn btn-md {{ $registStatus == MallConstant::UNREGIST ? "btn-primary" : "btn-dark" }}"
                                         value="{{ MallConstant::UNREGIST}}">미등록</button>
+                                        <button type="button" name="registStatus" class="btn-status btn btn-md {{ $registStatus == MallConstant::REGIST_ERROR ? "btn-primary" : "btn-dark" }}"
+                                        value="{{ MallConstant::REGIST_ERROR}}">에러</button>
                                     </td>
                                 </tr>
                                 <tr class="align-middle">

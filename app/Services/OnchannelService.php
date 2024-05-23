@@ -56,13 +56,18 @@ class OnchannelService
                 $prdBuilder->where("b.regist_success", MallConstant::REGIST_SUCCESS);
             } else if($registStatus== MallConstant::UNREGIST){
                 $prdBuilder->where(function($query){
-                    $query->where("b.regist_success", "!=", MallConstant::REGIST_SUCCESS)
+                    $query->where("b.regist_success", MallConstant::REGIST_FAIL)
                         ->orWhereNull("b.regist_success");
+                });
+            } else if($registStatus== MallConstant::REGIST_ERROR){
+                $prdBuilder->where(function($query){
+                    $query->where("b.regist_success", MallConstant::REGIST_ERROR);
                 });
             }
         }
         $successCnt = OnchannelProductLog::where("regist_success", MallConstant::REGIST_SUCCESS)->count();
-        $failCnt    = $totalCnt - $successCnt;
+        $failCnt    = OnchannelProductLog::where("regist_success", MallConstant::REGIST_FAIL)->count();
+        $errorCnt   = OnchannelProductLog::where("regist_success", MallConstant::REGIST_ERROR)->count();
         $lists      = $prdBuilder->paginate($pageSize)->appends($params);
 
         return [
@@ -70,6 +75,7 @@ class OnchannelService
             "totalCnt"   => $totalCnt,
             "successCnt" => $successCnt,
             "failCnt"    => $failCnt,
+            "errorCnt"   => $errorCnt,
         ];
     }
 }
