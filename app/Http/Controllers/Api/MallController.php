@@ -169,7 +169,7 @@ class MallController extends Controller
             $validator = Validator::make($this->request->all(), [
                 'jobId'               => 'required|string',
                 'images'              => 'required|array',
-                'images.*.id'         => 'required|int',
+                'images.*.id'         => 'required|string',
                 'images.*.origin_url' => 'required|string',
             ], [
                 'jobId.required'               => MallErrorMessageConstant::getNotHaveErrorMessage("JOB_ID"),
