@@ -307,14 +307,13 @@ class Onchannel extends MallApiAbstract
 
             $result = helpers_curl("POST", $endPoint, $header, $payload);
 
-            debug_log(json_encode($result, JSON_UNESCAPED_UNICODE), "onchannel/imgCallBack", "imgCallBack");
-
-            $returnMsg = helpers_success_message();
+            $returnMsg = helpers_success_message($result);
         } catch (Exception $e) {
             $returnMsg = helpers_fail_message($e->getMessage());
         }
 
-        return $returnMsg;
-        
+        debug_log(json_encode($returnMsg, JSON_UNESCAPED_UNICODE), "onchannel/imgCallBack", "imgCallBack");
+
+        return $returnMsg;   
     }
 }
