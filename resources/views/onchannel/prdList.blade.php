@@ -183,7 +183,7 @@
                                             @if ($data->w_mapping)
                                                 <small>({{ $data->w_mapping->mapping_code }})</small>
                                             @endif
-                                        @elseif($data->regist_success == MallConstant::REGIST_FAIL)
+                                        @elseif($data->regist_success == MallConstant::REGIST_ERROR)
                                             <span class="text-danger">전송실패 사유: ({{ $data->message }})</span>
                                         @else
                                             <span class="text-danger">미등록</span>
