@@ -31,6 +31,7 @@ class OpenApiProvider extends ServiceProvider
             return new GenuioService(
                 $app->make(JwtPackage::class),
                 $app->make(S3::class),
+                $app->make(Onchannel::class),
             );
         });
         $this->app->bind(TransApiAbstract::class, function () {

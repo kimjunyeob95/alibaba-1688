@@ -643,4 +643,25 @@ class EasySell extends MallApiAbstract
             throw new Exception(MallErrorMessageConstant::getFitErrorMessage("EASYSELL_GOODS_API"));
         }
     }
+
+    /**
+     * @func imgCallBack
+     * @description '이미지 콜백'
+     * @param array $params
+     * @return array
+    */
+    public function imgCallBack(array $params): array
+    {
+        $returnMsg = $this->returnMsg;
+        try {
+            
+            $returnMsg = helpers_success_message();
+
+        } catch (Exception $e) {
+            $returnMsg = helpers_fail_message($e->getMessage());
+        }
+
+        return $returnMsg;
+        
+    }
 }

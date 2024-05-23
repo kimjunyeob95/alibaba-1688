@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Abstracts\MallApiAbstract;
 use App\Abstracts\TransApiAbstract;
 use App\Abstracts\UploadAbstract;
 use App\Constants\GenuioConstant;
@@ -31,18 +32,21 @@ class GenuioService extends TransApiAbstract
 {
     private JwtPackage $jwtPackage;
     private UploadAbstract $uploadAbstract;
+    private MallApiAbstract $onchannel;
     private string $domain;
     private string $token;
     protected array $returnMsg;
 
     public function __construct(
         JwtPackage $jwtPackage,
-        UploadAbstract $uploadAbstract
+        UploadAbstract $uploadAbstract,
+        MallApiAbstract $onchannel
     )
     {
         parent::__construct(TransApiConstant::API_USER_COMPANY_GENUIO);
         $this->jwtPackage     = $jwtPackage;
         $this->uploadAbstract = $uploadAbstract;
+        $this->onchannel      = $onchannel;
         $this->domain         = env("GENUIO_DOMAIN");
         $this->token          = env("GENUIO_TOKEN");
         $this->returnMsg      = helpers_fail_message();
@@ -1207,7 +1211,8 @@ class GenuioService extends TransApiAbstract
 
             $getGenuioObj = $qry::where([
                 "id"           => $jobId,
-                "request_user" => $channel
+                "request_user" => $channel,
+                "parent_id"    => 0
             ])->first();
             if( $getGenuioObj == null ) {
                 throw new Exception(TransApiConstant::getNotHaveErrorMessage("QUEUE_ID"));
@@ -1231,6 +1236,7 @@ class GenuioService extends TransApiAbstract
                         $uploadResult   = false;
                         $base64         = "";
                         $img_url_trans  = "";
+                        $fileMessage    = "S3 upload fail";
                         $mime           = pathinfo($img_url_origin, PATHINFO_EXTENSION);
                         $dateName       = Carbon::now()->format('Ymd_His');
                         if (preg_match('/^(jpg|jpeg|png|gif)/i', $mime, $matches)) {
@@ -1257,36 +1263,42 @@ class GenuioService extends TransApiAbstract
                                 $uploadResult    = $this->uploadAbstract->uploadFile($imgName, base64_decode($imgEncodeBase64));
                             } catch (Exception $th) {
                                 $uploadResult = false;
+                                $fileMessage  = $th->getMessage();
                             }
                         }
     
                         if( $uploadResult == true ) {
                             $img_url_trans = env("AWS_URL") . $imgName;
                             $resPayload["images"][] = [
-                                "id"         => $img_id,
-                                "origin_url" => $img_url_origin,
-                                "trans_url"  => $img_url_trans,
-                                "error"      => "",
+                                "id"             => $img_id,
+                                "origin_url"     => $img_url_origin,
+                                "translated_url" => $img_url_trans,
+                                "error"          => "",
                             ];
                         } else {
                             $img_url_trans = $img_url_origin;
                             $resPayload["images"][] = [
-                                "id"         => $img_id,
-                                "origin_url" => $img_url_origin,
-                                "trans_url"  => $img_url_trans,
-                                "error"      => $fileMessage,
+                                "id"             => $img_id,
+                                "origin_url"     => $img_url_origin,
+                                "translated_url" => $img_url_trans,
+                                "error"          => $fileMessage,
                             ];
                         }
 
                     } catch (ValueError $ve) {
                         $resPayload["images"][] = [
-                            "id"         => $img_id,
-                            "origin_url" => $image["origin_url"],
-                            "trans_url"  => "",
-                            "error"      => $ve->getMessage(),
+                            "id"             => $img_id,
+                            "origin_url"     => $image["origin_url"],
+                            "translated_url" => "",
+                            "error"          => $ve->getMessage(),
                         ];
                     }
                 }
+
+                if( $channel == MallConstant::MALL_ONCHANNEL ){
+                    $this->onchannel->imgCallBack($resPayload);
+                }
+
             }
             $returnMsg = helpers_success_message($resPayload);
         } catch (Exception $e) {

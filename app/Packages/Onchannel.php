@@ -279,4 +279,42 @@ class Onchannel extends MallApiAbstract
         ->get();
         
     }
+
+    /**
+     * @func imgCallBack
+     * @description '이미지 콜백'
+     * @param array $params
+     * @return array
+    */
+    public function imgCallBack(array $params): array
+    {
+        $returnMsg = $this->returnMsg;
+        try {
+            $channel_queue_id = $params["channel_queue_id"];
+            $member_id        = $params["member_id"];
+            $images           = $params["images"];
+
+            $header = array(
+                'Content-type: application/json'
+            );
+
+            $payload = [
+                "channel_queue_id" => $channel_queue_id,
+                "member_id"        => $member_id,
+                "images"           => $images
+            ];
+            $endPoint = $this->domain . "/api/w/image/callback";
+
+            $result = helpers_curl("POST", $endPoint, $header, $payload);
+
+            debug_log(json_encode($result, JSON_UNESCAPED_UNICODE), "onchannel/imgCallBack", "imgCallBack");
+
+            $returnMsg = helpers_success_message();
+        } catch (Exception $e) {
+            $returnMsg = helpers_fail_message($e->getMessage());
+        }
+
+        return $returnMsg;
+        
+    }
 }

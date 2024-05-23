@@ -316,4 +316,12 @@ abstract class MallApiAbstract
         $channel = $this->channel;
         return $this->transApiAbstract->imgUpload($channel, $params);
     }
+
+    /**
+     * @func imgCallBack
+     * @description '이미지 콜백'
+     * @param array $params
+     * @return array
+    */
+    abstract function imgCallBack(array $params): array;
 }
