@@ -21,4 +21,8 @@ class CategoryTree extends Model
     public function w_category () {
         return $this->hasOne(CategoryMapping::class, "category_id", "category_id")->where("mapping_channel", ProductConstant::MAPPING_WAPP);
     }
+
+    public function weight_category () {
+        return $this->hasOne(CategoryWeightData::class, "category_id", "category_id");
+    }
 }

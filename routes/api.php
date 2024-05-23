@@ -155,6 +155,17 @@ Route::name('mall.')->prefix('mall')->group(function () {
             Route::get('/order/{orderId}', [MallController::class, "orderInfo"])->name("orderInfo");
             /** 주문 생성 */
             Route::post('/order/create', [MallController::class, "orderCreate"])->name("orderCreate");
+
+            /** 이미지 S3 upload */
+            Route::post('/img/upload', [MallController::class, "imgUpload"])->name("imgUpload");
+
+            /** Genuio */
+            Route::name('genuio.')->prefix('genuio')->group(function () {
+                /** 이미지 번역 요청 */
+                Route::post('/img/trans/request', [MallController::class, "imgTransRequest"])->name("imgTransRequest");
+                /** 번역 된 이미지 처리 */
+                Route::post('/img/trans', [MallController::class, "imgTrans"])->name("imgTrans");
+            });
         });
     });
 });

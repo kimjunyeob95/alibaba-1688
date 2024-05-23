@@ -160,6 +160,10 @@
                                             <input class="form-check-input" type="radio" name="keyword_type" id="keyword_type2" value="{{ ForbiddenWordConstant::KEYWORD_REPLACE }}">
                                             <label class="form-check-label" for="keyword_type2">{{ ForbiddenWordConstant::KEYWORD_STATUS[ForbiddenWordConstant::KEYWORD_REPLACE] }}</label>
                                         </div>
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="radio" name="keyword_type" id="keyword_type3" value="{{ ForbiddenWordConstant::KEYWORD_EXCEPT }}">
+                                            <label class="form-check-label" for="keyword_type3">{{ ForbiddenWordConstant::KEYWORD_STATUS[ForbiddenWordConstant::KEYWORD_EXCEPT] }}</label>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -202,10 +206,6 @@
                                         <div class="form-check form-check-inline">
                                             <input class="form-check-input" type="radio" name="apply_type" id="apply_type2" value="{{ ForbiddenWordConstant::KEYWORD_APPLY_ATTR_NAME }}">
                                             <label class="form-check-label" for="apply_type2">{{ ForbiddenWordConstant::KEYWORD_APPLY_ATTR_STATUS[ForbiddenWordConstant::KEYWORD_APPLY_ATTR_NAME] }}</label>
-                                        </div>
-                                        <div class="form-check form-check-inline">
-                                            <input class="form-check-input" type="radio" name="apply_type" id="apply_type3" value="{{ ForbiddenWordConstant::KEYWORD_APPLY_ATTR_VALUE }}">
-                                            <label class="form-check-label" for="apply_type3">{{ ForbiddenWordConstant::KEYWORD_APPLY_ATTR_STATUS[ForbiddenWordConstant::KEYWORD_APPLY_ATTR_VALUE] }}</label>
                                         </div>
                                     </div>
                                 </div>

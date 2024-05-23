@@ -122,6 +122,72 @@
                 ]
             }
         },
+        "/api/mall/{channel}/genuio/img/trans": {
+            "post": {
+                "tags": [
+                    "이미지"
+                ],
+                "summary": "채널 별 번역 된 이미지 전송",
+                "operationId": "ca45e25fb6792a709950e5b97de7c216",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ImgTransChannelSchema"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SuccessResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Authorization Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/401ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/400ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/500ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            }
+        },
         "/api/genuio/products": {
             "get": {
                 "tags": [
@@ -164,7 +230,7 @@
                     {
                         "name": "search_cls",
                         "in": "query",
-                        "description": "검색 타입) prd_name_kr: 상품명, option_name_trans: 옵션명",
+                        "description": "검색 타입) prd_name_kr: 상품명, option_name_kr: 옵션명",
                         "required": false,
                         "schema": {
                             "type": "string",
@@ -701,6 +767,49 @@
                                     "example": "1"
                                 },
                                 "imgTransBase64": {
+                                    "description": "Base64로 인코딩된 이미지 데이터",
+                                    "type": "string",
+                                    "example": "~~"
+                                }
+                            },
+                            "type": "object"
+                        }
+                    }
+                },
+                "type": "object"
+            },
+            "ImgTransChannelSchema": {
+                "required": [
+                    "jobId",
+                    "images"
+                ],
+                "properties": {
+                    "jobId": {
+                        "description": "작업 ID",
+                        "type": "string",
+                        "example": "1"
+                    },
+                    "images": {
+                        "description": "번역 된 이미지 ID와 base64 인코딩된 이미지 데이터",
+                        "type": "array",
+                        "items": {
+                            "required": [
+                                "id",
+                                "origin_url",
+                                "base64"
+                            ],
+                            "properties": {
+                                "id": {
+                                    "description": "이미지 ID",
+                                    "type": "string",
+                                    "example": "1"
+                                },
+                                "origin_url": {
+                                    "description": "원본 이미지 url",
+                                    "type": "string",
+                                    "example": "https://naver.png"
+                                },
+                                "base64": {
                                     "description": "Base64로 인코딩된 이미지 데이터",
                                     "type": "string",
                                     "example": "~~"

@@ -79,7 +79,7 @@ class CategoryW1 extends CategoryAbstract
 
             $returnMsg = helpers_success_message($result);
         } catch (Exception $e) {
-            $returnMsg = helpers_fail_message(false, $e->getMessage());
+            $returnMsg = helpers_fail_message($e->getMessage());
         }
 
         return $returnMsg;
@@ -102,7 +102,7 @@ class CategoryW1 extends CategoryAbstract
             $result    = $this->getBuildTree($getCategoryObjs, 0);
             $returnMsg = helpers_success_message($result);
         } catch (Exception $e) {
-            $returnMsg = helpers_fail_message(false, $e->getMessage());
+            $returnMsg = helpers_fail_message($e->getMessage());
         }
 
         return $returnMsg;
@@ -183,7 +183,7 @@ class CategoryW1 extends CategoryAbstract
             }
             $returnMsg = helpers_success_message($result);
         } catch (Exception $e) {
-            $returnMsg = helpers_fail_message(false, $e->getMessage());
+            $returnMsg = helpers_fail_message($e->getMessage());
         }
 
         return $returnMsg;
@@ -393,7 +393,7 @@ class CategoryW1 extends CategoryAbstract
             ];
             $returnMsg = curl_1688("post", $endPoint, $payload);
         } catch (Exception $e) {
-            $returnMsg = helpers_fail_message(false, $e->getMessage());
+            $returnMsg = helpers_fail_message($e->getMessage());
         }
         return $returnMsg;
     }
@@ -665,7 +665,8 @@ class CategoryW1 extends CategoryAbstract
                 }
             }
 
-            $qryBuilder = CategoryTree::from("category_trees as a")
+            $qryBuilder = CategoryTree::with(["weight_category"])
+            ->from("category_trees as a")
             ->select([
                 "a.*",
                 "c.mapping_code",
@@ -736,7 +737,7 @@ class CategoryW1 extends CategoryAbstract
             ];
             $returnMsg = helpers_success_message($result);
         } catch (Exception $e) {
-            $returnMsg = helpers_fail_message(false, $e->getMessage());
+            $returnMsg = helpers_fail_message($e->getMessage());
         }
 
         return $returnMsg;
@@ -786,7 +787,7 @@ class CategoryW1 extends CategoryAbstract
             $data = $builder->get();
             $returnMsg = helpers_success_message($data);
         } catch (Exception $e) {
-            $returnMsg = helpers_fail_message(false, $e->getMessage());
+            $returnMsg = helpers_fail_message($e->getMessage());
         }
         return $returnMsg;
     }
@@ -823,7 +824,7 @@ class CategoryW1 extends CategoryAbstract
             }
             $returnMsg = helpers_success_message();
         } catch (Exception $e) {
-            $returnMsg = helpers_fail_message(false, $e->getMessage());
+            $returnMsg = helpers_fail_message($e->getMessage());
         }
         return $returnMsg;
     }
@@ -848,7 +849,7 @@ class CategoryW1 extends CategoryAbstract
             }
             $returnMsg = helpers_success_message($datas);
         } catch (Exception $e) {
-            $returnMsg = helpers_fail_message(false, $e->getMessage());
+            $returnMsg = helpers_fail_message($e->getMessage());
         }
 
         return $returnMsg;
@@ -912,7 +913,7 @@ class CategoryW1 extends CategoryAbstract
             }
             $returnMsg = helpers_success_message($data);
         } catch (Exception $e) {
-            $returnMsg = helpers_fail_message(false, $e->getMessage());
+            $returnMsg = helpers_fail_message($e->getMessage());
         }
         return $returnMsg;
     }
@@ -952,7 +953,7 @@ class CategoryW1 extends CategoryAbstract
             
             $returnMsg = helpers_success_message($result);
         } catch (Exception $e) {
-            $returnMsg = helpers_fail_message(false, $e->getMessage());
+            $returnMsg = helpers_fail_message($e->getMessage());
         }
 
         return $returnMsg;

@@ -645,7 +645,7 @@ class ProductW1 extends ProductAbstract
             ];
             $returnMsg = curl_1688("post", $endPoint, $payload);
         } catch (Exception $e) {
-            $returnMsg = helpers_fail_message(false, $e->getMessage());
+            $returnMsg = helpers_fail_message($e->getMessage());
         }
         return $returnMsg;
     }
@@ -989,7 +989,7 @@ class ProductW1 extends ProductAbstract
         } catch (Exception $e) {
             $msg = "offerId: {$offerId} | error: " . $e->getMessage();
 
-            $returnMsg = helpers_fail_message(false, $msg);
+            $returnMsg = helpers_fail_message($msg);
         }
 
         return $returnMsg;
@@ -1299,7 +1299,7 @@ class ProductW1 extends ProductAbstract
             "wType"          => WConstant::WAPP_W1,
             "subject"        => $detailProduct["subject"],
             "subjectTrans"   => $subjectForbiddenTrans,
-            "subjectTransEn" => "",
+            "subjectTransEn" => $prdObj != null ? $prdObj->prd_name_en : "",
             "startQuantity"  => $startQuantity,
             "description"    => $detailProduct["description"],
             "soldOut"        => $soldOut,
@@ -1337,8 +1337,8 @@ class ProductW1 extends ProductAbstract
             if( $attributeNameTrans != $nameTrans ){ 
                 ProductForbiddenData::updateOrCreate(
                     [
-                        "offer_id"   => $offerId,
-                        "apply_type" => ForbiddenWordConstant::KEYWORD_APPLY_ATTR_NAME,
+                        "offer_id"    => $offerId,
+                        "apply_type"  => ForbiddenWordConstant::KEYWORD_APPLY_ATTR_NAME,
                         "origin_text" => $attributeNameTrans,
                     ],
                     [
@@ -1374,8 +1374,8 @@ class ProductW1 extends ProductAbstract
                 "value"                => $prdNotice["value"],
                 "attributeNameTrans"   => $nameTrans,
                 "valueTrans"           => $valueTrans,
-                "attributeNameTransEn" => "",
-                "valueTransEn"         => "",
+                "attributeNameTransEn" => $gosiObj != null ? $gosiObj->attribute_name_en : "",
+                "valueTransEn"         => $gosiObj != null ? $gosiObj->attribute_value_en : "",
             ]);
             $product1688NoticeDtoList[] = $product1688NoticeDto;
         }
@@ -1476,7 +1476,7 @@ class ProductW1 extends ProductAbstract
                     "price_1688"        => $price_1688,
                     "optionName"        => rtrim($optionName, "_"),
                     "optionNameTrans"   => rtrim($optionNameTrans, "_"),
-                    "optionNameTransEn" => "",
+                    "optionNameTransEn" => $optionObj != null ? $optionObj->option_name_en : "",
                     "amountOnSale"      => $prdOptions["amountOnSale"],
                     "cargoNumber"       => $prdOptions["cargoNumber"] ?? "",
                     "width"             => (float) sprintf("%.2f", $width),
@@ -1601,56 +1601,59 @@ class ProductW1 extends ProductAbstract
 
             $returnMsg = helpers_success_message();
         } catch (Exception $e) {
-            $returnMsg = helpers_fail_message(false, $e->getMessage());
+            $returnMsg = helpers_fail_message($e->getMessage());
         }
         return $returnMsg;
     }
 
     public function delProductImage(array $product1688ImageDtoList): void
     {
-        $mainImgs = [];
+        $mainImg  = "";
         $subImgs  = [];
         $descImgs = [];
+        $offerId  = 0;
         foreach ($product1688ImageDtoList as $product1688ImageDto) {
+            $offerId = $product1688ImageDto->offer_id;
             if( $product1688ImageDto->img_type == ImageConstant::IMAGE_TYPE_MAIN ){
-                $mainImgs[$product1688ImageDto->offer_id][] = $product1688ImageDto->img_url_origin;
+                $mainImg = $product1688ImageDto->img_url_origin;
             }
             if( $product1688ImageDto->img_type == ImageConstant::IMAGE_TYPE_SUB ){
-                $subImgs[$product1688ImageDto->offer_id][] = $product1688ImageDto->img_url_origin;
+                $subImgs[] = $product1688ImageDto->img_url_origin;
             }
             if( $product1688ImageDto->img_type == ImageConstant::IMAGE_TYPE_DESC ){
-                $descImgs[$product1688ImageDto->offer_id][] = $product1688ImageDto->img_url_origin;
+                $descImgs[] = $product1688ImageDto->img_url_origin;
             }
         }
 
-        // 1. 메인 이미지 삭제
-        foreach ($mainImgs as $offer_id => $mainImg) {
-            ProductImageData::where('img_type', ImageConstant::IMAGE_TYPE_MAIN)
-            ->where('offer_id', $offer_id)
-            ->where('is_except', ImageConstant::IS_EXCEPT_N)
-            ->where('lang', WConstant::WAPP_KR)
-            ->where('img_url_origin', '!=', $mainImg)
-            ->delete();
-        }
-
-        // 2. 서브 이미지 삭제
-        foreach ($subImgs as $offer_id => $subImg) {
-            ProductImageData::where('img_type', ImageConstant::IMAGE_TYPE_SUB)
-            ->where('offer_id', $offer_id)
-            ->where('is_except', ImageConstant::IS_EXCEPT_N)
-            ->where('lang', WConstant::WAPP_KR)
-            ->whereNotIn('img_url_origin', $subImg)
-            ->delete();
-        }
-
-        // 3. 상세 이미지 삭제
-        foreach ($descImgs as $offer_id => $descImg) {
-            ProductImageData::where('img_type', ImageConstant::IMAGE_TYPE_DESC)
-            ->where('offer_id', $offer_id)
-            ->where('is_except', ImageConstant::IS_EXCEPT_N)
-            ->where('lang', WConstant::WAPP_KR)
-            ->whereNotIn('img_url_origin', $descImg)
-            ->delete();
+        if( $offerId ){
+            if( $mainImg ){
+                // 1. 메인 이미지 삭제
+                ProductImageData::where('img_type', ImageConstant::IMAGE_TYPE_MAIN)
+                ->where('offer_id', $offerId)
+                ->where('is_except', ImageConstant::IS_EXCEPT_N)
+                ->where('lang', WConstant::WAPP_KR)
+                ->where('img_url_origin', "!=", $mainImg)
+                ->delete();
+            }
+    
+            if( !empty($subImgs) ){
+                // 2. 서브 이미지 삭제
+                ProductImageData::where('img_type', ImageConstant::IMAGE_TYPE_SUB)
+                ->where('offer_id', $offerId)
+                ->where('is_except', ImageConstant::IS_EXCEPT_N)
+                ->where('lang', WConstant::WAPP_KR)
+                ->whereNotIn('img_url_origin', $subImgs)
+                ->delete();
+            }
+    
+            if( !empty($descImgs) ){
+                ProductImageData::where('img_type', ImageConstant::IMAGE_TYPE_DESC)
+                ->where('offer_id', $offerId)
+                ->where('is_except', ImageConstant::IS_EXCEPT_N)
+                ->where('lang', WConstant::WAPP_KR)
+                ->whereNotIn('img_url_origin', $descImgs)
+                ->delete();
+            }
         }
     }
 
@@ -2209,7 +2212,7 @@ class ProductW1 extends ProductAbstract
             }
             $returnMsg  = helpers_success_message($searchObjs);
         } catch (Exception $e) {
-            $returnMsg = helpers_fail_message(false, $e->getMessage());
+            $returnMsg = helpers_fail_message($e->getMessage());
         }
 
         return $returnMsg;
@@ -2295,7 +2298,7 @@ class ProductW1 extends ProductAbstract
 
             $returnMsg = helpers_success_message($resultImgs);
         } catch (Exception $e) {
-            $returnMsg = helpers_fail_message(false, $e->getMessage());
+            $returnMsg = helpers_fail_message($e->getMessage());
         }
 
         return $returnMsg;
@@ -2407,7 +2410,7 @@ class ProductW1 extends ProductAbstract
             }
             $returnMsg = helpers_success_message();
         } catch (Exception $e) {
-            $returnMsg = helpers_fail_message(false, $e->getMessage());
+            $returnMsg = helpers_fail_message($e->getMessage());
         }
 
         return $returnMsg;
@@ -2465,7 +2468,7 @@ class ProductW1 extends ProductAbstract
             // dd($prdObj->toArray());
             $returnMsg = helpers_success_message($prdObj);
         } catch (Exception $e) {
-            $returnMsg = helpers_fail_message(false, $e->getMessage());
+            $returnMsg = helpers_fail_message($e->getMessage());
         }
 
         return $returnMsg;
@@ -2536,7 +2539,7 @@ class ProductW1 extends ProductAbstract
             }
             $returnMsg = helpers_success_message();
         } catch (Exception $e) {
-            $returnMsg = helpers_fail_message(false, $e->getMessage());
+            $returnMsg = helpers_fail_message($e->getMessage());
         }
 
         return $returnMsg;
@@ -2565,7 +2568,7 @@ class ProductW1 extends ProductAbstract
             }
             $returnMsg = helpers_success_message();
         } catch (Exception $e) {
-            $returnMsg = helpers_fail_message(false, $e->getMessage());
+            $returnMsg = helpers_fail_message($e->getMessage());
         }
 
         return $returnMsg;
@@ -2586,7 +2589,7 @@ class ProductW1 extends ProductAbstract
 
             $returnMsg = helpers_success_message();
         } catch (Exception $e) {
-            $returnMsg = helpers_fail_message(false, $e->getMessage());
+            $returnMsg = helpers_fail_message($e->getMessage());
         }
 
         return $returnMsg;
@@ -2621,7 +2624,7 @@ class ProductW1 extends ProductAbstract
 
             $returnMsg = helpers_success_message([], "판매 상태가 변경되었습니다.");
         } catch (Exception $e) {
-            $returnMsg = helpers_fail_message(false, $e->getMessage());
+            $returnMsg = helpers_fail_message($e->getMessage());
         }
 
         return $returnMsg;
@@ -2657,7 +2660,7 @@ class ProductW1 extends ProductAbstract
             }
             $returnMsg = helpers_success_message();
         } catch (Exception $e) {
-            $returnMsg = helpers_fail_message(false, $e->getMessage());
+            $returnMsg = helpers_fail_message($e->getMessage());
         }
 
         return $returnMsg;
@@ -2679,7 +2682,7 @@ class ProductW1 extends ProductAbstract
             }
             $returnMsg = helpers_success_message();
         } catch (Exception $e) {
-            $returnMsg = helpers_fail_message(false, $e->getMessage());
+            $returnMsg = helpers_fail_message($e->getMessage());
         }
 
         return $returnMsg;
@@ -2734,7 +2737,7 @@ class ProductW1 extends ProductAbstract
             $returnMsg = helpers_success_message();
         } catch (Exception $e) {
             DB::rollBack();
-            $returnMsg = helpers_fail_message(false, $e->getMessage());
+            $returnMsg = helpers_fail_message($e->getMessage());
         }
 
         return $returnMsg;
@@ -2791,7 +2794,7 @@ class ProductW1 extends ProductAbstract
             $returnMsg = helpers_success_message();
         } catch (Exception $e) {
             DB::rollBack();
-            $returnMsg = helpers_fail_message(false, $e->getMessage());
+            $returnMsg = helpers_fail_message($e->getMessage());
         }
 
         return $returnMsg;

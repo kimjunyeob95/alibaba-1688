@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Abstracts\MallApiAbstract;
+use App\Constants\WConstant;
 
 class MallApiService
 {
@@ -32,7 +33,7 @@ class MallApiService
      * @param array $offerIds
      * @return array
     */
-    public function productRegist(array $offerIds, string $type): array
+    public function productRegist(array $offerIds, string $type = WConstant::WAPP_W1): array
     {
         return $this->mallApiAbstract->productRegist($offerIds, $type);
     }
@@ -40,10 +41,10 @@ class MallApiService
     /**
      * @func orderInfo
      * @description '주문 조회'
-     * @param int $orderId
+     * @param string $orderId
      * @return array
     */
-    public function orderInfo(int $orderId): array
+    public function orderInfo(string $orderId): array
     {
         return $this->mallApiAbstract->orderInfo($orderId);
     }
@@ -77,5 +78,38 @@ class MallApiService
     public function sendModiProduct(): void
     {
         $this->mallApiAbstract->sendModiProduct();
+    }
+
+    /**
+     * @func imgTransRequest
+     * @description '이미지 번역 요청'
+     * @param array $params
+     * @return array
+    */
+    public function imgTransRequest(array $params) :array
+    {
+        return $this->mallApiAbstract->imgTransRequest($params);
+    }
+
+    /**
+     * @func imgTrans
+     * @description '번역 된 이미지 처리'
+     * @param array $params
+     * @return array
+    */
+    public function imgTrans(array $params) :array
+    {
+        return $this->mallApiAbstract->imgTrans($params);
+    }
+
+    /**
+     * @func imgUpload
+     * @description '이미지 S3 upload'
+     * @param array $params
+     * @return array
+    */
+    public function imgUpload(array $params) :array
+    {
+        return $this->mallApiAbstract->imgUpload($params);
     }
 }

@@ -145,6 +145,9 @@
                     },
                     success: function (resp) {
                         alert(resp.msg);
+                        if( resp.status == 200 ){
+                            location.reload();
+                        }
                     },
                     error: function error(request, status, _error) {
                         let { error } = JSON.parse(request.responseText);

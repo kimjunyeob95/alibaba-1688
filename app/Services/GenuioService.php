@@ -7,6 +7,7 @@ use App\Abstracts\UploadAbstract;
 use App\Constants\GenuioConstant;
 use App\Constants\ImageConstant;
 use App\Constants\ImageErrorMessageConstant;
+use App\Constants\MallConstant;
 use App\Constants\TransApiConstant;
 use App\Constants\WConstant;
 use App\Models\ApiUser;
@@ -14,6 +15,7 @@ use App\Models\GenuioAiData;
 use App\Models\GenuioImageData;
 use App\Models\GenuioQueueData;
 use App\Models\GenuioQueueDetailData;
+use App\Models\OcGeQueueData;
 use App\Models\ProductData;
 use App\Models\ProductImageData;
 use App\Packages\JwtPackage;
@@ -76,7 +78,7 @@ class GenuioService extends TransApiAbstract
                 throw new Exception($result["msg"]);
             }
         } catch (Exception $e) {
-            $returnMsg = helpers_fail_message(false, $e->getMessage());
+            $returnMsg = helpers_fail_message($e->getMessage());
         }
 
         return $returnMsg;
@@ -168,12 +170,12 @@ class GenuioService extends TransApiAbstract
 
                 $returnMsg = helpers_success_message();
             } else {
-                $returnMsg = helpers_fail_message(false, $apiResult["msg"]);
+                $returnMsg = helpers_fail_message($apiResult["msg"]);
             }
 
         } catch (Exception $e) {
             $errorMsg  = "offerId: {$offerId} | errorTitle: " . TransApiConstant::getFitErrorMessage("TRANS_REQUEST_IMAGE") . "errorDesc: " . $e->getMessage();
-            $returnMsg = helpers_fail_message(false, $errorMsg);
+            $returnMsg = helpers_fail_message($errorMsg);
         }
 
         return $returnMsg;
@@ -265,12 +267,12 @@ class GenuioService extends TransApiAbstract
 
                 $returnMsg = helpers_success_message();
             } else {
-                $returnMsg = helpers_fail_message(false, $apiResult["msg"]);
+                $returnMsg = helpers_fail_message($apiResult["msg"]);
             }
 
         } catch (Exception $e) {
             $errorMsg  = "offerId: {$offerId} | errorTitle: " . TransApiConstant::getFitErrorMessage("TRANS_REQUEST_IMAGE") . "errorDesc: " . $e->getMessage();
-            $returnMsg = helpers_fail_message(false, $errorMsg);
+            $returnMsg = helpers_fail_message($errorMsg);
         }
 
         return $returnMsg;
@@ -439,8 +441,11 @@ class GenuioService extends TransApiAbstract
                             "trans_status" => $uploadResult == true ? TransApiConstant::QUEUE_SUCCESS : TransApiConstant::QUEUE_FAIL
                         ]);
                     } catch (ValueError $ve) {
+                        $imgData = $image;
+                        unset($imgData["imgTransBase64"]);
+
                         $errMsg = [
-                            "img"   => $image,
+                            "img"   => $imgData,
                             "error" => $ve->getMessage()
                         ];
                         debug_log(json_encode($errMsg, JSON_UNESCAPED_UNICODE), "genuio", GenuioConstant::IMG_TRANS);
@@ -534,8 +539,11 @@ class GenuioService extends TransApiAbstract
                             "trans_status" => $uploadResult == true ? TransApiConstant::QUEUE_SUCCESS : TransApiConstant::QUEUE_FAIL
                         ]);
                     } catch (ValueError $ve) {
+                        $imgData = $image;
+                        unset($imgData["imgTransBase64"]);
+
                         $errMsg = [
-                            "img"   => $image,
+                            "img"   => $imgData,
                             "error" => $ve->getMessage()
                         ];
                         debug_log(json_encode($errMsg, JSON_UNESCAPED_UNICODE), "genuio", GenuioConstant::IMG_Ai_TRANS);
@@ -651,8 +659,11 @@ class GenuioService extends TransApiAbstract
                             "trans_status" => $uploadResult == true ? TransApiConstant::QUEUE_SUCCESS : TransApiConstant::QUEUE_FAIL
                         ]);
                     } catch (ValueError $ve) {
+                        $imgData = $image;
+                        unset($imgData["imgTransBase64"]);
+
                         $errMsg = [
-                            "img"   => $image,
+                            "img"   => $imgData,
                             "error" => $ve->getMessage()
                         ];
                         debug_log(json_encode($errMsg, JSON_UNESCAPED_UNICODE), "genuio", GenuioConstant::IMG_TRANS_AGAIN);
@@ -684,7 +695,7 @@ class GenuioService extends TransApiAbstract
 
             $returnMsg = helpers_success_message();
         } catch (Exception $e) {
-            $returnMsg = helpers_fail_message(false, $e->getMessage());
+            $returnMsg = helpers_fail_message($e->getMessage());
         }
 
         if( $getGenuioObj != null ){
@@ -719,7 +730,7 @@ class GenuioService extends TransApiAbstract
         $returnMsg = $this->returnMsg;
 
         if( env("APP_ENV", "local") != "production" ){
-            return helpers_fail_message(false, "운영 환경에서만 사용 가능합니다.");
+            return helpers_fail_message("운영 환경에서만 사용 가능합니다.");
         }
 
         try {
@@ -758,7 +769,7 @@ class GenuioService extends TransApiAbstract
 
             $returnMsg = helpers_success_message(true, "번역 요청이 완료되었습니다.");
         } catch (Exception $e) {
-            $returnMsg = helpers_fail_message(false, $e->getMessage());
+            $returnMsg = helpers_fail_message($e->getMessage());
         }
         
         return $returnMsg;
@@ -843,7 +854,7 @@ class GenuioService extends TransApiAbstract
 
             $returnMsg = helpers_success_message($resultImgs);
         } catch (Exception $e) {
-            $returnMsg = helpers_fail_message(false, $e->getMessage());
+            $returnMsg = helpers_fail_message($e->getMessage());
         }
 
         return $returnMsg;
@@ -860,7 +871,7 @@ class GenuioService extends TransApiAbstract
         $returnMsg = $this->returnMsg;
 
         if( env("APP_ENV", "local") != "production" ){
-            return helpers_fail_message(false, "운영 환경에서만 사용 가능합니다.");
+            return helpers_fail_message("운영 환경에서만 사용 가능합니다.");
         }
 
         try {
@@ -923,13 +934,13 @@ class GenuioService extends TransApiAbstract
                     $returnMsg = helpers_success_message();
                 } catch (Exception $e) {
                     $errorMsg  = "offerId: {$offerId} | errorTitle: " . TransApiConstant::getFitErrorMessage("TRANS_REQUEST_IMAGE") . "errorDesc: " . $e->getMessage();
-                    $returnMsg = helpers_fail_message(false, $errorMsg);
+                    $returnMsg = helpers_fail_message($errorMsg);
                 }
             }
 
             $returnMsg = helpers_success_message();
         } catch (Exception $e) {
-            $returnMsg = helpers_fail_message(false, $e->getMessage());
+            $returnMsg = helpers_fail_message($e->getMessage());
         }
 
         return $returnMsg;
@@ -946,7 +957,7 @@ class GenuioService extends TransApiAbstract
         $returnMsg = $this->returnMsg;
 
         if( env("APP_ENV", "local") != "production" ){
-            return helpers_fail_message(false, "운영 환경에서만 사용 가능합니다.");
+            return helpers_fail_message("운영 환경에서만 사용 가능합니다.");
         }
 
         try {
@@ -980,7 +991,7 @@ class GenuioService extends TransApiAbstract
 
             $returnMsg = helpers_success_message([], "번역 요청이 완료되었습니다.");
         } catch (Exception $e) {
-            $returnMsg = helpers_fail_message(false, $e->getMessage());
+            $returnMsg = helpers_fail_message($e->getMessage());
         }
 
         return $returnMsg;
@@ -997,7 +1008,7 @@ class GenuioService extends TransApiAbstract
         $returnMsg = $this->returnMsg;
 
         if( env("APP_ENV", "local") != "production" ){
-            return helpers_fail_message(false, "운영 환경에서만 사용 가능합니다.");
+            return helpers_fail_message("운영 환경에서만 사용 가능합니다.");
         }
 
         try {
@@ -1031,7 +1042,7 @@ class GenuioService extends TransApiAbstract
 
             $returnMsg = helpers_success_message([], "번역 요청이 완료되었습니다.");
         } catch (Exception $e) {
-            $returnMsg = helpers_fail_message(false, $e->getMessage());
+            $returnMsg = helpers_fail_message($e->getMessage());
         }
 
         return $returnMsg;
@@ -1072,7 +1083,268 @@ class GenuioService extends TransApiAbstract
 
             $returnMsg = helpers_success_message();
         } catch (Exception $e) {
-            $returnMsg = helpers_fail_message(false, $e->getMessage());
+            $returnMsg = helpers_fail_message($e->getMessage());
+        }
+
+        return $returnMsg;
+    }
+
+    /**
+     * @func channelImgTransRequest
+     * @description '채널별 번역 큐등록'
+     * @param string $channel
+     * @param array $params
+     * @return array
+    */
+    public function channelImgTransRequest(string $channel = MallConstant::MALL_ONCHANNEL, array $params): array
+    {
+        $returnMsg = $this->returnMsg;
+
+        if( env("APP_ENV", "local") != "production" ){
+            return helpers_fail_message("운영 환경에서만 사용 가능합니다.");
+        }
+
+        try {
+            $wappDomain = env("WAPP_DOMAIN", "https://task-1688.onch3.co.kr");
+            switch ($channel) {
+                case MallConstant::MALL_ONCHANNEL:
+                default:
+                    $callback_url = $wappDomain . "/api/mall/{$channel}/genuio/img/trans";
+                    $qry = OcGeQueueData::class;
+                    break;
+            }
+
+            $insWhere  = [
+                "parent_id"     => 0,
+                "send_type"     => GenuioConstant::IMG_TRANS,
+                "payload_json"  => "",
+                "request_user"  => MallConstant::MALL_ONCHANNEL,
+                "response_json" => "",
+                "created_at"    => Carbon::now()
+            ];
+            $nextId = $qry::insertGetId($insWhere);
+
+            $payload = [
+                "jobId"            => $nextId,
+                "channel_queue_id" => $params["channel_queue_id"],
+                "member_id"        => $params["member_id"],
+                "channel"          => $channel,
+                "callback_url"     => $callback_url,
+                "images"           => [],
+            ];
+
+            foreach ($params["images"] as $data) {
+                $imgId       = $data["id"];
+                $originUrl   = "";
+                $isThumbnail = false;
+                $priority    = false;
+                if( isset($data["origin_url"]) ){
+                    $originUrl = $data["origin_url"];
+                }
+                if( isset($data["isThumbnail"]) ){
+                    $isThumbnail = $data["isThumbnail"];
+                }
+                if( isset($data["priority"]) ){
+                    $priority = $data["priority"];
+                }
+                if( $originUrl ){
+                    $payload["images"][] = [
+                        "id"          => $imgId,
+                        "origin_url"  => $originUrl,
+                        "isThumbnail" => $isThumbnail,
+                        "priority"    => $priority
+                    ];
+                }
+            }
+            
+            if( count($payload["images"]) > 0 ){
+                $apiResult = $this->apiCurl("post", "/translate-img-channel", $payload);
+                $upWhere = [];
+                $upWhere["payload_json"] = json_encode($payload, JSON_UNESCAPED_UNICODE);
+
+                if( $apiResult["isSuccess"] == true ){
+                    $upWhere["response_json"] = json_encode($apiResult["data"], JSON_UNESCAPED_UNICODE);
+                } else {
+                    $upWhere["response_json"] = json_encode($apiResult, JSON_UNESCAPED_UNICODE);
+                }
+
+                $qry::where("id", $nextId)->update($upWhere);
+                if( $apiResult["isSuccess"] == true ){
+                    $returnMsg = helpers_success_message();
+                } else {
+                    $returnMsg = helpers_fail_message($apiResult["msg"]);
+                }
+            }
+
+        } catch (Exception $e) {
+            $errorMsg  = "errorTitle: " . TransApiConstant::getFitErrorMessage("TRANS_REQUEST_IMAGE") . "errorDesc: " . $e->getMessage();
+            $returnMsg = helpers_fail_message($errorMsg);
+        }
+
+        return $returnMsg;
+    }
+
+    /**
+     * @func channelImgTrans
+     * @description '번역된 이미지 처리'
+     * @param string $channel
+     * @param array $params
+     * @return array
+    */
+    public function channelImgTrans(string $channel = MallConstant::MALL_ONCHANNEL, array $params): array
+    {
+        $returnMsg = $this->returnMsg;
+        try {
+            $jobId  = (int)$params["jobId"];
+            $images = $params["images"];
+
+            switch ($channel) {
+                case MallConstant::MALL_ONCHANNEL:
+                default:
+                    $qry = OcGeQueueData::class;
+                    break;
+            }
+
+            $getGenuioObj = $qry::where([
+                "id"           => $jobId,
+                "request_user" => $channel
+            ])->first();
+            if( $getGenuioObj == null ) {
+                throw new Exception(TransApiConstant::getNotHaveErrorMessage("QUEUE_ID"));
+            }
+
+            $payloadJson      = json_decode($getGenuioObj->payload_json, JSON_UNESCAPED_UNICODE);
+            $member_id        = $payloadJson["member_id"];
+            $channel_queue_id = $payloadJson["channel_queue_id"];
+
+            $resPayload = [
+                "jobId"            => $jobId,
+                "channel_queue_id" => $channel_queue_id,
+                "images"           => []
+            ];
+            if( $getGenuioObj->send_type == GenuioConstant::IMG_TRANS ){
+                foreach ($images as $image) {
+                    try {
+                        $img_id         = $image["id"];
+                        $img_url_origin = $image["origin_url"];
+                        $uploadResult   = false;
+                        $base64         = "";
+                        $img_url_trans  = "";
+                        $mime           = pathinfo($img_url_origin, PATHINFO_EXTENSION);
+                        $dateName       = Carbon::now()->format('Ymd_His');
+                        if (preg_match('/^(jpg|jpeg|png|gif)/i', $mime, $matches)) {
+                            $mime = $matches[0];
+                        }
+
+                        $imgName  = "/" . $member_id . "/product/" . $dateName . "_" . $img_id . "." . $mime;
+                        if( isset($image["base64"]) && !empty($image["base64"]) ){
+                            $base64       = $image["base64"];
+                            $uploadResult = $this->uploadAbstract->uploadFile($imgName, base64_decode($base64));
+                        } else {
+                            try {
+                                $fileContent = fileContents($img_url_origin);
+                                $status      = "";
+                                if( isset($image["status"]) ) {
+                                    $status = $image["status"];
+                                }
+                                $message = "";
+                                if( isset($image["message"]) ) {
+                                    $message = $image["message"];
+                                }
+                                $fileMessage     = "status: {$status} / message: {$message}";
+                                $imgEncodeBase64 = base64_encode($fileContent);
+                                $uploadResult    = $this->uploadAbstract->uploadFile($imgName, base64_decode($imgEncodeBase64));
+                            } catch (Exception $th) {
+                                $uploadResult = false;
+                            }
+                        }
+    
+                        if( $uploadResult == true ) {
+                            $img_url_trans = env("AWS_URL") . $imgName;
+                            $resPayload["images"][] = [
+                                "origin_url" => $img_url_origin,
+                                "trans_url"  => $img_url_trans,
+                            ];
+                        } else {
+                            $img_url_trans = $img_url_origin;
+                            $resPayload["images"][] = [
+                                "origin_url"   => $img_url_origin,
+                                "trans_url"    => $img_url_trans,
+                                "file_message" => $fileMessage,
+                            ];
+                        }
+
+                    } catch (ValueError $ve) {
+                        $resPayload["images"][] = [
+                            "origin_url" => $image["origin_url"],
+                            "error"      => $ve->getMessage(),
+                        ];
+                    }
+                }
+            }
+            $returnMsg = helpers_success_message($resPayload);
+        } catch (Exception $e) {
+            $returnMsg = helpers_fail_message($e->getMessage());
+        }
+
+        if( $getGenuioObj != null ){
+            $bindParam = [
+                "parent_id"     => $getGenuioObj->id,
+                "send_type"     => $getGenuioObj->send_type,
+                "payload_json"  => "", // base64가 너무 길어 그냥 ""처리
+                "request_user"  => TransApiConstant::API_USER_COMPANY_GENUIO,
+                "response_json" => json_encode($returnMsg, JSON_UNESCAPED_UNICODE),
+            ];
+            $qry::create($bindParam);
+        }
+
+        return $returnMsg;
+    }
+
+    /**
+     * @func imgUpload
+     * @description '이미지 S3 upload'
+     * @param array $params
+     * @return array
+    */
+    public function imgUpload(array $params): array
+    {
+        $returnMsg = $this->returnMsg;
+        try {
+            $member_id = $params["member_id"];
+            $images    = $params["images"];
+
+            $resPayload = [];
+            foreach ($images as $key => $image) {
+                try {
+                    $img_id        = $image["id"];
+                    $uploadResult  = false;
+                    $base64        = "";
+                    $img_url_trans = "";
+                    $dateName      = Carbon::now()->format('Ymd_His');
+
+                    if( isset($image["base64"]) && !empty($image["base64"]) ){
+                        $base64       = $image["base64"];
+                        $mime         = getExtensionFromBase64($base64);
+                        $imgName      = "/" . $member_id . "/product/" . $dateName . "_" . $img_id . "." . $mime;
+                        $uploadResult = $this->uploadAbstract->uploadFile($imgName, base64_decode($base64));
+                    }
+
+                    $resPayload["images"][] = [
+                        "trans_url" => $img_url_trans,
+                        "upload"    => $uploadResult
+                    ];
+
+                } catch (ValueError $ve) {
+                    $resPayload["images"][] = [
+                        "trans_url" => "",
+                        "error"     => $ve->getMessage(),
+                    ];
+                }
+            }
+            $returnMsg = helpers_success_message($resPayload);
+        } catch (Exception $e) {
+            $returnMsg = helpers_fail_message($e->getMessage());
         }
 
         return $returnMsg;
@@ -1119,11 +1391,11 @@ class GenuioService extends TransApiAbstract
 
             $returnMsg = helpers_success_message($apiResult);
         } catch (JsonException $e) {
-            $returnMsg = helpers_fail_message(false, "Error: 결과가 Json이 아닙니다.");
+            $returnMsg = helpers_fail_message("Error: 결과가 Json이 아닙니다.");
         } catch (InvalidArgumentException $e) {
-            $returnMsg = helpers_fail_message(false, $e->getMessage());
+            $returnMsg = helpers_fail_message($e->getMessage());
         } catch (Exception $e) {
-            $returnMsg = helpers_fail_message(false, $e->getMessage());
+            $returnMsg = helpers_fail_message($e->getMessage());
         }
 
         return $returnMsg;

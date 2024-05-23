@@ -8,10 +8,12 @@ class ForbiddenWordConstant
     /** 키워드 유형 */
     public const KEYWORD_DELETE  = "delete";
     public const KEYWORD_REPLACE = "replace";
+    public const KEYWORD_EXCEPT  = "except";
 
     public const KEYWORD_STATUS = [
         self::KEYWORD_DELETE  => "삭제",
-        self::KEYWORD_REPLACE => "교체"
+        self::KEYWORD_REPLACE => "교체",
+        self::KEYWORD_EXCEPT  => "제외",
     ];
 
     /** 키워드 적용 */

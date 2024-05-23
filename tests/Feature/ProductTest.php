@@ -58,6 +58,20 @@ class ProductTest extends TestCase
         $productW2->convertW1toW2();
     }
 
+    # php artisan test --filter testBase64
+    public function testBase64()
+    {
+        $filePath = public_path('app/base64.txt');
+        if (File::exists($filePath)) {
+            $fileContents = File::get($filePath);
+            $mime = getExtensionFromBase64($fileContents);
+
+            dd($mime);
+        } else {
+            throw new Exception("파일이 존재하지 않습니다.");
+        }
+    }
+
     # php artisan test --filter testInspectStatus
     public function testInspectStatus()
     {

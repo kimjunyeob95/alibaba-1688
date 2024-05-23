@@ -96,7 +96,7 @@
                                 <option value=10 @if($pageSize == 10) selected @endif>10개 노출</option>
                             </select>
                         </div>
-                        {{-- <button type="button" class="btn btn-md btn-outline-dark me-2" id="btn-select">상품전송</button> --}}
+                        <button type="button" class="btn btn-md btn-outline-dark me-2" id="btn-select">상품전송</button>
                     </div>
                 </form>
 
@@ -185,7 +185,7 @@
                                     </td>
                                     <td class="text-center">
                                         <button type="button" class="btn btn-sm btn-outline-success btn-detail" offerid={{ $data->offer_id }}>상세보기</button>
-                                        {{-- <button type="button" class="btn btn-sm btn-outline-primary btn-regist" offerid={{ $data->offer_id }} {{ $disabled }}>상품전송</button> --}}
+                                        <button type="button" class="btn btn-sm btn-outline-primary btn-regist" offerid={{ $data->offer_id }} {{ $disabled }}>상품전송</button>
                                     </td>
                                 </tr>
                             @endforeach
@@ -229,10 +229,9 @@
                 $.ajax({
                     "headers"    : {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
                     "type"       : "POST",
-                    "url"        : "/api/mall/easySell/product/regist",
+                    "url"        : "/api/mall/onchannel/product/regist",
                     "data"       : {
-                        "offer_ids": offer_ids,
-                        "type"     : "{{ WConstant::WAPP_W1 }}"
+                        "offer_ids": offer_ids
                     },
                     beforeSend: function () {
                     },
@@ -285,10 +284,9 @@
                 $.ajax({
                     "headers"    : {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
                     "type"       : "POST",
-                    "url"        : "/api/mall/easySell/product/regist",
+                    "url"        : "/api/mall/onchannel/product/regist",
                     "data"       : {
                         "offer_ids": offer_ids,
-                        "type"     : "{{ WConstant::WAPP_W1 }}"
                     },
                     beforeSend: function () {
                     },

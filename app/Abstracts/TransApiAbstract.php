@@ -64,4 +64,30 @@ abstract class TransApiAbstract
      * @return array
      */
     abstract function removeQueue(int $queueId): array;
+
+    /**
+     * @func channelImgTransRequest
+     * @description '채널별 번역 큐등록'
+     * @param string $channel
+     * @param array $params
+     * @return array
+     */
+    abstract function channelImgTransRequest(string $channel, array $params): array;
+
+    /**
+     * @func channelImgTrans
+     * @description '번역 된 이미지 처리'
+     * @param string $channel
+     * @param array $params
+     * @return array
+     */
+    abstract function channelImgTrans(string $channel, array $params): array;
+
+    /**
+     * @func imgUpload
+     * @description '이미지 S3 upload'
+     * @param array $params
+     * @return array
+    */
+    abstract function imgUpload(array $params): array;
 }

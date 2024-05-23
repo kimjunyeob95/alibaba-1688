@@ -3,6 +3,8 @@
 namespace App\Packages;
 
 use App\Abstracts\MallApiAbstract;
+use App\Abstracts\OrderAbstract;
+use App\Abstracts\TransApiAbstract;
 use App\Constants\EasySellConstant;
 use App\Constants\GosiConstants;
 use App\Constants\ImageConstant;
@@ -24,9 +26,14 @@ use Illuminate\Support\Facades\File;
 
 class EasySell extends MallApiAbstract
 {
-    public function __construct(string $channel)
+    public function __construct(
+        JwtPackage $jwtPackage,
+        string $channel,
+        OrderAbstract $orderW1,
+        TransApiAbstract $transApiAbstract
+    )
     {
-        parent::__construct(app(JwtPackage::class), $channel);
+        parent::__construct($jwtPackage, $channel, $orderW1, $transApiAbstract);
     }
 
     /**
@@ -279,30 +286,6 @@ class EasySell extends MallApiAbstract
         return helpers_success_message($result);
     }
 
-    public function orderInfo(int $orderId): array
-    {
-        $returnMsg = $this->returnMsg;
-        try {
-            $returnMsg = helpers_success_message(["orderId" => $orderId]);
-        } catch (Exception $e) {
-            $returnMsg = helpers_fail_message($e->getMessage());
-        }
-
-        return $returnMsg;
-    }
-
-    public function orderCreate(array $params): array
-    {
-        $returnMsg = $this->returnMsg;
-        try {
-            $returnMsg = helpers_success_message($params);
-        } catch (Exception $e) {
-            $returnMsg = helpers_fail_message($e->getMessage());
-        }
-
-        return $returnMsg;
-    }
-
     /**
      * @func categoryMapping
      * @description '카테고리 매핑 저장'
@@ -552,7 +535,7 @@ class EasySell extends MallApiAbstract
 
             $return = helpers_success_message($apiParams);
         } catch(Exception $e){
-            $return = helpers_fail_message(false, $e->getMessage());
+            $return = helpers_fail_message($e->getMessage());
         }
 
         return $return;
@@ -631,7 +614,7 @@ class EasySell extends MallApiAbstract
 
             $returnMsg = helpers_success_message(["result" => $response]);
         } catch (Exception $e) {
-            $returnMsg = helpers_fail_message(false, $e->getMessage());
+            $returnMsg = helpers_fail_message($e->getMessage());
         }
 
         return $returnMsg;
