@@ -169,4 +169,27 @@ class WCategoryController extends Controller
             return helpers_json_response(HttpConstant::BAD_REQUEST, [], $result["msg"]);
         }
     }
+
+    public function weightSave(): JsonResponse
+    {
+        $validator = Validator::make($this->request->all(), [
+            'category_ids' => 'required|string',
+            'weight'       => 'required|int',
+        ], [
+            'category_ids.required' => CategoryErrorMessageConstant::getNotHaveErrorMessage("CATEGORYID"),
+            'weight.required'       => CategoryErrorMessageConstant::getNotHaveErrorMessage("WEIGHT"),
+        ]);
+        if ($validator->fails()) {
+            throw new Exception($validator->errors()->first());
+        }
+
+        $categoryIds = explode(",", $this->request->post("category_ids"));
+        $weight      = $this->request->post("weight");
+        $result      = $this->service1688Category->weightSave($categoryIds, $weight);
+        if( $result["isSuccess"] == true ){
+            return helpers_json_response(HttpConstant::OK, $result);
+        } else {
+            return helpers_json_response(HttpConstant::BAD_REQUEST, [], $result["msg"]);
+        }
+    }
 }

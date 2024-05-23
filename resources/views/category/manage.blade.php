@@ -22,7 +22,8 @@
                         <span>Home</span>
                     </a>
                 </li>
-                <li class="breadcrumb-item active" aria-current="page">카테고리 관리</li>
+                <li class="breadcrumb-item">카테고리 관리</li>
+                <li class="breadcrumb-item active" aria-current="page">맵핑 관리</li>
             </ol>
         </nav>
 

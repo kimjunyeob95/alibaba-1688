@@ -77,8 +77,10 @@ Route::prefix("product")->name("product.")->group(function(){
  * 카테고리
  */
 Route::prefix("category")->name("category.")->group(function(){
-    /** 관리 */
-    Route::get("/", [CategoryController::class, "manage"])->name("");
+    /** 맵핑 관리 */
+    Route::get("/", [CategoryController::class, "manage"])->name("list");
+    /** 표준 중량(배송비) 관리 */
+    Route::get("/weight/list", [CategoryController::class, "weightList"])->name("weightList");
 });
 
 /**

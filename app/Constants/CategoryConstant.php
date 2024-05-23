@@ -5,6 +5,10 @@ namespace App\Constants;
 
 class CategoryConstant
 {
+    /** 표준 배송비 설정 여부 */
+    public const WEIGHT_STATUS_Y = "Y";
+    public const WEIGHT_STATUS_N = "N";
+
     /** 중량 별 배송비 */
     public const WEIGHTS = [
         0   => 12000,
@@ -107,7 +111,7 @@ class CategoryConstant
         97  => 72000,
         98  => 73000,
         99  => 74000,
-        100 => 74000,
+        100 => 74000
     ];
    
 }

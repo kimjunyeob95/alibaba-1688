@@ -1333,6 +1333,8 @@ class GenuioService extends TransApiAbstract
 
             $resPayload = [];
             foreach ($images as $image) {
+                $img_id = 0;
+
                 try {
                     $img_id        = $image["id"];
                     $uploadResult  = false;
@@ -1352,14 +1354,16 @@ class GenuioService extends TransApiAbstract
                     }
 
                     $resPayload["images"][] = [
+                        "id"        => $img_id,
                         "trans_url" => $img_url_trans,
                         "upload"    => $uploadResult,
                         "error"     => "",
                     ];
-
                 } catch (ValueError $ve) {
                     $resPayload["images"][] = [
+                        "id"        => $img_id,
                         "trans_url" => "",
+                        "upload"    => false,
                         "error"     => $ve->getMessage(),
                     ];
                 }
