@@ -713,10 +713,8 @@ class GenuioService extends TransApiAbstract
             $queueDto->bind($bindParam);
             GenuioQueueData::create($queueDto->getAllProperties());
 
-            if( $getGenuioObj->send_type == GenuioConstant::IMG_TRANS ){
-                // 변역 완료 여부 체크
-                chkTransStatus($getGenuioObj->offer_id);
-            }
+            // 변역 완료 여부 체크
+            chkTransStatus($getGenuioObj->offer_id);
 
             GenuioQueueData::where([
                 "id" => $getGenuioObj->offer_id,
