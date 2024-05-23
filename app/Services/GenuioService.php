@@ -1306,7 +1306,7 @@ class GenuioService extends TransApiAbstract
             $bindParam = [
                 "parent_id"     => $getGenuioObj->id,
                 "send_type"     => $getGenuioObj->send_type,
-                "payload_json"  => $resPayload,
+                "payload_json"  => json_encode($resPayload, JSON_UNESCAPED_UNICODE),
                 "request_user"  => TransApiConstant::API_USER_COMPANY_GENUIO,
                 "response_json" => json_encode($returnMsg, JSON_UNESCAPED_UNICODE),
             ];
