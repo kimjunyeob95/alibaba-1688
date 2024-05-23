@@ -100,7 +100,7 @@ class EasySellService
         $categoryBuilder = WCategory::select(["a.cate_first","a.cate_second","a.cate_third","a.cate_fourth","a.mapping_code","b.category_id","c.mapping_code as es_mapping_code"])
             ->from("w_categories as a")
             ->with(["es_category"])
-            ->leftJoin('category_mappings as b', function($join) {
+            ->join('category_mappings as b', function($join) {
                 $join->on('a.mapping_code', '=', 'b.mapping_code')
                     ->where('b.mapping_channel', ProductConstant::MAPPING_WAPP);
             })
