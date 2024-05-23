@@ -54,7 +54,13 @@ namespace App\Annotations\v1\W\dImage;
  *             type="array",
  *             @OA\Items(
  *                 type="object",
- *                 required={"trans_url", "upload", "error"},
+ *                 required={"id", "trans_url", "upload", "error"},
+ *                 @OA\Property(
+ *                      property="id",
+ *                      type="integer",
+ *                      example=1,
+ *                      description="채널에서 관리하는 이미지 고유 ID"
+ *                  ),
  *                 @OA\Property(
  *                      property="trans_url",
  *                      type="string",

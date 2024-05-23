@@ -1340,11 +1340,17 @@
                                 "type": "array",
                                 "items": {
                                     "required": [
+                                        "id",
                                         "trans_url",
                                         "upload",
                                         "error"
                                     ],
                                     "properties": {
+                                        "id": {
+                                            "description": "채널에서 관리하는 이미지 고유 ID",
+                                            "type": "integer",
+                                            "example": 1
+                                        },
                                         "trans_url": {
                                             "description": "S3 upload img url",
                                             "type": "string",

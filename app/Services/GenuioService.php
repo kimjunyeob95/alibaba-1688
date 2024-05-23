@@ -1224,6 +1224,7 @@ class GenuioService extends TransApiAbstract
             ];
             if( $getGenuioObj->send_type == GenuioConstant::IMG_TRANS ){
                 foreach ($images as $image) {
+                    $img_id = 0;
                     try {
                         $img_id         = $image["id"];
                         $img_url_origin = $image["origin_url"];
@@ -1262,6 +1263,7 @@ class GenuioService extends TransApiAbstract
                         if( $uploadResult == true ) {
                             $img_url_trans = env("AWS_URL") . $imgName;
                             $resPayload["images"][] = [
+                                "id"         => $img_id,
                                 "origin_url" => $img_url_origin,
                                 "trans_url"  => $img_url_trans,
                                 "error"      => "",
@@ -1269,6 +1271,7 @@ class GenuioService extends TransApiAbstract
                         } else {
                             $img_url_trans = $img_url_origin;
                             $resPayload["images"][] = [
+                                "id"         => $img_id,
                                 "origin_url" => $img_url_origin,
                                 "trans_url"  => $img_url_trans,
                                 "error"      => $fileMessage,
@@ -1277,6 +1280,7 @@ class GenuioService extends TransApiAbstract
 
                     } catch (ValueError $ve) {
                         $resPayload["images"][] = [
+                            "id"         => $img_id,
                             "origin_url" => $image["origin_url"],
                             "trans_url"  => "",
                             "error"      => $ve->getMessage(),
