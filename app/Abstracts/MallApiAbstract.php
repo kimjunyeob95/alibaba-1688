@@ -293,6 +293,7 @@ abstract class MallApiAbstract
 
         try {
             $result = $this->transApiAbstract->channelImgTrans($this->channel, $params);
+
             if( $result["isSuccess"] === true && isset($result["data"]) ){
                 $returnMsg = helpers_success_message($result["data"]);
             } else {

@@ -32,21 +32,18 @@ class GenuioService extends TransApiAbstract
 {
     private JwtPackage $jwtPackage;
     private UploadAbstract $uploadAbstract;
-    private MallApiAbstract $onchannel;
     private string $domain;
     private string $token;
     protected array $returnMsg;
 
     public function __construct(
         JwtPackage $jwtPackage,
-        UploadAbstract $uploadAbstract,
-        MallApiAbstract $onchannel
+        UploadAbstract $uploadAbstract
     )
     {
         parent::__construct(TransApiConstant::API_USER_COMPANY_GENUIO);
         $this->jwtPackage     = $jwtPackage;
         $this->uploadAbstract = $uploadAbstract;
-        $this->onchannel      = $onchannel;
         $this->domain         = env("GENUIO_DOMAIN");
         $this->token          = env("GENUIO_TOKEN");
         $this->returnMsg      = helpers_fail_message();
@@ -295,10 +292,11 @@ class GenuioService extends TransApiAbstract
 
             $getGenuioObj = GenuioQueueData::where([
                 "id"           => $jobId,
-                "request_user" => TransApiConstant::API_USER_COMPANY_OC
+                "request_user" => TransApiConstant::API_USER_COMPANY_OC,
+                "parent_id"    => "0"
             ])->first();
             if( $getGenuioObj == null ) {
-                throw new Exception(TransApiConstant::getNotHaveErrorMessage("QUEUE_ID"));
+                throw new Exception(TransApiConstant::getNotHaveErrorMessage("JOB_ID"));
             }
 
             $payloadJson = json_decode($getGenuioObj->payload_json, JSON_UNESCAPED_UNICODE);
@@ -719,6 +717,10 @@ class GenuioService extends TransApiAbstract
                 // 변역 완료 여부 체크
                 chkTransStatus($getGenuioObj->offer_id);
             }
+
+            GenuioQueueData::where([
+                "id" => $getGenuioObj->offer_id,
+            ])->delete();
         }
 
         return $returnMsg;
@@ -1215,7 +1217,7 @@ class GenuioService extends TransApiAbstract
                 "parent_id"    => 0
             ])->first();
             if( $getGenuioObj == null ) {
-                throw new Exception(TransApiConstant::getNotHaveErrorMessage("QUEUE_ID"));
+                throw new Exception(TransApiConstant::getNotHaveErrorMessage("JOB_ID"));
             }
 
             $payloadJson      = json_decode($getGenuioObj->payload_json, JSON_UNESCAPED_UNICODE);
@@ -1294,11 +1296,6 @@ class GenuioService extends TransApiAbstract
                         ];
                     }
                 }
-
-                if( $channel == MallConstant::MALL_ONCHANNEL ){
-                    $this->onchannel->imgCallBack($resPayload);
-                }
-
             }
             $returnMsg = helpers_success_message($resPayload);
         } catch (Exception $e) {
@@ -1314,6 +1311,8 @@ class GenuioService extends TransApiAbstract
                 "response_json" => json_encode($returnMsg, JSON_UNESCAPED_UNICODE),
             ];
             $qry::create($bindParam);
+
+            $qry::where("id", $getGenuioObj->id)->delete();
         }
 
         return $returnMsg;

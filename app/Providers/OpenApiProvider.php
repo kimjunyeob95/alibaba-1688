@@ -30,8 +30,7 @@ class OpenApiProvider extends ServiceProvider
         $this->app->singleton(GenuioService::class, function ($app) {
             return new GenuioService(
                 $app->make(JwtPackage::class),
-                $app->make(S3::class),
-                $app->make(Onchannel::class),
+                $app->make(S3::class)
             );
         });
         $this->app->bind(TransApiAbstract::class, function () {
@@ -41,6 +40,7 @@ class OpenApiProvider extends ServiceProvider
                 return app(GenuioService::class);
             }
         });
+
         /**
          * Genuio API 의존성 설정
          * end

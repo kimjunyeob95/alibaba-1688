@@ -65,7 +65,7 @@ class MallApiService
      * @description '카테고리 매핑'
      * @return array
      */
-    public function categoryMapping() :array
+    public function categoryMapping(): array
     {
         return $this->mallApiAbstract->categoryMapping();
     }
@@ -86,7 +86,7 @@ class MallApiService
      * @param array $params
      * @return array
     */
-    public function imgTransRequest(array $params) :array
+    public function imgTransRequest(array $params): array
     {
         return $this->mallApiAbstract->imgTransRequest($params);
     }
@@ -97,9 +97,13 @@ class MallApiService
      * @param array $params
      * @return array
     */
-    public function imgTrans(array $params) :array
+    public function imgTrans(array $params): array
     {
-        return $this->mallApiAbstract->imgTrans($params);
+        $result = $this->mallApiAbstract->imgTrans($params);
+
+        $this->mallApiAbstract->imgCallBack($result);
+
+        return $result;
     }
 
     /**
@@ -108,7 +112,7 @@ class MallApiService
      * @param array $params
      * @return array
     */
-    public function imgUpload(array $params) :array
+    public function imgUpload(array $params): array
     {
         return $this->mallApiAbstract->imgUpload($params);
     }
