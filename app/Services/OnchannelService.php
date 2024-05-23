@@ -65,8 +65,18 @@ class OnchannelService
                 });
             }
         }
+
         $successCnt = OnchannelProductLog::where("regist_success", MallConstant::REGIST_SUCCESS)->count();
-        $failCnt    = OnchannelProductLog::where("regist_success", MallConstant::REGIST_FAIL)->count();
+
+        $failBuilder = ProductData::leftJoin("onchannel_product_logs as b", "product_datas.offer_id", "=", "b.offer_id")
+        ->whereIn("product_datas.w_type", [ WConstant::WAPP_W1, WConstant::WAPP_W2])
+        ->where("product_datas.mapping_status", ProductConstant::MAPPING_STATUS_Y)
+        ->where("product_datas.status", "!=", ProductConstant::PRD_STATUS_MISS);
+        $failCnt = $failBuilder->where(function($query){
+            $query->where("b.regist_success", MallConstant::REGIST_FAIL)
+                ->orWhereNull("b.regist_success");
+        })->count();
+
         $errorCnt   = OnchannelProductLog::where("regist_success", MallConstant::REGIST_ERROR)->count();
         $lists      = $prdBuilder->paginate($pageSize)->appends($params);
 
