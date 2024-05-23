@@ -1624,8 +1624,8 @@ class ProductW2 extends ProductAbstract
                         ],
                         [
                             "img_url_origin" => $product1688ImageDto->img_url_origin,
-                            "img_url_trans"  => "",
-                            "trans_dated_at" => null
+                            // "img_url_trans"  => "",
+                            // "trans_dated_at" => null
                         ]
                     );
                 }
@@ -1639,8 +1639,8 @@ class ProductW2 extends ProductAbstract
                             "lang"           => $product1688ImageDto->lang,
                         ],
                         [
-                            "img_url_trans" => "",
-                            "trans_dated_at" => null
+                            // "img_url_trans" => "",
+                            // "trans_dated_at" => null
                         ]
                     );
                 }
@@ -1682,12 +1682,14 @@ class ProductW2 extends ProductAbstract
             // 6. 기존 이미지 삭제
             $this->delProductImage($product1688ImageDtoList);
 
+            chkTransStatus($offerId);
+
             // 7. 이미지 번역 요청 통신
             if( env("APP_ENV", "local") == "production" && $product1688Dto->status == ProductConstant::PRD_STATUS_PUBLISH ) {
-                $transResult = $this->transApiAbstract->createTransProductImg($product1688ImageDtoList, $offerId);
-                if( $transResult["isSuccess"] == false ){
-                    throw new Exception($transResult["msg"]);
-                }
+                // $transResult = $this->transApiAbstract->createTransProductImg($product1688ImageDtoList, $offerId);
+                // if( $transResult["isSuccess"] == false ){
+                //     throw new Exception($transResult["msg"]);
+                // }
             }
 
             $returnMsg = helpers_success_message();
