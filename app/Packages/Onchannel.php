@@ -289,10 +289,11 @@ class Onchannel extends MallApiAbstract
     public function imgCallBack(array $params): array
     {
         $returnMsg = $this->returnMsg;
+
         try {
-            $channel_queue_id = $params["channel_queue_id"];
-            $member_id        = $params["member_id"];
-            $images           = $params["images"];
+            $channel_queue_id = $params["data"]["channel_queue_id"];
+            $member_id        = $params["data"]["member_id"];
+            $images           = $params["data"]["images"];
 
             $header = array(
                 'Content-type: application/json'

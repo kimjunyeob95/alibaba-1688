@@ -295,4 +295,30 @@ class OnchannelTest extends TestCase
 
         debug_log("종료", "onchannel", "modiOnchannel");
     }
+
+    # 온채널 이미지 콜백
+    # php artisan test --filter testOnchCallBackImg
+    public function testOnchCallBackImg()
+    {
+        $domain = env("OC_DOMAIN", "https://task.onch3.co.kr");
+
+        $header = array(
+            'Content-type: application/json'
+        );
+
+        $payload = [
+            "channel_queue_id" => 1,
+            "member_id"        => "tester123",
+        ];
+
+        $payload["images"][] = [
+            "id"             => 1,
+            "origin_url"     => "https://naver.png",
+            "translated_url" => "https://onch-1688.s3.ap-northeast-2.amazonaws.com/onchannel/test123/product/20240523_143849_1.png",
+            "error"          => ""
+        ];
+        $endPoint = $domain . "/api/w/image/callback";
+        $result   = helpers_curl("POST", $endPoint, $header, $payload);
+        dd($result);
+    }
 }

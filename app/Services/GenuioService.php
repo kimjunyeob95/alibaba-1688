@@ -1227,7 +1227,8 @@ class GenuioService extends TransApiAbstract
             $resPayload = [
                 "jobId"            => $jobId,
                 "channel_queue_id" => $channel_queue_id,
-                "images"           => []
+                "member_id"        => $member_id,
+                "images"           => [],
             ];
             if( $getGenuioObj->send_type == GenuioConstant::IMG_TRANS ){
                 foreach ($images as $image) {
@@ -1312,7 +1313,7 @@ class GenuioService extends TransApiAbstract
             ];
             $qry::create($bindParam);
 
-            $qry::where("id", $getGenuioObj->id)->delete();
+            // $qry::where("id", $getGenuioObj->id)->delete();
         }
 
         return $returnMsg;
