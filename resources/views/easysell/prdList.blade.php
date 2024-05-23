@@ -168,7 +168,7 @@ input[name='easySellCategory']{
                                     </td>
                                     <td>
                                         {{ $data->offer_id }}
-                                        @if(empty($data->es_mapping) || empty($data->es_fgn_mapping))
+                                        @if(empty($data->es_fgn_mapping))
                                             <br>
                                             @if(isset($data->w_mapping))
                                             <button type="button" class="btn btn-danger btn-modal" cateid="{{ $data->w_mapping->mapping_code }}">카테고리 미맵핑</button>

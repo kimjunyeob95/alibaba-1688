@@ -409,33 +409,29 @@ class EasySell extends MallApiAbstract
             $offerId = $prdObj->offer_id;
 
             //카테고리 매핑
-            if(!isset($prdObj->es_mapping) || empty($prdObj->es_mapping->mapping_code)){
+            if(!isset($prdObj->es_fgn_mapping) || empty($prdObj->es_fgn_mapping->mapping_code)){
                 throw new Exception("카테고리 정보가 없습니다");
             }
-            $categoryId = $prdObj->es_mapping->mapping_code;
-
-            if($type == WConstant::WAPP_W1){
-                $ItemName = $prdObj->prd_name_kr;
-                $prdDesc  = $prdObj->prd_desc_kr;
-                $optionTitle = "옵션";
-            }else if($type == WConstant::WAPP_W2){
-                //카테고리 매핑
-                if( !isset($prdObj->es_fgn_mapping) || empty($prdObj->es_fgn_mapping->mapping_code)){
-                    throw new Exception("카테고리 정보가 없습니다");
-                }
-                $categoryId .= "|".$prdObj->es_fgn_mapping->mapping_code;
-
-                $ItemName = $prdObj->prd_name_en;
-                $prdDesc  = $prdObj->prd_desc_en;
-                $optionTitle = "option";
+            $categoryId = $prdObj->es_fgn_mapping->mapping_code;
+            if(isset($prdObj->es_mapping) || !empty($prdObj->es_mapping->mapping_code)){
+                $categoryId .= "|".$prdObj->es_mapping->mapping_code;
             }
-
             $ItemBrand = EasySellConstant::CATEGORY_MAPPING[substr($prdObj->es_fgn_mapping->mapping_code,0,6)];
             $noticeType = $this->_getNoticeType($prdObj->es_fgn_mapping->mapping_code);
 
             //연령제한 상품여부
             if($prdObj->minor_not_sale == ProductConstant::MINOR_NOT_SALE_YES){
                 throw new Exception("연령제한 상품입니다");
+            }
+
+            if($type == WConstant::WAPP_W1){
+                $ItemName = $prdObj->prd_name_kr;
+                $prdDesc  = $prdObj->prd_desc_kr;
+                $optionTitle = "옵션";
+            }else if($type == WConstant::WAPP_W2){
+                $ItemName = $prdObj->prd_name_en;
+                $prdDesc  = $prdObj->prd_desc_en;
+                $optionTitle = "option";
             }
 
             if($type == WConstant::WAPP_W1){
@@ -483,7 +479,7 @@ class EasySell extends MallApiAbstract
             }else if($type == WConstant::WAPP_W2){
                 $images = $prdObj->en_images;
             }
-            $itemImage = implode("|", array_filter($images->whereIn("img_type",["main","sub"])->where("is_except",ImageConstant::IS_EXCEPT_N)->pluck("img_url_trans")->toArray()));
+            $itemImage = implode("|", array_filter($images->whereIn("img_type",[ImageConstant::IMAGE_TYPE_MAIN, ImageConstant::IMAGE_TYPE_SUB])->where("is_except",ImageConstant::IS_EXCEPT_N)->pluck("img_url_trans")->toArray()));
 
             $voParams = [
                 "ItemNo"                => $offerId,
