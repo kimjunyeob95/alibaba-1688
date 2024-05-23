@@ -1,8 +1,5 @@
 @php
     use App\Constants\ProductConstant;
-    use App\Constants\MallConstant;
-    use App\Constants\EasySellConstant;
-    use App\Constants\WConstant;
 @endphp
 @extends('dashboard.base')
 
@@ -48,8 +45,7 @@ input[name='easySellCategory']{
                     </a>
                 </li>
                 <li class="breadcrumb-item">이지셀</li>
-                <li class="breadcrumb-item">상품관리</li>
-                <li class="breadcrumb-item active" aria-current="page">상품현황</li>
+                <li class="breadcrumb-item active" aria-current="page">카테고리 관리</li>
             </ol>
         </nav>
 
@@ -57,73 +53,80 @@ input[name='easySellCategory']{
             <div class="col-12 mb-3">
 
                 <form id="searchFrm">
-                    <input type="hidden" name="registStatus" value={{ $registStatus }}>
 
                     <div class="card">
                         <div class="card-header">
                             <table class="table">
                                 <tr class="align-middle">
-                                    <th style="width: 120px">상품 현황</th>
+                                    <th style="width: 120px">맵핑여부</th>
                                     <td colspan="3">
-                                        <ul class="list-group list-group-horizontal-sm">
-                                            <li class="list-group-item text-center small" style="width: 100%;">
-                                                전체<br>
-                                                {{ number_format($totalCnt) }}건
-                                            </li>
-                                            <li class="list-group-item text-center small" style="width: 100%;">
-                                                등록완료<br>
-                                                {{ number_format($successCnt) }}건
-                                            </li>
-                                            <li class="list-group-item text-center small" style="width: 100%;">
-                                                미등록<br>
-                                                {{ number_format($failCnt) }}건
-                                            </li>
-                                        </ul>
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="radio" name="mapping_status" id="mapping_status_all" value="" checked>
+                                            <label class="form-check-label" for="mapping_status_all">전체</label>
+                                        </div>
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="radio" name="mapping_status" id="mapping_status_y" value="Y" {{ $mapping_status == 'Y' ? 'checked' : '' }}>
+                                            <label class="form-check-label" for="mapping_status_y">매칭 완료</label>
+                                        </div>
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="radio" name="mapping_status" id="mapping_status_n" value="N" {{ $mapping_status == 'N' ? 'checked' : '' }}>
+                                            <label class="form-check-label" for="mapping_status_n">매칭 필요</label>
+                                        </div>
                                     </td>
                                 </tr>
                                 <tr class="align-middle">
-                                    <th style="width: 120px">등록 상태</th>
+                                    <th style="width: 120px">키워드</th>
                                     <td colspan="3">
-                                        <button type="button" name="registStatus" class="btn-status btn btn-md {{ $registStatus == "" ? "btn-primary" : "btn-dark" }}"
-                                        value="">전체</button>
-                                        <button type="button" name="registStatus" class="btn-status btn btn-md {{ $registStatus == MallConstant::REGISTED ? "btn-primary" : "btn-dark" }}"
-                                        value="{{ MallConstant::REGISTED }}">완료</button>
-                                        <button type="button" name="registStatus" class="btn-status btn btn-md {{ $registStatus == MallConstant::UNREGIST ? "btn-primary" : "btn-dark" }}"
-                                        value="{{ MallConstant::UNREGIST}}">미등록</button>
+                                        <textarea class="form-control" id="keyword" name="keyword" placeholder="검색어를 입력하세요.">{!! $keyword !!}</textarea>
                                     </td>
                                 </tr>
                                 <tr class="align-middle">
-                                    <th style="width: 120px">상품 검색</th>
-                                    <td style="width: 200px">
-                                        <select class="form-select" name="search_cls">
-                                            <option value="offer_id" @if($search_cls == "offer_id") selected @endif>제품 ID</option>
-                                            <option value="itemno" @if($search_cls == "itemno") selected @endif>이지셀 고유번호</option>
-                                            <option value="prd_name_kr" @if($search_cls == "prd_name_kr") selected @endif>상품명</option>
-                                        </select>
-                                    </td>
-                                    <td colspan="2">
-                                        <textarea class="form-control" id="keyword" name="keyword" placeholder="여러 상품을 동시에 검색하려면 콤마(,) 혹은 엔터로 구분하여 입력 예) 552908136418,737834654023">{!! $keyword !!}</textarea>
+                                    <th style="width: 120px">카테고리</th>
+                                    <td colspan="3">
+                                        <div class="row">
+                                            <div class="col-2">
+                                                <select class="form-control select-opt" name="cate_first" level=1>
+                                                    <option value="" hidden>1차 분류</option>
+                                                    @foreach($cateFirstList as $cate)
+                                                    <option value="{{ $cate }}" {{ $cate_first == $cate ? 'selected' : '' }}>{{ $cate }}</option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                            <div class="col-2">
+                                                <select class="form-control select-opt" name="cate_second" level=2>
+                                                    <option value="" hidden>2차 분류</option>
+                                                    @foreach($cateSecondList as $cate)
+                                                    <option value="{{ $cate }}" {{ $cate_second == $cate ? 'selected' : '' }}>{{ $cate }}</option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                            <div class="col-2">
+                                                <select class="form-control select-opt" name="cate_third" level=3>
+                                                    <option value="" hidden>3차 분류</option>
+                                                    @foreach($cateThirdList as $cate)
+                                                    <option value="{{ $cate }}" {{ $cate_third == $cate ? 'selected' : '' }}>{{ $cate }}</option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                            <div class="col-2">
+                                                <select class="form-control select-opt" name="cate_fourth" level=4>
+                                                    <option value="" hidden>4차 분류</option>
+                                                    @foreach($cateFourthList as $cate)
+                                                    <option value="{{ $cate }}" {{ $cate_fourth == $cate ? 'selected' : '' }}>{{ $cate }}</option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                        </div>
                                     </td>
                                 </tr>
                                 <tr class="align-middle text-left">
-                                    <td colspan="3">
+                                    <td colspan="6">
                                         <button type="button" class="btn btn-md btn-primary" id="form-submit">검색</button>
-                                        <a href="/easySell/product/list" class="btn btn-md btn-light btn-reset" role="button">초기화</button>
+                                        <button type="button" onclick="location.href='/easySell/category'" class="btn btn-md btn-light btn-reset">초기화</button>
                                     </td>
                                 </tr>
                             </table>
                         </div>
-                    </div>
-
-                    <div class="mt-3 d-flex justify-content-between">
-                        <div>
-                            <select id="selectPageSize" class="form-select" name="pageSize">
-                                <option value=100 @if($pageSize == 100) selected @endif>100개 노출</option>
-                                <option value=30 @if($pageSize == 30) selected @endif>30개 노출</option>
-                                <option value=10 @if($pageSize == 10) selected @endif>10개 노출</option>
-                            </select>
-                        </div>
-                        <button type="button" class="btn btn-md btn-outline-dark me-2" id="btn-select">상품전송</button>
                     </div>
                 </form>
 
@@ -131,88 +134,53 @@ input[name='easySellCategory']{
                     <table class="table table-white bg-white">
                         <thead class="table-light">
                             <tr>
-                                <th scope="col" class="text-center" style="width: 50px">
-                                    <input class="form-check-input" type="checkbox" id="allCheckbox">
-                                </th>
-                                <th scope="col" style="width: 50px">No</th>
-                                <th scope="col" style="width: 100px" class="text-center">이미지</th>
-                                <th scope="col" style="width: 150px" class="text-center">제품ID</th>
-                                <th scope="col">상품명</th>
-                                <th scope="col" style="width: 130px">일반 판매가(원)</th>
-                                <th scope="col" style="width: 130px">MD 판매가(원)</th>
-                                <th scope="col" style="width: 100px" class="text-center">이지셀 전송</th>
-                                <th scope="col" style="width: 200px" class="text-center">관리</th>
+                                <th scope="col" width="45%">W.app 카테고리</th>
+                                <th scope="col" width="45%">이지셀 카테고리</th>
+                                <th scope="col" width="10%" class="text-center">관리</th>
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach ($datas as $index => $data)
-                                @php
-                                    $disabled = "";
-                                    if(count($data->options) == 0){
-                                        $disabled = "disabled";
-                                    }
-                                @endphp
+                        <tr>
+                            @foreach($datas as $data)
                                 <tr>
-                                    <td class="text-center">
-                                        <input class="form-check-input chk-inp" type="checkbox" value="{{ $data->offer_id }}" {{$disabled}}>
-                                    </td>
                                     <td>
-                                        {{ number_format(($datas->total() - $offset) - $index) }}
-                                    </td>
-                                    <td class="text-center">
-                                        @if( !empty($data->main_img->img_url_trans) )
-                                            <img class="lazy-img preview-image" data-src="{{ $data->main_img->img_url_trans }}" width=60 height=60/>
-                                        @else
-                                            <img class="lazy-img preview-image" data-src='/assets/img/no_img.png'width=60 height=60>
+                                        @if(!empty($data->cate_first))
+                                            {{ $data->cate_first }}
                                         @endif
-                                    </td>
-                                    <td>
-                                        {{ $data->offer_id }}
-                                        @if(empty($data->es_fgn_mapping))
-                                            <br>
-                                            @if(isset($data->w_mapping))
-                                            <button type="button" class="btn btn-danger btn-modal" cateid="{{ $data->w_mapping->mapping_code }}">카테고리 미맵핑</button>
-                                            @else
-                                            <span class="text-danger">W카테고리 미맵핑 ({{ $data->category_id }})</span>
-                                            @endif
+                                        @if(!empty($data->cate_second))
+                                            > {{ $data->cate_second }}
+                                        @endif
+                                        @if(!empty($data->cate_third))
+                                            > {{ $data->cate_third }}
+                                        @endif
+                                        @if(!empty($data->cate_fourth))
+                                            > {{ $data->cate_fourth }}
                                         @endif
                                     </td>
                                     <td>
-                                        {{ $data->prd_name_kr }}
-                                    </td>
-                                    <td class="text-center">
-                                        @if (count($data->options) > 0)
-                                            @php
-                                                $option = $data->options[0];
-                                            @endphp
-                                            {{ number_format(calcEasySellSalePrice($option->option_price, $option->md_price, "static")) }}
+                                        @empty($data->es_mapping_code)
+                                            <span class="text-danger">
+                                                {{ ProductConstant::MAPPING_STATUS[ProductConstant::MAPPING_STATUS_N] }}
+                                            </span>
                                         @else
-                                            <p class="text-danger">옵션없음</p>
-                                        @endif
+                                            @isset($data->es_category)
+                                                @if(!empty($data->es_category->cate_first))
+                                                    {{ $data->es_category->cate_first }}
+                                                @endif
+                                                @if(!empty($data->es_category->cate_second))
+                                                    > {{ $data->es_category->cate_second }}
+                                                @endif
+                                                @if(!empty($data->es_category->cate_third))
+                                                    > {{ $data->es_category->cate_third }}
+                                                @endif
+                                                @if(!empty($data->es_category->cate_fourth))
+                                                    > {{ $data->es_category->cate_fourth }}
+                                                @endif
+                                            @endisset
+                                        @endempty
                                     </td>
                                     <td class="text-center">
-                                        @if (count($data->options) > 0)
-                                            @php
-                                                $option = $data->options[0];
-                                            @endphp
-                                            @if(!empty($option->md_price))
-                                            {{ number_format( $option->md_price ) }}
-                                            @endif
-                                        @else
-                                            <p class="text-danger">옵션없음</p>
-                                        @endif
-                                    </td>
-                                    <td class="text-center">
-                                        @if($data->regist_success == MallConstant::REGIST_SUCCESS)
-                                            {{ $data->itemno }} <br>
-                                            <small>({{ EasySellConstant::CATEGORY_NAME[substr($data->es_fgn_mapping->mapping_code,0,6)] }})</small>
-                                        @else
-                                            <span class="text-danger">미등록</span>
-                                        @endisset
-                                    </td>
-                                    <td class="text-center">
-                                        <button type="button" class="btn btn-sm btn-outline-success btn-detail" offerid={{ $data->offer_id }}>상세보기</button>
-                                        <button type="button" class="btn btn-sm btn-outline-primary btn-regist" offerid={{ $data->offer_id }} {{ $disabled }}>상품전송</button>
+                                        <button class="btn btn-sm btn-outline-success btn-modal" cateid="{{$data->mapping_code}}">맵핑하기</button>
                                     </td>
                                 </tr>
                             @endforeach
@@ -312,142 +280,29 @@ input[name='easySellCategory']{
         </div>
     </div>
 <script type="text/javascript">
-
     $(document).ready(function(){
-        $(".btn-status").click(function(){
-            let name = $(this).attr("name");
-            $(`input[name=${name}]`).val($(this).val());
-            $("#searchFrm").submit();
-        });
-
-        $(".btn-detail").click(function(){
-            let offer_id = $(this).attr("offerid");
-            location.href = `/product/${offer_id}`;
+        $(".htmlModalClose").click(function(){
+            $("#htmlModal").modal('hide');
         });
 
         $("#form-submit").click(function(){
             $("#searchFrm").submit();
         });
 
-        $("#selectPageSize").change(function(){
-            $("#searchFrm").submit();
-        });
-
-        $(".btn-regist").click(function(){
-            let offer_ids = [$(this).attr("offerid")];
-
-            if(confirm('상품을 전송하시겠습니까?')){
-                $.ajax({
-                    "headers"    : {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
-                    "type"       : "POST",
-                    "url"        : "/api/mall/easySell/product/regist",
-                    "data"       : {
-                        "offer_ids": offer_ids,
-                        "type"     : "{{ WConstant::WAPP_W1 }}"
-                    },
-                    beforeSend: function () {
-                    },
-                    complete: function () {
-                        $("#loadingOverlay").hide();
-                    },
-                    success: function (resp) {
-                        var alertMessage = "전송 요청이 완료되었습니다.\n이미 전송 된 상품은 수정 반영 됩니다.";
-                        if(resp.data.fail.length > 0){
-                            var fail = resp.data.fail;
-                            var groupedMessages = {};
-
-                            alertMessage += "\n";
-                            $.each(fail, function(index, item) {
-                                if (!groupedMessages[item.msg]) {
-                                    groupedMessages[item.msg] = [];
-                                }
-                                groupedMessages[item.msg].push(item.offer_id);
-                            });
-
-                            $.each(groupedMessages, function(msg, offer_ids) {
-                                alertMessage += "\n"+ msg + " [" + offer_ids.join(", ") + "]";
-                            });
-                        }
-
-                        alert(alertMessage);
-                    },
-                    error: function error(request, status, _error) {
-                        let { error } = JSON.parse(request.responseText);
-                        alert(error.message);
-                    }
-                });
-
-                $("#loadingOverlay").show();
-            }
-        });
-
-        $("#btn-select").click(function(){
-            let offer_ids = [];
-
-            $(".chk-inp:checked").each(function(index, element){
-                offer_ids.push($(this).val());
-            });
-
-            if(offer_ids.length < 1){
-                return alert("선택 된 상품이 없습니다.");
-            }
-
-            if(confirm('선택하신 상품을 전송하시겠습니까?')){
-                $.ajax({
-                    "headers"    : {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
-                    "type"       : "POST",
-                    "url"        : "/api/mall/easySell/product/regist",
-                    "data"       : {
-                        "offer_ids": offer_ids,
-                        "type"     : "{{ WConstant::WAPP_W1 }}"
-                    },
-                    beforeSend: function () {
-                    },
-                    complete: function () {
-                        $("#loadingOverlay").hide();
-                    },
-                    success: function (resp) {
-                        var alertMessage = "전송 요청이 완료되었습니다.\n이미 전송 된 상품은 수정 반영 됩니다.";
-                        if(resp.data.fail.length > 0){
-                            var fail = resp.data.fail;
-                            var groupedMessages = {};
-
-                            alertMessage += "\n";
-                            $.each(fail, function(index, item) {
-                                if (!groupedMessages[item.msg]) {
-                                    groupedMessages[item.msg] = [];
-                                }
-                                groupedMessages[item.msg].push(item.offer_id);
-                            });
-
-                            $.each(groupedMessages, function(msg, offer_ids) {
-                                alertMessage += "\n"+ msg + " [" + offer_ids.join(", ") + "]";
-                            });
-                        }
-
-                        alert(alertMessage);
-                    },
-                    error: function error(request, status, _error) {
-                        let { error } = JSON.parse(request.responseText);
-                        alert(error.message);
-                    }
-                });
-
-                $("#loadingOverlay").show();
-            }
-        });
-
-        $(".htmlModalClose").click(function(){
-            $("#htmlModal").modal('hide');
-        });
-
-        $('.select-opt-es').on('change', function() {
+        $('.select-opt, .select-opt-es').on('change', function() {
             let selectedLevel = parseInt($(this).attr('level'));
             let categoryNm   = $(this).val();
 
+            var classNm = "";
+            if($(this).hasClass('select-opt')){
+                classNm = 'select-opt';
+            }else{
+                classNm = 'select-opt-es';
+            }
+
             if( selectedLevel < 4 ){
                 var cateFirst = "";
-                $('.select-opt-es').each(function(idx) {
+                $('.'+classNm).each(function(idx) {
                     if(idx == 0){
                         cateFirst = $(this).val();
                     }
@@ -463,7 +318,7 @@ input[name='easySellCategory']{
                         "type"    : "POST",
                         "url"        : "{{ route('easySell.category.depth') }}",
                         "data"       : {
-                            "cateType"  : 'select-opt-es',
+                            "cateType"    : classNm,
                             "cateFirst" : cateFirst,
                             "categoryNm": categoryNm,
                             "level"     : selectedLevel
@@ -476,7 +331,7 @@ input[name='easySellCategory']{
                         },
                         success : function (resp) {
                             $.each(resp.categoryList, function(idx,value) {
-                                $(`.select-opt-es[level=${selectedLevel+1}]`).append(`<option value="${value}">${value}</option>`)
+                                $(`.`+classNm+`[level=${selectedLevel+1}]`).append(`<option value="${value}">${value}</option>`)
                             });
                         },
                         error: function (request) {
@@ -622,7 +477,7 @@ input[name='easySellCategory']{
                 }
             });
         })
-    })
+    });
 </script>
 
 @endsection

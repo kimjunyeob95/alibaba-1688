@@ -33,6 +33,9 @@ class EasySellConstant
     /** 면세 */
     public const TAX_EXEMPTION = "002";
 
+    // 이지셀 해외직구 카테고리
+    public const DEFAULT_CATEGORY = "해외직구";
+
     //W 브랜드 코드
     public const W_ACCOUNT_FASHION     = 49096; //W_패션의류
     public const W_ACCOUNT_SPORTS      = 49097; //W_스포츠/레저
