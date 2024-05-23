@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Constants\EasySellConstant;
 use App\Constants\MallConstant;
 use App\Constants\ProductConstant;
 use App\Constants\WConstant;
@@ -68,7 +69,7 @@ class EasySellService
         $lists      = $prdBuilder->paginate($pageSize)->appends($params);
         $failCnt    = $lists->total() - $successCnt;
 
-        $esCateFirstList  = SellerhubCategory::pluck("cate_first")->unique()->filter();
+        $esCateFirstList  = SellerhubCategory::where("cate_first", EasySellConstant::DEFAULT_CATEGORY)->pluck("cate_first")->unique()->filter();
 
         return [
             "esCateFirstList" => $esCateFirstList,
@@ -105,7 +106,7 @@ class EasySellService
             })
             ->leftJoin('category_mappings as c', function($join) {
                 $join->on('b.category_id', '=', 'c.category_id')
-                    ->where('c.mapping_channel', ProductConstant::MAPPING_ES_CHANNEL);
+                    ->where('c.mapping_channel', ProductConstant::MAPPING_ES_FGN_CHANNEL);
             })
             ->groupBy("a.mapping_code");
 
@@ -146,7 +147,7 @@ class EasySellService
             $categoryBuilder->where("a.cate_fourth", $cate_fourth);
         }
 
-        $esCateFirstList  = SellerhubCategory::pluck("cate_first")->unique()->filter();
+        $esCateFirstList  = SellerhubCategory::where("cate_first", EasySellConstant::DEFAULT_CATEGORY)->pluck("cate_first")->unique()->filter();
 
         $lists = $categoryBuilder->paginate($pageSize)->appends($params);
 
@@ -228,10 +229,8 @@ class EasySellService
 
     public function categoryList(array $params = []){
         $cateBuilder = SellerhubCategory::query();
+        $cateBuilder->where("cate_first", EasySellConstant::DEFAULT_CATEGORY);
 
-        if(isset($params['cate_first'])){
-            $cateBuilder->where("cate_first",$params['cate_first']);
-        }
         if(isset($params['cate_second'])){
             $cateBuilder->where("cate_second",$params['cate_second']);
         }
@@ -275,7 +274,7 @@ class EasySellService
 
             foreach($selCateObj as $cate){
                 CategoryMapping::updateOrCreate([
-                        "mapping_channel" => ProductConstant::MAPPING_ES_CHANNEL,
+                        "mapping_channel" => ProductConstant::MAPPING_ES_FGN_CHANNEL,
                         "category_id"     => $cate->category_id
                     ], [ "mapping_code" => $selectedCate ]);
             }
@@ -285,7 +284,7 @@ class EasySellService
         }catch(Exception $e){
             DB::rollback();
 
-            $rtMsg = helpers_fail_message(false, $e->getMessage());
+            $rtMsg = helpers_fail_message($e->getMessage());
         }
 
         return $rtMsg;
