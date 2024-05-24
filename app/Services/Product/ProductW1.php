@@ -1655,6 +1655,9 @@ class ProductW1 extends ProductAbstract
         $subImgs  = [];
         $descImgs = [];
         $offerId  = 0;
+        
+        $prdObj = ProductData::where("offer_id", $offerId)->first();
+
         foreach ($product1688ImageDtoList as $product1688ImageDto) {
             $offerId = $product1688ImageDto->offer_id;
             if( $product1688ImageDto->img_type == ImageConstant::IMAGE_TYPE_MAIN ){
@@ -1668,7 +1671,7 @@ class ProductW1 extends ProductAbstract
             }
         }
 
-        if( $offerId ){
+        if( $offerId && $prdObj != null ){
             if( $mainImg ){
                 // 1. 메인 이미지 삭제
                 ProductImageData::where('img_type', ImageConstant::IMAGE_TYPE_MAIN)

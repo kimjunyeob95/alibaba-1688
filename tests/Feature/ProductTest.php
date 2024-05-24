@@ -80,7 +80,7 @@ class ProductTest extends TestCase
     public function testWeightDelivery()
     {
         $prdObjs = ProductOptionData::select(["id", "weight"])
-        ->where("weight", "!=", 0)
+        ->where("weight", ">", 0)
         ->get();
         foreach ($prdObjs as $prdObj) {
             $weight  = (int)ceil($prdObj->weight / 1000);
@@ -91,6 +91,10 @@ class ProductTest extends TestCase
         }
         
         dd("끝");
+
+        $prdObjs = ProductOptionData::select('offer_id', DB::raw('MAX(weight) as max_weight'))
+        ->where("weight", ">", 0)
+        ->groupBy("offer_id")->get();
 
 
         $weights = CategoryConstant::WEIGHTS;
