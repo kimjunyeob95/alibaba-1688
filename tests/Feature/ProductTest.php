@@ -79,23 +79,9 @@ class ProductTest extends TestCase
     # php artisan test --filter testWeightDelivery
     public function testWeightDelivery()
     {
-        $prdObjs = ProductOptionData::select(["id", "weight"])
-        ->where("weight", ">", 0)
-        ->get();
-        foreach ($prdObjs as $prdObj) {
-            $weight  = (int)ceil($prdObj->weight / 1000);
-
-            ProductOptionData::where("id", $prdObj->id)->update([
-                "weight" => $weight
-            ]);
-        }
-        
-        dd("끝");
-
         $prdObjs = ProductOptionData::select('offer_id', DB::raw('MAX(weight) as max_weight'))
         ->where("weight", ">", 0)
         ->groupBy("offer_id")->get();
-
 
         $weights = CategoryConstant::WEIGHTS;
         foreach ($prdObjs as $prdObj) {
@@ -104,6 +90,11 @@ class ProductTest extends TestCase
             $weight  = (int)ceil($weight);
 
             $delivery_price = ProductConstant::WEIGHT_STATUS_NONE_PRICE;
+
+            if( $weight >= 100 ){
+                $weight = (int)ceil($weight / 1000);
+                ProductOptionData::where("offer_id", $offerId)->update(["weight"=>$weight]);
+            }
             try {
                 $delivery_price = $weights[$weight];
             } catch (Exception $e) {
