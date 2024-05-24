@@ -2831,10 +2831,11 @@ class ProductW1 extends ProductAbstract
                         "is_inspect" => $inspect_gosi_status,
                     ]
                 );
+
+                /** 검수상태 최종 변경 */
+                inspectStatusUpdate($offerId);
             }
 
-            /** 검수상태 최종 변경 */
-            inspectStatusUpdate($offerId);
 
             DB::commit();
             $returnMsg = helpers_success_message();
