@@ -42,4 +42,7 @@ class OnchannelConstant
         "exchange_delivery_charge" => 3000,
         "delivery_id"              => 4
     ];
+
+    public const CALLBACK_SUCCESS = "S";
+    public const CALLBACK_FAIL    = "F";
 }

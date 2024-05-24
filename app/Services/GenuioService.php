@@ -9,6 +9,7 @@ use App\Constants\GenuioConstant;
 use App\Constants\ImageConstant;
 use App\Constants\ImageErrorMessageConstant;
 use App\Constants\MallConstant;
+use App\Constants\OnchannelConstant;
 use App\Constants\TransApiConstant;
 use App\Constants\WConstant;
 use App\Models\ApiUser;
@@ -1229,13 +1230,14 @@ class GenuioService extends TransApiAbstract
             ];
             if( $getGenuioObj->send_type == GenuioConstant::IMG_TRANS ){
                 foreach ($images as $image) {
-                    $img_id = 0;
+                    $img_id         = 0;
+                    $img_url_origin = "";
+
                     try {
                         $img_id         = $image["id"];
                         $img_url_origin = $image["origin_url"];
                         $uploadResult   = false;
                         $base64         = "";
-                        $img_url_trans  = "";
                         $fileMessage    = "S3 upload fail";
                         $mime           = pathinfo($img_url_origin, PATHINFO_EXTENSION);
                         $dateName       = Carbon::now()->format('Ymd_His');
@@ -1273,24 +1275,25 @@ class GenuioService extends TransApiAbstract
                                 "id"             => $img_id,
                                 "origin_url"     => $img_url_origin,
                                 "translated_url" => $img_url_trans,
-                                "error"          => "",
+                                "status"         => OnchannelConstant::CALLBACK_SUCCESS,
                             ];
                         } else {
-                            $img_url_trans = $img_url_origin;
                             $resPayload["images"][] = [
                                 "id"             => $img_id,
                                 "origin_url"     => $img_url_origin,
-                                "translated_url" => $img_url_trans,
-                                "error"          => $fileMessage,
+                                "translated_url" => "",
+                                "status"         => OnchannelConstant::CALLBACK_FAIL,
+                                "message"        => $fileMessage,
                             ];
                         }
 
                     } catch (ValueError $ve) {
                         $resPayload["images"][] = [
                             "id"             => $img_id,
-                            "origin_url"     => $image["origin_url"],
+                            "origin_url"     => $img_url_origin,
                             "translated_url" => "",
-                            "error"          => $ve->getMessage(),
+                            "status"         => OnchannelConstant::CALLBACK_FAIL,
+                            "message"        => $ve->getMessage(),
                         ];
                     }
                 }
