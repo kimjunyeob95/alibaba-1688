@@ -20,7 +20,6 @@
     .prd-desc table,
     .prd-desc table td div,
     .prd-desc table td a{
-        width: 100% !important;
         max-width: 100% !important;
         height: auto !important;
     }

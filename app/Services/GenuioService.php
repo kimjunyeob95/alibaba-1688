@@ -671,7 +671,6 @@ class GenuioService extends TransApiAbstract
                         debug_log(json_encode($errMsg, JSON_UNESCAPED_UNICODE), "genuio", GenuioConstant::IMG_TRANS_AGAIN);
                     }
                 }
-
             }
 
             if( isset($params["prdObj"]["prd_desc"]) && $params["prdObj"]["prd_desc"] ){
@@ -679,7 +678,7 @@ class GenuioService extends TransApiAbstract
 
                 GenuioAiData::updateOrCreate(
                     [
-                        "offer_id"      => $offerId,
+                        "offer_id" => $offerId,
                         "ai_apply" => GenuioConstant::AI_APPLY_DESC_KR
                     ],
                     [
@@ -688,12 +687,6 @@ class GenuioService extends TransApiAbstract
                     ]
                 );
             };
-
-            // 상세 이미지 업데이트
-            upPrdDescTrans($offerId);
-
-            // 수정 상품 저장
-            saveModiProduct($offerId);
 
             $returnMsg = helpers_success_message();
         } catch (Exception $e) {
@@ -713,8 +706,14 @@ class GenuioService extends TransApiAbstract
             $queueDto->bind($bindParam);
             GenuioQueueData::create($queueDto->getAllProperties());
 
+            // 상세 이미지 업데이트
+            upPrdDescTrans($offerId);
+
             // 변역 완료 여부 체크
             chkTransStatus($getGenuioObj->offer_id);
+
+            // 수정 상품 저장
+            saveModiProduct($offerId);
 
             GenuioQueueData::where([
                 "id" => $getGenuioObj->offer_id,

@@ -1120,15 +1120,17 @@ class ProductW1 extends ProductAbstract
             } else {
                 $imgType = ImageConstant::IMAGE_TYPE_SUB;
             }
-            $is_except = ImageConstant::IS_EXCEPT_N;
-            $imgObj    = ProductImageData::where([
+            $is_except     = ImageConstant::IS_EXCEPT_N;
+            $img_url_trans = "";
+            $imgObj        = ProductImageData::where([
                 "offer_id"       => $offerId,
                 "img_type"       => $imgType,
                 "img_url_origin" => $prdImage,
                 "lang"           => WConstant::WAPP_KR,
             ])->first();
             if( $imgObj != null ){
-                $is_except = $imgObj->is_except;
+                $is_except     = $imgObj->is_except;
+                $img_url_trans = $imgObj->img_url_trans;
             }
             if( $is_except == ImageConstant::IS_EXCEPT_Y ){
                 continue;
@@ -1153,7 +1155,7 @@ class ProductW1 extends ProductAbstract
                 "lang"           => WConstant::WAPP_KR,
                 "is_except"      => $is_except,
                 "img_url_origin" => $prdImage,
-                "img_url_trans"  => "",
+                "img_url_trans"  => $img_url_trans,
                 "isChangeImg"    => $isChangeImg,
                 "width"          => $imgWidth,
                 "height"         => $imgHeight,
@@ -1177,9 +1179,10 @@ class ProductW1 extends ProductAbstract
                         continue;
                     }
 
-                    $imgType   = ImageConstant::IMAGE_TYPE_SUB;
-                    $is_except = ImageConstant::IS_EXCEPT_N;
-                    $imgObj    = ProductImageData::where([
+                    $imgType       = ImageConstant::IMAGE_TYPE_SUB;
+                    $is_except     = ImageConstant::IS_EXCEPT_N;
+                    $img_url_trans = "";
+                    $imgObj        = ProductImageData::where([
                         "offer_id"       => $offerId,
                         "img_type"       => $imgType,
                         "img_url_origin" => $prdImage,
@@ -1187,6 +1190,7 @@ class ProductW1 extends ProductAbstract
                     ])->first();
                     if( $imgObj != null ){
                         $is_except = $imgObj->is_except;
+                        $img_url_trans = $imgObj->img_url_trans;
                     }
                     if( $is_except == ImageConstant::IS_EXCEPT_Y ){
                         continue;
@@ -1211,7 +1215,7 @@ class ProductW1 extends ProductAbstract
                         "lang"           => WConstant::WAPP_KR,
                         "is_except"      => $is_except,
                         "img_url_origin" => $prdImage,
-                        "img_url_trans"  => "",
+                        "img_url_trans"  => $img_url_trans,
                         "isChangeImg"    => $isChangeImg,
                         "width"          => $imgWidth,
                         "height"         => $imgHeight,
@@ -1228,16 +1232,18 @@ class ProductW1 extends ProductAbstract
         preg_match_all('/<img[^>]+src="([^">]+)"/', $prdDescription, $matches);
         $imageSrcs = $matches[1];
         foreach ($imageSrcs as $imageSrc) {
-            $imgType   = ImageConstant::IMAGE_TYPE_DESC;
-            $is_except = ImageConstant::IS_EXCEPT_N;
-            $imgObj    = ProductImageData::where([
+            $imgType       = ImageConstant::IMAGE_TYPE_DESC;
+            $is_except     = ImageConstant::IS_EXCEPT_N;
+            $img_url_trans = "";
+            $imgObj        = ProductImageData::where([
                 "offer_id"       => $offerId,
                 "img_type"       => $imgType,
                 "img_url_origin" => $imageSrc,
                 "lang"           => WConstant::WAPP_KR,
             ])->first();
             if( $imgObj != null ){
-                $is_except = $imgObj->is_except;
+                $is_except     = $imgObj->is_except;
+                $img_url_trans = $imgObj->img_url_trans;
             }
             if( $is_except == ImageConstant::IS_EXCEPT_Y ){
                 continue;
@@ -1262,7 +1268,7 @@ class ProductW1 extends ProductAbstract
                 "lang"           => WConstant::WAPP_KR,
                 "is_except"      => $is_except,
                 "img_url_origin" => $imageSrc,
-                "img_url_trans"  => "",
+                "img_url_trans"  => $img_url_trans,
                 "isChangeImg"    => $isChangeImg,
                 "width"          => $imgWidth,
                 "height"         => $imgHeight,
@@ -1316,6 +1322,14 @@ class ProductW1 extends ProductAbstract
         if( isset($detailProduct["soldOut"]) ){
             $soldOut = (int)$detailProduct["soldOut"];
         }
+
+        $prdDescKr = "";
+        $prdDescEn = "";
+        if( $prdObj != null ){
+            $prdDescKr = $prdObj->prd_desc_kr;
+            $prdDescEn = $prdObj->prd_desc_en;
+        }
+
         $product1688Dto = new Product1688Dto();
         $product1688Dto->bind([
             "offerId"        => $offerId,
@@ -1327,6 +1341,8 @@ class ProductW1 extends ProductAbstract
             "subjectTransEn" => $prdObj != null ? $prdObj->prd_name_en : "",
             "startQuantity"  => $startQuantity,
             "description"    => $detailProduct["description"],
+            "prdDescKr"      => $prdDescKr,
+            "prdDescEn"      => $prdDescEn,
             "soldOut"        => $soldOut,
             "mapping_status" => $mapping_status,
             "inspect_status" => $inspect_status,

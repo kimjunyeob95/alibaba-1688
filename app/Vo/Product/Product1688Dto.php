@@ -44,6 +44,8 @@ class Product1688Dto extends Vo
         $this->prd_name_en    = $data["subjectTransEn"];
         $this->start_quantity = $data["startQuantity"];
         $this->prd_desc       = $data["description"];
+        $this->prd_desc_kr    = $data["prdDescKr"];
+        $this->prd_desc_en    = $data["prdDescEn"];
         $this->sold_out       = $data["soldOut"];
         $this->mapping_status = $data["mapping_status"];
         $this->inspect_status = $data["inspect_status"];
