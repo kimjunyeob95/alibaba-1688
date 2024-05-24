@@ -345,6 +345,8 @@ input[name='easySellCategory']{
 
         $(".btn-modal").click(function(){
             let cateId = $(this).attr("cateid");
+            $("#htmlModal").find("select").val("");
+
             $("#loadingOverlay").show();
 
             $.ajax({
