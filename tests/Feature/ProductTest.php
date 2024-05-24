@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Constants\CategoryConstant;
 use App\Constants\ImageConstant;
 use App\Constants\InspectConstant;
 use App\Constants\ProductConstant;
@@ -13,11 +14,13 @@ use App\Models\ProductForbiddenData;
 use App\Models\ProductImageData;
 use App\Models\ProductInspectData;
 use App\Models\ProductOptionData;
+use App\Models\ProductWeightData;
 use App\Packages\S3;
 use App\Services\GenuioService;
 use App\Services\Product\ProductW2;
 use App\Vo\Product\Product1688ImageDto;
 use Exception;
+use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
 use Illuminate\Support\Facades\File;
 
@@ -70,6 +73,74 @@ class ProductTest extends TestCase
         } else {
             throw new Exception("파일이 존재하지 않습니다.");
         }
+    }
+
+    /** 상품 배송비 적용 */
+    # php artisan test --filter testWeightDelivery
+    public function testWeightDelivery()
+    {
+        $prdObjs = ProductOptionData::select(["id", "weight"])
+        ->where("weight", "!=", 0)
+        ->get();
+        foreach ($prdObjs as $prdObj) {
+            $weight  = (int)ceil($prdObj->weight / 1000);
+
+            ProductOptionData::where("id", $prdObj->id)->update([
+                "weight" => $weight
+            ]);
+        }
+        
+        dd("끝");
+
+
+        $weights = CategoryConstant::WEIGHTS;
+        foreach ($prdObjs as $prdObj) {
+            $offerId = $prdObj->offer_id;
+            $weight  = $prdObj->max_weight;
+            $weight  = (int)ceil($weight);
+
+            $delivery_price = ProductConstant::WEIGHT_STATUS_NONE_PRICE;
+            try {
+                $delivery_price = $weights[$weight];
+            } catch (Exception $e) {
+                dd($e->getMessage());
+            }
+            
+            ProductWeightData::updateOrCreate([
+                "offer_id" => $offerId,
+            ],[
+                "weight_type"    => ProductConstant::WEIGHT_STATUS_PRODUCT,
+                "weight"         => $weight,
+                "delivery_price" => $delivery_price,
+            ]);
+        }
+
+        dd("끝");
+    }
+
+    /** 상세 수정 */
+    # php artisan test --filter testUpPrdDescTrans
+    public function testUpPrdDescTrans()
+    {
+        $cnt = ProductData::from("product_datas")
+        ->join("genuio_ai_datas as b", "product_datas.offer_id", "=", "b.offer_id")
+        ->where("product_datas.prd_desc_kr", "=", "")
+        ->where("b.ai_apply", "desc_kr")->count();
+
+        if( $cnt > 0 ){
+            $qry = ProductData::from("product_datas")
+            ->join("genuio_ai_datas as b", "product_datas.offer_id", "=", "b.offer_id")
+            ->where("product_datas.prd_desc_kr", "=", "")
+            ->where("b.ai_apply", "desc_kr")->get();
+    
+            foreach ($qry as $prdObj) {
+                $offerId = $prdObj->offer_id;
+    
+                upPrdDescTrans($offerId);
+            }
+        }
+
+        dd("끝");
     }
 
     # php artisan test --filter testInspectStatus

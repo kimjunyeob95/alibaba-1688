@@ -1551,7 +1551,7 @@ class ProductW2 extends ProductAbstract
                                     $height = $skuShippingInfo["height"];
                                 }
                                 if( isset($skuShippingInfo["weight"]) ) {
-                                    $weight = $skuShippingInfo["weight"];
+                                    $weight = (int)ceil($skuShippingInfo["weight"] / 1000);
                                 }
                             }
                         }
