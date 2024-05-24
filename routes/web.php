@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\EasySellController;
+use App\Http\Controllers\ExceptController;
 use App\Http\Controllers\ForbiddenWordController;
 use App\Http\Controllers\OnchannelController;
 use App\Http\Controllers\ProductController;
@@ -91,6 +92,14 @@ Route::prefix("forbiddenWord")->name("forbiddenWord.")->group(function(){
     Route::get("/list", [ForbiddenWordController::class, "list"])->name("list");
     /** 정보고시 관리 */
     Route::get("/notice/list", [ForbiddenWordController::class, "noticeList"])->name("noticeList");
+});
+
+/**
+ * 제외 관리
+ */
+Route::prefix("except")->name("except.")->group(function(){
+    /** 정보고시 관리 */
+    Route::get("/notice/list", [ExceptController::class, "noticeList"])->name("noticeList");
 });
 
 /**

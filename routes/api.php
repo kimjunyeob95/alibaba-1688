@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\W\WProductController;
 use App\Http\Controllers\Api\GenuioController;
 use App\Http\Controllers\Api\MallController;
 use App\Http\Controllers\Api\W\W2ProductController;
+use App\Http\Controllers\Api\W\WExceptController;
 use App\Http\Controllers\Api\W\WForbiddenWordController;
 use Illuminate\Support\Facades\Route;
 
@@ -108,6 +109,11 @@ Route::name('w.')->prefix('w')->group(function () {
         Route::post('/notice/update', [WForbiddenWordController::class, 'updateNotice'])->name('updateNotice');
         /** 정보고시 키워드 삭제 */
         Route::post('/notice/delete', [WForbiddenWordController::class, 'deleteNotice'])->name('deleteNotice');
+    });
+
+    Route::name('except.')->prefix('except')->group(function () {
+        /** 정보고시 제외 적용 update */
+        Route::post('/notice/update', [WExceptController::class, 'noticeUpdate'])->name('noticeUpdate');
     });
 });
 

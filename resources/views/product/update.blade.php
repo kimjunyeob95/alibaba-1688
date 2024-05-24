@@ -3,6 +3,7 @@
     use App\Constants\WConstant;
     use App\Constants\ImageConstant;
     use App\Constants\GosiConstants;
+    use App\Constants\ExceptConstant;
     $exchangeRate = env("1688_EXCHANGE_RATE", 200);
 @endphp
 @extends('dashboard.base')
@@ -132,16 +133,23 @@
                         <table class="table table-white bg-white">
                             <tbody>
                                 @foreach ($prdObj->notices as $gosiKey => $gosi)
+                                    @php
+                                        $disabled = false;
+                                        if( $gosi->except_data != null && $gosi->except_data->is_except == ExceptConstant::IS_EXCEPT_Y ){
+                                            $disabled = true;
+                                        }
+                                    @endphp
+
                                     @if ( $gosiKey % 4 == 0)
                                         <tr>
                                     @endif
 
                                     <th class="bg-light">
-                                        <input class="form-check-input chk-gosi-inp gosi-kr" type="checkbox" value="{{ $gosi->id }}" @if( $gosi->is_except == GosiConstants::IS_EXCEPT_N ) checked @endif>
-                                        <input type="text" class="form-control" name="attribute_name_kr" placeholder="" value="{{ $gosi->attribute_name_kr }}">
+                                        <input @if($disabled) disabled @endif class="form-check-input chk-gosi-inp gosi-kr" type="checkbox" value="{{ $gosi->id }}" @if( $gosi->is_except == GosiConstants::IS_EXCEPT_N ) checked @endif>
+                                        <input @if($disabled) disabled @endif type="text" class="form-control" name="attribute_name_kr" placeholder="" value="{{ $gosi->attribute_name_kr }}">
                                     </th>
                                     <td style="vertical-align: bottom">
-                                        <input type="text" class="form-control" name="attribute_value_kr" placeholder="" value="{{ $gosi->attribute_value_kr }}">
+                                        <input @if($disabled) disabled @endif type="text" class="form-control" name="attribute_value_kr" placeholder="" value="{{ $gosi->attribute_value_kr }}">
                                     </td>
 
                                     @if (($gosiKey + 1) % 4 == 0 || $loop->last)
@@ -170,16 +178,23 @@
                             <table class="table table-white bg-white">
                                 <tbody>
                                     @foreach ($prdObj->notices as $gosiKey => $gosi)
+                                        @php
+                                            $disabled = false;
+                                            if( $gosi->except_data != null && $gosi->except_data->is_except == ExceptConstant::IS_EXCEPT_Y ){
+                                                $disabled = true;
+                                            }
+                                        @endphp
+
                                         @if ( $gosiKey % 4 == 0)
                                             <tr>
                                         @endif
 
                                         <th class="bg-light">
-                                            <input class="form-check-input chk-gosi-inp gosi-en" type="checkbox" value="{{ $gosi->id }}" @if( $gosi->is_except == GosiConstants::IS_EXCEPT_N ) checked @endif>
-                                            <input type="text" class="form-control" name="attribute_name_en" placeholder="" value="{{ $gosi->attribute_name_en }}">
+                                            <input @if($disabled) disabled @endif class="form-check-input chk-gosi-inp gosi-en" type="checkbox" value="{{ $gosi->id }}" @if( $gosi->is_except == GosiConstants::IS_EXCEPT_N ) checked @endif>
+                                            <input @if($disabled) disabled @endif type="text" class="form-control" name="attribute_name_en" placeholder="" value="{{ $gosi->attribute_name_en }}">
                                         </th>
                                         <td style="vertical-align: bottom">
-                                            <input type="text" class="form-control" name="attribute_value_en" placeholder="" value="{{ $gosi->attribute_value_en }}">
+                                            <input @if($disabled) disabled @endif type="text" class="form-control" name="attribute_value_en" placeholder="" value="{{ $gosi->attribute_value_en }}">
                                         </td>
     
                                         @if (($gosiKey + 1) % 4 == 0 || $loop->last)
@@ -331,9 +346,9 @@
 
         $('.btn-gosi-all').click(function(){
             if( $(".chk-gosi-inp:checked").length > 0 ) {
-                $(".chk-gosi-inp").prop("checked", false);
+                $(".chk-gosi-inp").not(":disabled").prop("checked", false);
             } else {
-                $(".chk-gosi-inp").prop("checked", true);
+                $(".chk-gosi-inp").not(":disabled").prop("checked", true);
             }
         });
 

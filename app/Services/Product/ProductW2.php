@@ -8,6 +8,7 @@ use App\Abstracts\UploadAbstract;
 use App\Constants\CategoryConstant;
 use App\Constants\CategoryErrorMessageConstant;
 use App\Constants\Constant1688;
+use App\Constants\ExceptConstant;
 use App\Constants\ForbiddenWordConstant;
 use App\Constants\GenuioConstant;
 use App\Constants\GosiConstants;
@@ -26,6 +27,7 @@ use App\Models\GenuioImageData;
 use App\Models\ProductCollectDetailLog;
 use App\Models\ProductCollectLog;
 use App\Models\ProductData;
+use App\Models\ProductExceptData;
 use App\Models\ProductExtendData;
 use App\Models\ProductForbiddenData;
 use App\Models\ProductImageData;
@@ -1424,6 +1426,14 @@ class ProductW2 extends ProductAbstract
         $product1688NoticeDtoList = [];
         foreach ($detailProduct["offerAttributeList"] as $noticeKey => $prdNotice) {
             $is_except = GosiConstants::IS_EXCEPT_N;
+
+            $exceptObj = ProductExceptData::where([
+                "except_type"  => ExceptConstant::EXCEPT_NOTICE,
+                "attribute_id" => $prdNotice["attrId"],
+            ])->first();
+            if( $exceptObj != null ){
+                $is_except = $exceptObj->is_except;
+            }
 
             $gosiObj = ProductNoticeData::where([
                 "offer_id"     => $offerId,
