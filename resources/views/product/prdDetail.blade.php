@@ -230,6 +230,7 @@
                                     <th scope="col">적용 환율(원)</th>
                                     <th scope="col">일반 판매가(원)</th>
                                     <th scope="col">MD 판매가(원)</th>
+                                    <th scope="col">중량(kg)</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -263,6 +264,9 @@
                                         </td>
                                         <td>
                                             {{ number_format($option->md_price) }}
+                                        </td>
+                                        <td>
+                                            {{ number_format($option->weight) }}
                                         </td>
                                     </tr>
                                 @endforeach

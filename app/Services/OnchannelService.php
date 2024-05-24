@@ -17,7 +17,9 @@ class OnchannelService
         $search_cls   = $params["search_cls"];
         $keyword      = $params["keyword"];
 
-        $prdBuilder = ProductData::select(["product_datas.*", "b.regist_success", "b.message", "b.prd_code"])
+        $prdBuilder = ProductData::select([
+                "product_datas.*", "b.regist_success", "b.message", "b.prd_code", "b.registed_at"
+            ])
             ->with([
                 "main_img", "options", "w_mapping"
             ])

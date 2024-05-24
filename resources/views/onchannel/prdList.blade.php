@@ -123,6 +123,7 @@
                                     온채널 코드<br>
                                     맵핑 코드
                                 </th>
+                                <th scope="col" style="width: 130px" class="text-center">등록일</th>
                                 <th scope="col" style="width: 200px" class="text-center">관리</th>
                             </tr>
                         </thead>
@@ -155,7 +156,7 @@
                                         @endif
                                     </td>
                                     <td>
-                                        {{ $data->prd_name_kr }}
+                                        <small>{{ $data->prd_name_kr }}</small>
                                     </td>
                                     <td class="text-center">
                                         @if (count($data->options) > 0)
@@ -187,6 +188,11 @@
                                             <span class="text-danger">전송실패 사유: ({{ $data->message }})</span>
                                         @else
                                             <span class="text-danger">미등록</span>
+                                        @endif
+                                    </td>
+                                    <td class="text-center">
+                                        @if($data->regist_success == MallConstant::REGIST_SUCCESS)
+                                            <small>{{ $data->registed_at }}</small>
                                         @endif
                                     </td>
                                     <td class="text-center">

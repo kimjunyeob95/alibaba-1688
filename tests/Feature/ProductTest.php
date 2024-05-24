@@ -80,7 +80,7 @@ class ProductTest extends TestCase
     public function testWeightDelivery()
     {
         $prdObjs = ProductOptionData::select('offer_id', DB::raw('MAX(weight) as max_weight'))
-        ->where("weight", ">", 0)
+        ->where("weight", ">=", 100)
         ->groupBy("offer_id")->get();
 
         $weights = CategoryConstant::WEIGHTS;

@@ -23,7 +23,10 @@ class EasySellService
         $search_cls   = $params["search_cls"];
         $keyword      = $params["keyword"];
 
-        $prdBuilder = ProductData::select(["product_datas.offer_id","product_datas.prd_name_kr","epl.itemno","epl.regist_success","product_datas.category_id"])
+        $prdBuilder = ProductData::select([
+                "product_datas.offer_id","product_datas.prd_name_kr","epl.itemno","epl.regist_success","product_datas.category_id",
+                "epl.registed_at"
+            ])
             ->with(["main_img", "options", "es_mapping", "es_fgn_mapping", "w_mapping"])
             ->leftJoin("easysell_product_logs as epl","product_datas.offer_id","=","epl.offer_id")
             ->whereIn("product_datas.w_type", [ WConstant::WAPP_W1, WConstant::WAPP_W2 ])

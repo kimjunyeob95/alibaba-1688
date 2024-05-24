@@ -307,7 +307,7 @@
                                         @endif
                                     </td>
                                     <td>
-                                        {{ $data->prd_name_en }}
+                                        <small>{{ $data->prd_name_en }}</small>
                                         @if ($data->status != ProductConstant::PRD_STATUS_PUBLISH)
                                             <span class="bg-danger rounded text-white px-2 py-1 fs-6">{{ ProductConstant::PRD_STATUS[$data->status] }}</span>
                                         @endif
@@ -377,13 +377,13 @@
                                     </td>
                                     <td class="text-center">
                                         @if ($data->img_inspect == null || $data->img_inspect->is_inspect == InspectConstant::IS_INSPECT_N)
-                                            <label class="text-danger">{{ InspectConstant::INSPECT_LIST[InspectConstant::INSPECT_IMAGE] }}</label>
+                                            <small class="text-danger d-block">{{ InspectConstant::INSPECT_LIST[InspectConstant::INSPECT_IMAGE] }}</small>
                                         @endif
                                         @if ($data->prd_inspect == null || $data->prd_inspect->is_inspect == InspectConstant::IS_INSPECT_N)
-                                            <label class="text-danger">{{ InspectConstant::INSPECT_LIST[InspectConstant::INSPECT_PRODUCT] }}</label>
+                                            <small class="text-danger d-block">{{ InspectConstant::INSPECT_LIST[InspectConstant::INSPECT_PRODUCT] }}</small>
                                         @endif
                                         @if ($data->gosi_inspect == null || $data->gosi_inspect->is_inspect == InspectConstant::IS_INSPECT_N)
-                                            <label class="text-danger">{{ InspectConstant::INSPECT_LIST[InspectConstant::INSPECT_NOTICE] }}</label>
+                                            <small class="text-danger d-block">{{ InspectConstant::INSPECT_LIST[InspectConstant::INSPECT_NOTICE] }}</small>
                                         @endif
                                     </td>
                                     <td class="text-center">

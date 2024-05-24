@@ -141,6 +141,7 @@ input[name='easySellCategory']{
                                 <th scope="col" style="width: 130px">일반 판매가(원)</th>
                                 <th scope="col" style="width: 130px">MD 판매가(원)</th>
                                 <th scope="col" style="width: 100px" class="text-center">이지셀 전송</th>
+                                <th scope="col" style="width: 130px" class="text-center">등록일</th>
                                 <th scope="col" style="width: 200px" class="text-center">관리</th>
                             </tr>
                         </thead>
@@ -178,7 +179,7 @@ input[name='easySellCategory']{
                                         @endif
                                     </td>
                                     <td>
-                                        {{ $data->prd_name_kr }}
+                                        <small>{{ $data->prd_name_kr }}</small>
                                     </td>
                                     <td class="text-center">
                                         @if (count($data->options) > 0)
@@ -209,6 +210,11 @@ input[name='easySellCategory']{
                                         @else
                                             <span class="text-danger">미등록</span>
                                         @endisset
+                                    </td>
+                                    <td class="text-center">
+                                        @if($data->regist_success == MallConstant::REGIST_SUCCESS)
+                                            <small>{{ $data->registed_at }}</small>
+                                        @endif
                                     </td>
                                     <td class="text-center">
                                         <button type="button" class="btn btn-sm btn-outline-success btn-detail" offerid={{ $data->offer_id }}>상세보기</button>
