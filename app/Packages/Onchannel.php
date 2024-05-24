@@ -162,6 +162,12 @@ class Onchannel extends MallApiAbstract
                         );
                         $successIds[] = $offerId;
                     } else {
+                        $msg = "온채널 통신 에러";
+                        if( isset($result["msg"]) ){
+                            $msg = $result["msg"];
+                        } else {
+                            debug_log(json_encode($result, JSON_UNESCAPED_UNICODE), "onchannel/prdRegist", "prdRegist");
+                        }
                         OnchannelProductLog::updateOrCreate(
                             [
                                 "offer_id"  => $offerId,
@@ -170,7 +176,7 @@ class Onchannel extends MallApiAbstract
                             [
                                 "prd_code"       => 0,
                                 "regist_success" => MallConstant::REGIST_ERROR,
-                                "message"        => $result["msg"],
+                                "message"        => $msg,
                             ]
                         );
                     }
@@ -193,7 +199,7 @@ class Onchannel extends MallApiAbstract
                     );
                 }
 
-                sleep(1);
+                sleep(1.5);
             } else {
                 $updateIds[] = $offerId;
             }
