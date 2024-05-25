@@ -51,8 +51,8 @@ class Kernel extends ConsoleKernel
         if (app()->environment('production')) {
 
             /** WApp */
-            $schedule->command("miss_product_re_collect --wversion=". WConstant::WAPP_W1)->cron("0 */2 * * *")->description("정보부족 W1 상품 재수집")->withoutOverlapping()->runInBackground();
-            $schedule->command("miss_product_re_collect --wversion=". WConstant::WAPP_W2)->cron("0 */2 * * *")->description("정보부족 W2 상품 재수집")->withoutOverlapping()->runInBackground();
+            $schedule->command("miss_product_re_collect --wversion=". WConstant::WAPP_W1)->cron("0 */6 * * *")->description("정보부족 W1 상품 재수집")->withoutOverlapping()->runInBackground();
+            $schedule->command("miss_product_re_collect --wversion=". WConstant::WAPP_W2)->cron("0 */6 * * *")->description("정보부족 W2 상품 재수집")->withoutOverlapping()->runInBackground();
 
             $schedule->command("update_forbidden_word")->cron("0 0 * * *")->description("금칙어 사전 적용")->withoutOverlapping()->runInBackground();
 
