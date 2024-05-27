@@ -160,10 +160,10 @@
                                             <input class="form-check-input" type="radio" name="keyword_type" id="keyword_type2" value="{{ ForbiddenWordConstant::KEYWORD_REPLACE }}">
                                             <label class="form-check-label" for="keyword_type2">{{ ForbiddenWordConstant::KEYWORD_STATUS[ForbiddenWordConstant::KEYWORD_REPLACE] }}</label>
                                         </div>
-                                        <div class="form-check form-check-inline">
+                                        {{-- <div class="form-check form-check-inline">
                                             <input class="form-check-input" type="radio" name="keyword_type" id="keyword_type3" value="{{ ForbiddenWordConstant::KEYWORD_EXCEPT }}">
                                             <label class="form-check-label" for="keyword_type3">{{ ForbiddenWordConstant::KEYWORD_STATUS[ForbiddenWordConstant::KEYWORD_EXCEPT] }}</label>
-                                        </div>
+                                        </div> --}}
                                     </div>
                                 </div>
                             </div>
@@ -199,13 +199,17 @@
                                         <label class="fs-7">적용위치</label>
                                     </div>
                                     <div class="col d-flex">
-                                        <div class="form-check form-check-inline">
-                                            <input class="form-check-input" type="radio" name="apply_type" id="apply_type1" value="{{ ForbiddenWordConstant::KEYWORD_APPLY_ALL }}" checked>
+                                        {{-- <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="radio" name="apply_type" id="apply_type1" value="{{ ForbiddenWordConstant::KEYWORD_APPLY_ALL }}">
                                             <label class="form-check-label" for="apply_type1">{{ ForbiddenWordConstant::KEYWORD_APPLY_ATTR_STATUS[ForbiddenWordConstant::KEYWORD_APPLY_ALL] }}</label>
                                         </div>
                                         <div class="form-check form-check-inline">
                                             <input class="form-check-input" type="radio" name="apply_type" id="apply_type2" value="{{ ForbiddenWordConstant::KEYWORD_APPLY_ATTR_NAME }}">
                                             <label class="form-check-label" for="apply_type2">{{ ForbiddenWordConstant::KEYWORD_APPLY_ATTR_STATUS[ForbiddenWordConstant::KEYWORD_APPLY_ATTR_NAME] }}</label>
+                                        </div> --}}
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="radio" name="apply_type" id="apply_type3" value="{{ ForbiddenWordConstant::KEYWORD_APPLY_ATTR_VALUE }}" checked>
+                                            <label class="form-check-label" for="apply_type3">{{ ForbiddenWordConstant::KEYWORD_APPLY_ATTR_STATUS[ForbiddenWordConstant::KEYWORD_APPLY_ATTR_VALUE] }}</label>
                                         </div>
                                     </div>
                                 </div>
@@ -280,16 +284,16 @@
                                         <label class="fs-7">적용위치</label>
                                     </div>
                                     <div class="col d-flex">
-                                        <div class="form-check form-check-inline">
+                                        {{-- <div class="form-check form-check-inline">
                                             <input class="form-check-input" type="radio" name="apply_modi_type" id="apply_modi_type1" value="{{ ForbiddenWordConstant::KEYWORD_APPLY_ALL }}" checked>
                                             <label class="form-check-label" for="apply_modi_type1">{{ ForbiddenWordConstant::KEYWORD_APPLY_ATTR_STATUS[ForbiddenWordConstant::KEYWORD_APPLY_ALL] }}</label>
-                                        </div>
-                                        <div class="form-check form-check-inline">
-                                            <input class="form-check-input" type="radio" name="apply_modi_type" id="apply_modi_type2" value="{{ ForbiddenWordConstant::KEYWORD_APPLY_ATTR_NAME }}">
+                                        </div> --}}
+                                        {{-- <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="radio" name="apply_modi_type" id="apply_modi_type2" value="{{ ForbiddenWordConstant::KEYWORD_APPLY_ATTR_NAME }}" >
                                             <label class="form-check-label" for="apply_modi_type2">{{ ForbiddenWordConstant::KEYWORD_APPLY_ATTR_STATUS[ForbiddenWordConstant::KEYWORD_APPLY_ATTR_NAME] }}</label>
-                                        </div>
+                                        </div> --}}
                                         <div class="form-check form-check-inline">
-                                            <input class="form-check-input" type="radio" name="apply_modi_type" id="apply_modi_type3" value="{{ ForbiddenWordConstant::KEYWORD_APPLY_ATTR_VALUE }}">
+                                            <input class="form-check-input" type="radio" name="apply_modi_type" id="apply_modi_type3" value="{{ ForbiddenWordConstant::KEYWORD_APPLY_ATTR_VALUE }}" checked>
                                             <label class="form-check-label" for="apply_modi_type3">{{ ForbiddenWordConstant::KEYWORD_APPLY_ATTR_STATUS[ForbiddenWordConstant::KEYWORD_APPLY_ATTR_VALUE] }}</label>
                                         </div>
                                     </div>
