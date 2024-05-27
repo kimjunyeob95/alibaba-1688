@@ -1198,6 +1198,12 @@ class GenuioService extends TransApiAbstract
     public function channelImgTrans(string $channel = MallConstant::MALL_ONCHANNEL, array $params): array
     {
         $returnMsg = $this->returnMsg;
+
+        $debugLog = [
+            "params" => $params
+        ];
+        debug_log(json_encode($debugLog, JSON_UNESCAPED_UNICODE), "genuio/channelImgTrans", "channelImgTrans");
+
         try {
             $jobId  = (int)$params["jobId"];
             $images = $params["images"];
