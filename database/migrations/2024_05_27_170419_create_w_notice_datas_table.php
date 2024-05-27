@@ -20,11 +20,13 @@ return new class extends Migration
             $table->enum('lang', ["cn", "kr", "en"])->default("kr")->nullable(false)->comment('cn: 중문, kr: 국문, en: 영문');
             $table->text('attribute_name')->nullable(false)->comment('고시이름');
             $table->text('attribute_value')->nullable(false)->comment('고시값');
+            $table->text('apply_attribute_name')->nullable(false)->comment('적용 고시이름');
 
             $table->timestamps();
             $table->softDeletes();
             
             $table->index('attribute_id');
+            $table->index('lang');
         });
 
         DB::statement('ALTER TABLE w_notice_datas COMMENT "1688 정고보시 데이터 테이블"');

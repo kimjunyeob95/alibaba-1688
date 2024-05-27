@@ -56,14 +56,13 @@ use ValueError;
 
 class ProductW2 extends ProductAbstract
 {
-    private array $returnMsg;
     private string $accessToken;
     private TransApiAbstract $transApiAbstract;
     private UploadAbstract $uploadAbstract;
 
     public function __construct(TransApiAbstract $transApiAbstract, UploadAbstract $uploadAbstract)
     {
-        $this->returnMsg        = helpers_fail_message();
+        parent::__construct();
         $this->accessToken      = env("1688_ACCESS_TOKEN");
         $this->transApiAbstract = $transApiAbstract;
         $this->uploadAbstract   = $uploadAbstract;
@@ -1458,10 +1457,11 @@ class ProductW2 extends ProductAbstract
             ])->first();
             if ( $cnNotice == null ) {
                 WNoticeData::create([
-                    'attribute_id'    => $prdNotice['attrId'],
-                    'lang'            => Constant1688::LANGUAGE_CN,
-                    'attribute_name'  => $prdNoticeW1['attributeName'],
-                    'attribute_value' => $prdNoticeW1['value']
+                    'attribute_id'         => $prdNotice['attrId'],
+                    'lang'                 => Constant1688::LANGUAGE_CN,
+                    'attribute_name'       => $prdNoticeW1['attributeName'],
+                    'attribute_value'      => $prdNoticeW1['value'],
+                    'apply_attribute_name' => "",
                 ]);
             }
             $krNotice = WNoticeData::where([
@@ -1472,10 +1472,11 @@ class ProductW2 extends ProductAbstract
             ])->first();
             if ( $krNotice == null ) {
                 WNoticeData::create([
-                    'attribute_id'    => $prdNotice['attrId'],
-                    'lang'            => Constant1688::LANGUAGE_KR,
-                    'attribute_name'  => $attributeNameTrans,
-                    'attribute_value' => $attrValueTrans
+                    'attribute_id'         => $prdNotice['attrId'],
+                    'lang'                 => Constant1688::LANGUAGE_KR,
+                    'attribute_name'       => $attributeNameTrans,
+                    'attribute_value'      => $attrValueTrans,
+                    'apply_attribute_name' => "",
                 ]);
             }
             $enNotice = WNoticeData::where([
@@ -1486,11 +1487,16 @@ class ProductW2 extends ProductAbstract
             ])->first();
             if ( $enNotice == null ) {
                 WNoticeData::create([
-                    'attribute_id'    => $prdNotice['attrId'],
-                    'lang'            => Constant1688::LANGUAGE_EN,
-                    'attribute_name'  => $prdNoticeEn["translateName"],
-                    'attribute_value' => $prdNoticeEn["translateValue"]
+                    'attribute_id'         => $prdNotice['attrId'],
+                    'lang'                 => Constant1688::LANGUAGE_EN,
+                    'attribute_name'       => $prdNoticeEn["translateName"],
+                    'attribute_value'      => $prdNoticeEn["translateValue"],
+                    'apply_attribute_name' => "",
                 ]);
+            }
+
+            if( $krNotice != null && $krNotice->apply_attribute_name != "" ){
+                $attributeNameTrans = $krNotice->apply_attribute_name;
             }
 
             // 고시명 삭제어

@@ -53,6 +53,8 @@ class ProductErrorMessageConstant
     public const ERROR_MESSAGE_INSPECT_GOSI_STATUS                     = "inspect_gosi_status";
     public const ERROR_MESSAGE_OPTION_QUANTITY                         = "Option quantity";
     public const ERROR_MESSAGE_WEIGHT                                  = "weight";
+    public const ERROR_MESSAGE_ATTRIBUTE_IDS                           = "attribute_ids";
+    public const ERROR_MESSAGE_APPLY_ATTRIBUTE_NAME                    = "apply_attribute_name";
  
     public static function getErrorMessageNotDefault($constantName): string
     {

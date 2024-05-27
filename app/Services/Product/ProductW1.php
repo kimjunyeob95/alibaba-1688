@@ -57,7 +57,6 @@ use ValueError;
 
 class ProductW1 extends ProductAbstract
 {
-    private array $returnMsg;
     private string $accessToken;
     private TransApiAbstract $transApiAbstract;
     private UploadAbstract $uploadAbstract;
@@ -69,7 +68,7 @@ class ProductW1 extends ProductAbstract
         ProductAbstract $productAbstract
     )
     {
-        $this->returnMsg        = helpers_fail_message();
+        parent::__construct();
         $this->accessToken      = env("1688_ACCESS_TOKEN");
         $this->transApiAbstract = $transApiAbstract;
         $this->uploadAbstract   = $uploadAbstract;
@@ -1389,10 +1388,11 @@ class ProductW1 extends ProductAbstract
             ])->first();
             if ( $cnNotice == null ) {
                 WNoticeData::create([
-                    'attribute_id'    => $prdNotice['attributeId'],
-                    'lang'            => Constant1688::LANGUAGE_CN,
-                    'attribute_name'  => $prdNotice['attributeName'],
-                    'attribute_value' => $prdNotice['value']
+                    'attribute_id'         => $prdNotice['attributeId'],
+                    'lang'                 => Constant1688::LANGUAGE_CN,
+                    'attribute_name'       => $prdNotice['attributeName'],
+                    'attribute_value'      => $prdNotice['value'],
+                    'apply_attribute_name' => "",
                 ]);
             }
             $krNotice = WNoticeData::where([
@@ -1403,11 +1403,16 @@ class ProductW1 extends ProductAbstract
             ])->first();
             if ( $krNotice == null ) {
                 WNoticeData::create([
-                    'attribute_id'    => $prdNotice['attributeId'],
-                    'lang'            => Constant1688::LANGUAGE_KR,
-                    'attribute_name'  => $attributeNameTrans,
-                    'attribute_value' => $attrValueTrans
+                    'attribute_id'         => $prdNotice['attributeId'],
+                    'lang'                 => Constant1688::LANGUAGE_KR,
+                    'attribute_name'       => $attributeNameTrans,
+                    'attribute_value'      => $attrValueTrans,
+                    'apply_attribute_name' => "",
                 ]);
+            }
+
+            if( $krNotice != null && $krNotice->apply_attribute_name != "" ){
+                $attributeNameTrans = $krNotice->apply_attribute_name;
             }
 
             // 고시명 삭제어

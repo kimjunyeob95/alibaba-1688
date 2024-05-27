@@ -619,4 +619,25 @@ class WProductController extends Controller
             return helpers_json_response(HttpConstant::BAD_REQUEST, [], $result["msg"]);
         }
     }
+
+    public function noticeNameUpdate(): JsonResponse
+    {
+        $validator = Validator::make($this->request->all(), [
+            'attribute_ids' => 'required|array',
+        ], [
+            'attribute_ids.required' => ProductErrorMessageConstant::getNotHaveErrorMessage("ATTRIBUTE_IDS"),
+        ]);
+        if ($validator->fails()) {
+            throw new Exception($validator->errors()->first());
+        }
+
+        $attributeIds       = $this->request->post("attribute_ids");
+        $applyAttributeName = $this->request->post("apply_attribute_name", "") ?? "";
+        $result             = $this->service1688Product->noticeNameUpdate($attributeIds, $applyAttributeName);
+        if( $result["isSuccess"] == true ){
+            return helpers_json_response(HttpConstant::OK, $result);
+        } else {
+            return helpers_json_response(HttpConstant::BAD_REQUEST, [], $result["msg"]);
+        }
+    }
 }

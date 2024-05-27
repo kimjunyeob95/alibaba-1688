@@ -2,14 +2,26 @@
 
 namespace App\Abstracts;
 
+use App\Constants\Constant1688;
 use App\Constants\ForbiddenWordConstant;
 use App\Constants\LogConstant;
+use App\Models\ProductNoticeData;
+use App\Models\WNoticeData;
+use Exception;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Pagination\LengthAwarePaginator;
 
 abstract class ProductAbstract
 {
+    protected array $returnMsg;
+
+    public function __construct()
+    {
+        $this->returnMsg = helpers_fail_message();
+    }
+
+
     /**
     * @func getPrdList
     * @description '1688 수집 상품 리스트'
@@ -340,4 +352,42 @@ abstract class ProductAbstract
      * @return array
     */
     abstract function weightSave(array $offerIds, int $weight): array;
+
+    /**
+     * @func noticeNameUpdate
+     * @description '정보고시 적용 항목명 update'
+     * @param array $attributeIds
+     * @param string $applyAttributeName
+     * @return array
+    */
+    public function noticeNameUpdate(array $attributeIds, string $applyAttributeName = ""): array
+    {
+        $returnMsg = $this->returnMsg;
+        try {
+            WNoticeData::whereIn("attribute_id", $attributeIds)
+            ->where("lang", Constant1688::LANGUAGE_KR)
+            ->update(["apply_attribute_name" => $applyAttributeName]);
+
+            if( $applyAttributeName == "" ){
+                $objs = WNoticeData::whereIn("attribute_id", $attributeIds)
+                ->where("lang", Constant1688::LANGUAGE_KR)->groupBy("attribute_id")->get();
+
+                foreach ($objs as $obj) {
+                    ProductNoticeData::where("attribute_id", $obj->attribute_id)
+                    ->update([
+                        "attribute_name_kr" => $obj->attribute_name
+                    ]);
+                }
+            } else {
+                ProductNoticeData::whereIn("attribute_id", $attributeIds)
+                ->update(["attribute_name_kr" => $applyAttributeName]);
+            }
+
+            $returnMsg = helpers_success_message();
+        } catch (Exception $e) {
+            $returnMsg = helpers_fail_message($e->getMessage());
+        }
+
+        return $returnMsg;
+    }
 }
