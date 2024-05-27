@@ -2,13 +2,7 @@
 
 namespace Tests\Feature;
 
-use App\Constants\GosiConstants;
-use App\Models\OnchannelProductLog;
-use App\Models\ProductData;
-use Carbon\Carbon;
-use Exception;
 use Tests\TestCase;
-use Illuminate\Pagination\Paginator;
 
 class OrderTest extends TestCase
 {

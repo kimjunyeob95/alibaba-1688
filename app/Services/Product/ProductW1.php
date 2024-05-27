@@ -40,6 +40,7 @@ use App\Models\ProductSearchData;
 use App\Models\ProductSearchDetailData;
 use App\Models\ProductWeightData;
 use App\Models\WCategory;
+use App\Models\WNoticeData;
 use App\Vo\Product\Product1688Dto;
 use App\Vo\Product\Product1688ExtendDto;
 use App\Vo\Product\Product1688ImageDto;
@@ -1379,6 +1380,35 @@ class ProductW1 extends ProductAbstract
 
             $attributeNameTrans = $prdNotice["attributeNameTrans"];
             $attrValueTrans     = $prdNotice["valueTrans"];
+
+            $cnNotice = WNoticeData::where([
+                'attribute_id'    => $prdNotice['attributeId'],
+                'lang'            => Constant1688::LANGUAGE_CN,
+                'attribute_name'  => $prdNotice['attributeName'],
+                'attribute_value' => $prdNotice['value']
+            ])->first();
+            if ( $cnNotice == null ) {
+                WNoticeData::create([
+                    'attribute_id'    => $prdNotice['attributeId'],
+                    'lang'            => Constant1688::LANGUAGE_CN,
+                    'attribute_name'  => $prdNotice['attributeName'],
+                    'attribute_value' => $prdNotice['value']
+                ]);
+            }
+            $krNotice = WNoticeData::where([
+                'attribute_id'    => $prdNotice['attributeId'],
+                'lang'            => Constant1688::LANGUAGE_KR,
+                'attribute_name'  => $attributeNameTrans,
+                'attribute_value' => $attrValueTrans
+            ])->first();
+            if ( $krNotice == null ) {
+                WNoticeData::create([
+                    'attribute_id'    => $prdNotice['attributeId'],
+                    'lang'            => Constant1688::LANGUAGE_KR,
+                    'attribute_name'  => $attributeNameTrans,
+                    'attribute_value' => $attrValueTrans
+                ]);
+            }
 
             // 고시명 삭제어
             $nameTrans = $this->removeForbiddenText($deleteNoticeForbiddenWords, $attributeNameTrans, ForbiddenWordConstant::KEYWORD_APPLY_ATTR_NAME);
