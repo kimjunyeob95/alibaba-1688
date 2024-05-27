@@ -47,6 +47,7 @@ class ExceptService
                     ->where("b.is_except", ExceptConstant::IS_EXCEPT_N)
                     ->orWhereNull("b.id");
                 });
+                $builder->where("w_notice_datas.apply_attribute_name", "");
             } else if( $except_type == ExceptConstant::IS_EXCEPT_MODI ){
                 $builder->where("w_notice_datas.apply_attribute_name", "!=", "");
             }
