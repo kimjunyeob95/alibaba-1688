@@ -28,6 +28,7 @@ class MallErrorMessageConstant
     public const ERROR_MESSAGE_IMAGE_ID           = "image_id";
     public const ERROR_MESSAGE_IMAGE_BASE64       = "image_base64";
     public const ERROR_MESSAGE_MEMBER_ID          = "member_id";
+    public const ERROR_MESSAGE_OPTIONS            = "options";
 
     public static function getErrorMessageNotDefault($constantName): string
     {

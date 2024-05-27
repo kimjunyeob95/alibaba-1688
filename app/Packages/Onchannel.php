@@ -77,8 +77,12 @@ class Onchannel extends MallApiAbstract
                         throw new Exception(MallErrorMessageConstant::getNotHaveErrorMessage("IMAGES"));
                     }
 
+                    if(count($prdObj->no_except_options) < 1){
+                        throw new Exception(MallErrorMessageConstant::getNotHaveErrorMessage("OPTIONS"));
+                    }
+
                     $prd_desc     = $prdObj->prd_desc;
-                    $noticeInfo   = $prdObj->notices->pluck("attribute_value_kr","attribute_name_kr")->toArray();
+                    $noticeInfo   = $prdObj->no_except_notices->pluck("attribute_value_kr","attribute_name_kr")->toArray();
                     $notice_desc  = getNoticeInfoTable($noticeInfo);
                     $prd_desc    .= $notice_desc;
         
@@ -122,7 +126,7 @@ class Onchannel extends MallApiAbstract
                     ];
         
                     $options = [];
-                    foreach ($prdObj->options as $option) {
+                    foreach ($prdObj->no_except_options as $option) {
                         $options[] = [
                             "op_rank"      => "1",
                             "op_code"      => $option->id,

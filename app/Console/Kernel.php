@@ -4,6 +4,7 @@ namespace App\Console;
 
 use App\Console\Commands\EasySellCommand;
 use App\Console\Commands\MissProductReCollect;
+use App\Console\Commands\OnchannelCommand;
 use App\Console\Commands\Save1688AllCategory;
 use App\Console\Commands\Save1688AllProducts;
 use App\Console\Commands\Save1688Category;
@@ -44,6 +45,8 @@ class Kernel extends ConsoleKernel
         MissProductReCollect::class,
         /** 금칙어 사전 적용 */
         UpdateForbiddenWord::class,
+        /** 온채널 */
+        OnchannelCommand::class,
     ];
 
     protected function schedule(Schedule $schedule)
@@ -58,6 +61,9 @@ class Kernel extends ConsoleKernel
 
             /** 이지셀 */
             $schedule->command("easy_sell_command --func=sendModiProduct")->cron("*/5 * * * *")->description("이지셀 수정 된 상품 전송")->withoutOverlapping()->runInBackground();
+
+            /** 온채널 신규 상품 등록 */
+            $schedule->command("onchannel_command --func=sendModiProduct")->cron("0 9,18 * * *")->description("온채널 신규 상품 등록")->withoutOverlapping()->runInBackground();
         }
     }
 

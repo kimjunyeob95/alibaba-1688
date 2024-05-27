@@ -56,12 +56,12 @@ class OnchannelService
         if(!empty($registStatus)){
             if($registStatus == MallConstant::REGISTED){
                 $prdBuilder->where("b.regist_success", MallConstant::REGIST_SUCCESS);
-            } else if($registStatus== MallConstant::UNREGIST){
+            } else if($registStatus == MallConstant::UNREGIST){
                 $prdBuilder->where(function($query){
                     $query->where("b.regist_success", MallConstant::REGIST_FAIL)
                         ->orWhereNull("b.regist_success");
                 });
-            } else if($registStatus== MallConstant::REGIST_ERROR){
+            } else if($registStatus == MallConstant::REGIST_ERROR){
                 $prdBuilder->where(function($query){
                     $query->where("b.regist_success", MallConstant::REGIST_ERROR);
                 });
