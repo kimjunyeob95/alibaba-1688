@@ -323,14 +323,14 @@ class Onchannel extends MallApiAbstract
                 "images"           => $images
             ];
             $endPoint = $this->domain . "/api/w/image/callback";
-
-            $result = helpers_curl("POST", $endPoint, $header, $payload);
+            $result   = helpers_curl("POST", $endPoint, $header, $payload);
 
             $returnMsg = helpers_success_message($result);
         } catch (Exception $e) {
             $returnMsg = helpers_fail_message($e->getMessage());
         }
 
+        $returnMsg["params"] = $params;
         debug_log(json_encode($returnMsg, JSON_UNESCAPED_UNICODE), "onchannel/imgCallBack", "imgCallBack");
 
         return $returnMsg;   
