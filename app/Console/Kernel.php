@@ -17,6 +17,7 @@ use App\Console\Commands\SaveWAppProductMapping;
 use App\Console\Commands\SaveWCategory;
 use App\Console\Commands\SaveWCategoryMapping;
 use App\Console\Commands\TestCommands;
+use App\Console\Commands\UpdateAttribute;
 use App\Console\Commands\UpdateForbiddenWord;
 use App\Constants\WConstant;
 use Illuminate\Console\Scheduling\Schedule;
@@ -41,12 +42,14 @@ class Kernel extends ConsoleKernel
         SaveWAppProductMapping::class,
         /** 이지셀 */
         EasySellCommand::class,
+        /** 온채널 */
+        OnchannelCommand::class,
         /** 정보부족 상품 재수집 */
         MissProductReCollect::class,
         /** 금칙어 사전 적용 */
         UpdateForbiddenWord::class,
-        /** 온채널 */
-        OnchannelCommand::class,
+        /** 정보고시 적용 */
+        UpdateAttribute::class,
     ];
 
     protected function schedule(Schedule $schedule)
