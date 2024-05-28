@@ -122,7 +122,7 @@ class EasySellService
 
         $successCnt = EasysellProductLog::where("regist_success",MallConstant::REGIST_SUCCESS)->count();
         $lists      = $prdBuilder->paginate($pageSize)->appends($params);
-        $failCnt    = $lists->total() - $successCnt;
+        $failCnt    = $totalCnt - $successCnt;
 
         $esCateFirstList  = SellerhubCategory::where("cate_first", EasySellConstant::DEFAULT_CATEGORY)->pluck("cate_first")->unique()->filter();
 
