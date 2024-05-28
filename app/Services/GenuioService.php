@@ -1244,7 +1244,7 @@ class GenuioService extends TransApiAbstract
                         $img_url_origin = $image["origin_url"];
                         $uploadResult   = false;
                         $imgTransBase64 = "";
-                        $fileMessage    = "S3 upload fail";
+                        $fileMessage    = "";
                         $mime           = pathinfo($img_url_origin, PATHINFO_EXTENSION);
                         $dateName       = Carbon::now()->format('Ymd_His');
                         if (preg_match('/^(jpg|jpeg|png|gif)/i', $mime, $matches)) {
@@ -1282,6 +1282,7 @@ class GenuioService extends TransApiAbstract
                                 "origin_url"     => $img_url_origin,
                                 "translated_url" => $img_url_trans,
                                 "status"         => OnchannelConstant::CALLBACK_SUCCESS,
+                                "message"        => $fileMessage,
                             ];
                         } else {
                             $resPayload["images"][] = [
