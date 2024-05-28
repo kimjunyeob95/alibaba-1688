@@ -56,7 +56,6 @@ class ExceptService
         if( !empty($keyword) ){
             $builder->where(function($query1) use ($keyword) {
                 $query1->where("w_notice_datas.attribute_name", "like", "%" . $keyword . "%")
-                ->orWhere("w_notice_datas.attribute_value", "like", "%" . $keyword . "%")
                 ->orWhere("w_notice_datas.apply_attribute_name", "like", "%" . $keyword . "%");
             });
         }
