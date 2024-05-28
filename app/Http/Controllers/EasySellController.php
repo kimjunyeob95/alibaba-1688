@@ -26,6 +26,9 @@ class EasySellController extends Controller
         $registStatus = $this->request->get("registStatus", "");
         $search_cls   = $this->request->get("search_cls", "offer_id");
         $keyword      = $this->request->get("keyword", "");
+        $cate_first   = $this->request->get("cate_first", "");
+        $cate_second  = $this->request->get("cate_second", "");
+        $cate_third   = $this->request->get("cate_third", "");
         $offset       = ($page - 1) * $pageSize;
 
         $params = [
@@ -33,7 +36,10 @@ class EasySellController extends Controller
             "pageSize"     => $pageSize,
             "registStatus" => $registStatus,
             "search_cls"   => $search_cls,
-            "keyword"      => $keyword
+            "keyword"      => $keyword,
+            "cate_first"   => $cate_first,
+            "cate_second"  => $cate_second,
+            "cate_third"   => $cate_third
         ];
         $result = $this->easySellService->getPrdList($params);
 
@@ -48,6 +54,12 @@ class EasySellController extends Controller
             "keyword"         => $keyword,
             "offset"          => (int) $offset,
             "pageSize"        => (int) $pageSize,
+            "firstCateObjs"   => $result["firstCateObjs"],
+            "secondCateObjs"  => $result["secondCateObjs"],
+            "thirdCateObjs"   => $result["thirdCateObjs"],
+            "cate_first"      => $cate_first,
+            "cate_second"     => $cate_second,
+            "cate_third"      => $cate_third
         ];
         return view("easysell.prdList")->with($viewParams);
     }

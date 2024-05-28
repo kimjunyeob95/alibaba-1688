@@ -31,6 +31,9 @@
 
                 <form id="searchFrm">
                     <input type="hidden" name="registStatus" value={{ $registStatus }}>
+                    <input type="hidden" name="cate_first" value={{ $cate_first }}>
+                    <input type="hidden" name="cate_second" value={{ $cate_second }}>
+                    <input type="hidden" name="cate_third" value={{ $cate_third }}>
 
                     <div class="card">
                         <div class="card-header">
@@ -60,7 +63,7 @@
                                 </tr>
                                 <tr class="align-middle">
                                     <th style="width: 120px">등록 상태</th>
-                                    <td colspan="3">
+                                    <td colspan="2">
                                         <button type="button" name="registStatus" class="btn-status btn btn-md {{ $registStatus == "" ? "btn-primary" : "btn-dark" }}"
                                         value="">전체</button>
                                         <button type="button" name="registStatus" class="btn-status btn btn-md {{ $registStatus == MallConstant::REGISTED ? "btn-primary" : "btn-dark" }}"
@@ -72,6 +75,37 @@
                                     </td>
                                 </tr>
                                 <tr class="align-middle">
+                                    <th style="width: 120px">W 카테고리</th>
+                                    <td colspan="2">
+                                        <div class="row">
+                                            <div class="col-2">
+                                                <select class="form-control select-opt" name="cate_first" level=1>
+                                                    <option value="">1차 분류</option>
+                                                    @foreach ($firstCateObjs as $firstCateObj)
+                                                        <option value="{{ $firstCateObj->category_id }}" {{ $firstCateObj->category_id == $cate_first ? "selected" : "" }}>{{ $firstCateObj->category_name }}</option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                            <div class="col-2">
+                                                <select class="form-control select-opt" name="cate_second" level=2>
+                                                    <option value="">2차 분류</option>
+                                                    @foreach ($secondCateObjs as $secondCateObj)
+                                                        <option value="{{ $secondCateObj->category_id }}" {{ $secondCateObj->category_id == $cate_second ? "selected" : "" }}>{{ $secondCateObj->category_name }}</option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                            <div class="col-2">
+                                                <select class="form-control select-opt" name="cate_third" level=3>
+                                                    <option value="">3차 분류</option>
+                                                    @foreach ($thirdCateObjs as $thirdCateObj)
+                                                        <option value="{{ $thirdCateObj->category_id }}" {{ $thirdCateObj->category_id == $cate_third ? "selected" : "" }}>{{ $thirdCateObj->category_name }}</option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr class="align-middle">
                                     <th style="width: 120px">상품 검색</th>
                                     <td style="width: 200px">
                                         <select class="form-select" name="search_cls">
@@ -80,7 +114,7 @@
                                             <option value="prd_name_kr" @if($search_cls == "prd_name_kr") selected @endif>상품명</option>
                                         </select>
                                     </td>
-                                    <td colspan="2">
+                                    <td>
                                         <textarea class="form-control" id="keyword" name="keyword" placeholder="여러 상품을 동시에 검색하려면 콤마(,) 혹은 엔터로 구분하여 입력 예) 552908136418,737834654023">{!! $keyword !!}</textarea>
                                     </td>
                                 </tr>
@@ -215,6 +249,44 @@
 <script type="text/javascript">
 
     $(document).ready(function(){
+        $('.select-opt').change(function(){
+            let selectedLevel = parseInt($(this).attr('level'));
+            let category_id   = $(this).val();
+
+            if( selectedLevel < 3 ){
+                $('.select-opt').each(function() {
+                    var level = parseInt($(this).attr('level'));
+                    if (selectedLevel < level) {
+                        $(this).html(`<option value="">${level}차 분류</option>`);
+                    }
+                });
+
+                if( category_id != "" ){
+                    $("#loadingOverlay").show();
+                    category_id = parseInt($(this).val());
+                    $.ajax({
+                        "headers" : {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
+                        "type" : "GET",
+                        "url" : `/api/w/category/depth/${category_id}`,
+                        beforeSend : function () {},
+                        complete: function(xhr, status) {
+                            $("#loadingOverlay").hide();
+                        },
+                        success : function (resp) {
+                            $(`.select-opt[level=${selectedLevel+1}]`).html(`<option value="">${selectedLevel+1}차 분류</option>`);
+                            resp.data.map(function(obj){
+                                $(`.select-opt[level=${selectedLevel+1}]`).append(`<option value="${obj.category_id}">${obj.category_name}</option>`)
+                            })
+                        },
+                        error: function (request) {
+                            let { error } = JSON.parse(request.responseText);
+                            alert(error.message);
+                        }
+                    });
+                }
+            }
+        });
+
         $(".btn-status").click(function(){
             let name = $(this).attr("name");
             $(`input[name=${name}]`).val($(this).val());

@@ -183,7 +183,7 @@
                                     </td>
                                 </tr>
                                 <tr class="align-middle">
-                                    <th style="width: 120px">카테고리</th>
+                                    <th style="width: 120px">W 카테고리</th>
                                     <td colspan="2">
                                         <div class="row">
                                             <div class="col-2">

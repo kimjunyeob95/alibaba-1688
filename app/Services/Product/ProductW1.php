@@ -402,6 +402,35 @@ class ProductW1 extends ProductAbstract
         $mdPrice_status = $params["mdPrice_status"];
         $sortArr        = explode("|", $params["sort"]);
 
+        $cate_first     = "";
+        $cate_second    = "";
+        $cate_third     = "";
+
+        if( isset($params["cate_first"]) ){
+            $cate_first = $params["cate_first"];
+        }
+        if( isset($params["cate_second"]) ){
+            $cate_second = $params["cate_second"];
+        }
+        if( isset($params["cate_third"]) ){
+            $cate_third = $params["cate_third"];
+        }
+        $firstCateObjs  = [];
+        $secondCateObjs = [];
+        $thirdCateObjs  = [];
+        if( $cate_first == "" ){
+            $firstCateObjs = Category::where("parent_cate_id", 0)->orderBy("category_name", "asc")->get();
+        }else {
+            if( $cate_first && $cate_second ){
+                $firstCateObjs  = Category::where("parent_cate_id", 0)->orderBy("category_name", "asc")->get();
+                $secondCateObjs = Category::where("parent_cate_id", $cate_first)->orderBy("category_name", "asc")->get();
+                $thirdCateObjs  = Category::where("parent_cate_id", $cate_second)->orderBy("category_name", "asc")->get();
+            } else if( $cate_first ){
+                $firstCateObjs  = Category::where("parent_cate_id", 0)->orderBy("category_name", "asc")->get();
+                $secondCateObjs = Category::where("parent_cate_id", $cate_first)->orderBy("category_name", "asc")->get();
+            }
+        }
+        
         $inspect_status      = "";
         $inspect_img_status  = "";
         $inspect_prd_status  = "";
@@ -569,6 +598,28 @@ class ProductW1 extends ProductAbstract
             $prdBuilder->where("product_datas.status", $prd_status);
         }
 
+        if( !empty($cate_third) && !empty($cate_second) && !empty($cate_first) ){
+            $prdBuilder->where("product_datas.category_id", $cate_third);
+        } else if( !empty($cate_second) && !empty($cate_first) ){
+            $childCates = Category::where("parent_cate_id", $cate_second)->pluck("category_id");
+            if( !empty($childCates) ){
+                $prdBuilder->where(function ($query) use ($childCates, $cate_second){
+                    $query->whereIn("product_datas.category_id", $childCates)
+                    ->orWhere("product_datas.category_id", $cate_second);
+                });
+            }
+        } else if( !empty($cate_first) ){
+            $secondChildCates = Category::where("parent_cate_id", $cate_first)->pluck("category_id");
+            $thirdChildCates  = Category::whereIn("parent_cate_id", $secondChildCates)->pluck("category_id");
+            $allChildCates    = $secondChildCates->merge($thirdChildCates);
+            if( !empty($allChildCates) ){
+                $prdBuilder->where(function ($query) use ($allChildCates, $cate_first){
+                    $query->whereIn("product_datas.category_id", $allChildCates)
+                    ->orWhere("product_datas.category_id", $cate_first);
+                });
+            }
+        }
+
         $totalCnt = ProductData::where([
             "inspect_status" => $inspect_status,
             "status"         => ProductConstant::PRD_STATUS_EXCEPT
@@ -626,6 +677,9 @@ class ProductW1 extends ProductAbstract
             "prdInspectNCnt"  => $prdInspectNCnt,
             "gosiInspectYCnt" => $gosiInspectYCnt,
             "gosiInspectNCnt" => $gosiInspectNCnt,
+            "firstCateObjs"   => $firstCateObjs,
+            "secondCateObjs"  => $secondCateObjs,
+            "thirdCateObjs"   => $thirdCateObjs,
         ];
     }
 

@@ -64,7 +64,7 @@ input[name='easySellCategory']{
                             <table class="table">
                                 <tr class="align-middle">
                                     <th style="width: 120px">상품 현황</th>
-                                    <td colspan="3">
+                                    <td colspan="2">
                                         <ul class="list-group list-group-horizontal-sm">
                                             <li class="list-group-item text-center small" style="width: 100%;">
                                                 전체<br>
@@ -83,13 +83,44 @@ input[name='easySellCategory']{
                                 </tr>
                                 <tr class="align-middle">
                                     <th style="width: 120px">등록 상태</th>
-                                    <td colspan="3">
+                                    <td colspan="2">
                                         <button type="button" name="registStatus" class="btn-status btn btn-md {{ $registStatus == "" ? "btn-primary" : "btn-dark" }}"
                                         value="">전체</button>
                                         <button type="button" name="registStatus" class="btn-status btn btn-md {{ $registStatus == MallConstant::REGISTED ? "btn-primary" : "btn-dark" }}"
                                         value="{{ MallConstant::REGISTED }}">완료</button>
                                         <button type="button" name="registStatus" class="btn-status btn btn-md {{ $registStatus == MallConstant::UNREGIST ? "btn-primary" : "btn-dark" }}"
                                         value="{{ MallConstant::UNREGIST}}">미등록</button>
+                                    </td>
+                                </tr>
+                                <tr class="align-middle">
+                                    <th style="width: 120px">W 카테고리</th>
+                                    <td colspan="2">
+                                        <div class="row">
+                                            <div class="col-2">
+                                                <select class="form-control select-opt" name="cate_first" level=1>
+                                                    <option value="">1차 분류</option>
+                                                    @foreach ($firstCateObjs as $firstCateObj)
+                                                        <option value="{{ $firstCateObj->category_id }}" {{ $firstCateObj->category_id == $cate_first ? "selected" : "" }}>{{ $firstCateObj->category_name }}</option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                            <div class="col-2">
+                                                <select class="form-control select-opt" name="cate_second" level=2>
+                                                    <option value="">2차 분류</option>
+                                                    @foreach ($secondCateObjs as $secondCateObj)
+                                                        <option value="{{ $secondCateObj->category_id }}" {{ $secondCateObj->category_id == $cate_second ? "selected" : "" }}>{{ $secondCateObj->category_name }}</option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                            <div class="col-2">
+                                                <select class="form-control select-opt" name="cate_third" level=3>
+                                                    <option value="">3차 분류</option>
+                                                    @foreach ($thirdCateObjs as $thirdCateObj)
+                                                        <option value="{{ $thirdCateObj->category_id }}" {{ $thirdCateObj->category_id == $cate_third ? "selected" : "" }}>{{ $thirdCateObj->category_name }}</option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                        </div>
                                     </td>
                                 </tr>
                                 <tr class="align-middle">
@@ -101,7 +132,7 @@ input[name='easySellCategory']{
                                             <option value="prd_name_kr" @if($search_cls == "prd_name_kr") selected @endif>상품명</option>
                                         </select>
                                     </td>
-                                    <td colspan="2">
+                                    <td>
                                         <textarea class="form-control" id="keyword" name="keyword" placeholder="여러 상품을 동시에 검색하려면 콤마(,) 혹은 엔터로 구분하여 입력 예) 552908136418,737834654023">{!! $keyword !!}</textarea>
                                     </td>
                                 </tr>

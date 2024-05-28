@@ -42,6 +42,9 @@
                     <input type="hidden" name="inspect_img_status" value={{ $inspect_img_status }}>
                     <input type="hidden" name="inspect_prd_status" value={{ $inspect_prd_status }}>
                     <input type="hidden" name="inspect_gosi_status" value={{ $inspect_gosi_status }}>
+                    <input type="hidden" name="cate_first" value={{ $cate_first }}>
+                    <input type="hidden" name="cate_second" value={{ $cate_second }}>
+                    <input type="hidden" name="cate_third" value={{ $cate_third }}>
 
                     <div class="card">
                         <div class="card-header">
@@ -56,7 +59,7 @@
                                         <button type="button" name="trans_status" class="btn-status btn btn-md {{ $trans_status == ProductConstant::TRANS_STATUS_N ? "btn-primary" : "btn-dark" }}"
                                         value="{{ ProductConstant::TRANS_STATUS_N }}">미완료</button>
                                     </td>
-                                    <td colspan="2">
+                                    <td>
                                         <div class="d-flex text-center">
                                             <div class="d-flex align-items-center justify-content-center flex-fill p-2 border rounded" style="height: 100px;">
                                                 전체<br>
@@ -83,7 +86,7 @@
                                         <button type="button" name="inspect_img_status" class="btn-status btn btn-md {{ $inspect_img_status == InspectConstant::IS_INSPECT_N ? "btn-primary" : "btn-dark" }}"
                                         value="{{ InspectConstant::IS_INSPECT_N }}">미완료</button>
                                     </td>
-                                    <td colspan="2">
+                                    <td>
                                         <div class="d-flex text-center">
                                             <div class="d-flex align-items-center justify-content-center flex-fill p-2 border rounded" style="height: 100px;">
                                                 전체<br>
@@ -110,7 +113,7 @@
                                         <button type="button" name="inspect_prd_status" class="btn-status btn btn-md {{ $inspect_prd_status == InspectConstant::IS_INSPECT_N ? "btn-primary" : "btn-dark" }}"
                                         value="{{ InspectConstant::IS_INSPECT_N }}">미완료</button>
                                     </td>
-                                    <td colspan="2">
+                                    <td>
                                         <div class="d-flex text-center">
                                             <div class="d-flex align-items-center justify-content-center flex-fill p-2 border rounded" style="height: 100px;">
                                                 전체<br>
@@ -137,7 +140,7 @@
                                         <button type="button" name="inspect_gosi_status" class="btn-status btn btn-md {{ $inspect_gosi_status == InspectConstant::IS_INSPECT_N ? "btn-primary" : "btn-dark" }}"
                                         value="{{ InspectConstant::IS_INSPECT_N }}">미완료</button>
                                     </td>
-                                    <td colspan="2">
+                                    <td>
                                         <div class="d-flex text-center">
                                             <div class="d-flex align-items-center justify-content-center flex-fill p-2 border rounded" style="height: 100px;">
                                                 전체<br>
@@ -156,7 +159,7 @@
                                 </tr>
                                 <tr class="align-middle">
                                     <th style="width: 120px">W type</th>
-                                    <td colspan="3">
+                                    <td colspan="2">
                                         <button type="button" name="w_type" class="btn-status btn btn-md {{ $w_type == "" ? "btn-primary" : "btn-dark" }}"
                                         value="">전체</button>
                                         <button type="button" name="w_type" class="btn-status btn btn-md {{ $w_type == WConstant::WAPP_W1 ? "btn-primary" : "btn-dark" }}"
@@ -167,7 +170,7 @@
                                 </tr>
                                 <tr class="align-middle">
                                     <th style="width: 120px">카테고리 맵핑</th>
-                                    <td colspan="3">
+                                    <td colspan="2">
                                         <button type="button" name="mapping_status" class="btn-status btn btn-md {{ $mapping_status == "" ? "btn-primary" : "btn-dark" }}"
                                         value="">전체</button>
                                         <button type="button" name="mapping_status" class="btn-status btn btn-md {{ $mapping_status == ProductConstant::MAPPING_STATUS_Y ? "btn-primary" : "btn-dark" }}"
@@ -177,8 +180,39 @@
                                     </td>
                                 </tr>
                                 <tr class="align-middle">
+                                    <th style="width: 120px">W 카테고리</th>
+                                    <td colspan="2">
+                                        <div class="row">
+                                            <div class="col-2">
+                                                <select class="form-control select-opt" name="cate_first" level=1>
+                                                    <option value="">1차 분류</option>
+                                                    @foreach ($firstCateObjs as $firstCateObj)
+                                                        <option value="{{ $firstCateObj->category_id }}" {{ $firstCateObj->category_id == $cate_first ? "selected" : "" }}>{{ $firstCateObj->category_name }}</option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                            <div class="col-2">
+                                                <select class="form-control select-opt" name="cate_second" level=2>
+                                                    <option value="">2차 분류</option>
+                                                    @foreach ($secondCateObjs as $secondCateObj)
+                                                        <option value="{{ $secondCateObj->category_id }}" {{ $secondCateObj->category_id == $cate_second ? "selected" : "" }}>{{ $secondCateObj->category_name }}</option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                            <div class="col-2">
+                                                <select class="form-control select-opt" name="cate_third" level=3>
+                                                    <option value="">3차 분류</option>
+                                                    @foreach ($thirdCateObjs as $thirdCateObj)
+                                                        <option value="{{ $thirdCateObj->category_id }}" {{ $thirdCateObj->category_id == $cate_third ? "selected" : "" }}>{{ $thirdCateObj->category_name }}</option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr class="align-middle">
                                     <th style="width: 120px">판매가 설정</th>
-                                    <td colspan="3">
+                                    <td colspan="2">
                                         <button type="button" name="mdPrice_status" class="btn-status btn btn-md {{ $mdPrice_status == "" ? "btn-primary" : "btn-dark" }}"
                                         value="">전체</button>
                                         <button type="button" name="mdPrice_status" class="btn-status btn btn-md {{ $mdPrice_status == ProductConstant::MD_PRICE_Y ? "btn-primary" : "btn-dark" }}"
@@ -196,14 +230,14 @@
                                             <option value="option_name" @if($search_cls == "option_name") selected @endif>옵션명</option>
                                         </select>
                                     </td>
-                                    <td colspan="2">
+                                    <td>
                                         <textarea class="form-control" id="keyword" name="keyword" placeholder="여러 상품을 동시에 검색하려면 콤마(,) 혹은 엔터로 구분하여 입력 예) 552908136418,737834654023">{!! $keyword !!}</textarea>
                                     </td>
                                 </tr>
                                 <tr class="align-middle">
                                     <th style="width: 120px">정렬</th>
-                                    <td>
-                                        <select class="form-select" name="sort" style="width: 200px">
+                                    <td style="width: 200px">
+                                        <select class="form-select" name="sort">
                                             <option value="updated_at|desc" @if($sort == "updated_at|desc") selected @endif>수정일 내림차순</option>
                                             <option value="updated_at|asc" @if($sort == "updated_at|asc") selected @endif>수정일 오름차순</option>
                                             <option value="created_at|desc" @if($sort == "created_at|desc") selected @endif>등록일 내림차순</option>
@@ -216,6 +250,8 @@
                                             <option value="md_price|asc" @if($sort == "md_price|asc") selected @endif>MD 판매가 오름차순</option>
                                         </select>
                                     </td>
+                                    <td>
+                                    </td>
                                 </tr>
                                 <tr class="align-middle">
                                     <th style="width: 120px">노출 수</th>
@@ -227,11 +263,11 @@
                                             <option value=200 @if($pageSize == 200) selected @endif>200개 노출</option>
                                         </select>
                                     </td>
-                                    <td colspan="2">
+                                    <td>
                                     </td>
                                 </tr>
                                 <tr class="align-middle text-left">
-                                    <td colspan="6">
+                                    <td colspan="3">
                                         <button type="button" class="btn btn-md btn-primary" id="form-submit">검색</button>
                                         <button type="button" onclick="location.href='/product/noInspect/except/list'" class="btn btn-md btn-light btn-reset">초기화</button>
                                     </td>
@@ -624,6 +660,44 @@
 <script type="text/javascript">
 
     $(document).ready(function(){
+        $('.select-opt').change(function(){
+            let selectedLevel = parseInt($(this).attr('level'));
+            let category_id   = $(this).val();
+
+            if( selectedLevel < 3 ){
+                $('.select-opt').each(function() {
+                    var level = parseInt($(this).attr('level'));
+                    if (selectedLevel < level) {
+                        $(this).html(`<option value="">${level}차 분류</option>`);
+                    }
+                });
+
+                if( category_id != "" ){
+                    $("#loadingOverlay").show();
+                    category_id = parseInt($(this).val());
+                    $.ajax({
+                        "headers" : {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
+                        "type" : "GET",
+                        "url" : `/api/w/category/depth/${category_id}`,
+                        beforeSend : function () {},
+                        complete: function(xhr, status) {
+                            $("#loadingOverlay").hide();
+                        },
+                        success : function (resp) {
+                            $(`.select-opt[level=${selectedLevel+1}]`).html(`<option value="">${selectedLevel+1}차 분류</option>`);
+                            resp.data.map(function(obj){
+                                $(`.select-opt[level=${selectedLevel+1}]`).append(`<option value="${obj.category_id}">${obj.category_name}</option>`)
+                            })
+                        },
+                        error: function (request) {
+                            let { error } = JSON.parse(request.responseText);
+                            alert(error.message);
+                        }
+                    });
+                }
+            }
+        });
+
         $(".btn-md-modi").click(function(){
             let offerIds  = [$(this).attr("offerid")];
             let mdPrice   = Number($(this).attr("mdprice"));

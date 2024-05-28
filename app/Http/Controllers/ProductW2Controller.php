@@ -31,6 +31,9 @@ class ProductW2Controller extends Controller
         $prd_status      = $this->request->get("prd_status", "");
         $mdPrice_status  = $this->request->get("mdPrice_status", "");
         $sort            = $this->request->get("sort", "updated_at|desc");
+        $cate_first      = $this->request->get("cate_first", "");
+        $cate_second     = $this->request->get("cate_second", "");
+        $cate_third      = $this->request->get("cate_third", "");
         $offset          = ($page - 1) * $pageSize;
 
         $params = [
@@ -44,6 +47,9 @@ class ProductW2Controller extends Controller
             "prd_status"      => $prd_status,
             "mdPrice_status"  => $mdPrice_status,
             "sort"            => $sort,
+            "cate_first"      => $cate_first,
+            "cate_second"     => $cate_second,
+            "cate_third"      => $cate_third
         ];
         $result = $this->service1688Product->getPrdListW2($params);
 
@@ -62,6 +68,12 @@ class ProductW2Controller extends Controller
             "prd_status"      => $prd_status,
             "mdPrice_status"  => $mdPrice_status,
             "sort"            => $sort,
+            "firstCateObjs"   => $result["firstCateObjs"],
+            "secondCateObjs"  => $result["secondCateObjs"],
+            "thirdCateObjs"   => $result["thirdCateObjs"],
+            "cate_first"      => $cate_first,
+            "cate_second"     => $cate_second,
+            "cate_third"      => $cate_third
         ];
 
         return view("product.prdW2List")->with($viewParams);
@@ -327,6 +339,9 @@ class ProductW2Controller extends Controller
         $inspect_img_status  = $this->request->get("inspect_img_status", "");
         $inspect_prd_status  = $this->request->get("inspect_prd_status", "");
         $inspect_gosi_status = $this->request->get("inspect_gosi_status", "");
+        $cate_first          = $this->request->get("cate_first", "");
+        $cate_second         = $this->request->get("cate_second", "");
+        $cate_third          = $this->request->get("cate_third", "");
         $offset              = ($page - 1) * $pageSize;
 
         $params = [
@@ -345,6 +360,9 @@ class ProductW2Controller extends Controller
             "inspect_img_status"  => $inspect_img_status,
             "inspect_prd_status"  => $inspect_prd_status,
             "inspect_gosi_status" => $inspect_gosi_status,
+            "cate_first"          => $cate_first,
+            "cate_second"         => $cate_second,
+            "cate_third"          => $cate_third
         ];
         $result = $this->service1688Product->getPrdListW2($params);
 
@@ -373,6 +391,12 @@ class ProductW2Controller extends Controller
             "inspect_prd_status"  => $inspect_prd_status,
             "inspect_gosi_status" => $inspect_gosi_status,
             "sort"                => $sort,
+            "firstCateObjs"       => $result["firstCateObjs"],
+            "secondCateObjs"      => $result["secondCateObjs"],
+            "thirdCateObjs"       => $result["thirdCateObjs"],
+            "cate_first"          => $cate_first,
+            "cate_second"         => $cate_second,
+            "cate_third"          => $cate_third
         ];
 
         return view("product.noInspectW2List")->with($viewParams);
