@@ -1243,7 +1243,7 @@ class GenuioService extends TransApiAbstract
                         $img_id         = $image["id"];
                         $img_url_origin = $image["origin_url"];
                         $uploadResult   = false;
-                        $base64         = "";
+                        $imgTransBase64 = "";
                         $fileMessage    = "S3 upload fail";
                         $mime           = pathinfo($img_url_origin, PATHINFO_EXTENSION);
                         $dateName       = Carbon::now()->format('Ymd_His');
@@ -1252,9 +1252,9 @@ class GenuioService extends TransApiAbstract
                         }
 
                         $imgName  = "/" . $channel . "/" . $member_id . "/product/" . $dateName . "_" . $img_id . "." . $mime;
-                        if( isset($image["base64"]) && !empty($image["base64"]) ){
-                            $base64       = $image["base64"];
-                            $uploadResult = $this->uploadAbstract->uploadFile($imgName, base64_decode($base64));
+                        if( isset($image["imgTransBase64"]) && !empty($image["imgTransBase64"]) ){
+                            $imgTransBase64 = $image["imgTransBase64"];
+                            $uploadResult   = $this->uploadAbstract->uploadFile($imgName, base64_decode($imgTransBase64));
                         } else {
                             try {
                                 $fileContent = fileContents($img_url_origin);
