@@ -1507,30 +1507,26 @@ class ProductW2 extends ProductAbstract
             $cnNotice = WNoticeData::where([
                 'attribute_id'    => $prdNotice['attrId'],
                 'lang'            => Constant1688::LANGUAGE_CN,
-                'attribute_name'  => $prdNoticeW1['attributeName'],
-                'attribute_value' => $prdNoticeW1['value']
+                'attribute_name'  => $prdNoticeW1['attributeName']
             ])->first();
             if ( $cnNotice == null ) {
                 WNoticeData::create([
                     'attribute_id'         => $prdNotice['attrId'],
                     'lang'                 => Constant1688::LANGUAGE_CN,
                     'attribute_name'       => $prdNoticeW1['attributeName'],
-                    'attribute_value'      => $prdNoticeW1['value'],
                     'apply_attribute_name' => "",
                 ]);
             }
             $krNotice = WNoticeData::where([
                 'attribute_id'    => $prdNotice['attrId'],
                 'lang'            => Constant1688::LANGUAGE_KR,
-                'attribute_name'  => $attributeNameTrans,
-                'attribute_value' => $attrValueTrans
+                'attribute_name'  => $attributeNameTrans
             ])->first();
             if ( $krNotice == null ) {
                 WNoticeData::create([
                     'attribute_id'         => $prdNotice['attrId'],
                     'lang'                 => Constant1688::LANGUAGE_KR,
                     'attribute_name'       => $attributeNameTrans,
-                    'attribute_value'      => $attrValueTrans,
                     'apply_attribute_name' => "",
                 ]);
             }
@@ -1538,14 +1534,12 @@ class ProductW2 extends ProductAbstract
                 'attribute_id'    => $prdNotice['attrId'],
                 'lang'            => Constant1688::LANGUAGE_EN,
                 'attribute_name'  => $prdNoticeEn["translateName"],
-                'attribute_value' => $prdNoticeEn["translateValue"]
             ])->first();
             if ( $enNotice == null ) {
                 WNoticeData::create([
                     'attribute_id'         => $prdNotice['attrId'],
                     'lang'                 => Constant1688::LANGUAGE_EN,
                     'attribute_name'       => $prdNoticeEn["translateName"],
-                    'attribute_value'      => $prdNoticeEn["translateValue"],
                     'apply_attribute_name' => "",
                 ]);
             }

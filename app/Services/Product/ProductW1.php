@@ -1497,14 +1497,12 @@ class ProductW1 extends ProductAbstract
                 'attribute_id'    => $prdNotice['attributeId'],
                 'lang'            => Constant1688::LANGUAGE_CN,
                 'attribute_name'  => $prdNotice['attributeName'],
-                'attribute_value' => $prdNotice['value']
             ])->first();
             if ( $cnNotice == null ) {
                 WNoticeData::create([
                     'attribute_id'         => $prdNotice['attributeId'],
                     'lang'                 => Constant1688::LANGUAGE_CN,
                     'attribute_name'       => $prdNotice['attributeName'],
-                    'attribute_value'      => $prdNotice['value'],
                     'apply_attribute_name' => "",
                 ]);
             }
@@ -1512,14 +1510,12 @@ class ProductW1 extends ProductAbstract
                 'attribute_id'    => $prdNotice['attributeId'],
                 'lang'            => Constant1688::LANGUAGE_KR,
                 'attribute_name'  => $attributeNameTrans,
-                'attribute_value' => $attrValueTrans
             ])->first();
             if ( $krNotice == null ) {
                 WNoticeData::create([
                     'attribute_id'         => $prdNotice['attributeId'],
                     'lang'                 => Constant1688::LANGUAGE_KR,
                     'attribute_name'       => $attributeNameTrans,
-                    'attribute_value'      => $attrValueTrans,
                     'apply_attribute_name' => "",
                 ]);
             }
