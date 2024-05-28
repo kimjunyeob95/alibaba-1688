@@ -36,21 +36,11 @@ Route::prefix("product")->name("product.")->group(function(){
     Route::get("/collectLogs", [ProductController::class, "prdCollectLogs"])->name("prdCollectLogs");
     Route::get("/collect/log/{logId}", [ProductController::class, "prdCollectLogDetail"])->name("prdCollectLogDetail");
 
-    /** 검수 중 */
-    Route::prefix("noInspect")->name("noInspect.")->group(function(){
-        /** 전체상품(KOR) */
-        Route::get("/list", [ProductController::class, "noInspectList"])->name("list");
-        /** Drop.Hub 상품(ENG) */
-        Route::get("/w2/list", [ProductW2Controller::class, "noInspectList"])->name("w2.list");
-        /** 판매제외 상품 리스트 */
-        Route::get("/except/list", [ProductController::class, "noInspectExceptList"])->name("except.list");
-    });
-
-    /** 판매 중 */
+    /** 상품 관리 */
     Route::prefix("")->name("")->group(function(){
-        /** 전체상품(KOR) */
+        /** 전체상품 */
         Route::get("/list", [ProductController::class, "getPrdList"])->name("list");
-        /** 판매제외 상품 리스트 */
+        /** 판매제외 */
         Route::get("/except/list", [ProductController::class, "getPrdExceptList"])->name("getPrdExceptList");
         /** 상품 상세 */
         Route::get("/{offerId}", [ProductController::class, "getPrdDetail"])->name("detail");
