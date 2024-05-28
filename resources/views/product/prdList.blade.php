@@ -97,11 +97,11 @@
                                                 {{ number_format($totalCnt) }}건
                                             </div>
                                             <div class="d-flex align-items-center justify-content-center flex-fill p-2 border rounded" style="height: 100px;">
-                                                번역완료<br>
+                                                완료<br>
                                                 {{ number_format($inspectYCnt) }}건
                                             </div>
                                             <div class="d-flex align-items-center justify-content-center flex-fill p-2 border rounded" style="height: 100px;">
-                                                번역 미완료<br>
+                                                미완료<br>
                                                 {{ number_format($inspectNCnt) }}건
                                             </div>
                                         </div>
