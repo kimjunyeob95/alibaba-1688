@@ -87,4 +87,26 @@ class NoticeTest extends TestCase
 
         dd("끝");
     }
+
+    # W 고시 삭제
+    # php artisan test --filter testNoticeDeleteTest
+    public function testNoticeDeleteTest()
+    {
+        $builder = WNoticeData::select("*")
+        ->groupBy("attribute_id")
+        ->groupBy("lang")
+        ->groupBy("attribute_name");
+
+        $objs = $builder->get();
+        foreach ($objs as $obj) {
+            WNoticeData::where([
+                "attribute_id"   => $obj->attribute_id,
+                "lang"           => $obj->lang,
+                "attribute_name" => $obj->attribute_name,
+            ])
+            ->where("id", "!=", $obj->id)
+            ->forceDelete();
+        }
+        dd("끝");
+    }
 }

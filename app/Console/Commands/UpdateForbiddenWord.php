@@ -53,6 +53,7 @@ class UpdateForbiddenWord extends Command
             // 2. 교체어
             $upText = $this->productAbstract->replaceForbiddenText($replacePrdForbiddenWords, $upText, ForbiddenWordConstant::KEYWORD_APPLY_TITLE);
             $upText = trim($upText);
+            $upText = removeDuplicateWords($upText);
             if( $prd_name_kr != $upText ){
                 ProductForbiddenData::updateOrCreate(
                     [

@@ -840,3 +840,27 @@ if (!function_exists("getExtensionFromMimeType")) {
         return isset($mimeMap[$mimeType]) ? $mimeMap[$mimeType] : 'jpg';
     }
 }
+
+/** 중복 글자 제거 */
+if (!function_exists("removeDuplicateWords")) {
+    function removeDuplicateWords($input)
+    {
+        // 문자열을 공백을 기준으로 단어 배열로 변환
+        $words = explode(' ', $input);
+        
+        // 고유한 단어들을 저장할 배열 초기화
+        $uniqueWords = [];
+        
+        // 단어들을 순회하면서 고유한 단어만 추가
+        foreach ($words as $word) {
+            if (!in_array($word, $uniqueWords)) {
+                $uniqueWords[] = $word;
+            }
+        }
+        
+        // 고유한 단어들을 다시 문자열로 결합
+        $result = implode(' ', $uniqueWords);
+        
+        return $result;
+    }
+}

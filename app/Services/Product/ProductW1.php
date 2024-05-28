@@ -1419,6 +1419,7 @@ class ProductW1 extends ProductAbstract
         $subjectForbiddenTrans = $this->replaceForbiddenText($replacePrdForbiddenWords, $subjectForbiddenTrans, ForbiddenWordConstant::KEYWORD_APPLY_TITLE);
 
         $subjectForbiddenTrans = trim($subjectForbiddenTrans);
+        $subjectForbiddenTrans = removeDuplicateWords($subjectForbiddenTrans);
 
         if( $subjectTrans != $subjectForbiddenTrans ){ 
             ProductForbiddenData::updateOrCreate(
