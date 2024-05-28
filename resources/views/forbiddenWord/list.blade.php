@@ -21,6 +21,7 @@
                         <span>Home</span>
                     </a>
                 </li>
+                <li class="breadcrumb-item">W App</li>
                 <li class="breadcrumb-item">금칙어 관리</li>
                 <li class="breadcrumb-item active" aria-current="page">상품정보 관리</li>
             </ol>

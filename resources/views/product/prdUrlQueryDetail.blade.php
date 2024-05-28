@@ -30,12 +30,10 @@
                         <span>Home</span>
                     </a>
                 </li>
-                <li class="breadcrumb-item">
-                    <a href="/">상품 수집 관리</a>
-                </li>
-                <li class="breadcrumb-item">
-                    <a href="/product/urlQuery">상품상세 URL로 수집</a>
-                </li>
+                <li class="breadcrumb-item">W</li>
+                <li class="breadcrumb-item">상품</li>
+                <li class="breadcrumb-item">상품 수집 관리</li>
+                <li class="breadcrumb-item">상품상세 URL로 수집</li>
                 <li class="breadcrumb-item active" aria-current="page">상세보기</li>
             </ol>
         </nav>

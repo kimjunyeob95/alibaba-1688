@@ -25,7 +25,7 @@
                     </a>
                 </li>
                 <li class="breadcrumb-item">W App</li>
-                <li class="breadcrumb-item">수집 상품 관리(검수중)</li>
+                <li class="breadcrumb-item">상품 관리</li>
                 <li class="breadcrumb-item active" aria-current="page">판메제외 상품 리스트</li>
             </ol>
         </nav>

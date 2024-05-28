@@ -27,8 +27,8 @@
                     </a>
                 </li>
                 <li class="breadcrumb-item">W App</li>
-                <li class="breadcrumb-item">수집 상품 관리(검수중)</li>
-                <li class="breadcrumb-item active" aria-current="page">전체 상품(KOR)</li>
+                <li class="breadcrumb-item">상품 관리</li>
+                <li class="breadcrumb-item active" aria-current="page">전체 상품</li>
             </ol>
         </nav>
 
