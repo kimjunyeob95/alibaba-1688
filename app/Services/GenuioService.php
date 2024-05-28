@@ -1199,10 +1199,10 @@ class GenuioService extends TransApiAbstract
     {
         $returnMsg = $this->returnMsg;
 
-        $debugLog = [
-            "params" => $params
-        ];
-        debug_log(json_encode($debugLog, JSON_UNESCAPED_UNICODE), "genuio/channelImgTrans", "channelImgTrans");
+        // $debugLog = [
+        //     "params" => $params
+        // ];
+        // debug_log(json_encode($debugLog, JSON_UNESCAPED_UNICODE), "genuio/channelImgTrans", "channelImgTrans");
 
         try {
             $jobId  = (int)$params["jobId"];
