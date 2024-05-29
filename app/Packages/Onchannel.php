@@ -203,7 +203,7 @@ class Onchannel extends MallApiAbstract
                     );
                 }
 
-                sleep(2);
+                sleep(1.3);
             } else {
                 $updateIds[] = $offerId;
             }
