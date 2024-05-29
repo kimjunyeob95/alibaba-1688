@@ -2,16 +2,11 @@
 namespace App\Console\Commands;
 
 use App\Constants\ExceptConstant;
-use App\Constants\ForbiddenWordConstant;
-use App\Models\ForbiddenWordData;
-use App\Models\ProductData;
 use App\Models\ProductExceptData;
-use App\Models\ProductForbiddenData;
 use App\Models\ProductNoticeData;
 use App\Models\WNoticeData;
 use App\Services\Service1688Product;
 use Illuminate\Console\Command;
-use Illuminate\Pagination\Paginator;
 
 class UpdateAttribute extends Command
 {
@@ -37,9 +32,11 @@ class UpdateAttribute extends Command
             "except_type" => ExceptConstant::EXCEPT_NOTICE,
             "is_except"   => ExceptConstant::IS_EXCEPT_Y
         ])->pluck("attribute_id")->toArray();
-        ProductNoticeData::whereIn("attribute_id", $exceptList)->update([
-            "is_except" => ExceptConstant::IS_EXCEPT_Y
-        ]);
+        if( !empty($exceptList) ){
+            ProductNoticeData::whereIn("attribute_id", $exceptList)->update([
+                "is_except" => ExceptConstant::IS_EXCEPT_Y
+            ]);
+        }
 
         // 2. 정보고시 항목명 수정
         $wNObjs = WNoticeData::where("apply_attribute_name", "!=", "")->groupBy("attribute_id")->get();

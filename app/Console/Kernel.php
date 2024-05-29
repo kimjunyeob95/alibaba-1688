@@ -19,6 +19,7 @@ use App\Console\Commands\SaveWCategoryMapping;
 use App\Console\Commands\TestCommands;
 use App\Console\Commands\UpdateAttribute;
 use App\Console\Commands\UpdateForbiddenWord;
+use App\Console\Commands\UpdateWeightDelivery;
 use App\Constants\WConstant;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
@@ -50,6 +51,8 @@ class Kernel extends ConsoleKernel
         UpdateForbiddenWord::class,
         /** 정보고시 적용 */
         UpdateAttribute::class,
+        /** 중량별 배송비 적용 */
+        UpdateWeightDelivery::class,
     ];
 
     protected function schedule(Schedule $schedule)
