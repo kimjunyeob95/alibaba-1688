@@ -224,8 +224,8 @@ abstract class MallApiAbstract
                     DB::commit();
 
                     $returnPayload = [
-                        "orderId" => $orderId,
-                        "success" => $result["data"]["success"],
+                        "order_id" => $orderId,
+                        "success"  => $result["data"]["success"],
                     ];
 
                     $returnMsg = helpers_success_message($returnPayload);

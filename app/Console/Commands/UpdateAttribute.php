@@ -7,6 +7,8 @@ use App\Models\ForbiddenWordData;
 use App\Models\ProductData;
 use App\Models\ProductExceptData;
 use App\Models\ProductForbiddenData;
+use App\Models\ProductNoticeData;
+use App\Models\WNoticeData;
 use App\Services\Service1688Product;
 use Illuminate\Console\Command;
 use Illuminate\Pagination\Paginator;
@@ -31,19 +33,20 @@ class UpdateAttribute extends Command
     public function handle()
     {
         // 1. 정보고시 제외 처리
-        ProductExceptData::where([
-            "except_type" => ExceptConstant::EXCEPT_NOTICE
+        $exceptList = ProductExceptData::where([
+            "except_type" => ExceptConstant::EXCEPT_NOTICE,
+            "is_except"   => ExceptConstant::IS_EXCEPT_Y
+        ])->pluck("attribute_id")->toArray();
+        ProductNoticeData::whereIn("attribute_id", $exceptList)->update([
+            "is_except" => ExceptConstant::IS_EXCEPT_Y
         ]);
 
-        $perPage = 900;
-
-        $builder = ProductData::query();
-
-        $totalCount = $builder->count();
-        $totalPages = ceil($totalCount / $perPage);
-        
-        $deletePrdForbiddenWords  = ForbiddenWordData::where("keyword_type", ForbiddenWordConstant::KEYWORD_DELETE)->get();
-        $replacePrdForbiddenWords = ForbiddenWordData::where("keyword_type", ForbiddenWordConstant::KEYWORD_REPLACE)->get();
-
+        // 2. 정보고시 항목명 수정
+        $wNObjs = WNoticeData::where("apply_attribute_name", "!=", "")->groupBy("attribute_id")->get();
+        foreach ($wNObjs as $wNObj) {
+            ProductNoticeData::where("attribute_id", $wNObj->attribute_id)->update([
+                "attribute_name_kr" => $wNObj->apply_attribute_name
+            ]);
+        }
     }
 }

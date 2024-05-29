@@ -94,6 +94,7 @@ class NoticeTest extends TestCase
     public function testNoticeValueUpdate()
     {
         $builder = ProductNoticeData::query();
+        $builder->where("attribute_value_kr", "=", "");
 
         $perPage = 900;
 
