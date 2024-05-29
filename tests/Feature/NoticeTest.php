@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Constants\Constant1688;
+use App\Constants\GosiConstants;
 use App\Models\ProductNoticeData;
 use App\Models\WNoticeData;
 use Tests\TestCase;
@@ -81,6 +82,38 @@ class NoticeTest extends TestCase
                             'attribute_value' => $noticeObj->attribute_value_en
                         ]);
                     }
+                }
+            }
+        }
+
+        dd("끝");
+    }
+
+    # W 고시값 빈값 제외처리
+    # php artisan test --filter testNoticeValueUpdate
+    public function testNoticeValueUpdate()
+    {
+        $builder = ProductNoticeData::query();
+
+        $perPage = 900;
+
+        $totalCount = $builder->count();
+        $totalPages = ceil($totalCount / $perPage);
+
+        for ($page = 1; $page <= $totalPages; $page++) {
+            Paginator::currentPageResolver(function () use ($page) {
+                return $page;
+            });
+        
+            // paginate 메소드는 새 Paginator 인스턴스를 반환합니다.
+            $pagedData = $builder->paginate($perPage);
+            $results   = $pagedData->items();
+
+            foreach ($results as $noticeObj) {
+                if( trim($noticeObj->attribute_value_kr) == "" ){
+                    ProductNoticeData::where("id", $noticeObj->id)->update([
+                        "is_except" => GosiConstants::IS_EXCEPT_Y
+                    ]);
                 }
             }
         }

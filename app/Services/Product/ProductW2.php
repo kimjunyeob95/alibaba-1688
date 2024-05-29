@@ -1503,7 +1503,11 @@ class ProductW2 extends ProductAbstract
             $prdNoticeW1 = $detailW1Product["productAttribute"][$noticeKey];
 
             $attributeNameTrans = $prdNotice["translateName"];
-            $attrValueTrans     = $prdNotice["translateValue"];
+            $attrValueTrans     = trim($prdNotice["translateValue"]);
+
+            if( $attrValueTrans == "" ){
+                $is_except = GosiConstants::IS_EXCEPT_Y;
+            }
 
             $cnNotice = WNoticeData::where([
                 'attribute_id'    => $prdNotice['attrId'],
