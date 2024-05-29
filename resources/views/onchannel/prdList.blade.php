@@ -149,8 +149,8 @@
                                 </th>
                                 <th scope="col" style="width: 50px">No</th>
                                 <th scope="col" style="width: 100px" class="text-center">이미지</th>
-                                <th scope="col" style="width: 150px" class="text-center">제품ID</th>
-                                <th scope="col">상품명</th>
+                                <th scope="col" style="width: 100px" class="text-center">제품ID</th>
+                                <th scope="col" style="width: 200px" >상품명</th>
                                 <th scope="col" style="width: 130px">W 공급가(원)</th>
                                 <th scope="col" style="width: 130px">온채널 공급가(원)</th>
                                 <th scope="col" style="width: 100px" class="text-center">
@@ -158,7 +158,7 @@
                                     맵핑 코드
                                 </th>
                                 <th scope="col" style="width: 130px" class="text-center">등록일</th>
-                                <th scope="col" style="width: 200px" class="text-center">관리</th>
+                                <th scope="col" style="width: 100px" class="text-center">관리</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -227,11 +227,14 @@
                                     <td class="text-center">
                                         @if($data->regist_success == MallConstant::REGIST_SUCCESS)
                                             <small>{{ $data->registed_at }}</small>
+                                        @else
+                                            <small>{{ $data->b_updated_at }}</small>
                                         @endif
                                     </td>
                                     <td class="text-center">
                                         <button type="button" class="btn btn-sm btn-outline-success btn-detail" offerid={{ $data->offer_id }}>상세보기</button>
-                                        <button type="button" class="btn btn-sm btn-outline-primary btn-regist" offerid={{ $data->offer_id }} {{ $disabled }}>상품전송</button>
+                                        <br>
+                                        <button type="button" class="btn btn-sm btn-outline-primary btn-regist mt-1" offerid={{ $data->offer_id }} {{ $disabled }}>상품전송</button>
                                     </td>
                                 </tr>
                             @endforeach

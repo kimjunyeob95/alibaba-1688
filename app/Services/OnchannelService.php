@@ -47,7 +47,7 @@ class OnchannelService
         }
 
         $prdBuilder = ProductData::select([
-                "product_datas.*", "b.regist_success", "b.message", "b.prd_code", "b.registed_at"
+                "product_datas.*", "b.regist_success", "b.message", "b.prd_code", "b.registed_at", "b.updated_at as b_updated_at"
             ])
             ->with([
                 "main_img", "options", "w_mapping"
@@ -57,7 +57,7 @@ class OnchannelService
             ->where("product_datas.mapping_status", ProductConstant::MAPPING_STATUS_Y)
             ->where("product_datas.status", "!=", ProductConstant::PRD_STATUS_MISS)
             ->orderBy("b.registed_at", "desc")
-            ->orderBy("product_datas.updated_at", "desc");
+            ->orderBy("b.updated_at", "desc");
 
         $totalCnt = ProductData::where("mapping_status", ProductConstant::MAPPING_STATUS_Y)
         ->where("product_datas.status", "!=", ProductConstant::PRD_STATUS_MISS)->count();
