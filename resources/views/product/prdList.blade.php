@@ -919,7 +919,12 @@
             $("#htmlModal5").modal('show');
         });
 
-        $('input[name=weight]').on('input', function() {
+        $('input[name=weight]').on('input', function(e) {
+            const keyCode = e.originalEvent.inputType;
+            if (keyCode === 'deleteContentBackward' || keyCode === 'deleteContentForward') {
+                return; // 백스페이스 또는 Delete 키가 눌렸을 경우 input 이벤트 무시
+            }
+
             const value = $(this).val();
             let weightValue = weightList[value];
             if( weightValue == undefined ){

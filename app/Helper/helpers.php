@@ -7,12 +7,14 @@ use App\Constants\InspectConstant;
 use App\Constants\MallConstant;
 use App\Constants\ProductConstant;
 use App\Constants\WConstant;
+use App\Models\Category;
 use App\Models\EasysellProductLog;
 use App\Models\GenuioAiData;
 use App\Models\ProductData;
 use App\Models\ProductImageData;
 use App\Models\ProductInspectData;
 use App\Models\ProductModiData;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\File;
@@ -862,5 +864,25 @@ if (!function_exists("removeDuplicateWords")) {
         $result = implode(' ', $uniqueWords);
         
         return $result;
+    }
+}
+
+/** 해당 카테고리와 모든 자식 카테고리 추출 */
+if (!function_exists("findChildCategoryIds")) {
+    function findChildCategoryIds(Model $cateObj): array
+    {
+        $allChildCates = [$cateObj->category_id];
+
+        if( $cateObj->level == 1 ){
+            $secondChildCates  = Category::where("parent_cate_id", $cateObj->category_id)->pluck("category_id");
+            $thirdChildCates   = Category::whereIn("parent_cate_id", $secondChildCates)->pluck("category_id");
+            $allChildCatesObjs = $secondChildCates->merge($thirdChildCates)->toArray();
+            $allChildCates     = array_merge($allChildCates, $allChildCatesObjs);
+        } else if( $cateObj->level == 2 ) {
+            $allChildCatesObjs = Category::where("parent_cate_id", $cateObj->category_id)->pluck("category_id")->toArray();
+            $allChildCates     = array_merge($allChildCates, $allChildCatesObjs);
+        }
+
+        return $allChildCates;
     }
 }
