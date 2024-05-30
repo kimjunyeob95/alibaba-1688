@@ -120,9 +120,9 @@ class UpdateForbiddenWord extends Command
                 }
 
                 // 고시값 삭제어
-                $valueTrans = $this->removeForbiddenText($deleteNoticeForbiddenWords, $attrValueTrans, ForbiddenWordConstant::KEYWORD_APPLY_ATTR_VALUE);
+                $valueTrans = $this->productAbstract->removeForbiddenText($deleteNoticeForbiddenWords, $attrValueTrans, ForbiddenWordConstant::KEYWORD_APPLY_ATTR_VALUE);
                 // 고시값 교체어
-                $valueTrans = $this->replaceForbiddenText($replaceNoticeForbiddenWords, $valueTrans, ForbiddenWordConstant::KEYWORD_APPLY_ATTR_VALUE);
+                $valueTrans = $this->productAbstract->replaceForbiddenText($replaceNoticeForbiddenWords, $valueTrans, ForbiddenWordConstant::KEYWORD_APPLY_ATTR_VALUE);
                 $valueTrans = trim($valueTrans);
                 if( $attrValueTrans != $valueTrans ){ 
                     ProductForbiddenData::updateOrCreate(
