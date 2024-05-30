@@ -253,14 +253,14 @@ input[name='channelCategory']{
             <div class="modal-dialog modal-xl" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="htmlModalLabel">WApp 매칭 카테고리 : <span class="mapping-cate-nm"></span></h5>
+                        <h5 class="modal-title" id="htmlModalLabel">WApp 맵핑 카테고리 : <span class="mapping-cate-nm"></span></h5>
                     </div>
                     <div class="modal-body">
                         <input type="hidden" name="cateId" />
 
                         <div>
                             <div class="d-flex align-items-center">
-                                <label class="fs-7">이지셀 카테고리 매칭하기</label>
+                                <label class="fs-7">이지셀 카테고리 맵핑하기</label>
                             </div>
                             <hr>
                             <div class="d-flex justify-content-evenly px-3">

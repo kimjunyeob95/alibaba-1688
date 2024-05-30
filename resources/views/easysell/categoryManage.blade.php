@@ -66,11 +66,11 @@ input[name='channelCategory']{
                                         </div>
                                         <div class="form-check form-check-inline">
                                             <input class="form-check-input" type="radio" name="mapping_status" id="mapping_status_y" value="Y" {{ $mapping_status == 'Y' ? 'checked' : '' }}>
-                                            <label class="form-check-label" for="mapping_status_y">매칭 완료</label>
+                                            <label class="form-check-label" for="mapping_status_y">맵핑 완료</label>
                                         </div>
                                         <div class="form-check form-check-inline">
                                             <input class="form-check-input" type="radio" name="mapping_status" id="mapping_status_n" value="N" {{ $mapping_status == 'N' ? 'checked' : '' }}>
-                                            <label class="form-check-label" for="mapping_status_n">매칭 필요</label>
+                                            <label class="form-check-label" for="mapping_status_n">미맵핑</label>
                                         </div>
                                     </td>
                                 </tr>
@@ -140,7 +140,7 @@ input[name='channelCategory']{
                     <table class="table table-white bg-white">
                         <thead class="table-light">
                             <tr>
-                                <th scope="col" width="45%">W.app 카테고리</th>
+                                <th scope="col" width="45%">WApp 카테고리</th>
                                 <th scope="col" width="45%">이지셀 카테고리</th>
                                 <th scope="col" width="10%" class="text-center">관리</th>
                             </tr>
@@ -208,14 +208,14 @@ input[name='channelCategory']{
             <div class="modal-dialog modal-xl" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="htmlModalLabel">WApp 매칭 카테고리 : <span class="mapping-cate-nm"></span></h5>
+                        <h5 class="modal-title" id="htmlModalLabel">WApp 맵핑 카테고리 : <span class="mapping-cate-nm"></span></h5>
                     </div>
                     <div class="modal-body">
                         <input type="hidden" name="cateId" />
 
                         <div>
                             <div class="d-flex align-items-center">
-                                <label class="fs-7">이지셀 카테고리 매칭하기</label>
+                                <label class="fs-7">이지셀 카테고리 맵핑하기</label>
                             </div>
                             <hr>
                             <div class="d-flex justify-content-evenly px-3">
