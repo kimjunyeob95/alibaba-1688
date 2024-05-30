@@ -87,7 +87,9 @@ input[name='channelCategory']{
                                                 <select class="form-control select-opt-w" name="cate_first" level=1>
                                                     <option value="">1차 분류</option>
                                                     @foreach($cateFirstList as $cate)
-                                                    <option value="{{ $cate }}" {{ $cate_first == $cate ? 'selected' : '' }}>{{ $cate }}</option>
+                                                        @if ( $cate )
+                                                            <option value="{{ $cate }}" {{ $cate_first == $cate ? 'selected' : '' }}>{{ $cate }}</option>
+                                                        @endif
                                                     @endforeach
                                                 </select>
                                             </div>
@@ -95,7 +97,9 @@ input[name='channelCategory']{
                                                 <select class="form-control select-opt-w" name="cate_second" level=2>
                                                     <option value="">2차 분류</option>
                                                     @foreach($cateSecondList as $cate)
-                                                    <option value="{{ $cate }}" {{ $cate_second == $cate ? 'selected' : '' }}>{{ $cate }}</option>
+                                                        @if ( $cate )
+                                                            <option value="{{ $cate }}" {{ $cate_second == $cate ? 'selected' : '' }}>{{ $cate }}</option>
+                                                        @endif
                                                     @endforeach
                                                 </select>
                                             </div>
@@ -103,7 +107,9 @@ input[name='channelCategory']{
                                                 <select class="form-control select-opt-w" name="cate_third" level=3>
                                                     <option value="">3차 분류</option>
                                                     @foreach($cateThirdList as $cate)
-                                                    <option value="{{ $cate }}" {{ $cate_third == $cate ? 'selected' : '' }}>{{ $cate }}</option>
+                                                        @if ( $cate )
+                                                            <option value="{{ $cate }}" {{ $cate_third == $cate ? 'selected' : '' }}>{{ $cate }}</option>
+                                                        @endif
                                                     @endforeach
                                                 </select>
                                             </div>
@@ -111,7 +117,9 @@ input[name='channelCategory']{
                                                 <select class="form-control select-opt" name="cate_fourth" level=4>
                                                     <option value="">4차 분류</option>
                                                     @foreach($cateFourthList as $cate)
-                                                    <option value="{{ $cate }}" {{ $cate_fourth == $cate ? 'selected' : '' }}>{{ $cate }}</option>
+                                                        @if ( $cate )
+                                                            <option value="{{ $cate }}" {{ $cate_fourth == $cate ? 'selected' : '' }}>{{ $cate }}</option>
+                                                        @endif
                                                     @endforeach
                                                 </select>
                                             </div>
