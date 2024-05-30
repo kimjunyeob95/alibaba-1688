@@ -746,16 +746,13 @@ class EasySell extends MallApiAbstract
         
         try {
             $keyword     = $params["keyword"];
-            $cate_first  = $params["cate_first"];
             $cate_second = $params["cate_second"];
             $cate_third  = $params["cate_third"];
             $cate_fourth = $params["cate_fourth"];
             
             $builder = SellerhubCategory::query();
-
-            if( $cate_first != "" ){
-                $builder->where("cate_first", $cate_first);
-            }
+            $builder->where("cate_first", EasySellConstant::DEFAULT_CATEGORY);
+            
             if( $cate_second != "" ){
                 $builder->where("cate_second", $cate_second);
             }
