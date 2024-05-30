@@ -37,6 +37,8 @@ class EasySell extends MallApiAbstract
         parent::__construct($jwtPackage, $channel, $orderW1, $transApiAbstract);
     }
 
+    /****************************************** 상품 start **********************************************/
+
     /**
      * @func productRegist
      * @description '상품등록'
@@ -180,7 +182,7 @@ class EasySell extends MallApiAbstract
      * @param string $type
      * @return array
     */
-    public function productModi(array $offerIds, string $type):array
+    public function productModi(array $offerIds, string $type): array
     {
         $successIds = [];
         $failIds    = [];
@@ -288,58 +290,6 @@ class EasySell extends MallApiAbstract
     }
 
     /**
-     * @func categoryMapping
-     * @description '카테고리 매핑 저장'
-     *
-     * @return array
-     */
-    public function categoryMapping(): array
-    {
-        $returnMsg = $this->returnMsg;
-        try {
-            DB::beginTransaction();
-
-            $filePath = public_path('app/es_categories.txt');
-            if (File::exists($filePath)) {
-                $lines = File::lines($filePath);
-                foreach($lines as $line){
-                    $data = explode(',', $line);
-                    $categoryObj = CategoryMapping::where("mapping_channel", ProductConstant::MAPPING_WAPP)
-                        ->where("mapping_code",$data[0])
-                        ->get();
-                    foreach($categoryObj as $cate){
-                        //이지셀 카테고리 매핑
-                        CategoryMapping::updateOrCreate([
-                                "category_id"     => $cate->category_id,
-                                "mapping_channel" => ProductConstant::MAPPING_ES_CHANNEL
-                            ],[
-                                "mapping_code" => $data[1]
-                            ]);
-
-                        //이지셀 해외카테고리 매핑
-                        CategoryMapping::updateOrCreate([
-                                "category_id"     => $cate->category_id,
-                                "mapping_channel" => ProductConstant::MAPPING_ES_FGN_CHANNEL
-                            ],[
-                                "mapping_code" => $data[2]
-                            ]);
-                    }
-                }
-            } else {
-                throw new Exception("파일이 존재하지 않습니다.");
-            }
-            $returnMsg = helpers_success_message();
-
-            DB::commit();
-        } catch (Exception $e) {
-            DB::rollback();
-            $returnMsg = helpers_fail_message($e->getMessage());
-        }
-
-        return $returnMsg;
-    }
-
-    /**
      * @func sendModiProduct
      * @description '수정 된 상품 전송'
      * @return void
@@ -377,6 +327,31 @@ class EasySell extends MallApiAbstract
     }
 
     /**
+     * 이지셀 판매중단처리 api
+     *
+     * @return void
+     */
+    public function setGoodsStatus(string $type,int $ItemGoodCode)
+    {
+        $vo = new EasySellProductVo($type);
+        $vo->bind(["ItemGoodCode" => $ItemGoodCode]);
+
+        $params = [
+			"LinkerID"     => $vo->LinkerID,
+			"UserID"       => $vo->UserID,
+			"UserPW"       => $vo->UserPW,
+			"ItemGoodCode" => $vo->ItemGoodCode,
+			"SaleStatus"   => EasySellConstant::STATUS_STOP_SALE,
+			"Soldout"      => "N"
+        ];
+
+        $apiResult = $this->_apiCall("GoodsStatus",$params);
+        if( $apiResult["isSuccess"] != true ){
+            throw new Exception(MallErrorMessageConstant::getFitErrorMessage("EASYSELL_GOODS_API"));
+        }
+    }
+
+    /**
      * api param 생성 - 상품 등록/수정 공통사용
      *
      * @param Model $prdObj
@@ -385,7 +360,7 @@ class EasySell extends MallApiAbstract
      * @param integer|null $ItemGoodCode - 수정시 필수
      * @return array
      */
-    private function _getPrdParams(Model $prdObj, string $type, string $itemMode = EasySellConstant::ITEM_REGIST, ?int $ItemGoodCode = NULL) :array
+    private function _getPrdParams(Model $prdObj, string $type, string $itemMode = EasySellConstant::ITEM_REGIST, ?int $ItemGoodCode = NULL): array
     {
         $return = helpers_fail_message();
 
@@ -548,7 +523,7 @@ class EasySell extends MallApiAbstract
      * @param string $categoryId
      * @return string
      */
-    private function _getNoticeType(string $categoryId):string
+    private function _getNoticeType(string $categoryId): string
     {
         $defaultNotice = EasySellConstant::DEFAULT_NOTICE;
 
@@ -570,95 +545,61 @@ class EasySell extends MallApiAbstract
      * @param $item 변경할 array
 	 *
      */
-    private function _iconvArr (&$item) {
+    private function _iconvArr (&$item)
+    {
         $item = iconv("utf-8","euc-kr//TRANSLIT",$item);
     }
 
-    private function _apiCall(string $name, array $params = []): array
-	{
-        $returnMsg = $this->returnMsg;
+    /****************************************** 상품 end **********************************************/
 
-        try {
-            $url = sprintf('%s.%s.php',  env("EASYSELL_DOMAIN", "https://pravs.co.kr/shop/_OpenAPI/link"), $name);
-
-            $curl = curl_init();
-            curl_setopt_array($curl, array(
-                CURLOPT_URL => $url,
-                CURLOPT_RETURNTRANSFER => true,
-                CURLOPT_ENCODING => "",
-                CURLOPT_MAXREDIRS => 10,
-                CURLOPT_TIMEOUT => 30,
-                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-                CURLOPT_CUSTOMREQUEST => "POST",
-                CURLOPT_POSTFIELDS => $params,
-                CURLOPT_HTTPHEADER => array(
-                )
-            ));
-
-            $response = curl_exec($curl);
-            curl_close($curl);
-
-            $response = str_replace('euc-kr', 'utf-8', $response);
-            $response = mb_convert_encoding($response, 'utf-8', 'euc-kr');
-
-
-            if (false) {
-                $response = preg_replace('/xmlns[^=]*="[^"]*"/i', '', $response);
-                $response = preg_replace('/[a-zA-Z0-9]+:([a-zA-Z]+[=>]*)/', '$1', $response);
-                $response = preg_replace('/&(?!lt;|gt;|quot;|apos;|amp;|#)/', '&amp;', $response);
-            }
-
-            $response = simplexml_load_string($response, "SimpleXMLElement", LIBXML_NOCDATA);
-            if(empty($response)){
-                throw new Exception(MallErrorMessageConstant::getFitErrorMessage("XML_PARSE"));
-            }
-
-            $returnMsg = helpers_success_message(["result" => $response]);
-        } catch (Exception $e) {
-            $returnMsg = helpers_fail_message($e->getMessage());
-        }
-
-        return $returnMsg;
-    }
+    /****************************************** 카테고리 start **********************************************/
 
     /**
-     * 이지셀 판매중단처리 api
+     * @func categoryMapping
+     * @description '카테고리 매핑 저장'
      *
-     * @return void
-     */
-    public function setGoodsStatus(string $type,int $ItemGoodCode){
-        $vo = new EasySellProductVo($type);
-        $vo->bind(["ItemGoodCode" => $ItemGoodCode]);
-
-        $params = [
-			"LinkerID"     => $vo->LinkerID,
-			"UserID"       => $vo->UserID,
-			"UserPW"       => $vo->UserPW,
-			"ItemGoodCode" => $vo->ItemGoodCode,
-			"SaleStatus"   => EasySellConstant::STATUS_STOP_SALE,
-			"Soldout"      => "N"
-        ];
-
-        $apiResult = $this->_apiCall("GoodsStatus",$params);
-        if( $apiResult["isSuccess"] != true ){
-            throw new Exception(MallErrorMessageConstant::getFitErrorMessage("EASYSELL_GOODS_API"));
-        }
-    }
-
-    /**
-     * @func imgCallBack
-     * @description '이미지 콜백'
-     * @param array $params
      * @return array
-    */
-    public function imgCallBack(array $params): array
+     */
+    public function categoryMapping(): array
     {
         $returnMsg = $this->returnMsg;
         try {
-            
+            DB::beginTransaction();
+
+            $filePath = public_path('app/es_categories.txt');
+            if (File::exists($filePath)) {
+                $lines = File::lines($filePath);
+                foreach($lines as $line){
+                    $data = explode(',', $line);
+                    $categoryObj = CategoryMapping::where("mapping_channel", ProductConstant::MAPPING_WAPP)
+                        ->where("mapping_code",$data[0])
+                        ->get();
+                    foreach($categoryObj as $cate){
+                        //이지셀 카테고리 매핑
+                        CategoryMapping::updateOrCreate([
+                                "category_id"     => $cate->category_id,
+                                "mapping_channel" => ProductConstant::MAPPING_ES_CHANNEL
+                            ],[
+                                "mapping_code" => $data[1]
+                            ]);
+
+                        //이지셀 해외카테고리 매핑
+                        CategoryMapping::updateOrCreate([
+                                "category_id"     => $cate->category_id,
+                                "mapping_channel" => ProductConstant::MAPPING_ES_FGN_CHANNEL
+                            ],[
+                                "mapping_code" => $data[2]
+                            ]);
+                    }
+                }
+            } else {
+                throw new Exception("파일이 존재하지 않습니다.");
+            }
             $returnMsg = helpers_success_message();
 
+            DB::commit();
         } catch (Exception $e) {
+            DB::rollback();
             $returnMsg = helpers_fail_message($e->getMessage());
         }
 
@@ -777,6 +718,79 @@ class EasySell extends MallApiAbstract
         } catch (Exception $e) {
             $returnMsg = helpers_fail_message($e->getMessage());
         }
+        return $returnMsg;
+    }
+
+    /****************************************** 카테고리 end **********************************************/
+
+    /****************************************** 이미지 start **********************************************/
+
+    /**
+     * @func imgCallBack
+     * @description '이미지 콜백'
+     * @param array $params
+     * @return array
+    */
+    public function imgCallBack(array $params): array
+    {
+        $returnMsg = $this->returnMsg;
+        try {
+            
+            $returnMsg = helpers_success_message();
+
+        } catch (Exception $e) {
+            $returnMsg = helpers_fail_message($e->getMessage());
+        }
+
+        return $returnMsg;
+    }
+
+    /****************************************** 이미지 end **********************************************/
+
+    private function _apiCall(string $name, array $params = []): array
+	{
+        $returnMsg = $this->returnMsg;
+
+        try {
+            $url = sprintf('%s.%s.php',  env("EASYSELL_DOMAIN", "https://pravs.co.kr/shop/_OpenAPI/link"), $name);
+
+            $curl = curl_init();
+            curl_setopt_array($curl, array(
+                CURLOPT_URL => $url,
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_ENCODING => "",
+                CURLOPT_MAXREDIRS => 10,
+                CURLOPT_TIMEOUT => 30,
+                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+                CURLOPT_CUSTOMREQUEST => "POST",
+                CURLOPT_POSTFIELDS => $params,
+                CURLOPT_HTTPHEADER => array(
+                )
+            ));
+
+            $response = curl_exec($curl);
+            curl_close($curl);
+
+            $response = str_replace('euc-kr', 'utf-8', $response);
+            $response = mb_convert_encoding($response, 'utf-8', 'euc-kr');
+
+
+            if (false) {
+                $response = preg_replace('/xmlns[^=]*="[^"]*"/i', '', $response);
+                $response = preg_replace('/[a-zA-Z0-9]+:([a-zA-Z]+[=>]*)/', '$1', $response);
+                $response = preg_replace('/&(?!lt;|gt;|quot;|apos;|amp;|#)/', '&amp;', $response);
+            }
+
+            $response = simplexml_load_string($response, "SimpleXMLElement", LIBXML_NOCDATA);
+            if(empty($response)){
+                throw new Exception(MallErrorMessageConstant::getFitErrorMessage("XML_PARSE"));
+            }
+
+            $returnMsg = helpers_success_message(["result" => $response]);
+        } catch (Exception $e) {
+            $returnMsg = helpers_fail_message($e->getMessage());
+        }
+
         return $returnMsg;
     }
 }

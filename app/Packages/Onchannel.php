@@ -38,6 +38,8 @@ class Onchannel extends MallApiAbstract
         $this->domain = env("OC_DOMAIN", "https://task.onch3.co.kr");
     }
 
+    /****************************************** 상품 start **********************************************/
+    
     /**
      * @func productRegist
      * @description '상품등록'
@@ -231,7 +233,7 @@ class Onchannel extends MallApiAbstract
      * @param string $type
      * @return array
     */
-    public function productModi(array $offerIds, string $type):array
+    public function productModi(array $offerIds, string $type): array
     {
         $successIds = [];
         $failIds    = [];
@@ -244,6 +246,25 @@ class Onchannel extends MallApiAbstract
 
         return helpers_success_message($result);
     }
+
+    /**
+     * @func sendModiProduct
+     * @description '수정 된 상품 전송'
+     * @return void
+     */
+    public function sendModiProduct(): void
+    {
+        $now      = Carbon::now();
+        $modiObjs = ProductModiData::where("is_send", ProductConstant::IS_SEND_N)
+        ->where("channel", MallConstant::MALL_ONCHANNEL)
+        ->groupBy("offer_id")
+        ->get();
+        
+    }
+
+    /****************************************** 상품 end **********************************************/
+
+    /****************************************** 카테고리 start **********************************************/
 
     /**
      * @func categoryMapping
@@ -287,59 +308,6 @@ class Onchannel extends MallApiAbstract
         }
 
         return $returnMsg;
-    }
-
-    /**
-     * @func sendModiProduct
-     * @description '수정 된 상품 전송'
-     * @return void
-     */
-    public function sendModiProduct(): void
-    {
-        $now      = Carbon::now();
-        $modiObjs = ProductModiData::where("is_send", ProductConstant::IS_SEND_N)
-        ->where("channel", MallConstant::MALL_ONCHANNEL)
-        ->groupBy("offer_id")
-        ->get();
-        
-    }
-
-    /**
-     * @func imgCallBack
-     * @description '이미지 콜백'
-     * @param array $params
-     * @return array
-    */
-    public function imgCallBack(array $params): array
-    {
-        $returnMsg = $this->returnMsg;
-
-        try {
-            $channel_queue_id = $params["data"]["channel_queue_id"];
-            $member_id        = $params["data"]["member_id"];
-            $images           = $params["data"]["images"];
-
-            $header = array(
-                'Content-type: application/json'
-            );
-
-            $payload = [
-                "channel_queue_id" => $channel_queue_id,
-                "member_id"        => $member_id,
-                "images"           => $images
-            ];
-            $endPoint = $this->domain . "/api/w/image/callback";
-            $result   = helpers_curl("POST", $endPoint, $header, $payload);
-
-            $returnMsg = helpers_success_message($result);
-        } catch (Exception $e) {
-            $returnMsg = helpers_fail_message($e->getMessage());
-        }
-
-        $returnMsg["params"] = $params;
-        debug_log(json_encode($returnMsg, JSON_UNESCAPED_UNICODE), "onchannel/imgCallBack", "imgCallBack");
-
-        return $returnMsg;   
     }
 
     /**
@@ -459,4 +427,48 @@ class Onchannel extends MallApiAbstract
         }
         return $returnMsg;
     }
+
+    /****************************************** 카테고리 end **********************************************/
+
+    /****************************************** 이미지 start **********************************************/
+
+    /**
+     * @func imgCallBack
+     * @description '이미지 콜백'
+     * @param array $params
+     * @return array
+    */
+    public function imgCallBack(array $params): array
+    {
+        $returnMsg = $this->returnMsg;
+
+        try {
+            $channel_queue_id = $params["data"]["channel_queue_id"];
+            $member_id        = $params["data"]["member_id"];
+            $images           = $params["data"]["images"];
+
+            $header = array(
+                'Content-type: application/json'
+            );
+
+            $payload = [
+                "channel_queue_id" => $channel_queue_id,
+                "member_id"        => $member_id,
+                "images"           => $images
+            ];
+            $endPoint = $this->domain . "/api/w/image/callback";
+            $result   = helpers_curl("POST", $endPoint, $header, $payload);
+
+            $returnMsg = helpers_success_message($result);
+        } catch (Exception $e) {
+            $returnMsg = helpers_fail_message($e->getMessage());
+        }
+
+        $returnMsg["params"] = $params;
+        debug_log(json_encode($returnMsg, JSON_UNESCAPED_UNICODE), "onchannel/imgCallBack", "imgCallBack");
+
+        return $returnMsg;   
+    }
+
+    /****************************************** 이미지 end **********************************************/
 }

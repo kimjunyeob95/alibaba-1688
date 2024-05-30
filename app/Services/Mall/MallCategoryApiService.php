@@ -16,6 +16,16 @@ class MallCategoryApiService
     }
 
     /**
+     * @func categoryMapping
+     * @description '카테고리 매핑'
+     * @return array
+     */
+    public function categoryMapping(): array
+    {
+        return $this->mallApiAbstract->categoryMapping();
+    }
+
+    /**
      * @func depth
      * @description '채널 카테고리 단계 조회'
      * @param array $params

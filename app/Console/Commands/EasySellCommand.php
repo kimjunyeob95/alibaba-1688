@@ -3,6 +3,7 @@ namespace App\Console\Commands;
 
 use App\Services\Mall\MallApiService;
 use App\Packages\EasySell;
+use App\Services\Mall\MallCategoryApiService;
 use Illuminate\Console\Command;
 
 class EasySellCommand extends Command
@@ -11,6 +12,7 @@ class EasySellCommand extends Command
     protected $description = 'easySell command';
 
     protected MallApiService $mallApiService;
+    protected MallCategoryApiService $mallCategoryApiService;
 
     public function __construct()
     {
@@ -23,7 +25,9 @@ class EasySellCommand extends Command
 
         if( !$func ) return null;
 
-        $this->mallApiService = new MallApiService(app(EasySell::class));
+        $this->mallApiService         = new MallApiService(app(EasySell::class));
+        $this->mallCategoryApiService = new MallCategoryApiService(app(EasySell::class));
+
         switch ($func) {
             /**
              * 상품등록 커맨드
@@ -43,7 +47,7 @@ class EasySellCommand extends Command
              * php artisan easy_sell_command --func=categoryMapping
              */
             case 'categoryMapping':
-                $result = $this->mallApiService->categoryMapping();
+                $result = $this->mallCategoryApiService->categoryMapping();
                 dd($result);
                 break;
 

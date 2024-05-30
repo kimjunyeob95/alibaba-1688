@@ -17,7 +17,7 @@ trait MallCategoryTrait
         $this->returnMsg = helpers_fail_message();
     }
     
-    public function initializeTrait(string $channel): void
+    public function initCategoryTrait(string $channel): void
     {
         $this->channel = $channel;
     }
@@ -80,4 +80,11 @@ trait MallCategoryTrait
         }
         return $returnMsg;
     }
+
+    /**
+     * @func categoryMapping
+     * @description '카테고리 매핑'
+     * @return array
+     */
+    abstract function categoryMapping(): array;
 }

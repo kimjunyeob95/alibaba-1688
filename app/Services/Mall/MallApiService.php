@@ -16,6 +16,8 @@ class MallApiService
         $this->returnMsg       = helpers_fail_message();
     }
 
+    /****************************************** 토큰 start **********************************************/
+
     /**
      * @func tokenCreate
      * @description '토큰 생성'
@@ -27,6 +29,10 @@ class MallApiService
         return $this->mallApiAbstract->tokenCreate($params);
     }
 
+    /****************************************** 토큰 end **********************************************/
+
+    /****************************************** 상품 start **********************************************/
+
     /**
      * @func productRegist
      * @description '상품등록'
@@ -37,6 +43,20 @@ class MallApiService
     {
         return $this->mallApiAbstract->productRegist($offerIds, $type);
     }
+
+    /**
+     * @func sendModiProduct
+     * @description '수정 된 상품 전송'
+     * @return void
+     */
+    public function sendModiProduct(): void
+    {
+        $this->mallApiAbstract->sendModiProduct();
+    }
+
+    /****************************************** 상품 end **********************************************/
+
+    /****************************************** 주문 start **********************************************/
 
     /**
      * @func orderInfo
@@ -60,25 +80,9 @@ class MallApiService
         return $this->mallApiAbstract->orderCreate($params);
     }
 
-    /**
-     * @func categoryMapping
-     * @description '카테고리 매핑'
-     * @return array
-     */
-    public function categoryMapping(): array
-    {
-        return $this->mallApiAbstract->categoryMapping();
-    }
+    /****************************************** 주문 end **********************************************/
 
-    /**
-     * @func sendModiProduct
-     * @description '수정 된 상품 전송'
-     * @return void
-     */
-    public function sendModiProduct(): void
-    {
-        $this->mallApiAbstract->sendModiProduct();
-    }
+    /****************************************** 이미지 end **********************************************/
 
     /**
      * @func imgTransRequest
@@ -116,4 +120,6 @@ class MallApiService
     {
         return $this->mallApiAbstract->imgUpload($params);
     }
+
+    /****************************************** 이미지 end **********************************************/
 }
