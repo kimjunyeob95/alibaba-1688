@@ -31,11 +31,9 @@ abstract class MallApiAbstract
         $this->initCategoryTrait($channel);
         $this->initOrderTrait($channel, $orderW1);
         $this->initImageTrait($channel, $transApiAbstract);
-        $this->returnMsg        = helpers_fail_message();
-        $this->jwtPackage       = $jwtPackage;
-        $this->channel          = $channel;
-        $this->orderW1          = $orderW1;
-        $this->transApiAbstract = $transApiAbstract;
+        $this->returnMsg  = helpers_fail_message();
+        $this->jwtPackage = $jwtPackage;
+        $this->channel    = $channel;
     }
 
     /****************************************** 토큰 start **********************************************/

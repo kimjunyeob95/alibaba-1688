@@ -9,17 +9,17 @@ trait MallImageTrait
 {
     protected array $returnMsg;
     protected string $channel;
-    protected TransApiAbstract $transApiAbstract;
+    protected TransApiAbstract $transApiImageAbstract;
     
     public function __construct()
     {
         $this->returnMsg = helpers_fail_message();
     }
     
-    public function initImageTrait(string $channel, TransApiAbstract $transApiAbstract): void
+    public function initImageTrait(string $channel, TransApiAbstract $transApiImageAbstract): void
     {
-        $this->channel          = $channel;
-        $this->transApiAbstract = $transApiAbstract;
+        $this->channel               = $channel;
+        $this->transApiImageAbstract = $transApiImageAbstract;
     }
 
     /**
@@ -33,7 +33,7 @@ trait MallImageTrait
         $returnMsg = $this->returnMsg;
 
         try {
-            $result = $this->transApiAbstract->channelImgTransRequest($this->channel, $params);
+            $result = $this->transApiImageAbstract->channelImgTransRequest($this->channel, $params);
             if( $result["isSuccess"] === true && isset($result["data"]) ){
                 $returnMsg = helpers_success_message($result["data"]);
             } else {
@@ -57,7 +57,7 @@ trait MallImageTrait
         $returnMsg = $this->returnMsg;
 
         try {
-            $result = $this->transApiAbstract->channelImgTrans($this->channel, $params);
+            $result = $this->transApiImageAbstract->channelImgTrans($this->channel, $params);
 
             if( $result["isSuccess"] === true && isset($result["data"]) ){
                 $returnMsg = helpers_success_message($result["data"]);
@@ -80,7 +80,7 @@ trait MallImageTrait
     public function imgUpload($params): array
     {
         $channel = $this->channel;
-        return $this->transApiAbstract->imgUpload($channel, $params);
+        return $this->transApiImageAbstract->imgUpload($channel, $params);
     }
 
     /**
