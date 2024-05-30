@@ -11,6 +11,7 @@ use App\Models\OrderDetailData;
 use App\Models\ProductData;
 use App\Models\ProductOptionData;
 use App\Packages\JwtPackage;
+use App\Traits\MallCategoryTrait;
 use App\Vo\Order\OrderDetailDto;
 use App\Vo\Order\OrderDto;
 use Carbon\Carbon;
@@ -19,6 +20,8 @@ use Illuminate\Support\Facades\DB;
 
 abstract class MallApiAbstract
 {
+    use MallCategoryTrait;
+
     protected array $returnMsg;
     protected JwtPackage $jwtPackage;
     protected string $channel;
@@ -32,6 +35,7 @@ abstract class MallApiAbstract
         TransApiAbstract $transApiAbstract
     )
     {
+        $this->initializeTrait($channel);
         $this->returnMsg        = helpers_fail_message();
         $this->jwtPackage       = $jwtPackage;
         $this->channel          = $channel;

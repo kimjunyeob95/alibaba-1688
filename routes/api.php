@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\W\WCategoryController;
 use App\Http\Controllers\Api\W\WProductController;
 use App\Http\Controllers\Api\GenuioController;
+use App\Http\Controllers\Api\MallCategoryController;
 use App\Http\Controllers\Api\MallController;
 use App\Http\Controllers\Api\W\W2ProductController;
 use App\Http\Controllers\Api\W\WExceptController;
@@ -161,6 +162,13 @@ Route::name('mall.')->prefix('mall')->group(function () {
 
     Route::name('{channel}.')->prefix('{channel}')->group(function () {
         Route::post('/product/regist', [MallController::class, "productRegist"])->name('productRegist');
+
+        /** 카테고리 */
+        Route::prefix("category")->name("category.")->group(function(){
+            Route::post("/depth", [MallCategoryController::class, "depth"])->name("depth");
+            Route::post("/list", [MallCategoryController::class, "list"])->name("list");
+            Route::post("/mapping", [MallCategoryController::class, "mapping"])->name("mapping");
+        });
 
         Route::middleware(["oepnApi.jwt.verify"])->group(function () {
             /** 주문 조회 */

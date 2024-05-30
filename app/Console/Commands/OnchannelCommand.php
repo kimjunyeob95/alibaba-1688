@@ -6,7 +6,7 @@ use App\Constants\ProductConstant;
 use App\Constants\WConstant;
 use App\Models\ProductData;
 use App\Packages\Onchannel;
-use App\Services\MallApiService;
+use App\Services\Mall\MallApiService;
 use Illuminate\Console\Command;
 
 class OnchannelCommand extends Command

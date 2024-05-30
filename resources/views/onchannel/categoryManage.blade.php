@@ -25,7 +25,6 @@
 .cate-table tbody tr{
     cursor: pointer;
 }
-
 input[name='channelCategory']{
     visibility: hidden;
 }
@@ -44,7 +43,7 @@ input[name='channelCategory']{
                         <span>Home</span>
                     </a>
                 </li>
-                <li class="breadcrumb-item">이지셀</li>
+                <li class="breadcrumb-item">온채널</li>
                 <li class="breadcrumb-item active" aria-current="page">카테고리 관리</li>
             </ol>
         </nav>
@@ -88,7 +87,7 @@ input[name='channelCategory']{
                                                 <select class="form-control select-opt-w" name="cate_first" level=1>
                                                     <option value="">1차 분류</option>
                                                     @foreach($cateFirstList as $cate)
-                                                        <option value="{{ $cate }}" {{ $cate_first == $cate ? 'selected' : '' }}>{{ $cate }}</option>
+                                                    <option value="{{ $cate }}" {{ $cate_first == $cate ? 'selected' : '' }}>{{ $cate }}</option>
                                                     @endforeach
                                                 </select>
                                             </div>
@@ -109,7 +108,7 @@ input[name='channelCategory']{
                                                 </select>
                                             </div>
                                             <div class="col-2">
-                                                <select class="form-control select-opt-w" name="cate_fourth" level=4>
+                                                <select class="form-control select-opt" name="cate_fourth" level=4>
                                                     <option value="">4차 분류</option>
                                                     @foreach($cateFourthList as $cate)
                                                     <option value="{{ $cate }}" {{ $cate_fourth == $cate ? 'selected' : '' }}>{{ $cate }}</option>
@@ -122,7 +121,7 @@ input[name='channelCategory']{
                                 <tr class="align-middle text-left">
                                     <td colspan="6">
                                         <button type="button" class="btn btn-md btn-primary" id="form-submit">검색</button>
-                                        <button type="button" onclick="location.href='/easySell/category'" class="btn btn-md btn-light btn-reset">초기화</button>
+                                        <button type="button" onclick="location.href='/onchannel/category'" class="btn btn-md btn-light btn-reset">초기화</button>
                                     </td>
                                 </tr>
                             </table>
@@ -134,14 +133,15 @@ input[name='channelCategory']{
                     <table class="table table-white bg-white">
                         <thead class="table-light">
                             <tr>
+                                <th scope="col" width="3%">No.</th>
                                 <th scope="col" width="45%">W.app 카테고리</th>
-                                <th scope="col" width="45%">이지셀 카테고리</th>
+                                <th scope="col" width="45%">온채널 카테고리</th>
                                 <th scope="col" width="10%" class="text-center">관리</th>
                             </tr>
                         </thead>
                         <tbody>
                         <tr>
-                            @foreach($datas as $data)
+                            @foreach($datas as $index => $data)
                                 @php
                                     $wCateName = "";
                                     if(!empty($data->cate_first)){
@@ -159,26 +159,29 @@ input[name='channelCategory']{
                                 @endphp
                                 <tr>
                                     <td>
+                                        {{ number_format(($datas->total() - $offset) - $index) }}
+                                    </td>
+                                    <td>
                                         {{ $wCateName }}
                                     </td>
                                     <td>
-                                        @empty($data->es_mapping_code)
+                                        @empty($data->channel_mapping_code)
                                             <span class="text-danger">
                                                 {{ ProductConstant::MAPPING_STATUS[ProductConstant::MAPPING_STATUS_N] }}
                                             </span>
                                         @else
-                                            @isset($data->es_category)
-                                                @if(!empty($data->es_category->cate_first))
-                                                    {{ $data->es_category->cate_first }}
+                                            @isset($data->channel_mapping_code)
+                                                @if(!empty($data->oc_category->fir_cate))
+                                                    {{ $data->oc_category->fir_cate }}
                                                 @endif
-                                                @if(!empty($data->es_category->cate_second))
-                                                    > {{ $data->es_category->cate_second }}
+                                                @if(!empty($data->oc_category->se_cate))
+                                                    > {{ $data->oc_category->se_cate }}
                                                 @endif
-                                                @if(!empty($data->es_category->cate_third))
-                                                    > {{ $data->es_category->cate_third }}
+                                                @if(!empty($data->oc_category->th_cate))
+                                                    > {{ $data->oc_category->th_cate }}
                                                 @endif
-                                                @if(!empty($data->es_category->cate_fourth))
-                                                    > {{ $data->es_category->cate_fourth }}
+                                                @if(!empty($data->oc_category->last_cate))
+                                                    > {{ $data->oc_category->last_cate }}
                                                 @endif
                                             @endisset
                                         @endempty
@@ -202,14 +205,14 @@ input[name='channelCategory']{
             <div class="modal-dialog modal-xl" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="htmlModalLabel">매칭 카테고리 : <span class="mapping-cate-nm"></span></h5>
+                        <h5 class="modal-title" id="htmlModalLabel">WApp 매칭 카테고리 : <span class="mapping-cate-nm"></span></h5>
                     </div>
                     <div class="modal-body">
                         <input type="hidden" name="cateId" />
 
                         <div>
                             <div class="d-flex align-items-center">
-                                <label class="fs-7">이지셀 카테고리 매칭하기</label>
+                                <label class="fs-7">온채널 카테고리 매칭하기</label>
                             </div>
                             <hr>
                             <div class="d-flex justify-content-evenly px-3">
@@ -227,7 +230,7 @@ input[name='channelCategory']{
                             <div class="d-flex justify-content-evenly px-3">
                                 <div class="row w-100">
                                     <div class="col">
-                                        <label class="fs-7">이지셀 카테고리</label>
+                                        <label class="fs-7">온채널 카테고리</label>
                                     </div>
                                     <div class="col">
                                         <select class="form-control select-opt-channel" name="channel_cate_first" level="1">
@@ -271,23 +274,6 @@ input[name='channelCategory']{
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach ($channelCateList as $channelCate)
-                                        <tr>
-                                            <td>
-                                                <input type='radio' name='channelCategory' value='{{ $channelCate->sellerhub_cate }}'>
-                                                {{ $channelCate->cate_first }}
-                                            </td>
-                                            <td>
-                                                {{ $channelCate->cate_second }}
-                                            </td>
-                                            <td>
-                                                {{ $channelCate->cate_third }}
-                                            </td>
-                                            <td>
-                                                {{ $channelCate->cate_fourth }}
-                                            </td>
-                                        </tr>
-                                    @endforeach
                                 </tbody>
                             </table>
                         </div>
@@ -302,7 +288,6 @@ input[name='channelCategory']{
     </div>
 <script type="text/javascript">
     $(document).ready(function(){
-
         $(".htmlModalClose").click(function(){
             $("#htmlModal").modal('hide');
         });
@@ -399,7 +384,7 @@ input[name='channelCategory']{
                     $.ajax({
                         "headers" : {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
                         "type"    : "POST",
-                        "url"     : "/api/mall/easySell/category/depth",
+                        "url"     : "/api/mall/onchannel/category/depth",
                         "data"    : { 
                             level     : selectedLevel,
                             cate_name : cate_name,
@@ -471,7 +456,7 @@ input[name='channelCategory']{
             $.ajax({
                 "headers": {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
                 "type"   : "POST",
-                "url"    : "/api/mall/easySell/category/list",
+                "url"    : "/api/mall/onchannel/category/list",
                 "data"   : {
                     "keyword"    : keyword,
                     "cate_first" : cate_first,
@@ -489,19 +474,19 @@ input[name='channelCategory']{
                         $(`.cate-table tbody`).append(`
                             <tr>
                                 <td>
-                                    <input type='radio' name='channelCategory' value='${obj.sellerhub_cate}'>
-                                    ${obj.cate_first}
+                                    <input type='radio' name='channelCategory' value='${obj.codenum}'>
+                                    ${obj.fir_cate}
                                 </td>
                                 <td>
-                                    ${obj.cate_second}
+                                    ${obj.se_cate}
                                 </td>
                                 <td>
-                                    ${obj.cate_third}
+                                    ${obj.th_cate}
                                 </td>
                                 <td>
-                                    ${obj.cate_fourth}
+                                    ${obj.last_cate}
                                 </td>
-                            </tr>
+                            </tr
                         `);
                     });
                 },
@@ -519,7 +504,7 @@ input[name='channelCategory']{
             $.ajax({
                 "headers": {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
                 "type"   : "POST",
-                "url"    : "/api/mall/easySell/category/mapping",
+                "url"    : "/api/mall/onchannel/category/mapping",
                 "data"   : {
                     "wAppCateCode"   : wAppCateCode,
                     "channelCateCode": channelCateCode,

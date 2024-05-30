@@ -11,9 +11,9 @@ class OnchCategoryExcelDataCopy2 extends Model
 
     protected $connection = "oc_2013";
 
-    protected $table = 'onch_category_excel_data_copy2';
+    protected $table      = 'onch_category_excel_data_copy2';
     protected $primaryKey = 'num';
-
+    
     const CREATED_AT = 'wdate';
     const UPDATED_AT = null;
 }

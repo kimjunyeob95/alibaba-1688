@@ -1,9 +1,8 @@
 <?php
 namespace App\Console\Commands;
 
-use App\Constants\MallConstant;
+use App\Services\Mall\MallApiService;
 use App\Packages\EasySell;
-use App\Services\MallApiService;
 use Illuminate\Console\Command;
 
 class EasySellCommand extends Command

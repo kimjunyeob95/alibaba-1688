@@ -13,6 +13,7 @@ use App\Constants\ProductConstant;
 use App\Constants\WConstant;
 use App\Models\CategoryMapping;
 use App\Models\OnchannelProductLog;
+use App\Models\OnchCategoryExcelDataCopy2;
 use App\Models\ProductData;
 use App\Models\ProductModiData;
 use Carbon\Carbon;
@@ -338,5 +339,123 @@ class Onchannel extends MallApiAbstract
         debug_log(json_encode($returnMsg, JSON_UNESCAPED_UNICODE), "onchannel/imgCallBack", "imgCallBack");
 
         return $returnMsg;   
+    }
+
+    /**
+     * @func channelCateDepth
+     * @description '채널 카테고리 단계 조회'
+     * @param array $params
+     * @return array
+    */
+    public function channelCateDepth(array $params): array
+    {
+        $returnMsg = $this->returnMsg;
+        
+        try {
+            $level     = $params["level"];
+            $cate_name = $params["cate_name"];
+
+            $cate_first  = "";
+            $cate_second = "";
+            $cate_third  = "";
+            $cate_arr    = explode(",", $cate_name);
+            $where = [];
+            $group = [];
+            if( $level == 1 ){
+                $cate_first = $cate_arr[0];
+                $where = [
+                    "fir_cate" => $cate_first
+                ];
+                $group = ["se_cate"];
+            } else if( $level == 2){
+                $cate_first  = $cate_arr[0];
+                $cate_second = $cate_arr[1];
+                $where = [
+                    "fir_cate"  => $cate_first,
+                    "se_cate" => $cate_second,
+                ];
+                $group = ["th_cate"];
+            } else if( $level == 3){
+                $cate_first  = $cate_arr[0];
+                $cate_second = $cate_arr[1];
+                $cate_third  = $cate_arr[2];
+                $where = [
+                    "fir_cate"  => $cate_first,
+                    "se_cate" => $cate_second,
+                    "th_cate"  => $cate_third,
+                ];
+                $group = ["last_cate"];
+            }
+
+            $nextCateObjs = OnchCategoryExcelDataCopy2::where($where)
+            ->orderBy("fir_cate", "asc")
+            ->orderBy("se_cate", "asc")
+            ->orderBy("th_cate", "asc")
+            ->orderBy("last_cate", "asc")
+            ->groupBy($group)->get();
+
+            $data = [];
+            foreach ($nextCateObjs as $nextCateObj) {
+                $data[] = [
+                    "cate_first"  => $nextCateObj->fir_cate,
+                    "cate_second" => $nextCateObj->se_cate,
+                    "cate_third"  => $nextCateObj->th_cate,
+                    "cate_fourth" => $nextCateObj->last_cate,
+                ];
+            }
+            $returnMsg = helpers_success_message($data);
+        } catch (Exception $e) {
+            $returnMsg = helpers_fail_message($e->getMessage());
+        }
+        return $returnMsg;
+    }
+
+    /**
+     * @func channelCateList
+     * @description '채널 카테고리 목록 조회'
+     * @param array $params
+     * @return array
+    */
+    public function channelCateList(array $params): array
+    {
+        $returnMsg = $this->returnMsg;
+        
+        try {
+            $keyword     = $params["keyword"];
+            $cate_first  = $params["cate_first"];
+            $cate_second = $params["cate_second"];
+            $cate_third  = $params["cate_third"];
+            $cate_fourth = $params["cate_fourth"];
+            
+            $builder = OnchCategoryExcelDataCopy2::query();
+
+            if( $cate_first != "" ){
+                $builder->where("fir_cate", $cate_first);
+            }
+            if( $cate_second != "" ){
+                $builder->where("se_cate", $cate_second);
+            }
+            if( $cate_third != "" ){
+                $builder->where("th_cate", $cate_third);
+            }
+            if( $cate_fourth != "" ){
+                $builder->where("last_cate", $cate_fourth);
+            }
+            if( $keyword != "" ){
+                $builder->where(function($query) use ($keyword) {
+                    $query->where("fir_cate", "like", "%" . $keyword . "%")
+                        ->orWhere("se_cate", "like", "%" . $keyword . "%")
+                        ->orWhere("th_cate", "like", "%" . $keyword . "%")
+                        ->orWhere("last_cate", "like", "%" . $keyword . "%");
+                });
+            }
+
+            $result = $builder->get();
+
+            $returnMsg = helpers_success_message($result);
+        } catch (Exception $e) {
+            $returnMsg = helpers_fail_message($e->getMessage());
+        }
+        return $returnMsg;
     }
 }

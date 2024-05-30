@@ -2,11 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Constants\ProductConstant;
 use App\Services\EasySellService;
 use Illuminate\View\View;
 use Illuminate\Http\Request;
-use PhpParser\Node\Expr\Cast\Array_;
 
 class EasySellController extends Controller
 {
@@ -73,7 +71,7 @@ class EasySellController extends Controller
         $cate_first     = $this->request->get("cate_first", "");
         $cate_second    = $this->request->get("cate_second", "");
         $cate_third     = $this->request->get("cate_third", "");
-        $cate_fourth     = $this->request->get("cate_fourth", "");
+        $cate_fourth    = $this->request->get("cate_fourth", "");
         $offset         = ($page - 1) * $pageSize;
 
         $params = [
@@ -87,21 +85,21 @@ class EasySellController extends Controller
             "cate_fourth"    => $cate_fourth
         ];
         $result = $this->easySellService->cateList($params);
-
         $viewParams = [
-            "mapping_status"  => $mapping_status,
-            "keyword"         => $keyword,
-            "offset"          => $offset,
-            "datas"           => $result["paginator"],
-            "esCateFirstList" => $result["esCateFirstList"],
-            "cateFirstList"   => $result["cateFirstList"],
-            "cateSecondList"  => $result["cateSecondList"],
-            "cateThirdList"   => $result["cateThirdList"],
-            "cateFourthList"  => $result["cateFourthList"],
-            "cate_first"      => $cate_first,
-            "cate_second"     => $cate_second,
-            "cate_third"      => $cate_third,
-            "cate_fourth"     => $cate_fourth
+            "mapping_status"       => $mapping_status,
+            "keyword"              => $keyword,
+            "offset"               => $offset,
+            "datas"                => $result["paginator"],
+            "channelCateFirstList" => $result["channelCateFirstList"],
+            "channelCateList"      => $result["channelCateList"],
+            "cateFirstList"        => $result["cateFirstList"],
+            "cateSecondList"       => $result["cateSecondList"],
+            "cateThirdList"        => $result["cateThirdList"],
+            "cateFourthList"       => $result["cateFourthList"],
+            "cate_first"           => $cate_first,
+            "cate_second"          => $cate_second,
+            "cate_third"           => $cate_third,
+            "cate_fourth"          => $cate_fourth
         ];
         return view("easysell.categoryManage")->with($viewParams);
     }

@@ -2,7 +2,11 @@
 
 namespace Tests\Feature;
 
+use App\Constants\ProductConstant;
+use App\Models\CategoryMapping;
+use App\Models\OnchCategoryExcelDataCopy2;
 use App\Models\ProductData;
+use App\Models\WCategory;
 use App\Packages\Onchannel;
 use Exception;
 use Tests\TestCase;
@@ -141,5 +145,27 @@ class OnchannelTest extends TestCase
         $endPoint = $domain . "/api/w/image/callback";
         $result   = helpers_curl("POST", $endPoint, $header, $payload);
         dd($result);
+    }
+
+    # 온채널 카테고리 등록
+    # php artisan test --filter testOnchCategoryCreate
+    public function testOnchCategoryCreate()
+    {
+        $cateMappingObjs = CategoryMapping::where("mapping_channel", ProductConstant::MAPPING_WAPP)->get();
+        foreach ($cateMappingObjs as $cateMappingObj) {
+            $ocCateObj = OnchCategoryExcelDataCopy2::where("codenum", $cateMappingObj->mapping_code)->first();
+            if( $ocCateObj != null ){
+                CategoryMapping::updateOrCreate(
+                    [
+                        "mapping_channel" => ProductConstant::MAPPING_OC_CHANNEL,
+                        "category_id"     => $cateMappingObj->category_id
+                    ],
+                    [
+                        "mapping_code" => $cateMappingObj->mapping_code
+                    ]
+                );
+            }
+        }
+        dd("끝");
     }
 }

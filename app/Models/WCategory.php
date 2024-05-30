@@ -26,4 +26,9 @@ class WCategory extends Model
     {
         return $this->hasOne(SellerhubCategory::class, "sellerhub_cate", "es_mapping_code");
     }
+
+    public function oc_category()
+    {
+        return $this->hasOne(OnchCategoryExcelDataCopy2::class, "codenum", "channel_mapping_code");
+    }
 }

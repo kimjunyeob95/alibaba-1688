@@ -7,7 +7,7 @@ use App\Constants\MallErrorMessageConstant;
 use App\Constants\OrderErrorMessageConstant;
 use App\Constants\WConstant;
 use App\Http\Controllers\Controller;
-use App\Services\MallApiService;
+use App\Services\Mall\MallApiService;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;

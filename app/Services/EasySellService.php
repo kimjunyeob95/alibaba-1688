@@ -141,32 +141,33 @@ class EasySellService
     public function cateList($params) :array
     {
         $pageSize       = $params["pageSize"];
-        $mapping_status = $params["mapping_status"] ?? "";
+        $mapping_status = $params["mapping_status"];
         $keyword        = $params["keyword"];
-
         $cate_first     = $params["cate_first"];
         $cate_second    = $params["cate_second"];
         $cate_third     = $params["cate_third"];
         $cate_fourth    = $params["cate_fourth"];
-
 
         $cateFirstList  = [];
         $cateSecondList = [];
         $cateThirdList  = [];
         $cateFourthList = [];
 
-        $categoryBuilder = WCategory::select(["a.cate_first","a.cate_second","a.cate_third","a.cate_fourth","a.mapping_code","b.category_id","c.mapping_code as es_mapping_code"])
-            ->from("w_categories as a")
-            ->with(["es_category"])
-            ->join('category_mappings as b', function($join) {
-                $join->on('a.mapping_code', '=', 'b.mapping_code')
-                    ->where('b.mapping_channel', ProductConstant::MAPPING_WAPP);
-            })
-            ->leftJoin('category_mappings as c', function($join) {
-                $join->on('b.category_id', '=', 'c.category_id')
-                    ->where('c.mapping_channel', ProductConstant::MAPPING_ES_FGN_CHANNEL);
-            })
-            ->groupBy("a.mapping_code");
+        $categoryBuilder = WCategory::select([
+            "a.cate_first","a.cate_second","a.cate_third","a.cate_fourth",
+            "a.mapping_code","b.category_id","c.mapping_code as es_mapping_code"
+        ])
+        ->from("w_categories as a")
+        ->with(["es_category"])
+        ->join('category_mappings as b', function($join) {
+            $join->on('a.mapping_code', '=', 'b.mapping_code')
+                ->where('b.mapping_channel', ProductConstant::MAPPING_WAPP);
+        })
+        ->leftJoin('category_mappings as c', function($join) {
+            $join->on('b.category_id', '=', 'c.category_id')
+                ->where('c.mapping_channel', ProductConstant::MAPPING_ES_FGN_CHANNEL);
+        })
+        ->groupBy("a.mapping_code");
 
         if(!empty($mapping_status)){
             if($mapping_status == "Y"){
@@ -187,35 +188,39 @@ class EasySellService
             });
         }
 
-        $cateList  = new WCategory;
-        $cateFirstList  = $cateList->pluck("cate_first")->unique()->filter();
+        $cateList      = new WCategory;
+        $cateFirstList = $cateList->orderBy("cate_first", "asc")->groupBy("cate_first")->pluck("cate_first");
         if(!empty($cate_first)){
-            $cateSecondList = $cateList->where("cate_first",$cate_first)->pluck("cate_second")->unique()->filter();
+            $cateSecondList = $cateList->where("cate_first", $cate_first)->orderBy("cate_second", "asc")->groupBy("cate_second")->pluck("cate_second");
             $categoryBuilder->where("a.cate_first", $cate_first);
         }
         if(!empty($cate_second)){
-            $cateThirdList = $cateList->where("cate_second",$cate_second)->pluck("cate_third")->unique()->filter();
+            $cateThirdList = $cateList->where("cate_second",$cate_second)->orderBy("cate_third", "asc")->groupBy("cate_third")->pluck("cate_third");
             $categoryBuilder->where("a.cate_second", $cate_second);
         }
         if(!empty($cate_third)){
-            $cateFourthList = $cateList->where("cate_third",$cate_third)->pluck("cate_fourth")->unique()->filter();
+            $cateFourthList = $cateList->where("cate_third",$cate_third)->orderBy("cate_fourth", "asc")->groupBy("cate_fourth")->pluck("cate_fourth");
             $categoryBuilder->where("a.cate_third", $cate_third);
         }
         if(!empty($cate_fourth)){
             $categoryBuilder->where("a.cate_fourth", $cate_fourth);
         }
 
-        $esCateFirstList  = SellerhubCategory::where("cate_first", EasySellConstant::DEFAULT_CATEGORY)->pluck("cate_first")->unique()->filter();
+        $channelCateFirstList = SellerhubCategory::where("cate_first", EasySellConstant::DEFAULT_CATEGORY)->pluck("cate_first")->unique()->filter();
+        $builder = SellerhubCategory::query();
+        $builder->where("cate_first", EasySellConstant::DEFAULT_CATEGORY);
+        $channelCateList = $builder->get();
 
         $lists = $categoryBuilder->paginate($pageSize)->appends($params);
 
         return [
-            "esCateFirstList" => $esCateFirstList,
-            "cateFirstList"   => $cateFirstList,
-            "cateSecondList"  => $cateSecondList,
-            "cateThirdList"   => $cateThirdList,
-            "cateFourthList"  => $cateFourthList,
-            "paginator"       => $lists,
+            "channelCateFirstList" => $channelCateFirstList,
+            "channelCateList"      => $channelCateList,
+            "cateFirstList"        => $cateFirstList,
+            "cateSecondList"       => $cateSecondList,
+            "cateThirdList"        => $cateThirdList,
+            "cateFourthList"       => $cateFourthList,
+            "paginator"            => $lists,
         ];
     }
 

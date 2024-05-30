@@ -29,6 +29,12 @@ class MallErrorMessageConstant
     public const ERROR_MESSAGE_IMAGE_BASE64       = "image_base64";
     public const ERROR_MESSAGE_MEMBER_ID          = "member_id";
     public const ERROR_MESSAGE_OPTIONS            = "options";
+    public const ERROR_MESSAGE_CATETYPE           = "cateType";
+    public const ERROR_MESSAGE_CATEFIRST          = "cateFirst";
+    public const ERROR_MESSAGE_CATEGORYNM         = "categoryNm";
+    public const ERROR_MESSAGE_LEVEL              = "level";
+    public const ERROR_MESSAGE_CATEGORYCODE       = "categoryCode";
+    public const ERROR_MESSAGE_W_APP_MAPPINGCODE  = "WApp 맵핑 코드가 없습니다.";
 
     public static function getErrorMessageNotDefault($constantName): string
     {

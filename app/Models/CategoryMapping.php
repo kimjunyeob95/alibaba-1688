@@ -22,8 +22,8 @@ class CategoryMapping extends Model
         return $this->hasOne(WCategory::class, "mapping_code", "mapping_code");
     }
 
-    public function oc_category()
+    public function oc_category(string $mapping_code): ?OnchCategoryExcelDataCopy2
     {
-        return $this->hasOne(OnchCategoryExcelDataCopy2::class, "codenum", "mapping_code");
+        return OnchCategoryExcelDataCopy2::where("codenum", $mapping_code)->first();
     }
 }

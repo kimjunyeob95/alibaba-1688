@@ -17,6 +17,7 @@ use App\Models\CategoryMapping;
 use App\Models\EasysellProductLog;
 use App\Models\ProductData;
 use App\Models\ProductModiData;
+use App\Models\SellerhubCategory;
 use App\Vo\EasySell\EasySellProductVo;
 use Carbon\Carbon;
 use Exception;
@@ -662,6 +663,123 @@ class EasySell extends MallApiAbstract
         }
 
         return $returnMsg;
+    }
+
+    /**
+     * @func channelCateDepth
+     * @description '채널 카테고리 단계 조회'
+     * @param array $params
+     * @return array
+    */
+    public function channelCateDepth(array $params): array
+    {
+        $returnMsg = $this->returnMsg;
         
+        try {
+            $level     = $params["level"];
+            $cate_name = $params["cate_name"];
+
+            $cate_first  = "";
+            $cate_second = "";
+            $cate_third  = "";
+            $cate_arr    = explode(",", $cate_name);
+            $where = [];
+            $group = [];
+            if( $level == 1 ){
+                $cate_first = $cate_arr[0];
+                $where = [
+                    "cate_first" => $cate_first
+                ];
+                $group = ["cate_second"];
+            } else if( $level == 2){
+                $cate_first  = $cate_arr[0];
+                $cate_second = $cate_arr[1];
+                $where = [
+                    "cate_first"  => $cate_first,
+                    "cate_second" => $cate_second,
+                ];
+                $group = ["cate_third"];
+            } else if( $level == 3){
+                $cate_first  = $cate_arr[0];
+                $cate_second = $cate_arr[1];
+                $cate_third  = $cate_arr[2];
+                $where = [
+                    "cate_first"  => $cate_first,
+                    "cate_second" => $cate_second,
+                    "cate_third"  => $cate_third,
+                ];
+                $group = ["cate_fourth"];
+            }
+
+            $nextCateObjs = SellerhubCategory::where($where)
+            ->orderBy("cate_first", "asc")
+            ->orderBy("cate_second", "asc")
+            ->orderBy("cate_third", "asc")
+            ->orderBy("cate_fourth", "asc")
+            ->groupBy($group)->get();
+
+            $data = [];
+            foreach ($nextCateObjs as $nextCateObj) {
+                $data[] = [
+                    "cate_first"  => $nextCateObj->cate_first,
+                    "cate_second" => $nextCateObj->cate_second,
+                    "cate_third"  => $nextCateObj->cate_third,
+                    "cate_fourth" => $nextCateObj->cate_fourth,
+                ];
+            }
+            $returnMsg = helpers_success_message($data);
+        } catch (Exception $e) {
+            $returnMsg = helpers_fail_message($e->getMessage());
+        }
+        return $returnMsg;
+    }
+
+    /**
+     * @func channelCateList
+     * @description '채널 카테고리 목록 조회'
+     * @param array $params
+     * @return array
+    */
+    public function channelCateList(array $params): array
+    {
+        $returnMsg = $this->returnMsg;
+        
+        try {
+            $keyword     = $params["keyword"];
+            $cate_first  = $params["cate_first"];
+            $cate_second = $params["cate_second"];
+            $cate_third  = $params["cate_third"];
+            $cate_fourth = $params["cate_fourth"];
+            
+            $builder = SellerhubCategory::query();
+
+            if( $cate_first != "" ){
+                $builder->where("cate_first", $cate_first);
+            }
+            if( $cate_second != "" ){
+                $builder->where("cate_second", $cate_second);
+            }
+            if( $cate_third != "" ){
+                $builder->where("cate_third", $cate_third);
+            }
+            if( $cate_fourth != "" ){
+                $builder->where("cate_fourth", $cate_fourth);
+            }
+            if( $keyword != "" ){
+                $builder->where(function($query) use ($keyword) {
+                    $query->where("cate_first", "like", "%" . $keyword . "%")
+                        ->orWhere("cate_second", "like", "%" . $keyword . "%")
+                        ->orWhere("cate_third", "like", "%" . $keyword . "%")
+                        ->orWhere("cate_fourth", "like", "%" . $keyword . "%");
+                });
+            }
+
+            $result = $builder->get();
+
+            $returnMsg = helpers_success_message($result);
+        } catch (Exception $e) {
+            $returnMsg = helpers_fail_message($e->getMessage());
+        }
+        return $returnMsg;
     }
 }

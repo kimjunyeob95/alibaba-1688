@@ -61,4 +61,96 @@ class OnchannelController extends Controller
         ];
         return view("onchannel.prdList")->with($viewParams);
     }
+
+    public function categoryManage():View
+    {
+        $page           = $this->request->post("page", 1);
+        $pageSize       = $this->request->post("pageSize", 50);
+        $keyword        = $this->request->get("keyword", "");
+        $mapping_status = $this->request->get("mapping_status", "");
+        $cate_first     = $this->request->get("cate_first", "");
+        $cate_second    = $this->request->get("cate_second", "");
+        $cate_third     = $this->request->get("cate_third", "");
+        $cate_fourth    = $this->request->get("cate_fourth", "");
+        $offset         = ($page - 1) * $pageSize;
+
+        $params = [
+            "page"           => $page,
+            "pageSize"       => $pageSize,
+            "keyword"        => $keyword,
+            "mapping_status" => $mapping_status,
+            "cate_first"     => $cate_first,
+            "cate_second"    => $cate_second,
+            "cate_third"     => $cate_third,
+            "cate_fourth"    => $cate_fourth
+        ];
+        $result = $this->onchannelService->cateList($params);
+
+        $viewParams = [
+            "mapping_status"       => $mapping_status,
+            "keyword"              => $keyword,
+            "offset"               => $offset,
+            "datas"                => $result["paginator"],
+            "channelCateFirstList" => $result["channelCateFirstList"],
+            "cateFirstList"        => $result["cateFirstList"],
+            "cateSecondList"       => $result["cateSecondList"],
+            "cateThirdList"        => $result["cateThirdList"],
+            "cateFourthList"       => $result["cateFourthList"],
+            "cate_first"           => $cate_first,
+            "cate_second"          => $cate_second,
+            "cate_third"           => $cate_third,
+            "cate_fourth"          => $cate_fourth
+        ];
+        return view("onchannel.categoryManage")->with($viewParams);
+    }
+
+    public function categoryDepth():array
+    {
+        $cateType   = $this->request->post("cateType");
+        $cateFirst  = $this->request->post("cateFirst");
+        $categoryNm = $this->request->post("categoryNm");
+        $level      = $this->request->post("level");
+
+        $params = [
+            "cateType"   => $cateType,
+            "cateFirst"  => $cateFirst,
+            "categoryNm" => $categoryNm,
+            "level"      => $level,
+        ];
+        $result = $this->onchannelService->categoryDepth($params);
+        return $result;
+    }
+
+    public function categoryInfo():array
+    {
+        $categoryCode = $this->request->post("categoryCode");
+        $cate_first   = $this->request->post("cate_first", "");
+        $cate_second  = $this->request->post("cate_second", "");
+        $cate_third   = $this->request->post("cate_third", "");
+        $cate_fourth  = $this->request->post("cate_fourth", "");
+
+        $params = [
+            "categoryCode" => $categoryCode,
+            "cate_first"   => $cate_first,
+            "cate_second"  => $cate_second,
+            "cate_third"   => $cate_third,
+            "cate_fourth"  => $cate_fourth,
+        ];
+        $result = $this->onchannelService->categoryInfo($params);
+
+        return $result;
+    }
+
+    public function categoryMapping(){
+        $cateId       = $this->request->post("cateId");
+        $selectedCate = $this->request->post("selectedCate");
+
+        $params = [
+            "cateId"       => $cateId,
+            "selectedCate" => $selectedCate,
+        ];
+        $result = $this->onchannelService->categoryMapping($params);
+
+        return $result;
+    }
 }

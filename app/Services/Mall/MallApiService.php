@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services;
+namespace App\Services\Mall;
 
 use App\Abstracts\MallApiAbstract;
 use App\Constants\WConstant;
