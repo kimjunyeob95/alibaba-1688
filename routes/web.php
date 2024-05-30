@@ -103,10 +103,6 @@ Route::prefix("easySell")->name("easySell.")->group(function(){
     Route::prefix("category")->name("category.")->group(function(){
         /** 카테고리 관리 */
         Route::get("/", [EasySellController::class, "categoryManage"])->name("");
-        /** 카테고리 목록 */
-        Route::post("/depth", [EasySellController::class, "categoryDepth"])->name("depth");
-        Route::post("/info", [EasySellController::class, "categoryInfo"])->name("info");
-        Route::post("/mapping", [EasySellController::class, "categoryMapping"])->name("mapping");
     });
 
 });

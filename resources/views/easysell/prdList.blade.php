@@ -29,7 +29,7 @@
     cursor: pointer;
 }
 
-input[name='easySellCategory']{
+input[name='channelCategory']{
     visibility: hidden;
 }
 </style>
@@ -152,6 +152,23 @@ input[name='easySellCategory']{
                                     if(count($data->options) == 0){
                                         $disabled = "disabled";
                                     }
+
+                                    $wCateName = "";
+                                    if( $data->w_mapping != null && $data->w_mapping->w_cate_name != null ){
+                                        $wCateObj = $data->w_mapping->w_cate_name;
+                                        if(!empty($wCateObj->cate_first)){
+                                            $wCateName .= $wCateObj->cate_first;
+                                        }
+                                        if(!empty($wCateObj->cate_second)){
+                                            $wCateName .= " > " . $wCateObj->cate_second;
+                                        }
+                                        if(!empty($wCateObj->cate_third)){
+                                            $wCateName .= " > " . $wCateObj->cate_third;
+                                        }
+                                        if(!empty($wCateObj->cate_fourth)){
+                                            $wCateName .= " > " . $wCateObj->cate_fourth;
+                                        }
+                                    }
                                 @endphp
                                 <tr>
                                     <td class="text-center">
@@ -172,9 +189,9 @@ input[name='easySellCategory']{
                                         @if(empty($data->es_fgn_mapping))
                                             <br>
                                             @if(isset($data->w_mapping))
-                                            <button type="button" class="btn btn-danger btn-modal" cateid="{{ $data->w_mapping->mapping_code }}">카테고리 미맵핑</button>
+                                                <button type="button" class="btn btn-danger btn-modal" cateid="{{ $data->w_mapping->mapping_code }}" catename="{{ $wCateName }}">카테고리 미맵핑</button>
                                             @else
-                                            <span class="text-danger">W카테고리 미맵핑 ({{ $data->category_id }})</span>
+                                                <span class="text-danger">W카테고리 미맵핑 ({{ $data->category_id }})</span>
                                             @endif
                                         @endif
                                     </td>
@@ -236,14 +253,14 @@ input[name='easySellCategory']{
             <div class="modal-dialog modal-xl" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="htmlModalLabel">매칭 카테고리 : <span class="mapping-cate-nm"></span></h5>
+                        <h5 class="modal-title" id="htmlModalLabel">WApp 매칭 카테고리 : <span class="mapping-cate-nm"></span></h5>
                     </div>
                     <div class="modal-body">
                         <input type="hidden" name="cateId" />
 
                         <div>
                             <div class="d-flex align-items-center">
-                                <label class="fs-7">카테고리 매칭하기</label>
+                                <label class="fs-7">이지셀 카테고리 매칭하기</label>
                             </div>
                             <hr>
                             <div class="d-flex justify-content-evenly px-3">
@@ -261,29 +278,29 @@ input[name='easySellCategory']{
                             <div class="d-flex justify-content-evenly px-3">
                                 <div class="row w-100">
                                     <div class="col">
-                                        <label class="fs-7">카테고리</label>
+                                        <label class="fs-7">이지셀 카테고리</label>
                                     </div>
                                     <div class="col">
-                                        <select class="form-control select-opt-es" name="es_cate_first" level="1">
-                                            <option value="" hidden>1차 분류</option>
-                                            @foreach($esCateFirstList as $cate)
-                                            <option value="{{ $cate }}">{{ $cate }}</option>
+                                        <select class="form-control select-opt-channel" name="channel_cate_first" level="1">
+                                            <option value="">1차 분류</option>
+                                            @foreach($channelCateFirstList as $cate)
+                                                <option value="{{ $cate }}">{{ $cate }}</option>
                                             @endforeach
                                         </select>
                                     </div>
                                     <div class="col">
-                                        <select class="form-control select-opt-es" name="es_cate_second" level="2">
-                                            <option value="" hidden>2차 분류</option>
+                                        <select class="form-control select-opt-channel" name="channel_cate_second" level="2">
+                                            <option value="">2차 분류</option>
                                         </select>
                                     </div>
                                     <div class="col">
-                                        <select class="form-control select-opt-es" name="es_cate_third" level="3">
-                                            <option value="" hidden>3차 분류</option>
+                                        <select class="form-control select-opt-channel" name="channel_cate_third" level="3">
+                                            <option value="">3차 분류</option>
                                         </select>
                                     </div>
                                     <div class="col">
-                                        <select class="form-control select-opt-es" name="es_cate_fourth" level="4">
-                                            <option value="" hidden>4차 분류</option>
+                                        <select class="form-control select-opt-channel" name="channel_cate_fourth" level="4">
+                                            <option value="">4차 분류</option>
                                         </select>
                                     </div>
                                 </div>
@@ -318,8 +335,10 @@ input[name='easySellCategory']{
         </div>
     </div>
 <script type="text/javascript">
-
     $(document).ready(function(){
+        var channelCateList = '{!! json_encode($channelCateList) !!}';
+        channelCateList = JSON.parse(channelCateList);
+
         $(".btn-status").click(function(){
             let name = $(this).attr("name");
             $(`input[name=${name}]`).val($(this).val());
@@ -447,32 +466,33 @@ input[name='easySellCategory']{
             $("#htmlModal").modal('hide');
         });
 
-        $('.select-opt-es').on('change', function() {
+        $('.select-opt-channel').on('change', function() {
             let selectedLevel = parseInt($(this).attr('level'));
-            let categoryNm   = $(this).val();
 
             if( selectedLevel < 4 ){
-                var cateFirst = "";
-                $('.select-opt-es').each(function(idx) {
-                    if(idx == 0){
-                        cateFirst = $(this).val();
-                    }
+                let cate_name = "";
+                $('.select-opt-channel').each(function(key, ele) {
                     var level = parseInt($(this).attr('level'));
                     if (selectedLevel < level) {
-                        $(this).html(`<option value="" hidden>${level}차 분류</option>`);
+                        $(this).html(`<option value="">${level}차 분류</option>`);
+                    }
+                    if (selectedLevel >= level) {
+                        if( key == 0 ){
+                            cate_name = $(this).val();
+                        }else{
+                            cate_name += "," + $(this).val();
+                        }
                     }
                 });
 
-                if( categoryNm != "" ){
+                if( cate_name != "" ){
                     $.ajax({
                         "headers" : {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
                         "type"    : "POST",
-                        "url"        : "{{ route('easySell.category.depth') }}",
-                        "data"       : {
-                            "cateType"  : 'select-opt-es',
-                            "cateFirst" : cateFirst,
-                            "categoryNm": categoryNm,
-                            "level"     : selectedLevel
+                        "url"     : "/api/mall/easySell/category/depth",
+                        "data"    : { 
+                            level     : selectedLevel,
+                            cate_name : cate_name,
                         },
                         beforeSend: function () {
                             $("#loadingOverlay").show();
@@ -481,9 +501,26 @@ input[name='easySellCategory']{
                             $("#loadingOverlay").hide();
                         },
                         success : function (resp) {
-                            $.each(resp.categoryList, function(idx,value) {
-                                $(`.select-opt-es[level=${selectedLevel+1}]`).append(`<option value="${value}">${value}</option>`)
-                            });
+                            $(`.select-opt-channel[level=${selectedLevel+1}]`).html(`<option value="">${selectedLevel+1}차 분류</option>`);
+                            if( selectedLevel == 1 ){
+                                resp.data.map(function(obj){
+                                    if( obj.cate_second ){
+                                        $(`.select-opt-channel[level=${selectedLevel+1}]`).append(`<option value="${obj.cate_second}">${obj.cate_second}</option>`)
+                                    }
+                                })
+                            } else if( selectedLevel == 2 ){
+                                resp.data.map(function(obj){
+                                    if( obj.cate_third ){
+                                        $(`.select-opt-channel[level=${selectedLevel+1}]`).append(`<option value="${obj.cate_third}">${obj.cate_third}</option>`)
+                                    }
+                                })
+                            } else if( selectedLevel == 3 ){
+                                resp.data.map(function(obj){
+                                    if( obj.cate_fourth ){
+                                        $(`.select-opt-channel[level=${selectedLevel+1}]`).append(`<option value="${obj.cate_fourth}">${obj.cate_fourth}</option>`)
+                                    }
+                                })
+                            }
                         },
                         error: function (request) {
                             let { error } = JSON.parse(request.responseText);
@@ -495,49 +532,37 @@ input[name='easySellCategory']{
         });
 
         $(".btn-modal").click(function(){
-            let cateId = $(this).attr("cateid");
-            $("#loadingOverlay").show();
+            let cateId   = $(this).attr("cateid");
+            let cateName = $(this).attr("catename");
 
-            $.ajax({
-                "headers" : {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
-                "type"    : "POST",
-                "url"        : "{{ route('easySell.category.info') }}",
-                "data"    : { "categoryCode" : cateId },
-                beforeSend: function () {},
-                complete  : function(xhr, status) {
-                    $("#loadingOverlay").hide();
-                },
-                success : function (resp) {
-                    $(`.mapping-cate-nm`).text(resp.cateNm);
-                    $("input[name='cateId']").val(cateId);
-                    $(".cate-table tbody").html("");
-                    resp.cateList.map(function(obj){
-                        $(`.cate-table tbody`).append(`
-                            <tr>
-                                <td>
-                                    <input type='radio' name='easySellCategory' value='${obj.sellerhub_cate}'>
-                                    ${obj.cate_first}
-                                </td>
-                                <td>
-                                    ${obj.cate_second}
-                                </td>
-                                <td>
-                                    ${obj.cate_third}
-                                </td>
-                                <td>
-                                    ${obj.cate_fourth}
-                                </td>
-                            </tr
-                        `);
-                    });
+            $("#htmlModal").find("select").val("");
+            $("input[name='cate_keyword']").val("");
+            $(".cate-table tbody").html("");
 
-                    $("#htmlModal").modal('show');
-                },
-                error: function (request) {
-                    let { error } = JSON.parse(request.responseText);
-                    alert(error.message);
-                }
+            $("input[name='cateId']").val(cateId);
+            $(`.mapping-cate-nm`).text(cateName);
+
+            channelCateList.map(function(obj){
+                $(`.cate-table tbody`).append(`
+                    <tr>
+                        <td>
+                            <input type='radio' name='channelCategory' value='${obj.sellerhub_cate}'>
+                            ${obj.cate_first}
+                        </td>
+                        <td>
+                            ${obj.cate_second}
+                        </td>
+                        <td>
+                            ${obj.cate_third}
+                        </td>
+                        <td>
+                            ${obj.cate_fourth}
+                        </td>
+                    </tr>
+                `);
             });
+
+            $("#htmlModal").modal('show');
         });
 
         $('.cate-table').on('click', 'tr', function() {
@@ -548,17 +573,17 @@ input[name='easySellCategory']{
         });
 
         $(".btn-cate-search").click(function(){
-            var keyword = $("input[name='cate_keyword']").val();
-            var cate_first  = $("select[name='es_cate_first']").val();
-            var cate_second = $("select[name='es_cate_second']").val();
-            var cate_third  = $("select[name='es_cate_third']").val();
-            var cate_fourth = $("select[name='es_cate_fourth']").val();
+            var keyword     = $("input[name='cate_keyword']").val();
+            var cate_first  = $("select[name='channel_cate_first']").val();
+            var cate_second = $("select[name='channel_cate_second']").val();
+            var cate_third  = $("select[name='channel_cate_third']").val();
+            var cate_fourth = $("select[name='channel_cate_fourth']").val();
 
             $.ajax({
-                "headers" : {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
-                "type"    : "POST",
-                "url"        : "{{ route('easySell.category.info') }}",
-                "data"    : {
+                "headers": {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
+                "type"   : "POST",
+                "url"    : "/api/mall/easySell/category/list",
+                "data"   : {
                     "keyword"    : keyword,
                     "cate_first" : cate_first,
                     "cate_second": cate_second,
@@ -571,11 +596,11 @@ input[name='easySellCategory']{
                 },
                 success : function (resp) {
                     $(".cate-table tbody").html("");
-                    resp.cateList.map(function(obj){
+                    resp.data.map(function(obj){
                         $(`.cate-table tbody`).append(`
                             <tr>
                                 <td>
-                                    <input type='radio' name='easySellCategory' value='${obj.sellerhub_cate}'>
+                                    <input type='radio' name='channelCategory' value='${obj.sellerhub_cate}'>
                                     ${obj.cate_first}
                                 </td>
                                 <td>
@@ -587,7 +612,7 @@ input[name='easySellCategory']{
                                 <td>
                                     ${obj.cate_fourth}
                                 </td>
-                            </tr
+                            </tr>
                         `);
                     });
                 },
@@ -596,19 +621,19 @@ input[name='easySellCategory']{
                     alert(error.message);
                 }
             });
-        })
+        });
 
         $(".btn-save").click(function(){
-            var selectedCate = $("input[name='easySellCategory']:checked").val();
-            var cateId       = $("input[name='cateId']").val();
+            var wAppCateCode    = $("input[name='cateId']").val();
+            var channelCateCode = $("input[name='channelCategory']:checked").val();
 
             $.ajax({
-                "headers" : {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
-                "type"    : "POST",
-                "url"        : "{{ route('easySell.category.mapping') }}",
-                "data"       : {
-                    "cateId"      : cateId,
-                    "selectedCate": selectedCate,
+                "headers": {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
+                "type"   : "POST",
+                "url"    : "/api/mall/easySell/category/mapping",
+                "data"   : {
+                    "wAppCateCode"   : wAppCateCode,
+                    "channelCateCode": channelCateCode,
                 },
                 beforeSend: function () {
                     $("#loadingOverlay").show();
@@ -618,9 +643,7 @@ input[name='easySellCategory']{
                 },
                 success : function (resp) {
                     alert(resp.msg);
-                    if(resp.isSuccess == true){
-                        location.reload();
-                    }
+                    location.reload();
                 },
                 error: function (request) {
                     let { error } = JSON.parse(request.responseText);

@@ -48,7 +48,6 @@ trait MallCategoryTrait
     {
         $returnMsg = $this->returnMsg;
         try {
-
             $wAppCateCode    = $params["wAppCateCode"];
             $channelCateCode = $params["channelCateCode"];
             $channel         = $this->channel;

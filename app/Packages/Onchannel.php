@@ -67,7 +67,8 @@ class Onchannel extends MallApiAbstract
                         "images",
                         "no_except_options",
                         "no_except_notices",
-                        "w_mapping"
+                        "w_mapping",
+                        "oc_mapping",
                     ])->where("offer_id", $offerId)->first();
 
                     if( $prdObj == null ){
@@ -80,6 +81,14 @@ class Onchannel extends MallApiAbstract
 
                     if(count($prdObj->no_except_options) < 1){
                         throw new Exception(MallErrorMessageConstant::getNotHaveErrorMessage("OPTIONS"));
+                    }
+
+                    if( $prdObj->w_mapping == null ){
+                        throw new Exception(MallErrorMessageConstant::getFitErrorMessage("W_APP_MAPPINGCODE"));
+                    }
+
+                    if( $prdObj->oc_mapping == null ){
+                        throw new Exception(MallErrorMessageConstant::getFitErrorMessage("OC_MAPPINGCODE"));
                     }
 
                     $prd_desc     = $prdObj->prd_desc;
@@ -122,7 +131,7 @@ class Onchannel extends MallApiAbstract
                         "min_count"       => $prdObj->start_quantity,
                         "images"          => $images,
                         "cate_num"        => 26,
-                        "store_code"      => (string)$prdObj->w_mapping->mapping_code,
+                        "store_code"      => (string)$prdObj->oc_mapping->mapping_code,
                         "brand_info"      => OnchannelConstant::BRAND_INFO
                     ];
         
@@ -257,20 +266,12 @@ class Onchannel extends MallApiAbstract
                         ->where("mapping_code",$data[0])
                         ->get();
                     foreach($categoryObj as $cate){
-                        //이지셀 카테고리 매핑
+                        // 카테고리 매핑
                         CategoryMapping::updateOrCreate([
                                 "category_id"     => $cate->category_id,
                                 "mapping_channel" => MallConstant::MALL_ONCHANNEL
                             ],[
                                 "mapping_code" => $data[1]
-                            ]);
-
-                        //이지셀 해외카테고리 매핑
-                        CategoryMapping::updateOrCreate([
-                                "category_id"     => $cate->category_id,
-                                "mapping_channel" => MallConstant::MALL_ONCHANNEL
-                            ],[
-                                "mapping_code" => $data[2]
                             ]);
                     }
                 }

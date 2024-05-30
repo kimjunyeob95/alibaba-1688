@@ -208,7 +208,7 @@ input[name='channelCategory']{
             <div class="modal-dialog modal-xl" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="htmlModalLabel">매칭 카테고리 : <span class="mapping-cate-nm"></span></h5>
+                        <h5 class="modal-title" id="htmlModalLabel">WApp 매칭 카테고리 : <span class="mapping-cate-nm"></span></h5>
                     </div>
                     <div class="modal-body">
                         <input type="hidden" name="cateId" />
@@ -308,6 +308,8 @@ input[name='channelCategory']{
     </div>
 <script type="text/javascript">
     $(document).ready(function(){
+        var channelCateList = '{!! json_encode($channelCateList) !!}';
+        channelCateList = JSON.parse(channelCateList);
 
         $(".htmlModalClose").click(function(){
             $("#htmlModal").modal('hide');
@@ -452,11 +454,32 @@ input[name='channelCategory']{
             let cateName = $(this).attr("catename");
 
             $("#htmlModal").find("select").val("");
+            $("input[name='cate_keyword']").val("");
+            $(".cate-table tbody").html("");
 
             $("input[name='cateId']").val(cateId);
             $(`.mapping-cate-nm`).text(cateName);
 
-            $(".cate-table tbody").html("");
+            channelCateList.map(function(obj){
+                $(`.cate-table tbody`).append(`
+                    <tr>
+                        <td>
+                            <input type='radio' name='channelCategory' value='${obj.sellerhub_cate}'>
+                            ${obj.cate_first}
+                        </td>
+                        <td>
+                            ${obj.cate_second}
+                        </td>
+                        <td>
+                            ${obj.cate_third}
+                        </td>
+                        <td>
+                            ${obj.cate_fourth}
+                        </td>
+                    </tr>
+                `);
+            });
+
             $("#htmlModal").modal('show');
         });
 
@@ -516,7 +539,7 @@ input[name='channelCategory']{
                     alert(error.message);
                 }
             });
-        })
+        });
 
         $(".btn-save").click(function(){
             var wAppCateCode    = $("input[name='cateId']").val();
