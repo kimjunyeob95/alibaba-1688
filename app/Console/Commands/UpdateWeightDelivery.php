@@ -35,7 +35,7 @@ class UpdateWeightDelivery extends Command
         $perPage = 900;
 
         $builder    = ProductOptionData::select('offer_id', DB::raw('MAX(weight) as max_weight'))->groupBy("offer_id");
-        $totalCount = $builder->count();
+        $totalCount = $builder->get()->count();
         $totalPages = ceil($totalCount / $perPage);
         $weights    = CategoryConstant::WEIGHTS;
 
