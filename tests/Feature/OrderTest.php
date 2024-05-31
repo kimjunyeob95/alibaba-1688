@@ -11,6 +11,34 @@ class OrderTest extends TestCase
     # php artisan test --filter testW1OrderCreate
     public function testW1OrderCreate()
     {
+        $endPoint = "param2/1/com.alibaba.trade/alibaba.createOrder.preview/";
+        $payload = [
+            'access_token' => env("1688_ACCESS_TOKEN"),
+            'addressParam' => [
+                'addressId'    => 4073018184,
+                'fullName'     => 'SELLERHUB',
+                'mobile'       => '15684570398',
+                'phone'        => '15684570398',
+                'postCode'     => '264206',
+                'cityText'     => '山东省',
+                'provinceText' => '威海市',
+                'areaText'     => '环翠区',
+                'townText'     => '温泉镇',
+                'address'      => '柳林惠友路3号鸿泉服装院西',
+                'districtCode' => '371002',
+            ],
+            'cargoParamList' => [
+                [
+                    "offerId" => 654362860865,
+                    "specId" => '556456e86881e3907df58b1815e9d440',
+                    "quantity" => 3,
+                ],
+            ],
+            'preSelectPayChannel' => "alipay"
+        ];
+        $returnMsg = curl_1688("post", $endPoint, $payload);
+        dd($returnMsg);
+
         $endPoint = "param2/1/com.alibaba.trade/alibaba.trade.createCrossOrder/";
         $payload = [
             'access_token' => env("1688_ACCESS_TOKEN"),

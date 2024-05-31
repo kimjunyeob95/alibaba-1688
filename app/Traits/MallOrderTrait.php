@@ -89,10 +89,6 @@ trait MallOrderTrait
 
             $orderDetailDtos = [];
 
-            $prdObj = ProductData::where("offer_id", $offerId)->first();
-            if( $prdObj == null ){
-                throw new Exception(ProductErrorMessageConstant::getNotHaveErrorMessage("PRODUCT"));   
-            }
             foreach ($optionParamList as &$option) {
                 $optionId = $option["option_id"];
                 $quantity = $option["quantity"];
@@ -124,17 +120,11 @@ trait MallOrderTrait
                 $orderDetailDtos[] = $orderDetailDto;
             }
 
-            if( $prdObj->start_quantity > $totalQuantity ){
-                $startQuantity = $prdObj->start_quantity;
-                $errMsg = OrderErrorMessageConstant::getFitErrorMessage("START_QUANTITY") . " 최수 구매 수량: {$startQuantity} | 요청 수량: {$totalQuantity}";
-                throw new Exception($errMsg);
-            }
-
             $payload = [
                 "offerId"         => $offerId,
                 "optionParamList" => $optionParamList
             ];
-            $result = $this->orderW1->createWOrder($payload);
+            $result = $this->orderW1->createWOrder($payload, $totalQuantity);
 
             if( $result["isSuccess"] === true && isset($result["data"]["orderId"]) ){
                 $orderId = $result["data"]["orderId"];

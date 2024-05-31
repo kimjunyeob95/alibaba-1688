@@ -16,7 +16,8 @@ abstract class OrderAbstract
     * @func createWOrder
     * @description 'W 주문 생성'
     * @param array $params
+    * @param int $totalQuantity
     * @return array
     */
-    abstract function createWOrder(array $params): array;
+    abstract function createWOrder(array $params, int $totalQuantity): array;
 }

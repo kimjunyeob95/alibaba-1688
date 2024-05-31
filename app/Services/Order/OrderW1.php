@@ -4,6 +4,9 @@ namespace App\Services\Order;
 
 use App\Abstracts\OrderAbstract;
 use App\Constants\Constant1688;
+use App\Constants\OrderErrorMessageConstant;
+use App\Constants\ProductErrorMessageConstant;
+use App\Models\ProductData;
 use Exception;
 
 class OrderW1 extends OrderAbstract
@@ -53,12 +56,42 @@ class OrderW1 extends OrderAbstract
         return $returnMsg;
     }
 
-    public function createWOrder(array $params): array
+    public function createWOrder(array $params, int $totalQuantity): array
     {
         $returnMsg = $this->returnMsg;
 
         try {
             $offerId = $params["offerId"];
+            $prdObj  = ProductData::where("offer_id", $offerId)->first();
+            if( $prdObj == null ){
+                throw new Exception(ProductErrorMessageConstant::getNotHaveErrorMessage("PRODUCT"));   
+            }
+
+            $endPoint = "param2/1/com.alibaba.fenxiao.crossborder/product.search.queryProductDetail/";
+            $payload  = [
+                'access_token'     => $this->accessToken,
+                'offerDetailParam' => [
+                    'offerId' => $offerId,
+                    'country' => Constant1688::LANGUAGE_KO,
+                ]
+            ];
+            $detailResult = curl_1688("POST", $endPoint, $payload);
+            if( $detailResult["isSuccess"] != true || $detailResult["data"]["result"]["success"] != true ){
+                throw new Exception(ProductErrorMessageConstant::getFitErrorMessage("PRODUCT_SEARCH_QUERYPRODUCTDETAIL"));
+            }
+            $detailProduct = $detailResult["data"]["result"]["result"];
+            $startQuantity = $detailProduct["productSaleInfo"]["priceRangeList"][0]["startQuantity"];
+
+            if( $prdObj->start_quantity != $startQuantity ){
+                ProductData::where("offer_id", $offerId)->update([
+                    "start_quantity" => $startQuantity
+                ]);
+            }
+
+            if( $startQuantity > $totalQuantity ){
+                $errMsg = OrderErrorMessageConstant::getFitErrorMessage("START_QUANTITY") . " 최수 구매 수량: {$startQuantity} | 요청 수량: {$totalQuantity}";
+                throw new Exception($errMsg);
+            }
 
             $cargoParamList = [];
             foreach ($params["optionParamList"] as $option) {
