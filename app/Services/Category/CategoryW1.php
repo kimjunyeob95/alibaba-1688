@@ -792,8 +792,12 @@ class CategoryW1 extends CategoryAbstract
             if( !empty($weight_status) ) {
                 if( $weight_status == CategoryConstant::WEIGHT_STATUS_Y ){
                     $qryBuilder->where("c.weight", "!=", null);
+                    $qryBuilder->where("c.weight", "!=", 0);
                 } else if( $weight_status == CategoryConstant::WEIGHT_STATUS_N ){
-                    $qryBuilder->where("c.weight", null);
+                    $qryBuilder->where(function($query1) {
+                        $query1->where("c.weight", null)
+                        ->orWhere("c.weight", 0);
+                    });
                 }
             }
 
