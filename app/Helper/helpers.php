@@ -151,6 +151,8 @@ if (!function_exists("helpers_default_message")) {
 if (!function_exists("helpers_fail_message")) {
     function helpers_fail_message(string $message = "변경 사항이 없거나 처리가 실패하였습니다. 관리자에 문의 바랍니다.", array $data = []): array
     {
+        unset($data["isSuccess"]);
+        unset($data["msg"]);
         return [
             "isSuccess" => false,
             "msg"       => $message,
@@ -205,6 +207,9 @@ if (!function_exists("helpers_json_response")) {
                     "message" => trim($message) != "" ? $message : "잘못 된 접근입니다.",
                 ]
             ];
+            if( isset($params["data"]) && !empty($params["data"]) ){
+                $error["data"] = $params["data"];
+            }
             $result = array_merge($result, $error);
         }
 

@@ -6,6 +6,7 @@ use App\Abstracts\OrderAbstract;
 use App\Constants\Constant1688;
 use App\Constants\OrderErrorMessageConstant;
 use App\Constants\ProductErrorMessageConstant;
+use App\Exceptions\ArrayValueError;
 use App\Models\ProductData;
 use Exception;
 
@@ -89,8 +90,11 @@ class OrderW1 extends OrderAbstract
             }
 
             if( $startQuantity > $totalQuantity ){
-                $errMsg = OrderErrorMessageConstant::getFitErrorMessage("START_QUANTITY") . " 최수 구매 수량: {$startQuantity} | 요청 수량: {$totalQuantity}";
-                throw new Exception($errMsg);
+                $errArray = [
+                    "msg"            => OrderErrorMessageConstant::getFitErrorMessage("START_QUANTITY") . " 최소 구매 수량: {$startQuantity} | 요청 수량: {$totalQuantity}",
+                    "start_quantity" => $startQuantity
+                ];
+                throw new ArrayValueError($errArray);
             }
 
             $cargoParamList = [];
@@ -142,6 +146,10 @@ class OrderW1 extends OrderAbstract
 
                 debug_log(json_encode($result, JSON_UNESCAPED_UNICODE), "createWOrder", "createWOrder");
             }
+        }  catch (ArrayValueError $e) {
+            $errorArray = $e->getErrorArray();
+
+            $returnMsg = helpers_fail_message($errorArray["msg"], $errorArray);
         } catch (Exception $e) {
             $returnMsg = helpers_fail_message($e->getMessage());
         }

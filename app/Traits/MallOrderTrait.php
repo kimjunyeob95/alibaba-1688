@@ -172,7 +172,7 @@ trait MallOrderTrait
                     $returnMsg = helpers_fail_message($ee->getMessage());
                 }
             } else {
-                $returnMsg = helpers_fail_message($result["msg"]);
+                $returnMsg = helpers_fail_message($result["msg"], $result);
             }
         } catch (Exception $e) {
             $returnMsg = helpers_fail_message($e->getMessage());
