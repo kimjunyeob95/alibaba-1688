@@ -1575,8 +1575,8 @@ class ProductW1 extends ProductAbstract
         }
 
         // 2-2. 영문 이미지
-        $prdDescription = $detailEnProduct["description"];
-        preg_match_all('/<img[^>]+src="([^">]+)"/', $prdDescription, $matches);
+        $prdEnDescription = $detailEnProduct["description"];
+        preg_match_all('/<img[^>]+src="([^">]+)"/', $prdEnDescription, $matches);
         $imageSrcs = $matches[1];
         foreach ($imageSrcs as $imageSrc) {
             $imgType       = ImageConstant::IMAGE_TYPE_DESC;
@@ -1688,7 +1688,8 @@ class ProductW1 extends ProductAbstract
             "subjectTrans"   => $subjectForbiddenTrans,
             "subjectTransEn" => $detailEnProduct["subjectTrans"],
             "startQuantity"  => $startQuantity,
-            "description"    => $detailProduct["description"],
+            "description"    => $prdDescription,
+            "enDescription"  => $prdEnDescription,
             "prdDescKr"      => $prdDescKr,
             "prdDescEn"      => $prdDescEn,
             "soldOut"        => $soldOut,

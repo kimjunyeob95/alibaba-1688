@@ -1354,6 +1354,12 @@ class ProductW2 extends ProductAbstract
         }
 
         // 2-2. 영문 이미지
+        $descEndPoint     = $detailEnProduct["description"];
+        $parsedUrl        = parse_url($descEndPoint);
+        $descEndPoint     = $parsedUrl['scheme'] . '://' . $parsedUrl['host'] . $parsedUrl['path'];
+        $prdEnDescription = helpers_curl("GET", $descEndPoint, [], "", "string");
+        preg_match_all('/<img[^>]+src="([^">]+)"/', $prdEnDescription, $matches);
+        $imageSrcs = $matches[1];
         foreach ($imageSrcs as $imageSrc) {
             $imgType       = ImageConstant::IMAGE_TYPE_DESC;
             $is_except     = ImageConstant::IS_EXCEPT_N;
@@ -1465,6 +1471,7 @@ class ProductW2 extends ProductAbstract
             "subjectTransEn" => $detailEnProduct["translateTitle"],
             "startQuantity"  => $startQuantity,
             "description"    => $prdDescription,
+            "enDescription"  => $prdEnDescription,
             "prdDescKr"      => $prdDescKr,
             "prdDescEn"      => $prdDescEn,
             "soldOut"        => $soldOut,
