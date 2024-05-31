@@ -41,7 +41,7 @@ class MallApiService
     */
     public function productRegist(array $offerIds, string $type = WConstant::WAPP_W1): array
     {
-        return $this->mallApiAbstract->productRegist($offerIds, $type);
+        return $this->mallApiAbstract->productRegist($offerIds, $type, "");
     }
 
     /**
