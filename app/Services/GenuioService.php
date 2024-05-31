@@ -1195,7 +1195,7 @@ class GenuioService extends TransApiAbstract
      * @param array $params
      * @return array
     */
-    public function channelImgTrans(string $channel = MallConstant::MALL_ONCHANNEL, array $params): array
+    public function channelImgTrans(string $channel, array $params): array
     {
         $returnMsg = $this->returnMsg;
 
