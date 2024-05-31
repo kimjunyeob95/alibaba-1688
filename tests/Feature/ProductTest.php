@@ -8,9 +8,8 @@ use App\Constants\ImageConstant;
 use App\Constants\InspectConstant;
 use App\Constants\ProductConstant;
 use App\Constants\ProductErrorMessageConstant;
-use App\Models\CategoryMapping;
+use App\Constants\WConstant;
 use App\Models\CategoryTree;
-use App\Models\OnchannelProductLog;
 use App\Models\ProductData;
 use App\Models\ProductForbiddenData;
 use App\Models\ProductImageData;
@@ -19,12 +18,15 @@ use App\Models\ProductOptionData;
 use App\Models\ProductWeightData;
 use App\Packages\S3;
 use App\Services\GenuioService;
+use App\Services\Product\ProductW1;
 use App\Services\Product\ProductW2;
 use App\Vo\Product\Product1688ImageDto;
 use Exception;
 use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
 use Illuminate\Support\Facades\File;
+use Illuminate\Pagination\Paginator;
+use Psr\Log\LogLevel;
 
 class ProductTest extends TestCase
 {
@@ -132,6 +134,60 @@ class ProductTest extends TestCase
         }
 
         dd("끝");
+    }
+
+    /** 중량 여부로 판매 상태 업데이트 */
+    # php artisan test --filter testUpPrdStatusByWeight
+    public function testUpPrdStatusByWeight()
+    {
+        $prdObjs = ProductOptionData::select('offer_id', DB::raw('MAX(weight) as max_weight'))
+        ->where("weight", ">=", 20)
+        ->groupBy("offer_id")->get();
+
+        foreach ($prdObjs as $prdObj) {
+            upPrdStatusByWeight($prdObj->offer_id);
+        }
+        dd("끝");
+    }
+
+    /** 모든 상품 W1 재수집 */
+    # php artisan test --filter testAllProductReCollectW1
+    public function testAllProductReCollectW1()
+    {
+        $msg = "testAllProductReCollectW1 시작";
+        debug_log($msg, "product/testAllProductReCollectW1", "testAllProductReCollectW1");
+
+        $productW1 = app(ProductW1::class);
+        $builder   = ProductData::select(["offer_id"]);
+
+        $perPage    = 900;
+        $totalCount = $builder->count();
+        $totalPages = ceil($totalCount / $perPage);
+
+
+        for ($page = 1; $page <= $totalPages; $page++) {
+            Paginator::currentPageResolver(function () use ($page) {
+                return $page;
+            });
+        
+            // paginate 메소드는 새 Paginator 인스턴스를 반환합니다.
+            $pagedData = $builder->paginate($perPage);
+            $results   = $pagedData->items();
+
+            foreach ($results as $obj) {
+                $offerId = $obj->offer_id;
+
+                $apiResult = $productW1->collectProductNotLog($offerId);
+                if( $apiResult["isSuccess"] != true ){
+                    $msg = $apiResult["msg"];
+                    debug_log($msg, "product/testAllProductReCollectW1", "testAllProductReCollectW1", LogLevel::ERROR);
+                }
+            }
+        }
+
+
+        $msg = "testAllProductReCollectW1 종료";
+        debug_log($msg, "product/testAllProductReCollectW1", "testAllProductReCollectW1");
     }
 
     /** 상세 수정 */

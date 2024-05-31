@@ -843,7 +843,8 @@ class ProductW1 extends ProductAbstract
                         $offerId = $productData["offerId"];
 
                         /** 1. W2로 수집 시도 */
-                        $resultW2 = $this->productW2->collectProductNotLog($offerId);
+                        // $resultW2 = $this->productW2->collectProductNotLog($offerId);
+                        $resultW2["isSuccess"] = false;
 
                         /** 2. W2로 수집 실패 시 W1으로 수집 시도 */
                         if( $resultW2["isSuccess"] != true ){
@@ -969,7 +970,8 @@ class ProductW1 extends ProductAbstract
                         $offerId = $productData["offerId"];
 
                         /** 1. W2로 수집 시도 */
-                        $resultW2 = $this->productW2->collectProductNotLog($offerId);
+                        // $resultW2 = $this->productW2->collectProductNotLog($offerId);
+                        $resultW2["isSuccess"] = false;
 
                         /** 2. W2로 수집 실패 시 W1으로 수집 시도 */
                         if( $resultW2["isSuccess"] != true ){
@@ -2077,6 +2079,9 @@ class ProductW1 extends ProductAbstract
                 // }
             }
 
+            /** 중량 여부로 판매 상태 업데이트 */
+            upPrdStatusByWeight($offerId);
+
             $returnMsg = helpers_success_message();
         } catch (Exception $e) {
             $returnMsg = helpers_fail_message($e->getMessage());
@@ -2402,7 +2407,8 @@ class ProductW1 extends ProductAbstract
                         $offerId = $productData["offerId"];
 
                         /** 1. W2로 수집 시도 */
-                        $resultW2 = $this->productW2->collectProductNotLog($offerId);
+                        // $resultW2 = $this->productW2->collectProductNotLog($offerId);
+                        $resultW2["isSuccess"] = false;
 
                         /** 2. W2로 수집 실패 시 W1으로 수집 시도 */
                         if( $resultW2["isSuccess"] != true ){
@@ -2648,7 +2654,8 @@ class ProductW1 extends ProductAbstract
                         $offerId = $productData["offerId"];
 
                         /** 1. W2로 수집 시도 */
-                        $resultW2 = $this->productW2->collectProductNotLog($offerId);
+                        // $resultW2 = $this->productW2->collectProductNotLog($offerId);
+                        $resultW2["isSuccess"] = false;
 
                         /** 2. W2로 수집 실패 시 W1으로 수집 시도 */
                         if( $resultW2["isSuccess"] != true ){

@@ -1651,10 +1651,10 @@ class ProductW2 extends ProductAbstract
                     $optionNameTransW1 .= $prdOptionW1["value"] .  "_";
                 }
 
-                $width  = 0.0;
-                $length = 0.0;
-                $height = 0.0;
-                $weight = 0.0;
+                $width  = 0;
+                $length = 0;
+                $height = 0;
+                $weight = 0;
 
                 if( isset($detailW1Product["productShippingInfo"]) ){
                     $productShippingInfo = $detailW1Product["productShippingInfo"];
@@ -1836,6 +1836,9 @@ class ProductW2 extends ProductAbstract
                 //     throw new Exception($transResult["msg"]);
                 // }
             }
+
+            /** 중량 여부로 판매 상태 업데이트 */
+            upPrdStatusByWeight($offerId);
 
             $returnMsg = helpers_success_message();
         } catch (Exception $e) {

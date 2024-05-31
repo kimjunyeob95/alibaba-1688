@@ -14,9 +14,11 @@ use App\Models\ProductData;
 use App\Models\ProductImageData;
 use App\Models\ProductInspectData;
 use App\Models\ProductModiData;
+use App\Models\ProductOptionData;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
@@ -884,5 +886,22 @@ if (!function_exists("findChildCategoryIds")) {
         }
 
         return $allChildCates;
+    }
+}
+
+/** 중량 여부로 판매 상태 업데이트 */
+if (!function_exists("upPrdStatusByWeight")) {
+    function upPrdStatusByWeight(int $offerId): void
+    {
+        $obj = ProductOptionData::select('offer_id', DB::raw('MAX(weight) as max_weight'))
+        ->where("offer_id", $offerId)
+        ->groupBy("offer_id")->first();
+        if( $obj != null ){
+            if( $obj->max_weight >= 20 ){
+                ProductData::where("offer_id", $offerId)->update([
+                    "status" => ProductConstant::PRD_STATUS_EXCEPT
+                ]);
+            }
+        }
     }
 }
