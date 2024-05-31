@@ -47,6 +47,7 @@ class OnchannelCommand extends Command
                     $query->where("b.regist_success", MallConstant::REGIST_FAIL)
                         ->orWhere("b.message", "온채널 통신 에러")
                         ->orWhere("b.message", "Empty options")
+                        ->orWhere("b.message", "상품채널(을)를 입력해주세요.")
                         ->orWhereNull("b.regist_success");
                 });
 
