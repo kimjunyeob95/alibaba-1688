@@ -3,6 +3,7 @@
 namespace App\Services\Mall;
 
 use App\Abstracts\MallApiAbstract;
+use App\Constants\OnchannelConstant;
 use App\Constants\WConstant;
 
 class MallApiService
@@ -39,9 +40,9 @@ class MallApiService
      * @param array $offerIds
      * @return array
     */
-    public function productRegist(array $offerIds, string $type = WConstant::WAPP_W1): array
+    public function productRegist(array $offerIds, string $type = WConstant::WAPP_W1, string $sendType = OnchannelConstant::PRD_CHANNEL): array
     {
-        return $this->mallApiAbstract->productRegist($offerIds, $type, "");
+        return $this->mallApiAbstract->productRegist($offerIds, $type, $sendType);
     }
 
     /**

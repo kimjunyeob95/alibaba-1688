@@ -2,6 +2,7 @@
 namespace App\Console\Commands;
 
 use App\Constants\MallConstant;
+use App\Constants\OnchannelConstant;
 use App\Constants\ProductConstant;
 use App\Constants\WConstant;
 use App\Models\ProductData;
@@ -51,7 +52,7 @@ class OnchannelCommand extends Command
 
                 $objs = $prdBuilder->pluck('offer_id')->toArray();                
                 if( !empty($objs) ){
-                    $this->mallApiService->productRegist($objs);
+                    $this->mallApiService->productRegist($objs, "", OnchannelConstant::PRD_CHANNEL);
                 }
 
                 break;
