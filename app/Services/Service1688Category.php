@@ -206,4 +206,15 @@ class Service1688Category
    {
       return $this->categoryAbstract->weightSave($categoryIds, $weight);
    }
+
+   /**
+     * @func weightRemove
+     * @description '카테고리 중량 삭제'
+     * @param array $categoryIds '카테고리 ID'
+     * @return array
+   */
+   public function weightRemove(array $categoryIds): array
+   {
+      return $this->categoryAbstract->weightRemove($categoryIds);
+   }
 }

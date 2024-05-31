@@ -142,4 +142,12 @@ abstract class CategoryAbstract
      * @return array
     */
     abstract function weightSave(array $categoryIds, int $weight): array;
+
+    /**
+     * @func weightRemove
+     * @description '카테고리 중량 삭제'
+     * @param array $categoryIds '카테고리 ID'
+     * @return array
+    */
+    abstract function weightRemove(array $categoryIds): array;
 }

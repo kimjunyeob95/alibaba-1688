@@ -32,6 +32,7 @@
             <div class="col-12 mb-3">
 
                 <form id="searchFrm">
+                    <input type="hidden" name="weight_status" value={{ $weight_status }}>
 
                     <div class="card">
                         <div class="card-header">
@@ -39,14 +40,12 @@
                                 <tr class="align-middle">
                                     <th style="width: 120px">표준 배송비</th>
                                     <td colspan="3">
-                                        <div class="form-check form-check-inline">
-                                            <input class="form-check-input" type="radio" name="weight_status" id="weight_status_y" value="{{ CategoryConstant::WEIGHT_STATUS_Y }}" {{ $weight_status == CategoryConstant::WEIGHT_STATUS_Y ? 'checked' : '' }}>
-                                            <label class="form-check-label" for="weight_status_y">설정 완료</label>
-                                        </div>
-                                        <div class="form-check form-check-inline">
-                                            <input class="form-check-input" type="radio" name="weight_status" id="weight_status_n" value="{{ CategoryConstant::WEIGHT_STATUS_N }}" {{ $weight_status == CategoryConstant::WEIGHT_STATUS_N ? 'checked' : '' }}>
-                                            <label class="form-check-label" for="weight_status_n">미 완료</label>
-                                        </div>
+                                        <button type="button" name="weight_status" class="btn-status btn btn-md {{ $weight_status == "" ? "btn-primary" : "btn-dark" }}"
+                                        value="">전체</button>
+                                        <button type="button" name="weight_status" class="btn-status btn btn-md {{ $weight_status == CategoryConstant::WEIGHT_STATUS_Y ? "btn-primary" : "btn-dark" }}"
+                                        value="{{ CategoryConstant::WEIGHT_STATUS_Y }}">완료</button>
+                                        <button type="button" name="weight_status" class="btn-status btn btn-md {{ $weight_status == CategoryConstant::WEIGHT_STATUS_N ? "btn-primary" : "btn-dark" }}"
+                                        value="{{ CategoryConstant::WEIGHT_STATUS_N }}">미완료</button>
                                     </td>
                                 </tr>
                                 <tr class="align-middle">
@@ -99,6 +98,7 @@
     
                 <div class="mt-3 d-flex justify-content-end">
                     <button class="btn btn-md btn-outline-success me-2" id="btn-select">설정하기</button>
+                    <button class="btn btn-md btn-outline-danger me-2" id="btn-select-remove">삭제하기</button>
                 </div>
                 
                 <div class="table-responsive mt-3">
@@ -142,20 +142,22 @@
                                     </td>
                                     <td>
                                         @if ($data->weight == null)
-                                            0
+                                            <label class="text-danger">미설정</label>
                                         @else
                                             {{ $data->weight }}
                                         @endif
                                     </td>
                                     <td>
-                                        @if ($data->delivery_price == null)
-                                            {{ number_format(CategoryConstant::WEIGHTS[0]) }}
+                                        @if ($data->weight == null)
+                                            {{ number_format(ProductConstant::WEIGHT_STATUS_NONE_PRICE) }}
                                         @else
                                             {{ number_format(CategoryConstant::WEIGHTS[$data->weight]) }}
                                         @endif
                                     </td>
                                     <td class="text-center">
                                         <button class="btn btn-sm btn-outline-success btn-modal" cateid={{ $data->category_id }}>설정하기</button>
+                                        <br>
+                                        <button class="btn btn-sm btn-outline-danger btn-remove mt-1" cateid={{ $data->category_id }} weight={{ $data->weight }}>삭제하기</button>
                                     </td>
                                 </tr>
                             @endforeach
@@ -227,6 +229,14 @@
         var weightList = '{!! json_encode(CategoryConstant::WEIGHTS) !!}';
         weightList = JSON.parse(weightList);
 
+        const WEIGHT_STATUS_NONE_PRICE = '{{ ProductConstant::WEIGHT_STATUS_NONE_PRICE }}';
+
+        $(".btn-status").click(function(){
+            let name = $(this).attr("name");
+            $(`input[name=${name}]`).val($(this).val());
+            $("#searchFrm").submit();            
+        });
+
         $('input[name=weight]').on('input', function(e) {
             const keyCode = e.originalEvent.inputType;
             if (keyCode === 'deleteContentBackward' || keyCode === 'deleteContentForward') {
@@ -268,6 +278,8 @@
                 },
                 success : function (resp) {
                     $(`.cate-1688-list`).html("");
+                    $('input[name=weight]').val("");
+                    $('input[name=delivery_price]').val("");
 
                     let category_ids = [];
                     resp.data.cateResult.map(function(obj){
@@ -283,6 +295,41 @@
                 }
             });
             
+        });
+
+        $("#btn-select-remove").click(function(){
+            let cateIds     = [];
+            let confirmText = "선택 한 카테고리의 표준 중량을 삭제 하시겠습니까?";
+            $(".chk-inp:checked").each(function(index, element){
+                cateIds.push($(this).val());
+            });
+
+            if(cateIds.length < 1){
+                return alert("선택 된 카테고리가 없습니다.");
+            }
+
+            if(confirm(confirmText)){
+                $.ajax({
+                    "headers" : {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
+                    "type"    : "POST",
+                    "url"     : "{{ route('w.category.weightRemove') }}",
+                    "data"    : { category_ids: cateIds },
+                    beforeSend: function () {
+                        $("#loadingOverlay").show();
+                    },
+                    complete  : function(xhr, status) {
+                        $("#loadingOverlay").hide();
+                    },
+                    success : function (resp) {
+                        alert(resp.msg);
+                        location.reload();
+                    },
+                    error: function (request) {
+                        let { error } = JSON.parse(request.responseText);
+                        alert(error.message);
+                    }
+                });
+            }
         });
 
         $(document).on('click', '.btn-save', function(){
@@ -319,6 +366,43 @@
             });
         });
 
+        $(document).on('click', '.btn-remove', function(){
+            let weight       = $(this).attr("weight");
+            let category_ids = [$(this).attr("cateid")];
+            let noneWeightPrice = Number(WEIGHT_STATUS_NONE_PRICE).toLocaleString('ko-KR');
+
+            let confirmText = `삭제 시 해당 카테고리의 배송비는 대표 배송비(${noneWeightPrice})가 적용됩니다.\r\n선택 한 카테고리의 표준 중량을 삭제 하시겠습니까?`;
+            if( weight == "" ){
+                return alert("설정 된 표중 중량이 없습니다.");
+            }
+            
+            if(confirm(confirmText)){
+                $.ajax({
+                    "headers": {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
+                    "type"   : "POST",
+                    "url"    : "{{ route('w.category.weightRemove') }}",
+                    "data"   : { 
+                        category_ids
+                    },
+                    beforeSend: function () {
+                        $("#loadingOverlay").show();
+                    },
+                    complete  : function(xhr, status) {
+                        $("#loadingOverlay").hide();
+                        $("#htmlModal").modal('hide');
+                    },
+                    success : function (resp) {
+                        alert(resp.msg);
+                        location.reload();
+                    },
+                    error: function (request) {
+                        let { error } = JSON.parse(request.responseText);
+                        alert(error.message);
+                    }
+                });
+            }
+        });
+
         $(".htmlModalClose").click(function(){
             $("#htmlModal").modal('hide');
         });
@@ -343,6 +427,10 @@
                     resp.data.cateResult.map(function(obj){
                         category_ids.push(obj.category_id);
                         $(`.cate-1688-list`).append(`<p>- ${obj.cate_name} / 중량: ${obj.weight.toLocaleString('ko-KR')}(kg) / 배송비: ${obj.delivery_price.toLocaleString('ko-KR')}(원)</p>`)
+                        if( obj.weight != 0 ){
+                            $('input[name=weight]').val(obj.weight);
+                            $('input[name=delivery_price]').val(weightList[obj.weight].toLocaleString('ko-KR'));
+                        }
                     });
                     $('input[name="chkCateIds[]"]').val(category_ids);
 

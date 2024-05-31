@@ -93,6 +93,8 @@ Route::name('w.')->prefix('w')->group(function () {
         Route::post('/wDepth', [WCategoryController::class, 'getWDepth'])->name('getWDepth');
         /** 카테고리 중량 저장 */
         Route::post('/weight/save', [WCategoryController::class, 'weightSave'])->name('weightSave');
+        /** 카테고리 중량 삭제 */
+        Route::post('/weight/remove', [WCategoryController::class, 'weightRemove'])->name('weightRemove');
     });
 
     Route::name('forbiddenWord.')->prefix('forbiddenWord')->group(function () {

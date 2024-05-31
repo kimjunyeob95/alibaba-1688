@@ -64,7 +64,7 @@ class CategoryController extends Controller
         $page          = $this->request->post("page", 1);
         $pageSize      = $this->request->post("pageSize", 50);
         $keyword       = $this->request->get("keyword", "");
-        $weight_status = $this->request->get("weight_status", CategoryConstant::WEIGHT_STATUS_Y);
+        $weight_status = $this->request->get("weight_status", "");
         $cate_first    = $this->request->get("cate_first", "");
         $cate_second   = $this->request->get("cate_second", "");
         $cate_third    = $this->request->get("cate_third", "");

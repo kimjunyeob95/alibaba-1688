@@ -789,10 +789,12 @@ class CategoryW1 extends CategoryAbstract
             ->orderBy("a.cate_second", "asc")
             ->orderBy("a.cate_third", "asc");
             
-            if( $weight_status == CategoryConstant::WEIGHT_STATUS_Y ){
-                $qryBuilder->where("c.weight", "!=", null);
-            } else if( $weight_status == CategoryConstant::WEIGHT_STATUS_N ){
-                $qryBuilder->where("c.weight", null);
+            if( !empty($weight_status) ) {
+                if( $weight_status == CategoryConstant::WEIGHT_STATUS_Y ){
+                    $qryBuilder->where("c.weight", "!=", null);
+                } else if( $weight_status == CategoryConstant::WEIGHT_STATUS_N ){
+                    $qryBuilder->where("c.weight", null);
+                }
             }
 
             if( $cate_third ){
@@ -827,6 +829,7 @@ class CategoryW1 extends CategoryAbstract
             }
 
             $lists = $qryBuilder->paginate($pageSize)->appends($params);
+
             $result = [
                 "paginator"      => $lists,
                 "firstCateObjs"  => $firstCateObjs,
@@ -1169,6 +1172,25 @@ class CategoryW1 extends CategoryAbstract
                     $upsertWhere
                 );
             }
+
+            $returnMsg = helpers_success_message();
+        } catch (Exception $e) {
+            $returnMsg = helpers_fail_message($e->getMessage());
+        }
+
+        return $returnMsg;
+    }
+
+    public function weightRemove(array $categoryIds): array
+    {
+        $returnMsg = $this->returnMsg;
+        
+        try {
+            if( empty($categoryIds) ) {
+                throw new Exception(CategoryErrorMessageConstant::getNotHaveErrorMessage("CATEGORYID"));
+            }
+
+            CategoryWeightData::whereIn("category_id", $categoryIds)->forceDelete();
 
             $returnMsg = helpers_success_message();
         } catch (Exception $e) {
