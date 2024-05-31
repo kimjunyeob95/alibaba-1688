@@ -45,9 +45,10 @@ class Onchannel extends MallApiAbstract
      * @description '상품등록'
      * @param array $offerIds
      * @param string $type
+     * @param string $sendType
      * @return array
     */
-    public function productRegist(array $offerIds, string $type = WConstant::WAPP_W1): array
+    public function productRegist(array $offerIds, string $type = WConstant::WAPP_W1, string $sendType = OnchannelConstant::PRD_CHANNEL): array
     {
         $successIds = [];
         $failIds    = [];
@@ -57,7 +58,8 @@ class Onchannel extends MallApiAbstract
             $regCnt = OnchannelProductLog::where([
                 "offer_id"       => $offerId,
                 "member_id"      => OnchannelConstant::ONCH1688,
-                "regist_success" => MallConstant::REGIST_SUCCESS
+                "send_type"      => $sendType,
+                "regist_success" => MallConstant::REGIST_SUCCESS,
             ])->count();
 
             if( $regCnt == 0 ){
@@ -119,7 +121,7 @@ class Onchannel extends MallApiAbstract
                         "jeju_send_price" => (int)$prdObj->extends->send_jeju_price,
                         "etc_send_price"  => (int)$prdObj->extends->send_etc_price,
                         "trans_nm"        => OnchannelConstant::TRANS_NM,
-                        "prd_channel"     => OnchannelConstant::PRD_CHANNEL,
+                        "prd_channel"     => $sendType,
                         "sale_num"        => OnchannelConstant::SALE_NUM,
                         "etc_comment"     => OnchannelConstant::ETC_COMMENT,
                         "return_comment"  => $prdObj->return_comment,
@@ -168,6 +170,7 @@ class Onchannel extends MallApiAbstract
                             [
                                 "offer_id"  => $offerId,
                                 "member_id" => OnchannelConstant::ONCH1688,
+                                "send_type" => $sendType,
                             ],
                             [
                                 "prd_code"       => $result["prd_code"],
@@ -188,6 +191,7 @@ class Onchannel extends MallApiAbstract
                             [
                                 "offer_id"  => $offerId,
                                 "member_id" => OnchannelConstant::ONCH1688,
+                                "send_type" => $sendType,
                             ],
                             [
                                 "prd_code"       => 0,
@@ -206,6 +210,7 @@ class Onchannel extends MallApiAbstract
                         [
                             "offer_id"  => $offerId,
                             "member_id" => OnchannelConstant::ONCH1688,
+                            "send_type" => $sendType,
                         ],
                         [
                             "prd_code"       => 0,

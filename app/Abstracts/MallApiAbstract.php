@@ -82,9 +82,10 @@ abstract class MallApiAbstract
      * @description '상품등록'
      * @param array $offerIds
      * @param string $type
+     * @param string $sendType
      * @return array
      */
-    abstract function productRegist(array $offerIds, string $type): array;
+    abstract function productRegist(array $offerIds, string $type, string $sendType): array;
 
     /**
      * @func sendModiProduct
