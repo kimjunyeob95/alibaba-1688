@@ -15,6 +15,7 @@ class ProductErrorMessageConstant
     public const ERROR_MESSAGE_PRODUCT_SEARCH_KEYWORDQUERY             = "product.search.keywordQuery";
     public const ERROR_MESSAGE_PRODUCT_SEARCH_IMAGEQUERY               = "product.search.imageQuery";
     public const ERROR_MESSAGE_PRODUCT_SEARCH_QUERYPRODUCTDETAIL       = "product.search.queryProductDetail";
+    public const ERROR_MESSAGE_SEARCH_QUERYPRODUCTDETAIL_EN            = "product.search.queryProductDetail_EN";
     public const ERROR_MESSAGE_PRODUCT_SEARCH_QUERYPRODUCTDETAIL_W2_KR = "product.search.queryProductDetail.W2.KR";
     public const ERROR_MESSAGE_PRODUCT_SEARCH_QUERYPRODUCTDETAIL_W2_EN = "product.search.queryProductDetail.W2.EN";
     public const ERROR_MESSAGE_PRODUCT_SKUINFOS                        = "productSkuInfos";

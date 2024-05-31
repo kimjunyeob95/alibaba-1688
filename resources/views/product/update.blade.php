@@ -57,14 +57,12 @@
                             <input type="text" class="form-control" name="prd_name_kr" placeholder="" value="{{ $prdObj->prd_name_kr }}">
                         </div>
                     </div>
-                    @if( $prdObj->w_type == WConstant::WAPP_W2 )
-                        <div class="row mb-2">
-                            <div class="col-md-3 text-center">제품명(영문)</div>
-                            <div class="col-md-8">
-                                <input type="text" class="form-control" name="prd_name_en" placeholder="" value="{{ $prdObj->prd_name_en }}">
-                            </div>
+                    <div class="row mb-2">
+                        <div class="col-md-3 text-center">제품명(영문)</div>
+                        <div class="col-md-8">
+                            <input type="text" class="form-control" name="prd_name_en" placeholder="" value="{{ $prdObj->prd_name_en }}">
                         </div>
-                    @endif
+                    </div>
                 </div>
 
                 <hr style="margin-top: 20px">
@@ -85,9 +83,7 @@
                                     <th scope="col">skuID</th>
                                     <th scope="col">옵션명(중문)</th>
                                     <th scope="col">옵션명(국문)</th>
-                                    @if( $prdObj->w_type == WConstant::WAPP_W2 )
-                                        <th scope="col">옵션명(영문)</th>
-                                    @endif
+                                    <th scope="col">옵션명(영문)</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -109,11 +105,9 @@
                                         <td>
                                             <input type="text" class="form-control" name="option_name_kr" placeholder="" value="{{ $option->option_name_kr }}">
                                         </td>
-                                        @if( $prdObj->w_type == WConstant::WAPP_W2 )
-                                            <td>
-                                                <input type="text" class="form-control" name="option_name_en" placeholder="" value="{{ $option->option_name_en }}">
-                                            </td>
-                                        @endif
+                                        <td>
+                                            <input type="text" class="form-control" name="option_name_en" placeholder="" value="{{ $option->option_name_en }}">
+                                        </td>
                                     </tr>
                                 @endforeach
                             </tbody>
@@ -165,51 +159,49 @@
                     </div>
                 </div>
 
-                @if( $prdObj->w_type == WConstant::WAPP_W2 )
-                    <hr style="margin-top: 20px">
-                    <div class="row mt-3">
-                        <div class="col">
-                            <h5>[고시정보(영문)]</h5>
-                            <p class="text-danger">* 상세 페이지에 노출할 정보를 선택하세요.</p>
-                            <button type="button" class="btn btn-success btn-gosi-all">일괄 선택</button>
-                        </div>
-
-                        <div class="table-responsive mt-3">
-                            <table class="table table-white bg-white">
-                                <tbody>
-                                    @foreach ($prdObj->notices as $gosiKey => $gosi)
-                                        @php
-                                            $disabled = false;
-                                            if( $gosi->except_data != null && $gosi->except_data->is_except == ExceptConstant::IS_EXCEPT_Y ){
-                                                $disabled = true;
-                                            }
-                                        @endphp
-
-                                        @if ( $gosiKey % 4 == 0)
-                                            <tr>
-                                        @endif
-
-                                        <th class="bg-light">
-                                            <input @if($disabled) disabled @endif class="form-check-input chk-gosi-inp gosi-en" type="checkbox" value="{{ $gosi->id }}" @if( $gosi->is_except == GosiConstants::IS_EXCEPT_N ) checked @endif>
-                                            <input @if($disabled) disabled @endif type="text" class="form-control" name="attribute_name_en" placeholder="" value="{{ $gosi->attribute_name_en }}">
-                                        </th>
-                                        <td style="vertical-align: bottom">
-                                            <input @if($disabled) disabled @endif type="text" class="form-control" name="attribute_value_en" placeholder="" value="{{ $gosi->attribute_value_en }}">
-                                        </td>
-    
-                                        @if (($gosiKey + 1) % 4 == 0 || $loop->last)
-                                            @php $remainingCols = 4 - (($gosiKey + 1) % 4); @endphp
-                                            @if ($loop->last && $remainingCols > 0 && $remainingCols < 4)
-                                                <td colspan="{{ $remainingCols * 2 }}"></td>
-                                            @endif
-                                            </tr>
-                                        @endif
-                                    @endforeach
-                                </tbody>
-                            </table>
-                        </div>
+                <hr style="margin-top: 20px">
+                <div class="row mt-3">
+                    <div class="col">
+                        <h5>[고시정보(영문)]</h5>
+                        <p class="text-danger">* 상세 페이지에 노출할 정보를 선택하세요.</p>
+                        <button type="button" class="btn btn-success btn-gosi-all">일괄 선택</button>
                     </div>
-                @endif
+
+                    <div class="table-responsive mt-3">
+                        <table class="table table-white bg-white">
+                            <tbody>
+                                @foreach ($prdObj->notices as $gosiKey => $gosi)
+                                    @php
+                                        $disabled = false;
+                                        if( $gosi->except_data != null && $gosi->except_data->is_except == ExceptConstant::IS_EXCEPT_Y ){
+                                            $disabled = true;
+                                        }
+                                    @endphp
+
+                                    @if ( $gosiKey % 4 == 0)
+                                        <tr>
+                                    @endif
+
+                                    <th class="bg-light">
+                                        <input @if($disabled) disabled @endif class="form-check-input chk-gosi-inp gosi-en" type="checkbox" value="{{ $gosi->id }}" @if( $gosi->is_except == GosiConstants::IS_EXCEPT_N ) checked @endif>
+                                        <input @if($disabled) disabled @endif type="text" class="form-control" name="attribute_name_en" placeholder="" value="{{ $gosi->attribute_name_en }}">
+                                    </th>
+                                    <td style="vertical-align: bottom">
+                                        <input @if($disabled) disabled @endif type="text" class="form-control" name="attribute_value_en" placeholder="" value="{{ $gosi->attribute_value_en }}">
+                                    </td>
+
+                                    @if (($gosiKey + 1) % 4 == 0 || $loop->last)
+                                        @php $remainingCols = 4 - (($gosiKey + 1) % 4); @endphp
+                                        @if ($loop->last && $remainingCols > 0 && $remainingCols < 4)
+                                            <td colspan="{{ $remainingCols * 2 }}"></td>
+                                        @endif
+                                        </tr>
+                                    @endif
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
 
                 <div class="col text-center">
                     <button type="button" class="btn btn-primary btn-lg btn-save">저장</button>
@@ -230,7 +222,7 @@
             if( prd_name_kr == "" ){
                 return alert("제품명(국문)을 입력하세요.");
             }
-            if( w_type == "W2" && prd_name_en == "" ){
+            if( prd_name_en == "" ){
                 return alert("제품명(영문)을 입력하세요.");
             }
 
@@ -261,7 +253,7 @@
                         validate = false;
                         errorMsg = "선택 한 옵션의 옵션명(국문)을 입력하세요.";
                     }
-                    if( w_type == "W2" && option_name_en.trim() == "" ){
+                    if( option_name_en.trim() == "" ){
                         validate = false;
                         errorMsg = "선택 한 옵션의 옵션명(영문)을 입력하세요.";
                     }
@@ -294,24 +286,22 @@
                 });
             });
 
-            if( w_type == "W2" ){
-                $(".chk-gosi-inp.gosi-en").each(function(index, element){
-                    let is_except          = "Y";
-                    let attribute_name_en  = $(this).next('input[name="attribute_name_en"]').val();
-                    let attribute_value_en = $(this).parent().next('td').find('input[name="attribute_value_en"]').val();
+            $(".chk-gosi-inp.gosi-en").each(function(index, element){
+                let is_except          = "Y";
+                let attribute_name_en  = $(this).next('input[name="attribute_name_en"]').val();
+                let attribute_value_en = $(this).parent().next('td').find('input[name="attribute_value_en"]').val();
 
-                    if( $(this).is(":checked") ){
-                        is_except = "N";
+                if( $(this).is(":checked") ){
+                    is_except = "N";
 
-                    }
-                    gosiEnList.push({
-                        id                : $(this).val(),
-                        is_except         : is_except,
-                        attribute_name_en : attribute_name_en,
-                        attribute_value_en: attribute_value_en,
-                    });
+                }
+                gosiEnList.push({
+                    id                : $(this).val(),
+                    is_except         : is_except,
+                    attribute_name_en : attribute_name_en,
+                    attribute_value_en: attribute_value_en,
                 });
-            }
+            });
 
             if( confirm("저장하시겠습니까?") ){
                 $.ajax({

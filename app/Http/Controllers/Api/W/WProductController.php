@@ -527,27 +527,39 @@ class WProductController extends Controller
             $validator = Validator::make($this->request->all(), [
                 'offer_id'               => 'required|int',
                 'prd_name_kr'            => 'required|string',
+                'prd_name_en'            => 'required|string',
                 'optionList'             => 'required|array',
                 'optionList.*.id'        => 'required|int',
                 'optionList.*.is_except' => 'required|string',
                 'gosiKrList'             => 'required|array',
                 'gosiKrList.*.id'        => 'required|int',
                 'gosiKrList.*.is_except' => 'required|string',
+                'gosiEnList'             => 'required|array',
+                'gosiEnList.*.id'        => 'required|int',
+                'gosiEnList.*.is_except' => 'required|string',
             ], [
                 'offer_id.required'                    => ProductErrorMessageConstant::getNotHaveErrorMessage("OFFER_ID"),
                 'prd_name_kr.required'                 => ProductErrorMessageConstant::getNotHaveErrorMessage("PRD_NAME_KR"),
+                'prd_name_en.required'                 => ProductErrorMessageConstant::getNotHaveErrorMessage("PRD_NAME_EN"),
                 'optionList.required'                  => ProductErrorMessageConstant::getNotHaveErrorMessage("OPTIONLIST"),
                 'optionList.*.id.required'             => ProductErrorMessageConstant::getNotHaveErrorMessage("OPTIONLIST_ID"),
                 'optionList.*.option_name_kr.required' => ProductErrorMessageConstant::getNotHaveErrorMessage("OPTIONLIST_OPTION_NAME_KR"),
+                'optionList.*.option_name_en.required' => ProductErrorMessageConstant::getNotHaveErrorMessage("OPTIONLIST_OPTION_NAME_EN"),
                 'optionList.*.is_except.required'      => ProductErrorMessageConstant::getNotHaveErrorMessage("OPTIONLIST_IS_EXCEPT"),
                 'gosiKrList.required'                  => ProductErrorMessageConstant::getNotHaveErrorMessage("GOSIKRLIST"),
                 'gosiKrList.*.id.required'             => ProductErrorMessageConstant::getNotHaveErrorMessage("GOSIKRLIST_ID"),
                 'gosiKrList.*.is_except.required'      => ProductErrorMessageConstant::getNotHaveErrorMessage("GOSIKRLIST_IS_EXCEPT"),
+                'gosiEnList.required'                  => ProductErrorMessageConstant::getNotHaveErrorMessage("GOSIENLIST"),
+                'gosiEnList.*.id.required'             => ProductErrorMessageConstant::getNotHaveErrorMessage("GOSIENLIST_ID"),
+                'gosiEnList.*.is_except.required'      => ProductErrorMessageConstant::getNotHaveErrorMessage("GOSIENLIST_IS_EXCEPT"),
             ]);
 
             foreach ($this->request->post('optionList') as $key => $option) {
                 if ($option['is_except'] == OptionConstants::IS_EXCEPT_N) {
                     $validator->sometimes('optionList.' . $key . '.option_name_kr', 'required|string', function () {
+                        return true;
+                    });
+                    $validator->sometimes('optionList.' . $key . '.option_name_en', 'required|string', function () {
                         return true;
                     });
                 }

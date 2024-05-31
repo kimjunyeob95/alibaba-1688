@@ -3,9 +3,11 @@
 namespace Tests\Feature;
 
 use App\Constants\CategoryConstant;
+use App\Constants\Constant1688;
 use App\Constants\ImageConstant;
 use App\Constants\InspectConstant;
 use App\Constants\ProductConstant;
+use App\Constants\ProductErrorMessageConstant;
 use App\Models\CategoryMapping;
 use App\Models\CategoryTree;
 use App\Models\OnchannelProductLog;
@@ -51,7 +53,26 @@ class ProductTest extends TestCase
         foreach ($qry1 as $row) {
             echo $row->offer_id . " : " . $row->prd_code."\r\n";
         }
+    }
 
+    # php artisan test --filter test1688ProductDetail
+    public function test1688ProductDetail()
+    {
+        $offerId     = 741502306244;
+        $accessToken = env("1688_ACCESS_TOKEN");
+
+        $endPoint = "param2/1/com.alibaba.fenxiao.crossborder/product.search.queryProductDetail/";
+        $payload_detail = [
+            'access_token'     => $accessToken,
+            'offerDetailParam' => [
+                'offerId' => $offerId,
+                'country' => Constant1688::LANGUAGE_EN,
+            ]
+        ];
+        $detailEnResult = curl_1688("POST", $endPoint, $payload_detail);
+        if( $detailEnResult["isSuccess"] != true || $detailEnResult["data"]["result"]["success"] != true ){
+            throw new Exception(ProductErrorMessageConstant::getFitErrorMessage("SEARCH_QUERYPRODUCTDETAIL_EN"));
+        }
     }
 
     # php artisan test --filter testConvertW1toW2

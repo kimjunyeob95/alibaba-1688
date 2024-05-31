@@ -860,10 +860,22 @@ class ProductW1 extends ProductAbstract
                                 throw new Exception(ProductErrorMessageConstant::getFitErrorMessage("PRODUCT_SEARCH_QUERYPRODUCTDETAIL"));
                             }
 
+                            $payload_detail = [
+                                'access_token'     => $this->accessToken,
+                                'offerDetailParam' => [
+                                    'offerId' => $offerId,
+                                    'country' => Constant1688::LANGUAGE_EN,
+                                ]
+                            ];
+                            $detailEnResult = curl_1688("POST", $endPoint, $payload_detail);
+                            if( $detailEnResult["isSuccess"] != true || $detailEnResult["data"]["result"]["success"] != true ){
+                                throw new Exception(ProductErrorMessageConstant::getFitErrorMessage("SEARCH_QUERYPRODUCTDETAIL_EN"));
+                            }
+
                             $detailProduct = $detailResult["data"]["result"]["result"];
                             $prdCategoryId = $detailProduct["categoryId"];
 
-                            $prdDto                   = $this->get1688ProductDto($detailResult);
+                            $prdDto                   = $this->get1688ProductDto($detailResult, $detailEnResult);
                             $product1688Dto           = $prdDto["product1688Dto"];
                             $product1688ExtendDto     = $prdDto["product1688ExtendDto"];
                             $product1688ImageDtoList  = $prdDto["product1688ImageDtoList"];
@@ -974,10 +986,22 @@ class ProductW1 extends ProductAbstract
                                 throw new Exception(ProductErrorMessageConstant::getFitErrorMessage("PRODUCT_SEARCH_QUERYPRODUCTDETAIL"));
                             }
 
+                            $payload_detail = [
+                                'access_token'     => $this->accessToken,
+                                'offerDetailParam' => [
+                                    'offerId' => $offerId,
+                                    'country' => Constant1688::LANGUAGE_EN,
+                                ]
+                            ];
+                            $detailEnResult = curl_1688("POST", $endPoint, $payload_detail);
+                            if( $detailEnResult["isSuccess"] != true || $detailEnResult["data"]["result"]["success"] != true ){
+                                throw new Exception(ProductErrorMessageConstant::getFitErrorMessage("SEARCH_QUERYPRODUCTDETAIL_EN"));
+                            }
+
                             $detailProduct = $detailResult["data"]["result"]["result"];
                             $prdCategoryId = $detailProduct["categoryId"];
 
-                            $prdDto                   = $this->get1688ProductDto($detailResult);
+                            $prdDto                   = $this->get1688ProductDto($detailResult, $detailEnResult);
                             $product1688Dto           = $prdDto["product1688Dto"];
                             $product1688ExtendDto     = $prdDto["product1688ExtendDto"];
                             $product1688ImageDtoList  = $prdDto["product1688ImageDtoList"];
@@ -1035,7 +1059,8 @@ class ProductW1 extends ProductAbstract
             try {
 
                 /** 1. W2로 수집 시도 */
-                $resultW2 = $this->productW2->collectProductNotLog($offerId);
+                // $resultW2 = $this->productW2->collectProductNotLog($offerId);
+                $resultW2["isSuccess"] = false;
 
                 /** 2. W2로 수집 실패 시 W1으로 수집 시도 */
                 if( $resultW2["isSuccess"] != true ){
@@ -1051,8 +1076,20 @@ class ProductW1 extends ProductAbstract
                     if( $detailResult["isSuccess"] != true || $detailResult["data"]["result"]["success"] != true ){
                         throw new Exception(ProductErrorMessageConstant::getFitErrorMessage("PRODUCT_SEARCH_QUERYPRODUCTDETAIL"));
                     }
+
+                    $payload_detail = [
+                        'access_token'     => $this->accessToken,
+                        'offerDetailParam' => [
+                            'offerId' => $offerId,
+                            'country' => Constant1688::LANGUAGE_EN,
+                        ]
+                    ];
+                    $detailEnResult = curl_1688("POST", $endPoint, $payload_detail);
+                    if( $detailEnResult["isSuccess"] != true || $detailEnResult["data"]["result"]["success"] != true ){
+                        throw new Exception(ProductErrorMessageConstant::getFitErrorMessage("SEARCH_QUERYPRODUCTDETAIL_EN"));
+                    }
     
-                    $prdDto                   = $this->get1688ProductDto($detailResult);
+                    $prdDto                   = $this->get1688ProductDto($detailResult, $detailEnResult);
                     $product1688Dto           = $prdDto["product1688Dto"];
                     $product1688ExtendDto     = $prdDto["product1688ExtendDto"];
                     $product1688ImageDtoList  = $prdDto["product1688ImageDtoList"];
@@ -1113,7 +1150,19 @@ class ProductW1 extends ProductAbstract
                 throw new Exception(ProductErrorMessageConstant::getFitErrorMessage("PRODUCT_SEARCH_QUERYPRODUCTDETAIL"));
             }
 
-            $prdDto                   = $this->get1688ProductDto($detailResult);
+            $payload_detail = [
+                'access_token'     => $this->accessToken,
+                'offerDetailParam' => [
+                    'offerId' => $offerId,
+                    'country' => Constant1688::LANGUAGE_EN,
+                ]
+            ];
+            $detailEnResult = curl_1688("POST", $endPoint, $payload_detail);
+            if( $detailEnResult["isSuccess"] != true || $detailEnResult["data"]["result"]["success"] != true ){
+                throw new Exception(ProductErrorMessageConstant::getFitErrorMessage("SEARCH_QUERYPRODUCTDETAIL_EN"));
+            }
+
+            $prdDto                   = $this->get1688ProductDto($detailResult, $detailEnResult);
             $product1688Dto           = $prdDto["product1688Dto"];
             $product1688ExtendDto     = $prdDto["product1688ExtendDto"];
             $product1688ImageDtoList  = $prdDto["product1688ImageDtoList"];
@@ -1162,7 +1211,19 @@ class ProductW1 extends ProductAbstract
                     throw new Exception(ProductErrorMessageConstant::getFitErrorMessage("PRODUCT_SEARCH_QUERYPRODUCTDETAIL"));
                 }
 
-                $prdDto                   = $this->get1688ProductDto($detailResult);
+                $payload_detail = [
+                    'access_token'     => $this->accessToken,
+                    'offerDetailParam' => [
+                        'offerId' => $offerId,
+                        'country' => Constant1688::LANGUAGE_EN,
+                    ]
+                ];
+                $detailEnResult = curl_1688("POST", $endPoint, $payload_detail);
+                if( $detailEnResult["isSuccess"] != true || $detailEnResult["data"]["result"]["success"] != true ){
+                    throw new Exception(ProductErrorMessageConstant::getFitErrorMessage("SEARCH_QUERYPRODUCTDETAIL_EN"));
+                }
+
+                $prdDto                   = $this->get1688ProductDto($detailResult, $detailEnResult);
                 $product1688Dto           = $prdDto["product1688Dto"];
                 $product1688ExtendDto     = $prdDto["product1688ExtendDto"];
                 $product1688ImageDtoList  = $prdDto["product1688ImageDtoList"];
@@ -1204,12 +1265,17 @@ class ProductW1 extends ProductAbstract
         ]);
     }
 
-    public function get1688ProductDto(array $detailResult): array
+    public function get1688ProductDto(array $detailResult, array $detailEnResult): array
     {
-        $detailProduct = $detailResult["data"]["result"]["result"];
-        $offerId       = $detailProduct["offerId"];
-        $prdCategoryId = $detailProduct["categoryId"];
-        $status        = $detailProduct["status"];
+        if( empty($detailEnResult) ){
+            throw new Exception(ProductErrorMessageConstant::getFitErrorMessage("PRODUCT_SEARCH_QUERYPRODUCTDETAIL_W2_EN"));
+        }
+
+        $detailProduct   = $detailResult["data"]["result"]["result"];
+        $detailEnProduct = $detailEnResult["data"]["result"]["result"];
+        $offerId         = $detailProduct["offerId"];
+        $prdCategoryId   = $detailProduct["categoryId"];
+        $status          = $detailProduct["status"];
         if( $status != ProductConstant::PRD_STATUS_PUBLISH ){
             $status = ProductConstant::PRD_STATUS_STOP;
         }
@@ -1229,6 +1295,7 @@ class ProductW1 extends ProductAbstract
 
         // 1. 상품 이미지
         $product1688ImageDtoList = [];
+        // 1-1. 국문 이미지
         foreach ($detailProduct["productImage"]["images"] as $imgKey => $prdImage) {
             if( $imgKey == 0 ) {
                 $imgType = ImageConstant::IMAGE_TYPE_MAIN;
@@ -1279,7 +1346,6 @@ class ProductW1 extends ProductAbstract
             ]);
             $product1688ImageDtoList[] = $product1688ImageDto;
         }
-
         if( isset($detailProduct["productSkuInfos"]) ){
             foreach ($detailProduct["productSkuInfos"] as $prdOptions) {
                 if( isset($prdOptions["skuAttributes"]) ){
@@ -1342,7 +1408,122 @@ class ProductW1 extends ProductAbstract
             }
         }
 
+        // 1-1. 영문 이미지
+        foreach ($detailEnProduct["productImage"]["images"] as $imgKey => $prdImage) {
+            if( $imgKey == 0 ) {
+                $imgType = ImageConstant::IMAGE_TYPE_MAIN;
+            } else {
+                $imgType = ImageConstant::IMAGE_TYPE_SUB;
+            }
+            $is_except     = ImageConstant::IS_EXCEPT_N;
+            $img_url_trans = "";
+            $imgObj        = ProductImageData::where([
+                "offer_id"       => $offerId,
+                "img_type"       => $imgType,
+                "img_url_origin" => $prdImage,
+                "lang"           => WConstant::WAPP_EN,
+            ])->first();
+            if( $imgObj != null ){
+                $is_except     = $imgObj->is_except;
+                $img_url_trans = $imgObj->img_url_trans;
+            }
+            if( $is_except == ImageConstant::IS_EXCEPT_Y ){
+                continue;
+            }
+
+            $isChangeImg = $this->isChangeImage($offerId, $prdImage, $imgType);
+            $imgWidth    = 0;
+            $imgHeight   = 0;
+            $imgByte     = 0;
+            $imgMime     = "";
+            if( $isChangeImg == true ){
+                $imageInfo = $this->checkImageSize($prdImage);
+                $imgWidth  = $imageInfo["width"];
+                $imgHeight = $imageInfo["height"];
+                $imgByte   = $imageInfo["byte"];
+                $imgMime   = $imageInfo["mime"];
+            }
+            $product1688ImageDto = new Product1688ImageDto();
+            $product1688ImageDto->bind([
+                "offerId"        => $offerId,
+                "imgType"        => $imgType,
+                "lang"           => WConstant::WAPP_EN,
+                "is_except"      => $is_except,
+                "img_url_origin" => $prdImage,
+                "img_url_trans"  => $img_url_trans,
+                "isChangeImg"    => $isChangeImg,
+                "width"          => $imgWidth,
+                "height"         => $imgHeight,
+                "byte"           => $imgByte,
+                "mime"           => $imgMime
+            ]);
+            $product1688ImageDtoList[] = $product1688ImageDto;
+        }
+        if( isset($detailEnProduct["productSkuInfos"]) ){
+            foreach ($detailEnProduct["productSkuInfos"] as $prdOptions) {
+                if( isset($prdOptions["skuAttributes"]) ){
+
+                    $prdImage = "";
+                    foreach ($prdOptions["skuAttributes"] as $prdOption) {
+                        if( isset($prdOption["skuImageUrl"]) ){
+                            $prdImage = $prdOption["skuImageUrl"];
+                        }
+                    }
+                    if( $prdImage == "" ){
+                        continue;
+                    }
+
+                    $imgType       = ImageConstant::IMAGE_TYPE_SUB;
+                    $is_except     = ImageConstant::IS_EXCEPT_N;
+                    $img_url_trans = "";
+                    $imgObj        = ProductImageData::where([
+                        "offer_id"       => $offerId,
+                        "img_type"       => $imgType,
+                        "img_url_origin" => $prdImage,
+                        "lang"           => WConstant::WAPP_EN,
+                    ])->first();
+                    if( $imgObj != null ){
+                        $is_except = $imgObj->is_except;
+                        $img_url_trans = $imgObj->img_url_trans;
+                    }
+                    if( $is_except == ImageConstant::IS_EXCEPT_Y ){
+                        continue;
+                    }
+    
+                    $isChangeImg = $this->isChangeImage($offerId, $prdImage, $imgType);
+                    $imgWidth    = 0;
+                    $imgHeight   = 0;
+                    $imgByte     = 0;
+                    $imgMime     = "";
+                    if( $isChangeImg == true ){
+                        $imageInfo = $this->checkImageSize($prdImage);
+                        $imgWidth  = $imageInfo["width"];
+                        $imgHeight = $imageInfo["height"];
+                        $imgByte   = $imageInfo["byte"];
+                        $imgMime   = $imageInfo["mime"];
+                    }
+                    $product1688ImageDto = new Product1688ImageDto();
+                    $product1688ImageDto->bind([
+                        "offerId"        => $offerId,
+                        "imgType"        => $imgType,
+                        "lang"           => WConstant::WAPP_EN,
+                        "is_except"      => $is_except,
+                        "img_url_origin" => $prdImage,
+                        "img_url_trans"  => $img_url_trans,
+                        "isChangeImg"    => $isChangeImg,
+                        "width"          => $imgWidth,
+                        "height"         => $imgHeight,
+                        "byte"           => $imgByte,
+                        "mime"           => $imgMime
+                    ]);
+                    $product1688ImageDtoList[] = $product1688ImageDto;
+                }
+            }
+        }
+
         // 2. 상품 상세 이미지
+
+        // 2-1. 국문 이미지
         $prdDescription = $detailProduct["description"];
         preg_match_all('/<img[^>]+src="([^">]+)"/', $prdDescription, $matches);
         $imageSrcs = $matches[1];
@@ -1381,6 +1562,57 @@ class ProductW1 extends ProductAbstract
                 "offerId"        => $offerId,
                 "imgType"        => $imgType,
                 "lang"           => WConstant::WAPP_KR,
+                "is_except"      => $is_except,
+                "img_url_origin" => $imageSrc,
+                "img_url_trans"  => $img_url_trans,
+                "isChangeImg"    => $isChangeImg,
+                "width"          => $imgWidth,
+                "height"         => $imgHeight,
+                "byte"           => $imgByte,
+                "mime"           => $imgMime
+            ]);
+            $product1688ImageDtoList[] = $product1688ImageDto;
+        }
+
+        // 2-2. 영문 이미지
+        $prdDescription = $detailEnProduct["description"];
+        preg_match_all('/<img[^>]+src="([^">]+)"/', $prdDescription, $matches);
+        $imageSrcs = $matches[1];
+        foreach ($imageSrcs as $imageSrc) {
+            $imgType       = ImageConstant::IMAGE_TYPE_DESC;
+            $is_except     = ImageConstant::IS_EXCEPT_N;
+            $img_url_trans = "";
+            $imgObj        = ProductImageData::where([
+                "offer_id"       => $offerId,
+                "img_type"       => $imgType,
+                "img_url_origin" => $imageSrc,
+                "lang"           => WConstant::WAPP_EN,
+            ])->first();
+            if( $imgObj != null ){
+                $is_except     = $imgObj->is_except;
+                $img_url_trans = $imgObj->img_url_trans;
+            }
+            if( $is_except == ImageConstant::IS_EXCEPT_Y ){
+                continue;
+            }
+
+            $isChangeImg = $this->isChangeImage($offerId, $imageSrc, $imgType);
+            $imgWidth    = 0;
+            $imgHeight   = 0;
+            $imgByte     = 0;
+            $imgMime     = "";
+            if( $isChangeImg == true ){
+                $imageInfo = $this->checkImageSize($imageSrc);
+                $imgWidth  = $imageInfo["width"];
+                $imgHeight = $imageInfo["height"];
+                $imgByte   = $imageInfo["byte"];
+                $imgMime   = $imageInfo["mime"];
+            }
+            $product1688ImageDto = new Product1688ImageDto();
+            $product1688ImageDto->bind([
+                "offerId"        => $offerId,
+                "imgType"        => $imgType,
+                "lang"           => WConstant::WAPP_EN,
                 "is_except"      => $is_except,
                 "img_url_origin" => $imageSrc,
                 "img_url_trans"  => $img_url_trans,
@@ -1454,7 +1686,7 @@ class ProductW1 extends ProductAbstract
             "wType"          => WConstant::WAPP_W1,
             "subject"        => $detailProduct["subject"],
             "subjectTrans"   => $subjectForbiddenTrans,
-            "subjectTransEn" => $prdObj != null ? $prdObj->prd_name_en : "",
+            "subjectTransEn" => $detailEnProduct["subjectTrans"],
             "startQuantity"  => $startQuantity,
             "description"    => $detailProduct["description"],
             "prdDescKr"      => $prdDescKr,
@@ -1491,6 +1723,13 @@ class ProductW1 extends ProductAbstract
                 $is_except = $gosiObj->is_except;
             }
 
+            $prdNoticeEn = null;
+            foreach ($detailEnProduct["productAttribute"] as $enNotice) {
+                if( $prdNotice["attributeId"] == $enNotice["attributeId"] ){
+                    $prdNoticeEn = $enNotice;
+                }
+            }
+
             $attributeNameTrans = $prdNotice["attributeNameTrans"];
             $attrValueTrans     = trim($prdNotice["valueTrans"]);
 
@@ -1523,6 +1762,22 @@ class ProductW1 extends ProductAbstract
                     'attribute_name'       => $attributeNameTrans,
                     'apply_attribute_name' => "",
                 ]);
+            }
+
+            if( $prdNoticeEn != null ){
+                $enNotice = WNoticeData::where([
+                    'attribute_id'    => $prdNoticeEn['attributeId'],
+                    'lang'            => Constant1688::LANGUAGE_EN,
+                    'attribute_name'  => $prdNoticeEn["attributeNameTrans"],
+                ])->first();
+                if ( $enNotice == null ) {
+                    WNoticeData::create([
+                        'attribute_id'         => $prdNoticeEn['attributeId'],
+                        'lang'                 => Constant1688::LANGUAGE_EN,
+                        'attribute_name'       => $prdNoticeEn["attributeNameTrans"],
+                        'apply_attribute_name' => "",
+                    ]);
+                }
             }
 
             if( $krNotice != null && $krNotice->apply_attribute_name != "" ){
@@ -1574,8 +1829,8 @@ class ProductW1 extends ProductAbstract
                 "value"                => $prdNotice["value"],
                 "attributeNameTrans"   => $nameTrans,
                 "valueTrans"           => $valueTrans,
-                "attributeNameTransEn" => $gosiObj != null ? $gosiObj->attribute_name_en : "",
-                "valueTransEn"         => $gosiObj != null ? $gosiObj->attribute_value_en : "",
+                "attributeNameTransEn" => $prdNoticeEn != null ? $prdNoticeEn["attributeNameTrans"] : "",
+                "valueTransEn"         => $prdNoticeEn != null ? $prdNoticeEn["valueTrans"] : "",
             ]);
             $product1688NoticeDtoList[] = $product1688NoticeDto;
         }
@@ -1608,11 +1863,31 @@ class ProductW1 extends ProductAbstract
                     $opt_status = ProductConstant::OPTION_SEC_OUT_OF_STOCK_NUMBER;
                 }
     
-                $optionName      = "";
-                $optionNameTrans = "";
+                $prdOptionsEn = null;
+                foreach ($detailEnProduct["productSkuInfos"] as $enOpt) {
+                    if( $prdOptions["skuId"] == $enOpt["skuId"] ){
+                        $prdOptionsEn = $enOpt;
+                    }
+                }
+
+                $optionName        = "";
+                $optionNameTrans   = "";
+                $optionNameTransEn = "";
                 foreach ($prdOptions["skuAttributes"] as $prdOption) {
                     $optionName      .= $prdOption["value"] .  "_";
                     $optionNameTrans .= $prdOption["valueTrans"] .  "_";
+
+                    $prdOptionEn = null;
+                    if( $prdOptionsEn != null ){
+                        foreach ($prdOptionsEn["skuAttributes"] as $enSku) {
+                            if( $prdOption["attributeId"] == $enSku["attributeId"] ){
+                                $prdOptionEn = $enSku;
+                            }
+                        }
+                        if( $prdOptionEn != null ){
+                            $optionNameTransEn .= $prdOptionEn["valueTrans"] .  "_";
+                        }
+                    }
                 }
 
                 $width  = 0;
@@ -1676,7 +1951,7 @@ class ProductW1 extends ProductAbstract
                     "price_1688"        => $price_1688,
                     "optionName"        => rtrim($optionName, "_"),
                     "optionNameTrans"   => rtrim($optionNameTrans, "_"),
-                    "optionNameTransEn" => $optionObj != null ? $optionObj->option_name_en : "",
+                    "optionNameTransEn" => rtrim($optionNameTransEn, "_"),
                     "amountOnSale"      => $prdOptions["amountOnSale"],
                     "cargoNumber"       => $prdOptions["cargoNumber"] ?? "",
                     "width"             => (float) sprintf("%.2f", $width),
@@ -1810,39 +2085,62 @@ class ProductW1 extends ProductAbstract
 
     public function delProductImage(array $product1688ImageDtoList): void
     {
-        $mainImg  = "";
-        $subImgs  = [];
-        $descImgs = [];
-        $offerId  = 0;
-        
+        $mainImg    = "";
+        $subImgs    = [];
+        $descImgs   = [];
+        $mainEnImg  = "";
+        $subEnImgs  = [];
+        $descEnImgs = [];
+        $offerId    = 0;
+
         $prdObj = ProductData::where("offer_id", $offerId)->first();
 
         foreach ($product1688ImageDtoList as $product1688ImageDto) {
             $offerId = $product1688ImageDto->offer_id;
-            if( $product1688ImageDto->img_type == ImageConstant::IMAGE_TYPE_MAIN ){
-                $mainImg = $product1688ImageDto->img_url_origin;
-            }
-            if( $product1688ImageDto->img_type == ImageConstant::IMAGE_TYPE_SUB ){
-                $subImgs[] = $product1688ImageDto->img_url_origin;
-            }
-            if( $product1688ImageDto->img_type == ImageConstant::IMAGE_TYPE_DESC ){
-                $descImgs[] = $product1688ImageDto->img_url_origin;
+            if( $product1688ImageDto->lang == WConstant::WAPP_KR ){
+                if( $product1688ImageDto->img_type == ImageConstant::IMAGE_TYPE_MAIN ){
+                    $mainImg = $product1688ImageDto->img_url_origin;
+                }
+                if( $product1688ImageDto->img_type == ImageConstant::IMAGE_TYPE_SUB ){
+                    $subImgs[] = $product1688ImageDto->img_url_origin;
+                }
+                if( $product1688ImageDto->img_type == ImageConstant::IMAGE_TYPE_DESC ){
+                    $descImgs[] = $product1688ImageDto->img_url_origin;
+                }
+            } else if( $product1688ImageDto->lang == WConstant::WAPP_EN ){
+                if( $product1688ImageDto->img_type == ImageConstant::IMAGE_TYPE_MAIN ){
+                    $mainEnImg = $product1688ImageDto->img_url_origin;
+                }
+                if( $product1688ImageDto->img_type == ImageConstant::IMAGE_TYPE_SUB ){
+                    $subEnImgs[] = $product1688ImageDto->img_url_origin;
+                }
+                if( $product1688ImageDto->img_type == ImageConstant::IMAGE_TYPE_DESC ){
+                    $descEnImgs[] = $product1688ImageDto->img_url_origin;
+                }
             }
         }
 
         if( $offerId && $prdObj != null ){
+            // 1. 메인 이미지 삭제
             if( $mainImg ){
-                // 1. 메인 이미지 삭제
                 ProductImageData::where('img_type', ImageConstant::IMAGE_TYPE_MAIN)
                 ->where('offer_id', $offerId)
                 ->where('is_except', ImageConstant::IS_EXCEPT_N)
                 ->where('lang', WConstant::WAPP_KR)
-                ->where('img_url_origin', "!=", $mainImg)
+                ->where('img_url_origin', '!=', $mainImg)
                 ->delete();
             }
-    
+            if( $mainEnImg ){
+                ProductImageData::where('img_type', ImageConstant::IMAGE_TYPE_MAIN)
+                ->where('offer_id', $offerId)
+                ->where('is_except', ImageConstant::IS_EXCEPT_N)
+                ->where('lang', WConstant::WAPP_EN)
+                ->where('img_url_origin', '!=', $mainEnImg)
+                ->delete();
+            }
+
+            // 2. 서브 이미지 삭제
             if( !empty($subImgs) ){
-                // 2. 서브 이미지 삭제
                 ProductImageData::where('img_type', ImageConstant::IMAGE_TYPE_SUB)
                 ->where('offer_id', $offerId)
                 ->where('is_except', ImageConstant::IS_EXCEPT_N)
@@ -1850,13 +2148,30 @@ class ProductW1 extends ProductAbstract
                 ->whereNotIn('img_url_origin', $subImgs)
                 ->delete();
             }
-    
+            if( !empty($subEnImgs) ){
+                ProductImageData::where('img_type', ImageConstant::IMAGE_TYPE_SUB)
+                ->where('offer_id', $offerId)
+                ->where('is_except', ImageConstant::IS_EXCEPT_N)
+                ->where('lang', WConstant::WAPP_EN)
+                ->whereNotIn('img_url_origin', $subEnImgs)
+                ->delete();
+            }
+
+            // 3. 상세 이미지 삭제
             if( !empty($descImgs) ){
                 ProductImageData::where('img_type', ImageConstant::IMAGE_TYPE_DESC)
                 ->where('offer_id', $offerId)
                 ->where('is_except', ImageConstant::IS_EXCEPT_N)
                 ->where('lang', WConstant::WAPP_KR)
                 ->whereNotIn('img_url_origin', $descImgs)
+                ->delete();
+            }
+            if( !empty($descEnImgs) ){
+                ProductImageData::where('img_type', ImageConstant::IMAGE_TYPE_DESC)
+                ->where('offer_id', $offerId)
+                ->where('is_except', ImageConstant::IS_EXCEPT_N)
+                ->where('lang', WConstant::WAPP_EN)
+                ->whereNotIn('img_url_origin', $descEnImgs)
                 ->delete();
             }
         }
@@ -2103,7 +2418,19 @@ class ProductW1 extends ProductAbstract
                                 throw new Exception(ProductErrorMessageConstant::getFitErrorMessage("PRODUCT_SEARCH_QUERYPRODUCTDETAIL"));
                             }
 
-                            $prdDto                   = $this->get1688ProductDto($detailResult);
+                            $payload_detail = [
+                                'access_token'     => $this->accessToken,
+                                'offerDetailParam' => [
+                                    'offerId' => $offerId,
+                                    'country' => Constant1688::LANGUAGE_EN,
+                                ]
+                            ];
+                            $detailEnResult = curl_1688("POST", $endPoint, $payload_detail);
+                            if( $detailEnResult["isSuccess"] != true || $detailEnResult["data"]["result"]["success"] != true ){
+                                throw new Exception(ProductErrorMessageConstant::getFitErrorMessage("SEARCH_QUERYPRODUCTDETAIL_EN"));
+                            }
+
+                            $prdDto                   = $this->get1688ProductDto($detailResult, $detailEnResult);
                             $product1688Dto           = $prdDto["product1688Dto"];
                             $product1688ExtendDto     = $prdDto["product1688ExtendDto"];
                             $product1688ImageDtoList  = $prdDto["product1688ImageDtoList"];
@@ -2337,7 +2664,19 @@ class ProductW1 extends ProductAbstract
                                 throw new Exception(ProductErrorMessageConstant::getFitErrorMessage("PRODUCT_SEARCH_QUERYPRODUCTDETAIL"));
                             }
 
-                            $prdDto                   = $this->get1688ProductDto($detailResult);
+                            $payload_detail = [
+                                'access_token'     => $this->accessToken,
+                                'offerDetailParam' => [
+                                    'offerId' => $offerId,
+                                    'country' => Constant1688::LANGUAGE_EN,
+                                ]
+                            ];
+                            $detailEnResult = curl_1688("POST", $endPoint, $payload_detail);
+                            if( $detailEnResult["isSuccess"] != true || $detailEnResult["data"]["result"]["success"] != true ){
+                                throw new Exception(ProductErrorMessageConstant::getFitErrorMessage("SEARCH_QUERYPRODUCTDETAIL_EN"));
+                            }
+
+                            $prdDto                   = $this->get1688ProductDto($detailResult, $detailEnResult);
                             $product1688Dto           = $prdDto["product1688Dto"];
                             $product1688ExtendDto     = $prdDto["product1688ExtendDto"];
                             $product1688ImageDtoList  = $prdDto["product1688ImageDtoList"];
@@ -2902,13 +3241,16 @@ class ProductW1 extends ProductAbstract
 
             $offerId     = $params["offer_id"];
             $prd_name_kr = trim($params["prd_name_kr"]);
+            $prd_name_en = trim($params["prd_name_en"]);
             $optionList  = $params["optionList"];
             $gosiKrList  = $params["gosiKrList"];
+            $gosiEnList  = $params["gosiEnList"];
 
-            if( $prd_name_kr ){
+            if( $prd_name_kr && $prd_name_en ){
                 ProductData::where("offer_id", $offerId)
                 ->update([
                     "prd_name_kr" => $prd_name_kr,
+                    "prd_name_en" => $prd_name_en,
                 ]);
             }
 
@@ -2917,7 +3259,8 @@ class ProductW1 extends ProductAbstract
                 if( $option["is_except"] == OptionConstants::IS_EXCEPT_N ){
                     $qry->update([
                         "is_except"      => $option["is_except"],
-                        "option_name_kr" => $option["option_name_kr"]
+                        "option_name_kr" => $option["option_name_kr"],
+                        "option_name_en" => $option["option_name_en"],
                     ]);
                 } else {
                     $qry->update([
@@ -2932,6 +3275,15 @@ class ProductW1 extends ProductAbstract
                     "is_except"          => $gosi["is_except"],
                     "attribute_name_kr"  => $gosi["attribute_name_kr"],
                     "attribute_value_kr" => $gosi["attribute_value_kr"],
+                ]);
+            }
+
+            foreach ($gosiEnList as $gosi) {
+                ProductNoticeData::where("id", $gosi["id"])
+                ->update([
+                    "is_except"          => $gosi["is_except"],
+                    "attribute_name_en"  => $gosi["attribute_name_en"],
+                    "attribute_value_en" => $gosi["attribute_value_en"],
                 ]);
             }
 
