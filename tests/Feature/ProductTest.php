@@ -154,16 +154,26 @@ class ProductTest extends TestCase
     # php artisan test --filter testAllProductReCollectW1
     public function testAllProductReCollectW1()
     {
+        if (now()->format('Y-m-d H:i') != '2024-06-01 00:05') {
+            return false;
+        }
+
         $msg = "testAllProductReCollectW1 시작";
         debug_log($msg, "product/testAllProductReCollectW1", "testAllProductReCollectW1");
 
         $productW1 = app(ProductW1::class);
         $builder   = ProductData::select(["offer_id"]);
+        $builder->where(function($query) {
+            $query->where("w_type", WConstant::WAPP_W2)
+            ->orWhere(function($query2) {
+                $query2->where("w_type", WConstant::WAPP_W1)
+                ->where("prd_name_en", "");
+            });
+        });
 
         $perPage    = 900;
         $totalCount = $builder->count();
         $totalPages = ceil($totalCount / $perPage);
-
 
         for ($page = 1; $page <= $totalPages; $page++) {
             Paginator::currentPageResolver(function () use ($page) {
