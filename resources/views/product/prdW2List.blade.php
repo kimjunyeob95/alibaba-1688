@@ -324,7 +324,11 @@
                                         @endif
                                     </td>
                                     <td class="text-center">
-                                        {{ ProductConstant::IMG_TRANS_STATUS[$data->trans_status_en] }}
+                                        @if ($data->trans_status_en == ProductConstant::IMG_TRANS_Y)
+                                            <small>{{ ProductConstant::IMG_TRANS_STATUS[$data->trans_status_en] }}</small>
+                                        @else
+                                            <small class="text-danger">{{ ProductConstant::IMG_TRANS_STATUS[$data->trans_status_en] }}</small>
+                                        @endif
                                     </td>
                                     <td class="text-center">
                                         <button class="btn btn-sm btn-outline-success btn-detail" offerid={{ $data->offer_id }}>상세보기</button>

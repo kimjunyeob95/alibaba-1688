@@ -96,8 +96,8 @@ class ProductConstant
     public const IMG_TRANS_Y = "Y";
     public const IMG_TRANS_N = "N";
     public const IMG_TRANS_STATUS = [
-        self::IMG_TRANS_Y => "번역완료",
-        self::IMG_TRANS_N => "번역미완료",
+        self::IMG_TRANS_Y => "완료",
+        self::IMG_TRANS_N => "미완료",
     ];
 
     // 공급업체 분류

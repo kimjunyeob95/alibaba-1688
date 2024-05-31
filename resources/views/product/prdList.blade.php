@@ -376,6 +376,7 @@
                                     상품 검수<br>
                                     (누락)
                                 </th> 
+                                <th scope="col" style="width: 60px" class="text-center">판매상태</th>
                                 <th style="width: 100px" class="text-center">관리</th> 
                             </tr>
                         </thead>
@@ -494,7 +495,11 @@
                                         @endif
                                     </td>
                                     <td class="text-center">
-                                        <small>{{ ProductConstant::IMG_TRANS_STATUS[$data->trans_status] }}</small>
+                                        @if ($data->trans_status == ProductConstant::IMG_TRANS_Y)
+                                            <small>{{ ProductConstant::IMG_TRANS_STATUS[$data->trans_status] }}</small>
+                                        @else
+                                            <small class="text-danger">{{ ProductConstant::IMG_TRANS_STATUS[$data->trans_status] }}</small>
+                                        @endif
                                     </td>
                                     <td class="text-center">
                                         @if ($data->img_inspect == null || $data->img_inspect->is_inspect == InspectConstant::IS_INSPECT_N)
@@ -505,6 +510,13 @@
                                         @endif
                                         @if ($data->gosi_inspect == null || $data->gosi_inspect->is_inspect == InspectConstant::IS_INSPECT_N)
                                             <small class="text-danger d-block">{{ InspectConstant::INSPECT_LIST[InspectConstant::INSPECT_NOTICE] }}</small>
+                                        @endif
+                                    </td>
+                                    <td class="text-center">
+                                        @if ($data->status == ProductConstant::PRD_STATUS_PUBLISH)
+                                            <small class="text-primary">{{ ProductConstant::PRD_STATUS[$data->status] }}</small>
+                                        @else
+                                            <small class="text-danger">{{ ProductConstant::PRD_STATUS[$data->status] }}</small>
                                         @endif
                                     </td>
                                     <td class="text-center">
