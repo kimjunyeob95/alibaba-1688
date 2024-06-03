@@ -12,7 +12,7 @@ use Illuminate\Console\Command;
 
 class OnchannelCommand extends Command
 {
-    protected $signature   = 'onchannel_command {--func=} {--offerids=} {--type=}';
+    protected $signature   = 'onchannel_command {--func=} {--offerids=} {--sendtype=}';
     protected $description = 'onchannel command';
 
     protected MallApiService $mallApiService;
@@ -51,23 +51,28 @@ class OnchannelCommand extends Command
                         ->orWhereNull("b.regist_success");
                 });
 
-                $objs = $prdBuilder->pluck('offer_id')->toArray();                
+                $objs = $prdBuilder->pluck('offer_id')->toArray();
+                $params = [
+                    "sendTypeList" => [OnchannelConstant::PRD_CHANNEL]
+                ];
                 if( !empty($objs) ){
-                    $this->mallApiService->productRegist($objs, "", OnchannelConstant::PRD_CHANNEL);
+                    $this->mallApiService->productRegist($objs, $params);
                 }
 
                 break;
 
             /**
              * 상품등록 커맨드
-             * php artisan easy_sell_command --func=productRegist --offerids=44798792934,562321147241 --type=W1
+             * php artisan onchannel_command --func=productRegist --offerids=44798792934,562321147241 --sendtype=W1
              */
             case 'productRegist':
-                $offerIds = explode(",", $this->option('offerids'));
-                $type = $this->option('type');
+                $offerIds     = explode(",", $this->option('offerids'));
+                $sendtypeList = explode(",", $this->option('sendtype'));
+                $params       = [
+                    "sendTypeList" => $sendtypeList
+                ];
                 if (!empty($offerIds)) {
-                    $result = $this->mallApiService->productRegist($offerIds, $type);
-                    dd($result);
+                    $this->mallApiService->productRegist($offerIds, $params);
                 }
                 break;
 

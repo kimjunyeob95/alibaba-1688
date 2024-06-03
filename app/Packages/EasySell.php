@@ -43,15 +43,18 @@ class EasySell extends MallApiAbstract
      * @func productRegist
      * @description '상품등록'
      * @param array $offerIds
-     * @param string $type
-     * @param string $sendType
+     * @param array $params
      * @return array
     */
-    public function productRegist(array $offerIds, string $type = WConstant::WAPP_W1, string $sendType = ""): array
+    public function productRegist(array $offerIds, array $params = []): array
     {
         $successIds = [];
         $failIds    = [];
         $updateIds  = [];
+        $type = WConstant::WAPP_W1;
+        if( isset($params["type"]) ){
+            $type = $params["type"];
+        }
 
         foreach ($offerIds as $offerId) {
             $easyObj      = null;

@@ -89,10 +89,10 @@ class MallCategoryController extends Controller
     {
         try {
             $validator = Validator::make($this->request->all(), [
-                'wAppCateCode'    => 'required|string',
+                'categoryId'      => 'required|string',
                 'channelCateCode' => 'required|string',
             ], [
-                'wAppCateCode.required'    => CategoryErrorMessageConstant::getNotHaveErrorMessage("W_CATEGORYID"),
+                'categoryId.required'      => CategoryErrorMessageConstant::getNotHaveErrorMessage("CATEGORYID"),
                 'channelCateCode.required' => CategoryErrorMessageConstant::getNotHaveErrorMessage("CHANNELCATECODE"),
             ]);
             if ($validator->fails()) {
@@ -100,7 +100,7 @@ class MallCategoryController extends Controller
             }
     
             $params = [
-                "wAppCateCode"    => $this->request->post("wAppCateCode"),
+                "categoryId"      => $this->request->post("categoryId"),
                 "channelCateCode" => $this->request->post("channelCateCode"),
             ];
 

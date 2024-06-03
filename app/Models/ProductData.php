@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Constants\GosiConstants;
 use App\Constants\ImageConstant;
 use App\Constants\InspectConstant;
+use App\Constants\OnchannelConstant;
 use App\Constants\OptionConstants;
 use App\Constants\ProductConstant;
 use App\Constants\WConstant;
@@ -89,8 +90,17 @@ class ProductData extends Model
         return $this->hasOne(CategoryMapping::class, "category_id", "category_id")->where("mapping_channel", ProductConstant::MAPPING_WAPP);
     }
 
+    public function w_category () {
+        return $this->hasOne(WCategory::class, "mapping_code", "w_mapping_code");
+    }
+
     public function oc_mapping () {
         return $this->hasOne(CategoryMapping::class, "category_id", "category_id")->where("mapping_channel", ProductConstant::MAPPING_OC_CHANNEL);
+    }
+
+    public function oc_category()
+    {
+        return $this->hasOne(OnchCategoryExcelDataCopy2::class, "codenum", "channel_mapping_code");
     }
 
     public function es_mapping () {
@@ -119,5 +129,21 @@ class ProductData extends Model
 
     public function weight_delivery () {
         return $this->hasOne(ProductWeightData::class, "offer_id", "offer_id");
+    }
+
+    public function es_w_log () {
+        return $this->hasOne(EasysellProductLog::class, "offer_id", "offer_id");
+    }
+
+    public function es_drop_hub_log () {
+        return $this->hasOne(EasysellProductLog::class, "offer_id", "offer_id");
+    }
+
+    public function oc_public_log () {
+        return $this->hasOne(OnchannelProductLog::class, "offer_id", "offer_id")->where("send_type", OnchannelConstant::PRD_CHANNEL);
+    }
+
+    public function oc_private_log () {
+        return $this->hasOne(OnchannelProductLog::class, "offer_id", "offer_id")->where("send_type", OnchannelConstant::PRD_CHANNEL_PRIVATE);
     }
 }

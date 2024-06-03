@@ -22,6 +22,7 @@ class OnchannelService
         $registStatus = $params["registStatus"];
         $search_cls   = $params["search_cls"];
         $keyword      = $params["keyword"];
+        $send_type    = $params["send_type"];
         $cate_first   = "";
         $cate_second  = "";
         $cate_third   = "";
@@ -52,20 +53,30 @@ class OnchannelService
         }
 
         $prdBuilder = ProductData::select([
-                "product_datas.*", "b.regist_success", "b.message", "b.prd_code", "b.registed_at", "b.updated_at as b_updated_at"
+                "product_datas.*", "b.id as log_id", "b.regist_success", "b.message", "b.prd_code", "b.registed_at", "b.updated_at as b_updated_at",
+                "pwd.weight_type", "pwd.weight", "pwd.delivery_price", "c.mapping_code as channel_mapping_code", "d.mapping_code as w_mapping_code"
             ])
             ->with([
-                "main_img", "options", "w_mapping"
+                "main_img", "options", "w_mapping", "w_category", "oc_category",
+                "img_inspect",
+                "prd_inspect",
+                "gosi_inspect",
             ])
-            ->leftJoin("onchannel_product_logs as b", "product_datas.offer_id", "=", "b.offer_id")
-            ->whereIn("product_datas.w_type", [ WConstant::WAPP_W1, WConstant::WAPP_W2])
-            ->where("product_datas.mapping_status", ProductConstant::MAPPING_STATUS_Y)
-            ->where("product_datas.status", "!=", ProductConstant::PRD_STATUS_MISS)
+            ->join("onchannel_product_logs as b", "product_datas.offer_id", "=", "b.offer_id")
+            ->leftJoin('product_weight_datas as pwd', function ($join) {
+                $join->on('product_datas.offer_id', '=', 'pwd.offer_id');
+            })
+            ->leftJoin('category_mappings as c', function($join) {
+                $join->on('product_datas.category_id', '=', 'c.category_id')->where('c.mapping_channel', ProductConstant::MAPPING_OC_CHANNEL);
+            })
+            ->leftJoin('category_mappings as d', function($join) {
+                $join->on('product_datas.category_id', '=', 'd.category_id')->where('d.mapping_channel', ProductConstant::MAPPING_WAPP);
+            })
+            ->where("b.send_type", $send_type)
             ->orderBy("b.registed_at", "desc")
             ->orderBy("b.updated_at", "desc");
 
-        $totalCnt = ProductData::where("mapping_status", ProductConstant::MAPPING_STATUS_Y)
-        ->where("product_datas.status", "!=", ProductConstant::PRD_STATUS_MISS)->count();
+        $totalCnt = OnchannelProductLog::where("send_type", $send_type)->count();
 
         if(isset($search_cls) && !empty($keyword)){
             if($search_cls == "prd_name_kr"){
@@ -124,31 +135,22 @@ class OnchannelService
             }
         }
 
-        $countBuilder = ProductData::leftJoin("onchannel_product_logs as b", "product_datas.offer_id", "=", "b.offer_id")
-            ->whereIn("product_datas.w_type", [ WConstant::WAPP_W1, WConstant::WAPP_W2])
-            ->where("product_datas.mapping_status", ProductConstant::MAPPING_STATUS_Y)
-            ->where("product_datas.status", "!=", ProductConstant::PRD_STATUS_MISS);
+        $successCnt = OnchannelProductLog::where("send_type", $send_type)->where("regist_success", MallConstant::REGIST_SUCCESS)->count();
+        $errorCnt   = OnchannelProductLog::where("send_type", $send_type)->where("regist_success", MallConstant::REGIST_ERROR)->count();
 
-        $successCnt = (clone $countBuilder)->where("regist_success", MallConstant::REGIST_SUCCESS)->count();
-
-        $failCnt = (clone $countBuilder)->where(function($query){
-            $query->where("b.regist_success", MallConstant::REGIST_FAIL)
-                ->orWhereNull("b.regist_success");
-        })->count();
-
-        $errorCnt = (clone $countBuilder)->where("regist_success", MallConstant::REGIST_ERROR)->count();
+        $channelCateFirstList = OnchCategoryExcelDataCopy2::orderBy("fir_cate", "asc")->groupBy("fir_cate")->pluck("fir_cate");
 
         $lists = $prdBuilder->paginate($pageSize)->appends($params);
-
+        // dd($lists->toArray()["data"][0]);
         return [
-            "paginator"      => $lists,
-            "totalCnt"       => $totalCnt,
-            "successCnt"     => $successCnt,
-            "failCnt"        => $failCnt,
-            "errorCnt"       => $errorCnt,
-            "firstCateObjs"  => $firstCateObjs,
-            "secondCateObjs" => $secondCateObjs,
-            "thirdCateObjs"  => $thirdCateObjs,
+            "channelCateFirstList" => $channelCateFirstList,
+            "paginator"            => $lists,
+            "totalCnt"             => $totalCnt,
+            "successCnt"           => $successCnt,
+            "errorCnt"             => $errorCnt,
+            "firstCateObjs"        => $firstCateObjs,
+            "secondCateObjs"       => $secondCateObjs,
+            "thirdCateObjs"        => $thirdCateObjs,
         ];
     }
 

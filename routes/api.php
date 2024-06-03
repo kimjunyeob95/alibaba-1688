@@ -162,8 +162,11 @@ Route::name('w2.')->prefix('w2')->group(function () {
 Route::name('mall.')->prefix('mall')->group(function () {
     Route::post('/{channel}/token/create', [MallController::class, "tokenCreate"])->name("tokenCreate");
 
+    Route::post('/all/product/regist', [MallController::class, "allProductRegist"])->name('allProductRegist');
+
     Route::name('{channel}.')->prefix('{channel}')->group(function () {
         Route::post('/product/regist', [MallController::class, "productRegist"])->name('productRegist');
+        Route::get('/product/log/{logId}', [MallController::class, "productLog"])->name('productLog');
 
         /** 카테고리 */
         Route::prefix("category")->name("category.")->group(function(){

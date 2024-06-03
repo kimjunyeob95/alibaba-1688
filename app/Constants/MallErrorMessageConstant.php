@@ -36,6 +36,10 @@ class MallErrorMessageConstant
     public const ERROR_MESSAGE_CATEGORYCODE       = "categoryCode";
     public const ERROR_MESSAGE_W_APP_MAPPINGCODE  = "WApp 맵핑 코드가 없습니다.";
     public const ERROR_MESSAGE_OC_MAPPINGCODE     = "onchannel 맵핑 코드가 없습니다.";
+    public const ERROR_MESSAGE_OFFERIDS           = "offerIds";
+    public const ERROR_MESSAGE_LOGID              = "logId";
+    public const ERROR_MESSAGE_PRD_DESC_KR        = "상세설명 국문 번역 미완료";
+    public const ERROR_MESSAGE_TRANS_STATUS       = "번역 미완료 상태";
 
     public static function getErrorMessageNotDefault($constantName): string
     {

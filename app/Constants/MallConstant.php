@@ -18,10 +18,26 @@ class MallConstant
     public const UNREGIST = "S";
     public const REGISTED = "Y";
     
+    /** 성공여부 */
     public const REGIST_SUCCESS = "Y";
     public const REGIST_FAIL    = "N";
     public const REGIST_ERROR   = "E";
 
+    public const REGIST_TYPE_LIST = [
+        self::REGIST_SUCCESS => "성공",
+        self::REGIST_FAIL    => "실패",
+    ];
+
     public const MODI_SUCCESS = "Y";
     public const MODI_FAIL    = "N";
+
+    /** 전송 타입 */
+    public const SEND_TYPE_REGIST = "regist";
+    public const SEND_TYPE_MODI   = "modi";
+    public const SEND_TYPE_LIST = [
+        self::SEND_TYPE_REGIST => "등록",
+        self::SEND_TYPE_MODI => "수정",
+    ];
+
+
 }

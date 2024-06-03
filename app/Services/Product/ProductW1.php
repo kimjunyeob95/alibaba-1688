@@ -147,6 +147,10 @@ class ProductW1 extends ProductAbstract
             "img_inspect",
             "prd_inspect",
             "gosi_inspect",
+            "es_w_log",
+            "es_drop_hub_log",
+            "oc_public_log",
+            "oc_private_log",
         ]);
 
         if( !empty($keyword) ){

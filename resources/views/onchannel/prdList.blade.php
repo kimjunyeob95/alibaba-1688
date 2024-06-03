@@ -2,10 +2,39 @@
     use App\Constants\ProductConstant;
     use App\Constants\MallConstant;
     use App\Constants\WConstant;
+    use App\Constants\InspectConstant;
+    use App\Constants\OnchannelConstant;
+
+    $exchangeRate = env("1688_EXCHANGE_RATE", 200);
 @endphp
 @extends('dashboard.base')
 
 @section('styles')
+<style>
+    .cate-table tbody {
+      display: block;
+      max-height: 350px;
+      overflow-y: auto;
+    }
+    
+    .cate-table thead,
+    .cate-table tbody tr {
+      display: table;
+      width: 100%;
+    }
+    
+    .cate-table thead tr td,
+    .cate-table tbody tr td{
+        width: 25%;
+    }
+    
+    .cate-table tbody tr{
+        cursor: pointer;
+    }
+    input[name='channelCategory']{
+        visibility: hidden;
+    }
+</style>
 @endsection
 
 @section('scripts')
@@ -20,9 +49,9 @@
                         <span>Home</span>
                     </a>
                 </li>
-                <li class="breadcrumb-item">온채널</li>
-                <li class="breadcrumb-item">상품관리</li>
-                <li class="breadcrumb-item active" aria-current="page">상품현황</li>
+                <li class="breadcrumb-item">채널 관리</li>
+                <li class="breadcrumb-item">상품 전송 현황</li>
+                <li class="breadcrumb-item active" aria-current="page">온채널: {{ OnchannelConstant::CHANNEL_NAME[$send_type] }}</li>
             </ol>
         </nav>
 
@@ -34,6 +63,7 @@
                     <input type="hidden" name="cate_first" value={{ $cate_first }}>
                     <input type="hidden" name="cate_second" value={{ $cate_second }}>
                     <input type="hidden" name="cate_third" value={{ $cate_third }}>
+                    <input type="hidden" name="send_type" value={{ $send_type }}>
 
                     <div class="card">
                         <div class="card-header">
@@ -51,10 +81,6 @@
                                                 {{ number_format($successCnt) }}건
                                             </li>
                                             <li class="list-group-item text-center small" style="width: 100%;">
-                                                미등록<br>
-                                                {{ number_format($failCnt) }}건
-                                            </li>
-                                            <li class="list-group-item text-center small" style="width: 100%;">
                                                 전송실패<br>
                                                 {{ number_format($errorCnt) }}건
                                             </li>
@@ -68,8 +94,6 @@
                                         value="">전체</button>
                                         <button type="button" name="registStatus" class="btn-status btn btn-md {{ $registStatus == MallConstant::REGISTED ? "btn-primary" : "btn-dark" }}"
                                         value="{{ MallConstant::REGISTED }}">완료</button>
-                                        <button type="button" name="registStatus" class="btn-status btn btn-md {{ $registStatus == MallConstant::UNREGIST ? "btn-primary" : "btn-dark" }}"
-                                        value="{{ MallConstant::UNREGIST}}">미등록</button>
                                         <button type="button" name="registStatus" class="btn-status btn btn-md {{ $registStatus == MallConstant::REGIST_ERROR ? "btn-primary" : "btn-dark" }}"
                                         value="{{ MallConstant::REGIST_ERROR}}">전송실패</button>
                                     </td>
@@ -151,8 +175,21 @@
                                 <th scope="col" style="width: 100px" class="text-center">이미지</th>
                                 <th scope="col" style="width: 100px" class="text-center">제품ID</th>
                                 <th scope="col" style="width: 200px" >상품명</th>
-                                <th scope="col" style="width: 130px">W 공급가(원)</th>
-                                <th scope="col" style="width: 130px">온채널 공급가(원)</th>
+                                <th scope="col" style="width: 100px" class="text-center">상품상태</th>
+                                <th scope="col" style="width: 150px" class="text-center">
+                                    W 공급가<br>
+                                    (환율: {{ number_format($exchangeRate) }}원)
+                                </th>
+                                <th scope="col" style="width: 120px" class="text-center">
+                                    기준: 중량 (kg)<br>
+                                    배송비 (원)
+                                </th>
+                                <th scope="col" style="width: 100px" class="text-center">
+                                    일반 판매가(원)
+                                </th>
+                                <th scope="col" style="width: 150px" class="text-center">
+                                    전송 카테고리
+                                </th>
                                 <th scope="col" style="width: 100px" class="text-center">
                                     온채널 코드<br>
                                     맵핑 코드
@@ -167,6 +204,20 @@
                                     $disabled = "";
                                     if(count($data->options) == 0){
                                         $disabled = "disabled";
+                                    }
+
+                                    $wCateName = "";
+                                    if($data->w_category && !empty($data->w_category->cate_first)){
+                                        $wCateName .= $data->w_category->cate_first;
+                                    }
+                                    if($data->w_category && !empty($data->w_category->cate_second)){
+                                        $wCateName .= " > " . $data->w_category->cate_second;
+                                    }
+                                    if($data->w_category && !empty($data->w_category->cate_second)){
+                                        $wCateName .= " > " . $data->w_category->cate_second;
+                                    }
+                                    if($data->w_category && !empty($data->w_category->cate_third)){
+                                        $wCateName .= " > " . $data->w_category->cate_third;
                                     }
                                 @endphp
                                 <tr>
@@ -193,13 +244,34 @@
                                         <small>{{ $data->prd_name_kr }}</small>
                                     </td>
                                     <td class="text-center">
-                                        @if (count($data->options) > 0)
-                                            @php
-                                                $option = $data->options[0];
-                                            @endphp
-                                            {{ number_format($option->option_price) }}
+                                        @if ($data->trans_status == ProductConstant::IMG_TRANS_Y)
+                                            <button class="btn btn-xs btn-dark text-white btn-trans-img" offerid={{ $data->offer_id }}>번역 {{ ProductConstant::IMG_TRANS_STATUS[$data->trans_status] }}</button>
                                         @else
-                                            <p class="text-danger">옵션없음</p>
+                                            <button class="btn btn-xs btn-danger text-white btn-trans-img" offerid={{ $data->offer_id }}>번역 {{ ProductConstant::IMG_TRANS_STATUS[$data->trans_status] }}</button>
+                                        @endif
+                                        @if ($data->status == ProductConstant::PRD_STATUS_PUBLISH)
+                                            <button class="btn btn-xs btn-dark text-white btn-prd-status mt-1" offerid={{ $data->offer_id }} prdstatus={{ $data->status }}>{{ ProductConstant::PRD_STATUS[$data->status] }}</button>
+                                        @else
+                                            <button class="btn btn-xs btn-danger text-white btn-prd-status mt-1" offerid={{ $data->offer_id }} prdstatus={{ $data->status }}>{{ ProductConstant::PRD_STATUS[$data->status] }}</button>
+                                        @endif
+                                        @php
+                                            $img_inspect  = "Y";
+                                            $prd_inspect  = "Y";
+                                            $gosi_inspect = "Y";
+                                            if($data->img_inspect == null || $data->img_inspect->is_inspect == InspectConstant::IS_INSPECT_N){
+                                                $img_inspect = "N";
+                                            }
+                                            if($data->prd_inspect == null || $data->prd_inspect->is_inspect == InspectConstant::IS_INSPECT_N){
+                                                $prd_inspect = "N";
+                                            }
+                                            if($data->gosi_inspect == null || $data->gosi_inspect->is_inspect == InspectConstant::IS_INSPECT_N){
+                                                $gosi_inspect = "N";
+                                            }
+                                        @endphp
+                                        @if ($data->inspect_status == InspectConstant::IS_INSPECT_Y)
+                                            <button class="btn btn-xs btn-dark text-white btn-inspect-status mt-1" offerid={{ $data->offer_id }} img_inspect={{ $img_inspect }} prd_inspect={{ $prd_inspect }} gosi_inspect={{ $gosi_inspect }}>검수 완료</button>
+                                        @else
+                                            <button class="btn btn-xs btn-danger text-white btn-inspect-status mt-1" offerid={{ $data->offer_id }} img_inspect={{ $img_inspect }} prd_inspect={{ $prd_inspect }} gosi_inspect={{ $gosi_inspect }}>검수 미완료</button>
                                         @endif
                                     </td>
                                     <td class="text-center">
@@ -207,9 +279,63 @@
                                             @php
                                                 $option = $data->options[0];
                                             @endphp
-                                            {{ number_format(calcOnchannelSalePrice($option->option_price)) }}
+                                                {{ $option->price_1688 }}(위안)<br>
+                                                {{ number_format($option->option_price) }}(원)
                                         @else
                                             <p class="text-danger">옵션없음</p>
+                                        @endif
+                                    </td>
+                                    <td class="text-center">
+                                        @if( $data->weight_type == null )
+                                            <button class="btn btn-sm btn-warning btn-weight-modi" offerid={{ $data->offer_id }} weight=0 price={{ ProductConstant::WEIGHT_STATUS_NONE_PRICE }} statusname='{{ ProductConstant::WEIGHT_STATUS[ProductConstant::WEIGHT_STATUS_NONE] }}'>
+                                                {{ ProductConstant::WEIGHT_STATUS_SHORT[ProductConstant::WEIGHT_STATUS_NONE] }}: 0
+                                            </button>
+                                            <br>
+                                            <span class="text-danger">
+                                                {{ number_format(ProductConstant::WEIGHT_STATUS_NONE_PRICE) }}
+                                            </span>
+                                        @else
+                                            <button class="btn btn-sm btn-warning btn-weight-modi" offerid={{ $data->offer_id }} weight={{ $data->weight }} price={{ $data->delivery_price }} statusname='{{ ProductConstant::WEIGHT_STATUS[$data->weight_type] }}'>
+                                                {{ ProductConstant::WEIGHT_STATUS_SHORT[$data->weight_type] }}: {{ $data->weight }}
+                                            </button>
+                                            <br>
+                                            <span class="text-danger">
+                                                {{ number_format($data->delivery_price) }}
+                                            </span>
+                                        @endif
+                                    </td>
+                                    <td class="text-center">
+                                        @if (count($data->options) > 0)
+                                            @php
+                                                $option         = $data->options[0];
+                                                $delivery_price = ProductConstant::WEIGHT_STATUS_NONE_PRICE;
+                                                if( $data->weight_type != null ){
+                                                    $delivery_price = $data->delivery_price;
+                                                }
+                                            @endphp
+                                                {{ number_format(calcWSalePrice($option->option_price, $delivery_price)) }} 
+                                        @else
+                                            <p class="text-danger">옵션없음</p>
+                                        @endif
+                                    </td>
+                                    <td class="text-center">
+                                        @if($data->oc_category == null)
+                                            <button class="btn btn-sm btn-danger text-white btn-modal" cateid={{ $data->category_id }} catename="{{ $wCateName }}">카테고리 미맵핑</button>
+                                        @else
+                                            <small>
+                                                @if($data->oc_category->fir_cate)
+                                                    {{ $data->oc_category->fir_cate }}
+                                                @endif
+                                                @if($data->oc_category->se_cate)
+                                                    > {{ $data->oc_category->se_cate }}
+                                                @endif
+                                                @if($data->oc_category->th_cate)
+                                                    > {{ $data->oc_category->th_cate }}
+                                                @endif
+                                                @if($data->oc_category->last_cate)
+                                                    > {{ $data->oc_category->last_cate }}
+                                                @endif
+                                            </small>
                                         @endif
                                     </td>
                                     <td class="text-center">
@@ -230,10 +356,13 @@
                                         @else
                                             <small>{{ $data->b_updated_at }}</small>
                                         @endif
+                                        <button class="btn btn-sm btn-success text-white btn-log-modal" logid={{ $data->log_id }}>전송로그</button>
                                     </td>
                                     <td class="text-center">
-                                        <button type="button" class="btn btn-sm btn-outline-success btn-detail" offerid={{ $data->offer_id }}>상세보기</button>
-                                        <br>
+                                        <button class="btn btn-sm btn-outline-success btn-detail" offerid={{ $data->offer_id }}>국문 상세</button>
+                                        @if ($data->prd_name_en)
+                                            <button class="btn btn-sm btn-outline-success btn-en-detail mt-1" offerid={{ $data->offer_id }}>영문 상세</button>
+                                        @endif
                                         <button type="button" class="btn btn-sm btn-outline-primary btn-regist mt-1" offerid={{ $data->offer_id }} {{ $disabled }}>상품전송</button>
                                     </td>
                                 </tr>
@@ -248,10 +377,339 @@
             </div>
         </div>
 
+        <div class="modal fade" id="htmlModal" tabindex="-1" role="dialog" aria-labelledby="htmlModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-xl" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="htmlModalLabel">WApp 맵핑 카테고리 : <span class="mapping-cate-nm"></span></h5>
+                    </div>
+                    <div class="modal-body">
+                        <input type="hidden" name="cateId" />
+
+                        <div>
+                            <div class="d-flex align-items-center">
+                                <label class="fs-7">온채널 카테고리 맵핑하기</label>
+                            </div>
+                            <hr>
+                            <div class="d-flex justify-content-evenly px-3">
+                                <div class="row w-100">
+                                    <div class="col-2">
+                                        <label class="fs-7">키워드</label>
+                                    </div>
+                                    <div class="col">
+                                        <input type="text" class="form-control" name="cate_keyword" placeholder="검색어를 입력하세요." value="">
+                                    </div>
+                                </div>
+                            </div>
+                            <hr>
+
+                            <div class="d-flex justify-content-evenly px-3">
+                                <div class="row w-100">
+                                    <div class="col">
+                                        <label class="fs-7">온채널 카테고리</label>
+                                    </div>
+                                    <div class="col">
+                                        <select class="form-control select-opt-channel" name="channel_cate_first" level="1">
+                                            <option value="">1차 분류</option>
+                                            @foreach($channelCateFirstList as $cate)
+                                                <option value="{{ $cate }}">{{ $cate }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    <div class="col">
+                                        <select class="form-control select-opt-channel" name="channel_cate_second" level="2">
+                                            <option value="">2차 분류</option>
+                                        </select>
+                                    </div>
+                                    <div class="col">
+                                        <select class="form-control select-opt-channel" name="channel_cate_third" level="3">
+                                            <option value="">3차 분류</option>
+                                        </select>
+                                    </div>
+                                    <div class="col">
+                                        <select class="form-control select-opt-channel" name="channel_cate_fourth" level="4">
+                                            <option value="">4차 분류</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <hr>
+
+                            <div class="text-left">
+                                <button type="button" class="btn btn-primary btn-cate-search">검색</button>
+                            </div>
+                            <hr>
+
+                            <table class="table table-white bg-white cate-table">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th scope="col" style="width: 200px">1차 카테고리</th>
+                                        <th scope="col" style="width: 200px">2차 카테고리</th>
+                                        <th scope="col" style="width: 200px">3차 카테고리</th>
+                                        <th scope="col" style="width: 200px">4차 카테고리</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary btn-save">확인</button>
+                        <button type="button" class="btn btn-secondary htmlModalClose">닫기</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade" id="htmlModal2" tabindex="-1" role="dialog" aria-labelledby="htmlModalLabel2" aria-hidden="true">
+            <div class="modal-dialog modal-xl" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="htmlModalLabel2">상품 전송 로그</h5>
+                    </div>
+                    <div class="modal-body">
+                        <table class="table table-white bg-white log-table">
+                            <thead class="table-light">
+                                <tr>
+                                    <th scope="col" style="width: 60px">No.</th>
+                                    <th scope="col" style="width: 200px">전송타입</th>
+                                    <th scope="col" style="width: 200px">성공여부</th>
+                                    <th scope="col" style="width: 200px">에러내용</th>
+                                    <th scope="col" style="width: 200px">전송일시</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary htmlModalClose2">닫기</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </div>
 <script type="text/javascript">
 
     $(document).ready(function(){
+        var sendTypeList = [ {{ OnchannelConstant::PRD_CHANNEL }} ];
+
+        $('.btn-log-modal').click(function(){
+            let logId = $(this).attr("logid");
+
+            $.ajax({
+                "headers": {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
+                "type"   : "GET",
+                "url"    : "/api/mall/onchannel/product/log/" + logId,
+                "data"   : {},
+                beforeSend: function () {
+                    $("#loadingOverlay").show();
+                },
+                complete  : function(xhr, status) {
+                    $("#loadingOverlay").hide();
+                },
+                success : function (resp) {
+                    $('.log-table tbody').html("");
+                    resp.data.map(function(obj, key){
+                        $('.log-table tbody').append(`<tr>
+                            <td>${key+1}</td>    
+                            <td>${obj.sendType}</td>    
+                            <td>${obj.isSuccess}</td>    
+                            <td>${obj.message}</td>
+                            <td>${obj.created_at}</td>
+                        </tr>`);
+                    });
+
+                    $("#htmlModal2").modal('show');
+                    
+                },
+                error: function (request) {
+                    let { error } = JSON.parse(request.responseText);
+                    alert(error.message);
+                }
+            });
+
+        });
+        
+        $(".htmlModalClose2").click(function(){
+            $("#htmlModal2").modal('hide');
+        });
+
+        $(".htmlModalClose").click(function(){
+            $("#htmlModal").modal('hide');
+        });
+
+        $('.select-opt-channel').on('change', function() {
+            let selectedLevel = parseInt($(this).attr('level'));
+
+            if( selectedLevel < 4 ){
+                let cate_name = "";
+                $('.select-opt-channel').each(function(key, ele) {
+                    var level = parseInt($(this).attr('level'));
+                    if (selectedLevel < level) {
+                        $(this).html(`<option value="">${level}차 분류</option>`);
+                    }
+                    if (selectedLevel >= level) {
+                        if( key == 0 ){
+                            cate_name = $(this).val();
+                        }else{
+                            cate_name += "," + $(this).val();
+                        }
+                    }
+                });
+
+                if( cate_name != "" ){
+                    $.ajax({
+                        "headers" : {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
+                        "type"    : "POST",
+                        "url"     : "/api/mall/onchannel/category/depth",
+                        "data"    : { 
+                            level     : selectedLevel,
+                            cate_name : cate_name,
+                        },
+                        beforeSend: function () {
+                            $("#loadingOverlay").show();
+                        },
+                        complete  : function(xhr, status) {
+                            $("#loadingOverlay").hide();
+                        },
+                        success : function (resp) {
+                            $(`.select-opt-channel[level=${selectedLevel+1}]`).html(`<option value="">${selectedLevel+1}차 분류</option>`);
+                            if( selectedLevel == 1 ){
+                                resp.data.map(function(obj){
+                                    if( obj.cate_second ){
+                                        $(`.select-opt-channel[level=${selectedLevel+1}]`).append(`<option value="${obj.cate_second}">${obj.cate_second}</option>`)
+                                    }
+                                })
+                            } else if( selectedLevel == 2 ){
+                                resp.data.map(function(obj){
+                                    if( obj.cate_third ){
+                                        $(`.select-opt-channel[level=${selectedLevel+1}]`).append(`<option value="${obj.cate_third}">${obj.cate_third}</option>`)
+                                    }
+                                })
+                            } else if( selectedLevel == 3 ){
+                                resp.data.map(function(obj){
+                                    if( obj.cate_fourth ){
+                                        $(`.select-opt-channel[level=${selectedLevel+1}]`).append(`<option value="${obj.cate_fourth}">${obj.cate_fourth}</option>`)
+                                    }
+                                })
+                            }
+                        },
+                        error: function (request) {
+                            let { error } = JSON.parse(request.responseText);
+                            alert(error.message);
+                        }
+                    });
+                }
+            }
+        });
+
+        $(".btn-modal").click(function(){
+            let cateId   = $(this).attr("cateid");
+            let cateName = $(this).attr("catename");
+
+            $("#htmlModal").find("select").val("");
+
+            $("input[name='cateId']").val(cateId);
+            $(`.mapping-cate-nm`).text(cateName);
+
+            $(".cate-table tbody").html("");
+            $("#htmlModal").modal('show');
+        });
+
+        $('.cate-table').on('click', 'tr', function() {
+            $(this).find('input[type="radio"]').prop('checked', true);
+
+            $('.cate-table tr').removeClass('bg-secondary');
+            $(this).addClass("bg-secondary");
+        });
+
+        $(".btn-cate-search").click(function(){
+            var keyword     = $("input[name='cate_keyword']").val();
+            var cate_first  = $("select[name='channel_cate_first']").val();
+            var cate_second = $("select[name='channel_cate_second']").val();
+            var cate_third  = $("select[name='channel_cate_third']").val();
+            var cate_fourth = $("select[name='channel_cate_fourth']").val();
+
+            $.ajax({
+                "headers": {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
+                "type"   : "POST",
+                "url"    : "/api/mall/onchannel/category/list",
+                "data"   : {
+                    "keyword"    : keyword,
+                    "cate_first" : cate_first,
+                    "cate_second": cate_second,
+                    "cate_third" : cate_third,
+                    "cate_fourth": cate_fourth,
+                },
+                beforeSend: function () {},
+                complete  : function(xhr, status) {
+                    $("#loadingOverlay").hide();
+                },
+                success : function (resp) {
+                    $(".cate-table tbody").html("");
+                    resp.data.map(function(obj){
+                        $(`.cate-table tbody`).append(`
+                            <tr>
+                                <td>
+                                    <input type='radio' name='channelCategory' value='${obj.codenum}'>
+                                    ${obj.fir_cate}
+                                </td>
+                                <td>
+                                    ${obj.se_cate}
+                                </td>
+                                <td>
+                                    ${obj.th_cate}
+                                </td>
+                                <td>
+                                    ${obj.last_cate}
+                                </td>
+                            </tr
+                        `);
+                    });
+                },
+                error: function (request) {
+                    let { error } = JSON.parse(request.responseText);
+                    alert(error.message);
+                }
+            });
+        })
+
+        $(".btn-save").click(function(){
+            var categoryId      = $("input[name='cateId']").val();
+            var channelCateCode = $("input[name='channelCategory']:checked").val();
+
+            if( !channelCateCode ){
+                return alert("채널 카테고리를 선택하세요.");
+            }
+
+            $.ajax({
+                "headers": {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
+                "type"   : "POST",
+                "url"    : "/api/mall/onchannel/category/mapping",
+                "data"   : {
+                    "categoryId"     : categoryId,
+                    "channelCateCode": channelCateCode,
+                },
+                beforeSend: function () {
+                    $("#loadingOverlay").show();
+                },
+                complete  : function(xhr, status) {
+                    $("#loadingOverlay").hide();
+                },
+                success : function (resp) {
+                    alert(resp.msg);
+                    location.reload();
+                },
+                error: function (request) {
+                    let { error } = JSON.parse(request.responseText);
+                    alert(error.message);
+                }
+            });
+        })
+
         $('.select-opt').change(function(){
             let selectedLevel = parseInt($(this).attr('level'));
             let category_id   = $(this).val();
@@ -318,7 +776,8 @@
                     "type"       : "POST",
                     "url"        : "/api/mall/onchannel/product/regist",
                     "data"       : {
-                        "offer_ids": offer_ids
+                        "offer_ids"   : offer_ids,
+                        "sendTypeList": sendTypeList
                     },
                     beforeSend: function () {
                     },
@@ -373,7 +832,8 @@
                     "type"       : "POST",
                     "url"        : "/api/mall/onchannel/product/regist",
                     "data"       : {
-                        "offer_ids": offer_ids,
+                        "offer_ids"   : offer_ids,
+                        "sendTypeList": sendTypeList
                     },
                     beforeSend: function () {
                     },

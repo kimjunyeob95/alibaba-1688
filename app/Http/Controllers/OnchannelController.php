@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Constants\OnchannelConstant;
 use App\Services\OnchannelService;
 use Illuminate\View\View;
 use Illuminate\Http\Request;
@@ -27,6 +28,7 @@ class OnchannelController extends Controller
         $cate_first   = $this->request->get("cate_first", "");
         $cate_second  = $this->request->get("cate_second", "");
         $cate_third   = $this->request->get("cate_third", "");
+        $send_type    = $this->request->get("send_type", OnchannelConstant::PRD_CHANNEL);
         $offset       = ($page - 1) * $pageSize;
 
         $params = [
@@ -37,27 +39,29 @@ class OnchannelController extends Controller
             "keyword"      => $keyword,
             "cate_first"   => $cate_first,
             "cate_second"  => $cate_second,
-            "cate_third"   => $cate_third
+            "cate_third"   => $cate_third,
+            "send_type"    => $send_type,
         ];
         $result = $this->onchannelService->getPrdList($params);
 
         $viewParams = [
-            "datas"          => $result["paginator"],
-            "totalCnt"       => $result["totalCnt"],
-            "successCnt"     => $result["successCnt"],
-            "failCnt"        => $result["failCnt"],
-            "errorCnt"       => $result["errorCnt"],
-            "registStatus"   => $registStatus,
-            "search_cls"     => $search_cls,
-            "keyword"        => $keyword,
-            "offset"         => (int) $offset,
-            "pageSize"       => (int) $pageSize,
-            "firstCateObjs"  => $result["firstCateObjs"],
-            "secondCateObjs" => $result["secondCateObjs"],
-            "thirdCateObjs"  => $result["thirdCateObjs"],
-            "cate_first"     => $cate_first,
-            "cate_second"    => $cate_second,
-            "cate_third"     => $cate_third
+            "datas"                => $result["paginator"],
+            "totalCnt"             => $result["totalCnt"],
+            "successCnt"           => $result["successCnt"],
+            "errorCnt"             => $result["errorCnt"],
+            "registStatus"         => $registStatus,
+            "search_cls"           => $search_cls,
+            "keyword"              => $keyword,
+            "offset"               => (int) $offset,
+            "pageSize"             => (int) $pageSize,
+            "firstCateObjs"        => $result["firstCateObjs"],
+            "secondCateObjs"       => $result["secondCateObjs"],
+            "thirdCateObjs"        => $result["thirdCateObjs"],
+            "cate_first"           => $cate_first,
+            "cate_second"          => $cate_second,
+            "cate_third"           => $cate_third,
+            "send_type"            => $send_type,
+            "channelCateFirstList" => $result["channelCateFirstList"],
         ];
         return view("onchannel.prdList")->with($viewParams);
     }

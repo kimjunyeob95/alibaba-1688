@@ -1,3 +1,6 @@
+@php
+    use App\Constants\OnchannelConstant;
+@endphp
 <div class="sidebar sidebar-dark sidebar-fixed" id="sidebar">
     <div class="sidebar-brand d-none d-md-flex">
         <img class="sidebar-brand-full" src="{{ url('/assets/img/logo.png') }}" width="118">
@@ -175,55 +178,53 @@
             </ul>
         </li>
 
-        <li class="nav-title">이지셀</li>
+        <li class="nav-title">채널 관리</li>
         <li class="nav-group">
             <a class="nav-link nav-group-toggle" href="javascript:;">
                 <svg class="nav-icon">
                     <use xlink:href="/vendors/@coreui/icons/svg/free.svg#cil-3d"></use>
                 </svg>
-                상품관리
+                상품 전송 현황
             </a>
             <ul class="nav-group-items">
-                <li class="nav-item">
+                {{-- <li class="nav-item">
                     <a class="nav-link" href="/easySell/product/list">
                         상품 현황
+                    </a>
+                </li> --}}
+                <li class="nav-item">
+                    <a class="nav-link" href="/onchannel/product/list?send_type={{ OnchannelConstant::PRD_CHANNEL }}">
+                        온채널: 일반상품
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/onchannel/product/list?send_type={{ OnchannelConstant::PRD_CHANNEL_PRIVATE }}">
+                        온채널: 사입상품
                     </a>
                 </li>
             </ul>
         </li>
-        <li class="nav-item">
-            <a class="nav-link" href="/easySell/category">
+        <li class="nav-group">
+            <a class="nav-link nav-group-toggle" href="javascript:;">
                 <svg class="nav-icon">
                     <use xlink:href="/vendors/@coreui/icons/svg/free.svg#cil-3d"></use>
                 </svg>
                 카테고리 관리
             </a>
-        </li>
-
-        <li class="nav-title">온채널</li>
-        <li class="nav-group">
-            <a class="nav-link nav-group-toggle" href="javascript:;">
-                <svg class="nav-icon">
-                    <use xlink:href="/vendors/@coreui/icons/svg/free.svg#cil-3d"></use>
-                </svg>
-                상품관리
-            </a>
             <ul class="nav-group-items">
                 <li class="nav-item">
-                    <a class="nav-link" href="/onchannel/product/list">
-                        상품 현황
+                    <a class="nav-link" href="/easySell/category">
+                        이지셀 카테고리 맵핑
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/onchannel/category">
+                        온채널 카테고리 맵핑
                     </a>
                 </li>
             </ul>
-            <li class="nav-item">
-                <a class="nav-link" href="/onchannel/category">
-                    <svg class="nav-icon">
-                        <use xlink:href="/vendors/@coreui/icons/svg/free.svg#cil-3d"></use>
-                    </svg>
-                    카테고리 관리
-                </a>
-            </li>
         </li>
+        
     </ul>
     <button class="sidebar-toggler" type="button" data-coreui-toggle="unfoldable"></button>
 </div>

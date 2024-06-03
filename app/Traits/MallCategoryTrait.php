@@ -48,7 +48,7 @@ trait MallCategoryTrait
     {
         $returnMsg = $this->returnMsg;
         try {
-            $wAppCateCode    = $params["wAppCateCode"];
+            $categoryId      = $params["categoryId"];
             $channelCateCode = $params["channelCateCode"];
             $channel         = $this->channel;
             if( $channel == ProductConstant::MAPPING_ES_CHANNEL ){
@@ -57,7 +57,7 @@ trait MallCategoryTrait
             
             $wAppMappingObj = CategoryMapping::where([
                 "mapping_channel" => ProductConstant::MAPPING_WAPP,
-                "mapping_code"    => $wAppCateCode,
+                "category_id"     => $categoryId,
             ])->first();
 
             if( $wAppMappingObj == null ){
@@ -67,7 +67,7 @@ trait MallCategoryTrait
             CategoryMapping::updateOrCreate(
                 [
                     "mapping_channel" => $channel,
-                    "category_id"     => $wAppMappingObj->category_id,
+                    "category_id"     => $categoryId,
                 ],
                 [
                     "mapping_code" => $channelCateCode,

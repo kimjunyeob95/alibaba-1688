@@ -2,8 +2,10 @@
 
 namespace App\Abstracts;
 
+use App\Constants\MallConstant;
 use App\Constants\MallErrorMessageConstant;
 use App\Models\ApiUser;
+use App\Models\OnchannelProductDetailLog;
 use App\Packages\JwtPackage;
 use App\Traits\MallCategoryTrait;
 use App\Traits\MallImageTrait;
@@ -81,11 +83,49 @@ abstract class MallApiAbstract
      * @func productRegist
      * @description '상품등록'
      * @param array $offerIds
-     * @param string $type
-     * @param string $sendType
+     * @param array $params
      * @return array
      */
-    abstract function productRegist(array $offerIds, string $type, string $sendType): array;
+    abstract function productRegist(array $offerIds, array $params = []): array;
+
+    /**
+     * @func productLog
+     * @description '상품전송 로그'
+     * @param int $logId
+     * @return array
+    */
+    public function productLog(int $logId): array
+    {
+        $returnMsg = $this->returnMsg;
+
+        try {
+            if( $this->channel == MallConstant::MALL_ONCHANNEL ){
+                $builder = OnchannelProductDetailLog::query();
+            }
+
+            $objs   = $builder->where("log_id", $logId)->orderBy("created_at", "desc")->get();
+            $result = [];
+            foreach ($objs as $obj) {
+                $sendType   = MallConstant::SEND_TYPE_LIST[$obj->send_type];
+                $isSuccess  = MallConstant::REGIST_TYPE_LIST[$obj->is_success];
+                $message    = $obj->message;
+                $created_at = Carbon::parse($obj->created_at)->format('Y-m-d H:i:s');
+
+                $result[] = [
+                    "sendType"   => $sendType,
+                    "isSuccess"  => $isSuccess,
+                    "message"    => $message,
+                    "created_at" => $created_at,
+                ];
+            }
+        
+            $returnMsg = helpers_success_message($result);
+        } catch (Exception $e) {
+            $returnMsg = helpers_fail_message($e->getMessage());
+        }
+
+        return $returnMsg;
+    }
 
     /**
      * @func sendModiProduct
