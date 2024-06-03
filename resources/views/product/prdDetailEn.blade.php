@@ -64,7 +64,7 @@
                     </a>
                 </li>
                 <li class="breadcrumb-item">W App</li>
-                <li class="breadcrumb-item active" aria-current="page">수집 상품 국문 상세</li>
+                <li class="breadcrumb-item active" aria-current="page">수집 상품 영문 상세</li>
             </ol>
         </nav>
 
@@ -72,18 +72,18 @@
             <div class="row my-4 bg-white py-3">
                 <div class="col-md-6" style="text-align: -webkit-center; position: relative;">
                     <div class="col">
-                        <h5>[국문 원본 이미지]</h5>
+                        <h5>[영문 원본 이미지]</h5>
                     </div>
                     <div id="swiper-container1" class="swiper-container">
                         <div class="swiper-wrapper">
-                            @foreach ($prdObj->images as $prdImg)
+                            @foreach ($prdObj->en_images as $prdImg)
                             @if ($prdImg->img_type == "main")
                                 <div class="swiper-slide">
                                     <img src={{ $prdImg->img_url_origin}}>
                                 </div>
                             @endif
                             @endforeach
-                            @foreach ($prdObj->images as $prdImg)
+                            @foreach ($prdObj->en_images as $prdImg)
                             @if ($prdImg->img_type == "sub")
                                 <div class="swiper-slide">
                                     <img src={{ $prdImg->img_url_origin}}>
@@ -103,7 +103,7 @@
                     @if ($prdObj->trans_status == ProductConstant::IMG_TRANS_Y)
                         <div id="swiper-container2" class="swiper-container">
                             <div class="swiper-wrapper">
-                                @foreach ($prdObj->images as $prdImg)
+                                @foreach ($prdObj->en_images as $prdImg)
                                 @if ($prdImg->img_type == "main")
                                     <div class="swiper-slide">
                                         <img src={{ $prdImg->img_url_trans}}>
@@ -111,7 +111,7 @@
                                     </div>
                                 @endif
                                 @endforeach
-                                @foreach ($prdObj->images as $prdImg)
+                                @foreach ($prdObj->en_images as $prdImg)
                                 @if ($prdImg->img_type == "sub" && $prdImg->is_except == ImageConstant::IS_EXCEPT_N)
                                     <div class="swiper-slide">
                                         <img src={{ $prdImg->img_url_trans}}>
@@ -398,19 +398,19 @@
                 <hr style="margin-top: 20px">
                 <div class="row mt-3">
                     <div class="col-md-6">
-                        <h5>[국문 제품상세 원본]</h5>
+                        <h5>[영문 제품상세 원본]</h5>
                         <div class="d-flex justify-content-center">
                             <div class="text-center prd-desc">
-                                {!! $prdObj->prd_desc !!}
+                                {!! $prdObj->prd_desc_en_origin !!}
                             </div>
                         </div>
                     </div>
                     <div class="col-md-6">
-                        <h5>[국문 제품상세 번역]</h5>
+                        <h5>[영문 제품상세 번역]</h5>
                         @if ($prdObj->trans_status == ProductConstant::IMG_TRANS_Y)
                             <div class="d-flex justify-content-center">
                                 <div class="text-center prd-desc" >
-                                    {!! $prdObj->prd_desc_kr !!}
+                                    {!! $prdObj->prd_desc_en !!}
                                 </div>
                             </div>
                         @else
@@ -440,7 +440,7 @@
                 <button type="button" class="btn btn-secondary btn-xl text-white mb-2 btn-edit-product">
                     상품정보 관리
                 </button>
-                <a class="btn btn-primary btn-xl text-white text-decoration-none mb-2 btn-edit-img" type="all">
+                {{-- <a class="btn btn-primary btn-xl text-white text-decoration-none mb-2 btn-edit-img" type="all">
                     전체 이미지<br>번역요청
                 </a>
                 <a class="btn btn-warning btn-xl text-white text-decoration-none mb-2 btn-edit-img" type="thumbnail">
@@ -449,7 +449,7 @@
                 <a class="btn btn-success btn-xl text-white text-decoration-none mb-2 btn-edit-img" type="desc">
                     상세 이미지<br>번역요청
                 </a>
-                <a class="btn btn-danger btn-xl text-white text-decoration-none mb-2 btn-edit-img" type="detail">이미지 수정</a>
+                <a class="btn btn-danger btn-xl text-white text-decoration-none mb-2 btn-edit-img" type="detail">이미지 수정</a> --}}
             @endif
         </div>
 

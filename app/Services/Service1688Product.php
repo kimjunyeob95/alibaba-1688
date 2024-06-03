@@ -55,6 +55,17 @@ class Service1688Product
    }
 
    /**
+    * @func getPrdDetailEn
+    * @description '1688API 수집 상품 디테일'
+    * @param int $offerId
+    * @return array
+    */
+   public function getPrdDetailEn(int $offerId): array
+   {
+      return $this->productAbstract->getPrdDetailEn($offerId);
+   }
+
+   /**
      * @func getQueryProductDetail
      * @description '상품ID로 조회'
      * @param array $offerIds

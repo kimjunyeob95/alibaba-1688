@@ -42,8 +42,10 @@ Route::prefix("product")->name("product.")->group(function(){
         Route::get("/list", [ProductController::class, "getPrdList"])->name("list");
         /** 판매제외 */
         Route::get("/except/list", [ProductController::class, "getPrdExceptList"])->name("getPrdExceptList");
-        /** 상품 상세 */
+        /** 상품 국문 상세 */
         Route::get("/{offerId}", [ProductController::class, "getPrdDetail"])->name("detail");
+        /** 상품 영문 상세 */
+        Route::get("/en/{offerId}", [ProductController::class, "getPrdDetailEn"])->name("detailEn");
         /** 상품 수정 */
         Route::get("/update/{offerId}", [ProductController::class, "update"])->name("update");
         /** 이미지 수정 */

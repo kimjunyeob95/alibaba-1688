@@ -520,7 +520,8 @@
                                         @endif
                                     </td>
                                     <td class="text-center">
-                                        <button class="btn btn-sm btn-outline-success btn-detail" offerid={{ $data->offer_id }}>상세보기</button>
+                                        <button class="btn btn-sm btn-outline-success btn-detail" offerid={{ $data->offer_id }}>국문<br>상세보기</button>
+                                        <button class="btn btn-sm btn-outline-success btn-en-detail mt-2" offerid={{ $data->offer_id }}>영문<br>상세보기</button>
                                         <button class="btn btn-sm btn-outline-primary btn-trans-img mt-2" offerid={{ $data->offer_id }}>번역요청</button>
                                     </td>
                                 </tr>
@@ -1235,6 +1236,11 @@
         $(".btn-detail").click(function(){
             let offer_id = $(this).attr("offerid");
             location.href = `/product/${offer_id}`;
+        });
+
+        $(".btn-en-detail").click(function(){
+            let offer_id = $(this).attr("offerid");
+            location.href = `/product/en/${offer_id}`;
         });
 
         $("#form-submit").click(function(){

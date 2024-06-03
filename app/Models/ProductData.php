@@ -57,6 +57,10 @@ class ProductData extends Model
         return $this->hasMany(ProductImageData::class, "offer_id", "offer_id")->where("lang", WConstant::WAPP_EN)->orderBy('img_type', 'asc')->orderBy('id', 'asc');
     }
 
+    public function no_except_en_images () {
+        return $this->hasMany(ProductImageData::class, "offer_id", "offer_id")->where("lang", WConstant::WAPP_EN)->where("is_except", ImageConstant::IS_EXCEPT_N)->orderBy('img_type', 'asc')->orderBy('id', 'asc');
+    }
+
     public function options () {
         return $this->hasMany(ProductOptionData::class, "offer_id", "offer_id")->oldest("id");
     }

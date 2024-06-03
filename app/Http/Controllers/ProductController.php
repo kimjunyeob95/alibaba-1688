@@ -197,6 +197,19 @@ class ProductController extends Controller
         return view("product.prdDetail")->with($viewParams);
     }
 
+    public function getPrdDetailEn(int $offerId): View
+    {
+        $result = $this->service1688Product->getPrdDetailEn($offerId);
+        if( $result["isSuccess"] == false ){
+            abort(404);
+        } else {
+            $viewParams = [
+                "prdObj" => $result["data"]
+            ];
+        }
+        return view("product.prdDetailEn")->with($viewParams);
+    }
+
     public function queryProductDetail(): View
     {
         $keyword = $this->request->get("keyword", "");

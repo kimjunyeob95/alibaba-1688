@@ -750,6 +750,34 @@ class ProductW1 extends ProductAbstract
         return $returnMsg;
     }
 
+    public function getPrdDetailEn(int $offerId): array
+    {
+        $returnMsg = $this->returnMsg;
+
+        try {
+            $prdObj = ProductData::with([
+                "en_images",
+                "extends",
+                "options",
+                "notices.except_data",
+                "category",
+                "w_mapping.w_cate_name",
+                "img_inspect",
+                "prd_inspect",
+                "gosi_inspect",
+            ])->where("offer_id", $offerId)->first();
+            if( $prdObj == null ){
+                throw new Exception("No Data");
+            }
+
+            $returnMsg = helpers_success_message($prdObj);
+        } catch (Exception $e) {
+            $returnMsg = helpers_fail_message($e->getMessage());
+        }
+
+        return $returnMsg;
+    }
+
     public function prdCollectLogDetail(int $logId): array
     {
         $returnMsg = $this->returnMsg;
