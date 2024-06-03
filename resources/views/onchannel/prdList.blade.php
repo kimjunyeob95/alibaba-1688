@@ -759,6 +759,11 @@
             location.href = `/product/${offer_id}`;
         });
 
+        $(".btn-en-detail").click(function(){
+            let offer_id = $(this).attr("offerid");
+            location.href = `/product/en/${offer_id}`;
+        });
+
         $("#form-submit").click(function(){
             $("#searchFrm").submit();
         });
