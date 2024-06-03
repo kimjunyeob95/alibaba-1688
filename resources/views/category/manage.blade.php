@@ -1,5 +1,6 @@
 @php
     use App\Constants\ProductConstant;
+    use App\Constants\CategoryConstant;
 @endphp
 @extends('dashboard.base')
 
@@ -21,7 +22,9 @@
                         <span>Home</span>
                     </a>
                 </li>
-                <li class="breadcrumb-item active" aria-current="page">카테고리 관리</li>
+                <li class="breadcrumb-item">W App</li>
+                <li class="breadcrumb-item">카테고리 관리</li>
+                <li class="breadcrumb-item active" aria-current="page">맵핑 관리</li>
             </ol>
         </nav>
 
@@ -35,7 +38,7 @@
                             <table class="table">
                                 <tr class="align-middle">
                                     <th style="width: 120px">맵핑여부</th>
-                                    <td colspan="3">
+                                    <td>
                                         <div class="form-check form-check-inline">
                                             <input class="form-check-input" type="radio" name="mapping_status" id="mapping_status_y" value="{{ ProductConstant::TRANS_STATUS_Y }}" {{ $mapping_status == ProductConstant::TRANS_STATUS_Y ? 'checked' : '' }}>
                                             <label class="form-check-label" for="mapping_status_y">맵핑 완료</label>
@@ -48,13 +51,13 @@
                                 </tr>
                                 <tr class="align-middle">
                                     <th style="width: 120px">키워드</th>
-                                    <td colspan="3">
+                                    <td>
                                         <textarea class="form-control" id="keyword" name="keyword" placeholder="검색어를 입력하세요.">{!! $keyword !!}</textarea>
                                     </td>
                                 </tr>
                                 <tr class="align-middle">
-                                    <th style="width: 120px">카테고리</th>
-                                    <td colspan="3">
+                                    <th style="width: 120px">W 카테고리</th>
+                                    <td>
                                         <div class="row">
                                             <div class="col-2">
                                                 <select class="form-control select-opt" name="cate_first" level=1>
@@ -113,6 +116,8 @@
                                 <th scope="col" style="width: 200px">W 3차 분류</th>
                                 <th scope="col">WApp 맵핑 카테고리</th>
                                 <th scope="col" style="width: 100px">맵핑여부</th>
+                                <th scope="col" style="width: 100px">표준 중량(kg)</th>
+                                <th scope="col" style="width: 100px">배송비(원)</th>
                                 <th style="width: 100px" class="text-center">관리</th> 
                             </tr>
                         </thead>
@@ -161,6 +166,20 @@
                                             <p class="text-danger">
                                                 {{ ProductConstant::MAPPING_STATUS[ProductConstant::MAPPING_STATUS_N] }}
                                             </p>
+                                        @endif
+                                    </td>
+                                    <td>
+                                        @if ($data->weight_category == null)
+                                            0
+                                        @else
+                                            {{ $data->weight_category->weight }}
+                                        @endif
+                                    </td>
+                                    <td>
+                                        @if ($data->weight_category == null)
+                                            {{ number_format(CategoryConstant::WEIGHTS[0]) }}
+                                        @else
+                                            {{ number_format(CategoryConstant::WEIGHTS[$data->weight_category->weight]) }}
                                         @endif
                                     </td>
                                     <td class="text-center">
@@ -345,7 +364,7 @@
         });
 
         $(".btn-w-cate-search").click(function(){
-            let cate_first = $("select[name=w_cate_first]").val();
+            let cate_first     = $("select[name=w_cate_first]").val();
             let cate_second    = $("select[name=w_cate_second]").val();
             let cate_third     = $("select[name=w_cate_third]").val();
             let cate_fourth    = $("select[name=w_cate_fourth]").val();

@@ -564,7 +564,163 @@
                         "content": {
                             "application/json": {
                                 "schema": {
+                                    "$ref": "#/components/schemas/OrderCreateSuccessResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Authorization Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/401ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/400ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/500ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/mall/{channel}/genuio/img/trans/request": {
+            "post": {
+                "tags": [
+                    "이미지"
+                ],
+                "summary": "이미지 번역 요청 queue 등록",
+                "description": "이미지 번역 요청 queue 등록 endPoint",
+                "operationId": "5d2996d6263234e5628d548a9370b6c7",
+                "parameters": [
+                    {
+                        "name": "channel",
+                        "in": "path",
+                        "description": "채널 ID",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ImageQueueSchema"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
                                     "$ref": "#/components/schemas/SuccessResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Authorization Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/401ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/400ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/500ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/mall/{channel}/img/upload": {
+            "post": {
+                "tags": [
+                    "이미지"
+                ],
+                "summary": "이미지 S3 업로드",
+                "description": "이미지 S3 업로드 endPoint",
+                "operationId": "3bef2716a072a27b793c9fd0743c0446",
+                "parameters": [
+                    {
+                        "name": "channel",
+                        "in": "path",
+                        "description": "채널 ID",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ImageUploadSchema"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ImageUploadSuccessResponse"
                                 }
                             }
                         }
@@ -944,59 +1100,278 @@
             },
             "OrderCreateSchema": {
                 "required": [
-                    "cargoParamList",
-                    "receive_name",
-                    "receive_tell",
-                    "receive_phone"
+                    "offer_id",
+                    "optionParamList",
+                    "option_price",
+                    "buyer_name",
+                    "buyer_clearance_number",
+                    "buyer_number",
+                    "buyer_phone",
+                    "buyer_zipcode",
+                    "buyer_address",
+                    "buyer_memo"
                 ],
                 "properties": {
-                    "cargoParamList": {
+                    "offer_id": {
+                        "description": "제품 ID",
+                        "type": "integer",
+                        "example": 715819550080
+                    },
+                    "optionParamList": {
                         "description": "주문 생성 제품 정보",
                         "type": "array",
                         "items": {
                             "required": [
-                                "offer_id",
-                                "option_id"
+                                "option_id",
+                                "quantity"
                             ],
                             "properties": {
-                                "offer_id": {
-                                    "description": "제품 ID",
-                                    "type": "integer",
-                                    "example": 630519988300
-                                },
                                 "option_id": {
-                                    "description": "제품 옵션 ID",
-                                    "type": "integer",
-                                    "example": 291
+                                    "description": "옵션 ID",
+                                    "type": "integer"
                                 },
                                 "quantity": {
-                                    "description": "제품 수량",
+                                    "description": "구매 수량",
+                                    "type": "integer"
+                                }
+                            },
+                            "type": "object"
+                        },
+                        "example": [
+                            {
+                                "option_id": 217126,
+                                "quantity": 1
+                            },
+                            {
+                                "option_id": 217127,
+                                "quantity": 2
+                            }
+                        ]
+                    },
+                    "option_price": {
+                        "description": "채널에 등록 된 제품 가격(WAPP에서 전송한 가격)",
+                        "type": "integer",
+                        "example": 6180
+                    },
+                    "buyer_name": {
+                        "description": "구매자명",
+                        "example": "홍길동"
+                    },
+                    "buyer_clearance_number": {
+                        "description": "구매자 개인통관번호",
+                        "type": "string",
+                        "example": "1234567891011"
+                    },
+                    "buyer_number": {
+                        "description": "구매자 전화번호",
+                        "type": "string",
+                        "example": "01012345678"
+                    },
+                    "buyer_phone": {
+                        "description": "구매자 핸드폰번호",
+                        "type": "string",
+                        "example": "01012345678"
+                    },
+                    "buyer_zipcode": {
+                        "description": "구매자 우편번호",
+                        "type": "string",
+                        "example": "12345"
+                    },
+                    "buyer_address": {
+                        "description": "구매자 주소",
+                        "type": "string",
+                        "example": "서울특별시 강남구 삼성동 144-5 401호"
+                    },
+                    "buyer_memo": {
+                        "description": "배송 요청사항",
+                        "type": "string",
+                        "example": "문 앞에 놓아주세요."
+                    }
+                },
+                "type": "object"
+            },
+            "OrderCreateSuccessResponse": {
+                "properties": {
+                    "status": {
+                        "type": "integer",
+                        "example": 200
+                    },
+                    "meta": {
+                        "properties": {
+                            "timestamp": {
+                                "type": "string",
+                                "example": "2023-12-19 17:45:50"
+                            },
+                            "apiType": {
+                                "type": "string",
+                                "example": "mall"
+                            }
+                        },
+                        "type": "object"
+                    },
+                    "data": {
+                        "required": [
+                            "order_id",
+                            "success"
+                        ],
+                        "properties": {
+                            "order_id": {
+                                "description": "주문 ID",
+                                "type": "string",
+                                "example": "3890000700554135493"
+                            },
+                            "success": {
+                                "description": "성공 여부",
+                                "type": "boolean",
+                                "example": true
+                            }
+                        },
+                        "type": "object"
+                    }
+                },
+                "type": "object"
+            },
+            "ImageQueueSchema": {
+                "required": [
+                    "channel_queue_id",
+                    "member_id",
+                    "images"
+                ],
+                "properties": {
+                    "channel_queue_id": {
+                        "description": "채널 Queue ID",
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "member_id": {
+                        "description": "판매자 계정 이름",
+                        "type": "string",
+                        "example": "tester123"
+                    },
+                    "images": {
+                        "description": "이미지 정보",
+                        "type": "array",
+                        "items": {
+                            "required": [
+                                "id",
+                                "origin_url"
+                            ],
+                            "properties": {
+                                "id": {
+                                    "description": "채널에서 관리하는 이미지 고유 ID",
                                     "type": "integer",
-                                    "example": "1"
+                                    "example": 1
+                                },
+                                "origin_url": {
+                                    "description": "번역 이미지 url",
+                                    "type": "string",
+                                    "example": "https://cbu01-overseas.1688.com/img/ibank/O1CN01AD7ffR26MNdlfhHsv_!!2201111757647-0-cib.jpg"
                                 }
                             },
                             "type": "object"
                         }
-                    },
-                    "receive_name": {
-                        "description": "수취인 이름",
+                    }
+                },
+                "type": "object"
+            },
+            "ImageUploadSchema": {
+                "required": [
+                    "member_id",
+                    "images"
+                ],
+                "properties": {
+                    "member_id": {
+                        "description": "판매자 계정 이름",
                         "type": "string",
-                        "example": "홍길동"
+                        "example": "tester123"
                     },
-                    "receive_tell": {
-                        "description": "수취인 전화번호",
-                        "type": "string",
-                        "example": "021231324"
+                    "images": {
+                        "description": "이미지 정보",
+                        "type": "array",
+                        "items": {
+                            "required": [
+                                "id",
+                                "base64"
+                            ],
+                            "properties": {
+                                "id": {
+                                    "description": "채널에서 관리하는 이미지 고유 ID",
+                                    "type": "integer",
+                                    "example": 1
+                                },
+                                "base64": {
+                                    "description": "이미지 파일 base64 인코딩",
+                                    "type": "string",
+                                    "example": "~~~"
+                                }
+                            },
+                            "type": "object"
+                        }
+                    }
+                },
+                "type": "object"
+            },
+            "ImageUploadSuccessResponse": {
+                "properties": {
+                    "status": {
+                        "type": "integer",
+                        "example": 200
                     },
-                    "receive_phone": {
-                        "description": "수취인 휴대폰번호",
-                        "type": "string",
-                        "example": "01012345678"
+                    "meta": {
+                        "properties": {
+                            "timestamp": {
+                                "type": "string",
+                                "example": "2023-12-19 17:45:50"
+                            },
+                            "apiType": {
+                                "type": "string",
+                                "example": "mall"
+                            }
+                        },
+                        "type": "object"
                     },
-                    "message": {
-                        "description": "주문 메모",
-                        "type": "string",
-                        "example": "문 앞에 놔주세요."
+                    "data": {
+                        "required": [
+                            "images"
+                        ],
+                        "properties": {
+                            "images": {
+                                "description": "이미지 결과 Response",
+                                "type": "array",
+                                "items": {
+                                    "required": [
+                                        "id",
+                                        "trans_url",
+                                        "upload",
+                                        "error"
+                                    ],
+                                    "properties": {
+                                        "id": {
+                                            "description": "채널에서 관리하는 이미지 고유 ID",
+                                            "type": "integer",
+                                            "example": 1
+                                        },
+                                        "trans_url": {
+                                            "description": "S3 upload img url",
+                                            "type": "string",
+                                            "example": "https://namver.png"
+                                        },
+                                        "upload": {
+                                            "description": "업로드 성공 여부",
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "error": {
+                                            "description": "에러 메세지",
+                                            "type": "string",
+                                            "example": ""
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        },
+                        "type": "object"
                     }
                 },
                 "type": "object"

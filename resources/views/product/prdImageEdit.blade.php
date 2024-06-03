@@ -82,7 +82,7 @@
                                         <div>
                                             <input class="form-check-input position-absolute start-0 m-2" type="checkbox" name="selectImg" src="{{ $prdObj->main_img->ai_origin_img->img_url_ai }}" imgid="{{ $prdObj->main_img->id }}" value="{{ $prdObj->main_img->ai_origin_img->id }}" style="z-index: 10;">
                                             <img src="{{ $prdObj->main_img->ai_origin_img->img_url_ai }}" class="" alt="...">
-                                            <figcaption class="figure-caption fs-6 text-center mt-3">{{ $prdObj->main_img->ai_origin_img->created_at }}</figcaption>
+                                            <figcaption class="figure-caption fs-6 text-center mt-3">{{ $prdObj->main_img->ai_origin_img->updated_at }}</figcaption>
                                             <span class="fs-6 text-center mt-1">(원본 이미지)</span>
                                             @if( $prdObj->main_img->img_url_trans == $prdObj->main_img->ai_origin_img->img_url_ai )
                                                 <br>
@@ -96,7 +96,7 @@
                                         <div>
                                             <input class="form-check-input position-absolute start-0 m-2" type="checkbox" name="selectImg" src="{{ $aiImg->img_url_ai }}" imgid="{{ $aiImg->img_id }}" value="{{ $aiImg->id }}" style="z-index: 10;">
                                             <img src="{{ $aiImg->img_url_ai }}" class="" alt="...">
-                                            <figcaption class="figure-caption fs-6 text-center mt-3">{{ $aiImg->created_at }}</figcaption>
+                                            <figcaption class="figure-caption fs-6 text-center mt-3">{{ $aiImg->updated_at }}</figcaption>
                                             @if( $prdObj->main_img->img_url_trans == $aiImg->img_url_ai )
                                                 <p class="fs-6 text-center mt-1">(적용 이미지)</p>
                                             @endif
@@ -140,7 +140,7 @@
                                                 <div>
                                                     <input class="form-check-input position-absolute start-0 m-2" type="checkbox" name="selectImg" src="{{ $img->ai_origin_img->img_url_ai }}" imgid="{{ $img->ai_origin_img->img_id }}" value="{{ $img->ai_origin_img->id }}" style="z-index: 10;">
                                                     <img src="{{ $img->ai_origin_img->img_url_ai }}" class="" alt="...">
-                                                    <figcaption class="figure-caption fs-6 text-center mt-3">{{ $img->ai_origin_img->created_at }}</figcaption>
+                                                    <figcaption class="figure-caption fs-6 text-center mt-3">{{ $img->ai_origin_img->updated_at }}</figcaption>
                                                     <span class="fs-6 text-center mt-1">(원본 이미지)</span>
                                                     @if( $img->img_url_trans == $img->ai_origin_img->img_url_ai )
                                                         <br>
@@ -154,7 +154,7 @@
                                                 <div>
                                                     <input class="form-check-input position-absolute start-0 m-2" type="checkbox" name="selectImg" src="{{ $aiImg->img_url_ai }}" imgid="{{ $aiImg->img_id }}" value="{{ $aiImg->id }}" style="z-index: 10;">
                                                     <img src="{{ $aiImg->img_url_ai }}" class="" alt="...">
-                                                    <figcaption class="figure-caption fs-6 text-center mt-3">{{ $aiImg->created_at }}</figcaption>
+                                                    <figcaption class="figure-caption fs-6 text-center mt-3">{{ $aiImg->updated_at }}</figcaption>
                                                     @if( $img->img_url_trans == $aiImg->img_url_ai )
                                                         <p class="fs-6 text-center mt-1">(적용 이미지)</p>
                                                     @endif
@@ -221,7 +221,7 @@
                                                 <div>
                                                     <input class="form-check-input position-absolute start-0 m-2" type="checkbox" name="selectImg" src="{{ $img->ai_origin_img->img_url_ai }}" imgid="{{ $img->ai_origin_img->img_id }}" value="{{ $img->ai_origin_img->id }}" style="z-index: 10;">
                                                     <img src="{{ $img->ai_origin_img->img_url_ai }}" class="" alt="...">
-                                                    <figcaption class="figure-caption fs-6 text-center mt-3">{{ $img->ai_origin_img->created_at }}</figcaption>
+                                                    <figcaption class="figure-caption fs-6 text-center mt-3">{{ $img->ai_origin_img->updated_at }}</figcaption>
                                                     <span class="fs-6 text-center mt-1">(원본 이미지)</span>
                                                     @if( $img->img_url_trans == $img->ai_origin_img->img_url_ai )
                                                         <br>
@@ -235,7 +235,7 @@
                                                 <div>
                                                     <input class="form-check-input position-absolute start-0 m-2" type="checkbox" name="selectImg" src="{{ $aiImg->img_url_ai }}" imgid="{{ $aiImg->img_id }}" value="{{ $aiImg->id }}" style="z-index: 10;">
                                                     <img src="{{ $aiImg->img_url_ai }}" class="" alt="...">
-                                                    <figcaption class="figure-caption fs-6 text-center mt-3">{{ $aiImg->created_at }}</figcaption>
+                                                    <figcaption class="figure-caption fs-6 text-center mt-3">{{ $aiImg->updated_at }}</figcaption>
                                                     @if( $img->img_url_trans == $aiImg->img_url_ai )
                                                         <p class="fs-6 text-center mt-1">(적용 이미지)</p>
                                                     @endif

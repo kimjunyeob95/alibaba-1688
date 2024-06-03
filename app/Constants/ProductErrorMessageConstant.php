@@ -11,9 +11,11 @@ class ProductErrorMessageConstant
     private static $defaultFitErrorMsg = "Error";
 
     public const ERROR_MESSAGE_PRODUCT                                 = "Product";
+    public const ERROR_MESSAGE_OPTION                                  = "Option";
     public const ERROR_MESSAGE_PRODUCT_SEARCH_KEYWORDQUERY             = "product.search.keywordQuery";
     public const ERROR_MESSAGE_PRODUCT_SEARCH_IMAGEQUERY               = "product.search.imageQuery";
     public const ERROR_MESSAGE_PRODUCT_SEARCH_QUERYPRODUCTDETAIL       = "product.search.queryProductDetail";
+    public const ERROR_MESSAGE_SEARCH_QUERYPRODUCTDETAIL_EN            = "product.search.queryProductDetail_EN";
     public const ERROR_MESSAGE_PRODUCT_SEARCH_QUERYPRODUCTDETAIL_W2_KR = "product.search.queryProductDetail.W2.KR";
     public const ERROR_MESSAGE_PRODUCT_SEARCH_QUERYPRODUCTDETAIL_W2_EN = "product.search.queryProductDetail.W2.EN";
     public const ERROR_MESSAGE_PRODUCT_SKUINFOS                        = "productSkuInfos";
@@ -50,6 +52,10 @@ class ProductErrorMessageConstant
     public const ERROR_MESSAGE_INSPECT_IMG_STATUS                      = "inspect_img_status";
     public const ERROR_MESSAGE_INSPECT_PRD_STATUS                      = "inspect_prd_status";
     public const ERROR_MESSAGE_INSPECT_GOSI_STATUS                     = "inspect_gosi_status";
+    public const ERROR_MESSAGE_OPTION_QUANTITY                         = "Option quantity";
+    public const ERROR_MESSAGE_WEIGHT                                  = "weight";
+    public const ERROR_MESSAGE_ATTRIBUTE_IDS                           = "attribute_ids";
+    public const ERROR_MESSAGE_APPLY_ATTRIBUTE_NAME                    = "apply_attribute_name";
  
     public static function getErrorMessageNotDefault($constantName): string
     {

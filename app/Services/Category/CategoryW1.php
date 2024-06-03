@@ -3,12 +3,14 @@
 namespace App\Services\Category;
 
 use App\Abstracts\CategoryAbstract;
+use App\Constants\CategoryConstant;
 use App\Constants\CategoryErrorMessageConstant;
 use App\Constants\Constant1688;
 use App\Constants\ProductConstant;
 use App\Models\Category;
 use App\Models\CategoryMapping;
 use App\Models\CategoryTree;
+use App\Models\CategoryWeightData;
 use App\Models\ProductData;
 use App\Models\WCategory;
 use Exception;
@@ -79,7 +81,7 @@ class CategoryW1 extends CategoryAbstract
 
             $returnMsg = helpers_success_message($result);
         } catch (Exception $e) {
-            $returnMsg = helpers_fail_message(false, $e->getMessage());
+            $returnMsg = helpers_fail_message($e->getMessage());
         }
 
         return $returnMsg;
@@ -102,7 +104,7 @@ class CategoryW1 extends CategoryAbstract
             $result    = $this->getBuildTree($getCategoryObjs, 0);
             $returnMsg = helpers_success_message($result);
         } catch (Exception $e) {
-            $returnMsg = helpers_fail_message(false, $e->getMessage());
+            $returnMsg = helpers_fail_message($e->getMessage());
         }
 
         return $returnMsg;
@@ -183,7 +185,7 @@ class CategoryW1 extends CategoryAbstract
             }
             $returnMsg = helpers_success_message($result);
         } catch (Exception $e) {
-            $returnMsg = helpers_fail_message(false, $e->getMessage());
+            $returnMsg = helpers_fail_message($e->getMessage());
         }
 
         return $returnMsg;
@@ -393,7 +395,7 @@ class CategoryW1 extends CategoryAbstract
             ];
             $returnMsg = curl_1688("post", $endPoint, $payload);
         } catch (Exception $e) {
-            $returnMsg = helpers_fail_message(false, $e->getMessage());
+            $returnMsg = helpers_fail_message($e->getMessage());
         }
         return $returnMsg;
     }
@@ -641,7 +643,6 @@ class CategoryW1 extends CategoryAbstract
         $returnMsg = $this->returnMsg;
         
         try {
-            $page           = $params["page"];
             $pageSize       = $params["pageSize"];
             $keyword        = $params["keyword"];
             $mapping_status = $params["mapping_status"];
@@ -665,7 +666,8 @@ class CategoryW1 extends CategoryAbstract
                 }
             }
 
-            $qryBuilder = CategoryTree::from("category_trees as a")
+            $qryBuilder = CategoryTree::with(["weight_category"])
+            ->from("category_trees as a")
             ->select([
                 "a.*",
                 "c.mapping_code",
@@ -736,7 +738,111 @@ class CategoryW1 extends CategoryAbstract
             ];
             $returnMsg = helpers_success_message($result);
         } catch (Exception $e) {
-            $returnMsg = helpers_fail_message(false, $e->getMessage());
+            $returnMsg = helpers_fail_message($e->getMessage());
+        }
+
+        return $returnMsg;
+    }
+
+    public function weightList(array $params): array
+    {
+        $returnMsg = $this->returnMsg;
+        
+        try {
+            $pageSize      = $params["pageSize"];
+            $keyword       = $params["keyword"];
+            $weight_status = $params["weight_status"];
+            $cate_first    = $params["cate_first"];
+            $cate_second   = $params["cate_second"];
+            $cate_third    = $params["cate_third"];
+
+            $firstCateObjs  = [];
+            $secondCateObjs = [];
+            $thirdCateObjs  = [];
+            if( $cate_first == "" ){
+                $firstCateObjs = Category::where("parent_cate_id", 0)->orderBy("category_name", "asc")->get();
+            }else {
+                if( $cate_first && $cate_second ){
+                    $firstCateObjs  = Category::where("parent_cate_id", 0)->orderBy("category_name", "asc")->get();
+                    $secondCateObjs = Category::where("parent_cate_id", $cate_first)->orderBy("category_name", "asc")->get();
+                    $thirdCateObjs  = Category::where("parent_cate_id", $cate_second)->orderBy("category_name", "asc")->get();
+                } else if( $cate_first ){
+                    $firstCateObjs  = Category::where("parent_cate_id", 0)->orderBy("category_name", "asc")->get();
+                    $secondCateObjs = Category::where("parent_cate_id", $cate_first)->orderBy("category_name", "asc")->get();
+                }
+            }
+
+            $qryBuilder = CategoryTree::from("category_trees as a")
+            ->select([
+                "a.*",
+                "c.weight",
+                "c.delivery_price",
+            ])
+            ->leftJoin("category_mappings as b", function($join) {
+                $join->on("a.category_id", "=", "b.category_id")
+                     ->where("b.mapping_channel", "=", ProductConstant::MAPPING_WAPP);
+            })
+            ->leftJoin("category_weight_datas as c", function($join) {
+                $join->on("a.category_id", "=", "c.category_id");
+            })
+            ->orderBy("a.cate_first", "asc")
+            ->orderBy("a.cate_second", "asc")
+            ->orderBy("a.cate_third", "asc");
+            
+            if( !empty($weight_status) ) {
+                if( $weight_status == CategoryConstant::WEIGHT_STATUS_Y ){
+                    $qryBuilder->where("c.weight", "!=", null);
+                    $qryBuilder->where("c.weight", "!=", 0);
+                } else if( $weight_status == CategoryConstant::WEIGHT_STATUS_N ){
+                    $qryBuilder->where(function($query1) {
+                        $query1->where("c.weight", null)
+                        ->orWhere("c.weight", 0);
+                    });
+                }
+            }
+
+            if( $cate_third ){
+                $qryBuilder->where("a.category_id", $cate_third);
+            } else if( $cate_second ){
+                $searchArr = [$cate_second];
+                foreach ($thirdCateObjs as $thirdCateObj) {
+                    $searchArr[] = $thirdCateObj->category_id;
+                }
+                $qryBuilder->whereIn("a.category_id", $searchArr);
+            } else if( $cate_first ){
+                $searchArr = [$cate_first];
+                foreach ($secondCateObjs as $secondCateObj) {
+                    $searchArr[] = $secondCateObj->category_id;
+                    $thirdObjs   = Category::select("category_id")->where("parent_cate_id", $secondCateObj->category_id)->get();
+                    foreach ($thirdObjs as $thirdObj) {
+                        $searchArr[] = $thirdObj->category_id;
+                    }
+                }
+                $qryBuilder->whereIn("a.category_id", $searchArr);
+            }
+
+            if( !empty($keyword) ){
+                $qryBuilder->where(function($query1) use ($keyword) {
+                    $query1->where("a.cate_first", "like", "%" . $keyword . "%")
+                         ->orWhere("a.cate_second", "like", "%" . $keyword . "%")
+                         ->orWhere("a.cate_third", "like", "%" . $keyword . "%")
+                    ->orWhere(function($query) use ($keyword) {
+                        $query->where("a.category_id", "like", "%" . $keyword . "%");
+                    });
+                });
+            }
+
+            $lists = $qryBuilder->paginate($pageSize)->appends($params);
+
+            $result = [
+                "paginator"      => $lists,
+                "firstCateObjs"  => $firstCateObjs,
+                "secondCateObjs" => $secondCateObjs,
+                "thirdCateObjs"  => $thirdCateObjs,
+            ];
+            $returnMsg = helpers_success_message($result);
+        } catch (Exception $e) {
+            $returnMsg = helpers_fail_message($e->getMessage());
         }
 
         return $returnMsg;
@@ -786,7 +892,7 @@ class CategoryW1 extends CategoryAbstract
             $data = $builder->get();
             $returnMsg = helpers_success_message($data);
         } catch (Exception $e) {
-            $returnMsg = helpers_fail_message(false, $e->getMessage());
+            $returnMsg = helpers_fail_message($e->getMessage());
         }
         return $returnMsg;
     }
@@ -823,7 +929,7 @@ class CategoryW1 extends CategoryAbstract
             }
             $returnMsg = helpers_success_message();
         } catch (Exception $e) {
-            $returnMsg = helpers_fail_message(false, $e->getMessage());
+            $returnMsg = helpers_fail_message($e->getMessage());
         }
         return $returnMsg;
     }
@@ -848,7 +954,7 @@ class CategoryW1 extends CategoryAbstract
             }
             $returnMsg = helpers_success_message($datas);
         } catch (Exception $e) {
-            $returnMsg = helpers_fail_message(false, $e->getMessage());
+            $returnMsg = helpers_fail_message($e->getMessage());
         }
 
         return $returnMsg;
@@ -912,7 +1018,7 @@ class CategoryW1 extends CategoryAbstract
             }
             $returnMsg = helpers_success_message($data);
         } catch (Exception $e) {
-            $returnMsg = helpers_fail_message(false, $e->getMessage());
+            $returnMsg = helpers_fail_message($e->getMessage());
         }
         return $returnMsg;
     }
@@ -922,7 +1028,7 @@ class CategoryW1 extends CategoryAbstract
         $returnMsg = $this->returnMsg;
         
         try {
-            $cateObjs = CategoryTree::whereIn("category_id", $categoryIds)->get();
+            $cateObjs = CategoryTree::with(["weight_category"])->whereIn("category_id", $categoryIds)->get();
             $cateResult = [];
             foreach ($cateObjs as $cateObj) {
                 $cate_name = "";
@@ -937,9 +1043,19 @@ class CategoryW1 extends CategoryAbstract
                     $cate_name .= " > " . $cateObj->cate_third;
                 }
 
-                $cateResult[] = [
-                    "category_id" => $cateObj->category_id,
-                    "cate_name"   => $cate_name,
+                $weight         = 0;
+                $delivery_price = CategoryConstant::WEIGHTS[$weight];
+
+                if( $cateObj->weight_category ){
+                    $weight         = $cateObj->weight_category->weight;
+                    $delivery_price = CategoryConstant::WEIGHTS[$weight];
+                }
+
+                $cateResult[]   = [
+                    "category_id"    => $cateObj->category_id,
+                    "cate_name"      => $cate_name,
+                    "weight"         => $weight,
+                    "delivery_price" => $delivery_price,
                 ];
             }
 
@@ -952,7 +1068,7 @@ class CategoryW1 extends CategoryAbstract
             
             $returnMsg = helpers_success_message($result);
         } catch (Exception $e) {
-            $returnMsg = helpers_fail_message(false, $e->getMessage());
+            $returnMsg = helpers_fail_message($e->getMessage());
         }
 
         return $returnMsg;
@@ -1031,5 +1147,60 @@ class CategoryW1 extends CategoryAbstract
         }
 
         dd("실행 종료");
+    }
+
+    public function weightSave(array $categoryIds, int $weight): array
+    {
+        $returnMsg = $this->returnMsg;
+        
+        try {
+            if( empty($categoryIds) ) {
+                throw new Exception(CategoryErrorMessageConstant::getNotHaveErrorMessage("CATEGORYID"));
+            }
+
+            foreach ($categoryIds as $categoryId) {
+                try {
+                    $deliveryPrice = CategoryConstant::WEIGHTS[$weight];
+                } catch (Exception $e) {
+                    $weight        = 0;
+                    $deliveryPrice = CategoryConstant::WEIGHTS[$weight];
+                }
+
+
+                $upsertWhere = [
+                    "weight"         => $weight,
+                    "delivery_price" => $deliveryPrice,
+                ];
+                CategoryWeightData::updateOrCreate(
+                    ["category_id" => $categoryId],
+                    $upsertWhere
+                );
+            }
+
+            $returnMsg = helpers_success_message();
+        } catch (Exception $e) {
+            $returnMsg = helpers_fail_message($e->getMessage());
+        }
+
+        return $returnMsg;
+    }
+
+    public function weightRemove(array $categoryIds): array
+    {
+        $returnMsg = $this->returnMsg;
+        
+        try {
+            if( empty($categoryIds) ) {
+                throw new Exception(CategoryErrorMessageConstant::getNotHaveErrorMessage("CATEGORYID"));
+            }
+
+            CategoryWeightData::whereIn("category_id", $categoryIds)->forceDelete();
+
+            $returnMsg = helpers_success_message();
+        } catch (Exception $e) {
+            $returnMsg = helpers_fail_message($e->getMessage());
+        }
+
+        return $returnMsg;
     }
 }

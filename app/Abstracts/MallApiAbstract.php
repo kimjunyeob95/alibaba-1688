@@ -5,21 +5,38 @@ namespace App\Abstracts;
 use App\Constants\MallErrorMessageConstant;
 use App\Models\ApiUser;
 use App\Packages\JwtPackage;
+use App\Traits\MallCategoryTrait;
+use App\Traits\MallImageTrait;
+use App\Traits\MallOrderTrait;
 use Carbon\Carbon;
 use Exception;
 
 abstract class MallApiAbstract
 {
+    use MallCategoryTrait, MallOrderTrait, MallImageTrait;
+
     protected array $returnMsg;
     protected JwtPackage $jwtPackage;
     protected string $channel;
-
-    public function __construct(JwtPackage $jwtPackage, string $channel)
+    protected OrderAbstract $orderW1;
+    private TransApiAbstract $transApiAbstract;
+    
+    public function __construct(
+        JwtPackage $jwtPackage,
+        string $channel,
+        OrderAbstract $orderW1,
+        TransApiAbstract $transApiAbstract
+    )
     {
+        $this->initCategoryTrait($channel);
+        $this->initOrderTrait($channel, $orderW1);
+        $this->initImageTrait($channel, $transApiAbstract);
         $this->returnMsg  = helpers_fail_message();
         $this->jwtPackage = $jwtPackage;
         $this->channel    = $channel;
     }
+
+    /****************************************** 토큰 start **********************************************/
 
     /**
      * @func tokenCreate
@@ -50,43 +67,25 @@ abstract class MallApiAbstract
                 throw new Exception($result["msg"]);
             }
         } catch (Exception $e) {
-            $returnMsg = helpers_fail_message(false, $e->getMessage());
+            $returnMsg = helpers_fail_message($e->getMessage());
         }
 
         return $returnMsg;
     }
+
+    /****************************************** 토큰 end **********************************************/
+
+    /****************************************** 상품 start **********************************************/
 
     /**
      * @func productRegist
      * @description '상품등록'
      * @param array $offerIds
      * @param string $type
+     * @param string $sendType
      * @return array
      */
-    abstract function productRegist(array $offerIds, string $type): array;
-
-    /**
-     * @func orderInfo
-     * @description '주문 조회'
-     * @param int $orderId
-     * @return array
-    */
-    abstract function orderInfo(int $orderId): array;
-
-    /**
-     * @func orderCreate
-     * @description '주문 생성'
-     * @param array $params
-     * @return array
-     */
-    abstract function orderCreate(array $params): array;
-
-    /**
-     * @func categoryMapping
-     * @description '카테고리 매핑'
-     * @return array
-     */
-    abstract function categoryMapping(): array;
+    abstract function productRegist(array $offerIds, string $type, string $sendType): array;
 
     /**
      * @func sendModiProduct
@@ -94,4 +93,6 @@ abstract class MallApiAbstract
      * @return void
     */
     abstract function sendModiProduct(): void;
+
+    /****************************************** 상품 end **********************************************/
 }

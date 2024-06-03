@@ -7,14 +7,19 @@ use App\Constants\InspectConstant;
 use App\Constants\MallConstant;
 use App\Constants\ProductConstant;
 use App\Constants\WConstant;
+use App\Models\Category;
 use App\Models\EasysellProductLog;
 use App\Models\GenuioAiData;
 use App\Models\ProductData;
 use App\Models\ProductImageData;
 use App\Models\ProductInspectData;
 use App\Models\ProductModiData;
+use App\Models\ProductOptionData;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
 use Psr\Log\LogLevel;
@@ -144,10 +149,12 @@ if (!function_exists("helpers_default_message")) {
 }
 
 if (!function_exists("helpers_fail_message")) {
-    function helpers_fail_message(bool $isSuccess = false, string $message = "변경 사항이 없거나 처리가 실패하였습니다. 관리자에 문의 바랍니다.", array $data = []): array
+    function helpers_fail_message(string $message = "변경 사항이 없거나 처리가 실패하였습니다. 관리자에 문의 바랍니다.", array $data = []): array
     {
+        unset($data["isSuccess"]);
+        unset($data["msg"]);
         return [
-            "isSuccess" => $isSuccess,
+            "isSuccess" => false,
             "msg"       => $message,
             "data"      => $data,
         ];
@@ -200,6 +207,9 @@ if (!function_exists("helpers_json_response")) {
                     "message" => trim($message) != "" ? $message : "잘못 된 접근입니다.",
                 ]
             ];
+            if( isset($params["data"]) && !empty($params["data"]) ){
+                $error["data"] = $params["data"];
+            }
             $result = array_merge($result, $error);
         }
 
@@ -317,11 +327,11 @@ if (!function_exists("curl_1688")) {
 
             $returnMsg = helpers_success_message($apiResult);
         } catch (JsonException $e) {
-            $returnMsg = helpers_fail_message(false, "결과가 Json이 아닙니다.");
+            $returnMsg = helpers_fail_message("결과가 Json이 아닙니다.");
         } catch (InvalidArgumentException $e) {
-            $returnMsg = helpers_fail_message(false, $e->getMessage());
+            $returnMsg = helpers_fail_message($e->getMessage());
         } catch (Exception $e) {
-            $returnMsg = helpers_fail_message(false, $e->getMessage());
+            $returnMsg = helpers_fail_message($e->getMessage());
         }
 
         return $returnMsg;
@@ -418,11 +428,11 @@ if (!function_exists("curl_1688_v2")) {
 
             $returnMsg = helpers_success_message($apiResult);
         } catch (JsonException $e) {
-            $returnMsg = helpers_fail_message(false, "결과가 Json이 아닙니다.");
+            $returnMsg = helpers_fail_message("결과가 Json이 아닙니다.");
         } catch (InvalidArgumentException $e) {
-            $returnMsg = helpers_fail_message(false, $e->getMessage());
+            $returnMsg = helpers_fail_message($e->getMessage());
         } catch (Exception $e) {
-            $returnMsg = helpers_fail_message(false, $e->getMessage());
+            $returnMsg = helpers_fail_message($e->getMessage());
         }
 
         return $returnMsg;
@@ -678,11 +688,19 @@ if (!function_exists("calcEasySellSalePrice")) {
     }
 }
 
+/** 온채널 판매가 */
+if (!function_exists("calcOnchannelSalePrice")) {
+    function calcOnchannelSalePrice(int $option_price): int
+    {
+        return $option_price + env("ONCHANNEL_DELIVERY_PRICE", 12000);
+    }
+}
+
 // WApp 일반 판매가 계산
 if (!function_exists("calcWSalePrice")) {
-    function calcWSalePrice(int $option_price = 0): int
+    function calcWSalePrice(int $option_price = 0, int $delivery_price = ProductConstant::WEIGHT_STATUS_NONE_PRICE): int
     {
-        return ( ceil(($option_price * env("W_SALE_PRICE_RATE", "1.35")) / 100) * 100 ) + (int)env("W_DROP_SHIPPING_PRICE", 12000);
+        return ( ceil(($option_price * env("W_SALE_PRICE_RATE", "1.35")) / 100) * 100 ) + $delivery_price;
     }
 }
 
@@ -781,5 +799,114 @@ if (!function_exists("getNoticeInfoTable")) {
         </div>";
 
         return $noticeTable;
+    }
+}
+
+/**
+ * base64 확장자 추출
+*/
+if (!function_exists("getExtensionFromBase64")) {
+    function getExtensionFromBase64($base64String) {
+        // Base64 문자열에서 데이터 부분만 추출
+        $data = explode(',', $base64String);
+        if (count($data) > 1) {
+            $base64String = $data[1];
+        } else {
+            $base64String = $data[0];
+        }
+
+        // 디코딩하여 바이너리 데이터로 변환
+        $binaryData = base64_decode($base64String);
+
+        // 파일 정보 객체 생성
+        $finfo = new finfo(FILEINFO_MIME_TYPE);
+        $mimeType = $finfo->buffer($binaryData);
+
+        // MIME 타입에서 확장자 추출
+        $extension = getExtensionFromMimeType($mimeType);
+
+        return $extension;
+    }
+}
+
+/**
+ * base64 확장자 추출
+*/
+if (!function_exists("getExtensionFromMimeType")) {
+    function getExtensionFromMimeType($mimeType) {
+        $mimeMap = [
+            'image/jpeg'      => 'jpg',
+            'image/png'       => 'png',
+            'image/gif'       => 'gif',
+            'image/bmp'       => 'bmp',
+            'image/webp'      => 'webp',
+            'text/plain'      => 'txt',
+            'text/html'       => 'html',
+            'application/pdf' => 'pdf',
+            // 필요한 MIME 타입들을 추가하세요
+        ];
+
+        return isset($mimeMap[$mimeType]) ? $mimeMap[$mimeType] : 'jpg';
+    }
+}
+
+/** 중복 글자 제거 */
+if (!function_exists("removeDuplicateWords")) {
+    function removeDuplicateWords($input)
+    {
+        // 문자열을 공백을 기준으로 단어 배열로 변환
+        $words = explode(' ', $input);
+        
+        // 고유한 단어들을 저장할 배열 초기화
+        $uniqueWords = [];
+        
+        // 단어들을 순회하면서 고유한 단어만 추가
+        foreach ($words as $word) {
+            if (!in_array($word, $uniqueWords)) {
+                $uniqueWords[] = $word;
+            }
+        }
+        
+        // 고유한 단어들을 다시 문자열로 결합
+        $result = implode(' ', $uniqueWords);
+        
+        return $result;
+    }
+}
+
+/** 해당 카테고리와 모든 자식 카테고리 추출 */
+if (!function_exists("findChildCategoryIds")) {
+    function findChildCategoryIds(Model $cateObj): array
+    {
+        $allChildCates = [$cateObj->category_id];
+
+        if( $cateObj->level == 1 ){
+            $secondChildCates  = Category::where("parent_cate_id", $cateObj->category_id)->pluck("category_id");
+            $thirdChildCates   = Category::whereIn("parent_cate_id", $secondChildCates)->pluck("category_id");
+            $allChildCatesObjs = $secondChildCates->merge($thirdChildCates)->toArray();
+            $allChildCates     = array_merge($allChildCates, $allChildCatesObjs);
+        } else if( $cateObj->level == 2 ) {
+            $allChildCatesObjs = Category::where("parent_cate_id", $cateObj->category_id)->pluck("category_id")->toArray();
+            $allChildCates     = array_merge($allChildCates, $allChildCatesObjs);
+        }
+
+        return $allChildCates;
+    }
+}
+
+/** 중량 여부로 판매 상태 업데이트 */
+if (!function_exists("upPrdStatusByWeight")) {
+    function upPrdStatusByWeight(int $offerId): void
+    {
+        $obj = ProductOptionData::select('offer_id', DB::raw('MAX(weight) as max_weight'))
+        ->where("offer_id", $offerId)
+        ->groupBy("offer_id")->first();
+        if( $obj != null ){
+            if( $obj->max_weight >= 20 ){
+                ProductData::where("offer_id", $offerId)->update([
+                    "status" => ProductConstant::PRD_STATUS_EXCEPT
+                ]);
+            }
+        }
     }
 }

@@ -44,4 +44,31 @@ class ForbiddenWordController extends Controller
         ];
         return view("forbiddenWord.list")->with($viewParams);
     }
+
+    public function noticeList(): View
+    {
+        $page         = $this->request->post("page", 1);
+        $pageSize     = $this->request->post("pageSize", 50);
+        $keyword_type = $this->request->get("keyword_type", "");
+        $keyword      = $this->request->get("keyword", "");
+        $offset       = ($page - 1) * $pageSize;
+
+        $params = [
+            "page"         => $page,
+            "pageSize"     => $pageSize,
+            "keyword_type" => $keyword_type,
+            "keyword"      => $keyword,
+        ];
+        $result = $this->forbiddenWordService->noticeList($params);
+
+        $viewParams = [
+            "keyword_type" => $keyword_type,
+            "keyword"      => $keyword,
+            "datas"        => $result,
+            "pageSize"     => $pageSize,
+            "offset"       => (int) $offset,
+            "totalCnt"     => (int) $result->total(),
+        ];
+        return view("forbiddenWord.noticeList")->with($viewParams);
+    }
 }

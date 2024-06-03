@@ -12,7 +12,7 @@
             </a>
         </li>
 
-        <li class="nav-title">W1</li>
+        <li class="nav-title">W</li>
         <li class="nav-group">
             <a class="nav-link nav-group-toggle" href="javascript:;">
                 <svg class="nav-icon">
@@ -64,7 +64,7 @@
             </ul>
         </li>
 
-        <li class="nav-title">W2</li>
+        {{-- <li class="nav-title">W2</li>
         <li class="nav-group">
             <a class="nav-link nav-group-toggle" href="javascript:;">
                 <svg class="nav-icon">
@@ -94,7 +94,7 @@
                     </ul>
                 </li>
             </ul>
-        </li>
+        </li> --}}
 
         <li class="nav-title">W App</li>
         <li class="nav-group">
@@ -102,42 +102,12 @@
                 <svg class="nav-icon">
                     <use xlink:href="/vendors/@coreui/icons/svg/free.svg#cil-3d"></use>
                 </svg>
-                수집 상품 관리(검수 중)
-            </a>
-            <ul class="nav-group-items">
-                <li class="nav-item">
-                    <a class="nav-link" href="/product/noInspect/list">
-                        전체 상품(KOR)
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/product/noInspect/w2/list">
-                        Drop.Hub 상품(ENG)
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/product/noInspect/except/list">
-                        판매제외 상품 리스트
-                    </a>
-                </li>
-            </ul>
-        </li>
-        <li class="nav-group">
-            <a class="nav-link nav-group-toggle" href="javascript:;">
-                <svg class="nav-icon">
-                    <use xlink:href="/vendors/@coreui/icons/svg/free.svg#cil-3d"></use>
-                </svg>
-                판매 상품 관리
+                상품 관리
             </a>
             <ul class="nav-group-items">
                 <li class="nav-item">
                     <a class="nav-link" href="/product/list">
-                        전체 상품(KOR)
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/product/w2/list">
-                        Drop.Hub 상품(ENG)
+                        전체 상품
                     </a>
                 </li>
                 <li class="nav-item">
@@ -147,21 +117,62 @@
                 </li>
             </ul>
         </li>
-        <li class="nav-item">
-            <a class="nav-link" href="/category">
+        <li class="nav-group">
+            <a class="nav-link nav-group-toggle" href="javascript:;">
                 <svg class="nav-icon">
                     <use xlink:href="/vendors/@coreui/icons/svg/free.svg#cil-3d"></use>
                 </svg>
                 카테고리 관리
             </a>
+            <ul class="nav-group-items">
+                <li class="nav-item">
+                    <a class="nav-link" href="/category">
+                        맵핑 관리
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/category/weight/list">
+                        표준 중량(배송비) 관리
+                    </a>
+                </li>
+            </ul>
         </li>
-        <li class="nav-item">
-            <a class="nav-link" href="/forbiddenWord/list">
+        
+        <li class="nav-group">
+            <a class="nav-link nav-group-toggle" href="javascript:;">
                 <svg class="nav-icon">
                     <use xlink:href="/vendors/@coreui/icons/svg/free.svg#cil-3d"></use>
                 </svg>
                 금칙어 관리
             </a>
+            <ul class="nav-group-items">
+                <li class="nav-item">
+                    <a class="nav-link" href="/forbiddenWord/list">
+                        상품정보 관리
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/forbiddenWord/notice/list">
+                        정보고시 관리
+                    </a>
+                </li>
+            </ul>
+        </li>
+
+        <li class="nav-group">
+            <a class="nav-link nav-group-toggle" href="javascript:;">
+                <svg class="nav-icon">
+                    <use xlink:href="/vendors/@coreui/icons/svg/free.svg#cil-3d"></use>
+                </svg>
+                제외 관리
+            </a>
+            <ul class="nav-group-items">
+                <li class="nav-item">
+                    <a class="nav-link" href="/except/notice/list">
+                        정보고시 관리
+                    </a>
+                </li>
+            </ul>
         </li>
 
         <li class="nav-title">이지셀</li>
@@ -179,6 +190,39 @@
                     </a>
                 </li>
             </ul>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="/easySell/category">
+                <svg class="nav-icon">
+                    <use xlink:href="/vendors/@coreui/icons/svg/free.svg#cil-3d"></use>
+                </svg>
+                카테고리 관리
+            </a>
+        </li>
+
+        <li class="nav-title">온채널</li>
+        <li class="nav-group">
+            <a class="nav-link nav-group-toggle" href="javascript:;">
+                <svg class="nav-icon">
+                    <use xlink:href="/vendors/@coreui/icons/svg/free.svg#cil-3d"></use>
+                </svg>
+                상품관리
+            </a>
+            <ul class="nav-group-items">
+                <li class="nav-item">
+                    <a class="nav-link" href="/onchannel/product/list">
+                        상품 현황
+                    </a>
+                </li>
+            </ul>
+            <li class="nav-item">
+                <a class="nav-link" href="/onchannel/category">
+                    <svg class="nav-icon">
+                        <use xlink:href="/vendors/@coreui/icons/svg/free.svg#cil-3d"></use>
+                    </svg>
+                    카테고리 관리
+                </a>
+            </li>
         </li>
     </ul>
     <button class="sidebar-toggler" type="button" data-coreui-toggle="unfoldable"></button>

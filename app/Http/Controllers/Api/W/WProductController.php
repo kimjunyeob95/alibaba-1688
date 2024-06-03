@@ -56,6 +56,34 @@ class WProductController extends Controller
         }
     }
 
+    public function reCollectProduct(): JsonResponse
+    {
+        try {
+            $validator = Validator::make($this->request->all(), [
+                'offer_ids' => 'required|array',
+            ], [
+                'offer_ids.required' => 'offer_ids를 입력하세요.',
+            ]);
+            if ($validator->fails()) {
+                throw new Exception($validator->errors()->first());
+            }
+
+            $offerIds = $this->request->post("offer_ids");
+            $log_type = $this->request->post("log_type", LogConstant::RE_COLLECT_API_OFFERID);
+
+            $options = "--offerids=" . helperEscape(implode(",", $offerIds)) . " --type=" . helperEscape($log_type);
+            $command = "nohup php artisan save_1688_collect_product " . $options . " > /dev/null 2>&1 &";
+            $process = Process::fromShellCommandline($command);
+            $process->setWorkingDirectory(env("WORK_DIRECTORY", "/web1/1688"));
+            $process->setTimeout(null); // 실행 시간 제한 없음
+            $process->start();
+
+            return helpers_json_response(HttpConstant::OK, helpers_success_message([], "재 수집 요청 완료"));
+        } catch (Exception $e) {
+            return helpers_json_response(HttpConstant::BAD_REQUEST, [], $e->getMessage());
+        }
+    }
+
     public function collectKeywordQuery(): JsonResponse
     {
         try {
@@ -499,27 +527,39 @@ class WProductController extends Controller
             $validator = Validator::make($this->request->all(), [
                 'offer_id'               => 'required|int',
                 'prd_name_kr'            => 'required|string',
+                'prd_name_en'            => 'required|string',
                 'optionList'             => 'required|array',
                 'optionList.*.id'        => 'required|int',
                 'optionList.*.is_except' => 'required|string',
                 'gosiKrList'             => 'required|array',
                 'gosiKrList.*.id'        => 'required|int',
                 'gosiKrList.*.is_except' => 'required|string',
+                'gosiEnList'             => 'required|array',
+                'gosiEnList.*.id'        => 'required|int',
+                'gosiEnList.*.is_except' => 'required|string',
             ], [
                 'offer_id.required'                    => ProductErrorMessageConstant::getNotHaveErrorMessage("OFFER_ID"),
                 'prd_name_kr.required'                 => ProductErrorMessageConstant::getNotHaveErrorMessage("PRD_NAME_KR"),
+                'prd_name_en.required'                 => ProductErrorMessageConstant::getNotHaveErrorMessage("PRD_NAME_EN"),
                 'optionList.required'                  => ProductErrorMessageConstant::getNotHaveErrorMessage("OPTIONLIST"),
                 'optionList.*.id.required'             => ProductErrorMessageConstant::getNotHaveErrorMessage("OPTIONLIST_ID"),
                 'optionList.*.option_name_kr.required' => ProductErrorMessageConstant::getNotHaveErrorMessage("OPTIONLIST_OPTION_NAME_KR"),
+                'optionList.*.option_name_en.required' => ProductErrorMessageConstant::getNotHaveErrorMessage("OPTIONLIST_OPTION_NAME_EN"),
                 'optionList.*.is_except.required'      => ProductErrorMessageConstant::getNotHaveErrorMessage("OPTIONLIST_IS_EXCEPT"),
                 'gosiKrList.required'                  => ProductErrorMessageConstant::getNotHaveErrorMessage("GOSIKRLIST"),
                 'gosiKrList.*.id.required'             => ProductErrorMessageConstant::getNotHaveErrorMessage("GOSIKRLIST_ID"),
                 'gosiKrList.*.is_except.required'      => ProductErrorMessageConstant::getNotHaveErrorMessage("GOSIKRLIST_IS_EXCEPT"),
+                'gosiEnList.required'                  => ProductErrorMessageConstant::getNotHaveErrorMessage("GOSIENLIST"),
+                'gosiEnList.*.id.required'             => ProductErrorMessageConstant::getNotHaveErrorMessage("GOSIENLIST_ID"),
+                'gosiEnList.*.is_except.required'      => ProductErrorMessageConstant::getNotHaveErrorMessage("GOSIENLIST_IS_EXCEPT"),
             ]);
 
             foreach ($this->request->post('optionList') as $key => $option) {
                 if ($option['is_except'] == OptionConstants::IS_EXCEPT_N) {
                     $validator->sometimes('optionList.' . $key . '.option_name_kr', 'required|string', function () {
+                        return true;
+                    });
+                    $validator->sometimes('optionList.' . $key . '.option_name_en', 'required|string', function () {
                         return true;
                     });
                 }
@@ -566,6 +606,50 @@ class WProductController extends Controller
             }
         } catch (Exception $e) {
             return helpers_json_response(HttpConstant::BAD_REQUEST, [], $e->getMessage());
+        }
+    }
+
+    public function weightSave(): JsonResponse
+    {
+        $validator = Validator::make($this->request->all(), [
+            'offerIds' => 'required|array',
+            'weight'   => 'required|int',
+        ], [
+            'offerIds.required' => ProductErrorMessageConstant::getNotHaveErrorMessage("OFFER_IDS"),
+            'weight.required'   => ProductErrorMessageConstant::getNotHaveErrorMessage("WEIGHT"),
+        ]);
+        if ($validator->fails()) {
+            throw new Exception($validator->errors()->first());
+        }
+
+        $offerIds = $this->request->post("offerIds");
+        $weight   = $this->request->post("weight");
+        $result   = $this->service1688Product->weightSave($offerIds, $weight);
+        if( $result["isSuccess"] == true ){
+            return helpers_json_response(HttpConstant::OK, $result);
+        } else {
+            return helpers_json_response(HttpConstant::BAD_REQUEST, [], $result["msg"]);
+        }
+    }
+
+    public function noticeNameUpdate(): JsonResponse
+    {
+        $validator = Validator::make($this->request->all(), [
+            'attribute_ids' => 'required|array',
+        ], [
+            'attribute_ids.required' => ProductErrorMessageConstant::getNotHaveErrorMessage("ATTRIBUTE_IDS"),
+        ]);
+        if ($validator->fails()) {
+            throw new Exception($validator->errors()->first());
+        }
+
+        $attributeIds       = $this->request->post("attribute_ids");
+        $applyAttributeName = $this->request->post("apply_attribute_name", "") ?? "";
+        $result             = $this->service1688Product->noticeNameUpdate($attributeIds, $applyAttributeName);
+        if( $result["isSuccess"] == true ){
+            return helpers_json_response(HttpConstant::OK, $result);
+        } else {
+            return helpers_json_response(HttpConstant::BAD_REQUEST, [], $result["msg"]);
         }
     }
 }

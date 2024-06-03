@@ -19,6 +19,8 @@
                         <span>Home</span>
                     </a>
                 </li>
+                <li class="breadcrumb-item">W</li>
+                <li class="breadcrumb-item">상품</li>
                 <li class="breadcrumb-item">상품 수집 관리</li>
                 <li class="breadcrumb-item active" aria-current="page">상품 ID로 수집</li>
             </ol>

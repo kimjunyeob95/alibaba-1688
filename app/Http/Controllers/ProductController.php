@@ -32,27 +32,36 @@ class ProductController extends Controller
         $mapping_status      = $this->request->get("mapping_status", "");
         $prd_status          = $this->request->get("prd_status", "");
         $mdPrice_status      = $this->request->get("mdPrice_status", "");
+        $weight_status       = $this->request->get("weight_status", "");
         $sort                = $this->request->get("sort", "updated_at|desc");
+        $inspect_status      = $this->request->get("inspect_status", "");
         $inspect_img_status  = $this->request->get("inspect_img_status", "");
         $inspect_prd_status  = $this->request->get("inspect_prd_status", "");
         $inspect_gosi_status = $this->request->get("inspect_gosi_status", "");
+        $cate_first          = $this->request->get("cate_first", "");
+        $cate_second         = $this->request->get("cate_second", "");
+        $cate_third          = $this->request->get("cate_third", "");
         $offset              = ($page - 1) * $pageSize;
 
         $params = [
             "page"                => $page,
             "pageSize"            => $pageSize,
             "search_cls"          => $search_cls,
+            "inspect_status"      => $inspect_status,
             "w_type"              => $w_type,
             "keyword"             => $keyword,
             "trans_status"        => $trans_status,
             "mapping_status"      => $mapping_status,
-            "inspect_status"      => InspectConstant::IS_INSPECT_Y,
             "prd_status"          => $prd_status,
             "mdPrice_status"      => $mdPrice_status,
+            "weight_status"       => $weight_status,
             "sort"                => $sort,
             "inspect_img_status"  => $inspect_img_status,
             "inspect_prd_status"  => $inspect_prd_status,
             "inspect_gosi_status" => $inspect_gosi_status,
+            "cate_first"          => $cate_first,
+            "cate_second"         => $cate_second,
+            "cate_third"          => $cate_third
         ];
         $result = $this->service1688Product->getPrdList($params);
 
@@ -61,6 +70,8 @@ class ProductController extends Controller
             "transYCnt"           => $result["transYCnt"],
             "transNCnt"           => $result["transNCnt"],
             "totalCnt"            => $result["totalCnt"],
+            "inspectYCnt"         => $result["inspectYCnt"],
+            "inspectNCnt"         => $result["inspectNCnt"],
             "imgInspectYCnt"      => $result["imgInspectYCnt"],
             "imgInspectNCnt"      => $result["imgInspectNCnt"],
             "prdInspectYCnt"      => $result["prdInspectYCnt"],
@@ -74,12 +85,20 @@ class ProductController extends Controller
             "keyword"             => $keyword,
             "trans_status"        => $trans_status,
             "mapping_status"      => $mapping_status,
+            "weight_status"       => $weight_status,
             "prd_status"          => $prd_status,
             "mdPrice_status"      => $mdPrice_status,
-            "sort"                => $sort,
+            "inspect_status"      => $inspect_status,
             "inspect_img_status"  => $inspect_img_status,
             "inspect_prd_status"  => $inspect_prd_status,
             "inspect_gosi_status" => $inspect_gosi_status,
+            "sort"                => $sort,
+            "firstCateObjs"       => $result["firstCateObjs"],
+            "secondCateObjs"      => $result["secondCateObjs"],
+            "thirdCateObjs"       => $result["thirdCateObjs"],
+            "cate_first"          => $cate_first,
+            "cate_second"         => $cate_second,
+            "cate_third"          => $cate_third
         ];
 
         return view("product.prdList")->with($viewParams);
@@ -87,49 +106,79 @@ class ProductController extends Controller
 
     public function getPrdExceptList(): View
     {
-        $page           = $this->request->post("page", 1);
-        $pageSize       = $this->request->post("pageSize", 50);
-        $search_cls     = $this->request->get("search_cls", "offer_id");
-        $w_type         = $this->request->get("w_type", "");
-        $keyword        = $this->request->get("keyword", "");
-        $trans_status   = $this->request->get("trans_status", "");
-        $mapping_status = $this->request->get("mapping_status", "");
-        $prd_status     = $this->request->get("prd_status", ProductConstant::PRD_STATUS_EXCEPT);
-        $mdPrice_status = $this->request->get("mdPrice_status", "");
-        $sort           = $this->request->get("sort", "updated_at|desc");
-        $offset         = ($page - 1) * $pageSize;
+        $page                = $this->request->post("page", 1);
+        $pageSize            = $this->request->post("pageSize", 50);
+        $search_cls          = $this->request->get("search_cls", "offer_id");
+        $w_type              = $this->request->get("w_type", "");
+        $keyword             = $this->request->get("keyword", "");
+        $trans_status        = $this->request->get("trans_status", "");
+        $mapping_status      = $this->request->get("mapping_status", "");
+        $mdPrice_status      = $this->request->get("mdPrice_status", "");
+        $sort                = $this->request->get("sort", "updated_at|desc");
+        $prd_status          = $this->request->get("prd_status", ProductConstant::PRD_STATUS_EXCEPT);
+        $inspect_status      = $this->request->get("inspect_status", "");
+        $inspect_img_status  = $this->request->get("inspect_img_status", "");
+        $inspect_prd_status  = $this->request->get("inspect_prd_status", "");
+        $inspect_gosi_status = $this->request->get("inspect_gosi_status", "");
+        $cate_first          = $this->request->get("cate_first", "");
+        $cate_second         = $this->request->get("cate_second", "");
+        $cate_third          = $this->request->get("cate_third", "");
+        $offset              = ($page - 1) * $pageSize;
 
         $params = [
-            "page"           => $page,
-            "pageSize"       => $pageSize,
-            "search_cls"     => $search_cls,
-            "w_type"         => $w_type,
-            "keyword"        => $keyword,
-            "trans_status"   => $trans_status,
-            "mapping_status" => $mapping_status,
-            "inspect_status" => InspectConstant::IS_INSPECT_Y,
-            "prd_status"     => $prd_status,
-            "mdPrice_status" => $mdPrice_status,
-            "sort"           => $sort,
+            "page"                => $page,
+            "pageSize"            => $pageSize,
+            "search_cls"          => $search_cls,
+            "w_type"              => $w_type,
+            "keyword"             => $keyword,
+            "trans_status"        => $trans_status,
+            "mapping_status"      => $mapping_status,
+            "prd_status"          => $prd_status,
+            "mdPrice_status"      => $mdPrice_status,
+            "sort"                => $sort,
+            "inspect_status"      => $inspect_status,
+            "inspect_img_status"  => $inspect_img_status,
+            "inspect_prd_status"  => $inspect_prd_status,
+            "inspect_gosi_status" => $inspect_gosi_status,
+            "cate_first"          => $cate_first,
+            "cate_second"         => $cate_second,
+            "cate_third"          => $cate_third
         ];
         $result = $this->service1688Product->getPrdExceptList($params);
 
         $viewParams = [
-            "datas"          => $result["paginator"],
-            "transYCnt"      => $result["transYCnt"],
-            "transNCnt"      => $result["transNCnt"],
-            "totalCnt"       => $result["totalCnt"],
-            "totalCnt"       => $result["totalCnt"],
-            "offset"         => (int) $offset,
-            "pageSize"       => (int) $pageSize,
-            "search_cls"     => $search_cls,
-            "w_type"         => $w_type,
-            "keyword"        => $keyword,
-            "trans_status"   => $trans_status,
-            "mapping_status" => $mapping_status,
-            "prd_status"     => $prd_status,
-            "mdPrice_status" => $mdPrice_status,
-            "sort"           => $sort,
+            "datas"               => $result["paginator"],
+            "transYCnt"           => $result["transYCnt"],
+            "transNCnt"           => $result["transNCnt"],
+            "totalCnt"            => $result["totalCnt"],
+            "inspectYCnt"         => $result["inspectYCnt"],
+            "inspectNCnt"         => $result["inspectNCnt"],
+            "imgInspectYCnt"      => $result["imgInspectYCnt"],
+            "imgInspectNCnt"      => $result["imgInspectNCnt"],
+            "prdInspectYCnt"      => $result["prdInspectYCnt"],
+            "prdInspectNCnt"      => $result["prdInspectNCnt"],
+            "gosiInspectYCnt"     => $result["gosiInspectYCnt"],
+            "gosiInspectNCnt"     => $result["gosiInspectNCnt"],
+            "offset"              => (int) $offset,
+            "pageSize"            => (int) $pageSize,
+            "search_cls"          => $search_cls,
+            "w_type"              => $w_type,
+            "keyword"             => $keyword,
+            "prd_status"          => $prd_status,
+            "trans_status"        => $trans_status,
+            "mapping_status"      => $mapping_status,
+            "mdPrice_status"      => $mdPrice_status,
+            "inspect_status"      => $inspect_status,
+            "inspect_img_status"  => $inspect_img_status,
+            "inspect_prd_status"  => $inspect_prd_status,
+            "inspect_gosi_status" => $inspect_gosi_status,
+            "sort"                => $sort,
+            "firstCateObjs"       => $result["firstCateObjs"],
+            "secondCateObjs"      => $result["secondCateObjs"],
+            "thirdCateObjs"       => $result["thirdCateObjs"],
+            "cate_first"          => $cate_first,
+            "cate_second"         => $cate_second,
+            "cate_third"          => $cate_third
         ];
 
         return view("product.prdExceptList")->with($viewParams);
@@ -419,133 +468,5 @@ class ProductController extends Controller
         ];
 
         return view("product.prdQueryW2ProductDetail")->with($viewParams);
-    }
-
-    public function noInspectList(): View
-    {
-        $page                = $this->request->post("page", 1);
-        $pageSize            = $this->request->post("pageSize", 50);
-        $search_cls          = $this->request->get("search_cls", "offer_id");
-        $w_type              = $this->request->get("w_type", "");
-        $keyword             = $this->request->get("keyword", "");
-        $trans_status        = $this->request->get("trans_status", "");
-        $mapping_status      = $this->request->get("mapping_status", "");
-        $prd_status          = $this->request->get("prd_status", "");
-        $mdPrice_status      = $this->request->get("mdPrice_status", "");
-        $sort                = $this->request->get("sort", "updated_at|desc");
-        $inspect_img_status  = $this->request->get("inspect_img_status", "");
-        $inspect_prd_status  = $this->request->get("inspect_prd_status", "");
-        $inspect_gosi_status = $this->request->get("inspect_gosi_status", "");
-        $offset              = ($page - 1) * $pageSize;
-
-        $params = [
-            "page"                => $page,
-            "pageSize"            => $pageSize,
-            "search_cls"          => $search_cls,
-            "inspect_status"      => InspectConstant::IS_INSPECT_N,
-            "w_type"              => $w_type,
-            "keyword"             => $keyword,
-            "trans_status"        => $trans_status,
-            "mapping_status"      => $mapping_status,
-            "prd_status"          => $prd_status,
-            "mdPrice_status"      => $mdPrice_status,
-            "sort"                => $sort,
-            "inspect_img_status"  => $inspect_img_status,
-            "inspect_prd_status"  => $inspect_prd_status,
-            "inspect_gosi_status" => $inspect_gosi_status,
-        ];
-        $result = $this->service1688Product->getPrdList($params);
-
-        $viewParams = [
-            "datas"               => $result["paginator"],
-            "transYCnt"           => $result["transYCnt"],
-            "transNCnt"           => $result["transNCnt"],
-            "totalCnt"            => $result["totalCnt"],
-            "imgInspectYCnt"      => $result["imgInspectYCnt"],
-            "imgInspectNCnt"      => $result["imgInspectNCnt"],
-            "prdInspectYCnt"      => $result["prdInspectYCnt"],
-            "prdInspectNCnt"      => $result["prdInspectNCnt"],
-            "gosiInspectYCnt"     => $result["gosiInspectYCnt"],
-            "gosiInspectNCnt"     => $result["gosiInspectNCnt"],
-            "offset"              => (int) $offset,
-            "pageSize"            => (int) $pageSize,
-            "search_cls"          => $search_cls,
-            "w_type"              => $w_type,
-            "keyword"             => $keyword,
-            "trans_status"        => $trans_status,
-            "mapping_status"      => $mapping_status,
-            "prd_status"          => $prd_status,
-            "mdPrice_status"      => $mdPrice_status,
-            "inspect_img_status"  => $inspect_img_status,
-            "inspect_prd_status"  => $inspect_prd_status,
-            "inspect_gosi_status" => $inspect_gosi_status,
-            "sort"                => $sort,
-        ];
-
-        return view("product.noInspectList")->with($viewParams);
-    }
-
-    public function noInspectExceptList(): View
-    {
-        $page                = $this->request->post("page", 1);
-        $pageSize            = $this->request->post("pageSize", 50);
-        $search_cls          = $this->request->get("search_cls", "offer_id");
-        $w_type              = $this->request->get("w_type", "");
-        $keyword             = $this->request->get("keyword", "");
-        $trans_status        = $this->request->get("trans_status", "");
-        $mapping_status      = $this->request->get("mapping_status", "");
-        $mdPrice_status      = $this->request->get("mdPrice_status", "");
-        $sort                = $this->request->get("sort", "updated_at|desc");
-        $prd_status          = $this->request->get("prd_status", ProductConstant::PRD_STATUS_EXCEPT);
-        $inspect_img_status  = $this->request->get("inspect_img_status", "");
-        $inspect_prd_status  = $this->request->get("inspect_prd_status", "");
-        $inspect_gosi_status = $this->request->get("inspect_gosi_status", "");
-        $offset              = ($page - 1) * $pageSize;
-
-        $params = [
-            "page"                => $page,
-            "pageSize"            => $pageSize,
-            "search_cls"          => $search_cls,
-            "w_type"              => $w_type,
-            "keyword"             => $keyword,
-            "trans_status"        => $trans_status,
-            "mapping_status"      => $mapping_status,
-            "prd_status"          => $prd_status,
-            "mdPrice_status"      => $mdPrice_status,
-            "sort"                => $sort,
-            "inspect_status"      => InspectConstant::IS_INSPECT_N,
-            "inspect_img_status"  => $inspect_img_status,
-            "inspect_prd_status"  => $inspect_prd_status,
-            "inspect_gosi_status" => $inspect_gosi_status,
-        ];
-        $result = $this->service1688Product->getPrdExceptList($params);
-
-        $viewParams = [
-            "datas"               => $result["paginator"],
-            "transYCnt"           => $result["transYCnt"],
-            "transNCnt"           => $result["transNCnt"],
-            "totalCnt"            => $result["totalCnt"],
-            "imgInspectYCnt"      => $result["imgInspectYCnt"],
-            "imgInspectNCnt"      => $result["imgInspectNCnt"],
-            "prdInspectYCnt"      => $result["prdInspectYCnt"],
-            "prdInspectNCnt"      => $result["prdInspectNCnt"],
-            "gosiInspectYCnt"     => $result["gosiInspectYCnt"],
-            "gosiInspectNCnt"     => $result["gosiInspectNCnt"],
-            "offset"              => (int) $offset,
-            "pageSize"            => (int) $pageSize,
-            "search_cls"          => $search_cls,
-            "w_type"              => $w_type,
-            "keyword"             => $keyword,
-            "prd_status"          => $prd_status,
-            "trans_status"        => $trans_status,
-            "mapping_status"      => $mapping_status,
-            "mdPrice_status"      => $mdPrice_status,
-            "inspect_img_status"  => $inspect_img_status,
-            "inspect_prd_status"  => $inspect_prd_status,
-            "inspect_gosi_status" => $inspect_gosi_status,
-            "sort"                => $sort,
-        ];
-
-        return view("product.noInspectExceptList")->with($viewParams);
     }
 }

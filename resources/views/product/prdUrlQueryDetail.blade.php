@@ -30,12 +30,10 @@
                         <span>Home</span>
                     </a>
                 </li>
-                <li class="breadcrumb-item">
-                    <a href="/">상품 수집 관리</a>
-                </li>
-                <li class="breadcrumb-item">
-                    <a href="/product/urlQuery">상품상세 URL로 수집</a>
-                </li>
+                <li class="breadcrumb-item">W</li>
+                <li class="breadcrumb-item">상품</li>
+                <li class="breadcrumb-item">상품 수집 관리</li>
+                <li class="breadcrumb-item">상품상세 URL로 수집</li>
                 <li class="breadcrumb-item active" aria-current="page">상세보기</li>
             </ol>
         </nav>
@@ -124,20 +122,22 @@
             let hasPrd    = false;
 
             $(".chk-inp:checked").each(function(index, element){
-                if( $(this).attr("hasPrd") == "N" ){
-                    offer_ids.push($(this).val());
-                } else {
+                offer_ids.push($(this).val());
+                if( $(this).attr("hasPrd") != "N" ){
                     hasPrd = true;
                 }
             });
-
-            if(offer_ids.length < 1 && hasPrd == true){
-                return alert("수집 완료 된 상품만 선택했습니다.");
-            }else if(offer_ids.length < 1 ){
+            
+            if(offer_ids.length < 1 ){
                 return alert("검색 된 상품이 없습니다.");
             }
+            
+            let text = `${offer_ids.length}건의 상품을 수집 하시겠습니까?`;
+            if( hasPrd === true ){
+                text = `${offer_ids.length}건의 상품을 수집 하시겠습니까?\n재 수집 시 저장 된 상품의 정보가 초기화 됩니다.`;
+            }
 
-            if(confirm(`${offer_ids.length}건의 상품을 수집 하시겠습니까?\n이미 수집 된 상품은 수집 대상에서 제외 됩니다.`)){
+            if(confirm(text)){
                 $.ajax({
                     "headers"    : {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
                     "type"       : "POST",
@@ -163,20 +163,22 @@
             let hasPrd    = false;
 
             $(".chk-inp").each(function(index, element){
-                if( $(this).attr("hasPrd") == "N" ){
-                    offer_ids.push($(this).val());
-                } else {
+                offer_ids.push($(this).val());
+                if( $(this).attr("hasPrd") != "N" ){
                     hasPrd = true;
                 }
             });
 
-            if(offer_ids.length < 1 && hasPrd == true){
-                return alert("수집 완료 된 상품만 선택했습니다.");
-            }else if(offer_ids.length < 1 ){
+            if(offer_ids.length < 1 ){
                 return alert("검색 된 상품이 없습니다.");
             }
 
-            if(confirm(`${offer_ids.length}건의 상품을 수집 하시겠습니까?\n이미 수집 된 상품은 수집 대상에서 제외 됩니다.`)){
+            let text = `${offer_ids.length}건의 상품을 수집 하시겠습니까?`;
+            if( hasPrd === true ){
+                text = `${offer_ids.length}건의 상품을 수집 하시겠습니까?\n재 수집 시 저장 된 상품의 정보가 초기화 됩니다.`;
+            }
+
+            if(confirm(text)){
                 $.ajax({
                     "headers"    : {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
                     "type"       : "POST",

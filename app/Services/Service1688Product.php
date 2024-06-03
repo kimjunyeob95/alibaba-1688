@@ -426,6 +426,30 @@ class Service1688Product
       return $this->productAbstract->inspectStatusUpdate($params);
    }
 
+   /**
+     * @func weightSave
+     * @description '상품 중량 저장'
+     * @param array $offerIds '제품 ID'
+     * @param int $weight '표준 중량'
+     * @return array
+   */
+   public function weightSave(array $offerIds, int $weight): array
+   {
+      return $this->productAbstract->weightSave($offerIds, $weight);
+   }
+
+   /**
+     * @func noticeNameUpdate
+     * @description '정보고시 적용 항목명 update'
+     * @param array $attributeIds
+     * @param string $applyAttributeName
+     * @return array
+   */
+   public function noticeNameUpdate(array $attributeIds, string $applyAttributeName = ""): array
+   {
+      return $this->productAbstract->noticeNameUpdate($attributeIds, $applyAttributeName);
+   }
+
    /****************************************** WApp W2 **********************************************/
 
    /**

@@ -1,13 +1,17 @@
 <?php
 namespace App\Console\Commands;
 
+use App\Abstracts\ProductAbstract;
 use App\Constants\ForbiddenWordConstant;
+use App\Models\ForbiddenNoticeWordData;
 use App\Models\ForbiddenWordData;
 use App\Models\ProductData;
 use App\Models\ProductForbiddenData;
+use App\Models\ProductNoticeData;
+use App\Services\Product\ProductW1;
 use App\Services\Service1688Product;
 use Illuminate\Console\Command;
-use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Pagination\Paginator;
 
 class UpdateForbiddenWord extends Command
 {
@@ -15,12 +19,14 @@ class UpdateForbiddenWord extends Command
     protected $description = '금칙어 사전 적용';
 
     protected Service1688Product $service1688Product;
+    protected ProductAbstract $productAbstract;
 
     public function __construct(Service1688Product $service1688Product)
     {
         parent::__construct();
 
         $this->service1688Product = $service1688Product;
+        $this->productAbstract = app(ProductW1::class);
     }
     /*
      * 실행 구문 
@@ -28,82 +34,109 @@ class UpdateForbiddenWord extends Command
     */
     public function handle()
     {
-        $prdObjs     = ProductData::get();
-        $delObjs     = ForbiddenWordData::where("keyword_type", ForbiddenWordConstant::KEYWORD_DELETE)->get();
-        $replaceObjs = ForbiddenWordData::where("keyword_type", ForbiddenWordConstant::KEYWORD_REPLACE)->get();
+        $perPage = 900;
 
-        foreach ($prdObjs as $prdObj) {
-            $forObj = ProductForbiddenData::where("offer_id", $prdObj->offer_id)->first();
+        // 1. 상품명
+        $builder                  = ProductData::query();
+        $totalCount               = $builder->count();
+        $totalPages               = ceil($totalCount / $perPage);
+        $deletePrdForbiddenWords  = ForbiddenWordData::where("keyword_type", ForbiddenWordConstant::KEYWORD_DELETE)->get();
+        $replacePrdForbiddenWords = ForbiddenWordData::where("keyword_type", ForbiddenWordConstant::KEYWORD_REPLACE)->get();
+        for ($page = 1; $page <= $totalPages; $page++) {
+            Paginator::currentPageResolver(function () use ($page) {
+                return $page;
+            });
+        
+            // paginate 메소드는 새 Paginator 인스턴스를 반환합니다.
+            $pagedData = $builder->paginate($perPage);
+            $results   = $pagedData->items();
 
-            if( $forObj != null ){
-                $prd_name_kr = $forObj->prd_name_trans_origin;
-            } else {
-                $prd_name_kr = $prdObj->prd_name_kr;
-            }
+            foreach ($results as $prdObj) {
 
-            // 1. 삭제어
-            $upText = $this->removeSpecialSequence($prd_name_kr, $delObjs);
-
-            // 2. 교체어
-            $upText = $this->replaceWord($upText, $replaceObjs);
-
-            $upText = trim($upText);
-
-            if( $prd_name_kr != $upText ){
-                ProductForbiddenData::updateOrCreate(
-                    ["offer_id" => $prdObj->offer_id],
-                    [
-                        "prd_name_trans_origin"    => $prd_name_kr,
-                        "prd_name_trans_forbidden" => $upText
-                    ]
-                );
-                ProductData::where("id", $prdObj->id)->update([
-                    "prd_name_kr" => $upText
-                ]);
-            }
-        }
-    }
-
-    function removeSpecialSequence(string $text, Collection $delObjs): string
-    {
-        foreach ($delObjs as $delObj) {
-            $removeWord = $delObj->target_keyword;
-
-            // 1. 삭제어 앞과 뒤에 공백이 없는 경우 삭제어만 삭제
-            //    예: "HelloWord"에서 "Word"를 삭제 -> "Hello"
-            $pattern1 = '/(?<!\s)' . preg_quote($removeWord, '/') . '(?!\s)/';
-            if (preg_match($pattern1, $text)) {
-                $text = preg_replace($pattern1, '', $text);
-            }
-
-            // 2. 삭제어 앞 또는 뒤에 공백이 있는 경우 삭제어만 삭제
-            //    예: "Hello Word "에서 "Word"를 삭제 -> "Hello "
-            $pattern2 = '/(?<=\s)' . preg_quote($removeWord, '/') . '(?!\s)|(?<!\s)' . preg_quote($removeWord, '/') . '(?=\s)/';
-            if (preg_match($pattern2, $text)) {
-                $text = preg_replace($pattern2, '', $text);
-            }
-
-            // 3. 삭제어 앞과 뒤에 공백이 있는 경우 하나의 공백과 삭제어만 삭제
-            //    예: "Hello Word Test"에서 "Word"를 삭제 -> "Hello Test"
-            $pattern3 = '/\s+' . preg_quote($removeWord, '/') . '\s+/';
-            if (preg_match($pattern3, $text)) {
-                $text = preg_replace($pattern3, ' ', $text);
+                $forObj = ProductForbiddenData::where([
+                    "offer_id"   => $prdObj->offer_id,
+                    "apply_type" => ForbiddenWordConstant::KEYWORD_APPLY_TITLE,
+                ])->first();
+    
+                if( $forObj != null ){
+                    $prd_name_kr = $forObj->origin_text;
+                } else {
+                    $prd_name_kr = $prdObj->prd_name_kr;
+                }
+    
+                // 1. 삭제어
+                $upText = $this->productAbstract->removeForbiddenText($deletePrdForbiddenWords, $prd_name_kr, ForbiddenWordConstant::KEYWORD_APPLY_TITLE);
+                // 2. 교체어
+                $upText = $this->productAbstract->replaceForbiddenText($replacePrdForbiddenWords, $upText, ForbiddenWordConstant::KEYWORD_APPLY_TITLE);
+                $upText = trim($upText);
+                $upText = removeDuplicateWords($upText);
+                if( $prd_name_kr != $upText ){
+                    ProductForbiddenData::updateOrCreate(
+                        [
+                            "offer_id"   => $prdObj->offer_id,
+                            "apply_type" => ForbiddenWordConstant::KEYWORD_APPLY_TITLE
+                        ],
+                        [
+                            "origin_text" => $prd_name_kr,
+                            "trans_text"  => $upText
+                        ]
+                    );
+                    ProductData::where("id", $prdObj->id)->update([
+                        "prd_name_kr" => $upText
+                    ]);
+                }
             }
         }
 
-        return $text;
-    }
+        // 2. 정보고시 항목값
+        $builder                     = ProductNoticeData::query();
+        $totalCount                  = $builder->count();
+        $totalPages                  = ceil($totalCount / $perPage);
+        $deleteNoticeForbiddenWords  = ForbiddenNoticeWordData::where("keyword_type", ForbiddenWordConstant::KEYWORD_DELETE)->get();
+        $replaceNoticeForbiddenWords = ForbiddenNoticeWordData::where("keyword_type", ForbiddenWordConstant::KEYWORD_REPLACE)->get();
 
-    function replaceWord(string $text, Collection $replaceObjs)
-    {
-        foreach ($replaceObjs as $replaceObj) {
-            $originWord  = $replaceObj->target_keyword;
-            $replaceWord = $replaceObj->replace_keyword;
+        for ($page = 1; $page <= $totalPages; $page++) {
+            Paginator::currentPageResolver(function () use ($page) {
+                return $page;
+            });
+        
+            // paginate 메소드는 새 Paginator 인스턴스를 반환합니다.
+            $pagedData = $builder->paginate($perPage);
+            $results   = $pagedData->items();
 
-            // 1. 해당 텍스트가 originWord에 걸릴 시 replaceWord로 교체
-            $text = str_replace($originWord, $replaceWord, $text);
+            foreach ($results as $obj) {
+                $offerId        = $obj->offer_id;
+                $attrValueTrans = $obj->attribute_value_kr;
+                $originText     = $obj->attribute_value_kr;
+
+                $forbiddenObj = ProductForbiddenData::where([
+                    "offer_id"   => $offerId,
+                    "apply_type" => ForbiddenWordConstant::KEYWORD_APPLY_ATTR_VALUE,
+                    "trans_text" => $attrValueTrans
+                ])->first();
+
+                if( $forbiddenObj != null ){
+                    $originText = $forbiddenObj->origin_text;
+                }
+
+                // 고시값 삭제어
+                $valueTrans = $this->productAbstract->removeForbiddenText($deleteNoticeForbiddenWords, $attrValueTrans, ForbiddenWordConstant::KEYWORD_APPLY_ATTR_VALUE);
+                // 고시값 교체어
+                $valueTrans = $this->productAbstract->replaceForbiddenText($replaceNoticeForbiddenWords, $valueTrans, ForbiddenWordConstant::KEYWORD_APPLY_ATTR_VALUE);
+                $valueTrans = trim($valueTrans);
+                if( $attrValueTrans != $valueTrans ){ 
+                    ProductForbiddenData::updateOrCreate(
+                        [
+                            "offer_id"    => $offerId,
+                            "apply_type"  => ForbiddenWordConstant::KEYWORD_APPLY_ATTR_VALUE,
+                            "origin_text" => $originText,
+                        ],
+                        [
+                            "trans_text"  => $valueTrans
+                        ]
+                    );
+                }
+            }
         }
-
-        return $text;
     }
 }

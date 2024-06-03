@@ -3,8 +3,10 @@
 use App\Http\Controllers\Api\W\WCategoryController;
 use App\Http\Controllers\Api\W\WProductController;
 use App\Http\Controllers\Api\GenuioController;
+use App\Http\Controllers\Api\MallCategoryController;
 use App\Http\Controllers\Api\MallController;
 use App\Http\Controllers\Api\W\W2ProductController;
+use App\Http\Controllers\Api\W\WExceptController;
 use App\Http\Controllers\Api\W\WForbiddenWordController;
 use Illuminate\Support\Facades\Route;
 
@@ -40,6 +42,8 @@ Route::name('w.')->prefix('w')->group(function () {
     Route::name('product.')->prefix('product')->group(function () {
         /** 1688 상품ID 별 수집 */
         Route::post('/collect', [WProductController::class, 'collectProduct'])->name('collectProduct');
+        /** 1688 상품ID 별 재수집 */
+        Route::post('/reCollect', [WProductController::class, 'reCollectProduct'])->name('reCollectProduct');
         /** 1688 keywordQuery 수집 */
         Route::post('/collectKeywordQuery', [WProductController::class, 'collectKeywordQuery'])->name('collectKeywordQuery');
         /** 1688 이미지ID 생성 */
@@ -70,6 +74,10 @@ Route::name('w.')->prefix('w')->group(function () {
         Route::post('/update', [WProductController::class, 'update'])->name('update');
         /** 검수상태 update */
         Route::post('/inspect/update', [WProductController::class, 'inspectStatusUpdate'])->name('inspectStatusUpdate');
+        /** 상품 중량 저장 */
+        Route::post('/weight/save', [WProductController::class, 'weightSave'])->name('weightSave');
+        /** 정보고시 적용 항목명 update */
+        Route::post('/notice/name/update', [WProductController::class, 'noticeNameUpdate'])->name('noticeNameUpdate');
     });
 
     Route::name('category.')->prefix('category')->group(function () {
@@ -83,17 +91,34 @@ Route::name('w.')->prefix('w')->group(function () {
         Route::post('/infos', [WCategoryController::class, 'getInfos'])->name('getInfos');
         /** W 하위 카테고리 조회 */
         Route::post('/wDepth', [WCategoryController::class, 'getWDepth'])->name('getWDepth');
+        /** 카테고리 중량 저장 */
+        Route::post('/weight/save', [WCategoryController::class, 'weightSave'])->name('weightSave');
+        /** 카테고리 중량 삭제 */
+        Route::post('/weight/remove', [WCategoryController::class, 'weightRemove'])->name('weightRemove');
     });
 
     Route::name('forbiddenWord.')->prefix('forbiddenWord')->group(function () {
-        /** 키워드 조회 */
+        /** 상품정보 키워드 조회 */
         Route::get('/{id}', [WForbiddenWordController::class, 'get'])->name('get');
-        /** 키워드 등록 */
+        /** 상품정보 키워드 등록 */
         Route::post('/create', [WForbiddenWordController::class, 'create'])->name('create');
-        /** 키워드 수정 */
+        /** 상품정보 키워드 수정 */
         Route::post('/update', [WForbiddenWordController::class, 'update'])->name('update');
-        /** 키워드 삭제 */
+        /** 상품정보 키워드 삭제 */
         Route::post('/delete', [WForbiddenWordController::class, 'delete'])->name('delete');
+        /** 정보고시 키워드 조회 */
+        Route::get('/notice/{id}', [WForbiddenWordController::class, 'getNotice'])->name('getNotice');
+        /** 정보고시 키워드 등록 */
+        Route::post('/notice/create', [WForbiddenWordController::class, 'createNotice'])->name('createNotice');
+        /** 정보고시 키워드 수정 */
+        Route::post('/notice/update', [WForbiddenWordController::class, 'updateNotice'])->name('updateNotice');
+        /** 정보고시 키워드 삭제 */
+        Route::post('/notice/delete', [WForbiddenWordController::class, 'deleteNotice'])->name('deleteNotice');
+    });
+
+    Route::name('except.')->prefix('except')->group(function () {
+        /** 정보고시 제외 적용 update */
+        Route::post('/notice/update', [WExceptController::class, 'noticeUpdate'])->name('noticeUpdate');
     });
 });
 
@@ -137,14 +162,32 @@ Route::name('w2.')->prefix('w2')->group(function () {
 Route::name('mall.')->prefix('mall')->group(function () {
     Route::post('/{channel}/token/create', [MallController::class, "tokenCreate"])->name("tokenCreate");
 
-    Route::name('easySell.')->prefix('easySell')->group(function () {
+    Route::name('{channel}.')->prefix('{channel}')->group(function () {
         Route::post('/product/regist', [MallController::class, "productRegist"])->name('productRegist');
+
+        /** 카테고리 */
+        Route::prefix("category")->name("category.")->group(function(){
+            Route::post("/depth", [MallCategoryController::class, "depth"])->name("depth");
+            Route::post("/list", [MallCategoryController::class, "list"])->name("list");
+            Route::post("/mapping", [MallCategoryController::class, "mapping"])->name("mapping");
+        });
 
         Route::middleware(["oepnApi.jwt.verify"])->group(function () {
             /** 주문 조회 */
             Route::get('/order/{orderId}', [MallController::class, "orderInfo"])->name("orderInfo");
             /** 주문 생성 */
             Route::post('/order/create', [MallController::class, "orderCreate"])->name("orderCreate");
+
+            /** 이미지 S3 upload */
+            Route::post('/img/upload', [MallController::class, "imgUpload"])->name("imgUpload");
+
+            /** Genuio */
+            Route::name('genuio.')->prefix('genuio')->group(function () {
+                /** 이미지 번역 요청 */
+                Route::post('/img/trans/request', [MallController::class, "imgTransRequest"])->name("imgTransRequest");
+                /** 번역 된 이미지 처리 */
+                Route::post('/img/trans', [MallController::class, "imgTrans"])->name("imgTrans");
+            });
         });
     });
 });

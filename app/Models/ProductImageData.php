@@ -21,10 +21,10 @@ class ProductImageData extends Model
     }
 
     public function ai_imgs () {
-        return $this->hasMany(GenuioImageData::class, "img_id", "id")->where("is_origin", GenuioConstant::IS_ORIGIN_N)->orderBy("created_at", "desc");
+        return $this->hasMany(GenuioImageData::class, "img_id", "id")->where("is_origin", GenuioConstant::IS_ORIGIN_N)->orderBy("updated_at", "desc");
     }
 
     public function ai_all_imgs () {
-        return $this->hasMany(GenuioImageData::class, "img_id", "id")->orderBy("created_at", "desc");
+        return $this->hasMany(GenuioImageData::class, "img_id", "id")->orderBy("updated_at", "desc");
     }
 }

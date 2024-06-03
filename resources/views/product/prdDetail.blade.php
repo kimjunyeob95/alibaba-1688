@@ -20,7 +20,6 @@
     .prd-desc table,
     .prd-desc table td div,
     .prd-desc table td a{
-        width: 100% !important;
         max-width: 100% !important;
         height: auto !important;
     }
@@ -154,12 +153,10 @@
                         <div class="col-md-3 text-center">제품명(국문)</div>
                         <div class="col-md-8">{{ $prdObj->prd_name_kr }}</div>
                     </div>
-                    @if( $prdObj->w_type == WConstant::WAPP_W2 )
-                        <div class="row mb-2">
-                            <div class="col-md-3 text-center">제품명(영문)</div>
-                            <div class="col-md-8">{{ $prdObj->prd_name_en }}</div>
-                        </div>
-                    @endif
+                    <div class="row mb-2">
+                        <div class="col-md-3 text-center">제품명(영문)</div>
+                        <div class="col-md-8">{{ $prdObj->prd_name_en }}</div>
+                    </div>
                     <div class="row mb-2">
                         <div class="col-md-3 text-center">W 카테고리</div>
                         <div class="col-md-8">
@@ -223,14 +220,13 @@
                                     <th scope="col">skuID</th>
                                     <th scope="col">옵션명(중문)</th>
                                     <th scope="col">옵션명(국문)</th>
-                                    @if( $prdObj->w_type == WConstant::WAPP_W2 )
-                                        <th scope="col">옵션명(영문)</th>
-                                    @endif
+                                    <th scope="col">옵션명(영문)</th>
                                     <th scope="col">W 공급가(위안)</th>
                                     <th scope="col">W 공급가(원)</th>
                                     <th scope="col">적용 환율(원)</th>
                                     <th scope="col">일반 판매가(원)</th>
                                     <th scope="col">MD 판매가(원)</th>
+                                    <th scope="col">중량(kg)</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -245,11 +241,9 @@
                                         <td>
                                             {{ $option->option_name_kr }}
                                         </td>
-                                        @if( $prdObj->w_type == WConstant::WAPP_W2 )
-                                            <td>
-                                                {{ $option->option_name_en }}
-                                            </td>
-                                        @endif
+                                        <td>
+                                            {{ $option->option_name_en }}
+                                        </td>
                                         <td>
                                             {{ $option->price_1688 }}
                                         </td>
@@ -264,6 +258,9 @@
                                         </td>
                                         <td>
                                             {{ number_format($option->md_price) }}
+                                        </td>
+                                        <td>
+                                            {{ number_format($option->weight) }}
                                         </td>
                                     </tr>
                                 @endforeach
@@ -356,49 +353,47 @@
                     </div>
                 </div>
 
-                @if( $prdObj->w_type == WConstant::WAPP_W2 )
-                    <hr style="margin-top: 20px">
-                    <div class="row mt-3">
-                        <div class="col">
-                            <h5>[고시정보(영문)]</h5>
-                        </div>
-
-                        <div class="table-responsive">
-                            <table class="table table-white bg-white">
-                                <tbody>
-                                    @foreach ($prdObj->notices as $gosiKey => $gosi)
-                                        @if ( $gosiKey % 4 == 0)
-                                            <tr>
-                                        @endif
-
-                                            <th class="bg-light">
-                                                @if ($gosi->is_except == GosiConstants::IS_EXCEPT_Y)
-                                                    <del>{{ $gosi->attribute_name_en }}</del>
-                                                @else
-                                                    {{ $gosi->attribute_name_en }}
-                                                @endif
-                                            </th>
-                                            <td>
-                                                @if ($gosi->is_except == GosiConstants::IS_EXCEPT_Y)
-                                                    <del>{{ $gosi->attribute_value_en }}</del>
-                                                @else
-                                                    {{ $gosi->attribute_value_en }}
-                                                @endif
-                                            </td>
-
-                                        @if (($gosiKey + 1) % 4 == 0 || $loop->last)
-                                            @php $remainingCols = 4 - (($gosiKey + 1) % 4); @endphp
-                                            @if ($loop->last && $remainingCols > 0 && $remainingCols < 4)
-                                                <td colspan="{{ $remainingCols * 2 }}"></td>
-                                            @endif
-                                            </tr>
-                                        @endif
-                                    @endforeach
-                                </tbody>
-                            </table>
-                        </div>
+                <hr style="margin-top: 20px">
+                <div class="row mt-3">
+                    <div class="col">
+                        <h5>[고시정보(영문)]</h5>
                     </div>
-                @endif
+
+                    <div class="table-responsive">
+                        <table class="table table-white bg-white">
+                            <tbody>
+                                @foreach ($prdObj->notices as $gosiKey => $gosi)
+                                    @if ( $gosiKey % 4 == 0)
+                                        <tr>
+                                    @endif
+
+                                        <th class="bg-light">
+                                            @if ($gosi->is_except == GosiConstants::IS_EXCEPT_Y)
+                                                <del>{{ $gosi->attribute_name_en }}</del>
+                                            @else
+                                                {{ $gosi->attribute_name_en }}
+                                            @endif
+                                        </th>
+                                        <td>
+                                            @if ($gosi->is_except == GosiConstants::IS_EXCEPT_Y)
+                                                <del>{{ $gosi->attribute_value_en }}</del>
+                                            @else
+                                                {{ $gosi->attribute_value_en }}
+                                            @endif
+                                        </td>
+
+                                    @if (($gosiKey + 1) % 4 == 0 || $loop->last)
+                                        @php $remainingCols = 4 - (($gosiKey + 1) % 4); @endphp
+                                        @if ($loop->last && $remainingCols > 0 && $remainingCols < 4)
+                                            <td colspan="{{ $remainingCols * 2 }}"></td>
+                                        @endif
+                                        </tr>
+                                    @endif
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
 
                 <hr style="margin-top: 20px">
                 <div class="row mt-3">
@@ -432,6 +427,9 @@
         </div>
 
         <div class="me-5 mb-4 fixed-bottom d-flex flex-column align-items-stretch" style="left: auto;">
+            <button type="button" class="btn btn-danger btn-xl text-white mb-2 btn-recollect">
+                재 수집 요청
+            </button>
             <button type="button" class="btn btn-primary btn-xl text-white mb-2 btn-inspect-status">
                 검수상태 변경
             </button>
@@ -615,6 +613,32 @@
                     success: function (resp) {
                         alert(resp.msg);
                         location.reload();
+                    },
+                    error: function error(request, status, _error) {
+                        let { error } = JSON.parse(request.responseText);
+                        alert(error.message);
+                    }
+                });
+            }
+        });
+
+        $(".btn-recollect").click(function(){
+            let offerIds = [offer_id];
+
+            if(confirm(`재 수집 시 저장 된 상품의 정보가 초기화 됩니다.\n재 수집을 진행하시겠습니까?`)){
+                $.ajax({
+                    "headers"    : {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
+                    "type"       : "POST",
+                    "url"        : "{{ route('w.product.reCollectProduct') }}",
+                    "data"       : { offer_ids: offerIds },
+                    beforeSend: function () {
+                        $("#loadingOverlay").show();
+                    },
+                    complete: function () {
+                        $("#loadingOverlay").hide();
+                    },
+                    success: function (resp) {
+                        alert(resp.msg);
                     },
                     error: function error(request, status, _error) {
                         let { error } = JSON.parse(request.responseText);

@@ -22,6 +22,14 @@ abstract class TransApiAbstract
     abstract function createTransProductImg(array $product1688ImageDtoList, int $offerId): array;
 
     /**
+     * @func createTransProductImgAgain
+     * @description '추가 이미지 번역 통신'
+     * @param array $product1688ImageDtoList
+     * @param int $offerId
+     */
+    abstract function createTransProductImgAgain(array $product1688ImageDtoList, int $offerId): array;
+
+    /**
      * @func translateImage
      * @description '이미지 번역'
      * @param string $imgPath
@@ -56,4 +64,31 @@ abstract class TransApiAbstract
      * @return array
      */
     abstract function removeQueue(int $queueId): array;
+
+    /**
+     * @func channelImgTransRequest
+     * @description '채널별 번역 큐등록'
+     * @param string $channel
+     * @param array $params
+     * @return array
+     */
+    abstract function channelImgTransRequest(string $channel, array $params): array;
+
+    /**
+     * @func channelImgTrans
+     * @description '번역 된 이미지 처리'
+     * @param string $channel
+     * @param array $params
+     * @return array
+     */
+    abstract function channelImgTrans(string $channel, array $params): array;
+
+    /**
+     * @func imgUpload
+     * @description '이미지 S3 upload'
+     * @param string $channel
+     * @param array $params
+     * @return array
+    */
+    abstract function imgUpload(string $channel, array $params): array;
 }

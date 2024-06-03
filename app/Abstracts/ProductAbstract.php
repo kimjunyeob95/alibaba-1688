@@ -2,14 +2,26 @@
 
 namespace App\Abstracts;
 
+use App\Constants\Constant1688;
 use App\Constants\ForbiddenWordConstant;
 use App\Constants\LogConstant;
-use App\Models\ForbiddenWordData;
+use App\Models\ProductNoticeData;
+use App\Models\WNoticeData;
+use Exception;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Pagination\LengthAwarePaginator;
 
 abstract class ProductAbstract
 {
+    protected array $returnMsg;
+
+    public function __construct()
+    {
+        $this->returnMsg = helpers_fail_message();
+    }
+
+
     /**
     * @func getPrdList
     * @description '1688 수집 상품 리스트'
@@ -156,6 +168,14 @@ abstract class ProductAbstract
     abstract function collectProduct(array $offerIds, string $type = LogConstant::COLLECT_API_KEYWORDQUERY): void;
 
     /**
+     * @func collectProductNotLog
+     * @description '1688API 제품ID로 조회 후 DB저장 로그X'
+     * @param int $offerId '제품ID'
+     * @return array
+     */
+    abstract function collectProductNotLog(int $offerId): array;
+
+    /**
      * @func productsUpdateImages
      * @description '상품 이미지 업데이트'
      * @param int $offerId
@@ -263,36 +283,38 @@ abstract class ProductAbstract
     abstract function inspectStatusUpdate(array $params): array;
 
     /**
-     * @func removeSpecialSequence
+     * @func removeForbiddenText
      * @description '삭제어 처리'
+     * @param Collection $removeForbiddenWords
      * @param string $text
      * @return string
      */
-    function removeSpecialSequence(string $text): string
+    function removeForbiddenText(Collection $removeForbiddenWords, string $text, string $apply_type): string
     {
-        $delObjs = ForbiddenWordData::where("keyword_type", ForbiddenWordConstant::KEYWORD_DELETE)->get();
-        foreach ($delObjs as $delObj) {
-            $removeWord = $delObj->target_keyword;
-
-            // 1. 삭제어 앞과 뒤에 공백이 없는 경우 삭제어만 삭제
-            //    예: "HelloWord"에서 "Word"를 삭제 -> "Hello"
-            $pattern1 = '/(?<!\s)' . preg_quote($removeWord, '/') . '(?!\s)/';
-            if (preg_match($pattern1, $text)) {
-                $text = preg_replace($pattern1, '', $text);
-            }
-
-            // 2. 삭제어 앞 또는 뒤에 공백이 있는 경우 삭제어만 삭제
-            //    예: "Hello Word "에서 "Word"를 삭제 -> "Hello "
-            $pattern2 = '/(?<=\s)' . preg_quote($removeWord, '/') . '(?!\s)|(?<!\s)' . preg_quote($removeWord, '/') . '(?=\s)/';
-            if (preg_match($pattern2, $text)) {
-                $text = preg_replace($pattern2, '', $text);
-            }
-
-            // 3. 삭제어 앞과 뒤에 공백이 있는 경우 하나의 공백과 삭제어만 삭제
-            //    예: "Hello Word Test"에서 "Word"를 삭제 -> "Hello Test"
-            $pattern3 = '/\s+' . preg_quote($removeWord, '/') . '\s+/';
-            if (preg_match($pattern3, $text)) {
-                $text = preg_replace($pattern3, ' ', $text);
+        foreach ($removeForbiddenWords as $delObj) {
+            if( $delObj->apply_type == ForbiddenWordConstant::KEYWORD_APPLY_ALL || $delObj->apply_type == $apply_type ){
+                $removeWord = $delObj->target_keyword;
+    
+                // 1. 삭제어 앞과 뒤에 공백이 없는 경우 삭제어만 삭제
+                //    예: "HelloWord"에서 "Word"를 삭제 -> "Hello"
+                $pattern1 = '/(?<!\s)' . preg_quote($removeWord, '/') . '(?!\s)/';
+                if (preg_match($pattern1, $text)) {
+                    $text = preg_replace($pattern1, '', $text);
+                }
+    
+                // 2. 삭제어 앞 또는 뒤에 공백이 있는 경우 삭제어만 삭제
+                //    예: "Hello Word "에서 "Word"를 삭제 -> "Hello "
+                $pattern2 = '/(?<=\s)' . preg_quote($removeWord, '/') . '(?!\s)|(?<!\s)' . preg_quote($removeWord, '/') . '(?=\s)/';
+                if (preg_match($pattern2, $text)) {
+                    $text = preg_replace($pattern2, '', $text);
+                }
+    
+                // 3. 삭제어 앞과 뒤에 공백이 있는 경우 하나의 공백과 삭제어만 삭제
+                //    예: "Hello Word Test"에서 "Word"를 삭제 -> "Hello Test"
+                $pattern3 = '/\s+' . preg_quote($removeWord, '/') . '\s+/';
+                if (preg_match($pattern3, $text)) {
+                    $text = preg_replace($pattern3, ' ', $text);
+                }
             }
         }
 
@@ -300,22 +322,72 @@ abstract class ProductAbstract
     }
 
     /**
-     * @func replaceWord
+     * @func replaceForbiddenText
      * @description '교체어 처리'
+     * @param Collection $replaceForbiddenWords
      * @param string $text
      * @return string
      */
-    function replaceWord(string $text): string
+    function replaceForbiddenText(Collection $replaceForbiddenWords, string $text, string $apply_type): string
     {
-        $replaceObjs = ForbiddenWordData::where("keyword_type", ForbiddenWordConstant::KEYWORD_REPLACE)->get();
-        foreach ($replaceObjs as $replaceObj) {
-            $originWord  = $replaceObj->target_keyword;
-            $replaceWord = $replaceObj->replace_keyword;
+        foreach ($replaceForbiddenWords as $replaceObj) {
+            if( $replaceObj->apply_type == ForbiddenWordConstant::KEYWORD_APPLY_ALL || $replaceObj->apply_type == $apply_type ){
 
-            // 1. 해당 텍스트가 originWord에 걸릴 시 replaceWord로 교체
-            $text = str_replace($originWord, $replaceWord, $text);
+                $originWord  = $replaceObj->target_keyword;
+                $replaceWord = $replaceObj->replace_keyword;
+
+                // 1. 해당 텍스트가 originWord에 걸릴 시 replaceWord로 교체
+                $text = str_replace($originWord, $replaceWord, $text);
+            }
         }
 
         return $text;
+    }
+    
+    /**
+     * @func weightSave
+     * @description '상품 중량 저장'
+     * @param array $offerIds '제품 ID'
+     * @param int $weight '표준 중량'
+     * @return array
+    */
+    abstract function weightSave(array $offerIds, int $weight): array;
+
+    /**
+     * @func noticeNameUpdate
+     * @description '정보고시 적용 항목명 update'
+     * @param array $attributeIds
+     * @param string $applyAttributeName
+     * @return array
+    */
+    public function noticeNameUpdate(array $attributeIds, string $applyAttributeName = ""): array
+    {
+        $returnMsg = $this->returnMsg;
+        try {
+            WNoticeData::whereIn("attribute_id", $attributeIds)
+            ->where("lang", Constant1688::LANGUAGE_KR)
+            ->update(["apply_attribute_name" => $applyAttributeName]);
+
+            if( $applyAttributeName == "" ){
+                $objs = WNoticeData::whereIn("attribute_id", $attributeIds)
+                ->where("lang", Constant1688::LANGUAGE_KR)->groupBy("attribute_id")->get();
+
+                foreach ($objs as $obj) {
+                    ProductNoticeData::where("attribute_id", $obj->attribute_id)
+                    ->update([
+                        "attribute_name_kr" => $obj->attribute_name
+                    ]);
+                }
+            } else {
+                ProductNoticeData::whereIn("attribute_id", $attributeIds)
+                ->update(["attribute_name_kr" => $applyAttributeName]);
+            }
+
+            $returnMsg = helpers_success_message();
+        } catch (Exception $e) {
+            $returnMsg = helpers_fail_message($e->getMessage());
+        }
+
+        return $returnMsg;
     }
 }

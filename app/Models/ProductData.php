@@ -2,8 +2,10 @@
 
 namespace App\Models;
 
+use App\Constants\GosiConstants;
 use App\Constants\ImageConstant;
 use App\Constants\InspectConstant;
+use App\Constants\OptionConstants;
 use App\Constants\ProductConstant;
 use App\Constants\WConstant;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -31,6 +33,10 @@ class ProductData extends Model
         return $this->hasMany(ProductImageData::class, "offer_id", "offer_id")->where("lang", WConstant::WAPP_KR)->where("img_type", ImageConstant::IMAGE_TYPE_SUB);
     }
 
+    public function no_except_sub_imgs () {
+        return $this->hasMany(ProductImageData::class, "offer_id", "offer_id")->where("lang", WConstant::WAPP_KR)->where("img_type", ImageConstant::IMAGE_TYPE_SUB)->where("is_except", ImageConstant::IS_EXCEPT_N);
+    }
+
     public function en_sub_imgs () {
         return $this->hasMany(ProductImageData::class, "offer_id", "offer_id")->where("lang", WConstant::WAPP_EN)->where("img_type", ImageConstant::IMAGE_TYPE_SUB);
     }
@@ -55,12 +61,20 @@ class ProductData extends Model
         return $this->hasMany(ProductOptionData::class, "offer_id", "offer_id")->oldest("id");
     }
 
+    public function no_except_options () {
+        return $this->hasMany(ProductOptionData::class, "offer_id", "offer_id")->where("is_except", OptionConstants::IS_EXCEPT_N);
+    }
+
     public function extends () {
         return $this->hasOne(ProductExtendData::class, "offer_id", "offer_id")->oldest("id");
     }
 
     public function notices () {
         return $this->hasMany(ProductNoticeData::class, "offer_id", "offer_id")->oldest("id");
+    }
+
+    public function no_except_notices () {
+        return $this->hasMany(ProductNoticeData::class, "offer_id", "offer_id")->where("is_except", GosiConstants::IS_EXCEPT_N);
     }
 
     public function category () {
@@ -97,5 +111,9 @@ class ProductData extends Model
 
     public function gosi_inspect () {
         return $this->hasOne(ProductInspectData::class, "offer_id", "offer_id")->where("inspect_type", InspectConstant::INSPECT_NOTICE);
+    }
+
+    public function weight_delivery () {
+        return $this->hasOne(ProductWeightData::class, "offer_id", "offer_id");
     }
 }

@@ -80,6 +80,14 @@ abstract class CategoryAbstract
     abstract function cateList(array $params): array;
 
     /**
+     * @func weightList
+     * @description '표준 중량(배송비) 관리'
+     * @param array $params
+     * @return array
+    */
+    abstract function weightList(array $params): array;
+
+    /**
      * @func getW
      * @description 'W 카테고리 조회'
      * @param array $params
@@ -125,4 +133,21 @@ abstract class CategoryAbstract
      * @return void
     */
     abstract function saveCategoryTree(): void;
+
+    /**
+     * @func weightSave
+     * @description '카테고리 중량 저장'
+     * @param array $categoryIds '카테고리 ID'
+     * @param int $weight '표준 중량'
+     * @return array
+    */
+    abstract function weightSave(array $categoryIds, int $weight): array;
+
+    /**
+     * @func weightRemove
+     * @description '카테고리 중량 삭제'
+     * @param array $categoryIds '카테고리 ID'
+     * @return array
+    */
+    abstract function weightRemove(array $categoryIds): array;
 }

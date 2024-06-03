@@ -24,6 +24,7 @@ class TransApiConstant
     private static $defaultFitErrorMsg = "Error";
 
     public const ERROR_MESSAGE_QUEUE_ID              = "queue ID";
+    public const ERROR_MESSAGE_JOB_ID                = "job ID";
     public const ERROR_MESSAGE_NOT_EQUAL_COUNT_IMAGE = "요청과 응답의 이미지 개수가 다릅니다.";
     public const ERROR_MESSAGE_TRANS_REQUEST_IMAGE   = "Trans Request Image";
     public const ERROR_MESSAGE_IMG_ID                = "Image ID";

@@ -82,7 +82,7 @@ class GenuioController extends Controller
                 'offerIds'   => 'required|array',
                 'offerIds.*' => 'required|string',
             ], [
-                'offerIds.required'       => 'offerIds를 입력하세요.',
+                'offerIds.required' => 'offerIds를 입력하세요.',
             ]);
             if ($validator->fails()) {
                 throw new Exception($validator->errors()->first());

@@ -23,18 +23,19 @@ class App1688Provider extends ServiceProvider
             return new S3();
         });
 
-        $this->app->bind(ProductW1::class, function ($app) {
-            $transApiAbstract = $app->make(GenuioService::class);
-            $uploadAbstract   = $app->make(S3::class);
-
-            return new ProductW1($transApiAbstract, $uploadAbstract);
-        });
-
         $this->app->bind(ProductW2::class, function ($app) {
             $transApiAbstract = $app->make(GenuioService::class);
             $uploadAbstract   = $app->make(S3::class);
 
             return new ProductW2($transApiAbstract, $uploadAbstract);
+        });
+
+        $this->app->bind(ProductW1::class, function ($app) {
+            $transApiAbstract = $app->make(GenuioService::class);
+            $uploadAbstract   = $app->make(S3::class);
+            $productAbstract  = $app->make(ProductW2::class);
+
+            return new ProductW1($transApiAbstract, $uploadAbstract, $productAbstract);
         });
 
         $this->app->bind(Service1688Category::class, function ($app) {

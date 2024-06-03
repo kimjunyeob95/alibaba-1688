@@ -3,6 +3,8 @@
 namespace App\Packages;
 
 use App\Abstracts\MallApiAbstract;
+use App\Abstracts\OrderAbstract;
+use App\Abstracts\TransApiAbstract;
 use App\Constants\EasySellConstant;
 use App\Constants\GosiConstants;
 use App\Constants\ImageConstant;
@@ -15,6 +17,7 @@ use App\Models\CategoryMapping;
 use App\Models\EasysellProductLog;
 use App\Models\ProductData;
 use App\Models\ProductModiData;
+use App\Models\SellerhubCategory;
 use App\Vo\EasySell\EasySellProductVo;
 use Carbon\Carbon;
 use Exception;
@@ -24,19 +27,27 @@ use Illuminate\Support\Facades\File;
 
 class EasySell extends MallApiAbstract
 {
-    public function __construct(string $channel)
+    public function __construct(
+        JwtPackage $jwtPackage,
+        string $channel,
+        OrderAbstract $orderW1,
+        TransApiAbstract $transApiAbstract
+    )
     {
-        parent::__construct(app(JwtPackage::class), $channel);
+        parent::__construct($jwtPackage, $channel, $orderW1, $transApiAbstract);
     }
+
+    /****************************************** 상품 start **********************************************/
 
     /**
      * @func productRegist
      * @description '상품등록'
      * @param array $offerIds
      * @param string $type
+     * @param string $sendType
      * @return array
     */
-    public function productRegist(array $offerIds, string $type = WConstant::WAPP_W1): array
+    public function productRegist(array $offerIds, string $type = WConstant::WAPP_W1, string $sendType = ""): array
     {
         $successIds = [];
         $failIds    = [];
@@ -172,7 +183,7 @@ class EasySell extends MallApiAbstract
      * @param string $type
      * @return array
     */
-    public function productModi(array $offerIds, string $type):array
+    public function productModi(array $offerIds, string $type): array
     {
         $successIds = [];
         $failIds    = [];
@@ -279,82 +290,6 @@ class EasySell extends MallApiAbstract
         return helpers_success_message($result);
     }
 
-    public function orderInfo(int $orderId): array
-    {
-        $returnMsg = $this->returnMsg;
-        try {
-            $returnMsg = helpers_success_message(["orderId" => $orderId]);
-        } catch (Exception $e) {
-            $returnMsg = helpers_fail_message($e->getMessage());
-        }
-
-        return $returnMsg;
-    }
-
-    public function orderCreate(array $params): array
-    {
-        $returnMsg = $this->returnMsg;
-        try {
-            $returnMsg = helpers_success_message($params);
-        } catch (Exception $e) {
-            $returnMsg = helpers_fail_message($e->getMessage());
-        }
-
-        return $returnMsg;
-    }
-
-    /**
-     * @func categoryMapping
-     * @description '카테고리 매핑 저장'
-     *
-     * @return array
-     */
-    public function categoryMapping(): array
-    {
-        $returnMsg = $this->returnMsg;
-        try {
-            DB::beginTransaction();
-
-            $filePath = public_path('app/es_categories.txt');
-            if (File::exists($filePath)) {
-                $lines = File::lines($filePath);
-                foreach($lines as $line){
-                    $data = explode(',', $line);
-                    $categoryObj = CategoryMapping::where("mapping_channel", ProductConstant::MAPPING_WAPP)
-                        ->where("mapping_code",$data[0])
-                        ->get();
-                    foreach($categoryObj as $cate){
-                        //이지셀 카테고리 매핑
-                        CategoryMapping::updateOrCreate([
-                                "category_id"     => $cate->category_id,
-                                "mapping_channel" => ProductConstant::MAPPING_ES_CHANNEL
-                            ],[
-                                "mapping_code" => $data[1]
-                            ]);
-
-                        //이지셀 해외카테고리 매핑
-                        CategoryMapping::updateOrCreate([
-                                "category_id"     => $cate->category_id,
-                                "mapping_channel" => ProductConstant::MAPPING_ES_FGN_CHANNEL
-                            ],[
-                                "mapping_code" => $data[2]
-                            ]);
-                    }
-                }
-            } else {
-                throw new Exception("파일이 존재하지 않습니다.");
-            }
-            $returnMsg = helpers_success_message();
-
-            DB::commit();
-        } catch (Exception $e) {
-            DB::rollback();
-            $returnMsg = helpers_fail_message($e->getMessage());
-        }
-
-        return $returnMsg;
-    }
-
     /**
      * @func sendModiProduct
      * @description '수정 된 상품 전송'
@@ -393,6 +328,31 @@ class EasySell extends MallApiAbstract
     }
 
     /**
+     * 이지셀 판매중단처리 api
+     *
+     * @return void
+     */
+    public function setGoodsStatus(string $type,int $ItemGoodCode)
+    {
+        $vo = new EasySellProductVo($type);
+        $vo->bind(["ItemGoodCode" => $ItemGoodCode]);
+
+        $params = [
+			"LinkerID"     => $vo->LinkerID,
+			"UserID"       => $vo->UserID,
+			"UserPW"       => $vo->UserPW,
+			"ItemGoodCode" => $vo->ItemGoodCode,
+			"SaleStatus"   => EasySellConstant::STATUS_STOP_SALE,
+			"Soldout"      => "N"
+        ];
+
+        $apiResult = $this->_apiCall("GoodsStatus",$params);
+        if( $apiResult["isSuccess"] != true ){
+            throw new Exception(MallErrorMessageConstant::getFitErrorMessage("EASYSELL_GOODS_API"));
+        }
+    }
+
+    /**
      * api param 생성 - 상품 등록/수정 공통사용
      *
      * @param Model $prdObj
@@ -401,7 +361,7 @@ class EasySell extends MallApiAbstract
      * @param integer|null $ItemGoodCode - 수정시 필수
      * @return array
      */
-    private function _getPrdParams(Model $prdObj, string $type, string $itemMode = EasySellConstant::ITEM_REGIST, ?int $ItemGoodCode = NULL) :array
+    private function _getPrdParams(Model $prdObj, string $type, string $itemMode = EasySellConstant::ITEM_REGIST, ?int $ItemGoodCode = NULL): array
     {
         $return = helpers_fail_message();
 
@@ -409,10 +369,13 @@ class EasySell extends MallApiAbstract
             $offerId = $prdObj->offer_id;
 
             //카테고리 매핑
-            if(!isset($prdObj->es_mapping) || empty($prdObj->es_mapping->mapping_code) || !isset($prdObj->es_fgn_mapping) || empty($prdObj->es_fgn_mapping->mapping_code)){
+            if(!isset($prdObj->es_fgn_mapping) || empty($prdObj->es_fgn_mapping->mapping_code)){
                 throw new Exception("카테고리 정보가 없습니다");
             }
-            $categoryId = $prdObj->es_mapping->mapping_code."|".$prdObj->es_fgn_mapping->mapping_code;
+            $categoryId = $prdObj->es_fgn_mapping->mapping_code;
+            if(isset($prdObj->es_mapping) || !empty($prdObj->es_mapping->mapping_code)){
+                $categoryId .= "|".$prdObj->es_mapping->mapping_code;
+            }
             $ItemBrand = EasySellConstant::CATEGORY_MAPPING[substr($prdObj->es_fgn_mapping->mapping_code,0,6)];
             $noticeType = $this->_getNoticeType($prdObj->es_fgn_mapping->mapping_code);
 
@@ -430,10 +393,6 @@ class EasySell extends MallApiAbstract
                 $prdDesc  = $prdObj->prd_desc_en;
                 $optionTitle = "option";
             }
-
-            // if(!productNameValidation($ItemName, "", 100)){
-            //     throw new Exception("상품명 길이가 100byte를 초과했습니다.");
-            // }
 
             if($type == WConstant::WAPP_W1){
                 $noticeInfo = $prdObj->notices->where("is_except",GosiConstants::IS_EXCEPT_N)->pluck("attribute_value_kr","attribute_name_kr")->toArray();
@@ -480,7 +439,7 @@ class EasySell extends MallApiAbstract
             }else if($type == WConstant::WAPP_W2){
                 $images = $prdObj->en_images;
             }
-            $itemImage = implode("|", array_filter($images->whereIn("img_type",["main","sub"])->where("is_except",ImageConstant::IS_EXCEPT_N)->pluck("img_url_trans")->toArray()));
+            $itemImage = implode("|", array_filter($images->whereIn("img_type",[ImageConstant::IMAGE_TYPE_MAIN, ImageConstant::IMAGE_TYPE_SUB])->where("is_except",ImageConstant::IS_EXCEPT_N)->pluck("img_url_trans")->toArray()));
 
             $voParams = [
                 "ItemNo"                => $offerId,
@@ -553,7 +512,7 @@ class EasySell extends MallApiAbstract
 
             $return = helpers_success_message($apiParams);
         } catch(Exception $e){
-            $return = helpers_fail_message(false, $e->getMessage());
+            $return = helpers_fail_message($e->getMessage());
         }
 
         return $return;
@@ -565,7 +524,7 @@ class EasySell extends MallApiAbstract
      * @param string $categoryId
      * @return string
      */
-    private function _getNoticeType(string $categoryId):string
+    private function _getNoticeType(string $categoryId): string
     {
         $defaultNotice = EasySellConstant::DEFAULT_NOTICE;
 
@@ -587,9 +546,207 @@ class EasySell extends MallApiAbstract
      * @param $item 변경할 array
 	 *
      */
-    private function _iconvArr (&$item) {
+    private function _iconvArr (&$item)
+    {
         $item = iconv("utf-8","euc-kr//TRANSLIT",$item);
     }
+
+    /****************************************** 상품 end **********************************************/
+
+    /****************************************** 카테고리 start **********************************************/
+
+    /**
+     * @func categoryMapping
+     * @description '카테고리 매핑 저장'
+     *
+     * @return array
+     */
+    public function categoryMapping(): array
+    {
+        $returnMsg = $this->returnMsg;
+        try {
+            DB::beginTransaction();
+
+            $filePath = public_path('app/es_categories.txt');
+            if (File::exists($filePath)) {
+                $lines = File::lines($filePath);
+                foreach($lines as $line){
+                    $data = explode(',', $line);
+                    $categoryObj = CategoryMapping::where("mapping_channel", ProductConstant::MAPPING_WAPP)
+                        ->where("mapping_code",$data[0])
+                        ->get();
+                    foreach($categoryObj as $cate){
+                        //이지셀 카테고리 매핑
+                        CategoryMapping::updateOrCreate([
+                                "category_id"     => $cate->category_id,
+                                "mapping_channel" => ProductConstant::MAPPING_ES_CHANNEL
+                            ],[
+                                "mapping_code" => $data[1]
+                            ]);
+
+                        //이지셀 해외카테고리 매핑
+                        CategoryMapping::updateOrCreate([
+                                "category_id"     => $cate->category_id,
+                                "mapping_channel" => ProductConstant::MAPPING_ES_FGN_CHANNEL
+                            ],[
+                                "mapping_code" => $data[2]
+                            ]);
+                    }
+                }
+            } else {
+                throw new Exception("파일이 존재하지 않습니다.");
+            }
+            $returnMsg = helpers_success_message();
+
+            DB::commit();
+        } catch (Exception $e) {
+            DB::rollback();
+            $returnMsg = helpers_fail_message($e->getMessage());
+        }
+
+        return $returnMsg;
+    }
+
+    /**
+     * @func channelCateDepth
+     * @description '채널 카테고리 단계 조회'
+     * @param array $params
+     * @return array
+    */
+    public function channelCateDepth(array $params): array
+    {
+        $returnMsg = $this->returnMsg;
+        
+        try {
+            $level     = $params["level"];
+            $cate_name = $params["cate_name"];
+
+            $cate_first  = "";
+            $cate_second = "";
+            $cate_third  = "";
+            $cate_arr    = explode(",", $cate_name);
+            $where = [];
+            $group = [];
+            if( $level == 1 ){
+                $cate_first = $cate_arr[0];
+                $where = [
+                    "cate_first" => $cate_first
+                ];
+                $group = ["cate_second"];
+            } else if( $level == 2){
+                $cate_first  = $cate_arr[0];
+                $cate_second = $cate_arr[1];
+                $where = [
+                    "cate_first"  => $cate_first,
+                    "cate_second" => $cate_second,
+                ];
+                $group = ["cate_third"];
+            } else if( $level == 3){
+                $cate_first  = $cate_arr[0];
+                $cate_second = $cate_arr[1];
+                $cate_third  = $cate_arr[2];
+                $where = [
+                    "cate_first"  => $cate_first,
+                    "cate_second" => $cate_second,
+                    "cate_third"  => $cate_third,
+                ];
+                $group = ["cate_fourth"];
+            }
+
+            $nextCateObjs = SellerhubCategory::where($where)
+            ->orderBy("cate_first", "asc")
+            ->orderBy("cate_second", "asc")
+            ->orderBy("cate_third", "asc")
+            ->orderBy("cate_fourth", "asc")
+            ->groupBy($group)->get();
+
+            $data = [];
+            foreach ($nextCateObjs as $nextCateObj) {
+                $data[] = [
+                    "cate_first"  => $nextCateObj->cate_first,
+                    "cate_second" => $nextCateObj->cate_second,
+                    "cate_third"  => $nextCateObj->cate_third,
+                    "cate_fourth" => $nextCateObj->cate_fourth,
+                ];
+            }
+            $returnMsg = helpers_success_message($data);
+        } catch (Exception $e) {
+            $returnMsg = helpers_fail_message($e->getMessage());
+        }
+        return $returnMsg;
+    }
+
+    /**
+     * @func channelCateList
+     * @description '채널 카테고리 목록 조회'
+     * @param array $params
+     * @return array
+    */
+    public function channelCateList(array $params): array
+    {
+        $returnMsg = $this->returnMsg;
+        
+        try {
+            $keyword     = $params["keyword"];
+            $cate_second = $params["cate_second"];
+            $cate_third  = $params["cate_third"];
+            $cate_fourth = $params["cate_fourth"];
+            
+            $builder = SellerhubCategory::query();
+            $builder->where("cate_first", EasySellConstant::DEFAULT_CATEGORY);
+            
+            if( $cate_second != "" ){
+                $builder->where("cate_second", $cate_second);
+            }
+            if( $cate_third != "" ){
+                $builder->where("cate_third", $cate_third);
+            }
+            if( $cate_fourth != "" ){
+                $builder->where("cate_fourth", $cate_fourth);
+            }
+            if( $keyword != "" ){
+                $builder->where(function($query) use ($keyword) {
+                    $query->where("cate_first", "like", "%" . $keyword . "%")
+                        ->orWhere("cate_second", "like", "%" . $keyword . "%")
+                        ->orWhere("cate_third", "like", "%" . $keyword . "%")
+                        ->orWhere("cate_fourth", "like", "%" . $keyword . "%");
+                });
+            }
+
+            $result = $builder->get();
+
+            $returnMsg = helpers_success_message($result);
+        } catch (Exception $e) {
+            $returnMsg = helpers_fail_message($e->getMessage());
+        }
+        return $returnMsg;
+    }
+
+    /****************************************** 카테고리 end **********************************************/
+
+    /****************************************** 이미지 start **********************************************/
+
+    /**
+     * @func imgCallBack
+     * @description '이미지 콜백'
+     * @param array $params
+     * @return array
+    */
+    public function imgCallBack(array $params): array
+    {
+        $returnMsg = $this->returnMsg;
+        try {
+            
+            $returnMsg = helpers_success_message();
+
+        } catch (Exception $e) {
+            $returnMsg = helpers_fail_message($e->getMessage());
+        }
+
+        return $returnMsg;
+    }
+
+    /****************************************** 이미지 end **********************************************/
 
     private function _apiCall(string $name, array $params = []): array
 	{
@@ -632,33 +789,9 @@ class EasySell extends MallApiAbstract
 
             $returnMsg = helpers_success_message(["result" => $response]);
         } catch (Exception $e) {
-            $returnMsg = helpers_fail_message(false, $e->getMessage());
+            $returnMsg = helpers_fail_message($e->getMessage());
         }
 
         return $returnMsg;
-    }
-
-    /**
-     * 이지셀 판매중단처리 api
-     *
-     * @return void
-     */
-    public function setGoodsStatus(string $type,int $ItemGoodCode){
-        $vo = new EasySellProductVo($type);
-        $vo->bind(["ItemGoodCode" => $ItemGoodCode]);
-
-        $params = [
-			"LinkerID"     => $vo->LinkerID,
-			"UserID"       => $vo->UserID,
-			"UserPW"       => $vo->UserPW,
-			"ItemGoodCode" => $vo->ItemGoodCode,
-			"SaleStatus"   => EasySellConstant::STATUS_STOP_SALE,
-			"Soldout"      => "N"
-        ];
-
-        $apiResult = $this->_apiCall("GoodsStatus",$params);
-        if( $apiResult["isSuccess"] != true ){
-            throw new Exception(MallErrorMessageConstant::getFitErrorMessage("EASYSELL_GOODS_API"));
-        }
     }
 }
