@@ -15,6 +15,8 @@ use App\Constants\ImageConstant;
 use App\Constants\ImageErrorMessageConstant;
 use App\Constants\InspectConstant;
 use App\Constants\LogConstant;
+use App\Constants\MallConstant;
+use App\Constants\OnchannelConstant;
 use App\Constants\OptionConstants;
 use App\Constants\ProductConstant;
 use App\Constants\ProductErrorMessageConstant;
@@ -78,17 +80,18 @@ class ProductW1 extends ProductAbstract
 
     public function getPrdList(array $params): array
     {
-        $pageSize       = $params["pageSize"];
-        $search_cls     = $params["search_cls"];
-        $w_type         = $params["w_type"];
-        $keyword        = $params["keyword"];
-        $collect_status = "";
-        $trans_status   = $params["trans_status"];
-        $mapping_status = $params["mapping_status"];
-        $prd_status     = $params["prd_status"];
-        $mdPrice_status = $params["mdPrice_status"];
-        $weight_status  = "";
-        $sortArr        = explode("|", $params["sort"]);
+        $pageSize        = $params["pageSize"];
+        $search_cls      = $params["search_cls"];
+        $w_type          = $params["w_type"];
+        $keyword         = $params["keyword"];
+        $collect_status  = "";
+        $trans_status    = $params["trans_status"];
+        $mapping_status  = $params["mapping_status"];
+        $prd_status      = $params["prd_status"];
+        $mdPrice_status  = $params["mdPrice_status"];
+        $weight_status   = "";
+        $sortArr         = explode("|", $params["sort"]);
+        $no_send_channel = "";
 
         $cate_first     = "";
         $cate_second    = "";
@@ -97,7 +100,9 @@ class ProductW1 extends ProductAbstract
         if( isset($params["collect_status"]) ){
             $collect_status = $params["collect_status"];
         }
-
+        if( isset($params["no_send_channel"]) ){
+            $no_send_channel = $params["no_send_channel"];
+        }
         if( isset($params["cate_first"]) ){
             $cate_first = $params["cate_first"];
         }
@@ -261,6 +266,28 @@ class ProductW1 extends ProductAbstract
                     $query1->whereNull("pwd.weight_type")
                     ->orWhere("pwd.weight_type", ProductConstant::WEIGHT_STATUS_NONE);
                 });
+            }
+        }
+
+        if( !empty($no_send_channel) ){
+            $no_send_channels = explode(",", $no_send_channel);
+            foreach ($no_send_channels as $no_send_ch) {
+                if( empty($no_send_ch) ) continue;
+
+                if( $no_send_ch == OnchannelConstant::PRD_CHANNEL ){
+                    $prdBuilder->leftJoin('onchannel_product_logs as ocl', function($join) use ($no_send_ch) {
+                        $join->on('product_datas.offer_id', '=', 'ocl.offer_id')
+                            ->where('ocl.send_type', $no_send_ch);
+                    });
+                    $prdBuilder->where("ocl.id");
+                }
+                if( $no_send_ch == OnchannelConstant::PRD_CHANNEL_PRIVATE ){
+                    $prdBuilder->leftJoin('onchannel_product_logs as ocl2', function($join) use ($no_send_ch) {
+                        $join->on('product_datas.offer_id', '=', 'ocl2.offer_id')
+                            ->where('ocl2.send_type', $no_send_ch);
+                    });
+                    $prdBuilder->whereNull("ocl2.id");
+                }
             }
         }
 

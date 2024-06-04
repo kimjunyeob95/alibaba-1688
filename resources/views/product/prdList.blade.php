@@ -52,6 +52,7 @@
                     <input type="hidden" name="cate_first" value={{ $cate_first }}>
                     <input type="hidden" name="cate_second" value={{ $cate_second }}>
                     <input type="hidden" name="cate_third" value={{ $cate_third }}>
+                    <input type="hidden" name="no_send_channel" value='{{ $no_send_channel }}'>
 
                     <div class="card">
                         <div class="card-header">
@@ -259,6 +260,25 @@
                                         value="{{ ProductConstant::WEIGHT_STATUS_CATEGORY }}">{{ ProductConstant::WEIGHT_STATUS[ProductConstant::WEIGHT_STATUS_CATEGORY] }}</button>
                                         <button type="button" name="weight_status" class="btn-status btn btn-sm {{ $weight_status == ProductConstant::WEIGHT_STATUS_NONE ? "btn-primary" : "btn-dark" }}"
                                         value="{{ ProductConstant::WEIGHT_STATUS_NONE }}">{{ ProductConstant::WEIGHT_STATUS[ProductConstant::WEIGHT_STATUS_NONE] }}</button>
+                                    </td>
+                                </tr>
+                                <tr class="align-middle">
+                                    <th style="width: 120px">채널 미전송</th>
+                                    <td colspan="2">
+                                        @foreach (MallConstant::SEND_CHANNEL_LIST as $mallKey => $mallChannel)
+                                            @php
+                                                $checked = "";
+                                                $no_send_channel_list = explode(",", $no_send_channel);
+                                                if( in_array($mallKey, $no_send_channel_list) ){
+                                                    $checked = "checked";
+                                                }
+                                            @endphp
+                                            <div class="form-check form-check-inline">
+                                                <input class="form-check-input" type="checkbox" name="no_send_channel_list" id="no_send_channel_{{ $mallKey }}" value="{{ $mallKey }}" {{ $checked }}>
+                                                <label class="form-check-label" for="no_send_channel_{{ $mallKey }}">{{ $mallChannel }}</label>
+                                            </div>
+                                        @endforeach
+                                        <label class="text-danger">* 복수 선택 시 AND 조건으로 검색됩니다.</label>
                                     </td>
                                 </tr>
                                 <tr class="align-middle">
@@ -1559,12 +1579,20 @@
         });
 
         $("#form-submit").click(function(){
+            let value = "";
+            $('input[type=checkbox][name=no_send_channel_list]:checked').each(function(){
+                value += $(this).val() + ",";
+            });
+
+            $(`input[type=hidden][name=no_send_channel]`).val(value);
             $("#searchFrm").submit();
         });
 
         $(".btn-status").click(function(){
-            let name = $(this).attr("name");
-            $(`input[name=${name}]`).val($(this).val());
+            let name  = $(this).attr("name");
+            let value = $(this).val();
+
+            $(`input[name=${name}]`).val(value);
             $("#searchFrm").submit();            
         });
 
