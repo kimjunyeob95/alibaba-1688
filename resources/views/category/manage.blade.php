@@ -86,8 +86,20 @@
                                         </div>
                                     </td>
                                 </tr>
+                                <tr class="align-middle">
+                                    <th style="width: 120px">노출 수</th>
+                                    <td>
+                                        <div style="width: 200px">
+                                            <select class="form-select" name="pageSize">
+                                                <option value=100 @if($pageSize == 100) selected @endif>100개 노출</option>
+                                                <option value=300 @if($pageSize == 300) selected @endif>300개 노출</option>
+                                                <option value=500 @if($pageSize == 500) selected @endif>500개 노출</option>
+                                            </select>
+                                        </div>
+                                    </td>
+                                </tr>
                                 <tr class="align-middle text-left">
-                                    <td colspan="6">
+                                    <td colspan="2">
                                         <button type="button" class="btn btn-md btn-primary" id="form-submit">검색</button>
                                         <button type="button" onclick="location.href='/category'" class="btn btn-md btn-light btn-reset">초기화</button>
                                     </td>
