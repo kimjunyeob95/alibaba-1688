@@ -186,7 +186,11 @@
                                     배송비 (원)
                                 </th>
                                 <th scope="col" style="width: 100px" class="text-center">
-                                    일반 판매가(원)
+                                    @if ($send_type == OnchannelConstant::PRD_CHANNEL)
+                                        온채널<br>공급가(일반)
+                                    @elseif( $send_type == OnchannelConstant::PRD_CHANNEL_PRIVATE )
+                                        온채널<br>공급가(사입)
+                                    @endif 
                                 </th>
                                 <th scope="col" style="width: 150px" class="text-center">
                                     전송 카테고리
@@ -316,7 +320,7 @@
                                                     $delivery_price = $data->delivery_price;
                                                 }
                                             @endphp
-                                                {{ number_format(calcWSalePrice($option->option_price, $delivery_price)) }} 
+                                                {{ number_format(calcOnchannelOptionPrice($option->option_price, $delivery_price)) }} 
                                         @else
                                             <p class="text-danger">옵션없음</p>
                                         @endif
