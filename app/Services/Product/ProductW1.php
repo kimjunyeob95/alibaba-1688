@@ -3241,7 +3241,7 @@ class ProductW1 extends ProductAbstract
                     ->first();
     
                     if( $geObj != null ){
-                        $this->transApiAbstract->removeQueue($geObj->id);
+                        $this->transApiAbstract->queueRemove([$geObj->id]);
                     }
                 }
             }

@@ -5,7 +5,6 @@ namespace App\Services;
 use App\Abstracts\TransApiAbstract;
 use App\Abstracts\UploadAbstract;
 use App\Constants\GenuioConstant;
-use App\Constants\GenuioErrorMessageConstant;
 use App\Constants\ImageConstant;
 use App\Constants\ImageErrorMessageConstant;
 use App\Constants\MallConstant;
@@ -21,7 +20,6 @@ use App\Models\OcGeQueueData;
 use App\Models\ProductData;
 use App\Models\ProductImageData;
 use App\Packages\JwtPackage;
-use App\Traits\Genuio\QueueTrait;
 use App\Vo\Genuio\QueueDto;
 use App\Vo\Product\Product1688ImageDto;
 use Carbon\Carbon;
@@ -32,8 +30,6 @@ use ValueError;
 
 class GenuioService extends TransApiAbstract
 {
-    use QueueTrait;
-    
     private JwtPackage $jwtPackage;
     private UploadAbstract $uploadAbstract;
     private string $domain;
@@ -1048,59 +1044,6 @@ class GenuioService extends TransApiAbstract
             }
 
             $returnMsg = helpers_success_message([], "번역 요청이 완료되었습니다.");
-        } catch (Exception $e) {
-            $returnMsg = helpers_fail_message($e->getMessage());
-        }
-
-        return $returnMsg;
-    }
-
-    /**
-     * @func removeQueue
-     * @description '큐 삭제'
-     * @param int $queueId
-     * @return array
-     */
-    public function removeQueue(int $queueId): array
-    {
-        $returnMsg = $this->returnMsg;
-
-        try {
-            $geObj = GenuioQueueData::where([
-                "id"           => $queueId,
-                "request_user" => TransApiConstant::API_USER_COMPANY_OC
-            ])->first();
-
-            if( $geObj != null ){
-                $childObj = GenuioQueueData::where([
-                    "parent_id"    => $queueId,
-                    "request_user" => TransApiConstant::API_USER_COMPANY_GENUIO
-                ])->first();
-
-                if( $childObj != null ){
-                    throw new Exception(GenuioErrorMessageConstant::getFitErrorMessage("QUEUE_DONE"));
-                }
-
-                $resJson   = $geObj->response_json;
-                $resDecode = json_decode($resJson, JSON_UNESCAPED_UNICODE);
-
-                if( isset($resDecode["data"]["internalJobId"]) ){
-                    $internalJobId = $resDecode["data"]["internalJobId"];
-                    $endPoint      = "/translate-progress/remove/{$internalJobId}?queue=priority";
-                    $result        = $this->apiCurl("POST", $endPoint);
-                    if( $result["status"] == GenuioConstant::REMOVE_QUEUE_OK ){
-                        GenuioQueueData::where("id", $geObj->id)->delete();
-                    } else {
-                        throw new Exception(GenuioErrorMessageConstant::getFitErrorMessage("QUEUE_REMOVE_ERROR"));
-                    }
-                } else {
-                    throw new Exception(GenuioErrorMessageConstant::getFitErrorMessage("INTERNALJOBID"));
-                }
-            } else {
-                throw new Exception(GenuioErrorMessageConstant::getFitErrorMessage("QUEUE"));
-            }
-
-            $returnMsg = helpers_success_message();
         } catch (Exception $e) {
             $returnMsg = helpers_fail_message($e->getMessage());
         }
