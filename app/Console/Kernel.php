@@ -71,9 +71,9 @@ class Kernel extends ConsoleKernel
             $schedule->command("easy_sell_command --func=sendModiProduct")->cron("*/5 * * * *")->description("이지셀 수정 된 상품 전송")->withoutOverlapping()->runInBackground();
 
             /** 온채널 신규 상품 등록 */
-            $schedule->command("onchannel_command --func=newProductRegist")->cron("0 9,18 * * *")->description("온채널 신규 상품 등록")->withoutOverlapping()->runInBackground();
+            // $schedule->command("onchannel_command --func=newProductRegist")->cron("0 9,18 * * *")->description("온채널 신규 상품 등록")->withoutOverlapping()->runInBackground();
 
-            $schedule->command("test --filter testAllProductReCollectW1")->description("모든 상품 W1 재수집")->withoutOverlapping()->runInBackground();
+            // $schedule->command("test --filter testAllProductReCollectW1")->description("모든 상품 W1 재수집")->withoutOverlapping()->runInBackground();
         }
     }
 
