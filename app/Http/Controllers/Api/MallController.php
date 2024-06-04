@@ -262,20 +262,20 @@ class MallController extends Controller
                 $options = "--offerids=" . helperEscape(implode(",", $offerIds)) . " --sendtype=" . helperEscape(implode(",", $oc_send_type));
     
                 $command = "nohup php artisan easy_sell_command --func=productRegist " . $options . " > /dev/null 2>&1 &";
-                $process = Process::fromShellCommandline($command);
-                $process->setWorkingDirectory(env("WORK_DIRECTORY", "/web1/1688"));
-                $process->setTimeout(null); // 실행 시간 제한 없음
-                $process->start();
+                $process1 = Process::fromShellCommandline($command);
+                $process1->setWorkingDirectory(env("WORK_DIRECTORY", "/web1/1688"));
+                $process1->setTimeout(null); // 실행 시간 제한 없음
+                $process1->start();
             }
 
             if( !empty($oc_send_type) ){
                 $options = "--offerids=" . helperEscape(implode(",", $offerIds)) . " --sendtype=" . helperEscape(implode(",", $oc_send_type));
     
                 $command = "nohup php artisan onchannel_command --func=productRegist " . $options . " > /dev/null 2>&1 &";
-                $process = Process::fromShellCommandline($command);
-                $process->setWorkingDirectory(env("WORK_DIRECTORY", "/web1/1688"));
-                $process->setTimeout(null); // 실행 시간 제한 없음
-                $process->start();
+                $process2 = Process::fromShellCommandline($command);
+                $process2->setWorkingDirectory(env("WORK_DIRECTORY", "/web1/1688"));
+                $process2->setTimeout(null); // 실행 시간 제한 없음
+                $process2->start();
             }
             
             return helpers_json_response(HttpConstant::OK, helpers_success_message([], "전송 요청 완료되었습니다.\n전송 내역은 상품 전송 현황 페이지에서 확인이 가능합니다."));
