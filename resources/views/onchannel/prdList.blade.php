@@ -501,7 +501,7 @@
 <script type="text/javascript">
 
     $(document).ready(function(){
-        var sendTypeList = [ {{ OnchannelConstant::PRD_CHANNEL }} ];
+        var sendTypeList = [ {{ $send_type }} ];
 
         $('.btn-log-modal').click(function(){
             let logId = $(this).attr("logid");
@@ -780,55 +780,35 @@
         });
 
         $(".btn-regist").click(function(){
-            let offer_ids = [$(this).attr("offerid")];
+            let offer_ids    = [$(this).attr("offerid")];
+            let oc_send_type = sendTypeList;
 
             if(confirm('상품을 전송하시겠습니까?')){
                 $.ajax({
                     "headers"    : {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
                     "type"       : "POST",
-                    "url"        : "/api/mall/onchannel/product/regist",
-                    "data"       : {
-                        "offer_ids"   : offer_ids,
-                        "sendTypeList": sendTypeList
-                    },
+                    "url"        : "{{ route('mall.allProductRegist') }}",
+                    "data"       : { offerIds: offer_ids, oc_send_type },
                     beforeSend: function () {
+                        $("#loadingOverlay").show();
                     },
                     complete: function () {
                         $("#loadingOverlay").hide();
                     },
                     success: function (resp) {
-                        var alertMessage = "전송 요청이 완료되었습니다.\n이미 전송 된 상품은 수정 반영 됩니다.";
-                        if(resp.data.fail.length > 0){
-                            var fail = resp.data.fail;
-                            var groupedMessages = {};
-
-                            alertMessage += "\n";
-                            $.each(fail, function(index, item) {
-                                if (!groupedMessages[item.msg]) {
-                                    groupedMessages[item.msg] = [];
-                                }
-                                groupedMessages[item.msg].push(item.offer_id);
-                            });
-
-                            $.each(groupedMessages, function(msg, offer_ids) {
-                                alertMessage += "\n"+ msg + " [" + offer_ids.join(", ") + "]";
-                            });
-                        }
-
-                        alert(alertMessage);
+                        alert(resp.msg);
                     },
                     error: function error(request, status, _error) {
                         let { error } = JSON.parse(request.responseText);
                         alert(error.message);
                     }
                 });
-
-                $("#loadingOverlay").show();
             }
         });
 
         $("#btn-select").click(function(){
-            let offer_ids = [];
+            let offer_ids    = [];
+            let oc_send_type = sendTypeList;
 
             $(".chk-inp:checked").each(function(index, element){
                 offer_ids.push($(this).val());
@@ -842,44 +822,22 @@
                 $.ajax({
                     "headers"    : {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
                     "type"       : "POST",
-                    "url"        : "/api/mall/onchannel/product/regist",
-                    "data"       : {
-                        "offer_ids"   : offer_ids,
-                        "sendTypeList": sendTypeList
-                    },
+                    "url"        : "{{ route('mall.allProductRegist') }}",
+                    "data"       : { offerIds: offer_ids, oc_send_type },
                     beforeSend: function () {
+                        $("#loadingOverlay").show();
                     },
                     complete: function () {
                         $("#loadingOverlay").hide();
                     },
                     success: function (resp) {
-                        var alertMessage = "전송 요청이 완료되었습니다.\n이미 전송 된 상품은 수정 반영 됩니다.";
-                        if(resp.data.fail.length > 0){
-                            var fail = resp.data.fail;
-                            var groupedMessages = {};
-
-                            alertMessage += "\n";
-                            $.each(fail, function(index, item) {
-                                if (!groupedMessages[item.msg]) {
-                                    groupedMessages[item.msg] = [];
-                                }
-                                groupedMessages[item.msg].push(item.offer_id);
-                            });
-
-                            $.each(groupedMessages, function(msg, offer_ids) {
-                                alertMessage += "\n"+ msg + " [" + offer_ids.join(", ") + "]";
-                            });
-                        }
-
-                        alert(alertMessage);
+                        alert(resp.msg);
                     },
                     error: function error(request, status, _error) {
                         let { error } = JSON.parse(request.responseText);
                         alert(error.message);
                     }
                 });
-
-                $("#loadingOverlay").show();
             }
         });
 
