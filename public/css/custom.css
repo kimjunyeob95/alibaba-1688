@@ -107,3 +107,7 @@ a:hover {text-decoration: underline; color: rgb(22, 22, 23);}
   font-size: 12px;  /* 글씨 크기를 줄입니다 */
   width: auto;      /* 버튼의 너비를 자동으로 설정합니다 */
 }
+
+.cursor-pointer {
+  cursor: pointer;
+}

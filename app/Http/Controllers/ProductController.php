@@ -28,6 +28,7 @@ class ProductController extends Controller
         $search_cls          = $this->request->get("search_cls", "offer_id");
         $w_type              = $this->request->get("w_type", "");
         $keyword             = $this->request->get("keyword", "");
+        $collect_status      = $this->request->get("collect_status", "");
         $trans_status        = $this->request->get("trans_status", "");
         $mapping_status      = $this->request->get("mapping_status", "");
         $prd_status          = $this->request->get("prd_status", "");
@@ -50,6 +51,7 @@ class ProductController extends Controller
             "inspect_status"      => $inspect_status,
             "w_type"              => $w_type,
             "keyword"             => $keyword,
+            "collect_status"      => $collect_status,
             "trans_status"        => $trans_status,
             "mapping_status"      => $mapping_status,
             "prd_status"          => $prd_status,
@@ -83,6 +85,7 @@ class ProductController extends Controller
             "search_cls"          => $search_cls,
             "w_type"              => $w_type,
             "keyword"             => $keyword,
+            "collect_status"      => $collect_status,
             "trans_status"        => $trans_status,
             "mapping_status"      => $mapping_status,
             "weight_status"       => $weight_status,

@@ -2,8 +2,12 @@
 
 namespace App\Abstracts;
 
+use App\Traits\Genuio\WebTrait;
+
 abstract class TransApiAbstract
 {
+    use WebTrait;
+
     protected array $returnMsg;
     protected string $user_company;
 

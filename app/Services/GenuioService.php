@@ -2,7 +2,6 @@
 
 namespace App\Services;
 
-use App\Abstracts\MallApiAbstract;
 use App\Abstracts\TransApiAbstract;
 use App\Abstracts\UploadAbstract;
 use App\Constants\GenuioConstant;

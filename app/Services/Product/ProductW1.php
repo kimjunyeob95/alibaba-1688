@@ -82,6 +82,7 @@ class ProductW1 extends ProductAbstract
         $search_cls     = $params["search_cls"];
         $w_type         = $params["w_type"];
         $keyword        = $params["keyword"];
+        $collect_status = "";
         $trans_status   = $params["trans_status"];
         $mapping_status = $params["mapping_status"];
         $prd_status     = $params["prd_status"];
@@ -92,6 +93,10 @@ class ProductW1 extends ProductAbstract
         $cate_first     = "";
         $cate_second    = "";
         $cate_third     = "";
+
+        if( isset($params["collect_status"]) ){
+            $collect_status = $params["collect_status"];
+        }
 
         if( isset($params["cate_first"]) ){
             $cate_first = $params["cate_first"];
@@ -220,6 +225,14 @@ class ProductW1 extends ProductAbstract
 
         if( !empty($w_type) ){
             $prdBuilder->where("product_datas.w_type", $w_type);
+        }
+
+        if( !empty($collect_status) ){
+            if( $collect_status == ProductConstant::COLLECT_KR ){
+                $prdBuilder->where("product_datas.prd_name_kr", "!=" , "");
+            } else if( $collect_status == ProductConstant::COLLECT_EN ){
+                $prdBuilder->where("product_datas.prd_name_en", "!=" , "");
+            }
         }
 
         if( !empty($trans_status) ){

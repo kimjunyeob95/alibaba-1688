@@ -4,6 +4,7 @@ use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\EasySellController;
 use App\Http\Controllers\ExceptController;
 use App\Http\Controllers\ForbiddenWordController;
+use App\Http\Controllers\GenuioController;
 use App\Http\Controllers\OnchannelController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProductW2Controller;
@@ -120,5 +121,16 @@ Route::prefix("onchannel")->name("onchannel.")->group(function(){
     Route::prefix("category")->name("category.")->group(function(){
         /** 카테고리 관리 */
         Route::get("/", [OnchannelController::class, "categoryManage"])->name("");
+    });
+});
+
+/**
+ * SAI
+ */
+Route::prefix("sai")->name("sai.")->group(function(){
+    /** 큐 관리 */
+    Route::prefix("queue")->name("queue.")->group(function(){
+        /** WApp */
+        Route::get("/wapp", [GenuioController::class, "wappQueueList"])->name("wappQueueList");
     });
 });

@@ -78,8 +78,8 @@ class UpdateWeightDelivery extends Command
                         }
                     } else {
                         $errorFlag = true;
-                        $msg       = "offerId: {$offerId} | weight: {$weight} 중량 100 초과 ";
-                        debug_log($msg, "cron/UpdateWeightDelivery", "UpdateWeightDelivery", LogLevel::ERROR);
+                        // $msg       = "offerId: {$offerId} | weight: {$weight} 중량 100 초과 ";
+                        // debug_log($msg, "cron/UpdateWeightDelivery", "UpdateWeightDelivery", LogLevel::ERROR);
                     }
     
                     if( $errorFlag === false ){

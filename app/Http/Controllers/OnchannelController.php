@@ -18,7 +18,7 @@ class OnchannelController extends Controller
         $this->onchannelService = $onchannelService;
     }
 
-    public function getPrdList():View
+    public function getPrdList(): View
     {
         $page         = $this->request->get("page", 1);
         $pageSize     = $this->request->get("pageSize", 100);

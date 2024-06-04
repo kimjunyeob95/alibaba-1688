@@ -163,6 +163,7 @@ Route::name('mall.')->prefix('mall')->group(function () {
     Route::post('/{channel}/token/create', [MallController::class, "tokenCreate"])->name("tokenCreate");
 
     Route::post('/all/product/regist', [MallController::class, "allProductRegist"])->name('allProductRegist');
+    Route::get('/product/regist/log/{offerId}', [MallController::class, "productRegistLog"])->name('productRegistLog');
 
     Route::name('{channel}.')->prefix('{channel}')->group(function () {
         Route::post('/product/regist', [MallController::class, "productRegist"])->name('productRegist');

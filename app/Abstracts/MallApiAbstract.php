@@ -4,8 +4,10 @@ namespace App\Abstracts;
 
 use App\Constants\MallConstant;
 use App\Constants\MallErrorMessageConstant;
+use App\Constants\OnchannelConstant;
 use App\Models\ApiUser;
 use App\Models\OnchannelProductDetailLog;
+use App\Models\OnchannelProductLog;
 use App\Packages\JwtPackage;
 use App\Traits\MallCategoryTrait;
 use App\Traits\MallImageTrait;
@@ -133,6 +135,42 @@ abstract class MallApiAbstract
      * @return void
     */
     abstract function sendModiProduct(): void;
+
+    /**
+     * @func productRegistLog
+     * @description '모든 채널 상품 등록 전송 로그'
+     * @param int $offerId
+     * @return array
+    */
+    public function productRegistLog(int $offerId): array
+    {
+        $returnMsg = $this->returnMsg;
+
+        try {
+            $ocPublicLogObj = OnchannelProductLog::where([
+                "offer_id" => $offerId,
+                "send_type" => OnchannelConstant::PRD_CHANNEL,
+            ])->first();
+
+            $ocPrivateLogObj = OnchannelProductLog::where([
+                "offer_id" => $offerId,
+                "send_type" => OnchannelConstant::PRD_CHANNEL_PRIVATE,
+            ])->first();
+
+            $result = [
+                "esWLogObj"       => null,
+                "esDropLogObj"    => null,
+                "ocPublicLogObj"  => $ocPublicLogObj,
+                "ocPrivateLogObj" => $ocPrivateLogObj,
+            ];
+        
+            $returnMsg = helpers_success_message($result);
+        } catch (Exception $e) {
+            $returnMsg = helpers_fail_message($e->getMessage());
+        }
+
+        return $returnMsg;
+    }
 
     /****************************************** 상품 end **********************************************/
 }

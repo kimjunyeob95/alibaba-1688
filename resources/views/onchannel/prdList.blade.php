@@ -90,11 +90,11 @@
                                 <tr class="align-middle">
                                     <th style="width: 120px">등록 상태</th>
                                     <td colspan="2">
-                                        <button type="button" name="registStatus" class="btn-status btn btn-md {{ $registStatus == "" ? "btn-primary" : "btn-dark" }}"
+                                        <button type="button" name="registStatus" class="btn-status btn btn-sm {{ $registStatus == "" ? "btn-primary" : "btn-dark" }}"
                                         value="">전체</button>
-                                        <button type="button" name="registStatus" class="btn-status btn btn-md {{ $registStatus == MallConstant::REGISTED ? "btn-primary" : "btn-dark" }}"
+                                        <button type="button" name="registStatus" class="btn-status btn btn-sm {{ $registStatus == MallConstant::REGISTED ? "btn-primary" : "btn-dark" }}"
                                         value="{{ MallConstant::REGISTED }}">완료</button>
-                                        <button type="button" name="registStatus" class="btn-status btn btn-md {{ $registStatus == MallConstant::REGIST_ERROR ? "btn-primary" : "btn-dark" }}"
+                                        <button type="button" name="registStatus" class="btn-status btn btn-sm {{ $registStatus == MallConstant::REGIST_ERROR ? "btn-primary" : "btn-dark" }}"
                                         value="{{ MallConstant::REGIST_ERROR}}">전송실패</button>
                                     </td>
                                 </tr>
@@ -156,8 +156,8 @@
                         <div>
                             <select id="selectPageSize" class="form-select" name="pageSize">
                                 <option value=100 @if($pageSize == 100) selected @endif>100개 노출</option>
-                                <option value=30 @if($pageSize == 30) selected @endif>30개 노출</option>
-                                <option value=10 @if($pageSize == 10) selected @endif>10개 노출</option>
+                                <option value=300 @if($pageSize == 300) selected @endif>300개 노출</option>
+                                <option value=500 @if($pageSize == 500) selected @endif>500개 노출</option>
                             </select>
                         </div>
                         <button type="button" class="btn btn-md btn-outline-dark me-2" id="btn-select">상품전송</button>
@@ -169,6 +169,7 @@
                         <thead class="table-light">
                             <tr>
                                 <th scope="col" class="text-center" style="width: 50px">
+                                    <label class="form-check-label" for="allCheckbox">선택</label>
                                     <input class="form-check-input" type="checkbox" id="allCheckbox">
                                 </th>
                                 <th scope="col" style="width: 50px">No</th>
@@ -222,10 +223,12 @@
                                 @endphp
                                 <tr>
                                     <td class="text-center">
-                                        <input class="form-check-input chk-inp" type="checkbox" value="{{ $data->offer_id }}" {{$disabled}}>
+                                        <input id="checkbox-{{ $data->offer_id }}" class="form-check-input chk-inp" type="checkbox" value="{{ $data->offer_id }}" {{$disabled}}>
                                     </td>
                                     <td>
-                                        {{ number_format(($datas->total() - $offset) - $index) }}
+                                        <label for="checkbox-{{ $data->offer_id }}" class="cursor-pointer">
+                                            {{ number_format(($datas->total() - $offset) - $index) }}
+                                        </label>
                                     </td>
                                     <td class="text-center">
                                         @if( !empty($data->main_img->img_url_origin) )

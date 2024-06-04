@@ -53,24 +53,24 @@
                                 <tr class="align-middle">
                                     <th style="width: 120px">상품 번역</th>
                                     <td>
-                                        <button type="button" name="trans_status" class="btn-status btn btn-md {{ $trans_status == "" ? "btn-primary" : "btn-dark" }}"
+                                        <button type="button" name="trans_status" class="btn-status btn btn-sm {{ $trans_status == "" ? "btn-primary" : "btn-dark" }}"
                                         value="">전체</button>
-                                        <button type="button" name="trans_status" class="btn-status btn btn-md {{ $trans_status == ProductConstant::TRANS_STATUS_Y ? "btn-primary" : "btn-dark" }}"
+                                        <button type="button" name="trans_status" class="btn-status btn btn-sm {{ $trans_status == ProductConstant::TRANS_STATUS_Y ? "btn-primary" : "btn-dark" }}"
                                         value="{{ ProductConstant::TRANS_STATUS_Y }}">완료</button>
-                                        <button type="button" name="trans_status" class="btn-status btn btn-md {{ $trans_status == ProductConstant::TRANS_STATUS_N ? "btn-primary" : "btn-dark" }}"
+                                        <button type="button" name="trans_status" class="btn-status btn btn-sm {{ $trans_status == ProductConstant::TRANS_STATUS_N ? "btn-primary" : "btn-dark" }}"
                                         value="{{ ProductConstant::TRANS_STATUS_N }}">미완료</button>
                                     </td>
                                     <td>
                                         <div class="d-flex text-center">
-                                            <div class="d-flex align-items-center justify-content-center flex-fill p-2 border rounded" style="height: 100px;">
+                                            <div class="d-flex align-items-center justify-content-center flex-fill p-2 border rounded" style="height: 60px;">
                                                 전체<br>
                                                 {{ number_format($totalCnt) }}건
                                             </div>
-                                            <div class="d-flex align-items-center justify-content-center flex-fill p-2 border rounded" style="height: 100px;">
+                                            <div class="d-flex align-items-center justify-content-center flex-fill p-2 border rounded" style="height: 60px;">
                                                 번역완료<br>
                                                 {{ number_format($transYCnt) }}건
                                             </div>
-                                            <div class="d-flex align-items-center justify-content-center flex-fill p-2 border rounded" style="height: 100px;">
+                                            <div class="d-flex align-items-center justify-content-center flex-fill p-2 border rounded" style="height: 60px;">
                                                 번역 미완료<br>
                                                 {{ number_format($transNCnt) }}건
                                             </div>
@@ -80,24 +80,24 @@
                                 <tr class="align-middle">
                                     <th style="width: 120px">검수 상태</th>
                                     <td>
-                                        <button type="button" name="inspect_status" class="btn-status btn btn-md {{ $inspect_status == "" ? "btn-primary" : "btn-dark" }}"
+                                        <button type="button" name="inspect_status" class="btn-status btn btn-sm {{ $inspect_status == "" ? "btn-primary" : "btn-dark" }}"
                                         value="">전체</button>
-                                        <button type="button" name="inspect_status" class="btn-status btn btn-md {{ $inspect_status == InspectConstant::IS_INSPECT_Y ? "btn-primary" : "btn-dark" }}"
+                                        <button type="button" name="inspect_status" class="btn-status btn btn-sm {{ $inspect_status == InspectConstant::IS_INSPECT_Y ? "btn-primary" : "btn-dark" }}"
                                         value="{{ InspectConstant::IS_INSPECT_Y }}">완료</button>
-                                        <button type="button" name="inspect_status" class="btn-status btn btn-md {{ $inspect_status == InspectConstant::IS_INSPECT_N ? "btn-primary" : "btn-dark" }}"
+                                        <button type="button" name="inspect_status" class="btn-status btn btn-sm {{ $inspect_status == InspectConstant::IS_INSPECT_N ? "btn-primary" : "btn-dark" }}"
                                         value="{{ InspectConstant::IS_INSPECT_N }}">미완료</button>
                                     </td>
                                     <td>
                                         <div class="d-flex text-center">
-                                            <div class="d-flex align-items-center justify-content-center flex-fill p-2 border rounded" style="height: 100px;">
+                                            <div class="d-flex align-items-center justify-content-center flex-fill p-2 border rounded" style="height: 60px;">
                                                 전체<br>
                                                 {{ number_format($totalCnt) }}건
                                             </div>
-                                            <div class="d-flex align-items-center justify-content-center flex-fill p-2 border rounded" style="height: 100px;">
+                                            <div class="d-flex align-items-center justify-content-center flex-fill p-2 border rounded" style="height: 60px;">
                                                 완료<br>
                                                 {{ number_format($inspectYCnt) }}건
                                             </div>
-                                            <div class="d-flex align-items-center justify-content-center flex-fill p-2 border rounded" style="height: 100px;">
+                                            <div class="d-flex align-items-center justify-content-center flex-fill p-2 border rounded" style="height: 60px;">
                                                 미완료<br>
                                                 {{ number_format($inspectNCnt) }}건
                                             </div>
@@ -107,24 +107,24 @@
                                 <tr class="align-middle">
                                     <th style="width: 120px">이미지 검수</th>
                                     <td>
-                                        <button type="button" name="inspect_img_status" class="btn-status btn btn-md {{ $inspect_img_status == "" ? "btn-primary" : "btn-dark" }}"
+                                        <button type="button" name="inspect_img_status" class="btn-status btn btn-sm {{ $inspect_img_status == "" ? "btn-primary" : "btn-dark" }}"
                                         value="">전체</button>
-                                        <button type="button" name="inspect_img_status" class="btn-status btn btn-md {{ $inspect_img_status == InspectConstant::IS_INSPECT_Y ? "btn-primary" : "btn-dark" }}"
+                                        <button type="button" name="inspect_img_status" class="btn-status btn btn-sm {{ $inspect_img_status == InspectConstant::IS_INSPECT_Y ? "btn-primary" : "btn-dark" }}"
                                         value="{{ InspectConstant::IS_INSPECT_Y }}">완료</button>
-                                        <button type="button" name="inspect_img_status" class="btn-status btn btn-md {{ $inspect_img_status == InspectConstant::IS_INSPECT_N ? "btn-primary" : "btn-dark" }}"
+                                        <button type="button" name="inspect_img_status" class="btn-status btn btn-sm {{ $inspect_img_status == InspectConstant::IS_INSPECT_N ? "btn-primary" : "btn-dark" }}"
                                         value="{{ InspectConstant::IS_INSPECT_N }}">미완료</button>
                                     </td>
                                     <td>
                                         <div class="d-flex text-center">
-                                            <div class="d-flex align-items-center justify-content-center flex-fill p-2 border rounded" style="height: 100px;">
+                                            <div class="d-flex align-items-center justify-content-center flex-fill p-2 border rounded" style="height: 60px;">
                                                 전체<br>
                                                 {{ number_format($totalCnt) }}건
                                             </div>
-                                            <div class="d-flex align-items-center justify-content-center flex-fill p-2 border rounded" style="height: 100px;">
+                                            <div class="d-flex align-items-center justify-content-center flex-fill p-2 border rounded" style="height: 60px;">
                                                 완료<br>
                                                 {{ number_format($imgInspectYCnt) }}건
                                             </div>
-                                            <div class="d-flex align-items-center justify-content-center flex-fill p-2 border rounded" style="height: 100px;">
+                                            <div class="d-flex align-items-center justify-content-center flex-fill p-2 border rounded" style="height: 60px;">
                                                 미완료<br>
                                                 {{ number_format($imgInspectNCnt) }}건
                                             </div>
@@ -134,24 +134,24 @@
                                 <tr class="align-middle">
                                     <th style="width: 120px">상품정보 검수</th>
                                     <td>
-                                        <button type="button" name="inspect_prd_status" class="btn-status btn btn-md {{ $inspect_prd_status == "" ? "btn-primary" : "btn-dark" }}"
+                                        <button type="button" name="inspect_prd_status" class="btn-status btn btn-sm {{ $inspect_prd_status == "" ? "btn-primary" : "btn-dark" }}"
                                         value="">전체</button>
-                                        <button type="button" name="inspect_prd_status" class="btn-status btn btn-md {{ $inspect_prd_status == InspectConstant::IS_INSPECT_Y ? "btn-primary" : "btn-dark" }}"
+                                        <button type="button" name="inspect_prd_status" class="btn-status btn btn-sm {{ $inspect_prd_status == InspectConstant::IS_INSPECT_Y ? "btn-primary" : "btn-dark" }}"
                                         value="{{ InspectConstant::IS_INSPECT_Y }}">완료</button>
-                                        <button type="button" name="inspect_prd_status" class="btn-status btn btn-md {{ $inspect_prd_status == InspectConstant::IS_INSPECT_N ? "btn-primary" : "btn-dark" }}"
+                                        <button type="button" name="inspect_prd_status" class="btn-status btn btn-sm {{ $inspect_prd_status == InspectConstant::IS_INSPECT_N ? "btn-primary" : "btn-dark" }}"
                                         value="{{ InspectConstant::IS_INSPECT_N }}">미완료</button>
                                     </td>
                                     <td>
                                         <div class="d-flex text-center">
-                                            <div class="d-flex align-items-center justify-content-center flex-fill p-2 border rounded" style="height: 100px;">
+                                            <div class="d-flex align-items-center justify-content-center flex-fill p-2 border rounded" style="height: 60px;">
                                                 전체<br>
                                                 {{ number_format($totalCnt) }}건
                                             </div>
-                                            <div class="d-flex align-items-center justify-content-center flex-fill p-2 border rounded" style="height: 100px;">
+                                            <div class="d-flex align-items-center justify-content-center flex-fill p-2 border rounded" style="height: 60px;">
                                                 완료<br>
                                                 {{ number_format($prdInspectYCnt) }}건
                                             </div>
-                                            <div class="d-flex align-items-center justify-content-center flex-fill p-2 border rounded" style="height: 100px;">
+                                            <div class="d-flex align-items-center justify-content-center flex-fill p-2 border rounded" style="height: 60px;">
                                                 미완료<br>
                                                 {{ number_format($prdInspectNCnt) }}건
                                             </div>
@@ -161,24 +161,24 @@
                                 <tr class="align-middle">
                                     <th style="width: 120px">정보고시 검수</th>
                                     <td>
-                                        <button type="button" name="inspect_gosi_status" class="btn-status btn btn-md {{ $inspect_gosi_status == "" ? "btn-primary" : "btn-dark" }}"
+                                        <button type="button" name="inspect_gosi_status" class="btn-status btn btn-sm {{ $inspect_gosi_status == "" ? "btn-primary" : "btn-dark" }}"
                                         value="">전체</button>
-                                        <button type="button" name="inspect_gosi_status" class="btn-status btn btn-md {{ $inspect_gosi_status == InspectConstant::IS_INSPECT_Y ? "btn-primary" : "btn-dark" }}"
+                                        <button type="button" name="inspect_gosi_status" class="btn-status btn btn-sm {{ $inspect_gosi_status == InspectConstant::IS_INSPECT_Y ? "btn-primary" : "btn-dark" }}"
                                         value="{{ InspectConstant::IS_INSPECT_Y }}">완료</button>
-                                        <button type="button" name="inspect_gosi_status" class="btn-status btn btn-md {{ $inspect_gosi_status == InspectConstant::IS_INSPECT_N ? "btn-primary" : "btn-dark" }}"
+                                        <button type="button" name="inspect_gosi_status" class="btn-status btn btn-sm {{ $inspect_gosi_status == InspectConstant::IS_INSPECT_N ? "btn-primary" : "btn-dark" }}"
                                         value="{{ InspectConstant::IS_INSPECT_N }}">미완료</button>
                                     </td>
                                     <td>
                                         <div class="d-flex text-center">
-                                            <div class="d-flex align-items-center justify-content-center flex-fill p-2 border rounded" style="height: 100px;">
+                                            <div class="d-flex align-items-center justify-content-center flex-fill p-2 border rounded" style="height: 60px;">
                                                 전체<br>
                                                 {{ number_format($totalCnt) }}건
                                             </div>
-                                            <div class="d-flex align-items-center justify-content-center flex-fill p-2 border rounded" style="height: 100px;">
+                                            <div class="d-flex align-items-center justify-content-center flex-fill p-2 border rounded" style="height: 60px;">
                                                 완료<br>
                                                 {{ number_format($gosiInspectYCnt) }}건
                                             </div>
-                                            <div class="d-flex align-items-center justify-content-center flex-fill p-2 border rounded" style="height: 100px;">
+                                            <div class="d-flex align-items-center justify-content-center flex-fill p-2 border rounded" style="height: 60px;">
                                                 미완료<br>
                                                 {{ number_format($gosiInspectNCnt) }}건
                                             </div>
@@ -188,33 +188,33 @@
                                 <tr class="align-middle">
                                     <th style="width: 120px">W type</th>
                                     <td colspan="2">
-                                        <button type="button" name="w_type" class="btn-status btn btn-md {{ $w_type == "" ? "btn-primary" : "btn-dark" }}"
+                                        <button type="button" name="w_type" class="btn-status btn btn-sm {{ $w_type == "" ? "btn-primary" : "btn-dark" }}"
                                         value="">전체</button>
-                                        <button type="button" name="w_type" class="btn-status btn btn-md {{ $w_type == WConstant::WAPP_W1 ? "btn-primary" : "btn-dark" }}"
+                                        <button type="button" name="w_type" class="btn-status btn btn-sm {{ $w_type == WConstant::WAPP_W1 ? "btn-primary" : "btn-dark" }}"
                                         value="{{ WConstant::WAPP_W1 }}">W1</button>
-                                        <button type="button" name="w_type" class="btn-status btn btn-md {{ $w_type == WConstant::WAPP_W2 ? "btn-primary" : "btn-dark" }}"
+                                        <button type="button" name="w_type" class="btn-status btn btn-sm {{ $w_type == WConstant::WAPP_W2 ? "btn-primary" : "btn-dark" }}"
                                         value="{{ WConstant::WAPP_W2}}">W2</button>
                                     </td>
                                 </tr>
                                 <tr class="align-middle">
                                     <th style="width: 120px">카테고리 맵핑</th>
                                     <td colspan="2">
-                                        <button type="button" name="mapping_status" class="btn-status btn btn-md {{ $mapping_status == "" ? "btn-primary" : "btn-dark" }}"
+                                        <button type="button" name="mapping_status" class="btn-status btn btn-sm {{ $mapping_status == "" ? "btn-primary" : "btn-dark" }}"
                                         value="">전체</button>
-                                        <button type="button" name="mapping_status" class="btn-status btn btn-md {{ $mapping_status == ProductConstant::MAPPING_STATUS_Y ? "btn-primary" : "btn-dark" }}"
+                                        <button type="button" name="mapping_status" class="btn-status btn btn-sm {{ $mapping_status == ProductConstant::MAPPING_STATUS_Y ? "btn-primary" : "btn-dark" }}"
                                         value="{{ ProductConstant::MAPPING_STATUS_Y }}">맵핑</button>
-                                        <button type="button" name="mapping_status" class="btn-status btn btn-md {{ $mapping_status == ProductConstant::MAPPING_STATUS_N ? "btn-primary" : "btn-dark" }}"
+                                        <button type="button" name="mapping_status" class="btn-status btn btn-sm {{ $mapping_status == ProductConstant::MAPPING_STATUS_N ? "btn-primary" : "btn-dark" }}"
                                         value="{{ ProductConstant::MAPPING_STATUS_N }}">미맵핑</button>
                                     </td>
                                 </tr>
                                 <tr class="align-middle">
                                     <th style="width: 120px">판매가 설정</th>
                                     <td colspan="2">
-                                        <button type="button" name="mdPrice_status" class="btn-status btn btn-md {{ $mdPrice_status == "" ? "btn-primary" : "btn-dark" }}"
+                                        <button type="button" name="mdPrice_status" class="btn-status btn btn-sm {{ $mdPrice_status == "" ? "btn-primary" : "btn-dark" }}"
                                         value="">전체</button>
-                                        <button type="button" name="mdPrice_status" class="btn-status btn btn-md {{ $mdPrice_status == ProductConstant::MD_PRICE_Y ? "btn-primary" : "btn-dark" }}"
+                                        <button type="button" name="mdPrice_status" class="btn-status btn btn-sm {{ $mdPrice_status == ProductConstant::MD_PRICE_Y ? "btn-primary" : "btn-dark" }}"
                                         value="{{ ProductConstant::MD_PRICE_Y }}">설정</button>
-                                        <button type="button" name="mdPrice_status" class="btn-status btn btn-md {{ $mdPrice_status == ProductConstant::MD_PRICE_N ? "btn-primary" : "btn-dark" }}"
+                                        <button type="button" name="mdPrice_status" class="btn-status btn btn-sm {{ $mdPrice_status == ProductConstant::MD_PRICE_N ? "btn-primary" : "btn-dark" }}"
                                         value="{{ ProductConstant::MD_PRICE_N }}">미설정</button>
                                     </td>
                                 </tr>
@@ -327,8 +327,8 @@
                                 </th>
                                 <th scope="col">제품명(국문)</th>
                                 <th scope="col" style="width: 50px">최소 구매 수량</th>
-                                <th scope="col" style="width: 100px">원본이미지</th>
-                                <th scope="col" style="width: 100px">번역이미지</th>
+                                <th scope="col" style="width: 80px">원본이미지</th>
+                                <th scope="col" style="width: 80px">번역이미지</th>
                                 <th scope="col" style="width: 150px" class="text-center">
                                     W 공급가<br>
                                     (환율: {{ number_format($exchangeRate) }}원)
@@ -350,10 +350,12 @@
                             @foreach ($datas as $index => $data)
                                 <tr>
                                     <td class="text-center">
-                                        <input class="form-check-input chk-inp" type="checkbox" value="{{ $data->offer_id }}">
+                                        <input id="checkbox-{{ $data->offer_id }}" class="form-check-input chk-inp" type="checkbox" value="{{ $data->offer_id }}">
                                     </td>
                                     <td>
-                                        {{ number_format(($datas->total() - $offset) - $index) }}
+                                        <label for="checkbox-{{ $data->offer_id }}" class="cursor-pointer">
+                                            {{ number_format(($datas->total() - $offset) - $index) }}
+                                        </label>
                                     </td>
                                     <td>
                                         {{ $data->w_type }}

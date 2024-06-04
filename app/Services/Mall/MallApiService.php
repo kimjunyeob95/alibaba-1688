@@ -65,6 +65,17 @@ class MallApiService
         $this->mallApiAbstract->sendModiProduct();
     }
 
+    /**
+     * @func productRegistLog
+     * @description '모든 채널 상품 등록 전송 로그'
+     * @param int $offerId
+     * @return array
+    */
+    public function productRegistLog(int $offerId): array
+    {
+        return $this->mallApiAbstract->productRegistLog($offerId);
+    }
+
     /****************************************** 상품 end **********************************************/
 
     /****************************************** 주문 start **********************************************/

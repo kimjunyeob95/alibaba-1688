@@ -224,7 +224,28 @@
                 </li>
             </ul>
         </li>
-        
+
+        <li class="nav-title">SAI</li>
+        <li class="nav-group">
+            <a class="nav-link nav-group-toggle" href="javascript:;">
+                <svg class="nav-icon">
+                    <use xlink:href="/vendors/@coreui/icons/svg/free.svg#cil-3d"></use>
+                </svg>
+                큐 관리
+            </a>
+            <ul class="nav-group-items">
+                <li class="nav-item">
+                    <a class="nav-link" href="/sai/queue/wapp">
+                        WApp 큐 관리
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/sai/queue/onchannel">
+                        온채널 큐 관리
+                    </a>
+                </li>
+            </ul>
+        </li>
     </ul>
     <button class="sidebar-toggler" type="button" data-coreui-toggle="unfoldable"></button>
 </div>
