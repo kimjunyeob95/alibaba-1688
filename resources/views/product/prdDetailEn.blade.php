@@ -151,7 +151,13 @@
                     </div>
                     <div class="row mb-2">
                         <div class="col-md-3 text-center">제품명(국문) - 원본</div>
-                        <div class="col-md-8">{{ $prdObj->forbidden_prd_name->origin_text }}</div>
+                        <div class="col-md-8">
+                            @if ($prdObj->forbidden_prd_name == null)
+                                {{ $prdObj->prd_name_kr }}
+                            @else
+                                {{ $prdObj->forbidden_prd_name->origin_text }}
+                            @endif
+                        </div>
                     </div>
                     <div class="row mb-2">
                         <div class="col-md-3 text-center">제품명(국문) - 금칙어 적용</div>
