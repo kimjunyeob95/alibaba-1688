@@ -187,11 +187,11 @@
                 상품 전송 현황
             </a>
             <ul class="nav-group-items">
-                {{-- <li class="nav-item">
+                <li class="nav-item">
                     <a class="nav-link" href="/easySell/product/list">
-                        상품 현황
+                        이지셀 상품 현황
                     </a>
-                </li> --}}
+                </li>
                 <li class="nav-item">
                     <a class="nav-link" href="/onchannel/product/list?send_type={{ OnchannelConstant::PRD_CHANNEL }}">
                         온채널: 일반상품

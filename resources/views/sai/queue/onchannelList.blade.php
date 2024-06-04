@@ -22,7 +22,7 @@
                 </li>
                 <li class="breadcrumb-item">SAI</li>
                 <li class="breadcrumb-item">큐 관리</li>
-                <li class="breadcrumb-item active" aria-current="page">WApp 큐 관리</li>
+                <li class="breadcrumb-item active" aria-current="page">온채널 큐 관리</li>
             </ol>
         </nav>
 
@@ -54,14 +54,8 @@
                                 <tr class="align-middle">
                                     <th style="width: 120px">큐 종류</th>
                                     <td colspan="2">
-                                        <button type="button" name="send_type" class="btn-status btn btn-sm {{ $send_type == "" ? "btn-primary" : "btn-dark" }}"
-                                        value="">전체</button>
                                         <button type="button" name="send_type" class="btn-status btn btn-sm {{ $send_type == GenuioConstant::IMG_TRANS ? "btn-primary" : "btn-dark" }}"
                                         value="{{ GenuioConstant::IMG_TRANS }}">{{ GenuioConstant::IMG_TRANS_TYPE[GenuioConstant::IMG_TRANS] }}</button>
-                                        <button type="button" name="send_type" class="btn-status btn btn-sm {{ $send_type == GenuioConstant::IMG_TRANS_AGAIN ? "btn-primary" : "btn-dark" }}"
-                                        value="{{ GenuioConstant::IMG_TRANS_AGAIN }}">{{ GenuioConstant::IMG_TRANS_TYPE[GenuioConstant::IMG_TRANS_AGAIN] }}</button>
-                                        <button type="button" name="send_type" class="btn-status btn btn-sm {{ $send_type == GenuioConstant::IMG_Ai_TRANS ? "btn-primary" : "btn-dark" }}"
-                                        value="{{ GenuioConstant::IMG_Ai_TRANS }}">{{ GenuioConstant::IMG_TRANS_TYPE[GenuioConstant::IMG_Ai_TRANS] }}</button>
                                     </td>
                                 </tr>
                                 <tr class="align-middle">
@@ -75,21 +69,10 @@
                                         value="{{ GenuioConstant::CALLBACK_N }}">{{ GenuioConstant::CALLBACK_TYPE[GenuioConstant::CALLBACK_N] }}</button>
                                     </td>
                                 </tr>
-                                <tr class="align-middle">
-                                    <th style="width: 120px">상품 검색</th>
-                                    <td style="width: 200px">
-                                        <select class="form-select" name="search_cls">
-                                            <option value="offer_id" @if($search_cls == "offer_id") selected @endif>제품 ID</option>
-                                        </select>
-                                    </td>
-                                    <td>
-                                        <textarea class="form-control" id="keyword" name="keyword" placeholder="여러 상품을 동시에 검색하려면 콤마(,) 혹은 엔터로 구분하여 입력 예) 552908136418,737834654023">{!! $keyword !!}</textarea>
-                                    </td>
-                                </tr>
                                 <tr class="align-middle text-left">
                                     <td colspan="3">
                                         <button type="button" class="btn btn-md btn-primary" id="form-submit">검색</button>
-                                        <a href="/sai/queue/wapp" class="btn btn-md btn-light btn-reset" role="button">초기화</button>
+                                        <a href="/sai/queue/onchannel" class="btn btn-md btn-light btn-reset" role="button">초기화</button>
                                     </td>
                                 </tr>
                             </table>
@@ -104,7 +87,7 @@
                                 <option value=500 @if($pageSize == 500) selected @endif>500개 노출</option>
                             </select>
                         </div>
-                        <button type="button" class="btn btn-md btn-danger me-2 text-white" id="btn-select">큐 삭제</button>
+                        {{-- <button type="button" class="btn btn-md btn-danger me-2 text-white" id="btn-select">큐 삭제</button> --}}
                     </div>
                 </form>
 
@@ -112,17 +95,16 @@
                     <table class="table table-white bg-white">
                         <thead class="table-light">
                             <tr>
-                                <th scope="col" class="text-center" style="width: 50px">
+                                <th scope="col" class="text-center" style="width: 5%">
                                     <label class="form-check-label" for="allCheckbox">선택</label>
                                     <input class="form-check-input" type="checkbox" id="allCheckbox">
                                 </th>
-                                <th scope="col" style="width: 50px">No</th>
-                                <th scope="col" style="width: 50px">큐ID</th>
-                                <th scope="col" style="width: 100px">제품ID</th>
-                                <th scope="col" style="width: 100px" >전송 타입</th>
-                                <th scope="col" style="width: 130px" class="text-center">요청일</th>
-                                <th scope="col" style="width: 130px" class="text-center">응답일</th>
-                                <th scope="col" style="width: 100px" class="text-center">관리</th>
+                                <th scope="col" style="width: 5%">No</th>
+                                <th scope="col" style="width: 5%">큐ID</th>
+                                <th scope="col" style="width: 10%">전송 타입</th>
+                                <th scope="col" style="width: auto">요청 payload</th>
+                                <th scope="col" style="width: 15%" class="text-center">요청일</th>
+                                <th scope="col" style="width: 15%" class="text-center">응답일</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -146,10 +128,12 @@
                                         {{ $data->id }}
                                     </td>
                                     <td>
-                                        {{ $data->offer_id }}
-                                    </td>
-                                    <td>
                                         {{ GenuioConstant::IMG_TRANS_TYPE[$data->send_type] }}
+                                    </td>
+                                    <td class="text-center" style="max-width: 300px;">
+                                        <div style="max-height: 200px; overflow-y: auto;">
+                                            {{ $data->payload_json }}
+                                        </div>
                                     </td>
                                     <td class="text-center">
                                         <small>{{ $data->created_at }}</small>
@@ -161,11 +145,11 @@
                                             <label class="text-danger">{{ GenuioConstant::CALLBACK_TYPE[GenuioConstant::CALLBACK_N] }}</label>
                                         @endif
                                     </td>
-                                    <td class="text-center">
+                                    {{-- <td class="text-center">
                                         @if (!$data->child_id)
                                             <button class="btn btn-sm btn-danger btn-remove text-white" queueid={{ $data->id }}>큐 삭제</button>
                                         @endif
-                                    </td>
+                                    </td> --}}
                                 </tr>
                             @endforeach
                         </tbody>

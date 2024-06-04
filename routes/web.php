@@ -132,5 +132,7 @@ Route::prefix("sai")->name("sai.")->group(function(){
     Route::prefix("queue")->name("queue.")->group(function(){
         /** WApp */
         Route::get("/wapp", [GenuioController::class, "wappQueueList"])->name("wappQueueList");
+        /** onchannel */
+        Route::get("/onchannel", [GenuioController::class, "onchannelQueueList"])->name("onchannelQueueList");
     });
 });

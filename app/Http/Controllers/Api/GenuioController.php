@@ -178,4 +178,28 @@ class GenuioController extends Controller
             return helpers_json_response(HttpConstant::BAD_REQUEST, [], $e->getMessage());
         }
     }
+
+    public function queueRemove(): JsonResponse
+    {
+        try {
+            $validator = Validator::make($this->request->all(), [
+                'queueIds' => 'required|array',
+            ], [
+                'queueIds.required' => 'queueIds를 입력하세요.',
+            ]);
+            if ($validator->fails()) {
+                throw new Exception($validator->errors()->first());
+            }
+            $queueIds = $this->request->post("queueIds");
+
+            $result = $this->genuioService->queueRemove($queueIds);
+            if( $result["isSuccess"] == true ){
+                return helpers_json_response(HttpConstant::OK, $result);
+            } else {
+                return helpers_json_response(HttpConstant::BAD_REQUEST, [], $result["msg"]);
+            }
+        } catch (Exception $e) {
+            return helpers_json_response(HttpConstant::BAD_REQUEST, [], $e->getMessage());
+        }
+    }
 }

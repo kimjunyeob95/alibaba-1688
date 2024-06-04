@@ -223,4 +223,6 @@ Route::name('genuio.')->prefix('genuio')->group(function () {
     Route::post('/img/desc/trans/request/{offerId}', [GenuioController::class, 'imgDescTransRequest'])->name('imgDescTransRequest');
     /** 이미지 별 AI 알고리즘 요청 */
     Route::post('/img/ai/trans/request', [GenuioController::class, 'imgAiTransRequest'])->name('imgAiTransRequest');
+    /** 큐 삭제 */
+    Route::post('/queue/remove', [GenuioController::class, 'queueRemove'])->name('queueRemove');
 });
