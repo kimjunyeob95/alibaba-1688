@@ -70,7 +70,7 @@ class UpdateForbiddenWord extends Command
                 $upText = $this->productAbstract->replaceForbiddenText($replacePrdForbiddenWords, $upText, ForbiddenWordConstant::KEYWORD_APPLY_TITLE);
                 $upText = trim($upText);
                 $upText = removeDuplicateWords($upText);
-                if( $prd_name_kr != $upText ){
+                if( $upText != "" && $prd_name_kr != $upText ){
                     ProductForbiddenData::updateOrCreate(
                         [
                             "offer_id"   => $prdObj->offer_id,
@@ -124,7 +124,7 @@ class UpdateForbiddenWord extends Command
                 // 고시값 교체어
                 $valueTrans = $this->productAbstract->replaceForbiddenText($replaceNoticeForbiddenWords, $valueTrans, ForbiddenWordConstant::KEYWORD_APPLY_ATTR_VALUE);
                 $valueTrans = trim($valueTrans);
-                if( $attrValueTrans != $valueTrans ){ 
+                if( $valueTrans != "" && $attrValueTrans != $valueTrans ){ 
                     ProductForbiddenData::updateOrCreate(
                         [
                             "offer_id"    => $offerId,

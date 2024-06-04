@@ -781,6 +781,9 @@ class ProductW1 extends ProductAbstract
                 "img_inspect",
                 "prd_inspect",
                 "gosi_inspect",
+                "forbidden_prd_name",
+                "forbidden_notice_names",
+                "forbidden_notice_values",
             ])->where("offer_id", $offerId)->first();
             if( $prdObj == null ){
                 throw new Exception("No Data");
@@ -809,6 +812,9 @@ class ProductW1 extends ProductAbstract
                 "img_inspect",
                 "prd_inspect",
                 "gosi_inspect",
+                "forbidden_prd_name",
+                "forbidden_notice_names",
+                "forbidden_notice_values",
             ])->where("offer_id", $offerId)->first();
             if( $prdObj == null ){
                 throw new Exception("No Data");
