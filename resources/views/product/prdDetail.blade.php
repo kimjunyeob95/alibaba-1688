@@ -126,7 +126,7 @@
                     @else
                         <div class="d-flex justify-content-center align-items-center" style="height: 100%;">
                             <span class="untranslated-text">
-                                미변역
+                                미번역
                             </span>
                         </div>
                     @endif
@@ -416,7 +416,7 @@
                         @else
                             <div class="text-center mt-3">
                                 <span class="untranslated-text">
-                                    미변역
+                                    미번역
                                 </span>
                             </div>
                         @endif

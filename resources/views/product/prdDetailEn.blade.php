@@ -100,7 +100,7 @@
                     <div class="col">
                         <h5>[번역 이미지]</h5>
                     </div>
-                    @if ($prdObj->trans_status == ProductConstant::IMG_TRANS_Y)
+                    @if ($prdObj->trans_status_en == ProductConstant::IMG_TRANS_Y)
                         <div id="swiper-container2" class="swiper-container">
                             <div class="swiper-wrapper">
                                 @foreach ($prdObj->en_images as $prdImg)
@@ -126,7 +126,7 @@
                     @else
                         <div class="d-flex justify-content-center align-items-center" style="height: 100%;">
                             <span class="untranslated-text">
-                                미변역
+                                미번역
                             </span>
                         </div>
                     @endif
@@ -407,7 +407,7 @@
                     </div>
                     <div class="col-md-6">
                         <h5>[영문 제품상세 번역]</h5>
-                        @if ($prdObj->trans_status == ProductConstant::IMG_TRANS_Y)
+                        @if ($prdObj->trans_status_en == ProductConstant::IMG_TRANS_Y)
                             <div class="d-flex justify-content-center">
                                 <div class="text-center prd-desc" >
                                     {!! $prdObj->prd_desc_en !!}
@@ -416,7 +416,7 @@
                         @else
                             <div class="text-center mt-3">
                                 <span class="untranslated-text">
-                                    미변역
+                                    미번역
                                 </span>
                             </div>
                         @endif
@@ -683,7 +683,7 @@
             e.preventDefault();
 
             let type         = $(this).attr("type");
-            let trans_status = "{{ $prdObj->trans_status }}";
+            let trans_status = "{{ $prdObj->trans_status_en }}";
 
             if( type == "all" ){
                 if( confirm("전체 이미지 번역요청을 하시겠습니까?") ){
