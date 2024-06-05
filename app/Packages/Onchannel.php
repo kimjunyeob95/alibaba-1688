@@ -107,9 +107,12 @@ class Onchannel extends MallApiAbstract
                                 throw new Exception(MallErrorMessageConstant::getFitErrorMessage("PRD_DESC_KR"));
                             }
                         }
-                    
     
                         $prd_desc     = $prdObj->prd_desc;
+                        if( $sendType == OnchannelConstant::PRD_CHANNEL_PRIVATE ){
+                            $prd_desc = $prdObj->prd_desc_kr;
+                        }
+
                         $noticeInfo   = $prdObj->no_except_notices->pluck("attribute_value_kr","attribute_name_kr")->toArray();
                         $notice_desc  = getNoticeInfoTable($noticeInfo);
                         $prd_desc    .= $notice_desc;
