@@ -207,6 +207,7 @@ class Onchannel extends MallApiAbstract
                         foreach ($prdObj->no_except_options as $option) {
                             $cus_price = (int)$option->option_price + (int)$delivery_price;
                             $cus_price = intval($cus_price) + intval($cus_price * env("RECOM_CUS_PRICE_RATE", 0.45));
+                            $cus_price = round($cus_price / 10) * 10;
 
                             $options[] = [
                                 "op_rank"      => "1",
