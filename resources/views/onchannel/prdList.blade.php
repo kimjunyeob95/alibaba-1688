@@ -326,9 +326,9 @@
                                         @endif
                                     </td>
                                     <td class="text-center">
-                                        @if($data->oc_category == null)
+                                        @if($data->w_mapping != null && $data->oc_category == null)
                                             <button class="btn btn-sm btn-danger text-white btn-modal" cateid={{ $data->category_id }} catename="{{ $wCateName }}">카테고리 미맵핑</button>
-                                        @else
+                                        @elseif($data->w_mapping != null && $data->oc_category != null)
                                             <small>
                                                 @if($data->oc_category->fir_cate)
                                                     {{ $data->oc_category->fir_cate }}
