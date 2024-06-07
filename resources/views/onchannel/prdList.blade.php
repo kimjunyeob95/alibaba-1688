@@ -145,7 +145,7 @@
                                 <tr class="align-middle text-left">
                                     <td colspan="3">
                                         <button type="button" class="btn btn-md btn-primary" id="form-submit">검색</button>
-                                        <a href="/onchannel/product/list" class="btn btn-md btn-light btn-reset" role="button">초기화</button>
+                                        <a href="/onchannel/product/list/{{ $send_type }}" class="btn btn-md btn-light btn-reset" role="button">초기화</button>
                                     </td>
                                 </tr>
                             </table>

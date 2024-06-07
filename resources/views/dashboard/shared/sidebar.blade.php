@@ -193,12 +193,12 @@
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="/onchannel/product/list?send_type={{ OnchannelConstant::PRD_CHANNEL }}">
+                    <a class="nav-link" href="/onchannel/product/list/{{ OnchannelConstant::PRD_CHANNEL }}">
                         온채널: 일반상품
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="/onchannel/product/list?send_type={{ OnchannelConstant::PRD_CHANNEL_PRIVATE }}">
+                    <a class="nav-link" href="/onchannel/product/list/{{ OnchannelConstant::PRD_CHANNEL_PRIVATE }}">
                         온채널: 사입상품
                     </a>
                 </li>
