@@ -78,6 +78,9 @@ class UpdateWeightDelivery extends Command
                         }
                     } else {
                         $errorFlag = true;
+                        ProductData::where("offer_id", $offerId)->update([
+                            "status" => ProductConstant::PRD_STATUS_EXCEPT
+                        ]);
                         // $msg       = "offerId: {$offerId} | weight: {$weight} 중량 100 초과 ";
                         // debug_log($msg, "cron/UpdateWeightDelivery", "UpdateWeightDelivery", LogLevel::ERROR);
                     }
