@@ -2,20 +2,21 @@
 
 namespace App\Traits;
 
-use App\Abstracts\TransApiAbstract;
 use Exception;
+use App\Abstracts\TransApiAbstract;
+use Illuminate\Support\Facades\Log;
 
 trait MallImageTrait
 {
     protected array $returnMsg;
     protected string $channel;
     protected TransApiAbstract $transApiImageAbstract;
-    
+
     public function __construct()
     {
         $this->returnMsg = helpers_fail_message();
     }
-    
+
     public function initImageTrait(string $channel, TransApiAbstract $transApiImageAbstract): void
     {
         $this->channel               = $channel;
@@ -55,6 +56,9 @@ trait MallImageTrait
     public function imgTrans($params): array
     {
         $returnMsg = $this->returnMsg;
+
+        Log::info("=== SAI Callback images ===");
+        Log::info($params);
 
         try {
             $result = $this->transApiImageAbstract->channelImgTrans($this->channel, $params);
