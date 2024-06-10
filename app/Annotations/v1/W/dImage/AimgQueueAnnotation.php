@@ -3,7 +3,7 @@
 namespace App\Annotations\v1\W\dImage;
 
 /**
- * 
+ *
  * @OA\Schema(
  *     schema="ImageQueueSchema",
  *     required={"channel_queue_id", "member_id", "images"},
@@ -24,12 +24,24 @@ namespace App\Annotations\v1\W\dImage;
  *         type="array",
  *         @OA\Items(
  *             type="object",
- *             required={"id", "origin_url"},
+ *             required={"id", "offer_id", "img_id","origin_url"},
  *             @OA\Property(
  *                  property="id",
  *                  type="integer",
  *                  example=1,
  *                  description="채널에서 관리하는 이미지 고유 ID"
+ *              ),
+ *             @OA\Property(
+ *                  property="offer_id",
+ *                  type="integer",
+ *                  example=679551697587,
+ *                  description="1688 상품아이디"
+ *              ),
+ *             @OA\Property(
+ *                  property="img_id",
+ *                  type="integer",
+ *                  example=1335888,
+ *                  description="1688 상품이미지 아이디"
  *              ),
  *              @OA\Property(
  *                  property="origin_url",
@@ -41,7 +53,7 @@ namespace App\Annotations\v1\W\dImage;
  *         description="이미지 정보"
  *     )
  * )
- * 
+ *
  *
  * @OA\Post(
  *     path="/api/mall/{channel}/genuio/img/trans/request",
