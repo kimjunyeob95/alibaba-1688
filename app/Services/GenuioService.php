@@ -1097,6 +1097,8 @@ class GenuioService extends TransApiAbstract
 
             foreach ($params["images"] as $data) {
                 $imgId       = $data["id"];
+                $offerId     = $data["offer_id"];
+                $img_id      = $data["img_id"];
                 $originUrl   = "";
                 $isThumbnail = false;
                 $priority    = false;
@@ -1112,13 +1114,15 @@ class GenuioService extends TransApiAbstract
                 if( $originUrl ){
                     $payload["images"][] = [
                         "id"          => $imgId,
+                        "offer_id"    => $offerId,
+                        "img_id"      => $img_id,
                         "origin_url"  => $originUrl,
                         "isThumbnail" => $isThumbnail,
                         "priority"    => $priority
                     ];
                 }
             }
-            
+
             if( count($payload["images"]) > 0 ){
                 $apiResult = $this->apiCurl("post", "/translate-img-channel", $payload);
                 $upWhere = [];
