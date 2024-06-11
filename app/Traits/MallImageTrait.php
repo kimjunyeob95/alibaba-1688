@@ -57,9 +57,6 @@ trait MallImageTrait
     {
         $returnMsg = $this->returnMsg;
 
-        Log::info("=== SAI Callback images ===");
-        Log::info($params);
-
         try {
             $result = $this->transApiImageAbstract->channelImgTrans($this->channel, $params);
 
