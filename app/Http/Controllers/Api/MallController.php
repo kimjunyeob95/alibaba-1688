@@ -164,6 +164,8 @@ class MallController extends Controller
                 'member_id'           => 'required|string',
                 'images'              => 'required|array',
                 'images.*.id'         => 'required|int',
+                'images.*.offer_id'   => 'required|int',
+                'images.*.img_id'     => 'required|int',
                 'images.*.origin_url' => 'required|string'
             ], [
                 'channel_queue_id.required'    => MallErrorMessageConstant::getNotHaveErrorMessage("CHANNEL_QUEUE_ID"),

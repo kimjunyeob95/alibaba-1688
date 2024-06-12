@@ -1098,7 +1098,7 @@ class GenuioService extends TransApiAbstract
             foreach ($params["images"] as $data) {
                 $imgId       = $data["id"];
                 $offerId     = $data["offer_id"];
-                $img_id      = $data["img_id"];
+                $prdImgId    = $data["img_id"];
                 $originUrl   = "";
                 $isThumbnail = false;
                 $priority    = false;
@@ -1115,7 +1115,7 @@ class GenuioService extends TransApiAbstract
                     $payload["images"][] = [
                         "id"          => $imgId,
                         "offer_id"    => $offerId,
-                        "img_id"      => $img_id,
+                        "img_id"      => $prdImgId,
                         "origin_url"  => $originUrl,
                         "isThumbnail" => $isThumbnail,
                         "priority"    => $priority
