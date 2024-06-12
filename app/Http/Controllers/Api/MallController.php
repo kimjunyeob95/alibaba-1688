@@ -260,6 +260,7 @@ class MallController extends Controller
             }
 
             $offerIds     = $this->request->post("offerIds");
+            $offerIds     = array_unique($offerIds);
             $es_send_type = $this->request->post("es_send_type", []);
             $oc_send_type = $this->request->post("oc_send_type", []);
 
