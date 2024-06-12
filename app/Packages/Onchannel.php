@@ -309,11 +309,11 @@ class Onchannel extends MallApiAbstract
                             "message"    => $e->getMessage(),
                         ]);
                     }
-    
-                    sleep(1.3);
                 } else {
                     $updateIds[] = $offerId;
                 }
+
+                sleep(1.3);
             }
         }
 
