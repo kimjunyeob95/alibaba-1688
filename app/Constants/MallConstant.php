@@ -8,10 +8,17 @@ class MallConstant
     // Mall 리스트
     public const MALL_EASYSELL  = "easySell";
     public const MALL_ONCHANNEL = "onchannel";
-
     public const MALL_LIST = [
         self::MALL_EASYSELL,
         self::MALL_ONCHANNEL,
+    ];
+
+    /** 전송 채널 리스트 */
+    public const OC_PUBLIC         = "30";
+    public const OC_PRIVATE        = "28";
+    public const SEND_CHANNEL_LIST = [
+        self::OC_PUBLIC  => "온채널 일반 상품",
+        self::OC_PRIVATE => "온채널 사입 상품",
     ];
 
     /** 상품등록상태 (등록 / 미등록) */

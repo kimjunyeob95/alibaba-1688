@@ -15,6 +15,8 @@ use App\Constants\ImageConstant;
 use App\Constants\ImageErrorMessageConstant;
 use App\Constants\InspectConstant;
 use App\Constants\LogConstant;
+use App\Constants\MallConstant;
+use App\Constants\OnchannelConstant;
 use App\Constants\OptionConstants;
 use App\Constants\ProductConstant;
 use App\Constants\ProductErrorMessageConstant;
@@ -78,17 +80,18 @@ class ProductW1 extends ProductAbstract
 
     public function getPrdList(array $params): array
     {
-        $pageSize       = $params["pageSize"];
-        $search_cls     = $params["search_cls"];
-        $w_type         = $params["w_type"];
-        $keyword        = $params["keyword"];
-        $collect_status = "";
-        $trans_status   = $params["trans_status"];
-        $mapping_status = $params["mapping_status"];
-        $prd_status     = $params["prd_status"];
-        $mdPrice_status = $params["mdPrice_status"];
-        $weight_status  = "";
-        $sortArr        = explode("|", $params["sort"]);
+        $pageSize        = $params["pageSize"];
+        $search_cls      = $params["search_cls"];
+        $w_type          = $params["w_type"];
+        $keyword         = $params["keyword"];
+        $collect_status  = "";
+        $trans_status    = $params["trans_status"];
+        $mapping_status  = $params["mapping_status"];
+        $prd_status      = $params["prd_status"];
+        $mdPrice_status  = $params["mdPrice_status"];
+        $weight_status   = "";
+        $sortArr         = explode("|", $params["sort"]);
+        $no_send_channel = "";
 
         $cate_first     = "";
         $cate_second    = "";
@@ -97,7 +100,9 @@ class ProductW1 extends ProductAbstract
         if( isset($params["collect_status"]) ){
             $collect_status = $params["collect_status"];
         }
-
+        if( isset($params["no_send_channel"]) ){
+            $no_send_channel = $params["no_send_channel"];
+        }
         if( isset($params["cate_first"]) ){
             $cate_first = $params["cate_first"];
         }
@@ -261,6 +266,28 @@ class ProductW1 extends ProductAbstract
                     $query1->whereNull("pwd.weight_type")
                     ->orWhere("pwd.weight_type", ProductConstant::WEIGHT_STATUS_NONE);
                 });
+            }
+        }
+
+        if( !empty($no_send_channel) ){
+            $no_send_channels = explode(",", $no_send_channel);
+            foreach ($no_send_channels as $no_send_ch) {
+                if( empty($no_send_ch) ) continue;
+
+                if( $no_send_ch == OnchannelConstant::PRD_CHANNEL ){
+                    $prdBuilder->leftJoin('onchannel_product_logs as ocl', function($join) use ($no_send_ch) {
+                        $join->on('product_datas.offer_id', '=', 'ocl.offer_id')
+                            ->where('ocl.send_type', $no_send_ch);
+                    });
+                    $prdBuilder->where("ocl.id");
+                }
+                if( $no_send_ch == OnchannelConstant::PRD_CHANNEL_PRIVATE ){
+                    $prdBuilder->leftJoin('onchannel_product_logs as ocl2', function($join) use ($no_send_ch) {
+                        $join->on('product_datas.offer_id', '=', 'ocl2.offer_id')
+                            ->where('ocl2.send_type', $no_send_ch);
+                    });
+                    $prdBuilder->whereNull("ocl2.id");
+                }
             }
         }
 
@@ -733,7 +760,8 @@ class ProductW1 extends ProductAbstract
     {
         $pageSize  = $params["pageSize"];
 
-        $prdBuilder = ProductCollectLog::where("version", WConstant::WAPP_W1)->orderBy("created_at", "desc");
+        $prdBuilder = ProductCollectLog::where("version", WConstant::WAPP_W1)
+        ->where("type", "!=", LogConstant::COLLECT_MISS_PRODUCT)->orderBy("created_at", "desc");
         $lists = $prdBuilder->paginate($pageSize)->appends($params);
 
         return $lists;
@@ -754,6 +782,9 @@ class ProductW1 extends ProductAbstract
                 "img_inspect",
                 "prd_inspect",
                 "gosi_inspect",
+                "forbidden_prd_name",
+                "forbidden_notice_names",
+                "forbidden_notice_values",
             ])->where("offer_id", $offerId)->first();
             if( $prdObj == null ){
                 throw new Exception("No Data");
@@ -782,6 +813,9 @@ class ProductW1 extends ProductAbstract
                 "img_inspect",
                 "prd_inspect",
                 "gosi_inspect",
+                "forbidden_prd_name",
+                "forbidden_notice_names",
+                "forbidden_notice_values",
             ])->where("offer_id", $offerId)->first();
             if( $prdObj == null ){
                 throw new Exception("No Data");
@@ -1906,6 +1940,8 @@ class ProductW1 extends ProductAbstract
 
         if( isset($detailProduct["productSkuInfos"]) ){
             foreach ($detailProduct["productSkuInfos"] as $prdOptions) {
+                $price_1688_option = $prdOptions["price"];
+
                 $opt_status = ProductConstant::OPTION_SEC_ON_SALE_NUMBER;
                 if( $status != ProductConstant::PRD_STATUS_PUBLISH ){
                     $opt_status = ProductConstant::OPTION_SEC_OUT_OF_STOCK_NUMBER;
@@ -1997,6 +2033,7 @@ class ProductW1 extends ProductAbstract
                     "status"            => $opt_status,
                     "is_except"         => $is_except,
                     "price_1688"        => $price_1688,
+                    "price_1688_option" => $price_1688_option,
                     "optionName"        => rtrim($optionName, "_"),
                     "optionNameTrans"   => rtrim($optionNameTrans, "_"),
                     "optionNameTransEn" => rtrim($optionNameTransEn, "_"),
@@ -2306,7 +2343,6 @@ class ProductW1 extends ProductAbstract
         foreach ($datas as &$data) {
             $ocPrice                 = ocPrice($data["price_1688"]);
             $data["onch_price"]      = $ocPrice["onch_price"];
-            $data["option_price"]    = $ocPrice["option_price"];
             $data["cus_price"]       = $ocPrice["cus_price"];
             $data["recom_cus_price"] = $ocPrice["recom_cus_price"];
             $data["hasPrd"]          = ProductConstant::HAS_PRD_N;
@@ -2349,7 +2385,6 @@ class ProductW1 extends ProductAbstract
             $ocPrice                 = ocPrice((float)$data["priceInfo"]["price"]);
             $data["price_1688"]      = (float)$data["priceInfo"]["price"];
             $data["onch_price"]      = $ocPrice["onch_price"];
-            $data["option_price"]    = $ocPrice["option_price"];
             $data["cus_price"]       = $ocPrice["cus_price"];
             $data["recom_cus_price"] = $ocPrice["recom_cus_price"];
             $data["hasPrd"]          = ProductConstant::HAS_PRD_N;
@@ -2595,7 +2630,6 @@ class ProductW1 extends ProductAbstract
             $ocPrice                 = ocPrice((float)$data["priceInfo"]["price"]);
             $data["price_1688"]      = (float)$data["priceInfo"]["price"];
             $data["onch_price"]      = $ocPrice["onch_price"];
-            $data["option_price"]    = $ocPrice["option_price"];
             $data["cus_price"]       = $ocPrice["cus_price"];
             $data["recom_cus_price"] = $ocPrice["recom_cus_price"];
             $data["hasPrd"]          = ProductConstant::HAS_PRD_N;
@@ -3214,7 +3248,7 @@ class ProductW1 extends ProductAbstract
                     ->first();
     
                     if( $geObj != null ){
-                        $this->transApiAbstract->removeQueue($geObj->id);
+                        $this->transApiAbstract->queueRemove([$geObj->id]);
                     }
                 }
             }

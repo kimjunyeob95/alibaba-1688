@@ -103,8 +103,9 @@
                                 <th scope="col" style="width: 5%">큐ID</th>
                                 <th scope="col" style="width: 10%">전송 타입</th>
                                 <th scope="col" style="width: auto">요청 payload</th>
-                                <th scope="col" style="width: 15%" class="text-center">요청일</th>
-                                <th scope="col" style="width: 15%" class="text-center">응답일</th>
+                                <th scope="col" style="width: auto">응답 response</th>
+                                <th scope="col" style="width: 12%" class="text-center">요청일</th>
+                                <th scope="col" style="width: 12%" class="text-center">응답일</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -131,9 +132,18 @@
                                         {{ GenuioConstant::IMG_TRANS_TYPE[$data->send_type] }}
                                     </td>
                                     <td class="text-center" style="max-width: 300px;">
-                                        <div style="max-height: 200px; overflow-y: auto;">
-                                            {{ $data->payload_json }}
+                                        <div style="max-height: 150px; overflow-y: auto;">
+                                            <code>{{ $data->payload_json }}</code>
                                         </div>
+                                    </td>
+                                    <td class="text-center" style="max-width: 300px;">
+                                        @if ($data->child_id)
+                                            <div style="max-height: 150px; overflow-y: auto;">
+                                                <code>{{ $data->child_response_json }}</code>
+                                            </div>
+                                        @else
+                                            <label class="text-danger">{{ GenuioConstant::CALLBACK_TYPE[GenuioConstant::CALLBACK_N] }}</label>
+                                        @endif
                                     </td>
                                     <td class="text-center">
                                         <small>{{ $data->created_at }}</small>

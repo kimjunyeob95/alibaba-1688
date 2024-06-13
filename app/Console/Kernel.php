@@ -61,7 +61,7 @@ class Kernel extends ConsoleKernel
 
             /** WApp */
             $schedule->command("miss_product_re_collect --wversion=". WConstant::WAPP_W1)->cron("0 6 * * *")->description("정보부족 W1 상품 재수집")->withoutOverlapping()->runInBackground();
-            $schedule->command("miss_product_re_collect --wversion=". WConstant::WAPP_W2)->cron("0 6 * * *")->description("정보부족 W2 상품 재수집")->withoutOverlapping()->runInBackground();
+            // $schedule->command("miss_product_re_collect --wversion=". WConstant::WAPP_W2)->cron("0 6 * * *")->description("정보부족 W2 상품 재수집")->withoutOverlapping()->runInBackground();
 
             $schedule->command("update_attribute")->cron("0 0 * * *")->description("정보고시 관리(제외, 항목명 수정)")->withoutOverlapping()->runInBackground();
             $schedule->command("update_forbidden_word")->cron("30 0 * * *")->description("금칙어 사전 적용(상품, 정보고시 항목값)")->withoutOverlapping()->runInBackground();
@@ -70,7 +70,7 @@ class Kernel extends ConsoleKernel
             /** 이지셀 */
             $schedule->command("easy_sell_command --func=sendModiProduct")->cron("*/5 * * * *")->description("이지셀 수정 된 상품 전송")->withoutOverlapping()->runInBackground();
 
-            /** 온채널 신규 상품 등록 */
+            /** 온채널 신규 일반상품 등록 */
             $schedule->command("onchannel_command --func=newProductRegist")->cron("0 9,18 * * *")->description("온채널 신규 상품 등록")->withoutOverlapping()->runInBackground();
 
             $schedule->command("test --filter testAllProductReCollectW1")->description("모든 상품 W1 재수집")->withoutOverlapping()->runInBackground();

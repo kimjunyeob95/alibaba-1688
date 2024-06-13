@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Constants\ForbiddenWordConstant;
 use App\Constants\GosiConstants;
 use App\Constants\ImageConstant;
 use App\Constants\InspectConstant;
@@ -145,5 +146,20 @@ class ProductData extends Model
 
     public function oc_private_log () {
         return $this->hasOne(OnchannelProductLog::class, "offer_id", "offer_id")->where("send_type", OnchannelConstant::PRD_CHANNEL_PRIVATE);
+    }
+
+    public function forbidden_prd_name()
+    {
+        return $this->hasOne(ProductForbiddenData::class, "offer_id", "offer_id")->where("apply_type", ForbiddenWordConstant::KEYWORD_APPLY_TITLE);
+    }
+
+    public function forbidden_notice_names()
+    {
+        return $this->hasMany(ProductForbiddenData::class, "offer_id", "offer_id")->where("apply_type", ForbiddenWordConstant::KEYWORD_APPLY_ATTR_NAME);
+    }
+
+    public function forbidden_notice_values()
+    {
+        return $this->hasMany(ProductForbiddenData::class, "offer_id", "offer_id")->where("apply_type", ForbiddenWordConstant::KEYWORD_APPLY_ATTR_VALUE);
     }
 }

@@ -42,6 +42,7 @@ class ProductController extends Controller
         $cate_first          = $this->request->get("cate_first", "");
         $cate_second         = $this->request->get("cate_second", "");
         $cate_third          = $this->request->get("cate_third", "");
+        $no_send_channel     = $this->request->get("no_send_channel", "");
         $offset              = ($page - 1) * $pageSize;
 
         $params = [
@@ -63,7 +64,8 @@ class ProductController extends Controller
             "inspect_gosi_status" => $inspect_gosi_status,
             "cate_first"          => $cate_first,
             "cate_second"         => $cate_second,
-            "cate_third"          => $cate_third
+            "cate_third"          => $cate_third,
+            "no_send_channel"     => $no_send_channel,
         ];
         $result = $this->service1688Product->getPrdList($params);
 
@@ -101,7 +103,8 @@ class ProductController extends Controller
             "thirdCateObjs"       => $result["thirdCateObjs"],
             "cate_first"          => $cate_first,
             "cate_second"         => $cate_second,
-            "cate_third"          => $cate_third
+            "cate_third"          => $cate_third,
+            "no_send_channel"     => $no_send_channel,
         ];
 
         return view("product.prdList")->with($viewParams);

@@ -26,6 +26,8 @@ class MallErrorMessageConstant
     public const ERROR_MESSAGE_CHANNEL_QUEUE_ID   = "channel_queue_id";
     public const ERROR_MESSAGE_JOB_ID             = "job_id";
     public const ERROR_MESSAGE_IMAGE_ID           = "image_id";
+    public const ERROR_MESSAGE_OFFER_ID           = "offer_id";
+    public const ERROR_MESSAGE_IMG_ID             = "img_id";
     public const ERROR_MESSAGE_IMAGE_BASE64       = "image_base64";
     public const ERROR_MESSAGE_MEMBER_ID          = "member_id";
     public const ERROR_MESSAGE_OPTIONS            = "options";

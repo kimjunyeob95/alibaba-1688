@@ -26,7 +26,7 @@ class CategoryController extends Controller
     public function manage(): View
     {
         $page           = $this->request->post("page", 1);
-        $pageSize       = $this->request->post("pageSize", 50);
+        $pageSize       = $this->request->post("pageSize", 100);
         $keyword        = $this->request->get("keyword", "");
         $mapping_status = $this->request->get("mapping_status", ProductConstant::TRANS_STATUS_Y);
         $cate_first     = $this->request->get("cate_first", "");
@@ -54,7 +54,8 @@ class CategoryController extends Controller
             "thirdCateObjs"  => $result["data"]["thirdCateObjs"],
             "cate_first"     => $cate_first,
             "cate_second"    => $cate_second,
-            "cate_third"     => $cate_third
+            "cate_third"     => $cate_third,
+            "pageSize"       => $pageSize,
         ];
         return view("category.manage")->with($viewParams);
     }
@@ -62,7 +63,7 @@ class CategoryController extends Controller
     public function weightList(): View
     {
         $page          = $this->request->post("page", 1);
-        $pageSize      = $this->request->post("pageSize", 50);
+        $pageSize      = $this->request->post("pageSize", 100);
         $keyword       = $this->request->get("keyword", "");
         $weight_status = $this->request->get("weight_status", "");
         $cate_first    = $this->request->get("cate_first", "");
@@ -90,7 +91,8 @@ class CategoryController extends Controller
             "thirdCateObjs"  => $result["data"]["thirdCateObjs"],
             "cate_first"     => $cate_first,
             "cate_second"    => $cate_second,
-            "cate_third"     => $cate_third
+            "cate_third"     => $cate_third,
+            "pageSize"       => $pageSize,
         ];
         return view("category.weightList")->with($viewParams);
     }

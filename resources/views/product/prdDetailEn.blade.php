@@ -100,7 +100,7 @@
                     <div class="col">
                         <h5>[번역 이미지]</h5>
                     </div>
-                    @if ($prdObj->trans_status == ProductConstant::IMG_TRANS_Y)
+                    @if ($prdObj->trans_status_en == ProductConstant::IMG_TRANS_Y)
                         <div id="swiper-container2" class="swiper-container">
                             <div class="swiper-wrapper">
                                 @foreach ($prdObj->en_images as $prdImg)
@@ -126,7 +126,7 @@
                     @else
                         <div class="d-flex justify-content-center align-items-center" style="height: 100%;">
                             <span class="untranslated-text">
-                                미변역
+                                미번역
                             </span>
                         </div>
                     @endif
@@ -150,7 +150,17 @@
                         <div class="col-md-8">{{ $prdObj->prd_name }}</div>
                     </div>
                     <div class="row mb-2">
-                        <div class="col-md-3 text-center">제품명(국문)</div>
+                        <div class="col-md-3 text-center">제품명(국문) - 원본</div>
+                        <div class="col-md-8">
+                            @if ($prdObj->forbidden_prd_name == null)
+                                {{ $prdObj->prd_name_kr }}
+                            @else
+                                {{ $prdObj->forbidden_prd_name->origin_text }}
+                            @endif
+                        </div>
+                    </div>
+                    <div class="row mb-2">
+                        <div class="col-md-3 text-center">제품명(국문) - 금칙어 적용</div>
                         <div class="col-md-8">{{ $prdObj->prd_name_kr }}</div>
                     </div>
                     <div class="row mb-2">
@@ -333,11 +343,22 @@
                                             @endif
                                         </th>
                                         <td>
-                                            @if ($gosi->is_except == GosiConstants::IS_EXCEPT_Y)
-                                                <del>{{ $gosi->attribute_value_kr }}</del>
-                                            @else
-                                                {{ $gosi->attribute_value_kr }}
-                                            @endif
+                                            @php
+                                                $origin_value_text = $gosi->attribute_value_kr;
+                                                foreach ($prdObj->forbidden_notice_values as $origin_notice_value) {
+                                                    if( $origin_notice_value->origin_text && $origin_notice_value->trans_text == $gosi->attribute_value_kr ){
+                                                        $origin_value_text = $origin_notice_value->origin_text;
+                                                    }
+                                                }
+                                            @endphp
+                                            <small>원본: {{ $origin_value_text }}</small><br>
+                                            <small>금칙어 적용:
+                                                @if ($gosi->is_except == GosiConstants::IS_EXCEPT_Y)
+                                                    <del>{{ $gosi->attribute_value_kr }}</del>
+                                                @else
+                                                    {{ $gosi->attribute_value_kr }}
+                                                @endif
+                                            </small>
                                         </td>
 
                                     @if (($gosiKey + 1) % 4 == 0 || $loop->last)
@@ -407,7 +428,7 @@
                     </div>
                     <div class="col-md-6">
                         <h5>[영문 제품상세 번역]</h5>
-                        @if ($prdObj->trans_status == ProductConstant::IMG_TRANS_Y)
+                        @if ($prdObj->trans_status_en == ProductConstant::IMG_TRANS_Y)
                             <div class="d-flex justify-content-center">
                                 <div class="text-center prd-desc" >
                                     {!! $prdObj->prd_desc_en !!}
@@ -416,7 +437,7 @@
                         @else
                             <div class="text-center mt-3">
                                 <span class="untranslated-text">
-                                    미변역
+                                    미번역
                                 </span>
                             </div>
                         @endif
@@ -683,7 +704,7 @@
             e.preventDefault();
 
             let type         = $(this).attr("type");
-            let trans_status = "{{ $prdObj->trans_status }}";
+            let trans_status = "{{ $prdObj->trans_status_en }}";
 
             if( type == "all" ){
                 if( confirm("전체 이미지 번역요청을 하시겠습니까?") ){

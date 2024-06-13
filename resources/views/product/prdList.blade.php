@@ -52,6 +52,7 @@
                     <input type="hidden" name="cate_first" value={{ $cate_first }}>
                     <input type="hidden" name="cate_second" value={{ $cate_second }}>
                     <input type="hidden" name="cate_third" value={{ $cate_third }}>
+                    <input type="hidden" name="no_send_channel" value='{{ $no_send_channel }}'>
 
                     <div class="card">
                         <div class="card-header">
@@ -262,6 +263,25 @@
                                     </td>
                                 </tr>
                                 <tr class="align-middle">
+                                    <th style="width: 120px">채널 미전송</th>
+                                    <td colspan="2">
+                                        @foreach (MallConstant::SEND_CHANNEL_LIST as $mallKey => $mallChannel)
+                                            @php
+                                                $checked = "";
+                                                $no_send_channel_list = explode(",", $no_send_channel);
+                                                if( in_array($mallKey, $no_send_channel_list) ){
+                                                    $checked = "checked";
+                                                }
+                                            @endphp
+                                            <div class="form-check form-check-inline">
+                                                <input class="form-check-input" type="checkbox" name="no_send_channel_list" id="no_send_channel_{{ $mallKey }}" value="{{ $mallKey }}" {{ $checked }}>
+                                                <label class="form-check-label" for="no_send_channel_{{ $mallKey }}">{{ $mallChannel }}</label>
+                                            </div>
+                                        @endforeach
+                                        <label class="text-danger">* 복수 선택 시 AND 조건으로 검색됩니다.</label>
+                                    </td>
+                                </tr>
+                                <tr class="align-middle">
                                     <th style="width: 120px">W 카테고리</th>
                                     <td colspan="2">
                                         <div class="row">
@@ -444,7 +464,7 @@
                                                 $option = $data->options[0];
                                             @endphp
                                                 {{ $option->price_1688 }}(위안)<br>
-                                                {{ number_format($option->option_price) }}(원)
+                                                {{ number_format(wOptionPrice($option->price_1688)) }}(원)
                                         @else
                                             <p class="text-danger">옵션없음</p>
                                         @endif
@@ -477,7 +497,7 @@
                                                     $delivery_price = $data->delivery_price;
                                                 }
                                             @endphp
-                                                {{ number_format(calcWSalePrice($option->option_price, $delivery_price)) }} 
+                                                {{ number_format(calcWSalePrice($option->price_1688, $delivery_price)) }} 
                                         @else
                                             <p class="text-danger">옵션없음</p>
                                         @endif
@@ -493,7 +513,7 @@
                                             @endphp
                                             @if ($option->md_price)
                                                 @php
-                                                    $salePrice = calcWSalePrice($option->option_price); 
+                                                    $salePrice = calcWSalePrice($option->price_1688); 
                                                     $saleHigh  = compareWSalePrice($salePrice, $option->md_price);
                                                 @endphp
                                                 @if ($saleHigh === true)
@@ -502,7 +522,7 @@
                                                     <button class="btn btn-sm btn-danger btn-md-modi" offerid={{ $data->offer_id }} saleprice={{ $salePrice }} mdprice={{ $option->md_price }}>{{ number_format($option->md_price) }}</button>
                                                 @endif
                                             @else
-                                                <button class="btn btn-sm btn-warning btn-md-modi" offerid={{ $data->offer_id }} saleprice={{ calcWSalePrice($option->option_price, $delivery_price) }} mdprice=0>MD 가격 설정</button>
+                                                <button class="btn btn-sm btn-warning btn-md-modi" offerid={{ $data->offer_id }} saleprice={{ calcWSalePrice($option->price_1688, $delivery_price) }} mdprice=0>MD 가격 설정</button>
                                             @endif
                                         @else
                                             <p class="text-danger">옵션없음</p>
@@ -517,7 +537,7 @@
                                                     $delivery_price = $data->delivery_price;
                                                 }
                                             @endphp
-                                            {{ number_format(calcOnchannelOptionPrice($option->option_price, $delivery_price)) }} 
+                                            {{ number_format(calcOnchannelOptionPrice($option->price_1688, $delivery_price)) }} 
                                         @else
                                             <p class="text-danger">옵션없음</p>
                                         @endif
@@ -1559,12 +1579,20 @@
         });
 
         $("#form-submit").click(function(){
+            let value = "";
+            $('input[type=checkbox][name=no_send_channel_list]:checked').each(function(){
+                value += $(this).val() + ",";
+            });
+
+            $(`input[type=hidden][name=no_send_channel]`).val(value);
             $("#searchFrm").submit();
         });
 
         $(".btn-status").click(function(){
-            let name = $(this).attr("name");
-            $(`input[name=${name}]`).val($(this).val());
+            let name  = $(this).attr("name");
+            let value = $(this).val();
+
+            $(`input[name=${name}]`).val(value);
             $("#searchFrm").submit();            
         });
 

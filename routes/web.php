@@ -115,7 +115,7 @@ Route::prefix("easySell")->name("easySell.")->group(function(){
  */
 Route::prefix("onchannel")->name("onchannel.")->group(function(){
     /** 상품 현황 */
-    Route::get("product/list", [OnchannelController::class, "getPrdList"])->name("productList");
+    Route::get("product/list/{send_type}", [OnchannelController::class, "getPrdList"])->name("productList");
 
     /** 카테고리 */
     Route::prefix("category")->name("category.")->group(function(){

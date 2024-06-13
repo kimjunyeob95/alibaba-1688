@@ -18,7 +18,7 @@ class OnchannelController extends Controller
         $this->onchannelService = $onchannelService;
     }
 
-    public function getPrdList(): View
+    public function getPrdList(int $send_type = OnchannelConstant::PRD_CHANNEL): View
     {
         $page         = $this->request->get("page", 1);
         $pageSize     = $this->request->get("pageSize", 100);
@@ -28,7 +28,6 @@ class OnchannelController extends Controller
         $cate_first   = $this->request->get("cate_first", "");
         $cate_second  = $this->request->get("cate_second", "");
         $cate_third   = $this->request->get("cate_third", "");
-        $send_type    = $this->request->get("send_type", OnchannelConstant::PRD_CHANNEL);
         $offset       = ($page - 1) * $pageSize;
 
         $params = [
