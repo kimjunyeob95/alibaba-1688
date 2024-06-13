@@ -36,8 +36,11 @@ class EasySellCommand extends Command
             case 'productRegist':
                 $offerIds = explode(",", $this->option('offerids'));
                 $type = $this->option('type');
+                $params = [
+                    "type" => $type
+                ];
                 if (!empty($offerIds)) {
-                    $result = $this->mallApiService->productRegist($offerIds, $type);
+                    $result = $this->mallApiService->productRegist($offerIds, $params);
                     dd($result);
                 }
                 break;

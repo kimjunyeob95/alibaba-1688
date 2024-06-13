@@ -4,6 +4,7 @@ use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\EasySellController;
 use App\Http\Controllers\ExceptController;
 use App\Http\Controllers\ForbiddenWordController;
+use App\Http\Controllers\GenuioController;
 use App\Http\Controllers\OnchannelController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProductW2Controller;
@@ -42,8 +43,10 @@ Route::prefix("product")->name("product.")->group(function(){
         Route::get("/list", [ProductController::class, "getPrdList"])->name("list");
         /** 판매제외 */
         Route::get("/except/list", [ProductController::class, "getPrdExceptList"])->name("getPrdExceptList");
-        /** 상품 상세 */
+        /** 상품 국문 상세 */
         Route::get("/{offerId}", [ProductController::class, "getPrdDetail"])->name("detail");
+        /** 상품 영문 상세 */
+        Route::get("/en/{offerId}", [ProductController::class, "getPrdDetailEn"])->name("detailEn");
         /** 상품 수정 */
         Route::get("/update/{offerId}", [ProductController::class, "update"])->name("update");
         /** 이미지 수정 */
@@ -112,11 +115,24 @@ Route::prefix("easySell")->name("easySell.")->group(function(){
  */
 Route::prefix("onchannel")->name("onchannel.")->group(function(){
     /** 상품 현황 */
-    Route::get("product/list", [OnchannelController::class, "getPrdList"])->name("productList");
+    Route::get("product/list/{send_type}", [OnchannelController::class, "getPrdList"])->name("productList");
 
     /** 카테고리 */
     Route::prefix("category")->name("category.")->group(function(){
         /** 카테고리 관리 */
         Route::get("/", [OnchannelController::class, "categoryManage"])->name("");
+    });
+});
+
+/**
+ * SAI
+ */
+Route::prefix("sai")->name("sai.")->group(function(){
+    /** 큐 관리 */
+    Route::prefix("queue")->name("queue.")->group(function(){
+        /** WApp */
+        Route::get("/wapp", [GenuioController::class, "wappQueueList"])->name("wappQueueList");
+        /** onchannel */
+        Route::get("/onchannel", [GenuioController::class, "onchannelQueueList"])->name("onchannelQueueList");
     });
 });

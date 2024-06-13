@@ -2,7 +2,6 @@
 
 namespace App\Services;
 
-use App\Abstracts\MallApiAbstract;
 use App\Abstracts\TransApiAbstract;
 use App\Abstracts\UploadAbstract;
 use App\Constants\GenuioConstant;
@@ -1053,47 +1052,6 @@ class GenuioService extends TransApiAbstract
     }
 
     /**
-     * @func removeQueue
-     * @description '큐 삭제'
-     * @param int $queueId
-     * @return array
-     */
-    public function removeQueue(int $queueId): array
-    {
-        $returnMsg = $this->returnMsg;
-
-        try {
-            $geObj = GenuioQueueData::where([
-                "id"           => $queueId,
-                "request_user" => TransApiConstant::API_USER_COMPANY_OC
-            ])->first();
-
-            if( $geObj != null ){
-                $resJson   = $geObj->response_json;
-                $resDecode = json_decode($resJson, JSON_UNESCAPED_UNICODE);
-
-                $internalJobId = $resDecode["internalJobId"];
-
-                if( $internalJobId ){
-                    $endPoint = "/translate-progress/remove/{$internalJobId}?queue=priority";
-                    $result = $this->apiCurl("POST", $endPoint);
-                    if( $result["status"] == GenuioConstant::REMOVE_QUEUE_OK ){
-                        GenuioQueueData::where("id", $geObj->id)->delete();
-                    } else {
-                        debug_log(json_encode($result, JSON_UNESCAPED_UNICODE), "genuio", "removeQueue");
-                    }
-                }
-            }
-
-            $returnMsg = helpers_success_message();
-        } catch (Exception $e) {
-            $returnMsg = helpers_fail_message($e->getMessage());
-        }
-
-        return $returnMsg;
-    }
-
-    /**
      * @func channelImgTransRequest
      * @description '채널별 번역 큐등록'
      * @param string $channel
@@ -1139,6 +1097,8 @@ class GenuioService extends TransApiAbstract
 
             foreach ($params["images"] as $data) {
                 $imgId       = $data["id"];
+                $offerId     = $data["offer_id"];
+                $prdImgId    = $data["img_id"];
                 $originUrl   = "";
                 $isThumbnail = false;
                 $priority    = false;
@@ -1154,13 +1114,15 @@ class GenuioService extends TransApiAbstract
                 if( $originUrl ){
                     $payload["images"][] = [
                         "id"          => $imgId,
+                        "offer_id"    => $offerId,
+                        "img_id"      => $prdImgId,
                         "origin_url"  => $originUrl,
                         "isThumbnail" => $isThumbnail,
                         "priority"    => $priority
                     ];
                 }
             }
-            
+
             if( count($payload["images"]) > 0 ){
                 $apiResult = $this->apiCurl("post", "/translate-img-channel", $payload);
                 $upWhere = [];

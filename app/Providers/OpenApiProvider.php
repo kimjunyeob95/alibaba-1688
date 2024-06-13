@@ -74,6 +74,8 @@ class OpenApiProvider extends ServiceProvider
                 return app(EasySell::class);
             } else if(strpos(strtoupper($currentUrl), strtoupper(MallConstant::MALL_ONCHANNEL)) !== false){
                 return app(Onchannel::class);
+            } else {
+                return app(Onchannel::class);
             };
         });
         /**

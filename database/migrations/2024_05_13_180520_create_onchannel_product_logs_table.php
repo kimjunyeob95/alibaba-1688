@@ -16,7 +16,7 @@ return new class extends Migration
     {
         Schema::create('onchannel_product_logs', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('offer_id')->unique()->nullable(false)->comment('제품ID');
+            $table->unsignedBigInteger('offer_id')->nullable(false)->comment('제품ID');
             $table->string('member_id', 25)->nullable(false)->comment('공급사명');
             $table->string('prd_code', 100)->nullable(false)->comment('온채널 제품코드');
             $table->enum('regist_success', ["Y", "N"])->default("N")->nullable(false)->comment('상품등록 성공여부 Y:성공 N:실패');

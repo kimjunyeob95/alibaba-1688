@@ -10,7 +10,11 @@ class GenuioErrorMessageConstant
     private static $defaultNotHaveMsg  = "Empty";
     private static $defaultFitErrorMsg = "Error";
 
-    public const ERROR_MESSAGE_REMOVE_QUEUE = "REMOVE QUEUE";
+    public const ERROR_MESSAGE_QUEUE              = "큐가 존재하지 않습니다.";
+    public const ERROR_MESSAGE_QUEUE_DONE         = "이미 응답이 완료 된 큐입니다.";
+    public const ERROR_MESSAGE_QUEUE_REMOVE_ERROR = "SAI 큐 삭제 통신 에러";
+    public const ERROR_MESSAGE_INTERNALJOBID      = "internalJobId";
+    public const ERROR_MESSAGE_REMOVE_QUEUE       = "REMOVE QUEUE";
 
     public static function getErrorMessageNotDefault($constantName): string
     {

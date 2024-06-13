@@ -28,6 +28,7 @@ class ProductController extends Controller
         $search_cls          = $this->request->get("search_cls", "offer_id");
         $w_type              = $this->request->get("w_type", "");
         $keyword             = $this->request->get("keyword", "");
+        $collect_status      = $this->request->get("collect_status", "");
         $trans_status        = $this->request->get("trans_status", "");
         $mapping_status      = $this->request->get("mapping_status", "");
         $prd_status          = $this->request->get("prd_status", "");
@@ -41,6 +42,7 @@ class ProductController extends Controller
         $cate_first          = $this->request->get("cate_first", "");
         $cate_second         = $this->request->get("cate_second", "");
         $cate_third          = $this->request->get("cate_third", "");
+        $no_send_channel     = $this->request->get("no_send_channel", "");
         $offset              = ($page - 1) * $pageSize;
 
         $params = [
@@ -50,6 +52,7 @@ class ProductController extends Controller
             "inspect_status"      => $inspect_status,
             "w_type"              => $w_type,
             "keyword"             => $keyword,
+            "collect_status"      => $collect_status,
             "trans_status"        => $trans_status,
             "mapping_status"      => $mapping_status,
             "prd_status"          => $prd_status,
@@ -61,7 +64,8 @@ class ProductController extends Controller
             "inspect_gosi_status" => $inspect_gosi_status,
             "cate_first"          => $cate_first,
             "cate_second"         => $cate_second,
-            "cate_third"          => $cate_third
+            "cate_third"          => $cate_third,
+            "no_send_channel"     => $no_send_channel,
         ];
         $result = $this->service1688Product->getPrdList($params);
 
@@ -83,6 +87,7 @@ class ProductController extends Controller
             "search_cls"          => $search_cls,
             "w_type"              => $w_type,
             "keyword"             => $keyword,
+            "collect_status"      => $collect_status,
             "trans_status"        => $trans_status,
             "mapping_status"      => $mapping_status,
             "weight_status"       => $weight_status,
@@ -98,7 +103,8 @@ class ProductController extends Controller
             "thirdCateObjs"       => $result["thirdCateObjs"],
             "cate_first"          => $cate_first,
             "cate_second"         => $cate_second,
-            "cate_third"          => $cate_third
+            "cate_third"          => $cate_third,
+            "no_send_channel"     => $no_send_channel,
         ];
 
         return view("product.prdList")->with($viewParams);
@@ -195,6 +201,19 @@ class ProductController extends Controller
             ];
         }
         return view("product.prdDetail")->with($viewParams);
+    }
+
+    public function getPrdDetailEn(int $offerId): View
+    {
+        $result = $this->service1688Product->getPrdDetailEn($offerId);
+        if( $result["isSuccess"] == false ){
+            abort(404);
+        } else {
+            $viewParams = [
+                "prdObj" => $result["data"]
+            ];
+        }
+        return view("product.prdDetailEn")->with($viewParams);
     }
 
     public function queryProductDetail(): View

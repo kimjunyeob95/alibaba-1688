@@ -3,8 +3,6 @@
 namespace App\Services\Mall;
 
 use App\Abstracts\MallApiAbstract;
-use App\Constants\OnchannelConstant;
-use App\Constants\WConstant;
 
 class MallApiService
 {
@@ -38,11 +36,23 @@ class MallApiService
      * @func productRegist
      * @description '상품등록'
      * @param array $offerIds
+     * @param array $params
      * @return array
     */
-    public function productRegist(array $offerIds, string $type = WConstant::WAPP_W1, string $sendType = OnchannelConstant::PRD_CHANNEL): array
+    public function productRegist(array $offerIds, array $params = []): array
     {
-        return $this->mallApiAbstract->productRegist($offerIds, $type, $sendType);
+        return $this->mallApiAbstract->productRegist($offerIds, $params);
+    }
+
+    /**
+     * @func productLog
+     * @description '상품전송 로그'
+     * @param int $logId
+     * @return array
+    */
+    public function productLog(int $logId): array
+    {
+        return $this->mallApiAbstract->productLog($logId);
     }
 
     /**
@@ -53,6 +63,17 @@ class MallApiService
     public function sendModiProduct(): void
     {
         $this->mallApiAbstract->sendModiProduct();
+    }
+
+    /**
+     * @func productRegistLog
+     * @description '모든 채널 상품 등록 전송 로그'
+     * @param int $offerId
+     * @return array
+    */
+    public function productRegistLog(int $offerId): array
+    {
+        return $this->mallApiAbstract->productRegistLog($offerId);
     }
 
     /****************************************** 상품 end **********************************************/
@@ -83,7 +104,7 @@ class MallApiService
 
     /****************************************** 주문 end **********************************************/
 
-    /****************************************** 이미지 end **********************************************/
+    /****************************************** 이미지 start **********************************************/
 
     /**
      * @func imgTransRequest

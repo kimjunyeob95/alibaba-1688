@@ -43,8 +43,9 @@ input[name='channelCategory']{
                         <span>Home</span>
                     </a>
                 </li>
-                <li class="breadcrumb-item">온채널</li>
-                <li class="breadcrumb-item active" aria-current="page">카테고리 관리</li>
+                <li class="breadcrumb-item">채널 관리</li>
+                <li class="breadcrumb-item">카테고리 관리</li>
+                <li class="breadcrumb-item active" aria-current="page">온채널 카테고리 맵핑</li>
             </ol>
         </nav>
 
@@ -195,7 +196,7 @@ input[name='channelCategory']{
                                         @endempty
                                     </td>
                                     <td class="text-center">
-                                        <button class="btn btn-sm btn-outline-success btn-modal" cateid="{{$data->mapping_code}}" catename="{{ $wCateName }}">맵핑하기</button>
+                                        <button class="btn btn-sm btn-outline-success btn-modal" cateid="{{$data->category_id}}" catename="{{ $wCateName }}">맵핑하기</button>
                                     </td>
                                 </tr>
                             @endforeach
@@ -506,15 +507,19 @@ input[name='channelCategory']{
         })
 
         $(".btn-save").click(function(){
-            var wAppCateCode    = $("input[name='cateId']").val();
+            var categoryId      = $("input[name='cateId']").val();
             var channelCateCode = $("input[name='channelCategory']:checked").val();
 
+            if( !channelCateCode ){
+                return alert("채널 카테고리를 선택하세요.");
+            }
+            
             $.ajax({
                 "headers": {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
                 "type"   : "POST",
                 "url"    : "/api/mall/onchannel/category/mapping",
                 "data"   : {
-                    "wAppCateCode"   : wAppCateCode,
+                    "categoryId"     : categoryId,
                     "channelCateCode": channelCateCode,
                 },
                 beforeSend: function () {

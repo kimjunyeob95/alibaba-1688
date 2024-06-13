@@ -4,7 +4,6 @@ namespace App\Console\Commands;
 use App\Constants\MallConstant;
 use App\Constants\OnchannelConstant;
 use App\Constants\ProductConstant;
-use App\Constants\WConstant;
 use App\Models\ProductData;
 use App\Packages\Onchannel;
 use App\Services\Mall\MallApiService;
@@ -12,7 +11,7 @@ use Illuminate\Console\Command;
 
 class OnchannelCommand extends Command
 {
-    protected $signature   = 'onchannel_command {--func=} {--offerids=} {--type=}';
+    protected $signature   = 'onchannel_command {--func=} {--offerids=} {--sendtype=}';
     protected $description = 'onchannel command';
 
     protected MallApiService $mallApiService;
@@ -39,35 +38,44 @@ class OnchannelCommand extends Command
                     "product_datas.offer_id",
                 ])
                 ->leftJoin("onchannel_product_logs as b", "product_datas.offer_id", "=", "b.offer_id")
-                ->whereIn("product_datas.w_type", [ WConstant::WAPP_W1, WConstant::WAPP_W2 ])
                 ->where("product_datas.mapping_status", ProductConstant::MAPPING_STATUS_Y)
-                ->where("product_datas.status", "!=", ProductConstant::PRD_STATUS_MISS);
+                ->where("product_datas.status", "!=", ProductConstant::PRD_STATUS_MISS)
+                ->groupBy("product_datas.offer_id");
 
                 $prdBuilder->where(function($query){
-                    $query->where("b.regist_success", MallConstant::REGIST_FAIL)
-                        ->orWhere("b.message", "온채널 통신 에러")
-                        ->orWhere("b.message", "Empty options")
-                        ->orWhere("b.message", "상품채널(을)를 입력해주세요.")
-                        ->orWhereNull("b.regist_success");
+                    $query->where(function($query1){
+                        $query1->where("b.regist_success", MallConstant::REGIST_ERROR)
+                        ->where("b.message", "온채널 통신 에러");
+                    });
+                    $query->orWhere(function($query2){
+                        $query2->where("b.regist_success", MallConstant::REGIST_ERROR)
+                        ->where("b.message", "Empty options");
+                    });
+                    $query->orWhereNull("b.regist_success");
                 });
 
-                $objs = $prdBuilder->pluck('offer_id')->toArray();                
+                $objs = $prdBuilder->pluck('offer_id')->toArray();
+                $params = [
+                    "sendTypeList" => [ OnchannelConstant::PRD_CHANNEL ]
+                ];
                 if( !empty($objs) ){
-                    $this->mallApiService->productRegist($objs, "", OnchannelConstant::PRD_CHANNEL);
+                    $this->mallApiService->productRegist($objs, $params);
                 }
 
                 break;
 
             /**
              * 상품등록 커맨드
-             * php artisan easy_sell_command --func=productRegist --offerids=44798792934,562321147241 --type=W1
+             * php artisan onchannel_command --func=productRegist --offerids=44798792934,562321147241 --sendtype=W1
              */
             case 'productRegist':
-                $offerIds = explode(",", $this->option('offerids'));
-                $type = $this->option('type');
+                $offerIds     = explode(",", $this->option('offerids'));
+                $sendtypeList = explode(",", $this->option('sendtype'));
+                $params       = [
+                    "sendTypeList" => $sendtypeList
+                ];
                 if (!empty($offerIds)) {
-                    $result = $this->mallApiService->productRegist($offerIds, $type);
-                    dd($result);
+                    $this->mallApiService->productRegist($offerIds, $params);
                 }
                 break;
 

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Constants\HttpConstant;
 use App\Constants\MallErrorMessageConstant;
+use App\Constants\OnchannelConstant;
 use App\Constants\OrderErrorMessageConstant;
 use App\Constants\WConstant;
 use App\Http\Controllers\Controller;
@@ -12,6 +13,7 @@ use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Symfony\Component\Process\Process;
 
 class MallController extends Controller
 {
@@ -63,8 +65,29 @@ class MallController extends Controller
                 throw new Exception($validator->errors()->first());
             }
 
-            $type   = $this->request->post("type", WConstant::WAPP_W1);
-            $result = $this->mallApiService->productRegist($this->request->post("offer_ids"), $type);
+            $type         = $this->request->post("type", WConstant::WAPP_W1);
+            $sendTypeList = $this->request->post("sendTypeList", [OnchannelConstant::PRD_CHANNEL]);
+
+            $params       = [
+                "type"         => $type,
+                "sendTypeList" => $sendTypeList
+            ];
+            $result = $this->mallApiService->productRegist($this->request->post("offer_ids"), $params);
+            if( $result["isSuccess"] == true ){
+                return helpers_json_response(HttpConstant::OK, $result);
+            } else {
+                return helpers_json_response(HttpConstant::BAD_REQUEST, [], $result["msg"]);
+            }
+        } catch (Exception $e) {
+            return helpers_json_response(HttpConstant::BAD_REQUEST, [], $e->getMessage());
+        }
+    }
+
+    public function productLog(string $channel, int $logId)
+    {
+        try {
+            $result = $this->mallApiService->productLog($logId);
+
             if( $result["isSuccess"] == true ){
                 return helpers_json_response(HttpConstant::OK, $result);
             } else {
@@ -141,17 +164,22 @@ class MallController extends Controller
                 'member_id'           => 'required|string',
                 'images'              => 'required|array',
                 'images.*.id'         => 'required|int',
+                'images.*.offer_id'   => 'required|int',
+                'images.*.img_id'     => 'required|int',
                 'images.*.origin_url' => 'required|string'
             ], [
                 'channel_queue_id.required'    => MallErrorMessageConstant::getNotHaveErrorMessage("CHANNEL_QUEUE_ID"),
                 'member_id.required'           => MallErrorMessageConstant::getNotHaveErrorMessage("MEMBER_ID"),
                 'images.required'              => MallErrorMessageConstant::getNotHaveErrorMessage("IMAGES"),
                 'images.*.id.required'         => MallErrorMessageConstant::getNotHaveErrorMessage("IMAGE_ID"),
+                'images.*.offer_id.required'   => MallErrorMessageConstant::getNotHaveErrorMessage("OFFER_ID"),
+                'images.*.img_id.required'     => MallErrorMessageConstant::getNotHaveErrorMessage("IMG_ID"),
                 'images.*.origin_url.required' => MallErrorMessageConstant::getNotHaveErrorMessage("IMAGES_ORIGIN_URL"),
             ]);
             if ($validator->fails()) {
                 throw new Exception($validator->errors()->first());
             }
+
             $result = $this->mallApiService->imgTransRequest($this->request->all());
             if( $result["isSuccess"] == true ){
                 return helpers_json_response(HttpConstant::OK, $result);
@@ -209,6 +237,63 @@ class MallController extends Controller
                 throw new Exception($validator->errors()->first());
             }
             $result = $this->mallApiService->imgUpload($this->request->all());
+            if( $result["isSuccess"] == true ){
+                return helpers_json_response(HttpConstant::OK, $result);
+            } else {
+                return helpers_json_response(HttpConstant::BAD_REQUEST, [], $result["msg"]);
+            }
+        } catch (Exception $e) {
+            return helpers_json_response(HttpConstant::BAD_REQUEST, [], $e->getMessage());
+        }
+    }
+
+    public function allProductRegist(): JsonResponse
+    {
+        try {
+            $validator = Validator::make($this->request->all(), [
+                'offerIds' => 'required|array',
+            ], [
+                'offerIds.required' => MallErrorMessageConstant::getNotHaveErrorMessage("OFFERIDS"),
+            ]);
+            if ($validator->fails()) {
+                throw new Exception($validator->errors()->first());
+            }
+
+            $offerIds     = $this->request->post("offerIds");
+            $offerIds     = array_unique($offerIds);
+            $es_send_type = $this->request->post("es_send_type", []);
+            $oc_send_type = $this->request->post("oc_send_type", []);
+
+            if( !empty($es_send_type) ){
+                $options = "--offerids=" . helperEscape(implode(",", $offerIds)) . " --sendtype=" . helperEscape(implode(",", $oc_send_type));
+
+                $command = "nohup php artisan easy_sell_command --func=productRegist " . $options . " > /dev/null 2>&1 &";
+                $process1 = Process::fromShellCommandline($command);
+                $process1->setWorkingDirectory(env("WORK_DIRECTORY", "/web1/1688"));
+                $process1->setTimeout(null); // 실행 시간 제한 없음
+                $process1->start();
+            }
+
+            if( !empty($oc_send_type) ){
+                $options = "--offerids=" . helperEscape(implode(",", $offerIds)) . " --sendtype=" . helperEscape(implode(",", $oc_send_type));
+
+                $command = "nohup php artisan onchannel_command --func=productRegist " . $options . " > /dev/null 2>&1 &";
+                $process2 = Process::fromShellCommandline($command);
+                $process2->setWorkingDirectory(env("WORK_DIRECTORY", "/web1/1688"));
+                $process2->setTimeout(null); // 실행 시간 제한 없음
+                $process2->start();
+            }
+
+            return helpers_json_response(HttpConstant::OK, helpers_success_message([], "전송 요청 완료되었습니다.\n전송 내역은 상품 전송 현황 페이지에서 확인이 가능합니다."));
+        } catch (Exception $e) {
+            return helpers_json_response(HttpConstant::BAD_REQUEST, [], $e->getMessage());
+        }
+    }
+
+    public function productRegistLog(int $offerId): JsonResponse
+    {
+        try {
+            $result = $this->mallApiService->productRegistLog($offerId);
             if( $result["isSuccess"] == true ){
                 return helpers_json_response(HttpConstant::OK, $result);
             } else {

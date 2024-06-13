@@ -64,7 +64,7 @@
                     </a>
                 </li>
                 <li class="breadcrumb-item">W App</li>
-                <li class="breadcrumb-item active" aria-current="page">수집 상품 상세</li>
+                <li class="breadcrumb-item active" aria-current="page">수집 상품 국문 상세</li>
             </ol>
         </nav>
 
@@ -72,7 +72,7 @@
             <div class="row my-4 bg-white py-3">
                 <div class="col-md-6" style="text-align: -webkit-center; position: relative;">
                     <div class="col">
-                        <h5>[원본 이미지]</h5>
+                        <h5>[국문 원본 이미지]</h5>
                     </div>
                     <div id="swiper-container1" class="swiper-container">
                         <div class="swiper-wrapper">
@@ -126,7 +126,7 @@
                     @else
                         <div class="d-flex justify-content-center align-items-center" style="height: 100%;">
                             <span class="untranslated-text">
-                                미변역
+                                미번역
                             </span>
                         </div>
                     @endif
@@ -150,7 +150,17 @@
                         <div class="col-md-8">{{ $prdObj->prd_name }}</div>
                     </div>
                     <div class="row mb-2">
-                        <div class="col-md-3 text-center">제품명(국문)</div>
+                        <div class="col-md-3 text-center">제품명(국문) - 원본</div>
+                        <div class="col-md-8">
+                            @if ($prdObj->forbidden_prd_name == null)
+                                {{ $prdObj->prd_name_kr }}
+                            @else
+                                {{ $prdObj->forbidden_prd_name->origin_text }}
+                            @endif
+                        </div>
+                    </div>
+                    <div class="row mb-2">
+                        <div class="col-md-3 text-center">제품명(국문) - 금칙어 적용</div>
                         <div class="col-md-8">{{ $prdObj->prd_name_kr }}</div>
                     </div>
                     <div class="row mb-2">
@@ -333,11 +343,22 @@
                                             @endif
                                         </th>
                                         <td>
-                                            @if ($gosi->is_except == GosiConstants::IS_EXCEPT_Y)
-                                                <del>{{ $gosi->attribute_value_kr }}</del>
-                                            @else
-                                                {{ $gosi->attribute_value_kr }}
-                                            @endif
+                                            @php
+                                                $origin_value_text = $gosi->attribute_value_kr;
+                                                foreach ($prdObj->forbidden_notice_values as $origin_notice_value) {
+                                                    if( $origin_notice_value->origin_text && $origin_notice_value->trans_text == $gosi->attribute_value_kr ){
+                                                        $origin_value_text = $origin_notice_value->origin_text;
+                                                    }
+                                                }
+                                            @endphp
+                                            <small>원본: {{ $origin_value_text }}</small><br>
+                                            <small>금칙어 적용:
+                                                @if ($gosi->is_except == GosiConstants::IS_EXCEPT_Y)
+                                                    <del>{{ $gosi->attribute_value_kr }}</del>
+                                                @else
+                                                    {{ $gosi->attribute_value_kr }}
+                                                @endif
+                                            </small>
                                         </td>
 
                                     @if (($gosiKey + 1) % 4 == 0 || $loop->last)
@@ -398,7 +419,7 @@
                 <hr style="margin-top: 20px">
                 <div class="row mt-3">
                     <div class="col-md-6">
-                        <h5>[제품상세 원본]</h5>
+                        <h5>[국문 제품상세 원본]</h5>
                         <div class="d-flex justify-content-center">
                             <div class="text-center prd-desc">
                                 {!! $prdObj->prd_desc !!}
@@ -406,7 +427,7 @@
                         </div>
                     </div>
                     <div class="col-md-6">
-                        <h5>[제품상세 번역(국문)]</h5>
+                        <h5>[국문 제품상세 번역]</h5>
                         @if ($prdObj->trans_status == ProductConstant::IMG_TRANS_Y)
                             <div class="d-flex justify-content-center">
                                 <div class="text-center prd-desc" >
@@ -416,7 +437,7 @@
                         @else
                             <div class="text-center mt-3">
                                 <span class="untranslated-text">
-                                    미변역
+                                    미번역
                                 </span>
                             </div>
                         @endif

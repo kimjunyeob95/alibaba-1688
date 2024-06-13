@@ -2,9 +2,11 @@
 
 namespace App\Models;
 
+use App\Constants\ForbiddenWordConstant;
 use App\Constants\GosiConstants;
 use App\Constants\ImageConstant;
 use App\Constants\InspectConstant;
+use App\Constants\OnchannelConstant;
 use App\Constants\OptionConstants;
 use App\Constants\ProductConstant;
 use App\Constants\WConstant;
@@ -57,6 +59,10 @@ class ProductData extends Model
         return $this->hasMany(ProductImageData::class, "offer_id", "offer_id")->where("lang", WConstant::WAPP_EN)->orderBy('img_type', 'asc')->orderBy('id', 'asc');
     }
 
+    public function no_except_en_images () {
+        return $this->hasMany(ProductImageData::class, "offer_id", "offer_id")->where("lang", WConstant::WAPP_EN)->where("is_except", ImageConstant::IS_EXCEPT_N)->orderBy('img_type', 'asc')->orderBy('id', 'asc');
+    }
+
     public function options () {
         return $this->hasMany(ProductOptionData::class, "offer_id", "offer_id")->oldest("id");
     }
@@ -85,8 +91,17 @@ class ProductData extends Model
         return $this->hasOne(CategoryMapping::class, "category_id", "category_id")->where("mapping_channel", ProductConstant::MAPPING_WAPP);
     }
 
+    public function w_category () {
+        return $this->hasOne(WCategory::class, "mapping_code", "w_mapping_code");
+    }
+
     public function oc_mapping () {
         return $this->hasOne(CategoryMapping::class, "category_id", "category_id")->where("mapping_channel", ProductConstant::MAPPING_OC_CHANNEL);
+    }
+
+    public function oc_category()
+    {
+        return $this->hasOne(OnchCategoryExcelDataCopy2::class, "codenum", "channel_mapping_code");
     }
 
     public function es_mapping () {
@@ -115,5 +130,36 @@ class ProductData extends Model
 
     public function weight_delivery () {
         return $this->hasOne(ProductWeightData::class, "offer_id", "offer_id");
+    }
+
+    public function es_w_log () {
+        return $this->hasOne(EasysellProductLog::class, "offer_id", "offer_id");
+    }
+
+    public function es_drop_hub_log () {
+        return $this->hasOne(EasysellProductLog::class, "offer_id", "offer_id");
+    }
+
+    public function oc_public_log () {
+        return $this->hasOne(OnchannelProductLog::class, "offer_id", "offer_id")->where("send_type", OnchannelConstant::PRD_CHANNEL);
+    }
+
+    public function oc_private_log () {
+        return $this->hasOne(OnchannelProductLog::class, "offer_id", "offer_id")->where("send_type", OnchannelConstant::PRD_CHANNEL_PRIVATE);
+    }
+
+    public function forbidden_prd_name()
+    {
+        return $this->hasOne(ProductForbiddenData::class, "offer_id", "offer_id")->where("apply_type", ForbiddenWordConstant::KEYWORD_APPLY_TITLE);
+    }
+
+    public function forbidden_notice_names()
+    {
+        return $this->hasMany(ProductForbiddenData::class, "offer_id", "offer_id")->where("apply_type", ForbiddenWordConstant::KEYWORD_APPLY_ATTR_NAME);
+    }
+
+    public function forbidden_notice_values()
+    {
+        return $this->hasMany(ProductForbiddenData::class, "offer_id", "offer_id")->where("apply_type", ForbiddenWordConstant::KEYWORD_APPLY_ATTR_VALUE);
     }
 }

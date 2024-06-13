@@ -3,6 +3,7 @@
     use App\Constants\WConstant;
     use App\Constants\ImageConstant;
     use App\Constants\GosiConstants;
+    use App\Constants\OptionConstants;
     use App\Constants\InspectConstant;
     $exchangeRate = env("1688_EXCHANGE_RATE", 200);
 @endphp
@@ -19,7 +20,6 @@
     .prd-desc table,
     .prd-desc table td div,
     .prd-desc table td a{
-        width: 100% !important;
         max-width: 100% !important;
         height: auto !important;
     }
@@ -28,6 +28,26 @@
         font-size: 20px;
         font-weight: bold;
     }
+    .swiper-slide {
+        position: relative;
+        display: inline-block; /* 이미지와 텍스트를 인라인 블록으로 처리 */
+    }
+
+    .swiper-slide img {
+        display: block; /* 이미지가 div 크기에 맞춰서 확장되도록 설정 */
+        width: 100%; /* 이미지 너비를 div에 맞춤 */
+    }
+
+    .swiper-slide .badge {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background-color: rgba(255, 255, 255, 0.75); /* 텍스트 배경 투명도 설정 */
+        color: black; /* 텍스트 색상 설정 */
+        padding: 5px; /* 패딩 설정 */
+        border-radius: 0 0 0 5px; /* 오른쪽 상단 모서리 둥글게 처리 */
+    }
+
 </style>
 @endsection
 
@@ -43,10 +63,8 @@
                         <span>Home</span>
                     </a>
                 </li>
-                <li class="breadcrumb-item">
-                    <a href="/">상품 리스트</a>
-                </li>
-                <li class="breadcrumb-item active" aria-current="page">수집 상품 상세</li>
+                <li class="breadcrumb-item">W App</li>
+                <li class="breadcrumb-item active" aria-current="page">수집 상품 영문 상세</li>
             </ol>
         </nav>
 
@@ -54,7 +72,7 @@
             <div class="row my-4 bg-white py-3">
                 <div class="col-md-6" style="text-align: -webkit-center; position: relative;">
                     <div class="col">
-                        <h5>[원본 이미지]</h5>
+                        <h5>[영문 원본 이미지]</h5>
                     </div>
                     <div id="swiper-container1" class="swiper-container">
                         <div class="swiper-wrapper">
@@ -89,6 +107,7 @@
                                 @if ($prdImg->img_type == "main")
                                     <div class="swiper-slide">
                                         <img src={{ $prdImg->img_url_trans}}>
+                                        <span class="badge fs-5">대표 이미지</span>
                                     </div>
                                 @endif
                                 @endforeach
@@ -116,7 +135,11 @@
                 <hr style="margin-top: 20px">
                 <div class="row mb-12">
                     <div class="col">
-                        <h5>[기본 정보]</h5>
+                        @if($prdObj->status != ProductConstant::PRD_STATUS_PUBLISH)
+                            <h5>[기본 정보] <span class="bg-danger rounded text-white px-2 py-1 fs-6">{{ ProductConstant::PRD_STATUS[$prdObj->status] }}</span></h5>
+                        @else
+                            <h5>[기본 정보]</h5>
+                        @endif
                     </div>
                     <div class="row mb-2">
                         <div class="col-md-3 text-center">제품ID</div>
@@ -127,7 +150,17 @@
                         <div class="col-md-8">{{ $prdObj->prd_name }}</div>
                     </div>
                     <div class="row mb-2">
-                        <div class="col-md-3 text-center">제품명(국문)</div>
+                        <div class="col-md-3 text-center">제품명(국문) - 원본</div>
+                        <div class="col-md-8">
+                            @if ($prdObj->forbidden_prd_name == null)
+                                {{ $prdObj->prd_name_kr }}
+                            @else
+                                {{ $prdObj->forbidden_prd_name->origin_text }}
+                            @endif
+                        </div>
+                    </div>
+                    <div class="row mb-2">
+                        <div class="col-md-3 text-center">제품명(국문) - 금칙어 적용</div>
                         <div class="col-md-8">{{ $prdObj->prd_name_kr }}</div>
                     </div>
                     <div class="row mb-2">
@@ -203,11 +236,12 @@
                                     <th scope="col">적용 환율(원)</th>
                                     <th scope="col">일반 판매가(원)</th>
                                     <th scope="col">MD 판매가(원)</th>
+                                    <th scope="col">중량(kg)</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 @foreach ($prdObj->options as $option)
-                                    <tr class="text-center">
+                                    <tr class="text-center @if($option->is_except == OptionConstants::IS_EXCEPT_Y) line-through @endif">
                                         <td>
                                             {{ $option->sku_id }}
                                         </td>
@@ -234,6 +268,9 @@
                                         </td>
                                         <td>
                                             {{ number_format($option->md_price) }}
+                                        </td>
+                                        <td>
+                                            {{ number_format($option->weight) }}
                                         </td>
                                     </tr>
                                 @endforeach
@@ -306,11 +343,22 @@
                                             @endif
                                         </th>
                                         <td>
-                                            @if ($gosi->is_except == GosiConstants::IS_EXCEPT_Y)
-                                                <del>{{ $gosi->attribute_value_kr }}</del>
-                                            @else
-                                                {{ $gosi->attribute_value_kr }}
-                                            @endif
+                                            @php
+                                                $origin_value_text = $gosi->attribute_value_kr;
+                                                foreach ($prdObj->forbidden_notice_values as $origin_notice_value) {
+                                                    if( $origin_notice_value->origin_text && $origin_notice_value->trans_text == $gosi->attribute_value_kr ){
+                                                        $origin_value_text = $origin_notice_value->origin_text;
+                                                    }
+                                                }
+                                            @endphp
+                                            <small>원본: {{ $origin_value_text }}</small><br>
+                                            <small>금칙어 적용:
+                                                @if ($gosi->is_except == GosiConstants::IS_EXCEPT_Y)
+                                                    <del>{{ $gosi->attribute_value_kr }}</del>
+                                                @else
+                                                    {{ $gosi->attribute_value_kr }}
+                                                @endif
+                                            </small>
                                         </td>
 
                                     @if (($gosiKey + 1) % 4 == 0 || $loop->last)
@@ -371,15 +419,15 @@
                 <hr style="margin-top: 20px">
                 <div class="row mt-3">
                     <div class="col-md-6">
-                        <h5>[제품상세 원본]</h5>
+                        <h5>[영문 제품상세 원본]</h5>
                         <div class="d-flex justify-content-center">
                             <div class="text-center prd-desc">
-                                {!! $prdObj->prd_desc !!}
+                                {!! $prdObj->prd_desc_en_origin !!}
                             </div>
                         </div>
                     </div>
                     <div class="col-md-6">
-                        <h5>[제품상세 번역(영문)]</h5>
+                        <h5>[영문 제품상세 번역]</h5>
                         @if ($prdObj->trans_status_en == ProductConstant::IMG_TRANS_Y)
                             <div class="d-flex justify-content-center">
                                 <div class="text-center prd-desc" >
@@ -400,6 +448,9 @@
         </div>
 
         <div class="me-5 mb-4 fixed-bottom d-flex flex-column align-items-stretch" style="left: auto;">
+            <button type="button" class="btn btn-danger btn-xl text-white mb-2 btn-recollect">
+                재 수집 요청
+            </button>
             <button type="button" class="btn btn-primary btn-xl text-white mb-2 btn-inspect-status">
                 검수상태 변경
             </button>
@@ -407,10 +458,10 @@
                 판매상태 변경
             </button>
             @if ($prdObj->status != ProductConstant::PRD_STATUS_EXCEPT)    
-                {{-- <button type="button" class="btn btn-secondary btn-xl text-white mb-2 btn-edit-product">
+                <button type="button" class="btn btn-secondary btn-xl text-white mb-2 btn-edit-product">
                     상품정보 관리
                 </button>
-                <a class="btn btn-primary btn-xl text-white text-decoration-none mb-2 btn-edit-img" type="all">
+                {{-- <a class="btn btn-primary btn-xl text-white text-decoration-none mb-2 btn-edit-img" type="all">
                     전체 이미지<br>번역요청
                 </a>
                 <a class="btn btn-warning btn-xl text-white text-decoration-none mb-2 btn-edit-img" type="thumbnail">
@@ -422,7 +473,7 @@
                 <a class="btn btn-danger btn-xl text-white text-decoration-none mb-2 btn-edit-img" type="detail">이미지 수정</a> --}}
             @endif
         </div>
-        
+
         <div class="modal fade" id="htmlModal" tabindex="-1" role="dialog" aria-labelledby="htmlModalLabel" aria-hidden="true">
             <div class="modal-dialog modal-lg" role="document">
                 <div class="modal-content">
@@ -533,7 +584,6 @@
                 </div>
             </div>
         </div>
-
     </div>
 <script type="text/javascript">
 
@@ -593,6 +643,32 @@
             }
         });
 
+        $(".btn-recollect").click(function(){
+            let offerIds = [offer_id];
+
+            if(confirm(`재 수집 시 저장 된 상품의 정보가 초기화 됩니다.\n재 수집을 진행하시겠습니까?`)){
+                $.ajax({
+                    "headers"    : {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
+                    "type"       : "POST",
+                    "url"        : "{{ route('w.product.reCollectProduct') }}",
+                    "data"       : { offer_ids: offerIds },
+                    beforeSend: function () {
+                        $("#loadingOverlay").show();
+                    },
+                    complete: function () {
+                        $("#loadingOverlay").hide();
+                    },
+                    success: function (resp) {
+                        alert(resp.msg);
+                    },
+                    error: function error(request, status, _error) {
+                        let { error } = JSON.parse(request.responseText);
+                        alert(error.message);
+                    }
+                });
+            }
+        });
+
         $(".btn-save").click(function(){
             let status   = $("input[name=status]:checked").val();
 
@@ -628,7 +704,7 @@
             e.preventDefault();
 
             let type         = $(this).attr("type");
-            let trans_status = "{{ $prdObj->trans_status }}";
+            let trans_status = "{{ $prdObj->trans_status_en }}";
 
             if( type == "all" ){
                 if( confirm("전체 이미지 번역요청을 하시겠습니까?") ){

@@ -2,8 +2,13 @@
 
 namespace App\Abstracts;
 
+use App\Traits\Genuio\QueueTrait;
+use App\Traits\Genuio\WebTrait;
+
 abstract class TransApiAbstract
 {
+    use WebTrait, QueueTrait;
+
     protected array $returnMsg;
     protected string $user_company;
 
@@ -56,14 +61,6 @@ abstract class TransApiAbstract
      * @param array $offerIds
      */
     abstract function imgTransRequest(array $offerIds): array;
-
-    /**
-     * @func removeQueue
-     * @description '큐 삭제'
-     * @param int $queueId
-     * @return array
-     */
-    abstract function removeQueue(int $queueId): array;
 
     /**
      * @func channelImgTransRequest

@@ -1254,6 +1254,8 @@
                         "items": {
                             "required": [
                                 "id",
+                                "offer_id",
+                                "img_id",
                                 "origin_url"
                             ],
                             "properties": {
@@ -1261,6 +1263,16 @@
                                     "description": "채널에서 관리하는 이미지 고유 ID",
                                     "type": "integer",
                                     "example": 1
+                                },
+                                "offer_id": {
+                                    "description": "1688 상품아이디",
+                                    "type": "integer",
+                                    "example": 679551697587
+                                },
+                                "img_id": {
+                                    "description": "1688 상품이미지 아이디",
+                                    "type": "integer",
+                                    "example": 1335888
                                 },
                                 "origin_url": {
                                     "description": "번역 이미지 url",

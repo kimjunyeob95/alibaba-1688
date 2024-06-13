@@ -190,4 +190,8 @@ class ProductConstant
         self::WEIGHT_STATUS_NONE     => "대표",
     ];
 
+    /** 수집 정보 여부 */
+    public const COLLECT_KR = "kr";
+    public const COLLECT_EN = "en";
+
 }

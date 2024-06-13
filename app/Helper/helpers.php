@@ -19,7 +19,6 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
 use Psr\Log\LogLevel;
@@ -693,6 +692,14 @@ if (!function_exists("calcOnchannelSalePrice")) {
     function calcOnchannelSalePrice(int $option_price): int
     {
         return $option_price + env("ONCHANNEL_DELIVERY_PRICE", 12000);
+    }
+}
+
+/** 온채널 공급가 */
+if (!function_exists("calcOnchannelOptionPrice")) {
+    function calcOnchannelOptionPrice(int $option_price, int $delivery_price = ProductConstant::WEIGHT_STATUS_NONE_PRICE): int
+    {
+        return $option_price + $delivery_price;
     }
 }
 
