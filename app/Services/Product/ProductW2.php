@@ -1658,6 +1658,8 @@ class ProductW2 extends ProductAbstract
 
         if( isset($detailProduct["skuList"]) ){
             foreach ($detailProduct["skuList"] as $optKey => $prdOptions) {
+                $price_1688_option = $prdOptions["price"];
+
                 $opt_status = ProductConstant::OPTION_SEC_ON_SALE_NUMBER;
                 if( $status != ProductConstant::PRD_STATUS_PUBLISH ){
                     $opt_status = ProductConstant::OPTION_SEC_OUT_OF_STOCK_NUMBER;
@@ -1738,6 +1740,7 @@ class ProductW2 extends ProductAbstract
                     "status"            => $opt_status,
                     "is_except"         => $is_except,
                     "price_1688"        => $price_1688,
+                    "price_1688_option" => $price_1688_option,
                     "optionName"        => rtrim($optionNameTransW1, "_"),
                     "optionNameTrans"   => rtrim($optionNameTrans, "_"),
                     "optionNameTransEn" => rtrim($optionNameTransEn, "_"),
@@ -2094,7 +2097,6 @@ class ProductW2 extends ProductAbstract
             $ocPrice                 = ocPrice((float)$data["priceInfo"]["price"]);
             $data["price_1688"]      = (float)$data["priceInfo"]["price"];
             $data["onch_price"]      = $ocPrice["onch_price"];
-            $data["option_price"]    = $ocPrice["option_price"];
             $data["cus_price"]       = $ocPrice["cus_price"];
             $data["recom_cus_price"] = $ocPrice["recom_cus_price"];
         }
@@ -2313,7 +2315,6 @@ class ProductW2 extends ProductAbstract
             $ocPrice                 = ocPrice((float)$data["priceInfo"]["price"]);
             $data["price_1688"]      = (float)$data["priceInfo"]["price"];
             $data["onch_price"]      = $ocPrice["onch_price"];
-            $data["option_price"]    = $ocPrice["option_price"];
             $data["cus_price"]       = $ocPrice["cus_price"];
             $data["recom_cus_price"] = $ocPrice["recom_cus_price"];
         }

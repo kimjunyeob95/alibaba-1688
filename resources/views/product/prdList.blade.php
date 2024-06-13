@@ -464,7 +464,7 @@
                                                 $option = $data->options[0];
                                             @endphp
                                                 {{ $option->price_1688 }}(위안)<br>
-                                                {{ number_format($option->option_price) }}(원)
+                                                {{ number_format(wOptionPrice($option->price_1688)) }}(원)
                                         @else
                                             <p class="text-danger">옵션없음</p>
                                         @endif
@@ -497,7 +497,7 @@
                                                     $delivery_price = $data->delivery_price;
                                                 }
                                             @endphp
-                                                {{ number_format(calcWSalePrice($option->option_price, $delivery_price)) }} 
+                                                {{ number_format(calcWSalePrice($option->price_1688, $delivery_price)) }} 
                                         @else
                                             <p class="text-danger">옵션없음</p>
                                         @endif
@@ -513,7 +513,7 @@
                                             @endphp
                                             @if ($option->md_price)
                                                 @php
-                                                    $salePrice = calcWSalePrice($option->option_price); 
+                                                    $salePrice = calcWSalePrice($option->price_1688); 
                                                     $saleHigh  = compareWSalePrice($salePrice, $option->md_price);
                                                 @endphp
                                                 @if ($saleHigh === true)
@@ -522,7 +522,7 @@
                                                     <button class="btn btn-sm btn-danger btn-md-modi" offerid={{ $data->offer_id }} saleprice={{ $salePrice }} mdprice={{ $option->md_price }}>{{ number_format($option->md_price) }}</button>
                                                 @endif
                                             @else
-                                                <button class="btn btn-sm btn-warning btn-md-modi" offerid={{ $data->offer_id }} saleprice={{ calcWSalePrice($option->option_price, $delivery_price) }} mdprice=0>MD 가격 설정</button>
+                                                <button class="btn btn-sm btn-warning btn-md-modi" offerid={{ $data->offer_id }} saleprice={{ calcWSalePrice($option->price_1688, $delivery_price) }} mdprice=0>MD 가격 설정</button>
                                             @endif
                                         @else
                                             <p class="text-danger">옵션없음</p>
@@ -537,7 +537,7 @@
                                                     $delivery_price = $data->delivery_price;
                                                 }
                                             @endphp
-                                            {{ number_format(calcOnchannelOptionPrice($option->option_price, $delivery_price)) }} 
+                                            {{ number_format(calcOnchannelOptionPrice($option->price_1688, $delivery_price)) }} 
                                         @else
                                             <p class="text-danger">옵션없음</p>
                                         @endif
