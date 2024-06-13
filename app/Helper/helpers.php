@@ -638,7 +638,7 @@ if (!function_exists("upPrdDescTrans")) {
                     "offer_id"      => $offerId,
                     "ai_apply" => GenuioConstant::AI_APPLY_DESC_EN
                 ])->first();
-    
+
                 if( $geEnObj != null ){
                     $prd_desc = $geEnObj->apply_data;
                 } else {
@@ -777,10 +777,17 @@ if (!function_exists("inspectStatusUpdate")) {
  * ["name" => "value"] 전달
  */
 if (!function_exists("getNoticeInfoTable")) {
-    function getNoticeInfoTable(array $noticeInfo): string
+    function getNoticeInfoTable(array $noticeInfo, string $type = ""): string
     {
+        if($type == WConstant::WAPP_W2){
+            $title = "Product Description";
+            $info = "The above table was written in accordance with the product information attribute.";
+        }else{
+            $title = "상품일반정보";
+            $info = "위 내용은 상품정보제공 고시에 따라 작성되었습니다.";
+        }
         $noticeTable = "<div style='width: 960px;margin:0 auto;'>
-            <h4 style='font-size:20px;font-weight: 900;color:#000;margin-bottom: 10px;line-height:normal;text-align:left;display:block;font-family: \"Noto Sans KR Bold\";'>상품일반정보</h4>
+            <h4 style='font-size:20px;font-weight: 900;color:#000;margin-bottom: 10px;line-height:normal;text-align:left;display:block;font-family: \"Noto Sans KR Bold\";'>{$title}</h4>
             <table style='width: 100%;'>
               <colgroup>
                 <col width='170'>
@@ -802,7 +809,7 @@ if (!function_exists("getNoticeInfoTable")) {
             $idx++;
         }
         $noticeTable .= "</table>
-            <p style='margin-top: 12px;font-size:12px;color:#8a9299;text-align:left;'>위 내용은 상품정보제공 고시에 따라 작성되었습니다.</p>
+            <p style='margin-top: 12px;font-size:12px;color:#8a9299;text-align:left;'>{$info}</p>
         </div>";
 
         return $noticeTable;
@@ -863,20 +870,20 @@ if (!function_exists("removeDuplicateWords")) {
     {
         // 문자열을 공백을 기준으로 단어 배열로 변환
         $words = explode(' ', $input);
-        
+
         // 고유한 단어들을 저장할 배열 초기화
         $uniqueWords = [];
-        
+
         // 단어들을 순회하면서 고유한 단어만 추가
         foreach ($words as $word) {
             if (!in_array($word, $uniqueWords)) {
                 $uniqueWords[] = $word;
             }
         }
-        
+
         // 고유한 단어들을 다시 문자열로 결합
         $result = implode(' ', $uniqueWords);
-        
+
         return $result;
     }
 }

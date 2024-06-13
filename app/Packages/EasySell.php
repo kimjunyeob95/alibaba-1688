@@ -391,18 +391,21 @@ class EasySell extends MallApiAbstract
                 $ItemName = $prdObj->prd_name_kr;
                 $prdDesc  = $prdObj->prd_desc_kr;
                 $optionTitle = "옵션";
+                $noticeInfo = $prdObj->notices->where("is_except",GosiConstants::IS_EXCEPT_N)->pluck("attribute_value_kr","attribute_name_kr")->toArray();
+                $images = array_filter($prdObj->images->whereIn("img_type",[ImageConstant::IMAGE_TYPE_MAIN, ImageConstant::IMAGE_TYPE_SUB])->where("is_except",ImageConstant::IS_EXCEPT_N)->pluck("img_url_trans")->toArray());
             }else if($type == WConstant::WAPP_W2){
                 $ItemName = $prdObj->prd_name_en;
                 $prdDesc  = $prdObj->prd_desc_en;
                 $optionTitle = "option";
-            }
-
-            if($type == WConstant::WAPP_W1){
-                $noticeInfo = $prdObj->notices->where("is_except",GosiConstants::IS_EXCEPT_N)->pluck("attribute_value_kr","attribute_name_kr")->toArray();
-            }else if($type == WConstant::WAPP_W2){
                 $noticeInfo = $prdObj->notices->where("is_except",GosiConstants::IS_EXCEPT_N)->pluck("attribute_value_en","attribute_name_en")->toArray();
+                $images = array_filter($prdObj->en_images->whereIn("img_type",[ImageConstant::IMAGE_TYPE_MAIN, ImageConstant::IMAGE_TYPE_SUB])->where("is_except",ImageConstant::IS_EXCEPT_N)->pluck("img_url_origin")->toArray());
             }
-            $notice = getNoticeInfoTable($noticeInfo);
+            if(!count($images)){
+                throw new Exception("상품의 이미지가 없습니다");
+            }
+            $itemImage = implode("|", $images);
+
+            $notice = getNoticeInfoTable($noticeInfo, $type);
 
             $unitInfo   = $optionTitle."|";
             $saleStatus = EasySellConstant::STATUS_STOP_SALE;
@@ -436,13 +439,6 @@ class EasySell extends MallApiAbstract
 
                 $idx++;
             }
-
-            if($type == WConstant::WAPP_W1){
-                $images = $prdObj->images;
-            }else if($type == WConstant::WAPP_W2){
-                $images = $prdObj->en_images;
-            }
-            $itemImage = implode("|", array_filter($images->whereIn("img_type",[ImageConstant::IMAGE_TYPE_MAIN, ImageConstant::IMAGE_TYPE_SUB])->where("is_except",ImageConstant::IS_EXCEPT_N)->pluck("img_url_trans")->toArray()));
 
             $voParams = [
                 "ItemNo"                => $offerId,
@@ -619,7 +615,7 @@ class EasySell extends MallApiAbstract
     public function channelCateDepth(array $params): array
     {
         $returnMsg = $this->returnMsg;
-        
+
         try {
             $level     = $params["level"];
             $cate_name = $params["cate_name"];
@@ -688,16 +684,16 @@ class EasySell extends MallApiAbstract
     public function channelCateList(array $params): array
     {
         $returnMsg = $this->returnMsg;
-        
+
         try {
             $keyword     = $params["keyword"];
             $cate_second = $params["cate_second"];
             $cate_third  = $params["cate_third"];
             $cate_fourth = $params["cate_fourth"];
-            
+
             $builder = SellerhubCategory::query();
             $builder->where("cate_first", EasySellConstant::DEFAULT_CATEGORY);
-            
+
             if( $cate_second != "" ){
                 $builder->where("cate_second", $cate_second);
             }
@@ -739,7 +735,7 @@ class EasySell extends MallApiAbstract
     {
         $returnMsg = $this->returnMsg;
         try {
-            
+
             $returnMsg = helpers_success_message();
 
         } catch (Exception $e) {
