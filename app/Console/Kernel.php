@@ -73,7 +73,7 @@ class Kernel extends ConsoleKernel
             /** 온채널 신규 일반상품 등록 */
             $schedule->command("onchannel_command --func=newProductRegist")->cron("0 9,18 * * *")->description("온채널 신규 상품 등록")->withoutOverlapping()->runInBackground();
 
-            // $schedule->command("test --filter testAllProductReCollectW1")->description("모든 상품 W1 재수집")->withoutOverlapping()->runInBackground();
+            $schedule->command("test --filter testAllProductReCollectW1")->description("모든 상품 W1 재수집")->withoutOverlapping()->runInBackground();
         }
     }
 

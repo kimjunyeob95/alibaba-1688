@@ -154,7 +154,7 @@ class ProductTest extends TestCase
     # php artisan test --filter testAllProductReCollectW1
     public function testAllProductReCollectW1()
     {
-        if (now()->format('Y-m-d H:i') != '2024-06-01 00:05') {
+        if (now()->format('Y-m-d H:i') != '2024-06-13 16:00') {
             return false;
         }
 
@@ -163,13 +163,13 @@ class ProductTest extends TestCase
 
         $productW1 = app(ProductW1::class);
         $builder   = ProductData::select(["offer_id"]);
-        $builder->where(function($query) {
-            $query->where("w_type", WConstant::WAPP_W2)
-            ->orWhere(function($query2) {
-                $query2->where("w_type", WConstant::WAPP_W1)
-                ->where("prd_name_en", "");
-            });
-        });
+        // $builder->where(function($query) {
+        //     $query->where("w_type", WConstant::WAPP_W2)
+        //     ->orWhere(function($query2) {
+        //         $query2->where("w_type", WConstant::WAPP_W1)
+        //         ->where("prd_name_en", "");
+        //     });
+        // });
 
         $perPage    = 900;
         $totalCount = $builder->count();
