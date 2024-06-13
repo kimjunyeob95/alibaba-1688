@@ -1940,7 +1940,11 @@ class ProductW1 extends ProductAbstract
 
         if( isset($detailProduct["productSkuInfos"]) ){
             foreach ($detailProduct["productSkuInfos"] as $prdOptions) {
-                $price_1688_option = $prdOptions["price"];
+                if( isset($prdOptions["price"]) ){
+                    $price_1688_option = $prdOptions["price"];
+                } else {
+                    $price_1688_option = $price_1688;
+                }
 
                 $opt_status = ProductConstant::OPTION_SEC_ON_SALE_NUMBER;
                 if( $status != ProductConstant::PRD_STATUS_PUBLISH ){

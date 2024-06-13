@@ -163,6 +163,7 @@ class ProductTest extends TestCase
 
         $productW1 = app(ProductW1::class);
         $builder   = ProductData::select(["offer_id"]);
+        $builder->where("status", "!=", ProductConstant::PRD_STATUS_EXCEPT);
         // $builder->where(function($query) {
         //     $query->where("w_type", WConstant::WAPP_W2)
         //     ->orWhere(function($query2) {
