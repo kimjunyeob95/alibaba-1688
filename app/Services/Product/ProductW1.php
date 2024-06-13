@@ -760,7 +760,8 @@ class ProductW1 extends ProductAbstract
     {
         $pageSize  = $params["pageSize"];
 
-        $prdBuilder = ProductCollectLog::where("version", WConstant::WAPP_W1)->orderBy("created_at", "desc");
+        $prdBuilder = ProductCollectLog::where("version", WConstant::WAPP_W1)
+        ->where("type", "!=", LogConstant::COLLECT_MISS_PRODUCT)->orderBy("created_at", "desc");
         $lists = $prdBuilder->paginate($pageSize)->appends($params);
 
         return $lists;
