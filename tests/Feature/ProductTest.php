@@ -154,7 +154,7 @@ class ProductTest extends TestCase
     # php artisan test --filter testAllProductReCollectW1
     public function testAllProductReCollectW1()
     {
-        if (now()->format('Y-m-d H:i') != '2024-06-13 16:00') {
+        if (now()->format('Y-m-d H:i') != '2024-06-14 18:00') {
             return false;
         }
 
