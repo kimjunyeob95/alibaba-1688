@@ -395,7 +395,7 @@
                                                 $option = $data->options[0];
                                             @endphp
                                                 {{ $option->price_1688 }}(위안)<br>
-                                                {{ number_format($option->option_price) }}(원)
+                                                {{ number_format(wOptionPrice($option->price_1688)) }}(원)
                                         @else
                                             <p class="text-danger">옵션없음</p>
                                         @endif
@@ -405,7 +405,7 @@
                                             @php
                                                 $option = $data->options[0];
                                             @endphp
-                                                {{ number_format(calcWSalePrice($option->option_price)) }} 
+                                                {{ number_format(calcWSalePrice($option->price_1688)) }} 
                                         @else
                                             <p class="text-danger">옵션없음</p>
                                         @endif

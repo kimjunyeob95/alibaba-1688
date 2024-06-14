@@ -1658,6 +1658,12 @@ class ProductW2 extends ProductAbstract
 
         if( isset($detailProduct["skuList"]) ){
             foreach ($detailProduct["skuList"] as $optKey => $prdOptions) {
+                if( isset($prdOptions["price"]) ){
+                    $price_1688_option = $prdOptions["price"];
+                } else {
+                    $price_1688_option = $price_1688;
+                }
+
                 $opt_status = ProductConstant::OPTION_SEC_ON_SALE_NUMBER;
                 if( $status != ProductConstant::PRD_STATUS_PUBLISH ){
                     $opt_status = ProductConstant::OPTION_SEC_OUT_OF_STOCK_NUMBER;
@@ -1738,6 +1744,7 @@ class ProductW2 extends ProductAbstract
                     "status"            => $opt_status,
                     "is_except"         => $is_except,
                     "price_1688"        => $price_1688,
+                    "price_1688_option" => $price_1688_option,
                     "optionName"        => rtrim($optionNameTransW1, "_"),
                     "optionNameTrans"   => rtrim($optionNameTrans, "_"),
                     "optionNameTransEn" => rtrim($optionNameTransEn, "_"),

@@ -439,24 +439,33 @@ if (!function_exists("curl_1688_v2")) {
 }
 
 if (!function_exists("ocPrice")) {
-    function ocPrice(float $price_1688): array
+    function ocPrice(float $price, int $delivery_price = 0): array
     {
-        $option_price     = round( $price_1688 * env("1688_EXCHANGE_RATE", 200) , -1);
+        $option_price     = round( $price * env("1688_EXCHANGE_RATE", 200) , -1);
         $option_price_sum = (int)intval($option_price) + intval($option_price * env("OPTION_PRICE_RATE", 0.12));
         $option_price_cal = round($option_price_sum / 10) * 10;
         $onch_price       = $option_price_cal;
 
         $recom_cus_price_sum = (int)intval($option_price) + intval($option_price * env("RECOM_CUS_PRICE_RATE", 0.45));
         $recom_cus_price_cal = round($recom_cus_price_sum / 10) * 10;
-        $cus_price       = $recom_cus_price_cal;
-        $recom_cus_price = $recom_cus_price_cal;
+        $cus_price           = $recom_cus_price_cal;
+        $recom_cus_price     = $recom_cus_price_cal;
 
         return [
             "option_price"    => $option_price,
-            "onch_price"      => $onch_price,
-            "cus_price"       => $cus_price,
-            "recom_cus_price" => $recom_cus_price,
+            "onch_price"      => $onch_price + $delivery_price,
+            "cus_price"       => $cus_price + $delivery_price,
+            "recom_cus_price" => $recom_cus_price + $delivery_price,
         ];
+    }
+}
+
+if (!function_exists("wOptionPrice")) {
+    function wOptionPrice(float $price): int
+    {
+        $option_price = round( $price * env("1688_EXCHANGE_RATE", 200) , -1);
+
+        return $option_price;
     }
 }
 
@@ -689,24 +698,29 @@ if (!function_exists("calcEasySellSalePrice")) {
 
 /** 온채널 판매가 */
 if (!function_exists("calcOnchannelSalePrice")) {
-    function calcOnchannelSalePrice(int $option_price): int
+    function calcOnchannelSalePrice(float $price): int
     {
+        $option_price = round( $price * env("1688_EXCHANGE_RATE", 200) , -1);
+
         return $option_price + env("ONCHANNEL_DELIVERY_PRICE", 12000);
     }
 }
 
 /** 온채널 공급가 */
 if (!function_exists("calcOnchannelOptionPrice")) {
-    function calcOnchannelOptionPrice(int $option_price, int $delivery_price = ProductConstant::WEIGHT_STATUS_NONE_PRICE): int
+    function calcOnchannelOptionPrice(float $price, int $delivery_price = ProductConstant::WEIGHT_STATUS_NONE_PRICE): int
     {
+        $option_price = round( $price * env("1688_EXCHANGE_RATE", 200) , -1);
         return $option_price + $delivery_price;
     }
 }
 
 // WApp 일반 판매가 계산
 if (!function_exists("calcWSalePrice")) {
-    function calcWSalePrice(int $option_price = 0, int $delivery_price = ProductConstant::WEIGHT_STATUS_NONE_PRICE): int
+    function calcWSalePrice(float $price = 0, int $delivery_price = ProductConstant::WEIGHT_STATUS_NONE_PRICE): int
     {
+        $option_price = round( $price * env("1688_EXCHANGE_RATE", 200) , -1);
+
         return ( ceil(($option_price * env("W_SALE_PRICE_RATE", "1.35")) / 100) * 100 ) + $delivery_price;
     }
 }
