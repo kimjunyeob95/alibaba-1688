@@ -27,6 +27,8 @@ use Tests\TestCase;
 use Illuminate\Support\Facades\File;
 use Illuminate\Pagination\Paginator;
 use Psr\Log\LogLevel;
+use Symfony\Component\Process\Exception\ProcessFailedException;
+use Symfony\Component\Process\Process;
 
 class ProductTest extends TestCase
 {
@@ -126,6 +128,31 @@ class ProductTest extends TestCase
 
         // 결과 출력
         dd($uploadResult, $extractedMetadata);
+    }
+
+    # php artisan test --filter testPython
+    public function testPython()
+    {
+        $python_path = env("PYTHON_PATH","/usr/bin/python");
+        $active_path = base_path('python/test.py');
+        $process     = new Process([$python_path, $active_path]);
+        $process->run();
+
+        // 명령어 실행 중 오류가 발생한 경우
+        if (!$process->isSuccessful()) {
+            throw new ProcessFailedException($process);
+        }
+
+        // 파이썬 스크립트의 출력 결과를 받아오기
+        $output = $process->getOutput();
+        $result = json_decode($output, true);
+        $imgName = "/test/2-tt.jpeg";
+
+        $s3 = new S3();
+        $uploadResult = $s3->uploadFile($imgName, base64_decode($result["encoded_base64"]));
+
+        dd($uploadResult);
+
     }
 
     /** 상품 배송비 적용 */
