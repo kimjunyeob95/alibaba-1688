@@ -452,6 +452,7 @@ if (!function_exists("ocPrice")) {
         $recom_cus_price     = $recom_cus_price_cal;
 
         return [
+            "option_price"    => $option_price,
             "onch_price"      => $onch_price + $delivery_price,
             "cus_price"       => $cus_price + $delivery_price,
             "recom_cus_price" => $recom_cus_price + $delivery_price,

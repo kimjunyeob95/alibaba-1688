@@ -2101,6 +2101,7 @@ class ProductW2 extends ProductAbstract
             $ocPrice                 = ocPrice((float)$data["priceInfo"]["price"]);
             $data["price_1688"]      = (float)$data["priceInfo"]["price"];
             $data["onch_price"]      = $ocPrice["onch_price"];
+            $data["option_price"]    = $ocPrice["option_price"];
             $data["cus_price"]       = $ocPrice["cus_price"];
             $data["recom_cus_price"] = $ocPrice["recom_cus_price"];
         }
@@ -2319,6 +2320,7 @@ class ProductW2 extends ProductAbstract
             $ocPrice                 = ocPrice((float)$data["priceInfo"]["price"]);
             $data["price_1688"]      = (float)$data["priceInfo"]["price"];
             $data["onch_price"]      = $ocPrice["onch_price"];
+            $data["option_price"]    = $ocPrice["option_price"];
             $data["cus_price"]       = $ocPrice["cus_price"];
             $data["recom_cus_price"] = $ocPrice["recom_cus_price"];
         }
