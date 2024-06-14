@@ -320,7 +320,7 @@
                                                     $delivery_price = $data->delivery_price;
                                                 }
                                             @endphp
-                                                {{ number_format(calcOnchannelOptionPrice($option->option_price, $delivery_price)) }} 
+                                                {{ number_format(calcOnchannelOptionPrice($option->price_1688, $delivery_price)) }} 
                                         @else
                                             <p class="text-danger">옵션없음</p>
                                         @endif
