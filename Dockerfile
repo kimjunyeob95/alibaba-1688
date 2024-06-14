@@ -7,8 +7,6 @@ ARG PROFILE
 ENV ENVIRONMENT=${PROFILE}
 
 # Install dependencies
-# git 확인 필요
-# locales 타임존 확인
 RUN apt-get update && apt-get install -y \
     git \
     curl \
@@ -17,9 +15,14 @@ RUN apt-get update && apt-get install -y \
     locales \
     libzip-dev \
     vim \
-    awscli  # Install the AWS CLI
-
-RUN apt-get install -y nginx net-tools && apt-get install -y procps
+    awscli \
+    nginx net-tools procps \
+    supervisor \
+    exiftool \
+    libmagickwand-dev \
+    libpng-dev \
+    libjpeg-dev \
+    libfreetype6-dev
 
 # Python
 RUN apt-get install -y python3 python3-pip
@@ -27,13 +30,25 @@ RUN apt-get install -y python3-confluent-kafka
 RUN echo 'alias python=python3' >> ~/.bashrc
 RUN pip3 install PyMySQL requests urllib3 certifi charset-normalizer flask_socketio flask_cors eventlet gunicorn
 
-RUN apt-get install -y supervisor
-
 # Clear cache
 RUN apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Install extensions
 RUN docker-php-ext-install pdo pdo_mysql mysqli zip exif pcntl opcache sockets
+
+# Install imagick extension via pecl
+RUN pecl install imagick && docker-php-ext-enable imagick
+
+# Enable imagick extension
+RUN mkdir -p /usr/local/etc/php/conf.d && \
+    echo "extension=imagick.so" > /usr/local/etc/php/conf.d/docker-php-ext-imagick.ini
+
+# Install gd extension
+RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install gd
+
+# Enable gd extension
+RUN echo "extension=gd.so" > /usr/local/etc/php/conf.d/docker-php-ext-gd.ini
 
 # Install composer
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer

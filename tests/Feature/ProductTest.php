@@ -88,14 +88,44 @@ class ProductTest extends TestCase
     public function testBase64()
     {
         $filePath = public_path('app/base64.txt');
-        if (File::exists($filePath)) {
-            $fileContents = File::get($filePath);
-            $mime = getExtensionFromBase64($fileContents);
 
-            dd($mime);
-        } else {
+        if (!File::exists($filePath)) {
             throw new Exception("파일이 존재하지 않습니다.");
         }
+
+        $fileContents = File::get($filePath);
+        $decodedFile = base64_decode($fileContents);
+
+        $tempFilePath = tempnam(sys_get_temp_dir(), 'img');
+        file_put_contents($tempFilePath, $decodedFile);
+
+        $metadata = "테스트 데이터 입니다.22";
+
+        // 임시 파일 경로 설정
+        $fileName = tempnam(sys_get_temp_dir(), 'img') . ".jpeg";
+        rename($tempFilePath, $fileName);
+
+        // 설명 메타데이터 추가
+        $command = "exiftool -overwrite_original -description=\"$metadata\" -Caption-Abstract=\"$metadata\" -ImageDescription=\"$metadata\" -XPComment=\"$metadata\" -Title=\"$metadata\" -UserComment=\"$metadata\" $fileName";
+        shell_exec($command);
+
+        // S3에 업로드
+        $s3 = new S3();
+        $uploadResult = $s3->uploadFile('test/1.jpeg', file_get_contents($fileName));
+
+        // 업로드된 파일 읽기
+        $uploadedFileContents = $s3->getFile('test/1.jpeg');
+
+         // 임시 파일로 저장
+        $uploadedTempFilePath = tempnam(sys_get_temp_dir(), 'uploaded_img') . ".jpeg";
+        file_put_contents($uploadedTempFilePath, $uploadedFileContents);
+
+        // 메타데이터 추출
+        $command = "exiftool -description $uploadedTempFilePath";
+        $extractedMetadata = shell_exec($command);
+
+        // 결과 출력
+        dd($uploadResult, $extractedMetadata);
     }
 
     /** 상품 배송비 적용 */
