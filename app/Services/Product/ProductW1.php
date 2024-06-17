@@ -163,6 +163,11 @@ class ProductW1 extends ProductAbstract
             "oc_private_log",
         ]);
 
+        $prdBuilder->leftJoin('product_weight_datas as pwd', function ($join) {
+            $join->on('product_datas.offer_id', '=', 'pwd.offer_id');
+        });
+        $prdBuilder->addSelect("pwd.weight_type", "pwd.weight", "pwd.delivery_price");
+
         if( !empty($keyword) ){
             if( $search_cls == "offer_id"){
                 $keyword = preg_replace("/(\r\n|\r|\n)/", ",", trim($keyword));
@@ -253,12 +258,6 @@ class ProductW1 extends ProductAbstract
         }
 
         if( !empty($weight_status) ){
-            $prdBuilder->leftJoin('product_weight_datas as pwd', function ($join) {
-                $join->on('product_datas.offer_id', '=', 'pwd.offer_id');
-            });
-
-            $prdBuilder->addSelect("pwd.weight_type", "pwd.weight", "pwd.delivery_price");
-
             if( $weight_status != ProductConstant::WEIGHT_STATUS_NONE ){
                 $prdBuilder->where("pwd.weight_type", $weight_status);
             } else if( $weight_status == ProductConstant::WEIGHT_STATUS_NONE ) {
