@@ -42,16 +42,16 @@ class OnchannelCommand extends Command
                 ->where("product_datas.status", "!=", ProductConstant::PRD_STATUS_MISS)
                 ->groupBy("product_datas.offer_id");
 
-                $prdBuilder->where(function($query){
-                    $query->where(function($query1){
-                        $query1->where("b.regist_success", MallConstant::REGIST_ERROR)
-                        ->where("b.message", "온채널 통신 에러");
-                    });
-                    $query->orWhere(function($query2){
-                        $query2->where("b.regist_success", MallConstant::REGIST_ERROR)
-                        ->where("b.message", "Empty options");
-                    });
-                    $query->orWhereNull("b.regist_success");
+                $prdBuilder->where(function($query) {
+                    $query->where(function($query1) {
+                            $query1->where("b.regist_success", MallConstant::REGIST_ERROR)
+                                   ->where("b.message", "온채널 통신 에러");
+                        })
+                        ->orWhere(function($query2) {
+                            $query2->where("b.regist_success", MallConstant::REGIST_ERROR)
+                                   ->where("b.message", "Empty options");
+                        })
+                        ->orWhereNull("b.regist_success");
                 });
 
                 $objs = $prdBuilder->pluck('offer_id')->toArray();
@@ -66,7 +66,7 @@ class OnchannelCommand extends Command
 
             /**
              * 상품등록 커맨드
-             * php artisan onchannel_command --func=productRegist --offerids=44798792934,562321147241 --sendtype=W1
+             * php artisan onchannel_command --func=productRegist --offerids=1294989152 --sendtype=30
              */
             case 'productRegist':
                 $offerIds     = explode(",", $this->option('offerids'));
