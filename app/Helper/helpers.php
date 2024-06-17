@@ -460,6 +460,7 @@ if (!function_exists("ocPrice")) {
     }
 }
 
+/** W 공급가 */
 if (!function_exists("wOptionPrice")) {
     function wOptionPrice(float $price): int
     {

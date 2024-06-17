@@ -258,7 +258,7 @@
                                             {{ $option->price_1688 }}
                                         </td>
                                         <td>
-                                            {{ number_format($option->option_price) }}
+                                            {{ number_format(wOptionPrice($option->price_1688)) }}
                                         </td>
                                         <td>
                                             {{ number_format($option->exchange_rate) }}
