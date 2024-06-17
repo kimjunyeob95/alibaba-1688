@@ -79,7 +79,7 @@ if (!function_exists('helpers_curl')) {
         }
 
 		$resultArr = json_decode($result, JSON_UNESCAPED_UNICODE);
-		if(is_array($resultArr)){
+		if(is_array($resultArr) && !empty($resultArr)){
 			return $resultArr;
 		} else {
 			return $result;
