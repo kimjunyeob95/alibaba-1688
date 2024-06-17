@@ -78,11 +78,11 @@ if (!function_exists('helpers_curl')) {
             return $result;
         }
 
-		$result = json_decode($result, JSON_UNESCAPED_UNICODE);
-		if(is_array($result)){
-			return $result;
+		$resultArr = json_decode($result, JSON_UNESCAPED_UNICODE);
+		if(is_array($resultArr)){
+			return $resultArr;
 		} else {
-			return array();
+			return $result;
 		}
 	}
 }
