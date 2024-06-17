@@ -29,6 +29,7 @@ use Illuminate\Pagination\Paginator;
 use Psr\Log\LogLevel;
 use Symfony\Component\Process\Exception\ProcessFailedException;
 use Symfony\Component\Process\Process;
+use Illuminate\Support\Str;
 
 class ProductTest extends TestCase
 {
@@ -130,12 +131,43 @@ class ProductTest extends TestCase
         dd($uploadResult, $extractedMetadata);
     }
 
-    # php artisan test --filter testPython
-    public function testPython()
+    # php artisan test --filter testEncodeImg
+    public function testEncodeImg()
     {
-        $python_path = env("PYTHON_PATH","/usr/bin/python");
-        $active_path = base_path('python/test.py');
-        $process     = new Process([$python_path, $active_path]);
+        // 현재 날짜와 시간을 이용하여 파일명 생성
+        $timestamp = date('Ymd_His');
+        $uniqueId  = Str::uuid();
+
+        // 저장 경로 설정
+        $storagePath    = storage_path('python');
+        $jsonFilePath   = $storagePath . '/' . $timestamp . '_' . $uniqueId . '_json.txt';
+        $base64FilePath = $storagePath . '/' . $timestamp . '_' . $uniqueId . '_base64.txt';
+
+        // 디렉토리 존재 여부 확인 및 생성
+        if (!File::exists($storagePath)) {
+            File::makeDirectory($storagePath, 0755, true);
+        }
+
+        // JSON 데이터 생성 및 파일에 저장
+        $jsonData = json_encode(["아이디" => "tester123", "사업자번호" => "사업자번호test", "채널" => "easysell"], JSON_UNESCAPED_UNICODE);
+        File::put($jsonFilePath, $jsonData);
+
+        // base64.txt 파일 내용을 읽어서 새로운 파일에 저장
+        $filePath = public_path('app/base64.txt');
+        if (!File::exists($filePath)) {
+            throw new Exception("파일이 존재하지 않습니다.");
+        }
+        $fileContents = File::get($filePath);
+        File::put($base64FilePath, $fileContents);
+
+        $python_path = env("PYTHON_PATH", "/usr/bin/python");
+        $active_path = base_path('python/encode_img.py');
+        $process     = new Process([
+            $python_path,
+            $active_path,
+            $jsonFilePath,
+            $base64FilePath,
+        ]);
         $process->run();
 
         // 명령어 실행 중 오류가 발생한 경우
@@ -151,8 +183,11 @@ class ProductTest extends TestCase
         $s3 = new S3();
         $uploadResult = $s3->uploadFile($imgName, base64_decode($result["encoded_base64"]));
 
-        dd($uploadResult);
+        // 사용된 파일 삭제
+        File::delete($jsonFilePath);
+        File::delete($base64FilePath);
 
+        dd($uploadResult);
     }
 
     /** 상품 배송비 적용 */

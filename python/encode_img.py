@@ -1,3 +1,4 @@
+import sys
 import os
 import base64
 import json
@@ -5,27 +6,42 @@ from PIL import Image
 from io import BytesIO
 from stegano import lsb
 
-file_path = 'public/app/base64.txt'
-
 result = {"success": False, "encoded_base64": None, "error": None}
 
 try:
-    # 파일이 존재하는지 확인
-    if not os.path.exists(file_path):
-        raise Exception("파일이 존재하지 않습니다.")
-
-    # 파일 내용 읽기
-    with open(file_path, 'rb') as file:
-        file_contents = file.read()
-
+    json_file_path   = sys.argv[1]
+    base64_file_path = sys.argv[2]
+    
+    if not json_file_path:
+        raise Exception("Empty JSON file path")
+    if not os.path.exists(json_file_path):
+        raise Exception("JSON file does not exist")
+    with open(json_file_path, 'r', encoding='utf-8') as f:
+        json_data = f.read()
+        if not json_data:
+            raise Exception("JSON file is empty")
+        json_data = json.loads(json_data)
+    
+    if not base64_file_path:
+        raise Exception("Empty base64 file path")
+    if not os.path.exists(base64_file_path):
+        raise Exception("Base64 file does not exist")
+    with open(base64_file_path, 'r', encoding='utf-8') as f:
+        base64_data = f.read()
+        if not base64_data:
+            raise Exception("Base64 file is empty")
+    
     # base64 디코딩
-    image_data = base64.b64decode(file_contents)
+    image_data = base64.b64decode(base64_data)
 
     # 이미지 열기
     image = Image.open(BytesIO(image_data))
+    
+    # 이미지 확장자 가져오기
+    image_format = image.format
 
     # 비밀 메시지 숨기기
-    secret_message = "테스트 숨김메세지"
+    secret_message = json.dumps(json_data, ensure_ascii=False)
 
     # 비밀 메시지를 UTF-8로 인코딩한 후 바이너리 형태로 변환
     secret_message_bytes = secret_message.encode('utf-8')

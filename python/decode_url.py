@@ -24,3 +24,4 @@ extracted_message_bytes = base64.b64decode(extracted_message_str)
 decoded_message = extracted_message_bytes.decode('utf-8')
 
 print(decoded_message)
+exit()
