@@ -8,6 +8,7 @@ class OrderDto extends Vo
 {
     protected string $order_id               = "";
     protected int $offer_id                  = 0;
+    protected string $channel_order_id       = "";
     protected string $channel                = "";
     protected string $buyer_name             = "";
     protected string $buyer_clearance_number = "";
@@ -23,6 +24,7 @@ class OrderDto extends Vo
     {
         $this->order_id               = $data["order_id"];
         $this->offer_id               = $data["offer_id"];
+        $this->channel_order_id       = $data["channel_order_id"];
         $this->channel                = $data["channel"];
         $this->buyer_name             = $data["buyer_name"];
         $this->buyer_clearance_number = $data["buyer_clearance_number"];
