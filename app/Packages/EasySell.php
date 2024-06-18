@@ -5,6 +5,7 @@ namespace App\Packages;
 use App\Abstracts\MallApiAbstract;
 use App\Abstracts\OrderAbstract;
 use App\Abstracts\TransApiAbstract;
+use App\Constants\CategoryConstant;
 use App\Constants\EasySellConstant;
 use App\Constants\GosiConstants;
 use App\Constants\ImageConstant;
@@ -17,6 +18,7 @@ use App\Models\CategoryMapping;
 use App\Models\EasysellProductLog;
 use App\Models\ProductData;
 use App\Models\ProductModiData;
+use App\Models\ProductWeightData;
 use App\Models\SellerhubCategory;
 use App\Vo\EasySell\EasySellProductVo;
 use Carbon\Carbon;
@@ -407,17 +409,28 @@ class EasySell extends MallApiAbstract
 
             $notice = getNoticeInfoTable($noticeInfo, $type);
 
+            //배송비 설정
+            $weights   = CategoryConstant::WEIGHTS;
+            $weightObj = ProductWeightData::where("offer_id", $offerId)->first();
+            $delivery_price = ProductConstant::WEIGHT_STATUS_NONE_PRICE;
+            if( $weightObj != null ){
+                $delivery_price = $weights[$weightObj->weight];
+            }
+
+            //옵션 설정
             $unitInfo   = $optionTitle."|";
             $saleStatus = EasySellConstant::STATUS_STOP_SALE;
             $idx = 0;
             foreach($prdObj->options->where("is_except", OptionConstants::IS_EXCEPT_N) as $option){
+                $price = calcEasySellSalePrice($option->price_1688, $option->md_price, $delivery_price);
+
                 if(!$idx){
-                    $buyPrice  = $option->option_price; //셀러허브 공급가
-                    $salePrice = $setPrice = calcEasySellSalePrice($option->option_price, $option->md_price);
+                    $buyPrice  = $price['buyPrice']; //셀러허브 공급가
+                    $salePrice = $setPrice = $price['salePrice'];
                 }else{
                     $unitInfo .= ",";
                 }
-                $setPrice = calcEasySellSalePrice($option->option_price, $option->md_price);
+                $setPrice = $price['salePrice'];
 
                 //옵션명
                 $replaceArr     = array("|",",","/");
@@ -435,7 +448,8 @@ class EasySell extends MallApiAbstract
                     $stock      = $option->amount_on_sale;
                 }
 
-                $unitInfo .= "{$optionNm}^^{$stock}^^{$setPrice}^^{$setPrice}^^{$option->option_price}::{$option->id}";
+                //옵션구분명|옵션1^^재고^^판매가^^정가^^공급가::업체옵션번호,
+                $unitInfo .= "{$optionNm}^^{$stock}^^{$setPrice}^^{$setPrice}^^{$buyPrice}::{$option->id}";
 
                 $idx++;
             }
@@ -454,7 +468,7 @@ class EasySell extends MallApiAbstract
                 "BuyPrice"              => $buyPrice,
                 "SalePrice"             => $salePrice,
                 "ConsumerPrice"         => $salePrice,
-                "Delfee"                => $prdObj->extends->send_default_price,
+                "Delfee"                => $delivery_price,
                 "UnitInfo"              => $unitInfo,
                 "SaleStatus"            => $saleStatus,
                 "ItemMode"              => $itemMode,

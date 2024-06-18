@@ -686,14 +686,24 @@ if (!function_exists("upPrdDescTrans")) {
 
 //이지셀 판매가 계산
 if (!function_exists("calcEasySellSalePrice")) {
-    function calcEasySellSalePrice(?int $option_price = 0, ?int $md_price, string $type = "dynamic"): int
+    function calcEasySellSalePrice(?float $price = 0, ?int $md_price, int $delivery_price = ProductConstant::WEIGHT_STATUS_NONE_PRICE, string $type = "dynamic"): array
     {
-        $salePrice = ceil(($option_price * env("EASYSELL_PRICE_RATE", "1.35")) / 100) * 100 + (int)env("EASYSELL_SHIPPING_PRICE", 12000);
+        //1688 공급가
+        $option_price     = round( $price * env("1688_EXCHANGE_RATE", 200) , -1);
+
+        //이지셀 공급가
+        $buyPrice = ceil(($option_price) / 100) * 100 + $delivery_price;
+        //이지셀 판매가
+        $salePrice = ceil(($option_price * env("EASYSELL_PRICE_RATE", "1.35")) / 100) * 100 + $delivery_price;
 
         if($type != "static"){
             $salePrice = !empty($md_price) ? $md_price : $salePrice;
         }
-        return $salePrice;
+
+        return [
+            "buyPrice"  => $buyPrice,
+            "salePrice" => $salePrice,
+        ];
     }
 }
 
