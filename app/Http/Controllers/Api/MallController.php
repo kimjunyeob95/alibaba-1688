@@ -117,6 +117,7 @@ class MallController extends Controller
         try {
             $validator = Validator::make($this->request->all(), [
                 'offer_id'                    => 'required|int',
+                'channel_order_id'            => 'required|string',
                 'optionParamList'             => 'required|array',
                 'optionParamList.*.option_id' => 'required|int',
                 'optionParamList.*.quantity'  => 'required|int',
@@ -130,6 +131,7 @@ class MallController extends Controller
                 'buyer_memo'                  => 'required|string',
             ], [
                 'offer_id.required'                    => OrderErrorMessageConstant::getNotHaveErrorMessage("OFFER_ID"),
+                'channel_order_id.required'            => OrderErrorMessageConstant::getNotHaveErrorMessage("CHANNEL_ORDER_ID"),
                 'optionParamList.required'             => OrderErrorMessageConstant::getNotHaveErrorMessage("OPTIONPARAMLIST"),
                 'optionParamList.*.option_id.required' => OrderErrorMessageConstant::getNotHaveErrorMessage("OPTION_ID"),
                 'optionParamList.*.quantity.required'  => OrderErrorMessageConstant::getNotHaveErrorMessage("QUANTITY"),

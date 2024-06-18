@@ -1508,9 +1508,47 @@ class ProductW2 extends ProductAbstract
         ]);
 
         // 4. 상품 확장정보
+        $trade_medal_level           = 0.0;
+        $composite_service_score     = 0.0;
+        $logistics_experience_score  = 0.0;
+        $dispute_complaint_score      = 0.0;
+        $offer_experience_score      = 0.0;
+        $consulting_experience_score = 0.0;
+        $trade_score                 = 0.0;
+        if( isset($detailW1Product["sellerDataInfo"]) ){
+            $sellerDataInfo = $detailW1Product["sellerDataInfo"];
+            if( isset($sellerDataInfo["tradeMedalLevel"]) ){
+                $trade_medal_level = (float)$sellerDataInfo["tradeMedalLevel"];
+            }
+            if( isset($sellerDataInfo["compositeServiceScore"]) ){
+                $composite_service_score = (float)$sellerDataInfo["compositeServiceScore"];
+            }
+            if( isset($sellerDataInfo["logisticsExperienceScore"]) ){
+                $logistics_experience_score = (float)$sellerDataInfo["logisticsExperienceScore"];
+            }
+            if( isset($sellerDataInfo["disputeComplaintScore"]) ){
+                $dispute_complaint_score = (float)$sellerDataInfo["disputeComplaintScore"];
+            }
+            if( isset($sellerDataInfo["offerExperienceScore"]) ){
+                $offer_experience_score = (float)$sellerDataInfo["offerExperienceScore"];
+            }
+            if( isset($sellerDataInfo["consultingExperienceScore"]) ){
+                $consulting_experience_score = (float)$sellerDataInfo["consultingExperienceScore"];
+            }
+        }
+        if( isset($detailW1Product["tradeScore"]) ){
+            $trade_score = (float)$detailW1Product["tradeScore"];
+        }
         $product1688ExtendDto = new Product1688ExtendDto();
         $product1688ExtendDto->bind([
-            "offerId" => $offerId,
+            "offerId"                     => $offerId,
+            "trade_medal_level"           => $trade_medal_level,
+            "composite_service_score"     => $composite_service_score,
+            "logistics_experience_score"  => $logistics_experience_score,
+            "dispute_complaint_score"      => $dispute_complaint_score,
+            "offer_experience_score"      => $offer_experience_score,
+            "consulting_experience_score" => $consulting_experience_score,
+            "trade_score"                 => $trade_score,
         ]);
 
         // 5. 상품 고시정보
@@ -1658,7 +1696,11 @@ class ProductW2 extends ProductAbstract
 
         if( isset($detailProduct["skuList"]) ){
             foreach ($detailProduct["skuList"] as $optKey => $prdOptions) {
-                $price_1688_option = $prdOptions["price"];
+                if( isset($prdOptions["price"]) ){
+                    $price_1688_option = $prdOptions["price"];
+                } else {
+                    $price_1688_option = $price_1688;
+                }
 
                 $opt_status = ProductConstant::OPTION_SEC_ON_SALE_NUMBER;
                 if( $status != ProductConstant::PRD_STATUS_PUBLISH ){
@@ -2097,6 +2139,7 @@ class ProductW2 extends ProductAbstract
             $ocPrice                 = ocPrice((float)$data["priceInfo"]["price"]);
             $data["price_1688"]      = (float)$data["priceInfo"]["price"];
             $data["onch_price"]      = $ocPrice["onch_price"];
+            $data["option_price"]    = $ocPrice["option_price"];
             $data["cus_price"]       = $ocPrice["cus_price"];
             $data["recom_cus_price"] = $ocPrice["recom_cus_price"];
         }
@@ -2315,6 +2358,7 @@ class ProductW2 extends ProductAbstract
             $ocPrice                 = ocPrice((float)$data["priceInfo"]["price"]);
             $data["price_1688"]      = (float)$data["priceInfo"]["price"];
             $data["onch_price"]      = $ocPrice["onch_price"];
+            $data["option_price"]    = $ocPrice["option_price"];
             $data["cus_price"]       = $ocPrice["cus_price"];
             $data["recom_cus_price"] = $ocPrice["recom_cus_price"];
         }

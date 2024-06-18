@@ -229,10 +229,10 @@ class Onchannel extends MallApiAbstract
                             'Authorization: Bearer ' . $this->token,
                         );
     
-                        $endPoint = $this->domain . "/api/v1/product/regist";
-                        $result = helpers_curl("POST", $endPoint, $header, $payload);
+                        $endPoint   = $this->domain . "/api/v1/product/regist";
+                        $resultCurl = helpers_curl("POST", $endPoint, $header, $payload);
     
-                        if( isset($result["prd_code"]) && $result["prd_code"] ){
+                        if( isset($resultCurl["prd_code"]) && $resultCurl["prd_code"] ){
                             $log = OnchannelProductLog::updateOrCreate(
                                 [
                                     "offer_id"  => $offerId,
@@ -240,7 +240,7 @@ class Onchannel extends MallApiAbstract
                                     "send_type" => $sendType,
                                 ],
                                 [
-                                    "prd_code"       => $result["prd_code"],
+                                    "prd_code"       => $resultCurl["prd_code"],
                                     "regist_success" => MallConstant::REGIST_SUCCESS,
                                     "message"        => "",
                                     "registed_at"    => Carbon::now(),
@@ -257,10 +257,13 @@ class Onchannel extends MallApiAbstract
                             $successIds[] = $offerId;
                         } else {
                             $msg = "온채널 통신 에러";
-                            if( isset($result["msg"]) ){
-                                $msg = $result["msg"];
+                            if( isset($resultCurl["msg"]) ){
+                                $msg = $resultCurl["msg"];
                             } else {
-                                debug_log(json_encode($result, JSON_UNESCAPED_UNICODE), "onchannel/prdRegist", "prdRegist");
+                                if(is_array($resultCurl)){
+                                    $resultCurl = json_encode($resultCurl, JSON_UNESCAPED_UNICODE);
+                                }
+                                debug_log($resultCurl, "onchannel/prdRegist", "prdRegist");
                             }
                             $log = OnchannelProductLog::updateOrCreate(
                                 [

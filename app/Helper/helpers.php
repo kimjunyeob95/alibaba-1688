@@ -78,11 +78,11 @@ if (!function_exists('helpers_curl')) {
             return $result;
         }
 
-		$result = json_decode($result, JSON_UNESCAPED_UNICODE);
-		if(is_array($result)){
-			return $result;
+		$resultArr = json_decode($result, JSON_UNESCAPED_UNICODE);
+		if(is_array($resultArr) && !empty($resultArr)){
+			return $resultArr;
 		} else {
-			return array();
+			return $result;
 		}
 	}
 }
@@ -452,6 +452,7 @@ if (!function_exists("ocPrice")) {
         $recom_cus_price     = $recom_cus_price_cal;
 
         return [
+            "option_price"    => $option_price,
             "onch_price"      => $onch_price + $delivery_price,
             "cus_price"       => $cus_price + $delivery_price,
             "recom_cus_price" => $recom_cus_price + $delivery_price,
@@ -459,6 +460,7 @@ if (!function_exists("ocPrice")) {
     }
 }
 
+/** W 공급가 */
 if (!function_exists("wOptionPrice")) {
     function wOptionPrice(float $price): int
     {
