@@ -391,7 +391,7 @@ class EasySell extends MallApiAbstract
                 $images = array_filter($prdObj->images->whereIn("img_type",[ImageConstant::IMAGE_TYPE_MAIN, ImageConstant::IMAGE_TYPE_SUB])->where("is_except",ImageConstant::IS_EXCEPT_N)->pluck("img_url_trans")->toArray());
             }else if($type == WConstant::WAPP_W2){
                 $ItemName = $prdObj->prd_name_en;
-                $prdDesc  = $prdObj->prd_desc_en;
+                $prdDesc  = $prdObj->prd_desc_en_origin;
                 $optionTitle = "option";
                 $noticeInfo = $prdObj->notices->where("is_except",GosiConstants::IS_EXCEPT_N)->pluck("attribute_value_en","attribute_name_en")->toArray();
                 $images = array_filter($prdObj->en_images->whereIn("img_type",[ImageConstant::IMAGE_TYPE_MAIN, ImageConstant::IMAGE_TYPE_SUB])->where("is_except",ImageConstant::IS_EXCEPT_N)->pluck("img_url_origin")->toArray());
