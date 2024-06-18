@@ -229,13 +229,11 @@ class MallController extends Controller
                 'images'                  => 'required|array',
                 'images.*.id'             => 'required|int',
                 'images.*.base64'         => 'required|string',
-                'images.*.cleaned_base64' => 'required|string',
             ], [
                 'member_id.required'               => MallErrorMessageConstant::getNotHaveErrorMessage("MEMBER_ID"),
                 'images.required'                  => MallErrorMessageConstant::getNotHaveErrorMessage("IMAGES"),
                 'images.*.id.required'             => MallErrorMessageConstant::getNotHaveErrorMessage("IMAGE_ID"),
                 'images.*.base64.required'         => MallErrorMessageConstant::getNotHaveErrorMessage("IMAGE_BASE64"),
-                'images.*.cleaned_base64.required' => MallErrorMessageConstant::getNotHaveErrorMessage("CLEANED_BASE64"),
             ]);
             if ($validator->fails()) {
                 throw new Exception($validator->errors()->first());

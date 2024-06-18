@@ -29,7 +29,13 @@ namespace App\Annotations\v1\W\dImage;
  *                  property="base64",
  *                  type="string",
  *                  example="~~~",
- *                  description="이미지 파일 base64 인코딩"
+ *                  description="이미지 base64 인코딩"
+ *              ),
+ *              @OA\Property(
+ *                  property="cleaned_base64",
+ *                  type="string",
+ *                  example="~~~",
+ *                  description="흰 배경 이미지 base64 인코딩"
  *              ),
  *         ),
  *         description="이미지 정보"

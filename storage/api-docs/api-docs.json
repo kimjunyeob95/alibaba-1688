@@ -1324,7 +1324,12 @@
                                     "example": 1
                                 },
                                 "base64": {
-                                    "description": "이미지 파일 base64 인코딩",
+                                    "description": "이미지 base64 인코딩",
+                                    "type": "string",
+                                    "example": "~~~"
+                                },
+                                "cleaned_base64": {
+                                    "description": "흰 배경 이미지 base64 인코딩",
                                     "type": "string",
                                     "example": "~~~"
                                 }
