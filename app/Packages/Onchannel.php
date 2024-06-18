@@ -17,7 +17,6 @@ use App\Models\OnchannelProductDetailLog;
 use App\Models\OnchannelProductLog;
 use App\Models\OnchCategoryExcelDataCopy2;
 use App\Models\ProductData;
-use App\Models\ProductModiData;
 use App\Models\ProductWeightData;
 use Carbon\Carbon;
 use Exception;
