@@ -1,8 +1,10 @@
 @php
+    use App\Constants\CategoryConstant;
     use App\Constants\ProductConstant;
     use App\Constants\MallConstant;
     use App\Constants\EasySellConstant;
     use App\Constants\WConstant;
+    use App\Models\ProductWeightData;
 @endphp
 @extends('dashboard.base')
 
@@ -202,8 +204,18 @@ input[name='channelCategory']{
                                         @if (count($data->options) > 0)
                                             @php
                                                 $option = $data->options[0];
+
+                                                //배송비 설정
+                                                $weights   = CategoryConstant::WEIGHTS;
+                                                $weightObj = ProductWeightData::where("offer_id", $data->offer_id)->first();
+                                                $delivery_price = ProductConstant::WEIGHT_STATUS_NONE_PRICE;
+                                                if( $weightObj != null ){
+                                                    $delivery_price = $weights[$weightObj->weight];
+                                                }
+
+                                                $price = calcEasySellSalePrice($option->price_1688, $option->md_price, $delivery_price, "static");
                                             @endphp
-                                            {{ number_format(calcEasySellSalePrice($option->option_price, $option->md_price, "static")) }}
+                                            {{ number_format($price['salePrice']) }}
                                         @else
                                             <p class="text-danger">옵션없음</p>
                                         @endif
@@ -490,7 +502,7 @@ input[name='channelCategory']{
                         "headers" : {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
                         "type"    : "POST",
                         "url"     : "/api/mall/easySell/category/depth",
-                        "data"    : { 
+                        "data"    : {
                             level     : selectedLevel,
                             cate_name : cate_name,
                         },

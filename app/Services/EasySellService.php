@@ -54,12 +54,7 @@ class EasySellService
                 "epl.registed_at"
             ])
             ->with(["main_img", "options", "es_mapping", "es_fgn_mapping", "w_mapping", "w_mapping.w_cate_name"])
-            ->leftJoin("easysell_product_logs as epl","product_datas.offer_id","=","epl.offer_id")
-            ->whereIn("product_datas.w_type", [ WConstant::WAPP_W1, WConstant::WAPP_W2 ])
-            ->where("product_datas.status", ProductConstant::PRD_STATUS_PUBLISH)
-            ->where("product_datas.trans_status", ProductConstant::TRANS_STATUS_Y)
-            ->where("product_datas.mapping_status", ProductConstant::MAPPING_STATUS_Y)
-            ->where("product_datas.inspect_status", ProductConstant::INSPECT_STATUS_Y)
+            ->join("easysell_product_logs as epl","product_datas.offer_id","=","epl.offer_id")
             ->orderBy("product_datas.created_at", "desc");
 
         $totalCnt = $prdBuilder->count();
