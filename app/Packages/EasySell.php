@@ -110,9 +110,6 @@ class EasySell extends MallApiAbstract
                 if( $prdObj->mapping_status != ProductConstant::MAPPING_STATUS_Y ){
                     throw new Exception(MallErrorMessageConstant::getFitErrorMessage("NOT_MAPPING_CATE"));
                 }
-                if( $prdObj->status != ProductConstant::PRD_STATUS_PUBLISH ){
-                    throw new Exception(MallErrorMessageConstant::getFitErrorMessage("PRODUCT_STATUS"));
-                }
                 if( count($prdObj->options->where("is_except", OptionConstants::IS_EXCEPT_N)) == 0 ){
                     throw new Exception(MallErrorMessageConstant::getFitErrorMessage("OPTION"));
                 }
@@ -237,9 +234,6 @@ class EasySell extends MallApiAbstract
                 }
                 if( $prdObj->mapping_status != ProductConstant::MAPPING_STATUS_Y ){
                     throw new Exception(MallErrorMessageConstant::getFitErrorMessage("NOT_MAPPING_CATE"));
-                }
-                if( $prdObj->status != ProductConstant::PRD_STATUS_PUBLISH ){
-                    throw new Exception(MallErrorMessageConstant::getFitErrorMessage("PRODUCT_STATUS"));
                 }
                 if( count($prdObj->options->where("is_except", OptionConstants::IS_EXCEPT_N)) == 0 ){
                     throw new Exception(MallErrorMessageConstant::getFitErrorMessage("OPTION"));
@@ -409,6 +403,12 @@ class EasySell extends MallApiAbstract
 
             $notice = getNoticeInfoTable($noticeInfo, $type);
 
+            //상품 판매상태
+            $saleStatus = EasySellConstant::STATUS_STOP_SALE;
+            if( $prdObj->status == ProductConstant::PRD_STATUS_PUBLISH ){
+                $saleStatus = EasySellConstant::STATUS_ON_SALE;
+            }
+
             //배송비 설정
             $weights   = CategoryConstant::WEIGHTS;
             $weightObj = ProductWeightData::where("offer_id", $offerId)->first();
@@ -419,7 +419,6 @@ class EasySell extends MallApiAbstract
 
             //옵션 설정
             $unitInfo   = $optionTitle."|";
-            $saleStatus = EasySellConstant::STATUS_STOP_SALE;
             $idx = 0;
             foreach($prdObj->options->where("is_except", OptionConstants::IS_EXCEPT_N) as $option){
                 $price = calcEasySellSalePrice($option->price_1688, $option->md_price, $delivery_price);
@@ -444,7 +443,6 @@ class EasySell extends MallApiAbstract
 
                 $stock = 0;
                 if($option->status == ProductConstant::OPTION_SEC_ON_SALE_NUMBER){
-                    $saleStatus = EasySellConstant::STATUS_ON_SALE;
                     $stock      = $option->amount_on_sale;
                 }
 
