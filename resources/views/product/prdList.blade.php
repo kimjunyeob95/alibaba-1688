@@ -459,6 +459,7 @@
                                         @endif
                                     </td>
                                     <td class="text-center">
+                                        {{-- w 공급가 --}}
                                         @if (count($data->options) > 0)
                                             @php
                                                 $option = $data->options[0];
@@ -470,6 +471,7 @@
                                         @endif
                                     </td>
                                     <td class="text-center">
+                                        {{-- 기준: 중량 --}}
                                         @if( $data->weight_type == null )
                                             <button class="btn btn-sm btn-warning btn-weight-modi" offerid={{ $data->offer_id }} weight=0 price={{ ProductConstant::WEIGHT_STATUS_NONE_PRICE }} statusname='{{ ProductConstant::WEIGHT_STATUS[ProductConstant::WEIGHT_STATUS_NONE] }}'>
                                                 {{ ProductConstant::WEIGHT_STATUS_SHORT[ProductConstant::WEIGHT_STATUS_NONE] }}: 0
@@ -489,6 +491,7 @@
                                         @endif
                                     </td>
                                     <td class="text-center">
+                                        {{-- 일반 판매자가 --}}
                                         @if (count($data->options) > 0)
                                             @php
                                                 $option         = $data->options[0];
@@ -503,6 +506,7 @@
                                         @endif
                                     </td>
                                     <td class="text-center">
+                                        {{-- MD 판매자가 --}}
                                         @if (count($data->options) > 0)
                                             @php
                                                 $option         = $data->options[0];
@@ -529,6 +533,7 @@
                                         @endif
                                     </td>
                                     <td class="text-center">
+                                        {{-- 온채널 공급가 --}}
                                         @if (count($data->options) > 0)
                                             @php
                                                 $option         = $data->options[0];

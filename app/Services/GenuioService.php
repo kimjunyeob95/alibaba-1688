@@ -1202,14 +1202,15 @@ class GenuioService extends TransApiAbstract
                     $img_url_origin = "";
 
                     try {
-                        $img_id         = $image["id"];
-                        $img_url_origin = $image["origin_url"];
-                        $uploadResult   = false;
-                        $imgTransBase64 = "";
-                        $fileMessage    = "";
-                        $text_data      = "";
-                        $mime           = pathinfo($img_url_origin, PATHINFO_EXTENSION);
-                        $dateName       = Carbon::now()->format('Ymd_His');
+                        $img_id            = $image["id"];
+                        $img_url_origin    = $image["origin_url"];
+                        $uploadResult      = false;
+                        $uploadResultClean = false;
+                        $imgTransBase64    = "";
+                        $fileMessage       = "";
+                        $text_data         = "";
+                        $mime              = pathinfo($img_url_origin, PATHINFO_EXTENSION);
+                        $dateName          = Carbon::now()->format('Ymd_His');
                         if (preg_match('/^(jpg|jpeg|png|gif)/i', $mime, $matches)) {
                             $mime = $matches[0];
                         }
@@ -1329,13 +1330,14 @@ class GenuioService extends TransApiAbstract
                 $img_id = 0;
 
                 try {
-                    $img_id         = $image["id"];
-                    $uploadResult   = false;
-                    $base64         = "";
-                    $img_url_trans  = "";
-                    $cleaned_base64 = "";
-                    $cleaned_url    = "";
-                    $dateName       = Carbon::now()->format('Ymd_His');
+                    $img_id            = $image["id"];
+                    $uploadResult      = false;
+                    $uploadResultClean = false;
+                    $base64            = "";
+                    $img_url_trans     = "";
+                    $cleaned_base64    = "";
+                    $cleaned_url       = "";
+                    $dateName          = Carbon::now()->format('Ymd_His');
 
                     if( isset($image["base64"]) && !empty($image["base64"]) ){
                         $base64       = $image["base64"];
