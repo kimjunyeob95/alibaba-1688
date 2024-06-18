@@ -484,19 +484,18 @@ class Onchannel extends MallApiAbstract
         
                     $options = [];
                     foreach ($prdObj->no_except_options as $option) {
-                        $cus_price = (int)$option->option_price + (int)$delivery_price;
-                        $cus_price = intval($cus_price) + intval($cus_price * env("RECOM_CUS_PRICE_RATE", 0.45));
-                        $cus_price = round($cus_price / 10) * 10;
+                        // $ocPrice = ocPrice($option->price_1688_option, (int)$delivery_price);
+                        $ocPrice = ocPrice($option->price_1688, (int)$delivery_price);
 
                         $options[] = [
                             "op_rank"      => "1",
                             "op_code"      => $option->id,
                             "option_nm"    => $option->option_name_kr,
-                            "cus_price"    => $cus_price,
+                            "cus_price"    => $ocPrice["cus_price"],
                             "disc_price"   => 0,
                             "option_price" => 0,
                             "vendor_price" => 0,
-                            "onch_price"   => (int)$option->option_price + (int)$delivery_price,
+                            "onch_price"   => $ocPrice["onch_price"],
                             "total_count"  => 0,
                             "weight"       => $option->weight,
                             "volume"       => "",
