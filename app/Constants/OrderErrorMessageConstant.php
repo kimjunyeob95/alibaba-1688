@@ -12,6 +12,7 @@ class OrderErrorMessageConstant
 
     public const ERROR_MESSAGE_CARGOPARAMLIST         = "주문 생성 제품 정보";
     public const ERROR_MESSAGE_OFFER_ID               = "offer_id";
+    public const ERROR_MESSAGE_CHANNEL_ORDER_ID       = "채널 주문 번호";
     public const ERROR_MESSAGE_SPEC_ID                = "제품 spec ID";
     public const ERROR_MESSAGE_OPTION_ID              = "option_id";
     public const ERROR_MESSAGE_QUANTITY               = "제품 수량";

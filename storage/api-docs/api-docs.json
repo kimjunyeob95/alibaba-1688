@@ -1101,6 +1101,7 @@
             "OrderCreateSchema": {
                 "required": [
                     "offer_id",
+                    "channel_order_id",
                     "optionParamList",
                     "option_price",
                     "buyer_name",
@@ -1116,6 +1117,11 @@
                         "description": "제품 ID",
                         "type": "integer",
                         "example": 715819550080
+                    },
+                    "channel_order_id": {
+                        "description": "채널 주문 번호",
+                        "type": "string",
+                        "example": "test2016179999"
                     },
                     "optionParamList": {
                         "description": "주문 생성 제품 정보",
@@ -1212,6 +1218,7 @@
                     "data": {
                         "required": [
                             "order_id",
+                            "channel_order_id",
                             "success"
                         ],
                         "properties": {
@@ -1219,6 +1226,11 @@
                                 "description": "주문 ID",
                                 "type": "string",
                                 "example": "3890000700554135493"
+                            },
+                            "channel_order_id": {
+                                "description": "채널 주문 번호",
+                                "type": "string",
+                                "example": "test2016179999"
                             },
                             "success": {
                                 "description": "성공 여부",

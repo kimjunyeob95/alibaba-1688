@@ -17,7 +17,6 @@ use App\Models\OnchannelProductDetailLog;
 use App\Models\OnchannelProductLog;
 use App\Models\OnchCategoryExcelDataCopy2;
 use App\Models\ProductData;
-use App\Models\ProductModiData;
 use App\Models\ProductWeightData;
 use Carbon\Carbon;
 use Exception;
@@ -54,7 +53,6 @@ class Onchannel extends MallApiAbstract
     {
         $successIds   = [];
         $failIds      = [];
-        $updateIds    = [];
         $sendTypeList = [ OnchannelConstant::PRD_CHANNEL ];
         $weights      = CategoryConstant::WEIGHTS;
         if( isset($params["sendTypeList"]) ){
@@ -69,7 +67,7 @@ class Onchannel extends MallApiAbstract
                     "send_type"      => $sendType,
                     "regist_success" => MallConstant::REGIST_SUCCESS,
                 ])->count();
-    
+
                 if( $regCnt == 0 ){
                     try {
                         $prdObj = ProductData::with([
@@ -228,11 +226,10 @@ class Onchannel extends MallApiAbstract
                             'Content-type: application/json',
                             'Authorization: Bearer ' . $this->token,
                         );
+                        $endPoint   = $this->domain . "/api/v1/product/regist";
+                        $resultCurl = helpers_curl("POST", $endPoint, $header, $payload);
     
-                        $endPoint = $this->domain . "/api/v1/product/regist";
-                        $result = helpers_curl("POST", $endPoint, $header, $payload);
-    
-                        if( isset($result["prd_code"]) && $result["prd_code"] ){
+                        if( isset($resultCurl["prd_code"]) && $resultCurl["prd_code"] ){
                             $log = OnchannelProductLog::updateOrCreate(
                                 [
                                     "offer_id"  => $offerId,
@@ -240,7 +237,7 @@ class Onchannel extends MallApiAbstract
                                     "send_type" => $sendType,
                                 ],
                                 [
-                                    "prd_code"       => $result["prd_code"],
+                                    "prd_code"       => $resultCurl["prd_code"],
                                     "regist_success" => MallConstant::REGIST_SUCCESS,
                                     "message"        => "",
                                     "registed_at"    => Carbon::now(),
@@ -257,10 +254,13 @@ class Onchannel extends MallApiAbstract
                             $successIds[] = $offerId;
                         } else {
                             $msg = "온채널 통신 에러";
-                            if( isset($result["msg"]) ){
-                                $msg = $result["msg"];
+                            if( isset($resultCurl["msg"]) ){
+                                $msg = $resultCurl["msg"];
                             } else {
-                                debug_log(json_encode($result, JSON_UNESCAPED_UNICODE), "onchannel/prdRegist", "prdRegist");
+                                if(is_array($resultCurl)){
+                                    $resultCurl = json_encode($resultCurl, JSON_UNESCAPED_UNICODE);
+                                }
+                                debug_log($resultCurl, "onchannel/prdRegist", "prdRegist");
                             }
                             $log = OnchannelProductLog::updateOrCreate(
                                 [
@@ -309,7 +309,12 @@ class Onchannel extends MallApiAbstract
                         ]);
                     }
                 } else {
-                    $updateIds[] = $offerId;
+                    $modiResult = $this->productModi([$offerId]);
+                    if( $modiResult["isSuccess"] === true ){
+                        $successIds[] = $offerId;
+                    } else {
+                        $failIds[] = $offerId;
+                    }
                 }
 
                 sleep(1.3);
@@ -334,14 +339,14 @@ class Onchannel extends MallApiAbstract
         $weights   = CategoryConstant::WEIGHTS;
 
         foreach ($offerIds as $offerId) {
-            $regCnt = OnchannelProductLog::where([
+            $logObj = OnchannelProductLog::where([
                 "offer_id"       => $offerId,
                 "member_id"      => OnchannelConstant::ONCH1688,
                 "send_type"      => $sendType,
                 "regist_success" => MallConstant::REGIST_SUCCESS,
-            ])->count();
+            ])->first();
 
-            if( $regCnt > 0 ){
+            if( $logObj != null ){
                 try {
                     $prdObj = ProductData::with([
                         "main_img",
@@ -503,87 +508,46 @@ class Onchannel extends MallApiAbstract
                         'Authorization: Bearer ' . $this->token,
                     );
 
-                    $endPoint = $this->domain . "/api/v1/product/regist";
-                    $result = helpers_curl("POST", $endPoint, $header, $payload);
-
+                    $endPoint = $this->domain . "/api/w/product/edit";
+                    $result   = helpers_curl("POST", $endPoint, $header, $payload);
                     if( isset($result["prd_code"]) && $result["prd_code"] ){
-                        $log = OnchannelProductLog::updateOrCreate(
-                            [
-                                "offer_id"  => $offerId,
-                                "member_id" => OnchannelConstant::ONCH1688,
-                                "send_type" => $sendType,
-                            ],
-                            [
-                                "prd_code"       => $result["prd_code"],
-                                "regist_success" => MallConstant::REGIST_SUCCESS,
-                                "message"        => "",
-                                "registed_at"    => Carbon::now(),
-                            ]
-                        );
 
                         OnchannelProductDetailLog::create([
-                            "log_id"     => $log->id,
-                            "send_type"  => MallConstant::SEND_TYPE_REGIST,
+                            "log_id"     => $logObj->id,
+                            "send_type"  => MallConstant::SEND_TYPE_MODI,
                             "is_success" => MallConstant::REGIST_SUCCESS,
                             "message"    => ""
                         ]);
 
-                        $successIds[] = $offerId;
+                        $returnMsg = helpers_success_message();
                     } else {
                         $msg = "온채널 통신 에러";
                         if( isset($result["msg"]) ){
                             $msg = $result["msg"];
                         } else {
-                            debug_log(json_encode($result, JSON_UNESCAPED_UNICODE), "onchannel/prdRegist", "prdRegist");
+                            debug_log(json_encode($result, JSON_UNESCAPED_UNICODE), "onchannel/prdModi", "prdModi");
                         }
-                        $log = OnchannelProductLog::updateOrCreate(
-                            [
-                                "offer_id"  => $offerId,
-                                "member_id" => OnchannelConstant::ONCH1688,
-                                "send_type" => $sendType,
-                            ],
-                            [
-                                "prd_code"       => 0,
-                                "regist_success" => MallConstant::REGIST_ERROR,
-                                "message"        => $msg,
-                            ]
-                        );
 
                         OnchannelProductDetailLog::create([
-                            "log_id"     => $log->id,
-                            "send_type"  => MallConstant::SEND_TYPE_REGIST,
-                            "is_success" => MallConstant::REGIST_FAIL,
+                            "log_id"     => $logObj->id,
+                            "send_type"  => MallConstant::SEND_TYPE_MODI,
+                            "is_success" => MallConstant::REGIST_ERROR,
                             "message"    => $msg
                         ]);
+
+                        $returnMsg = helpers_fail_message($msg);
                     }
                 } catch (Exception $e) {
-                    $failIds[] = [
-                        "offer_id" => $offerId,
-                        "msg"      => $e->getMessage()
-                    ];
-
-                    $log = OnchannelProductLog::updateOrCreate(
-                        [
-                            "offer_id"  => $offerId,
-                            "member_id" => OnchannelConstant::ONCH1688,
-                            "send_type" => $sendType,
-                        ],
-                        [
-                            "prd_code"       => 0,
-                            "regist_success" => MallConstant::REGIST_ERROR,
-                            "message"        => $e->getMessage(),
-                        ]
-                    );
-
+                    $msg = $e->getMessage();
                     OnchannelProductDetailLog::create([
-                        "log_id"     => $log->id,
-                        "send_type"  => MallConstant::SEND_TYPE_REGIST,
-                        "is_success" => MallConstant::REGIST_FAIL,
-                        "message"    => $e->getMessage(),
+                        "log_id"     => $logObj->id,
+                        "send_type"  => MallConstant::SEND_TYPE_MODI,
+                        "is_success" => MallConstant::REGIST_ERROR,
+                        "message"    => $msg
                     ]);
-                }
 
-                sleep(1.3);
+                    $returnMsg = helpers_fail_message($msg);
+                }
             }
         }
 
@@ -597,12 +561,22 @@ class Onchannel extends MallApiAbstract
      */
     public function sendModiProduct(): void
     {
-        $now      = Carbon::now();
-        $modiObjs = ProductModiData::where("is_send", ProductConstant::IS_SEND_N)
-        ->where("channel", MallConstant::MALL_ONCHANNEL)
-        ->groupBy("offer_id")
-        ->get();
+        debug_log("온채널 일괄 수정 전송 시작", "onchannel/sendAllPrdModi", "sendAllPrdModi");
+
+        $logObjs = OnchannelProductLog::where([
+            "member_id"      => OnchannelConstant::ONCH1688,
+            "regist_success" => MallConstant::REGIST_SUCCESS,
+        ])->get();
+
+        foreach ($logObjs as $logObj) {
+            $send_type = $logObj->send_type;
+
+            $this->productModi([$logObj->offer_id], $send_type);
+
+            sleep(1.3);
+        }
         
+        debug_log("온채널 일괄 수정 전송 종료", "onchannel/sendAllPrdModi", "sendAllPrdModi");
     }
 
     /****************************************** 상품 end **********************************************/

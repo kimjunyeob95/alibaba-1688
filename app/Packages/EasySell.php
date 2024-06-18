@@ -5,6 +5,7 @@ namespace App\Packages;
 use App\Abstracts\MallApiAbstract;
 use App\Abstracts\OrderAbstract;
 use App\Abstracts\TransApiAbstract;
+use App\Constants\CategoryConstant;
 use App\Constants\EasySellConstant;
 use App\Constants\GosiConstants;
 use App\Constants\ImageConstant;
@@ -17,6 +18,7 @@ use App\Models\CategoryMapping;
 use App\Models\EasysellProductLog;
 use App\Models\ProductData;
 use App\Models\ProductModiData;
+use App\Models\ProductWeightData;
 use App\Models\SellerhubCategory;
 use App\Vo\EasySell\EasySellProductVo;
 use Carbon\Carbon;
@@ -107,9 +109,6 @@ class EasySell extends MallApiAbstract
                 }
                 if( $prdObj->mapping_status != ProductConstant::MAPPING_STATUS_Y ){
                     throw new Exception(MallErrorMessageConstant::getFitErrorMessage("NOT_MAPPING_CATE"));
-                }
-                if( $prdObj->status != ProductConstant::PRD_STATUS_PUBLISH ){
-                    throw new Exception(MallErrorMessageConstant::getFitErrorMessage("PRODUCT_STATUS"));
                 }
                 if( count($prdObj->options->where("is_except", OptionConstants::IS_EXCEPT_N)) == 0 ){
                     throw new Exception(MallErrorMessageConstant::getFitErrorMessage("OPTION"));
@@ -236,9 +235,6 @@ class EasySell extends MallApiAbstract
                 if( $prdObj->mapping_status != ProductConstant::MAPPING_STATUS_Y ){
                     throw new Exception(MallErrorMessageConstant::getFitErrorMessage("NOT_MAPPING_CATE"));
                 }
-                if( $prdObj->status != ProductConstant::PRD_STATUS_PUBLISH ){
-                    throw new Exception(MallErrorMessageConstant::getFitErrorMessage("PRODUCT_STATUS"));
-                }
                 if( count($prdObj->options->where("is_except", OptionConstants::IS_EXCEPT_N)) == 0 ){
                     throw new Exception(MallErrorMessageConstant::getFitErrorMessage("OPTION"));
                 }
@@ -306,7 +302,10 @@ class EasySell extends MallApiAbstract
         ->groupBy("offer_id", "w_type")
         ->get();
         foreach ($modiObjs as $modiObj) {
-            $result = $this->productRegist([$modiObj->offer_id], $modiObj->w_type);
+            $param = [
+                "type" => $modiObj->w_type
+            ];
+            $result = $this->productRegist([$modiObj->offer_id], $param);
 
             $query = ProductModiData::where("is_send", ProductConstant::IS_SEND_N)
             ->where("created_at", "<=", $now)
@@ -391,30 +390,49 @@ class EasySell extends MallApiAbstract
                 $ItemName = $prdObj->prd_name_kr;
                 $prdDesc  = $prdObj->prd_desc_kr;
                 $optionTitle = "옵션";
+                $noticeInfo = $prdObj->notices->where("is_except",GosiConstants::IS_EXCEPT_N)->pluck("attribute_value_kr","attribute_name_kr")->toArray();
+                $images = array_filter($prdObj->images->whereIn("img_type",[ImageConstant::IMAGE_TYPE_MAIN, ImageConstant::IMAGE_TYPE_SUB])->where("is_except",ImageConstant::IS_EXCEPT_N)->pluck("img_url_trans")->toArray());
             }else if($type == WConstant::WAPP_W2){
                 $ItemName = $prdObj->prd_name_en;
                 $prdDesc  = $prdObj->prd_desc_en;
                 $optionTitle = "option";
-            }
-
-            if($type == WConstant::WAPP_W1){
-                $noticeInfo = $prdObj->notices->where("is_except",GosiConstants::IS_EXCEPT_N)->pluck("attribute_value_kr","attribute_name_kr")->toArray();
-            }else if($type == WConstant::WAPP_W2){
                 $noticeInfo = $prdObj->notices->where("is_except",GosiConstants::IS_EXCEPT_N)->pluck("attribute_value_en","attribute_name_en")->toArray();
+                $images = array_filter($prdObj->en_images->whereIn("img_type",[ImageConstant::IMAGE_TYPE_MAIN, ImageConstant::IMAGE_TYPE_SUB])->where("is_except",ImageConstant::IS_EXCEPT_N)->pluck("img_url_origin")->toArray());
             }
-            $notice = getNoticeInfoTable($noticeInfo);
+            if(!count($images)){
+                throw new Exception("상품의 이미지가 없습니다");
+            }
+            $itemImage = implode("|", $images);
 
-            $unitInfo   = $optionTitle."|";
+            $notice = getNoticeInfoTable($noticeInfo, $type);
+
+            //상품 판매상태
             $saleStatus = EasySellConstant::STATUS_STOP_SALE;
+            if( $prdObj->status == ProductConstant::PRD_STATUS_PUBLISH ){
+                $saleStatus = EasySellConstant::STATUS_ON_SALE;
+            }
+
+            //배송비 설정
+            $weights   = CategoryConstant::WEIGHTS;
+            $weightObj = ProductWeightData::where("offer_id", $offerId)->first();
+            $delivery_price = ProductConstant::WEIGHT_STATUS_NONE_PRICE;
+            if( $weightObj != null ){
+                $delivery_price = $weights[$weightObj->weight];
+            }
+
+            //옵션 설정
+            $unitInfo   = $optionTitle."|";
             $idx = 0;
             foreach($prdObj->options->where("is_except", OptionConstants::IS_EXCEPT_N) as $option){
+                $price = calcEasySellSalePrice($option->price_1688, $option->md_price, $delivery_price);
+
                 if(!$idx){
-                    $buyPrice  = $option->option_price; //셀러허브 공급가
-                    $salePrice = $setPrice = calcEasySellSalePrice($option->option_price, $option->md_price);
+                    $buyPrice  = $price['buyPrice']; //셀러허브 공급가
+                    $salePrice = $setPrice = $price['salePrice'];
                 }else{
                     $unitInfo .= ",";
                 }
-                $setPrice = calcEasySellSalePrice($option->option_price, $option->md_price);
+                $setPrice = $price['salePrice'];
 
                 //옵션명
                 $replaceArr     = array("|",",","/");
@@ -428,21 +446,14 @@ class EasySell extends MallApiAbstract
 
                 $stock = 0;
                 if($option->status == ProductConstant::OPTION_SEC_ON_SALE_NUMBER){
-                    $saleStatus = EasySellConstant::STATUS_ON_SALE;
                     $stock      = $option->amount_on_sale;
                 }
 
-                $unitInfo .= "{$optionNm}^^{$stock}^^{$setPrice}^^{$setPrice}^^{$option->option_price}::{$option->id}";
+                //옵션구분명|옵션1^^재고^^판매가^^정가^^공급가::업체옵션번호,
+                $unitInfo .= "{$optionNm}^^{$stock}^^{$setPrice}^^{$setPrice}^^{$buyPrice}::{$option->id}";
 
                 $idx++;
             }
-
-            if($type == WConstant::WAPP_W1){
-                $images = $prdObj->images;
-            }else if($type == WConstant::WAPP_W2){
-                $images = $prdObj->en_images;
-            }
-            $itemImage = implode("|", array_filter($images->whereIn("img_type",[ImageConstant::IMAGE_TYPE_MAIN, ImageConstant::IMAGE_TYPE_SUB])->where("is_except",ImageConstant::IS_EXCEPT_N)->pluck("img_url_trans")->toArray()));
 
             $voParams = [
                 "ItemNo"                => $offerId,
@@ -458,7 +469,7 @@ class EasySell extends MallApiAbstract
                 "BuyPrice"              => $buyPrice,
                 "SalePrice"             => $salePrice,
                 "ConsumerPrice"         => $salePrice,
-                "Delfee"                => $prdObj->extends->send_default_price,
+                "Delfee"                => $delivery_price,
                 "UnitInfo"              => $unitInfo,
                 "SaleStatus"            => $saleStatus,
                 "ItemMode"              => $itemMode,
@@ -619,7 +630,7 @@ class EasySell extends MallApiAbstract
     public function channelCateDepth(array $params): array
     {
         $returnMsg = $this->returnMsg;
-        
+
         try {
             $level     = $params["level"];
             $cate_name = $params["cate_name"];
@@ -688,16 +699,16 @@ class EasySell extends MallApiAbstract
     public function channelCateList(array $params): array
     {
         $returnMsg = $this->returnMsg;
-        
+
         try {
             $keyword     = $params["keyword"];
             $cate_second = $params["cate_second"];
             $cate_third  = $params["cate_third"];
             $cate_fourth = $params["cate_fourth"];
-            
+
             $builder = SellerhubCategory::query();
             $builder->where("cate_first", EasySellConstant::DEFAULT_CATEGORY);
-            
+
             if( $cate_second != "" ){
                 $builder->where("cate_second", $cate_second);
             }
@@ -739,7 +750,7 @@ class EasySell extends MallApiAbstract
     {
         $returnMsg = $this->returnMsg;
         try {
-            
+
             $returnMsg = helpers_success_message();
 
         } catch (Exception $e) {

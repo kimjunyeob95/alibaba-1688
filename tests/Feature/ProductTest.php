@@ -27,6 +27,9 @@ use Tests\TestCase;
 use Illuminate\Support\Facades\File;
 use Illuminate\Pagination\Paginator;
 use Psr\Log\LogLevel;
+use Symfony\Component\Process\Exception\ProcessFailedException;
+use Symfony\Component\Process\Process;
+use Illuminate\Support\Str;
 
 class ProductTest extends TestCase
 {
@@ -88,14 +91,103 @@ class ProductTest extends TestCase
     public function testBase64()
     {
         $filePath = public_path('app/base64.txt');
-        if (File::exists($filePath)) {
-            $fileContents = File::get($filePath);
-            $mime = getExtensionFromBase64($fileContents);
 
-            dd($mime);
-        } else {
+        if (!File::exists($filePath)) {
             throw new Exception("파일이 존재하지 않습니다.");
         }
+
+        $fileContents = File::get($filePath);
+        $decodedFile = base64_decode($fileContents);
+
+        $tempFilePath = tempnam(sys_get_temp_dir(), 'img');
+        file_put_contents($tempFilePath, $decodedFile);
+
+        $metadata = "테스트 데이터 입니다.22";
+
+        // 임시 파일 경로 설정
+        $fileName = tempnam(sys_get_temp_dir(), 'img') . ".jpeg";
+        rename($tempFilePath, $fileName);
+
+        // 설명 메타데이터 추가
+        $command = "exiftool -overwrite_original -description=\"$metadata\" -Caption-Abstract=\"$metadata\" -ImageDescription=\"$metadata\" -XPComment=\"$metadata\" -Title=\"$metadata\" -UserComment=\"$metadata\" $fileName";
+        shell_exec($command);
+
+        // S3에 업로드
+        $s3 = new S3();
+        $uploadResult = $s3->uploadFile('test/1.jpeg', file_get_contents($fileName));
+
+        // 업로드된 파일 읽기
+        $uploadedFileContents = $s3->getFile('test/1.jpeg');
+
+         // 임시 파일로 저장
+        $uploadedTempFilePath = tempnam(sys_get_temp_dir(), 'uploaded_img') . ".jpeg";
+        file_put_contents($uploadedTempFilePath, $uploadedFileContents);
+
+        // 메타데이터 추출
+        $command = "exiftool -description $uploadedTempFilePath";
+        $extractedMetadata = shell_exec($command);
+
+        // 결과 출력
+        dd($uploadResult, $extractedMetadata);
+    }
+
+    # php artisan test --filter testEncodeImg
+    public function testEncodeImg()
+    {
+        // 현재 날짜와 시간을 이용하여 파일명 생성
+        $timestamp = date('Ymd_His');
+        $uniqueId  = Str::uuid();
+
+        // 저장 경로 설정
+        $storagePath    = storage_path('python');
+        $jsonFilePath   = $storagePath . '/' . $timestamp . '_' . $uniqueId . '_json.txt';
+        $base64FilePath = $storagePath . '/' . $timestamp . '_' . $uniqueId . '_base64.txt';
+
+        // 디렉토리 존재 여부 확인 및 생성
+        if (!File::exists($storagePath)) {
+            File::makeDirectory($storagePath, 0755, true);
+        }
+
+        // JSON 데이터 생성 및 파일에 저장
+        $jsonData = json_encode(["아이디" => "tester123", "사업자번호" => "사업자번호test", "채널" => "easysell"], JSON_UNESCAPED_UNICODE);
+        File::put($jsonFilePath, $jsonData);
+
+        // base64.txt 파일 내용을 읽어서 새로운 파일에 저장
+        $filePath = public_path('app/base64.txt');
+        if (!File::exists($filePath)) {
+            throw new Exception("파일이 존재하지 않습니다.");
+        }
+        $fileContents = File::get($filePath);
+        File::put($base64FilePath, $fileContents);
+
+        $python_path = env("PYTHON_PATH", "/usr/bin/python");
+        $active_path = base_path('python/encode_img.py');
+        $process     = new Process([
+            $python_path,
+            $active_path,
+            $jsonFilePath,
+            $base64FilePath,
+        ]);
+        $process->run();
+
+        // 명령어 실행 중 오류가 발생한 경우
+        if (!$process->isSuccessful()) {
+            throw new ProcessFailedException($process);
+        }
+
+        // 파이썬 스크립트의 출력 결과를 받아오기
+        $output = $process->getOutput();
+        $result = json_decode($output, true);
+        $imgName = "/test/2-tt.jpeg";
+
+        $s3 = new S3();
+        $uploadResult = $s3->uploadFile($imgName, base64_decode($result["encoded_base64"]));
+
+        // 사용된 파일 삭제
+        File::delete($jsonFilePath);
+        File::delete($base64FilePath);
+
+        dd($uploadResult);
     }
 
     /** 상품 배송비 적용 */
@@ -154,7 +246,7 @@ class ProductTest extends TestCase
     # php artisan test --filter testAllProductReCollectW1
     public function testAllProductReCollectW1()
     {
-        if (now()->format('Y-m-d H:i') != '2024-06-13 16:00') {
+        if (now()->format('Y-m-d H:i') != '2024-06-14 18:00') {
             return false;
         }
 

@@ -14,12 +14,18 @@ namespace App\Annotations\v1\W\cOrder;
  * 
  * @OA\Schema(
  *     schema="OrderCreateSchema",
- *     required={"offer_id", "optionParamList", "option_price", "buyer_name", "buyer_clearance_number", "buyer_number", "buyer_phone", "buyer_zipcode", "buyer_address", "buyer_memo"},
+ *     required={"offer_id", "channel_order_id", "optionParamList", "option_price", "buyer_name", "buyer_clearance_number", "buyer_number", "buyer_phone", "buyer_zipcode", "buyer_address", "buyer_memo"},
  *     @OA\Property(
  *         property="offer_id",
  *         type="integer",
  *         example=715819550080,
  *         description="제품 ID"
+ *     ),
+ *     @OA\Property(
+ *         property="channel_order_id",
+ *         type="string",
+ *         example="test2016179999",
+ *         description="채널 주문 번호"
  *     ),
  *     @OA\Property(
  *         property="optionParamList",
@@ -112,12 +118,18 @@ namespace App\Annotations\v1\W\cOrder;
  *     @OA\Property(
  *         property="data", 
  *         type="object",
- *         required={"order_id", "success"},
+ *         required={"order_id", "channel_order_id", "success"},
  *         @OA\Property(
  *             property="order_id",
  *             type="string",
  *             description="주문 ID",
  *             example="3890000700554135493"
+ *         ),
+ *         @OA\Property(
+ *             property="channel_order_id",
+ *             type="string",
+ *             description="채널 주문 번호",
+ *             example="test2016179999"
  *         ),
  *         @OA\Property(
  *             property="success",

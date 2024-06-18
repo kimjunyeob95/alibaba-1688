@@ -4,7 +4,6 @@ namespace App\Services;
 
 use App\Constants\MallConstant;
 use App\Constants\ProductConstant;
-use App\Constants\WConstant;
 use App\Models\Category;
 use App\Models\CategoryMapping;
 use App\Models\OnchannelProductLog;
@@ -73,8 +72,8 @@ class OnchannelService
                 $join->on('product_datas.category_id', '=', 'd.category_id')->where('d.mapping_channel', ProductConstant::MAPPING_WAPP);
             })
             ->where("b.send_type", $send_type)
-            ->orderBy("b.registed_at", "desc")
-            ->orderBy("b.updated_at", "desc");
+            ->orderBy("b.updated_at", "desc")
+            ->orderBy("b.registed_at", "desc");
 
         $totalCnt = OnchannelProductLog::where("send_type", $send_type)->count();
 

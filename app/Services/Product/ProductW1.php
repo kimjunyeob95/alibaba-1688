@@ -163,6 +163,11 @@ class ProductW1 extends ProductAbstract
             "oc_private_log",
         ]);
 
+        $prdBuilder->leftJoin('product_weight_datas as pwd', function ($join) {
+            $join->on('product_datas.offer_id', '=', 'pwd.offer_id');
+        });
+        $prdBuilder->addSelect("pwd.weight_type", "pwd.weight", "pwd.delivery_price");
+
         if( !empty($keyword) ){
             if( $search_cls == "offer_id"){
                 $keyword = preg_replace("/(\r\n|\r|\n)/", ",", trim($keyword));
@@ -253,12 +258,6 @@ class ProductW1 extends ProductAbstract
         }
 
         if( !empty($weight_status) ){
-            $prdBuilder->leftJoin('product_weight_datas as pwd', function ($join) {
-                $join->on('product_datas.offer_id', '=', 'pwd.offer_id');
-            });
-
-            $prdBuilder->addSelect("pwd.weight_type", "pwd.weight", "pwd.delivery_price");
-
             if( $weight_status != ProductConstant::WEIGHT_STATUS_NONE ){
                 $prdBuilder->where("pwd.weight_type", $weight_status);
             } else if( $weight_status == ProductConstant::WEIGHT_STATUS_NONE ) {
@@ -1779,9 +1778,47 @@ class ProductW1 extends ProductAbstract
         ]);
 
         // 4. 상품 확장정보
+        $trade_medal_level           = 0.0;
+        $composite_service_score     = 0.0;
+        $logistics_experience_score  = 0.0;
+        $dispute_complaint_score      = 0.0;
+        $offer_experience_score      = 0.0;
+        $consulting_experience_score = 0.0;
+        $trade_score                 = 0.0;
+        if( isset($detailProduct["sellerDataInfo"]) ){
+            $sellerDataInfo = $detailProduct["sellerDataInfo"];
+            if( isset($sellerDataInfo["tradeMedalLevel"]) ){
+                $trade_medal_level = (float)$sellerDataInfo["tradeMedalLevel"];
+            }
+            if( isset($sellerDataInfo["compositeServiceScore"]) ){
+                $composite_service_score = (float)$sellerDataInfo["compositeServiceScore"];
+            }
+            if( isset($sellerDataInfo["logisticsExperienceScore"]) ){
+                $logistics_experience_score = (float)$sellerDataInfo["logisticsExperienceScore"];
+            }
+            if( isset($sellerDataInfo["disputeComplaintScore"]) ){
+                $dispute_complaint_score = (float)$sellerDataInfo["disputeComplaintScore"];
+            }
+            if( isset($sellerDataInfo["offerExperienceScore"]) ){
+                $offer_experience_score = (float)$sellerDataInfo["offerExperienceScore"];
+            }
+            if( isset($sellerDataInfo["consultingExperienceScore"]) ){
+                $consulting_experience_score = (float)$sellerDataInfo["consultingExperienceScore"];
+            }
+        }
+        if( isset($detailProduct["tradeScore"]) ){
+            $trade_score = (float)$detailProduct["tradeScore"];
+        }
         $product1688ExtendDto = new Product1688ExtendDto();
         $product1688ExtendDto->bind([
-            "offerId" => $offerId,
+            "offerId"                     => $offerId,
+            "trade_medal_level"           => $trade_medal_level,
+            "composite_service_score"     => $composite_service_score,
+            "logistics_experience_score"  => $logistics_experience_score,
+            "dispute_complaint_score"      => $dispute_complaint_score,
+            "offer_experience_score"      => $offer_experience_score,
+            "consulting_experience_score" => $consulting_experience_score,
+            "trade_score"                 => $trade_score,
         ]);
 
         // 5. 상품 고시정보

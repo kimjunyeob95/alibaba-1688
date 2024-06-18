@@ -4,7 +4,6 @@ namespace App\Traits;
 
 use Exception;
 use App\Abstracts\TransApiAbstract;
-use Illuminate\Support\Facades\Log;
 
 trait MallImageTrait
 {

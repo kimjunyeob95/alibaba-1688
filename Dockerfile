@@ -7,33 +7,92 @@ ARG PROFILE
 ENV ENVIRONMENT=${PROFILE}
 
 # Install dependencies
-# git 확인 필요
-# locales 타임존 확인
 RUN apt-get update && apt-get install -y \
+    wget \
+    build-essential \
     git \
+    libssl-dev \
+    zlib1g-dev \
+    libncurses5-dev \
+    libncursesw5-dev \
+    libreadline-dev \
+    libsqlite3-dev \
+    libgdbm-dev \
+    libdb5.3-dev \
+    libbz2-dev \
+    libexpat1-dev \
+    liblzma-dev \
+    tk-dev \
+    libffi-dev \
     curl \
     unzip \
     libmcrypt4 \
     locales \
     libzip-dev \
     vim \
-    awscli  # Install the AWS CLI
+    awscli \
+    nginx net-tools procps \
+    supervisor \
+    exiftool \
+    libmagickwand-dev \
+    libpng-dev \
+    libjpeg-dev \
+    libfreetype6-dev \
+    fonts-nanum
 
-RUN apt-get install -y nginx net-tools && apt-get install -y procps
+RUN locale-gen ko_KR.UTF-8 && \
+    update-locale LANG=ko_KR.UTF-8
 
-# Python
-RUN apt-get install -y python3 python3-pip
-RUN apt-get install -y python3-confluent-kafka
-RUN echo 'alias python=python3' >> ~/.bashrc
-RUN pip3 install PyMySQL requests urllib3 certifi charset-normalizer flask_socketio flask_cors eventlet gunicorn
+ENV LANG=ko_KR.UTF-8
+ENV LANGUAGE=ko_KR:ko
+ENV LC_ALL=ko_KR.UTF-8
 
-RUN apt-get install -y supervisor
+# Python 3.7 설치
+RUN wget https://www.python.org/ftp/python/3.7.12/Python-3.7.12.tgz && \
+    tar xzf Python-3.7.12.tgz && \
+    cd Python-3.7.12 && \
+    ./configure --enable-optimizations && \
+    make altinstall && \
+    ln -sf /usr/local/bin/python3.7 /usr/bin/python3.7 && \
+    ln -sf /usr/local/bin/pip3.7 /usr/bin/pip3.7 && \
+    rm -rf /Python-3.7.12* && \
+    apt-get clean
+
+# Python 3.7을 기본 python 명령어로 설정
+RUN ln -sf /usr/local/bin/python3.7 /usr/bin/python && \
+    ln -sf /usr/local/bin/pip3.7 /usr/bin/pip
+
+# 필요한 Python 패키지 설치
+RUN pip install --upgrade pip && \
+    pip install PyMySQL requests urllib3 certifi charset-normalizer flask_socketio flask_cors eventlet gunicorn stegano
+
+# confluent-kafka 패키지 별도 설치
+RUN apt-get update && apt-get install -y librdkafka-dev && \
+    pip install confluent-kafka
+
+# bashrc에 alias 추가
+RUN echo 'alias python=python3.7' >> ~/.bashrc && \
+    echo 'alias pip=pip3.7' >> ~/.bashrc
 
 # Clear cache
 RUN apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Install extensions
 RUN docker-php-ext-install pdo pdo_mysql mysqli zip exif pcntl opcache sockets
+
+# Install imagick extension via pecl
+RUN pecl install imagick && docker-php-ext-enable imagick
+
+# Enable imagick extension
+RUN mkdir -p /usr/local/etc/php/conf.d && \
+    echo "extension=imagick.so" > /usr/local/etc/php/conf.d/docker-php-ext-imagick.ini
+
+# Install gd extension
+RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install gd
+
+# Enable gd extension
+RUN echo "extension=gd.so" > /usr/local/etc/php/conf.d/docker-php-ext-gd.ini
 
 # Install composer
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer

@@ -76,6 +76,7 @@ trait MallOrderTrait
 
         try {
             $offerId              = $params["offer_id"];
+            $channelOrderId       = $params["channel_order_id"];
             $optionParamList      = $params["optionParamList"];
             $optionPrice          = $params["option_price"];
             $buyerName            = $params["buyer_name"];
@@ -134,7 +135,7 @@ trait MallOrderTrait
 
                     $orderDtoBind = [
                         "order_id"               => $orderId,
-                        "offer_id"               => $offerId,
+                        "channel_order_id"       => $channelOrderId,
                         "channel"                => $this->channel,
                         "buyer_name"             => $buyerName,
                         "buyer_clearance_number" => $buyerClearanceNumber,
@@ -162,8 +163,9 @@ trait MallOrderTrait
                     DB::commit();
 
                     $returnPayload = [
-                        "order_id" => $orderId,
-                        "success"  => $result["data"]["success"],
+                        "order_id"         => $orderId,
+                        "channel_order_id" => $channelOrderId,
+                        "success"          => $result["data"]["success"],
                     ];
 
                     $returnMsg = helpers_success_message($returnPayload);
