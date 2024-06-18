@@ -441,10 +441,7 @@ class EasySell extends MallApiAbstract
                     $optionNm = str_replace($replaceArr, $replacementArr ,$option->option_name_en);
                 }
 
-                $stock = 0;
-                if($option->status == ProductConstant::OPTION_SEC_ON_SALE_NUMBER){
-                    $stock      = $option->amount_on_sale;
-                }
+                $stock = $option->amount_on_sale;
 
                 //옵션구분명|옵션1^^재고^^판매가^^정가^^공급가::업체옵션번호,
                 $unitInfo .= "{$optionNm}^^{$stock}^^{$setPrice}^^{$setPrice}^^{$buyPrice}::{$option->id}";
