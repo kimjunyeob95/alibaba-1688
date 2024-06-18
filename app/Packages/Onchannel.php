@@ -22,6 +22,7 @@ use Carbon\Carbon;
 use Exception;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
+use Illuminate\Pagination\Paginator;
 
 class Onchannel extends MallApiAbstract
 {
@@ -563,17 +564,34 @@ class Onchannel extends MallApiAbstract
     {
         debug_log("온채널 일괄 수정 전송 시작", "onchannel/sendAllPrdModi", "sendAllPrdModi");
 
-        $logObjs = OnchannelProductLog::where([
+        $builder = OnchannelProductLog::where([
             "member_id"      => OnchannelConstant::ONCH1688,
             "regist_success" => MallConstant::REGIST_SUCCESS,
-        ])->get();
+        ]);
 
-        foreach ($logObjs as $logObj) {
-            $send_type = $logObj->send_type;
+        $perPage    = 900;
+        $totalCount = $builder->count();
+        $totalPages = ceil($totalCount / $perPage);
 
-            $this->productModi([$logObj->offer_id], $send_type);
+        for ($page = 1; $page <= $totalPages; $page++) {
+            Paginator::currentPageResolver(function () use ($page) {
+                return $page;
+            });
+        
+            // paginate 메소드는 새 Paginator 인스턴스를 반환합니다.
+            $pagedData = $builder->paginate($perPage);
+            $results   = $pagedData->items();
 
-            sleep(1.3);
+            foreach ($results as $obj) {
+                $offerId   = $obj->offer_id;
+                $send_type = $obj->send_type;
+
+                $this->productModi([$offerId], $send_type);
+
+                sleep(1.3);
+            }
+
+            debug_log("온채널 일괄 수정 전송 진행중({$page}/{$totalPages})", "onchannel/sendAllPrdModi", "sendAllPrdModi");
         }
         
         debug_log("온채널 일괄 수정 전송 종료", "onchannel/sendAllPrdModi", "sendAllPrdModi");
