@@ -3,6 +3,7 @@
 namespace App\Console;
 
 use App\Console\Commands\EasySellCommand;
+use App\Console\Commands\GenuioCommand;
 use App\Console\Commands\MissProductReCollect;
 use App\Console\Commands\OnchannelCommand;
 use App\Console\Commands\Save1688AllCategory;
@@ -53,6 +54,8 @@ class Kernel extends ConsoleKernel
         UpdateAttribute::class,
         /** 중량별 배송비 적용 */
         UpdateWeightDelivery::class,
+        /** Genuio */
+        GenuioCommand::class,
     ];
 
     protected function schedule(Schedule $schedule)
