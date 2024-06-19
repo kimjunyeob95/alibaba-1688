@@ -50,11 +50,14 @@ class EasySellService
         }
 
         $prdBuilder = ProductData::select([
-                "product_datas.offer_id","product_datas.prd_name_kr","epl.itemno","epl.regist_success","product_datas.category_id",
-                "epl.registed_at"
+                "product_datas.*", "product_datas.offer_id","product_datas.prd_name_kr","epl.itemno","epl.regist_success","product_datas.category_id",
+                "epl.registed_at","pwd.weight_type", "pwd.weight", "pwd.delivery_price"
             ])
             ->with(["main_img", "options", "es_mapping", "es_fgn_mapping", "w_mapping", "w_mapping.w_cate_name"])
             ->join("easysell_product_logs as epl","product_datas.offer_id","=","epl.offer_id")
+            ->leftJoin('product_weight_datas as pwd', function ($join) {
+                $join->on('product_datas.offer_id', '=', 'pwd.offer_id');
+            })
             ->orderBy("product_datas.created_at", "desc");
 
         $totalCnt = $prdBuilder->count();
