@@ -1099,6 +1099,7 @@ class GenuioService extends TransApiAbstract
                 $imgId       = $data["id"];
                 $offerId     = $data["offer_id"];
                 $prdImgId    = $data["img_id"];
+                $imgType     = $data["img_type"];
                 $originUrl   = "";
                 $isThumbnail = false;
                 $priority    = false;
@@ -1111,6 +1112,10 @@ class GenuioService extends TransApiAbstract
                 if( isset($data["priority"]) ){
                     $priority = $data["priority"];
                 }
+                if( in_array($imgType, [ImageConstant::IMAGE_TYPE_MAIN, ImageConstant::IMAGE_TYPE_SUB]) ){
+                    $isThumbnail = true;
+                }
+
                 if( $originUrl ){
                     $payload["images"][] = [
                         "id"          => $imgId,

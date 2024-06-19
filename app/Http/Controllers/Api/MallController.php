@@ -168,7 +168,8 @@ class MallController extends Controller
                 'images.*.id'         => 'required|int',
                 'images.*.offer_id'   => 'required|int',
                 'images.*.img_id'     => 'required|int',
-                'images.*.origin_url' => 'required|string'
+                'images.*.origin_url' => 'required|string',
+                'images.*.img_type'   => 'required|string',
             ], [
                 'channel_queue_id.required'    => MallErrorMessageConstant::getNotHaveErrorMessage("CHANNEL_QUEUE_ID"),
                 'member_id.required'           => MallErrorMessageConstant::getNotHaveErrorMessage("MEMBER_ID"),
@@ -177,6 +178,7 @@ class MallController extends Controller
                 'images.*.offer_id.required'   => MallErrorMessageConstant::getNotHaveErrorMessage("OFFER_ID"),
                 'images.*.img_id.required'     => MallErrorMessageConstant::getNotHaveErrorMessage("IMG_ID"),
                 'images.*.origin_url.required' => MallErrorMessageConstant::getNotHaveErrorMessage("IMAGES_ORIGIN_URL"),
+                'images.*.img_type.required'   => MallErrorMessageConstant::getNotHaveErrorMessage("IMG_TYPE"),
             ]);
             if ($validator->fails()) {
                 throw new Exception($validator->errors()->first());

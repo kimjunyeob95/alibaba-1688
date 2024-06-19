@@ -1268,7 +1268,8 @@
                                 "id",
                                 "offer_id",
                                 "img_id",
-                                "origin_url"
+                                "origin_url",
+                                "img_type"
                             ],
                             "properties": {
                                 "id": {
@@ -1290,6 +1291,11 @@
                                     "description": "번역 이미지 url",
                                     "type": "string",
                                     "example": "https://cbu01-overseas.1688.com/img/ibank/O1CN01AD7ffR26MNdlfhHsv_!!2201111757647-0-cib.jpg"
+                                },
+                                "img_type": {
+                                    "description": "이미지 타입 main: 메인이미지 , sub: 서브이미지, desc: 상세이미지",
+                                    "type": "string",
+                                    "example": "main"
                                 }
                             },
                             "type": "object"
