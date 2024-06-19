@@ -24,7 +24,7 @@ namespace App\Annotations\v1\W\dImage;
  *         type="array",
  *         @OA\Items(
  *             type="object",
- *             required={"id", "offer_id", "img_id","origin_url"},
+ *             required={"id", "offer_id", "img_id","origin_url", "img_type"},
  *             @OA\Property(
  *                  property="id",
  *                  type="integer",
@@ -48,6 +48,12 @@ namespace App\Annotations\v1\W\dImage;
  *                  type="string",
  *                  example="https://cbu01-overseas.1688.com/img/ibank/O1CN01AD7ffR26MNdlfhHsv_!!2201111757647-0-cib.jpg",
  *                  description="번역 이미지 url"
+ *              ),
+ *              @OA\Property(
+ *                  property="img_type",
+ *                  type="string",
+ *                  example="main",
+ *                  description="이미지 타입 main: 메인이미지 , sub: 서브이미지, desc: 상세이미지"
  *              ),
  *         ),
  *         description="이미지 정보"

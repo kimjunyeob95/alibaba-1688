@@ -66,7 +66,7 @@ class OnchannelCommand extends Command
 
             /**
              * 상품등록 커맨드
-             * php artisan onchannel_command --func=productRegist --offerids=1294989152 --sendtype=30
+             * php artisan onchannel_command --func=productRegist --offerids=771916492405 --sendtype=30
              */
             case 'productRegist':
                 $offerIds     = explode(",", $this->option('offerids'));
@@ -81,7 +81,7 @@ class OnchannelCommand extends Command
 
             /**
              * 수정 된 상품 전송
-             * php artisan easy_sell_command --func=sendModiProduct
+             * php artisan onchannel_command --func=sendModiProduct
              */
             case 'sendModiProduct':
                 $this->mallApiService->sendModiProduct();

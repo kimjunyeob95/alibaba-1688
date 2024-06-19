@@ -19,7 +19,7 @@ namespace App\Annotations\v1\genuio\bImage;
  *         type="array",
  *         @OA\Items(
  *             type="object",
- *             required={"id", "origin_url", "base64"},
+ *             required={"id", "origin_url", "imgTransBase64"},
  *             @OA\Property(
  *                 property="id",
  *                 type="string",
@@ -33,10 +33,22 @@ namespace App\Annotations\v1\genuio\bImage;
  *                 description="원본 이미지 url"
  *             ),
  *             @OA\Property(
- *                 property="base64",
+ *                 property="imgTransBase64",
  *                 type="string",
  *                 example="~~",
  *                 description="Base64로 인코딩된 이미지 데이터"
+ *             ),
+ *             @OA\Property(
+ *                 property="cleaned_base64",
+ *                 type="string",
+ *                 example="~~",
+ *                 description="Base64로 인코딩된 흰 배경 이미지 데이터"
+ *             ),
+ *             @OA\Property(
+ *                 property="text_data",
+ *                 type="string",
+ *                 example="{test:123}",
+ *                 description="이미지 데이터"
  *             )
  *         ),
  *         description="번역 된 이미지 ID와 base64 인코딩된 이미지 데이터"

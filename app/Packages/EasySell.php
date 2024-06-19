@@ -302,7 +302,10 @@ class EasySell extends MallApiAbstract
         ->groupBy("offer_id", "w_type")
         ->get();
         foreach ($modiObjs as $modiObj) {
-            $result = $this->productRegist([$modiObj->offer_id], $modiObj->w_type);
+            $param = [
+                "type" => $modiObj->w_type
+            ];
+            $result = $this->productRegist([$modiObj->offer_id], $param);
 
             $query = ProductModiData::where("is_send", ProductConstant::IS_SEND_N)
             ->where("created_at", "<=", $now)

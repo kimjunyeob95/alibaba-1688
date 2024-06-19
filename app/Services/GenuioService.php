@@ -1099,6 +1099,7 @@ class GenuioService extends TransApiAbstract
                 $imgId       = $data["id"];
                 $offerId     = $data["offer_id"];
                 $prdImgId    = $data["img_id"];
+                $imgType     = $data["img_type"];
                 $originUrl   = "";
                 $isThumbnail = false;
                 $priority    = false;
@@ -1111,6 +1112,10 @@ class GenuioService extends TransApiAbstract
                 if( isset($data["priority"]) ){
                     $priority = $data["priority"];
                 }
+                if( in_array($imgType, [ImageConstant::IMAGE_TYPE_MAIN, ImageConstant::IMAGE_TYPE_SUB]) ){
+                    $isThumbnail = true;
+                }
+
                 if( $originUrl ){
                     $payload["images"][] = [
                         "id"          => $imgId,
@@ -1202,15 +1207,21 @@ class GenuioService extends TransApiAbstract
                     $img_url_origin = "";
 
                     try {
-                        $img_id         = $image["id"];
-                        $img_url_origin = $image["origin_url"];
-                        $uploadResult   = false;
-                        $imgTransBase64 = "";
-                        $fileMessage    = "";
-                        $mime           = pathinfo($img_url_origin, PATHINFO_EXTENSION);
-                        $dateName       = Carbon::now()->format('Ymd_His');
+                        $img_id            = $image["id"];
+                        $img_url_origin    = $image["origin_url"];
+                        $uploadResult      = false;
+                        $uploadResultClean = false;
+                        $imgTransBase64    = "";
+                        $fileMessage       = "";
+                        $text_data         = "";
+                        $mime              = pathinfo($img_url_origin, PATHINFO_EXTENSION);
+                        $dateName          = Carbon::now()->format('Ymd_His');
                         if (preg_match('/^(jpg|jpeg|png|gif)/i', $mime, $matches)) {
                             $mime = $matches[0];
+                        }
+
+                        if( isset($imamge["text_data"]) ){
+                            $text_data = $imamge["text_data"];
                         }
 
                         $imgName  = "/" . $channel . "/" . $member_id . "/product/" . $dateName . "_" . $img_id . "." . $mime;
@@ -1236,13 +1247,26 @@ class GenuioService extends TransApiAbstract
                                 $fileMessage  = $th->getMessage();
                             }
                         }
+
+                        $imgNameCleaned  = "/" . $channel . "/" . $member_id . "/product/" . $dateName . "_cleaned_" . $img_id . "." . $mime;
+                        if( isset($image["cleaned_base64"]) && !empty($image["cleaned_base64"]) ){
+                            $imgTransBase64Clean = $image["cleaned_base64"];
+                            $uploadResultClean   = $this->uploadAbstract->uploadFile($imgNameCleaned, base64_decode($imgTransBase64Clean));
+                        }
     
                         if( $uploadResult == true ) {
                             $img_url_trans = env("AWS_URL") . $imgName;
+
+                            $cleaned_url = "";
+                            if( $uploadResultClean == true ){
+                                $cleaned_url = env("AWS_URL") . $imgNameCleaned;
+                            }
                             $resPayload["images"][] = [
                                 "id"             => $img_id,
                                 "origin_url"     => $img_url_origin,
                                 "translated_url" => $img_url_trans,
+                                "cleaned_url"    => $cleaned_url,
+                                "text_data"      => $text_data,
                                 "status"         => OnchannelConstant::CALLBACK_SUCCESS,
                                 "message"        => $fileMessage,
                             ];
@@ -1251,6 +1275,8 @@ class GenuioService extends TransApiAbstract
                                 "id"             => $img_id,
                                 "origin_url"     => $img_url_origin,
                                 "translated_url" => "",
+                                "cleaned_url"    => "",
+                                "text_data"      => $text_data,
                                 "status"         => OnchannelConstant::CALLBACK_FAIL,
                                 "message"        => $fileMessage,
                             ];
@@ -1261,6 +1287,8 @@ class GenuioService extends TransApiAbstract
                             "id"             => $img_id,
                             "origin_url"     => $img_url_origin,
                             "translated_url" => "",
+                            "cleaned_url"    => "",
+                            "text_data"      => $text_data,
                             "status"         => OnchannelConstant::CALLBACK_FAIL,
                             "message"        => $ve->getMessage(),
                         ];
@@ -1307,11 +1335,14 @@ class GenuioService extends TransApiAbstract
                 $img_id = 0;
 
                 try {
-                    $img_id        = $image["id"];
-                    $uploadResult  = false;
-                    $base64        = "";
-                    $img_url_trans = "";
-                    $dateName      = Carbon::now()->format('Ymd_His');
+                    $img_id            = $image["id"];
+                    $uploadResult      = false;
+                    $uploadResultClean = false;
+                    $base64            = "";
+                    $img_url_trans     = "";
+                    $cleaned_base64    = "";
+                    $cleaned_url       = "";
+                    $dateName          = Carbon::now()->format('Ymd_His');
 
                     if( isset($image["base64"]) && !empty($image["base64"]) ){
                         $base64       = $image["base64"];
@@ -1320,22 +1351,34 @@ class GenuioService extends TransApiAbstract
                         $uploadResult = $this->uploadAbstract->uploadFile($imgName, base64_decode($base64));
                     }
 
+                    if( isset($image["cleaned_base64"]) && !empty($image["cleaned_base64"]) ){
+                        $cleaned_base64    = $image["cleaned_base64"];
+                        $mime              = getExtensionFromBase64($cleaned_base64);
+                        $imgNameClean      = "/" . $channel . "/" . $member_id . "/product/" . $dateName . "_cleaned_" . $img_id . "." . $mime;
+                        $uploadResultClean = $this->uploadAbstract->uploadFile($imgNameClean, base64_decode($cleaned_base64));
+                    }
+
                     if( $uploadResult === true ){
                         $img_url_trans = env("AWS_URL") . $imgName;
                     }
+                    if( $uploadResultClean === true ){
+                        $cleaned_url = env("AWS_URL") . $imgNameClean;
+                    }
 
                     $resPayload["images"][] = [
-                        "id"        => $img_id,
-                        "trans_url" => $img_url_trans,
-                        "upload"    => $uploadResult,
-                        "error"     => "",
+                        "id"          => $img_id,
+                        "trans_url"   => $img_url_trans,
+                        "cleaned_url" => $cleaned_url,
+                        "upload"      => $uploadResult,
+                        "error"       => "",
                     ];
                 } catch (ValueError $ve) {
                     $resPayload["images"][] = [
-                        "id"        => $img_id,
-                        "trans_url" => "",
-                        "upload"    => false,
-                        "error"     => $ve->getMessage(),
+                        "id"          => $img_id,
+                        "trans_url"   => "",
+                        "cleaned_url" => "",
+                        "upload"      => false,
+                        "error"       => $ve->getMessage(),
                     ];
                 }
             }

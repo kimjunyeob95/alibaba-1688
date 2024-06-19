@@ -2,7 +2,10 @@
 
 namespace Tests\Feature;
 
+use App\Packages\S3;
+use Exception;
 use Tests\TestCase;
+use Illuminate\Support\Facades\File;
 
 class MethodTest extends TestCase
 {
@@ -22,6 +25,24 @@ class MethodTest extends TestCase
         dd($cleanHtml);
     }
 
-    
+    # php artisan test --filter testImgUpload
+    public function testImgUpload()
+    {
+        $filePath = public_path('app/base64.txt');
+        if (!File::exists($filePath)) {
+            throw new Exception("파일이 존재하지 않습니다.");
+        }
+        $fileContents = File::get($filePath);
+        $decodedFile = base64_decode($fileContents);
+
+        $imgName = "/test/dev-1.jpeg";
+
+        $s3 = new S3();
+        $uploadResult = $s3->uploadFile($imgName, $decodedFile);
+
+        $img_url_trans = env("AWS_URL") . $imgName;
+
+        dd($uploadResult, $img_url_trans);
+    }
 
 }
