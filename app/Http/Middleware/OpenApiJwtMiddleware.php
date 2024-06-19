@@ -23,6 +23,10 @@ class OpenApiJwtMiddleware
             }
 
             $decodedToken = JWT::decode($token, new Key(env('JWT_SECRET'), 'HS256'));
+            
+            if( !isset($decodedToken->sub) || !$decodedToken->sub ){
+                throw new Exception("WApp 발행 토큰이 아닙니다.");                
+            }
 
             // 토큰이 유효한지 확인
             if ($this->isTokenExpired($decodedToken)) {
@@ -40,6 +44,10 @@ class OpenApiJwtMiddleware
             if( $e->getMessage() == "Expired token" ){
                 $message = "토큰의 유효시간이 만료되었습니다.";
             }
+
+            if(strpos($e->getMessage(), "Undefined property") !== false){
+                $message = "WApp 발행 토큰이 아닙니다.";
+            }
             return helpers_json_response(HttpConstant::INTERNAL_SERVER_ERROR, [], "Token Error: " . $message);
         }
        
@@ -47,6 +55,7 @@ class OpenApiJwtMiddleware
 
     private function isTokenExpired(stdClass $decodedToken)
     {
+        dd($decodedToken);
         $expirationTime = $decodedToken->exp;
         $currentTime    = time();
 
