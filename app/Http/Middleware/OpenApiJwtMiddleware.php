@@ -23,7 +23,6 @@ class OpenApiJwtMiddleware
             }
 
             $decodedToken = JWT::decode($token, new Key(env('JWT_SECRET'), 'HS256'));
-            
             if( !isset($decodedToken->sub) || !$decodedToken->sub ){
                 throw new Exception("WApp 발행 토큰이 아닙니다.");                
             }
@@ -55,7 +54,6 @@ class OpenApiJwtMiddleware
 
     private function isTokenExpired(stdClass $decodedToken)
     {
-        dd($decodedToken);
         $expirationTime = $decodedToken->exp;
         $currentTime    = time();
 
