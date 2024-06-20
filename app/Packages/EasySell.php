@@ -54,7 +54,7 @@ class EasySell extends MallApiAbstract
         $successIds = [];
         $failIds    = [];
         $updateIds  = [];
-        $type = WConstant::WAPP_W1;
+        $type = EasySellConstant::TYPE_W;
         if( isset($params["type"]) ){
             $type = $params["type"];
         }
@@ -67,13 +67,11 @@ class EasySell extends MallApiAbstract
             $modi_message = "";
             try{
                 switch($type){
-                    case WConstant::WAPP_W1 :
-                        $productWType = [WConstant::WAPP_W1, WConstant::WAPP_W2];
+                    case EasySellConstant::TYPE_W :
                         $account      = EasySellConstant::USER_ID_W;
                         break;
-                    case WConstant::WAPP_W2:
-                        $productWType = [WConstant::WAPP_W2];
-                        $account      = EasySellConstant::USER_ID_W2;
+                    case EasySellConstant::TYPE_DROPHUB:
+                        $account      = EasySellConstant::USER_ID_DROPHUB;
                         break;
                     default :
                         throw new Exception(MallErrorMessageConstant::getNotHaveErrorMessage("TYPE"));
@@ -91,8 +89,7 @@ class EasySell extends MallApiAbstract
                     continue;
                 }
 
-                $prdObj = ProductData::whereIn("w_type",$productWType)
-                ->with([
+                $prdObj = ProductData::with([
                     "images",
                     "en_images",
                     "extends",
@@ -211,13 +208,11 @@ class EasySell extends MallApiAbstract
         foreach ($offerIds as $offerId) {
             try{
                 switch($type){
-                    case WConstant::WAPP_W1 :
-                        $productWType = [WConstant::WAPP_W1, WConstant::WAPP_W2];
+                    case EasySellConstant::TYPE_W :
                         $account      = EasySellConstant::USER_ID_W;
                         break;
-                    case WConstant::WAPP_W2:
-                        $productWType = [WConstant::WAPP_W2];
-                        $account      = EasySellConstant::USER_ID_W2;
+                    case EasySellConstant::TYPE_DROPHUB:
+                        $account      = EasySellConstant::USER_ID_DROPHUB;
                         break;
                     default :
                         throw new Exception(MallErrorMessageConstant::getNotHaveErrorMessage("TYPE"));
@@ -233,8 +228,7 @@ class EasySell extends MallApiAbstract
                     throw new Exception(MallErrorMessageConstant::getFitErrorMessage("MODI_UNREGIST"));
                 }
 
-                $prdObj = ProductData::whereIn("w_type",$productWType)
-                ->with([
+                $prdObj = ProductData::with([
                     "images",
                     "en_images",
                     "extends",
@@ -421,13 +415,13 @@ class EasySell extends MallApiAbstract
                 throw new Exception("연령제한 상품입니다");
             }
 
-            if($type == WConstant::WAPP_W1){
+            if($type == EasySellConstant::TYPE_W){
                 $ItemName = $prdObj->prd_name_kr;
                 $prdDesc  = $prdObj->prd_desc_kr;
                 $optionTitle = "옵션";
                 $noticeInfo = $prdObj->notices->where("is_except",GosiConstants::IS_EXCEPT_N)->pluck("attribute_value_kr","attribute_name_kr")->toArray();
                 $images = array_filter($prdObj->images->whereIn("img_type",[ImageConstant::IMAGE_TYPE_MAIN, ImageConstant::IMAGE_TYPE_SUB])->where("is_except",ImageConstant::IS_EXCEPT_N)->pluck("img_url_trans")->toArray());
-            }else if($type == WConstant::WAPP_W2){
+            }else if($type == EasySellConstant::TYPE_DROPHUB){
                 $ItemName = $prdObj->prd_name_en;
                 $prdDesc  = $prdObj->prd_desc_en_origin;
                 $optionTitle = "option";
@@ -473,9 +467,9 @@ class EasySell extends MallApiAbstract
                 $replaceArr     = array("|",",","/");
                 $replacementArr = array("-","\,","-");
 
-                if($type == WConstant::WAPP_W1){
+                if($type == EasySellConstant::TYPE_W){
                     $optionNm = str_replace($replaceArr, $replacementArr ,$option->option_name_kr);
-                }else if($type == WConstant::WAPP_W2){
+                }else if($type == EasySellConstant::TYPE_DROPHUB){
                     $optionNm = str_replace($replaceArr, $replacementArr ,$option->option_name_en);
                 }
 

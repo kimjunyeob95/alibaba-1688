@@ -3,6 +3,7 @@
     use App\Constants\WConstant;
     use App\Constants\InspectConstant;
     use App\Constants\CategoryConstant;
+    use App\Constants\EasySellConstant;
     use App\Constants\MallConstant;
     use App\Constants\OnchannelConstant;
 
@@ -12,7 +13,7 @@
 
 @section('styles')
 <style>
-    
+
 </style>
 @endsection
 
@@ -365,7 +366,7 @@
                         </div>
                     </div>
                 </form>
-                
+
                 <div class="mt-3 d-flex justify-content-end">
                     <button class="btn btn-md btn-dark text-white me-2" id="btn-send-select">상품 전송 요청</button>
                     <button class="btn btn-md btn-outline-danger me-2" id="btn-recollect-select">재 수집 요청</button>
@@ -373,7 +374,7 @@
                     <button class="btn btn-md btn-outline-danger me-2" id="btn-status-select">판매상태 변경</button>
                     <button class="btn btn-md btn-outline-dark me-2" id="btn-select">선택번역 요청</button>
                 </div>
-    
+
                 <div class="table-responsive mt-3">
                     <table class="table table-white bg-white">
                         <thead class="table-light">
@@ -414,8 +415,8 @@
                                 </th>
                                 <th style="width: 100px" class="text-center">
                                     상품전송
-                                </th> 
-                                <th style="width: 100px" class="text-center">관리</th> 
+                                </th>
+                                <th style="width: 100px" class="text-center">관리</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -500,7 +501,7 @@
                                                     $delivery_price = $data->delivery_price;
                                                 }
                                             @endphp
-                                                {{ number_format(calcWSalePrice($option->price_1688, $delivery_price)) }} 
+                                                {{ number_format(calcWSalePrice($option->price_1688, $delivery_price)) }}
                                         @else
                                             <p class="text-danger">옵션없음</p>
                                         @endif
@@ -517,7 +518,7 @@
                                             @endphp
                                             @if ($option->md_price)
                                                 @php
-                                                    $salePrice = calcWSalePrice($option->price_1688); 
+                                                    $salePrice = calcWSalePrice($option->price_1688);
                                                     $saleHigh  = compareWSalePrice($salePrice, $option->md_price);
                                                 @endphp
                                                 @if ($saleHigh === true)
@@ -542,7 +543,7 @@
                                                     $delivery_price = $data->delivery_price;
                                                 }
                                             @endphp
-                                            {{ number_format(calcOnchannelOptionPrice($option->price_1688, $delivery_price)) }} 
+                                            {{ number_format(calcOnchannelOptionPrice($option->price_1688, $delivery_price)) }}
                                         @else
                                             <p class="text-danger">옵션없음</p>
                                         @endif
@@ -621,7 +622,7 @@
                     </div>
                     <div class="modal-body">
                         <input type="hidden" name="chkCateIds[]" />
-    
+
                         <div>
                             <div class="d-flex align-items-center">
                                 <label class="fs-7">W 카테고리</label>
@@ -718,7 +719,7 @@
                                         <label class="fs-7">일반 판매가</label>
                                     </div>
                                     <div class="col sale-price">
-                                        
+
                                     </div>
                                 </div>
                             </div>
@@ -929,15 +930,15 @@
                     </div>
                     <div class="modal-body">
                         <input type="hidden" name="send_prd_offer_ids[]" />
-    
+
                         <div>
                             <div class="d-flex align-items-center">
-                                <label class="fs-4">이지셀<span class="ms-4 text-danger">선택 안됨(작업중....)</span></label>
+                                <label class="fs-4">이지셀</label>
                             </div>
                             <div class="d-flex flex-column px-3 mt-3">
                                 <div class="row w-100 mb-2">
                                     <div class="col d-flex align-items-center">
-                                        <input type="checkbox" name="es-send-type" id="es-checkbox1" class="form-check-input me-2" value="w" disabled>
+                                        <input type="checkbox" name="es-send-type" id="es-checkbox1" class="form-check-input me-2" value="{{ EasySellConstant::TYPE_W }}">
                                         <label for="es-checkbox1" class="d-flex align-items-center w-100 ms-2 cursor-pointer">
                                             <span class="fs-5 fw-bold" style="width: 150px;">더블유 (국내)</span>
                                             <span class="ms-4">*국문 정보 | 번역 이미지 전송</span>
@@ -946,7 +947,7 @@
                                 </div>
                                 <div class="row w-100 mb-2 mt-1">
                                     <div class="col d-flex align-items-center">
-                                        <input type="checkbox" name="es-send-type" id="es-checkbox2" class="form-check-input me-2" value="drophub" disabled>
+                                        <input type="checkbox" name="es-send-type" id="es-checkbox2" class="form-check-input me-2" value="{{ EasySellConstant::TYPE_DROPHUB }}">
                                         <label for="es-checkbox2" class="d-flex align-items-center w-100 ms-2 cursor-pointer">
                                             <span class="fs-5 fw-bold" style="width: 150px;">Drop Hub (해외)</span>
                                             <span class="ms-4">*영문 정보 | 원본 이미지 전송</span>
@@ -996,7 +997,7 @@
                     <div class="modal-header">
                         <h5 class="modal-title" id="htmlModalLabel7">상품 전송 상세</h5>
                     </div>
-                    <div class="modal-body">    
+                    <div class="modal-body">
                         <div>
                             <div class="d-flex align-items-center">
                                 <label class="fs-4">이지셀</label>
@@ -1079,9 +1080,9 @@
                     if( resp.data.esWLogObj ){
                         let esWLogObj = resp.data.esWLogObj;
                         if( esWLogObj.regist_success == "Y" ){
-                            $(".w-log-text").addClass("text-primary").html(`성공 (${esWLogObj.prd_code})`);    
+                            $(".w-log-text").addClass("text-primary").html(`성공 (${esWLogObj.prd_code})`);
                         } else {
-                            $(".w-log-text").addClass("text-danger").html(`실패 (${esWLogObj.message})`);    
+                            $(".w-log-text").addClass("text-danger").html(`실패 (${esWLogObj.message})`);
                         }
                     } else {
                         $(".w-log-text").html(`미등록`);
@@ -1089,9 +1090,9 @@
                     if( resp.data.esDropLogObj ){
                         let esDropLogObj = resp.data.esDropLogObj;
                         if( esDropLogObj.regist_success == "Y" ){
-                            $(".drop-log-text").addClass("text-primary").html(`성공 (${esDropLogObj.prd_code})`);    
+                            $(".drop-log-text").addClass("text-primary").html(`성공 (${esDropLogObj.prd_code})`);
                         } else {
-                            $(".drop-log-text").addClass("text-danger").html(`실패 (${esDropLogObj.message})`);    
+                            $(".drop-log-text").addClass("text-danger").html(`실패 (${esDropLogObj.message})`);
                         }
                     } else {
                         $(".drop-log-text").html(`미등록`);
@@ -1099,9 +1100,9 @@
                     if( resp.data.ocPublicLogObj ){
                         let ocPublicLogObj = resp.data.ocPublicLogObj;
                         if( ocPublicLogObj.regist_success == "Y" ){
-                            $(".oc-log-text").addClass("text-primary").html(`성공 (${ocPublicLogObj.prd_code})`);    
+                            $(".oc-log-text").addClass("text-primary").html(`성공 (${ocPublicLogObj.prd_code})`);
                         } else {
-                            $(".oc-log-text").addClass("text-danger").html(`실패 (${ocPublicLogObj.message})`);    
+                            $(".oc-log-text").addClass("text-danger").html(`실패 (${ocPublicLogObj.message})`);
                         }
                     } else {
                         $(".oc-log-text").html(`미등록`);
@@ -1109,9 +1110,9 @@
                     if( resp.data.ocPrivateLogObj ){
                         let ocPrivateLogObj = resp.data.ocPrivateLogObj;
                         if( ocPrivateLogObj.regist_success == "Y" ){
-                            $(".oc-private-log-text").addClass("text-primary").html(`성공 (${ocPrivateLogObj.prd_code})`);    
+                            $(".oc-private-log-text").addClass("text-primary").html(`성공 (${ocPrivateLogObj.prd_code})`);
                         } else {
-                            $(".oc-private-log-text").addClass("text-danger").html(`실패 (${ocPrivateLogObj.message})`);    
+                            $(".oc-private-log-text").addClass("text-danger").html(`실패 (${ocPrivateLogObj.message})`);
                         }
                     } else {
                         $(".oc-private-log-text").html(`미등록`);
@@ -1152,14 +1153,18 @@
         $('.btn-send-product').click(function(){
             let offerIds     = $('input[name="send_prd_offer_ids[]"]').val().split(",");
             let oc_send_type = [];
+            let es_send_type = [];
             $('input[name=oc-send-type]:checked').each(function(key, ele){
                 oc_send_type.push($(this).val());
+            });
+            $('input[name=es-send-type]:checked').each(function(key, ele){
+                es_send_type.push($(this).val());
             });
 
             if( offerIds.length < 1 ){
                 return alert("선택 된 상품이 없습니다.");
             }
-            if( oc_send_type.length < 1 ){
+            if( (oc_send_type.length + es_send_type.length) < 1 ){
                 return alert("전송 할 채널을 선택하세요.");
             }
 
@@ -1168,7 +1173,7 @@
                     "headers"    : {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
                     "type"       : "POST",
                     "url"        : "{{ route('mall.allProductRegist') }}",
-                    "data"       : { offerIds, oc_send_type },
+                    "data"       : { offerIds, oc_send_type, es_send_type },
                     beforeSend: function () {
                         $("#loadingOverlay").show();
                     },
@@ -1237,7 +1242,7 @@
                 "headers": {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
                 "type"   : "POST",
                 "url"    : "{{ route('w.product.weightSave') }}",
-                "data"   : { 
+                "data"   : {
                     offerIds,
                     weight
                 },
@@ -1442,7 +1447,7 @@
                         "headers" : {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
                         "type"    : "POST",
                         "url"     : "{{ route('w.category.getWDepth') }}",
-                        "data"    : { 
+                        "data"    : {
                             level    : selectedLevel,
                             cate_name: cate_name,
                         },
@@ -1487,18 +1492,18 @@
             let cate_third     = $("select[name=w_cate_third]").val();
             let cate_fourth    = $("select[name=w_cate_fourth]").val();
             let w_cate_keyword = $("input[name=w_cate_keyword]").val();
-            
+
             if( cate_first == "" && w_cate_keyword == "" ){
                 return alert("1차 분류 또는 검색어를 입력하세요.");
             }
 
             $("#loadingOverlay").show();
-            
+
             $.ajax({
                 "headers" : {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
                 "type"    : "POST",
                 "url"        : "{{ route('w.category.getW') }}",
-                "data"    : { 
+                "data"    : {
                     cate_first,
                     cate_second,
                     cate_third,
@@ -1554,7 +1559,7 @@
                 "headers": {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
                 "type"   : "POST",
                 "url"    : "{{ route('w.category.wMapping') }}",
-                "data"   : { 
+                "data"   : {
                     category_ids,
                     w_cate_id
                 },
@@ -1598,7 +1603,7 @@
             let value = $(this).val();
 
             $(`input[name=${name}]`).val(value);
-            $("#searchFrm").submit();            
+            $("#searchFrm").submit();
         });
 
         $(".btn-trans-img").click(function(){
@@ -1627,7 +1632,7 @@
                 });
             }
         });
-        
+
         $("#btn-select").click(function(){
             let offerIds = [];
 
@@ -1718,7 +1723,7 @@
             $(`input[name=inspect_img_status][value=${img_inspect}]`).prop("checked", true);
             $(`input[name=inspect_prd_status][value=${prd_inspect}]`).prop("checked", true);
             $(`input[name=inspect_gosi_status][value=${gosi_inspect}]`).prop("checked", true);
-            
+
 
             $("#htmlModal4").modal('show');
         });
@@ -1772,7 +1777,7 @@
                     "headers"    : {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
                     "type"       : "POST",
                     "url"        : "{{ route('w.product.inspectStatusUpdate') }}",
-                    "data"       : { 
+                    "data"       : {
                         offerIds,
                         inspect_img_status,
                         inspect_prd_status,
@@ -1803,7 +1808,7 @@
         $(".htmlModalClose4").click(function(){
             $("#htmlModal4").modal('hide');
         });
-        
+
     })
 </script>
 

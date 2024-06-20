@@ -35,7 +35,7 @@ class EasySellCommand extends Command
              */
             case 'productRegist':
                 $offerIds = explode(",", $this->option('offerids'));
-                $type = $this->option('type');
+                $type     = explode(",", $this->option('type'));
                 $params = [
                     "type" => $type
                 ];

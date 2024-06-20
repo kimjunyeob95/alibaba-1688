@@ -72,7 +72,7 @@ class EasySellProductVo extends Vo
                 $this->referDetail = "상세페이지 참조";
                 break;
             case WConstant::WAPP_W2 :
-                $this->UserID      = EasySellConstant::USER_ID_W2;
+                $this->UserID      = EasySellConstant::USER_ID_DROPHUB;
                 $this->referDetail = "See Details on Product Page";
                 break;
             default :
