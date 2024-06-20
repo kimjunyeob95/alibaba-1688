@@ -33,4 +33,10 @@ class Constant1688
     public const DISTRICTCODE        = "371002";
     public const PRESELECTPAYCHANNEL = "alipay";
     public const WEBSITE             = "1688";
+
+    /** filter */
+    public const FILTER_AIGCOFFER = "aigcOffer";
+    public const FILTER_LIST      = [
+        "aigcOffer" => "영문 이미지 번역"
+    ];
 }

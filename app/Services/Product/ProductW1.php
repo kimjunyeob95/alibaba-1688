@@ -30,6 +30,7 @@ use App\Models\GenuioImageData;
 use App\Models\GenuioQueueData;
 use App\Models\ProductCollectDetailLog;
 use App\Models\ProductCollectLog;
+use App\Models\ProductCollectTypeData;
 use App\Models\ProductData;
 use App\Models\ProductExceptData;
 use App\Models\ProductExtendData;
@@ -2500,6 +2501,20 @@ class ProductW1 extends ProductAbstract
         $msg = "======================== 실행 종료 (params_json: {$params_json}) ========================";
         debug_log($msg, "collectProduct/keywordQueryAll", "keywordQueryAll");
 
+        /** 2. filter: aigcOffer로 호출 */
+        $payload  = [
+            'access_token'    => $this->accessToken,
+            'offerQueryParam' => [
+                'sort'      => json_encode($sort),
+                'country'   => Constant1688::LANGUAGE_EN,
+                'filter'    => Constant1688::FILTER_AIGCOFFER
+            ]
+        ];
+        if( !empty($params["search_cls"]) && !empty($params["keyword"]) ){
+            $payload["offerQueryParam"][$params["search_cls"]] = $params["keyword"];
+        }
+        $this->saveKeywordQueryFilterRecursively($logId, $payload, $page, $pageSize);
+
         return $returnMsg;
     }
 
@@ -2608,6 +2623,71 @@ class ProductW1 extends ProductAbstract
             if( $page < $totalPage ){
                 $nextPage = $page + 1;
                 $this->saveKeywordQueryRecursively($logId, $payload, $nextPage, $pageSize, $totalPage);
+            }
+        }
+    }
+
+    public function saveKeywordQueryFilterRecursively(int $logId, array $payload, int $page, int $pageSize, int $totalPage = 0): void
+    {
+        try {
+            $endPoint = "param2/1/com.alibaba.fenxiao.crossborder/product.search.keywordQuery/";
+
+            $payload["offerQueryParam"]["beginPage"] = $page;
+            $payload["offerQueryParam"]["pageSize"]  = $pageSize;
+
+            $payload_json = json_encode($payload, JSON_UNESCAPED_UNICODE);
+            $errorMsg     = ProductErrorMessageConstant::getFitErrorMessage("PRODUCT_SEARCH_KEYWORDQUERY") . " | method: saveKeywordQueryFilterRecursively | payload: {$payload_json}";
+
+            $apiDatas = curl_1688("POST", $endPoint, $payload);
+            if( $apiDatas["isSuccess"] != true ){
+                throw new Exception($apiDatas["msg"] . " | " . $errorMsg);
+            }
+            if( $apiDatas["data"]["result"]["success"] != true ){
+                throw new Exception($errorMsg);
+            }
+
+            $apiResult = $apiDatas["data"]["result"]["result"];
+            if( isset($apiResult["data"]) ){
+                $productDatas = $apiResult["data"];
+                foreach ($productDatas as $productData) {
+                    try {
+                        $offerId = $productData["offerId"];
+                        $prdObj  = ProductData::where("offer_id", $offerId)->first();
+                        if( $prdObj == null ){
+                            $this->collectProductNotLog($offerId);
+                        }
+
+                        ProductCollectTypeData::updateOrCreate(
+                            [
+                                "offer_id" => $offerId,
+                                "type"     => Constant1688::FILTER_AIGCOFFER
+                            ],
+                            [
+                                "updated_at" => Carbon::now()
+                            ]
+                        );
+                    } catch (Exception $de) {
+                        $msg = $de->getMessage() . " | page: {$page} | offerId: {$offerId}";
+                        // debug_log($msg, "collectProduct/saveKeywordQueryFilterRecursively", "saveKeywordQueryFilterRecursively", LogLevel::ERROR);
+                    }
+                }
+            } else {
+                $errorMsg = $errorMsg . " | not have data";
+                throw new Exception($errorMsg);
+            }
+
+            $totalPage = $apiDatas["data"]["result"]["result"]["totalPage"];
+            if( $page < $totalPage ){
+                $nextPage = $page + 1;
+                $this->saveKeywordQueryFilterRecursively($logId, $payload, $nextPage, $pageSize, $totalPage);
+            }
+        } catch (Exception $e) {
+            $msg = $e->getMessage();
+            // debug_log($msg, "collectProduct/saveKeywordQueryFilterRecursively", "saveKeywordQueryFilterRecursively", LogLevel::ERROR);
+
+            if( $page < $totalPage ){
+                $nextPage = $page + 1;
+                $this->saveKeywordQueryFilterRecursively($logId, $payload, $nextPage, $pageSize, $totalPage);
             }
         }
     }
