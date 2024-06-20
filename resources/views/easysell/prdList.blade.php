@@ -531,6 +531,11 @@ input[name='channelCategory']{
             location.href = `/product/${offer_id}`;
         });
 
+        $(".btn-en-detail").click(function(){
+            let offer_id = $(this).attr("offerid");
+            location.href = `/product/en/${offer_id}`;
+        });
+
         $("#form-submit").click(function(){
             $("#searchFrm").submit();
         });
@@ -836,6 +841,44 @@ input[name='channelCategory']{
                 }
             });
         })
+
+        $('.select-opt').change(function(){
+            let selectedLevel = parseInt($(this).attr('level'));
+            let category_id   = $(this).val();
+
+            if( selectedLevel < 3 ){
+                $('.select-opt').each(function() {
+                    var level = parseInt($(this).attr('level'));
+                    if (selectedLevel < level) {
+                        $(this).html(`<option value="">${level}차 분류</option>`);
+                    }
+                });
+
+                if( category_id != "" ){
+                    $("#loadingOverlay").show();
+                    category_id = parseInt($(this).val());
+                    $.ajax({
+                        "headers" : {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
+                        "type" : "GET",
+                        "url" : `/api/w/category/depth/${category_id}`,
+                        beforeSend : function () {},
+                        complete: function(xhr, status) {
+                            $("#loadingOverlay").hide();
+                        },
+                        success : function (resp) {
+                            $(`.select-opt[level=${selectedLevel+1}]`).html(`<option value="">${selectedLevel+1}차 분류</option>`);
+                            resp.data.map(function(obj){
+                                $(`.select-opt[level=${selectedLevel+1}]`).append(`<option value="${obj.category_id}">${obj.category_name}</option>`)
+                            })
+                        },
+                        error: function (request) {
+                            let { error } = JSON.parse(request.responseText);
+                            alert(error.message);
+                        }
+                    });
+                }
+            }
+        });
 
         $('.btn-log-modal').click(function(){
             let logId = $(this).attr("logid");
