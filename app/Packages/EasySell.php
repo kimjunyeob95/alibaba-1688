@@ -59,6 +59,7 @@ class EasySell extends MallApiAbstract
             $type = $params["type"];
         }
         foreach($type as $w_type){
+            $updateIds  = [];
             foreach ($offerIds as $offerId) {
                 $easyObj      = null;
                 $itemno       = 0;
