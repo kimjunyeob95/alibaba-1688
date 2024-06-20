@@ -4,6 +4,7 @@
     use App\Constants\MallConstant;
     use App\Constants\EasySellConstant;
     use App\Constants\WConstant;
+    use App\Constants\InspectConstant;
     use App\Models\ProductWeightData;
 @endphp
 @extends('dashboard.base')
@@ -49,9 +50,9 @@ input[name='channelCategory']{
                         <span>Home</span>
                     </a>
                 </li>
-                <li class="breadcrumb-item">이지셀</li>
-                <li class="breadcrumb-item">상품관리</li>
-                <li class="breadcrumb-item active" aria-current="page">상품현황</li>
+                <li class="breadcrumb-item">채널 관리</li>
+                <li class="breadcrumb-item">상품 전송 현황</li>
+                <li class="breadcrumb-item active" aria-current="page">이지셀:더블유 상품현황</li>
             </ol>
         </nav>
 
@@ -80,18 +81,53 @@ input[name='channelCategory']{
                                                 미등록<br>
                                                 {{ number_format($failCnt) }}건
                                             </li>
+                                            <li class="list-group-item text-center small" style="width: 100%;">
+                                                전송실패<br>
+                                                {{ number_format($failCnt) }}건
+                                            </li>
                                         </ul>
                                     </td>
                                 </tr>
                                 <tr class="align-middle">
                                     <th style="width: 120px">등록 상태</th>
                                     <td colspan="3">
-                                        <button type="button" name="registStatus" class="btn-status btn btn-md {{ $registStatus == "" ? "btn-primary" : "btn-dark" }}"
+                                        <button type="button" name="registStatus" class="btn-status btn btn-sm {{ $registStatus == "" ? "btn-primary" : "btn-dark" }}"
                                         value="">전체</button>
-                                        <button type="button" name="registStatus" class="btn-status btn btn-md {{ $registStatus == MallConstant::REGISTED ? "btn-primary" : "btn-dark" }}"
+                                        <button type="button" name="registStatus" class="btn-status btn btn-sm {{ $registStatus == MallConstant::REGISTED ? "btn-primary" : "btn-dark" }}"
                                         value="{{ MallConstant::REGISTED }}">완료</button>
-                                        <button type="button" name="registStatus" class="btn-status btn btn-md {{ $registStatus == MallConstant::UNREGIST ? "btn-primary" : "btn-dark" }}"
+                                        <button type="button" name="registStatus" class="btn-status btn btn-sm {{ $registStatus == MallConstant::UNREGIST ? "btn-primary" : "btn-dark" }}"
                                         value="{{ MallConstant::UNREGIST}}">미등록</button>
+                                    </td>
+                                </tr>
+                                <tr class="align-middle">
+                                    <th style="width: 120px">W 카테고리</th>
+                                    <td colspan="2">
+                                        <div class="row">
+                                            <div class="col-2">
+                                                <select class="form-control select-opt" name="cate_first" level=1>
+                                                    <option value="">1차 분류</option>
+                                                    @foreach ($firstCateObjs as $firstCateObj)
+                                                        <option value="{{ $firstCateObj->category_id }}" {{ $firstCateObj->category_id == $cate_first ? "selected" : "" }}>{{ $firstCateObj->category_name }}</option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                            <div class="col-2">
+                                                <select class="form-control select-opt" name="cate_second" level=2>
+                                                    <option value="">2차 분류</option>
+                                                    @foreach ($secondCateObjs as $secondCateObj)
+                                                        <option value="{{ $secondCateObj->category_id }}" {{ $secondCateObj->category_id == $cate_second ? "selected" : "" }}>{{ $secondCateObj->category_name }}</option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                            <div class="col-2">
+                                                <select class="form-control select-opt" name="cate_third" level=3>
+                                                    <option value="">3차 분류</option>
+                                                    @foreach ($thirdCateObjs as $thirdCateObj)
+                                                        <option value="{{ $thirdCateObj->category_id }}" {{ $thirdCateObj->category_id == $cate_third ? "selected" : "" }}>{{ $thirdCateObj->category_name }}</option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                        </div>
                                     </td>
                                 </tr>
                                 <tr class="align-middle">
@@ -134,17 +170,30 @@ input[name='channelCategory']{
                         <thead class="table-light">
                             <tr>
                                 <th scope="col" class="text-center" style="width: 50px">
+                                    <label class="form-check-label" for="allCheckbox">선택</label>
                                     <input class="form-check-input" type="checkbox" id="allCheckbox">
                                 </th>
                                 <th scope="col" style="width: 50px">No</th>
                                 <th scope="col" style="width: 100px" class="text-center">이미지</th>
-                                <th scope="col" style="width: 150px" class="text-center">제품ID</th>
-                                <th scope="col">상품명</th>
-                                <th scope="col" style="width: 130px">일반 판매가(원)</th>
-                                <th scope="col" style="width: 130px">MD 판매가(원)</th>
-                                <th scope="col" style="width: 100px" class="text-center">이지셀 전송</th>
-                                <th scope="col" style="width: 130px" class="text-center">등록일</th>
-                                <th scope="col" style="width: 200px" class="text-center">관리</th>
+                                <th scope="col" style="width: 100px" class="text-center">제품ID</th>
+                                <th scope="col" style="width: 200px" >상품명</th>
+                                <th scope="col" style="width: 100px" class="text-center">상품상태</th>
+                                <th scope="col" style="width: 150px" class="text-center">
+                                    W 공급가(원)
+                                </th>
+                                <th scope="col" style="width: 120px" class="text-center">
+                                    기준: 중량 (kg)<br>
+                                    배송비 (원)
+                                </th>
+                                <th scope="col" style="width: 100px" class="text-center">
+                                    더블유<br>
+                                    판매가
+                                </th>
+                                <th scope="col" style="width: 150px" class="text-center">전송 카테고리</th>
+                                <th scope="col" style="width: 100px" class="text-center">상품 맵핑 코드</th>
+                                <th scope="col" style="width: 100px" class="text-center">상품 전송</th>
+                                <th scope="col" style="width: 130px" class="text-center">전송일자</th>
+                                <th scope="col" style="width: 100px" class="text-center">관리</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -171,13 +220,32 @@ input[name='channelCategory']{
                                             $wCateName .= " > " . $wCateObj->cate_fourth;
                                         }
                                     }
+
+                                    $cateName = "";
+                                    if( $data->es_category != null ){
+                                        $cateObj = $data->es_category;
+                                        if(!empty($cateObj->cate_first)){
+                                            $cateName .= $cateObj->cate_first;
+                                        }
+                                        if(!empty($cateObj->cate_second)){
+                                            $cateName .= " > " . $cateObj->cate_second;
+                                        }
+                                        if(!empty($cateObj->cate_third)){
+                                            $cateName .= " > " . $cateObj->cate_third;
+                                        }
+                                        if(!empty($cateObj->cate_fourth)){
+                                            $cateName .= " > " . $cateObj->cate_fourth;
+                                        }
+                                    }
                                 @endphp
                                 <tr>
                                     <td class="text-center">
-                                        <input class="form-check-input chk-inp" type="checkbox" value="{{ $data->offer_id }}" {{$disabled}}>
+                                        <input id="checkbox-{{ $data->offer_id }}" class="form-check-input chk-inp" type="checkbox" value="{{ $data->offer_id }}" {{$disabled}}>
                                     </td>
                                     <td>
-                                        {{ number_format(($datas->total() - $offset) - $index) }}
+                                        <label for="checkbox-{{ $data->offer_id }}" class="cursor-pointer">
+                                            {{ number_format(($datas->total() - $offset) - $index) }}
+                                        </label>
                                     </td>
                                     <td class="text-center">
                                         @if( !empty($data->main_img->img_url_trans) )
@@ -188,17 +256,40 @@ input[name='channelCategory']{
                                     </td>
                                     <td>
                                         {{ $data->offer_id }}
-                                        @if(empty($data->es_fgn_mapping))
-                                            <br>
-                                            @if(isset($data->w_mapping))
-                                                <button type="button" class="btn btn-danger btn-modal" cateid="{{ $data->w_mapping->mapping_code }}" catename="{{ $wCateName }}">카테고리 미맵핑</button>
-                                            @else
-                                                <span class="text-danger">W카테고리 미맵핑 ({{ $data->category_id }})</span>
-                                            @endif
-                                        @endif
                                     </td>
                                     <td>
                                         <small>{{ $data->prd_name_kr }}</small>
+                                    </td>
+                                    <td class="text-center">
+                                        @if ($data->trans_status == ProductConstant::IMG_TRANS_Y)
+                                            <button class="btn btn-xs btn-dark text-white btn-trans-img" offerid={{ $data->offer_id }}>번역 {{ ProductConstant::IMG_TRANS_STATUS[$data->trans_status] }}</button>
+                                        @else
+                                            <button class="btn btn-xs btn-danger text-white btn-trans-img" offerid={{ $data->offer_id }}>번역 {{ ProductConstant::IMG_TRANS_STATUS[$data->trans_status] }}</button>
+                                        @endif
+                                        @if ($data->status == ProductConstant::PRD_STATUS_PUBLISH)
+                                            <button class="btn btn-xs btn-dark text-white btn-prd-status mt-1" offerid={{ $data->offer_id }} prdstatus={{ $data->status }}>{{ ProductConstant::PRD_STATUS[$data->status] }}</button>
+                                        @else
+                                            <button class="btn btn-xs btn-danger text-white btn-prd-status mt-1" offerid={{ $data->offer_id }} prdstatus={{ $data->status }}>{{ ProductConstant::PRD_STATUS[$data->status] }}</button>
+                                        @endif
+                                        @php
+                                            $img_inspect  = "Y";
+                                            $prd_inspect  = "Y";
+                                            $gosi_inspect = "Y";
+                                            if($data->img_inspect == null || $data->img_inspect->is_inspect == InspectConstant::IS_INSPECT_N){
+                                                $img_inspect = "N";
+                                            }
+                                            if($data->prd_inspect == null || $data->prd_inspect->is_inspect == InspectConstant::IS_INSPECT_N){
+                                                $prd_inspect = "N";
+                                            }
+                                            if($data->gosi_inspect == null || $data->gosi_inspect->is_inspect == InspectConstant::IS_INSPECT_N){
+                                                $gosi_inspect = "N";
+                                            }
+                                        @endphp
+                                        @if ($data->inspect_status == InspectConstant::IS_INSPECT_Y)
+                                            <button class="btn btn-xs btn-dark text-white btn-inspect-status mt-1" offerid={{ $data->offer_id }} img_inspect={{ $img_inspect }} prd_inspect={{ $prd_inspect }} gosi_inspect={{ $gosi_inspect }}>검수 완료</button>
+                                        @else
+                                            <button class="btn btn-xs btn-danger text-white btn-inspect-status mt-1" offerid={{ $data->offer_id }} img_inspect={{ $img_inspect }} prd_inspect={{ $prd_inspect }} gosi_inspect={{ $gosi_inspect }}>검수 미완료</button>
+                                        @endif
                                     </td>
                                     <td class="text-center">
                                         @if (count($data->options) > 0)
@@ -215,30 +306,68 @@ input[name='channelCategory']{
 
                                                 $price = calcEasySellSalePrice($option->price_1688, $option->md_price, $delivery_price, "static");
                                             @endphp
-                                            {{ number_format($price['salePrice']) }}
-                                        @else
-                                            <p class="text-danger">옵션없음</p>
-                                        @endif
-                                    </td>
-                                    <td class="text-center">
-                                        @if (count($data->options) > 0)
-                                            @php
-                                                $option = $data->options[0];
-                                            @endphp
-                                            @if(!empty($option->md_price))
-                                            {{ number_format( $option->md_price ) }}
+                                            @if(!empty($option->price_1688))
+                                            {{ number_format( $price['option_price'] ) }}
                                             @endif
                                         @else
                                             <p class="text-danger">옵션없음</p>
                                         @endif
                                     </td>
                                     <td class="text-center">
+                                        @if( $data->weight_type == null )
+                                            <button class="btn btn-sm btn-warning btn-weight-modi" offerid={{ $data->offer_id }} weight=0 price={{ ProductConstant::WEIGHT_STATUS_NONE_PRICE }} statusname='{{ ProductConstant::WEIGHT_STATUS[ProductConstant::WEIGHT_STATUS_NONE] }}'>
+                                                {{ ProductConstant::WEIGHT_STATUS_SHORT[ProductConstant::WEIGHT_STATUS_NONE] }}: 0
+                                            </button>
+                                            <br>
+                                            <span class="text-danger">
+                                                {{ number_format(ProductConstant::WEIGHT_STATUS_NONE_PRICE) }}
+                                            </span>
+                                        @else
+                                            <button class="btn btn-sm btn-warning btn-weight-modi" offerid={{ $data->offer_id }} weight={{ $data->weight }} price={{ $data->delivery_price }} statusname='{{ ProductConstant::WEIGHT_STATUS[$data->weight_type] }}'>
+                                                {{ ProductConstant::WEIGHT_STATUS_SHORT[$data->weight_type] }}: {{ $data->weight }}
+                                            </button>
+                                            <br>
+                                            <span class="text-danger">
+                                                {{ number_format($data->delivery_price) }}
+                                            </span>
+                                        @endif
+                                    </td>
+                                    <td class="text-center">
+                                        @if (count($data->options) > 0)
+                                            @if(!empty($option->md_price))
+                                            {{ number_format( $option->md_price ) }}
+                                            @else
+                                            {{ number_format($price['salePrice']) }}
+                                            @endif
+                                        @else
+                                            <p class="text-danger">옵션없음</p>
+                                        @endif
+                                    </td>
+                                    <td class="text-center">
+                                        @if(!empty($cateName))
+                                            <small>
+                                                {{$cateName}}
+                                            </small>
+                                        @else
+                                            @if(isset($data->w_mapping))
+                                                <button type="button" class="btn btn-danger btn-modal" cateid="{{ $data->category_id }}" catename="{{ $wCateName }}">카테고리 미맵핑</button>
+                                            @else
+                                                <span class="text-danger">W카테고리 미맵핑 ({{ $data->category_id }})</span>
+                                            @endif
+                                        @endif
+                                    </td>
+                                    <td class="text-center">
                                         @if($data->regist_success == MallConstant::REGIST_SUCCESS)
                                             {{ $data->itemno }} <br>
-                                            <small>({{ EasySellConstant::CATEGORY_NAME[substr($data->es_fgn_mapping->mapping_code,0,6)] }})</small>
+                                            <small>({{ EasySellConstant::CATEGORY_NAME[substr($data->es_fgn_mapping,0,6)] }})</small>
+                                        @endif
+                                    </td>
+                                    <td class="text-center">
+                                        @if($data->regist_success == MallConstant::REGIST_SUCCESS)
+                                            성공
                                         @else
-                                            <span class="text-danger">미등록</span>
-                                        @endisset
+                                            <span class="text-danger">전송실패 사유: ({{ $data->regist_message }})</span>
+                                        @endif
                                     </td>
                                     <td class="text-center">
                                         @if($data->regist_success == MallConstant::REGIST_SUCCESS)
@@ -246,8 +375,11 @@ input[name='channelCategory']{
                                         @endif
                                     </td>
                                     <td class="text-center">
-                                        <button type="button" class="btn btn-sm btn-outline-success btn-detail" offerid={{ $data->offer_id }}>상세보기</button>
-                                        <button type="button" class="btn btn-sm btn-outline-primary btn-regist" offerid={{ $data->offer_id }} {{ $disabled }}>상품전송</button>
+                                        <button class="btn btn-sm btn-outline-success btn-detail" offerid={{ $data->offer_id }}>국문 상세</button>
+                                        @if ($data->prd_name_en)
+                                            <button class="btn btn-sm btn-outline-success btn-en-detail mt-1" offerid={{ $data->offer_id }}>영문 상세</button>
+                                        @endif
+                                        <button type="button" class="btn btn-sm btn-outline-primary btn-regist mt-1" offerid={{ $data->offer_id }} {{ $disabled }}>상품전송</button>
                                     </td>
                                 </tr>
                             @endforeach
@@ -636,7 +768,7 @@ input[name='channelCategory']{
         });
 
         $(".btn-save").click(function(){
-            var wAppCateCode    = $("input[name='cateId']").val();
+            var categoryId      = $("input[name='cateId']").val();
             var channelCateCode = $("input[name='channelCategory']:checked").val();
 
             $.ajax({
@@ -644,7 +776,7 @@ input[name='channelCategory']{
                 "type"   : "POST",
                 "url"    : "/api/mall/easySell/category/mapping",
                 "data"   : {
-                    "wAppCateCode"   : wAppCateCode,
+                    "categoryId"     : categoryId,
                     "channelCateCode": channelCateCode,
                 },
                 beforeSend: function () {

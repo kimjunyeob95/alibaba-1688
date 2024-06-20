@@ -15,6 +15,7 @@ use App\Constants\OptionConstants;
 use App\Constants\ProductConstant;
 use App\Constants\WConstant;
 use App\Models\CategoryMapping;
+use App\Models\EasysellProductDetailLog;
 use App\Models\EasysellProductLog;
 use App\Models\ProductData;
 use App\Models\ProductModiData;
@@ -141,6 +142,13 @@ class EasySell extends MallApiAbstract
                         "modi_message"   => $modi_message,
                         "registed_at"    => Carbon::now()
                     ];
+
+                    $detailParams = [
+                        "log_id"     => 0,
+                        "send_type"  => MallConstant::SEND_TYPE_REGIST,
+                        "is_success" => MallConstant::REGIST_SUCCESS,
+                        "message"    => $rsData->Msg,
+                    ];
                 } else {
                     throw new Exception($paramsResult["msg"]);
                 }
@@ -155,6 +163,13 @@ class EasySell extends MallApiAbstract
                     "modi_message"   => $modi_message
                 ];
 
+                $detailParams = [
+                    "log_id"     => 0,
+                    "send_type"  => MallConstant::SEND_TYPE_REGIST,
+                    "is_success" => MallConstant::REGIST_FAIL,
+                    "message"    => $e->getMessage(),
+                ];
+
                 $failIds[] = [
                     "offer_id" => $offerId,
                     "msg"      => $e->getMessage()
@@ -162,7 +177,10 @@ class EasySell extends MallApiAbstract
             }
 
             if ( $easyObj == null ){
-                EasysellProductLog::updateOrCreate(["offer_id" => $offerId], $logParams);
+                $selLog = EasysellProductLog::updateOrCreate(["offer_id" => $offerId], $logParams);
+
+                $detailParams['log_id'] = $selLog->id;
+                EasysellProductDetailLog::create($detailParams);
             }
         }
 
@@ -262,6 +280,13 @@ class EasySell extends MallApiAbstract
                         "modi_message" => $rsData->Msg,
                         "modied_at"    => Carbon::now(),
                     ];
+
+                    $detailParams = [
+                        "log_id"     => 0,
+                        "send_type"  => MallConstant::SEND_TYPE_MODI,
+                        "is_success" => MallConstant::MODI_SUCCESS,
+                        "message"    => $rsData->Msg,
+                    ];
                 } else {
                     throw new Exception($paramsResult["msg"]);
                 }
@@ -274,14 +299,24 @@ class EasySell extends MallApiAbstract
                     "modied_at"    => Carbon::now(),
                 ];
 
+                $detailParams = [
+                    "log_id"     => 0,
+                    "send_type"  => MallConstant::SEND_TYPE_MODI,
+                    "is_success" => MallConstant::MODI_FAIL,
+                    "message"    => $e->getMessage(),
+                ];
+
                 $failIds[] = [
                     "offer_id" => $offerId,
                     "msg"      => $e->getMessage()
                 ];
             }
 
-            EasysellProductLog::where(["offer_id" => $offerId])
-                ->update($logParams);
+            $logObj = EasysellProductLog::where(["offer_id" => $offerId])->first();
+            $logObj->update($logParams);
+
+            $detailParams['log_id'] = $logObj->id;
+            EasysellProductDetailLog::create($detailParams);
         }
 
         $result = ["success" => $successIds, "fail" => $failIds];

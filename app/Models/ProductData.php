@@ -112,6 +112,11 @@ class ProductData extends Model
         return $this->hasOne(CategoryMapping::class, "category_id", "category_id")->where("mapping_channel", ProductConstant::MAPPING_ES_FGN_CHANNEL);
     }
 
+    public function es_category()
+    {
+        return $this->hasOne(SellerhubCategory::class, "sellerhub_cate", "es_fgn_mapping");
+    }
+
     public function easysell () {
         return $this->hasOne(EasysellProductLog::class, "offer_id", "offer_id");
     }
