@@ -15,6 +15,10 @@ class AlterWTypeEasysellProductLogs extends Migration
      */
     public function up()
     {
+        Schema::table('easysell_product_logs', function (Blueprint $table) {
+            $table->dropUnique(['offer_id']);
+        });
+
         // Update the enum values
         DB::statement("ALTER TABLE `easysell_product_logs` CHANGE `w_type` `w_type` ENUM('W', 'DropHub') NOT NULL");
 
@@ -30,6 +34,10 @@ class AlterWTypeEasysellProductLogs extends Migration
      */
     public function down()
     {
+        Schema::table('easysell_product_logs', function (Blueprint $table) {
+            $table->unique('offer_id');
+        });
+
         // Revert the enum values
         DB::statement("ALTER TABLE `easysell_product_logs` CHANGE `w_type` `w_type` ENUM('W1', 'W2') NOT NULL");
 

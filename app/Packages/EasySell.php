@@ -174,7 +174,10 @@ class EasySell extends MallApiAbstract
             }
 
             if ( $easyObj == null ){
-                $selLog = EasysellProductLog::updateOrCreate(["offer_id" => $offerId], $logParams);
+                $selLog = EasysellProductLog::updateOrCreate([
+                    "offer_id" => $offerId,
+                    "w_type"   => $type
+                ], $logParams);
 
                 $detailParams['log_id'] = $selLog->id;
                 EasysellProductDetailLog::create($detailParams);
@@ -306,7 +309,10 @@ class EasySell extends MallApiAbstract
                 ];
             }
 
-            $logObj = EasysellProductLog::where(["offer_id" => $offerId])->first();
+            $logObj = EasysellProductLog::where([
+                "offer_id" => $offerId,
+                "w_type"   => $type
+            ])->first();
             $logObj->update($logParams);
 
             $detailParams['log_id'] = $logObj->id;

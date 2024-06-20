@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Constants\EasySellConstant;
 use App\Services\EasySellService;
 use Illuminate\View\View;
 use Illuminate\Http\Request;
@@ -17,7 +18,7 @@ class EasySellController extends Controller
         $this->easySellService = $easySellService;
     }
 
-    public function getPrdList():View
+    public function getPrdList(string $send_type = EasySellConstant::TYPE_W):View
     {
         $page         = $this->request->get("page", 1);
         $pageSize     = $this->request->get("pageSize", 100);
@@ -37,7 +38,8 @@ class EasySellController extends Controller
             "keyword"      => $keyword,
             "cate_first"   => $cate_first,
             "cate_second"  => $cate_second,
-            "cate_third"   => $cate_third
+            "cate_third"   => $cate_third,
+            "send_type"    => $send_type
         ];
         $result = $this->easySellService->getPrdList($params);
 
@@ -58,7 +60,8 @@ class EasySellController extends Controller
             "thirdCateObjs"        => $result["thirdCateObjs"],
             "cate_first"           => $cate_first,
             "cate_second"          => $cate_second,
-            "cate_third"           => $cate_third
+            "cate_third"           => $cate_third,
+            "send_type"            => $send_type
         ];
         return view("easysell.prdList")->with($viewParams);
     }

@@ -20,6 +20,7 @@ class EasySellService
         $registStatus = $params["registStatus"];
         $search_cls   = $params["search_cls"];
         $keyword      = $params["keyword"];
+        $send_type    = $params["send_type"] ?? EasySellConstant::TYPE_W;
         $cate_first   = "";
         $cate_second  = "";
         $cate_third   = "";
@@ -65,6 +66,7 @@ class EasySellService
             ->leftJoin('category_mappings as d', function($join) {
                 $join->on('product_datas.category_id', '=', 'd.category_id')->where('d.mapping_channel', ProductConstant::MAPPING_ES_FGN_CHANNEL);
             })
+            ->where("epl.w_type", $send_type)
             ->orderBy("product_datas.created_at", "desc");
 
         $totalCnt = $prdBuilder->count();

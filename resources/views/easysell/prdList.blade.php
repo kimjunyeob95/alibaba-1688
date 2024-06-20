@@ -3,7 +3,6 @@
     use App\Constants\ProductConstant;
     use App\Constants\MallConstant;
     use App\Constants\EasySellConstant;
-    use App\Constants\WConstant;
     use App\Constants\InspectConstant;
     use App\Models\ProductWeightData;
 @endphp
@@ -52,7 +51,7 @@ input[name='channelCategory']{
                 </li>
                 <li class="breadcrumb-item">채널 관리</li>
                 <li class="breadcrumb-item">상품 전송 현황</li>
-                <li class="breadcrumb-item active" aria-current="page">이지셀:더블유 상품현황</li>
+                <li class="breadcrumb-item active" aria-current="page">이지셀:{{ $send_type }} 상품현황</li>
             </ol>
         </nav>
 
@@ -554,7 +553,7 @@ input[name='channelCategory']{
                     "url"        : "/api/mall/easySell/product/regist",
                     "data"       : {
                         "offer_ids": offer_ids,
-                        "type"     : "{{ WConstant::WAPP_W1 }}"
+                        "type"     : "{{ $send_type }}"
                     },
                     beforeSend: function () {
                     },
@@ -610,7 +609,7 @@ input[name='channelCategory']{
                     "url"        : "/api/mall/easySell/product/regist",
                     "data"       : {
                         "offer_ids": offer_ids,
-                        "type"     : "{{ WConstant::WAPP_W1 }}"
+                        "type"     : "{{ $send_type }}"
                     },
                     beforeSend: function () {
                     },
