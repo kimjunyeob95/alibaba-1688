@@ -2,11 +2,13 @@
 
 namespace App\Abstracts;
 
+use App\Constants\EasySellConstant;
 use App\Constants\MallConstant;
 use App\Constants\MallErrorMessageConstant;
 use App\Constants\OnchannelConstant;
 use App\Models\ApiUser;
 use App\Models\EasysellProductDetailLog;
+use App\Models\EasysellProductLog;
 use App\Models\OnchannelProductDetailLog;
 use App\Models\OnchannelProductLog;
 use App\Packages\JwtPackage;
@@ -150,6 +152,17 @@ abstract class MallApiAbstract
         $returnMsg = $this->returnMsg;
 
         try {
+            $esWLogObj = EasysellProductLog::where([
+                "offer_id" => $offerId,
+                "w_type" => EasySellConstant::TYPE_W
+            ])->first();
+
+            $esDropLogObj = EasysellProductLog::where([
+                "offer_id" => $offerId,
+                "w_type" => EasySellConstant::TYPE_DROPHUB
+            ])->first();
+
+
             $ocPublicLogObj = OnchannelProductLog::where([
                 "offer_id" => $offerId,
                 "send_type" => OnchannelConstant::PRD_CHANNEL,
@@ -161,8 +174,8 @@ abstract class MallApiAbstract
             ])->first();
 
             $result = [
-                "esWLogObj"       => null,
-                "esDropLogObj"    => null,
+                "esWLogObj"       => $esWLogObj,
+                "esDropLogObj"    => $esDropLogObj,
                 "ocPublicLogObj"  => $ocPublicLogObj,
                 "ocPrivateLogObj" => $ocPrivateLogObj,
             ];

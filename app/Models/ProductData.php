@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Constants\EasySellConstant;
 use App\Constants\ForbiddenWordConstant;
 use App\Constants\GosiConstants;
 use App\Constants\ImageConstant;
@@ -138,11 +139,11 @@ class ProductData extends Model
     }
 
     public function es_w_log () {
-        return $this->hasOne(EasysellProductLog::class, "offer_id", "offer_id");
+        return $this->hasOne(EasysellProductLog::class, "offer_id", "offer_id")->where("w_type", EasySellConstant::TYPE_W);
     }
 
     public function es_drop_hub_log () {
-        return $this->hasOne(EasysellProductLog::class, "offer_id", "offer_id");
+        return $this->hasOne(EasysellProductLog::class, "offer_id", "offer_id")->where("w_type", EasySellConstant::TYPE_DROPHUB);
     }
 
     public function oc_public_log () {

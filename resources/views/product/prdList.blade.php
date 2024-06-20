@@ -1080,7 +1080,7 @@
                     if( resp.data.esWLogObj ){
                         let esWLogObj = resp.data.esWLogObj;
                         if( esWLogObj.regist_success == "Y" ){
-                            $(".w-log-text").addClass("text-primary").html(`성공 (${esWLogObj.prd_code})`);
+                            $(".w-log-text").addClass("text-primary").html(`성공 (${esWLogObj.itemno})`);
                         } else {
                             $(".w-log-text").addClass("text-danger").html(`실패 (${esWLogObj.message})`);
                         }
@@ -1090,7 +1090,7 @@
                     if( resp.data.esDropLogObj ){
                         let esDropLogObj = resp.data.esDropLogObj;
                         if( esDropLogObj.regist_success == "Y" ){
-                            $(".drop-log-text").addClass("text-primary").html(`성공 (${esDropLogObj.prd_code})`);
+                            $(".drop-log-text").addClass("text-primary").html(`성공 (${esDropLogObj.itemno})`);
                         } else {
                             $(".drop-log-text").addClass("text-danger").html(`실패 (${esDropLogObj.message})`);
                         }
