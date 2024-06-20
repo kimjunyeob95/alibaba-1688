@@ -6,6 +6,7 @@ use App\Constants\MallConstant;
 use App\Constants\MallErrorMessageConstant;
 use App\Constants\OnchannelConstant;
 use App\Models\ApiUser;
+use App\Models\EasysellProductDetailLog;
 use App\Models\OnchannelProductDetailLog;
 use App\Models\OnchannelProductLog;
 use App\Packages\JwtPackage;
@@ -24,7 +25,7 @@ abstract class MallApiAbstract
     protected string $channel;
     protected OrderAbstract $orderW1;
     private TransApiAbstract $transApiAbstract;
-    
+
     public function __construct(
         JwtPackage $jwtPackage,
         string $channel,
@@ -103,6 +104,8 @@ abstract class MallApiAbstract
         try {
             if( $this->channel == MallConstant::MALL_ONCHANNEL ){
                 $builder = OnchannelProductDetailLog::query();
+            }else if( $this->channel == MallConstant::MALL_EASYSELL ){
+                $builder = EasysellProductDetailLog::query();
             }
 
             $objs   = $builder->where("log_id", $logId)->orderBy("created_at", "desc")->get();
@@ -120,7 +123,7 @@ abstract class MallApiAbstract
                     "created_at" => $created_at,
                 ];
             }
-        
+
             $returnMsg = helpers_success_message($result);
         } catch (Exception $e) {
             $returnMsg = helpers_fail_message($e->getMessage());
@@ -163,7 +166,7 @@ abstract class MallApiAbstract
                 "ocPublicLogObj"  => $ocPublicLogObj,
                 "ocPrivateLogObj" => $ocPrivateLogObj,
             ];
-        
+
             $returnMsg = helpers_success_message($result);
         } catch (Exception $e) {
             $returnMsg = helpers_fail_message($e->getMessage());

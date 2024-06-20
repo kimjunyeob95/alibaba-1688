@@ -50,11 +50,11 @@ class EasySellService
         }
 
         $prdBuilder = ProductData::select([
-                "product_datas.*", "product_datas.offer_id","product_datas.prd_name_kr","epl.itemno","epl.regist_success","epl.regist_message","product_datas.category_id",
+                "product_datas.*", "product_datas.offer_id","product_datas.prd_name_kr","epl.id as log_id","epl.itemno","epl.regist_success","epl.regist_message","product_datas.category_id",
                 "epl.registed_at","pwd.weight_type", "pwd.weight", "pwd.delivery_price",
                 "c.mapping_code as es_mapping", "d.mapping_code as es_fgn_mapping"
             ])
-            ->with(["main_img", "options","w_mapping", "w_mapping.w_cate_name", "w_mapping.w_cate_name"])
+            ->with(["main_img", "options","w_mapping", "w_mapping.w_cate_name", "w_mapping.w_cate_name", "easysell.detail_log"])
             ->join("easysell_product_logs as epl","product_datas.offer_id","=","epl.offer_id")
             ->leftJoin('product_weight_datas as pwd', function ($join) {
                 $join->on('product_datas.offer_id', '=', 'pwd.offer_id');

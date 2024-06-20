@@ -366,12 +366,21 @@ input[name='channelCategory']{
                                         @if($data->regist_success == MallConstant::REGIST_SUCCESS)
                                             성공
                                         @else
-                                            <span class="text-danger">전송실패 사유: ({{ $data->regist_message }})</span>
+                                            <small><span class="text-danger">전송실패 사유: ({{ $data->regist_message }})</span></small>
                                         @endif
                                     </td>
                                     <td class="text-center">
-                                        @if($data->regist_success == MallConstant::REGIST_SUCCESS)
-                                            <small>{{ $data->registed_at }}</small>
+                                        @if(isset($data->easysell->detail_log))
+                                            @php
+                                                $detailLog = $data->easysell->detail_log
+                                                    ->where("is_success",MallConstant::REGIST_SUCCESS)
+                                                    ->sortByDesc('created_at')
+                                                    ->first();
+                                            @endphp
+                                            @if($detailLog)
+                                                <small>{{ $detailLog->created_at }}</small>
+                                            @endif
+                                            <button class="btn btn-sm btn-success text-white btn-log-modal" logid="{{ $data->log_id }}">전송로그</button>
                                         @endif
                                     </td>
                                     <td class="text-center">
@@ -473,6 +482,34 @@ input[name='channelCategory']{
                     <div class="modal-footer">
                         <button type="button" class="btn btn-primary btn-save">확인</button>
                         <button type="button" class="btn btn-secondary htmlModalClose">닫기</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade" id="htmlModal2" tabindex="-1" role="dialog" aria-labelledby="htmlModalLabel2" aria-hidden="true">
+            <div class="modal-dialog modal-xl" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="htmlModalLabel2">상품 전송 로그</h5>
+                    </div>
+                    <div class="modal-body">
+                        <table class="table table-white bg-white log-table">
+                            <thead class="table-light">
+                                <tr>
+                                    <th scope="col" style="width: 60px">No.</th>
+                                    <th scope="col" style="width: 200px">전송타입</th>
+                                    <th scope="col" style="width: 200px">성공여부</th>
+                                    <th scope="col" style="width: 200px">에러내용</th>
+                                    <th scope="col" style="width: 200px">전송일시</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary htmlModalClose2">닫기</button>
                     </div>
                 </div>
             </div>
@@ -604,6 +641,10 @@ input[name='channelCategory']{
 
                 $("#loadingOverlay").show();
             }
+        });
+
+        $(".htmlModalClose2").click(function(){
+            $("#htmlModal2").modal('hide');
         });
 
         $(".htmlModalClose").click(function(){
@@ -795,6 +836,43 @@ input[name='channelCategory']{
                 }
             });
         })
+
+        $('.btn-log-modal').click(function(){
+            let logId = $(this).attr("logid");
+
+            $.ajax({
+                "headers": {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
+                "type"   : "GET",
+                "url"    : "/api/mall/easySell/product/log/" + logId,
+                "data"   : {},
+                beforeSend: function () {
+                    $("#loadingOverlay").show();
+                },
+                complete  : function(xhr, status) {
+                    $("#loadingOverlay").hide();
+                },
+                success : function (resp) {
+                    $('.log-table tbody').html("");
+                    resp.data.map(function(obj, key){
+                        $('.log-table tbody').append(`<tr>
+                            <td>${key+1}</td>
+                            <td>${obj.sendType}</td>
+                            <td>${obj.isSuccess}</td>
+                            <td>${obj.message}</td>
+                            <td>${obj.created_at}</td>
+                        </tr>`);
+                    });
+
+                    $("#htmlModal2").modal('show');
+
+                },
+                error: function (request) {
+                    let { error } = JSON.parse(request.responseText);
+                    alert(error.message);
+                }
+            });
+
+        });
     })
 </script>
 
