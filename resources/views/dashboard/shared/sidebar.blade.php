@@ -190,7 +190,12 @@
             <ul class="nav-group-items">
                 <li class="nav-item">
                     <a class="nav-link" href="/easySell/product/list/{{ EasySellConstant::TYPE_W }}">
-                        이지셀 상품 현황
+                        이지셀: 더블유
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/easySell/product/list/{{ EasySellConstant::TYPE_DROPHUB }}">
+                        이지셀: Drop Hub
                     </a>
                 </li>
                 <li class="nav-item">
