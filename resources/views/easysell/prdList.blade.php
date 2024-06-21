@@ -77,10 +77,6 @@ input[name='channelCategory']{
                                                 {{ number_format($successCnt) }}건
                                             </li>
                                             <li class="list-group-item text-center small" style="width: 100%;">
-                                                미등록<br>
-                                                {{ number_format($failCnt) }}건
-                                            </li>
-                                            <li class="list-group-item text-center small" style="width: 100%;">
                                                 전송실패<br>
                                                 {{ number_format($failCnt) }}건
                                             </li>

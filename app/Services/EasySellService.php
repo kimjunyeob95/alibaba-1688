@@ -124,7 +124,7 @@ class EasySellService
             }
         }
 
-        $successCnt = EasysellProductLog::where("regist_success",MallConstant::REGIST_SUCCESS)->count();
+        $successCnt = EasysellProductLog::where("regist_success",MallConstant::REGIST_SUCCESS)->where("w_type", $send_type)->count();
         $lists      = $prdBuilder->paginate($pageSize)->appends($params);
         $failCnt    = $totalCnt - $successCnt;
 
