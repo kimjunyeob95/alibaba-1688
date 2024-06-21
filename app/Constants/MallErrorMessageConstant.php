@@ -28,7 +28,9 @@ class MallErrorMessageConstant
     public const ERROR_MESSAGE_IMAGE_ID           = "image_id";
     public const ERROR_MESSAGE_OFFER_ID           = "offer_id";
     public const ERROR_MESSAGE_IMG_ID             = "img_id";
+    public const ERROR_MESSAGE_IMG_TYPE           = "img_type";
     public const ERROR_MESSAGE_IMAGE_BASE64       = "image_base64";
+    public const ERROR_MESSAGE_CLEANED_BASE64     = "cleaned_base64";
     public const ERROR_MESSAGE_MEMBER_ID          = "member_id";
     public const ERROR_MESSAGE_OPTIONS            = "options";
     public const ERROR_MESSAGE_CATETYPE           = "cateType";

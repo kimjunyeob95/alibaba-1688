@@ -20,6 +20,7 @@ class EasySellService
         $registStatus = $params["registStatus"];
         $search_cls   = $params["search_cls"];
         $keyword      = $params["keyword"];
+        $send_type    = $params["send_type"] ?? EasySellConstant::TYPE_W;
         $cate_first   = "";
         $cate_second  = "";
         $cate_third   = "";
@@ -50,11 +51,22 @@ class EasySellService
         }
 
         $prdBuilder = ProductData::select([
-                "product_datas.offer_id","product_datas.prd_name_kr","epl.itemno","epl.regist_success","product_datas.category_id",
-                "epl.registed_at"
+                "product_datas.*", "product_datas.offer_id","product_datas.prd_name_kr","epl.id as log_id","epl.itemno","epl.regist_success","epl.regist_message","product_datas.category_id",
+                "epl.registed_at","pwd.weight_type", "pwd.weight", "pwd.delivery_price",
+                "c.mapping_code as es_mapping", "d.mapping_code as es_fgn_mapping"
             ])
-            ->with(["main_img", "options", "es_mapping", "es_fgn_mapping", "w_mapping", "w_mapping.w_cate_name"])
+            ->with(["img_inspect","prd_inspect","gosi_inspect","es_category","main_img", "en_main_img", "options","w_mapping", "w_mapping.w_cate_name", "w_mapping.w_cate_name", "easysell.detail_log"])
             ->join("easysell_product_logs as epl","product_datas.offer_id","=","epl.offer_id")
+            ->leftJoin('product_weight_datas as pwd', function ($join) {
+                $join->on('product_datas.offer_id', '=', 'pwd.offer_id');
+            })
+            ->leftJoin('category_mappings as c', function($join) {
+                $join->on('product_datas.category_id', '=', 'c.category_id')->where('c.mapping_channel', ProductConstant::MAPPING_ES_CHANNEL);
+            })
+            ->leftJoin('category_mappings as d', function($join) {
+                $join->on('product_datas.category_id', '=', 'd.category_id')->where('d.mapping_channel', ProductConstant::MAPPING_ES_FGN_CHANNEL);
+            })
+            ->where("epl.w_type", $send_type)
             ->orderBy("product_datas.created_at", "desc");
 
         $totalCnt = $prdBuilder->count();
@@ -112,7 +124,7 @@ class EasySellService
             }
         }
 
-        $successCnt = EasysellProductLog::where("regist_success",MallConstant::REGIST_SUCCESS)->count();
+        $successCnt = EasysellProductLog::where("regist_success",MallConstant::REGIST_SUCCESS)->where("w_type", $send_type)->count();
         $lists      = $prdBuilder->paginate($pageSize)->appends($params);
         $failCnt    = $totalCnt - $successCnt;
 

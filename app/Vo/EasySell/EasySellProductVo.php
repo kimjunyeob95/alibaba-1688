@@ -67,12 +67,12 @@ class EasySellProductVo extends Vo
     public function __construct(string $type)
     {
         switch($type){
-            case WConstant::WAPP_W1 :
+            case EasySellConstant::TYPE_W :
                 $this->UserID      = EasySellConstant::USER_ID_W;
                 $this->referDetail = "상세페이지 참조";
                 break;
-            case WConstant::WAPP_W2 :
-                $this->UserID      = EasySellConstant::USER_ID_W2;
+            case EasySellConstant::TYPE_DROPHUB :
+                $this->UserID      = EasySellConstant::USER_ID_DROPHUB;
                 $this->referDetail = "See Details on Product Page";
                 break;
             default :

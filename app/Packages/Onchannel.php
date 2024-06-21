@@ -22,6 +22,7 @@ use Carbon\Carbon;
 use Exception;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
+use Illuminate\Pagination\Paginator;
 
 class Onchannel extends MallApiAbstract
 {
@@ -483,19 +484,18 @@ class Onchannel extends MallApiAbstract
         
                     $options = [];
                     foreach ($prdObj->no_except_options as $option) {
-                        $cus_price = (int)$option->option_price + (int)$delivery_price;
-                        $cus_price = intval($cus_price) + intval($cus_price * env("RECOM_CUS_PRICE_RATE", 0.45));
-                        $cus_price = round($cus_price / 10) * 10;
+                        // $ocPrice = ocPrice($option->price_1688_option, (int)$delivery_price);
+                        $ocPrice = ocPrice($option->price_1688, (int)$delivery_price);
 
                         $options[] = [
                             "op_rank"      => "1",
                             "op_code"      => $option->id,
                             "option_nm"    => $option->option_name_kr,
-                            "cus_price"    => $cus_price,
+                            "cus_price"    => $ocPrice["cus_price"],
                             "disc_price"   => 0,
                             "option_price" => 0,
                             "vendor_price" => 0,
-                            "onch_price"   => (int)$option->option_price + (int)$delivery_price,
+                            "onch_price"   => $ocPrice["onch_price"],
                             "total_count"  => 0,
                             "weight"       => $option->weight,
                             "volume"       => "",
@@ -563,17 +563,34 @@ class Onchannel extends MallApiAbstract
     {
         debug_log("온채널 일괄 수정 전송 시작", "onchannel/sendAllPrdModi", "sendAllPrdModi");
 
-        $logObjs = OnchannelProductLog::where([
+        $builder = OnchannelProductLog::where([
             "member_id"      => OnchannelConstant::ONCH1688,
             "regist_success" => MallConstant::REGIST_SUCCESS,
-        ])->get();
+        ]);
 
-        foreach ($logObjs as $logObj) {
-            $send_type = $logObj->send_type;
+        $perPage    = 900;
+        $totalCount = $builder->count();
+        $totalPages = ceil($totalCount / $perPage);
 
-            $this->productModi([$logObj->offer_id], $send_type);
+        for ($page = 1; $page <= $totalPages; $page++) {
+            Paginator::currentPageResolver(function () use ($page) {
+                return $page;
+            });
+        
+            // paginate 메소드는 새 Paginator 인스턴스를 반환합니다.
+            $pagedData = $builder->paginate($perPage);
+            $results   = $pagedData->items();
 
-            sleep(1.3);
+            foreach ($results as $obj) {
+                $offerId   = $obj->offer_id;
+                $send_type = $obj->send_type;
+
+                $this->productModi([$offerId], $send_type);
+
+                sleep(1.3);
+            }
+
+            debug_log("온채널 일괄 수정 전송 진행중({$page}/{$totalPages})", "onchannel/sendAllPrdModi", "sendAllPrdModi");
         }
         
         debug_log("온채널 일괄 수정 전송 종료", "onchannel/sendAllPrdModi", "sendAllPrdModi");

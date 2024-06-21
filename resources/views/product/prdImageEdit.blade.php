@@ -295,7 +295,8 @@
 
 <script type="text/javascript">
     $(function(){
-        var offer_id = "{{ $offerId }}";
+        var offer_id        = "{{ $offerId }}";
+        var sai_tool_doamin = "{{ env('GENUIO_TOOL_DOMAIN', 'https://dev-sai.genu.io') }}";
 
         var urlAnchor = window.location.hash;
         if (urlAnchor) {
@@ -442,7 +443,7 @@
         })
 
         $(".allAItoolBtn").click(function(){
-            window.open(`https://1688-img.genu.io/quick-fix/images?offer_id=${offer_id}`, '_blank');
+            window.open(`${sai_tool_doamin}/quick-fix/images?offer_id=${offer_id}&ch=wapp`, '_blank');
         });
 
         $(".AItoolBtn").click(function(){
@@ -460,7 +461,7 @@
                 let img_url = $(checked).attr("src");
                 let img_id = $(checked).attr("imgid");
 
-                window.open(`https://1688-img.genu.io/quick-fix/inpaint?img_url=${img_url}&img_id=${img_id}&offer_id=${offer_id}`, '_blank');
+                window.open(`${sai_tool_doamin}/quick-fix/inpaint?img_url=${img_url}&offer_id=${offer_id}&ch=wapp`, '_blank');
             }
         })
 

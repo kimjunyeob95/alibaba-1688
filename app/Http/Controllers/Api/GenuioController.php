@@ -10,6 +10,7 @@ use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Symfony\Component\Process\Process;
 
 class GenuioController extends Controller
 {
@@ -87,12 +88,17 @@ class GenuioController extends Controller
             if ($validator->fails()) {
                 throw new Exception($validator->errors()->first());
             }
-            $result = $this->genuioService->imgTransRequest($this->request->post("offerIds"));
-            if( $result["isSuccess"] == true ){
-                return helpers_json_response(HttpConstant::OK, $result);
-            } else {
-                return helpers_json_response(HttpConstant::BAD_REQUEST, [], $result["msg"]);
-            }
+
+            $offerIds = $this->request->post("offerIds");
+            
+            $options = "--func=imgTransRequest --offerids=" . helperEscape(implode(",", $offerIds));
+            $command = "nohup php artisan genuio_command " . $options . " > /dev/null 2>&1 &";
+            $process = Process::fromShellCommandline($command);
+            $process->setWorkingDirectory(env("WORK_DIRECTORY", "/web1/1688"));
+            $process->setTimeout(null); // 실행 시간 제한 없음
+            $process->start();
+
+            return helpers_json_response(HttpConstant::OK, helpers_success_message([], "번역 요청 완료"));
         } catch (Exception $e) {
             return helpers_json_response(HttpConstant::BAD_REQUEST, [], $e->getMessage());
         }

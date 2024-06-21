@@ -8,7 +8,6 @@ use App\Constants\ImageConstant;
 use App\Constants\InspectConstant;
 use App\Constants\ProductConstant;
 use App\Constants\ProductErrorMessageConstant;
-use App\Constants\WConstant;
 use App\Models\CategoryTree;
 use App\Models\ProductData;
 use App\Models\ProductForbiddenData;

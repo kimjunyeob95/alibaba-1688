@@ -100,7 +100,7 @@ Route::prefix("except")->name("except.")->group(function(){
  */
 Route::prefix("easySell")->name("easySell.")->group(function(){
     /** 상품 현황 */
-    Route::get("product/list", [EasySellController::class, "getPrdList"])->name("product/list");
+    Route::get("product/list/{send_type}", [EasySellController::class, "getPrdList"])->name("product/list");
 
     /** 카테고리 */
     Route::prefix("category")->name("category.")->group(function(){

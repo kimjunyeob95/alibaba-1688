@@ -190,7 +190,7 @@ input[name='channelCategory']{
                                         @endempty
                                     </td>
                                     <td class="text-center">
-                                        <button class="btn btn-sm btn-outline-success btn-modal" cateid="{{$data->mapping_code}}" catename="{{ $wCateName }}">맵핑하기</button>
+                                        <button class="btn btn-sm btn-outline-success btn-modal" cateid="{{$data->category_id}}" catename="{{ $wCateName }}">맵핑하기</button>
                                     </td>
                                 </tr>
                             @endforeach
@@ -343,7 +343,7 @@ input[name='channelCategory']{
                         "headers" : {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
                         "type"    : "POST",
                         "url"     : "{{ route('w.category.getWDepth') }}",
-                        "data"    : { 
+                        "data"    : {
                             level     : selectedLevel,
                             cate_name : cate_name,
                         },
@@ -408,7 +408,7 @@ input[name='channelCategory']{
                         "headers" : {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
                         "type"    : "POST",
                         "url"     : "/api/mall/easySell/category/depth",
-                        "data"    : { 
+                        "data"    : {
                             level     : selectedLevel,
                             cate_name : cate_name,
                         },
@@ -542,7 +542,7 @@ input[name='channelCategory']{
         });
 
         $(".btn-save").click(function(){
-            var wAppCateCode    = $("input[name='cateId']").val();
+            var categoryId      = $("input[name='cateId']").val();
             var channelCateCode = $("input[name='channelCategory']:checked").val();
 
             $.ajax({
@@ -550,7 +550,7 @@ input[name='channelCategory']{
                 "type"   : "POST",
                 "url"    : "/api/mall/easySell/category/mapping",
                 "data"   : {
-                    "wAppCateCode"   : wAppCateCode,
+                    "categoryId"     : categoryId,
                     "channelCateCode": channelCateCode,
                 },
                 beforeSend: function () {

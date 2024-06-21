@@ -537,7 +537,7 @@
                                 "type": "string",
                                 "example": "2023-12-19 17:45:50"
                             },
-                            "apiType": {
+                            "api_type": {
                                 "type": "string",
                                 "example": "mall"
                             }
@@ -562,7 +562,7 @@
                                 "type": "string",
                                 "example": "2023-12-19 17:45:50"
                             },
-                            "apiType": {
+                            "api_type": {
                                 "type": "string",
                                 "example": "mall"
                             }
@@ -597,7 +597,7 @@
                                 "type": "string",
                                 "example": "2023-12-19 17:45:50"
                             },
-                            "apiType": {
+                            "api_type": {
                                 "type": "string",
                                 "example": "mall"
                             }
@@ -632,7 +632,7 @@
                                 "type": "string",
                                 "example": "2023-12-19 17:45:50"
                             },
-                            "apiType": {
+                            "api_type": {
                                 "type": "string",
                                 "example": "mall"
                             }
@@ -667,7 +667,7 @@
                                 "type": "string",
                                 "example": "2023-12-19 17:45:50"
                             },
-                            "apiType": {
+                            "api_type": {
                                 "type": "string",
                                 "example": "mall"
                             }
@@ -714,7 +714,7 @@
                                 "type": "string",
                                 "example": "2023-12-19 17:45:50"
                             },
-                            "apiType": {
+                            "api_type": {
                                 "type": "string",
                                 "example": "mall"
                             }
@@ -796,7 +796,7 @@
                             "required": [
                                 "id",
                                 "origin_url",
-                                "base64"
+                                "imgTransBase64"
                             ],
                             "properties": {
                                 "id": {
@@ -809,10 +809,20 @@
                                     "type": "string",
                                     "example": "https://naver.png"
                                 },
-                                "base64": {
+                                "imgTransBase64": {
                                     "description": "Base64로 인코딩된 이미지 데이터",
                                     "type": "string",
                                     "example": "~~"
+                                },
+                                "cleaned_base64": {
+                                    "description": "Base64로 인코딩된 흰 배경 이미지 데이터",
+                                    "type": "string",
+                                    "example": "~~"
+                                },
+                                "text_data": {
+                                    "description": "이미지 데이터",
+                                    "type": "string",
+                                    "example": "{test:123}"
                                 }
                             },
                             "type": "object"
@@ -833,7 +843,7 @@
                                 "type": "string",
                                 "example": "2023-12-19 17:45:50"
                             },
-                            "apiType": {
+                            "api_type": {
                                 "type": "string",
                                 "example": "mall"
                             }
@@ -980,7 +990,7 @@
                                 "type": "string",
                                 "example": "2023-12-19 17:45:50"
                             },
-                            "apiType": {
+                            "api_type": {
                                 "type": "string",
                                 "example": "mall"
                             }

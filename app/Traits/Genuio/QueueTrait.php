@@ -11,14 +11,10 @@ use Exception;
 trait QueueTrait
 {
     protected array $returnMsg;
-    private string $domain;
-    private string $token;
     
     public function __construct()
     {
         $this->returnMsg = helpers_fail_message();
-        $this->domain    = env("GENUIO_DOMAIN");
-        $this->token     = env("GENUIO_TOKEN");
     }
 
     /**
@@ -53,8 +49,8 @@ trait QueueTrait
                         $resJson   = $geObj->response_json;
                         $resDecode = json_decode($resJson, JSON_UNESCAPED_UNICODE);
                         
-                        if( isset($resDecode["data"]["internalJobId"]) ){
-                            $internalJobId = $resDecode["data"]["internalJobId"];
+                        if( isset($resDecode["internalJobId"]) ){
+                            $internalJobId = $resDecode["internalJobId"];
                             $endPoint      = $this->domain . "/translate-progress/remove/{$internalJobId}?queue=priority";
                             $header        = ["Authorization: Bearer {$this->token}"];
                             $result        = helpers_curl("POST", $endPoint, $header);
@@ -77,6 +73,11 @@ trait QueueTrait
                 }
             }
 
+            // if( empty($fails) ){
+            //     $returnMsg = helpers_success_message(["fails" => $fails]);
+            // } else {
+            // }
+            
             $returnMsg = helpers_success_message(["fails" => $fails]);
         } catch (Exception $e) {
             $returnMsg = helpers_fail_message($e->getMessage());

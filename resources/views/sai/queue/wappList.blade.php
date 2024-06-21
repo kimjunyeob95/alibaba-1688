@@ -146,7 +146,7 @@
                                         {{ $data->id }}
                                     </td>
                                     <td>
-                                        {{ $data->offer_id }}
+                                        <a href="/product/{{ $data->offer_id }}" target="_blank">{{ $data->offer_id }}</a>
                                     </td>
                                     <td>
                                         {{ GenuioConstant::IMG_TRANS_TYPE[$data->send_type] }}
@@ -220,8 +220,12 @@
                             resp.data.fails.map(function(ele){
                                 alertMsg += `queuueId: ${ele.queueId} | error: ${ele.msg}\n`;
                             });;
+                            alert(alertMsg);
+                        } else {
+                            alert(resp.msg);
                         }
-                        alert(alertMsg);
+
+                        location.reload();
                     },
                     error: function error(request, status, _error) {
                         let { error } = JSON.parse(request.responseText);
@@ -263,8 +267,12 @@
                             resp.data.fails.map(function(ele){
                                 alertMsg += `queuueId: ${ele.queueId} | error: ${ele.msg}\n`;
                             });;
+                            alert(alertMsg);
+                        } else {
+                            alert(resp.msg);
                         }
-                        alert(alertMsg);
+
+                        location.reload();
                     },
                     error: function error(request, status, _error) {
                         let { error } = JSON.parse(request.responseText);

@@ -168,7 +168,8 @@ class MallController extends Controller
                 'images.*.id'         => 'required|int',
                 'images.*.offer_id'   => 'required|int',
                 'images.*.img_id'     => 'required|int',
-                'images.*.origin_url' => 'required|string'
+                'images.*.origin_url' => 'required|string',
+                'images.*.img_type'   => 'required|string',
             ], [
                 'channel_queue_id.required'    => MallErrorMessageConstant::getNotHaveErrorMessage("CHANNEL_QUEUE_ID"),
                 'member_id.required'           => MallErrorMessageConstant::getNotHaveErrorMessage("MEMBER_ID"),
@@ -177,6 +178,7 @@ class MallController extends Controller
                 'images.*.offer_id.required'   => MallErrorMessageConstant::getNotHaveErrorMessage("OFFER_ID"),
                 'images.*.img_id.required'     => MallErrorMessageConstant::getNotHaveErrorMessage("IMG_ID"),
                 'images.*.origin_url.required' => MallErrorMessageConstant::getNotHaveErrorMessage("IMAGES_ORIGIN_URL"),
+                'images.*.img_type.required'   => MallErrorMessageConstant::getNotHaveErrorMessage("IMG_TYPE"),
             ]);
             if ($validator->fails()) {
                 throw new Exception($validator->errors()->first());
@@ -225,15 +227,15 @@ class MallController extends Controller
     {
         try {
             $validator = Validator::make($this->request->all(), [
-                'member_id'       => 'required|string',
-                'images'          => 'required|array',
-                'images.*.id'     => 'required|int',
-                'images.*.base64' => 'required|string',
+                'member_id'               => 'required|string',
+                'images'                  => 'required|array',
+                'images.*.id'             => 'required|int',
+                'images.*.base64'         => 'required|string',
             ], [
-                'member_id.required'       => MallErrorMessageConstant::getNotHaveErrorMessage("MEMBER_ID"),
-                'images.required'          => MallErrorMessageConstant::getNotHaveErrorMessage("IMAGES"),
-                'images.*.id.required'     => MallErrorMessageConstant::getNotHaveErrorMessage("IMAGE_ID"),
-                'images.*.base64.required' => MallErrorMessageConstant::getNotHaveErrorMessage("IMAGE_BASE64"),
+                'member_id.required'               => MallErrorMessageConstant::getNotHaveErrorMessage("MEMBER_ID"),
+                'images.required'                  => MallErrorMessageConstant::getNotHaveErrorMessage("IMAGES"),
+                'images.*.id.required'             => MallErrorMessageConstant::getNotHaveErrorMessage("IMAGE_ID"),
+                'images.*.base64.required'         => MallErrorMessageConstant::getNotHaveErrorMessage("IMAGE_BASE64"),
             ]);
             if ($validator->fails()) {
                 throw new Exception($validator->errors()->first());
@@ -267,7 +269,7 @@ class MallController extends Controller
             $oc_send_type = $this->request->post("oc_send_type", []);
 
             if( !empty($es_send_type) ){
-                $options = "--offerids=" . helperEscape(implode(",", $offerIds)) . " --sendtype=" . helperEscape(implode(",", $oc_send_type));
+                $options = "--offerids=" . helperEscape(implode(",", $offerIds)) . " --type=" . helperEscape(implode(",", $es_send_type));
 
                 $command = "nohup php artisan easy_sell_command --func=productRegist " . $options . " > /dev/null 2>&1 &";
                 $process1 = Process::fromShellCommandline($command);
