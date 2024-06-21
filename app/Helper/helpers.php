@@ -1,5 +1,6 @@
 <?php
 
+use App\Constants\EasySellConstant;
 use App\Constants\GenuioConstant;
 use App\Constants\HttpConstant;
 use App\Constants\ImageConstant;
@@ -686,15 +687,24 @@ if (!function_exists("upPrdDescTrans")) {
 
 //이지셀 판매가 계산
 if (!function_exists("calcEasySellSalePrice")) {
-    function calcEasySellSalePrice(?float $price = 0, ?int $md_price, int $delivery_price = ProductConstant::WEIGHT_STATUS_NONE_PRICE, string $type = "dynamic"): array
+    function calcEasySellSalePrice(?float $price = 0, ?int $md_price, int $delivery_price = ProductConstant::WEIGHT_STATUS_NONE_PRICE, string $type = "dynamic", string $sendType = EasySellConstant::TYPE_W): array
     {
         //1688 공급가
         $option_price = round( $price * env("1688_EXCHANGE_RATE", 200) , -1);
 
         //이지셀 공급가
         $buyPrice = ceil(($option_price) / 100) * 100 + $delivery_price;
+
+        //마진률 설정
+        $marginRating = 1;
+        if($sendType == EasySellConstant::TYPE_W){
+            $marginRating = env("EASYSELL_PRICE_RATE", "1");
+        }else if($sendType == EasySellConstant::TYPE_DROPHUB){
+            $marginRating = env("DROPHUB_PRICE_RATE", "1");
+        }
+
         //이지셀 판매가
-        $salePrice = ceil(($option_price * env("EASYSELL_PRICE_RATE", "1.35")) / 100) * 100 + $delivery_price;
+        $salePrice = ceil(($option_price * $marginRating) / 100) * 100 + $delivery_price;
 
         if($type != "static"){
             $salePrice = !empty($md_price) ? $md_price : $salePrice;
