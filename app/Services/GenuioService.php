@@ -32,8 +32,8 @@ class GenuioService extends TransApiAbstract
 {
     private JwtPackage $jwtPackage;
     private UploadAbstract $uploadAbstract;
-    private string $domain;
-    private string $token;
+    protected string $domain;
+    protected string $token;
     protected array $returnMsg;
 
     public function __construct(
