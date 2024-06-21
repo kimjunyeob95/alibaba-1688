@@ -54,7 +54,7 @@ class EasySell extends MallApiAbstract
         $successIds = [];
         $failIds    = [];
         $updateIds  = [];
-        $type = EasySellConstant::TYPE_W;
+        $type = [ EasySellConstant::TYPE_W ];
         if( isset($params["type"]) ){
             $type = $params["type"];
         }
