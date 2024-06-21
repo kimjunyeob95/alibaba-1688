@@ -293,10 +293,9 @@ input[name='channelCategory']{
 
                                                 //배송비 설정
                                                 $weights   = CategoryConstant::WEIGHTS;
-                                                $weightObj = ProductWeightData::where("offer_id", $data->offer_id)->first();
                                                 $delivery_price = ProductConstant::WEIGHT_STATUS_NONE_PRICE;
-                                                if( $weightObj != null ){
-                                                    $delivery_price = $weights[$weightObj->weight];
+                                                if( $data->weight != null ){
+                                                    $delivery_price = $weights[$data->weight];
                                                 }
 
                                                 $price = calcEasySellSalePrice($option->price_1688, $option->md_price, $delivery_price, "static");
