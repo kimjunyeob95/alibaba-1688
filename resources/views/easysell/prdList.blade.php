@@ -339,11 +339,7 @@ input[name='channelCategory']{
                                     </td>
                                     <td class="text-center">
                                         @if (count($data->options) > 0)
-                                            @if(!empty($option->md_price))
-                                            {{ number_format( $option->md_price ) }}
-                                            @else
                                             {{ number_format($price['salePrice']) }}
-                                            @endif
                                         @else
                                             <p class="text-danger">옵션없음</p>
                                         @endif
