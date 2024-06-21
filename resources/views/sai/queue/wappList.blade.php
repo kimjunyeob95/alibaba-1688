@@ -146,7 +146,7 @@
                                         {{ $data->id }}
                                     </td>
                                     <td>
-                                        {{ $data->offer_id }}
+                                        <a href="/product/{{ $data->offer_id }}">{{ $data->offer_id }}</a>
                                     </td>
                                     <td>
                                         {{ GenuioConstant::IMG_TRANS_TYPE[$data->send_type] }}
