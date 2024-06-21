@@ -243,8 +243,15 @@ input[name='channelCategory']{
                                         </label>
                                     </td>
                                     <td class="text-center">
-                                        @if( !empty($data->main_img->img_url_trans) )
-                                            <img class="lazy-img preview-image" data-src="{{ $data->main_img->img_url_trans }}" width=60 height=60/>
+                                        @php
+                                            if($send_type == EasySellConstant::TYPE_W){
+                                                $mainImg = $data->main_img->img_url_trans;
+                                            }else if($send_type == EasySellConstant::TYPE_DROPHUB){
+                                                $mainImg = $data->en_main_img->img_url_origin;
+                                            }
+                                        @endphp
+                                        @if( !empty($mainImg) )
+                                            <img class="lazy-img preview-image" data-src="{{ $mainImg }}" width=60 height=60/>
                                         @else
                                             <img class="lazy-img preview-image" data-src='/assets/img/no_img.png'width=60 height=60>
                                         @endif
@@ -298,7 +305,11 @@ input[name='channelCategory']{
                                                     $delivery_price = $weights[$data->weight];
                                                 }
 
-                                                $price = calcEasySellSalePrice($option->price_1688, $option->md_price, $delivery_price, "static");
+                                                if($send_type == EasySellConstant::TYPE_W){
+                                                    $price = calcEasySellSalePrice($option->price_1688, $option->md_price, $delivery_price, "static", EasySellConstant::TYPE_W);
+                                                }else if($send_type == EasySellConstant::TYPE_DROPHUB){
+                                                    $price = calcEasySellSalePrice($option->price_1688_option, $option->md_price, $delivery_price, "static", EasySellConstant::TYPE_DROPHUB);
+                                                }
                                             @endphp
                                             @if(!empty($option->price_1688))
                                             {{ number_format( $price['option_price'] ) }}
