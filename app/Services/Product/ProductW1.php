@@ -2008,8 +2008,16 @@ class ProductW1 extends ProductAbstract
                 $optionNameTrans   = "";
                 $optionNameTransEn = "";
                 foreach ($prdOptions["skuAttributes"] as $prdOption) {
-                    $optionName      .= $prdOption["value"] .  "_";
-                    $optionNameTrans .= $prdOption["valueTrans"] .  "_";
+                    $optValue      = "";
+                    $optValueTrans = "";
+                    if( isset($prdOption["value"])) {
+                        $optValue = $prdOption["value"];
+                    }
+                    if( isset($prdOption["valueTrans"])) {
+                        $optValueTrans = $prdOption["valueTrans"];
+                    }
+                    $optionName      .= $optValue .  "_";
+                    $optionNameTrans .= $optValueTrans .  "_";
 
                     $prdOptionEn = null;
                     if( $prdOptionsEn != null ){
@@ -2019,7 +2027,11 @@ class ProductW1 extends ProductAbstract
                             }
                         }
                         if( $prdOptionEn != null ){
-                            $optionNameTransEn .= $prdOptionEn["valueTrans"] .  "_";
+                            $optValueEnTrans = "";
+                            if( isset($prdOptionEn["valueTrans"])) {
+                                $optValueEnTrans = $prdOptionEn["valueTrans"];
+                            }
+                            $optionNameTransEn .= $optValueEnTrans .  "_";
                         }
                     }
                 }

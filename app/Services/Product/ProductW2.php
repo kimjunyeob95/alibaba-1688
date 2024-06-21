@@ -1727,8 +1727,14 @@ class ProductW2 extends ProductAbstract
                     $prdOptionEn       = $prdOptionsEn["skuAttributeList"][$skuKey];
                     $optionNameTransEn .= $prdOptionEn["translateValue"] .  "_";
 
-                    $prdOptionW1        = $prdOptionsW1["skuAttributes"][$skuKey];
-                    $optionNameTransW1 .= $prdOptionW1["value"] .  "_";
+                    if( isset($prdOptionsW1["skuAttributes"][$skuKey]) ){
+                        $prdOptionW1     = $prdOptionsW1["skuAttributes"][$skuKey];
+                        $optValueTransW1 = "";
+                        if( isset($prdOptionW1["value"])) {
+                            $optValueTransW1 = $prdOptionW1["value"];
+                        }
+                        $optionNameTransW1 .= $optValueTransW1 .  "_";
+                    }
                 }
 
                 $width  = 0;
