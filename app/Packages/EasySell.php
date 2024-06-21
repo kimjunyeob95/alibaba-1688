@@ -461,7 +461,17 @@ class EasySell extends MallApiAbstract
             $unitInfo   = $optionTitle."|";
             $idx = 0;
             foreach($prdObj->options->where("is_except", OptionConstants::IS_EXCEPT_N) as $option){
-                $price = calcEasySellSalePrice($option->price_1688, $option->md_price, $delivery_price);
+                //옵션명
+                $replaceArr     = array("|",",","/");
+                $replacementArr = array("-","\,","-");
+
+                if($type == EasySellConstant::TYPE_W){
+                    $optionNm = str_replace($replaceArr, $replacementArr ,$option->option_name_kr);
+                    $price = calcEasySellSalePrice($option->price_1688, $option->md_price, $delivery_price, "static", EasySellConstant::TYPE_W);
+                }else if($type == EasySellConstant::TYPE_DROPHUB){
+                    $optionNm = str_replace($replaceArr, $replacementArr ,$option->option_name_en);
+                    $price = calcEasySellSalePrice($option->price_1688_option, $option->md_price, $delivery_price, "static", EasySellConstant::TYPE_DROPHUB);
+                }
 
                 if(!$idx){
                     $buyPrice  = $price['buyPrice']; //셀러허브 공급가
@@ -470,16 +480,6 @@ class EasySell extends MallApiAbstract
                     $unitInfo .= ",";
                 }
                 $setPrice = $price['salePrice'];
-
-                //옵션명
-                $replaceArr     = array("|",",","/");
-                $replacementArr = array("-","\,","-");
-
-                if($type == EasySellConstant::TYPE_W){
-                    $optionNm = str_replace($replaceArr, $replacementArr ,$option->option_name_kr);
-                }else if($type == EasySellConstant::TYPE_DROPHUB){
-                    $optionNm = str_replace($replaceArr, $replacementArr ,$option->option_name_en);
-                }
 
                 $stock = $option->amount_on_sale;
 
