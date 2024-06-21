@@ -135,6 +135,7 @@ trait MallOrderTrait
 
                     $orderDtoBind = [
                         "order_id"               => $orderId,
+                        "offer_id"               => $offerId,
                         "channel_order_id"       => $channelOrderId,
                         "channel"                => $this->channel,
                         "buyer_name"             => $buyerName,
