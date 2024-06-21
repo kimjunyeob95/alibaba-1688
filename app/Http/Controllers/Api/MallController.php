@@ -269,7 +269,7 @@ class MallController extends Controller
             $oc_send_type = $this->request->post("oc_send_type", []);
 
             if( !empty($es_send_type) ){
-                $options = "--offerids=" . helperEscape(implode(",", $offerIds)) . " --sendtype=" . helperEscape(implode(",", $oc_send_type));
+                $options = "--offerids=" . helperEscape(implode(",", $offerIds)) . " --type=" . helperEscape(implode(",", $es_send_type));
 
                 $command = "nohup php artisan easy_sell_command --func=productRegist " . $options . " > /dev/null 2>&1 &";
                 $process1 = Process::fromShellCommandline($command);

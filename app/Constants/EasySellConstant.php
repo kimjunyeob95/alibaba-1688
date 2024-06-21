@@ -5,6 +5,10 @@ namespace App\Constants;
 
 class EasySellConstant
 {
+    //계정 구분
+    public const TYPE_W       = "W";
+    public const TYPE_DROPHUB = "DropHub";
+
     //상품 모드
     public const ITEM_REGIST = "I"; //등록
     public const ITEM_MODI   = "M"; //수정
@@ -13,10 +17,10 @@ class EasySellConstant
     public const SELLERHUB_ID = "sellerhub";
 
     //api 기본정보
-    public const LINKER_ID  = "onchannel";
-    public const USER_ID_W  = "2018637410_200";    //W_패션
-    public const USER_ID_W2 = "2018637410_200_1";  //DropK
-    public const USER_PW    = "1234";
+    public const LINKER_ID       = "onchannel";
+    public const USER_ID_W       = "2018637410_200";    //W_패션
+    public const USER_ID_DROPHUB = "2018637410_200_1";  //DropHub
+    public const USER_PW         = "1234";
 
     // 상품 판매 상태
     public const STATUS_ON_SALE   = "001";
