@@ -344,7 +344,7 @@ input[name='channelCategory']{
                                             </small>
                                         @else
                                             @if(isset($data->w_mapping))
-                                                <button type="button" class="btn btn-danger btn-modal" cateid="{{ $data->category_id }}" catename="{{ $wCateName }}">카테고리 미맵핑</button>
+                                                <button type="button" class="btn btn-sm btn-danger text-white btn-modal" cateid="{{ $data->category_id }}" catename="{{ $wCateName }}">카테고리 미맵핑</button>
                                             @else
                                                 <span class="text-danger">W카테고리 미맵핑 ({{ $data->category_id }})</span>
                                             @endif
