@@ -604,7 +604,7 @@ input[name='channelCategory']{
                     "url"        : "/api/mall/easySell/product/regist",
                     "data"       : {
                         "offer_ids": offer_ids,
-                        "type"     : "{{ $send_type }}"
+                        "type"     : ["{{ $send_type }}"]
                     },
                     beforeSend: function () {
                     },
