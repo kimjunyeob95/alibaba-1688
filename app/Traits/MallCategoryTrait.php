@@ -11,12 +11,12 @@ trait MallCategoryTrait
 {
     protected array $returnMsg;
     protected string $channel;
-    
+
     public function __construct()
     {
         $this->returnMsg = helpers_fail_message();
     }
-    
+
     public function initCategoryTrait(string $channel): void
     {
         $this->channel = $channel;
@@ -51,10 +51,7 @@ trait MallCategoryTrait
             $categoryId      = $params["categoryId"];
             $channelCateCode = $params["channelCateCode"];
             $channel         = $this->channel;
-            if( $channel == ProductConstant::MAPPING_ES_CHANNEL ){
-                $channel = ProductConstant::MAPPING_ES_FGN_CHANNEL;
-            }
-            
+
             $wAppMappingObj = CategoryMapping::where([
                 "mapping_channel" => ProductConstant::MAPPING_WAPP,
                 "category_id"     => $categoryId,
@@ -64,15 +61,30 @@ trait MallCategoryTrait
                 throw new Exception(MallErrorMessageConstant::getFitErrorMessage("W_APP_MAPPINGCODE"));
             }
 
-            CategoryMapping::updateOrCreate(
-                [
-                    "mapping_channel" => $channel,
-                    "category_id"     => $categoryId,
-                ],
-                [
-                    "mapping_code" => $channelCateCode,
-                ]
-            );
+            if( $channel == ProductConstant::MAPPING_ES_CHANNEL ){
+                $channel = ProductConstant::MAPPING_ES_FGN_CHANNEL;
+            }
+
+            //category_id 와 매핑된 WAPP 카테고리
+            $mappingCode = $wAppMappingObj->mapping_code;
+
+            //WAPP 카테고리와 매핑된 category_id 전체 조회
+            $selCategoryObj = CategoryMapping::select("category_id")
+                ->where("mapping_channel", ProductConstant::MAPPING_WAPP)
+                ->where("mapping_code", $mappingCode)
+                ->get();
+
+            foreach($selCategoryObj as $category){
+                CategoryMapping::updateOrCreate(
+                    [
+                        "mapping_channel" => $channel,
+                        "category_id"     => $category["category_id"],
+                    ],
+                    [
+                        "mapping_code" => $channelCateCode,
+                    ]
+                );
+            }
 
             $returnMsg = helpers_success_message();
         } catch (Exception $e) {

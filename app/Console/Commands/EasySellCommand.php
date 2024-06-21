@@ -31,11 +31,11 @@ class EasySellCommand extends Command
         switch ($func) {
             /**
              * 상품등록 커맨드
-             * php artisan easy_sell_command --func=productRegist --offerids=44798792934,562321147241 --type=W1
+             * php artisan easy_sell_command --func=productRegist --offerids=44798792934,562321147241 --type=W
              */
             case 'productRegist':
                 $offerIds = explode(",", $this->option('offerids'));
-                $type = $this->option('type');
+                $type     = explode(",", $this->option('type'));
                 $params = [
                     "type" => $type
                 ];
