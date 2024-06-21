@@ -190,7 +190,7 @@ if (!function_exists("helpers_json_response")) {
             "meta" => [
                 "timestamp"  => Carbon::now()->format('Y-m-d H:i:s'),
                 // "apiVersion" => $apiVersion,
-                "apiType" => $apiVersion,
+                "api_type" => $apiVersion,
             ]
         ];
         if( $status == HttpConstant::OK ){

@@ -537,7 +537,7 @@
                                 "type": "string",
                                 "example": "2023-12-19 17:45:50"
                             },
-                            "apiType": {
+                            "api_type": {
                                 "type": "string",
                                 "example": "mall"
                             }
@@ -562,7 +562,7 @@
                                 "type": "string",
                                 "example": "2023-12-19 17:45:50"
                             },
-                            "apiType": {
+                            "api_type": {
                                 "type": "string",
                                 "example": "mall"
                             }
@@ -597,7 +597,7 @@
                                 "type": "string",
                                 "example": "2023-12-19 17:45:50"
                             },
-                            "apiType": {
+                            "api_type": {
                                 "type": "string",
                                 "example": "mall"
                             }
@@ -632,7 +632,7 @@
                                 "type": "string",
                                 "example": "2023-12-19 17:45:50"
                             },
-                            "apiType": {
+                            "api_type": {
                                 "type": "string",
                                 "example": "mall"
                             }
@@ -667,7 +667,7 @@
                                 "type": "string",
                                 "example": "2023-12-19 17:45:50"
                             },
-                            "apiType": {
+                            "api_type": {
                                 "type": "string",
                                 "example": "mall"
                             }
@@ -714,7 +714,7 @@
                                 "type": "string",
                                 "example": "2023-12-19 17:45:50"
                             },
-                            "apiType": {
+                            "api_type": {
                                 "type": "string",
                                 "example": "mall"
                             }
@@ -843,7 +843,7 @@
                                 "type": "string",
                                 "example": "2023-12-19 17:45:50"
                             },
-                            "apiType": {
+                            "api_type": {
                                 "type": "string",
                                 "example": "mall"
                             }
@@ -990,7 +990,7 @@
                                 "type": "string",
                                 "example": "2023-12-19 17:45:50"
                             },
-                            "apiType": {
+                            "api_type": {
                                 "type": "string",
                                 "example": "mall"
                             }

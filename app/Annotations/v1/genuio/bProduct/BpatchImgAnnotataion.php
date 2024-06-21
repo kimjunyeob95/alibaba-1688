@@ -38,7 +38,7 @@ namespace App\Annotations\v1\genuio\bProduct;
  *         property="meta", 
  *         type="object",
  *         @OA\Property(property="timestamp", type="string", example="2023-12-19 17:45:50"),
- *         @OA\Property(property="apiType", type="string", example="mall")
+ *         @OA\Property(property="api_type", type="string", example="mall")
  *     ),
  *     @OA\Property(
  *         property="data", 
