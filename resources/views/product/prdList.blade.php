@@ -1079,20 +1079,36 @@
 
                     if( resp.data.esWLogObj ){
                         let esWLogObj = resp.data.esWLogObj;
-                        if( esWLogObj.regist_success == "Y" ){
-                            $(".w-log-text").addClass("text-primary").html(`성공 (${esWLogObj.itemno})`);
+                        if( esWLogObj.modied_at != null ){
+                            if( esWLogObj.modi_success == "Y" ){
+                                $(".w-log-text").addClass("text-primary").html(`성공 (${esWLogObj.itemno})`);
+                            } else {
+                                $(".w-log-text").addClass("text-danger").html(`실패 (${esWLogObj.modi_message})`);
+                            }
                         } else {
-                            $(".w-log-text").addClass("text-danger").html(`실패 (${esWLogObj.message})`);
+                            if( esWLogObj.regist_success == "Y" ){
+                                $(".w-log-text").addClass("text-primary").html(`성공 (${esWLogObj.itemno})`);
+                            } else {
+                                $(".w-log-text").addClass("text-danger").html(`실패 (${esWLogObj.regist_message})`);
+                            }
                         }
                     } else {
                         $(".w-log-text").html(`미등록`);
                     }
                     if( resp.data.esDropLogObj ){
                         let esDropLogObj = resp.data.esDropLogObj;
-                        if( esDropLogObj.regist_success == "Y" ){
-                            $(".drop-log-text").addClass("text-primary").html(`성공 (${esDropLogObj.itemno})`);
+                        if( esDropLogObj.modied_at != null ){
+                            if( esDropLogObj.modi_success == "Y" ){
+                                $(".drop-log-text").addClass("text-primary").html(`성공 (${esDropLogObj.itemno})`);
+                            } else {
+                                $(".drop-log-text").addClass("text-danger").html(`실패 (${esDropLogObj.modi_message})`);
+                            }
                         } else {
-                            $(".drop-log-text").addClass("text-danger").html(`실패 (${esDropLogObj.message})`);
+                            if( esDropLogObj.regist_success == "Y" ){
+                                $(".drop-log-text").addClass("text-primary").html(`성공 (${esDropLogObj.itemno})`);
+                            } else {
+                                $(".drop-log-text").addClass("text-danger").html(`실패 (${esDropLogObj.regist_message})`);
+                            }
                         }
                     } else {
                         $(".drop-log-text").html(`미등록`);
