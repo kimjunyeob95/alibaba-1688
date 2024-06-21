@@ -1100,8 +1100,12 @@ class ProductW2 extends ProductAbstract
         // 1. 상품 이미지
         $product1688ImageDtoList = [];
         // 1-1. 국문 이미지
+        $mainImgKey = 0;
+        if( count($detailProduct["imageUrlList"]) > 4 ){
+            $mainImgKey = 4;
+        }
         foreach ($detailProduct["imageUrlList"] as $imgKey => $prdImage) {
-            if( $imgKey == 0 ) {
+            if( $imgKey == $mainImgKey ) {
                 $imgType = ImageConstant::IMAGE_TYPE_MAIN;
             } else {
                 $imgType = ImageConstant::IMAGE_TYPE_SUB;
@@ -1213,8 +1217,12 @@ class ProductW2 extends ProductAbstract
         }
 
         // 1-2. 영문 이미지
+        $mainImgKey = 0;
+        if( count($detailEnProduct["imageUrlList"]) > 4 ){
+            $mainImgKey = 4;
+        }
         foreach ($detailEnProduct["imageUrlList"] as $imgKey => $prdImage) {
-            if( $imgKey == 0 ) {
+            if( $imgKey == $mainImgKey ) {
                 $imgType = ImageConstant::IMAGE_TYPE_MAIN;
             } else {
                 $imgType = ImageConstant::IMAGE_TYPE_SUB;

@@ -1377,8 +1377,12 @@ class ProductW1 extends ProductAbstract
         // 1. 상품 이미지
         $product1688ImageDtoList = [];
         // 1-1. 국문 이미지
+        $mainImgKey = 0;
+        if( count($detailProduct["productImage"]["images"]) > 4 ){
+            $mainImgKey = 4;
+        }
         foreach ($detailProduct["productImage"]["images"] as $imgKey => $prdImage) {
-            if( $imgKey == 0 ) {
+            if( $imgKey == $mainImgKey ) {
                 $imgType = ImageConstant::IMAGE_TYPE_MAIN;
             } else {
                 $imgType = ImageConstant::IMAGE_TYPE_SUB;
@@ -1490,8 +1494,12 @@ class ProductW1 extends ProductAbstract
         }
 
         // 1-1. 영문 이미지
+        $mainImgKey = 0;
+        if( count($detailEnProduct["productImage"]["images"]) > 4 ){
+            $mainImgKey = 4;
+        }
         foreach ($detailEnProduct["productImage"]["images"] as $imgKey => $prdImage) {
-            if( $imgKey == 0 ) {
+            if( $imgKey == $mainImgKey ) {
                 $imgType = ImageConstant::IMAGE_TYPE_MAIN;
             } else {
                 $imgType = ImageConstant::IMAGE_TYPE_SUB;
