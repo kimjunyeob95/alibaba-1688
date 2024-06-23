@@ -1378,9 +1378,9 @@ class ProductW1 extends ProductAbstract
         $product1688ImageDtoList = [];
         // 1-1. 국문 이미지
         $mainImgKey = 0;
-        if( count($detailProduct["productImage"]["images"]) > 4 ){
-            $mainImgKey = 4;
-        }
+        // if( count($detailProduct["productImage"]["images"]) > 4 ){
+        //     $mainImgKey = 4;
+        // }
         foreach ($detailProduct["productImage"]["images"] as $imgKey => $prdImage) {
             if( $imgKey == $mainImgKey ) {
                 $imgType = ImageConstant::IMAGE_TYPE_MAIN;
@@ -1495,9 +1495,9 @@ class ProductW1 extends ProductAbstract
 
         // 1-1. 영문 이미지
         $mainImgKey = 0;
-        if( count($detailEnProduct["productImage"]["images"]) > 4 ){
-            $mainImgKey = 4;
-        }
+        // if( count($detailEnProduct["productImage"]["images"]) > 4 ){
+        //     $mainImgKey = 4;
+        // }
         foreach ($detailEnProduct["productImage"]["images"] as $imgKey => $prdImage) {
             if( $imgKey == $mainImgKey ) {
                 $imgType = ImageConstant::IMAGE_TYPE_MAIN;
@@ -1790,7 +1790,7 @@ class ProductW1 extends ProductAbstract
         $trade_medal_level           = 0.0;
         $composite_service_score     = 0.0;
         $logistics_experience_score  = 0.0;
-        $dispute_complaint_score      = 0.0;
+        $dispute_complaint_score     = 0.0;
         $offer_experience_score      = 0.0;
         $consulting_experience_score = 0.0;
         $trade_score                 = 0.0;
