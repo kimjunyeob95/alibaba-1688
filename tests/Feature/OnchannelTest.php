@@ -6,10 +6,14 @@ use App\Constants\MallConstant;
 use App\Constants\OnchannelConstant;
 use App\Constants\ProductConstant;
 use App\Models\CategoryMapping;
+use App\Models\OcProductImageData;
 use App\Models\OnchannelProductLog;
 use App\Models\OnchCategoryExcelDataCopy2;
 use App\Models\OnchProductData;
+use App\Models\ProductCollectDetailLog;
+use App\Models\ProductCollectLog;
 use App\Models\ProductData;
+use App\Models\ProductImageData;
 use App\Packages\Onchannel;
 use Exception;
 use Tests\TestCase;
@@ -258,5 +262,82 @@ class OnchannelTest extends TestCase
         }
 
         debug_log("종료", "onchannel/prdDelete", "prdDelete");
+    }
+
+    # 온채널 이미지 원복
+    # php artisan test --filter testOnchImgReset
+    public function testOnchImgReset()
+    {
+        debug_log("실행", "onchannel/imgRest", "imgRest");
+
+        $objs = ProductCollectLog::where("created_at", ">=", "2024-06-24 00:00:00")
+        ->where("created_at", "<=", "2024-06-24 23:59:59")->get();
+
+        foreach ($objs as $obj) {
+            $prdObjs = ProductCollectDetailLog::where("log_id", $obj->id)->get();
+            foreach ($prdObjs as $prdObj) {
+                $offerId = $prdObj->offer_id;
+
+                $krMainObj = ProductImageData::where([
+                    "offer_id" => $offerId,
+                    "lang"     => "kr",
+                    "img_type" => "main",
+                ])->first();
+                $krSubObj = ProductImageData::where([
+                    "offer_id" => $offerId,
+                    "lang"     => "kr",
+                    "img_type" => "sub",
+                ])->orderBy("id", "asc")->first();
+
+                if( $krMainObj != null && $krSubObj != null ){
+                    ProductImageData::where("id", $krMainObj->id)->update([
+                        "img_type" => "sub"
+                    ]);
+                    ProductImageData::where("id", $krSubObj->id)->update([
+                        "img_type" => "main"
+                    ]);
+
+                    OcProductImageData::where([
+                        "offer_id" => $offerId,
+                        "img_type" => "main"
+                    ])->update([
+                        "img_type" => "sub"
+                    ]);
+    
+                    OcProductImageData::where([
+                        "offer_id"       => $offerId,
+                        "img_type"       => "sub",
+                        "img_url_origin" => $krSubObj->img_url_origin
+                    ])->update([
+                        "img_type" => "main"
+                    ]);
+                }
+
+                $enMainObj = ProductImageData::where([
+                    "offer_id" => $offerId,
+                    "lang"     => "en",
+                    "img_type" => "main",
+                ])->first();
+
+                $enSubObj = ProductImageData::where([
+                    "offer_id" => $offerId,
+                    "lang"     => "en",
+                    "img_type" => "sub",
+                ])->orderBy("id", "asc")->first();
+
+                if( $enMainObj != null && $enSubObj != null ){    
+                    ProductImageData::where("id", $enMainObj->id)->update([
+                        "img_type" => "sub"
+                    ]);
+                    ProductImageData::where("id", $enSubObj->id)->update([
+                        "img_type" => "main"
+                    ]);
+                }
+
+                
+            }
+        }
+
+        debug_log("종료", "onchannel/imgRest", "imgRest");
     }
 }

@@ -30,6 +30,7 @@ use App\Models\GenuioImageData;
 use App\Models\GenuioQueueData;
 use App\Models\ProductCollectDetailLog;
 use App\Models\ProductCollectLog;
+use App\Models\ProductCollectPalletData;
 use App\Models\ProductCollectTypeData;
 use App\Models\ProductData;
 use App\Models\ProductExceptData;
@@ -2607,14 +2608,27 @@ class ProductW1 extends ProductAbstract
                             if( $saveResult["isSuccess"] != true ){
                                 throw new Exception($saveResult["msg"]);
                             }
-                        }
 
-                        ProductCollectDetailLog::create([
-                            "log_id"     => $logId,
-                            "offer_id"   => $offerId,
-                            "is_collect" => LogConstant::COLLECT_DETAIL_Y,
-                            "msg"        => ""
-                        ]);
+                            ProductCollectDetailLog::create([
+                                "log_id"     => $logId,
+                                "offer_id"   => $offerId,
+                                "is_collect" => LogConstant::COLLECT_DETAIL_Y,
+                                "msg"        => ""
+                            ]);
+
+                            if( !empty($payload["search_cls"]) && !empty($payload["keyword"]) ){
+                                if( $payload["search_cls"] == "productCollectionId" ){
+                                    ProductCollectPalletData::updateOrCreate(
+                                        [
+                                            "pallet_id" => $payload["keyword"],
+                                        ],
+                                        [
+                                            "offer_id" => $offerId
+                                        ]
+                                    );
+                                }
+                            }
+                        }
                     } catch (Exception $de) {
                         $msg = $de->getMessage() . " | page: {$page} | offerId: {$offerId}";
                         debug_log($msg, "collectProduct/keywordQueryAll", "keywordQueryAll", LogLevel::ERROR);
