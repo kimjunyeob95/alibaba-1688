@@ -274,6 +274,75 @@
                 ]
             }
         },
+        "/api/w/category/topList/{categoryId}": {
+            "get": {
+                "tags": [
+                    "카테고리"
+                ],
+                "summary": "W 카테고리별 인기상품 리스트",
+                "description": "W 카테고리별 인기상품 리스트 endPoint",
+                "operationId": "b9df86f6cdcdd96869f2195ea7ecf7fb",
+                "parameters": [
+                    {
+                        "name": "categoryId",
+                        "in": "path",
+                        "description": "카테고리 ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": "10165"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SuccessResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Authorization Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/401ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/400ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/500ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            }
+        },
         "/api/w/products": {
             "get": {
                 "tags": [

@@ -217,4 +217,15 @@ class Service1688Category
    {
       return $this->categoryAbstract->weightRemove($categoryIds);
    }
+
+   /**
+     * @func topList
+     * @description 'W 카테고리별 인기상품 조회'
+     * @param int $categoryId '카테고리 ID'
+     * @return array
+   */
+   public function topList(int $categoryId): array
+   {
+      return $this->categoryAbstract->topList($categoryId);
+   }
 }

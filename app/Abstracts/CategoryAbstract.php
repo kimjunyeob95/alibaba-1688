@@ -2,8 +2,20 @@
 
 namespace App\Abstracts;
 
+use App\Constants\Constant1688;
+use Exception;
+
 abstract class CategoryAbstract
 {
+    protected array $returnMsg;
+    protected string $accessToken;
+
+    public function __construct()
+    {
+        $this->returnMsg   = helpers_fail_message();
+        $this->accessToken = env("1688_ACCESS_TOKEN");
+    }
+
     /**
      * @func getAllCategory
      * @description '수집 한 카테고리를 단계별로 정리한 데이터 목록'
@@ -150,4 +162,35 @@ abstract class CategoryAbstract
      * @return array
     */
     abstract function weightRemove(array $categoryIds): array;
+
+    /**
+     * @func topList
+     * @description 'W 카테고리별 인기상품 조회'
+     * @param int $categoryId '카테고리 ID'
+     * @return array
+    */
+    public function topList(int $categoryId): array
+    {
+        $returnMsg = $this->returnMsg;
+        try {
+            $endPoint = "param2/1/com.alibaba.fenxiao.crossborder/product.topList.query/";
+            $payload = [
+                'access_token'     => $this->accessToken,
+                'rankQueryParams' => [
+                    'rankId'   => $categoryId,
+                    'rankType' => Constant1688::RANK_TYPE_COMPLEX,
+                    'limit'    => 10,
+                    'language' => Constant1688::LANGUAGE_KO,
+                ]
+            ];
+            $result = curl_1688("post", $endPoint, $payload);
+            if( isset($result["data"]["result"]) ){
+                $returnMsg = helpers_success_message($result["data"]["result"]);
+            }
+        } catch (Exception $e) {
+            $returnMsg = helpers_fail_message($e->getMessage());
+        }
+
+        return $returnMsg;
+    }
 }

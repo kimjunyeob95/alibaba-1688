@@ -32,6 +32,8 @@ Route::name('w.')->prefix('w')->group(function () {
             Route::get('/tree/{categoryId?}', [WCategoryController::class, 'getTreeCategory'])->name('getTreeCategory');
             /** 1688<->채널 카테고리 맵핑 조회 */
             Route::get('/mapping/{channel?}', [WCategoryController::class, 'getMappingCategory'])->name('getMappingCategory');
+            /** W 카테고리별 인기상품 조회 */
+            Route::get('/topList/{categoryId}', [WCategoryController::class, 'topList'])->name('topList');
         });
 
         /** 수집 */

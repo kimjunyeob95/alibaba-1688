@@ -212,4 +212,14 @@ class WCategoryController extends Controller
             return helpers_json_response(HttpConstant::BAD_REQUEST, [], $result["msg"]);
         }
     }
+
+    public function topList(int $categoryId): JsonResponse
+    {
+        $result = $this->service1688Category->topList($categoryId);
+        if( $result["isSuccess"] == true ){
+            return helpers_json_response(HttpConstant::OK, $result);
+        } else {
+            return helpers_json_response(HttpConstant::BAD_REQUEST, [], $result["msg"]);
+        }
+    }
 }
