@@ -2,11 +2,14 @@
 
 namespace Tests\Feature;
 
+use App\Constants\MallConstant;
+use App\Constants\OnchannelConstant;
 use App\Constants\ProductConstant;
 use App\Models\CategoryMapping;
+use App\Models\OnchannelProductLog;
 use App\Models\OnchCategoryExcelDataCopy2;
+use App\Models\OnchProductData;
 use App\Models\ProductData;
-use App\Models\WCategory;
 use App\Packages\Onchannel;
 use Exception;
 use Tests\TestCase;
@@ -167,5 +170,93 @@ class OnchannelTest extends TestCase
             }
         }
         dd("끝");
+    }
+
+    # 온채널 상품 검색
+    # php artisan test --filter testOnchPrdSearch
+    public function testOnchPrdSearch()
+    {
+        debug_log("실행", "onchannel/prdSearch", "prdSearch");
+
+        $channel = OnchannelConstant::PRD_CHANNEL;
+        // $channel = OnchannelConstant::PRD_CHANNEL_PRIVATE;
+
+        $builder = OnchannelProductLog::select(["offer_id"])
+        ->where([
+            "send_type"      => $channel,
+            "regist_success" => MallConstant::REGIST_SUCCESS
+        ]);
+
+        $perPage = 2000;
+
+        $totalCount = $builder->count();
+        $totalPages = ceil($totalCount / $perPage);
+
+
+        for ($page = 1; $page <= $totalPages; $page++) {
+            Paginator::currentPageResolver(function () use ($page) {
+                return $page;
+            });
+        
+            // paginate 메소드는 새 Paginator 인스턴스를 반환합니다.
+            $pagedData = $builder->paginate($perPage);
+            $results   = $pagedData->items();
+
+            foreach ($results as $obj) {
+                $ocObj = OnchProductData::where([
+                    "prd_channel" => $channel,
+                    "product_id"  => OnchannelConstant::ONCH1688,
+                    "jejo_code"   => $obj->offer_id
+                ])->first();
+
+                if( $ocObj == null ){
+                    $log = "empty " . $obj->offer_id;
+                    debug_log($log, "onchannel/prdSearch", "prdSearch");
+                }
+            }
+
+            $log = "완료 ({$page}/{$totalPages})";
+            debug_log($log, "onchannel/prdSearch", "prdSearch");
+        };
+
+        debug_log("종료", "onchannel/prdSearch", "prdSearch");
+    }
+
+    # 온채널 상품 삭제
+    # php artisan test --filter testOnchPrdDelete
+    public function testOnchPrdDelete()
+    {
+        debug_log("실행", "onchannel/prdDelete", "prdDelete");
+
+        $channel = OnchannelConstant::PRD_CHANNEL;
+        // $channel = OnchannelConstant::PRD_CHANNEL_PRIVATE;
+
+        $objs = OnchProductData::select("jejo_code")->where([
+            "prd_channel" => $channel,
+            "product_id"  => OnchannelConstant::ONCH1688
+        ])->groupBy('jejo_code')
+        ->havingRaw('COUNT(*) > 1')
+        ->get();
+
+        foreach ($objs as $obj) {
+            $wObj = OnchannelProductLog::where([
+                "offer_id"       => $obj->jejo_code,
+                "send_type"      => $channel,
+                "regist_success" => MallConstant::REGIST_SUCCESS
+            ])->first();
+
+            if( $wObj != null ){
+                OnchProductData::where("jejo_code", $obj->jejo_code)
+                ->where("prd_channel", $channel)
+                ->where("prd_code", "!=", $wObj->prd_code)
+                ->delete();
+            } else {
+                OnchProductData::where("jejo_code", $obj->jejo_code)
+                ->where("prd_channel", $channel)
+                ->delete();
+            }
+        }
+
+        debug_log("종료", "onchannel/prdDelete", "prdDelete");
     }
 }
