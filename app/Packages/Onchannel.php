@@ -4,6 +4,7 @@ namespace App\Packages;
 
 use App\Abstracts\MallApiAbstract;
 use App\Abstracts\OrderAbstract;
+use App\Abstracts\ProductAbstract;
 use App\Abstracts\TransApiAbstract;
 use App\Constants\CategoryConstant;
 use App\Constants\ImageConstant;
@@ -33,10 +34,11 @@ class Onchannel extends MallApiAbstract
         JwtPackage $jwtPackage,
         string $channel,
         OrderAbstract $orderW1,
-        TransApiAbstract $transApiAbstract
+        TransApiAbstract $transApiAbstract,
+        ProductAbstract $productW1
     )
     {
-        parent::__construct($jwtPackage, $channel, $orderW1, $transApiAbstract);
+        parent::__construct($jwtPackage, $channel, $orderW1, $transApiAbstract, $productW1);
         $this->token  = env("ON_TOKEN");
         $this->domain = env("OC_DOMAIN", "https://task.onch3.co.kr");
     }

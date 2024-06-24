@@ -76,6 +76,18 @@ class MallApiService
         return $this->mallApiAbstract->productRegistLog($offerId);
     }
 
+    /**
+     * @func productWappRegist
+     * @description 'WApp에 상품등록'
+     * @param int $offerId
+     * @param array $params
+     * @return array
+    */
+    public function productWappRegist(int $offerId, array $params): array
+    {
+        return $this->mallApiAbstract->productWappRegist($offerId, $params);
+    }
+
     /****************************************** 상품 end **********************************************/
 
     /****************************************** 주문 start **********************************************/

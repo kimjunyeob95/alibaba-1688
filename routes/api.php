@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\GenuioController;
 use App\Http\Controllers\Api\MallCategoryController;
 use App\Http\Controllers\Api\MallController;
 use App\Http\Controllers\Api\W\W2ProductController;
+use App\Http\Controllers\Api\W\WCollectController;
 use App\Http\Controllers\Api\W\WExceptController;
 use App\Http\Controllers\Api\W\WForbiddenWordController;
 use Illuminate\Support\Facades\Route;
@@ -33,12 +34,22 @@ Route::name('w.')->prefix('w')->group(function () {
             Route::get('/mapping/{channel?}', [WCategoryController::class, 'getMappingCategory'])->name('getMappingCategory');
         });
 
-        /** 상품 조회 */
-        Route::get('/products', [WProductController::class, "apiPrdList"])->name("products");
-        /** 상품 상세 조회 */
-        Route::get('/products/{offerId}', [WProductController::class, "apiPrdDetail"])->name("productsDetail");
+        /** 수집 */
+        Route::name('collect.')->prefix('collect')->group(function () {
+            /** 팔레트 수집 여부 조회 */
+            Route::get('/pallet/validation/{palletId}', [WCollectController::class, "palletValidation"])->name("palletValidation");
+        });
+
+        /** 상품 */
+        Route::name('products.')->prefix('products')->group(function () {
+            /** 상품 조회 */
+            Route::get('/', [WProductController::class, "apiPrdList"])->name("");
+            /** 상품 상세 조회 */
+            Route::get('/{offerId}', [WProductController::class, "apiPrdDetail"])->name("productsDetail");
+        });
     });
 
+    /** 상품 */
     Route::name('product.')->prefix('product')->group(function () {
         /** 1688 상품ID 별 수집 */
         Route::post('/collect', [WProductController::class, 'collectProduct'])->name('collectProduct');
@@ -80,6 +91,7 @@ Route::name('w.')->prefix('w')->group(function () {
         Route::post('/notice/name/update', [WProductController::class, 'noticeNameUpdate'])->name('noticeNameUpdate');
     });
 
+    /** 카테고리 */
     Route::name('category.')->prefix('category')->group(function () {
         /** W 카테고리 조회 */
         Route::post('/', [WCategoryController::class, 'getW'])->name('getW');
@@ -166,6 +178,8 @@ Route::name('mall.')->prefix('mall')->group(function () {
     Route::get('/product/regist/log/{offerId}', [MallController::class, "productRegistLog"])->name('productRegistLog');
 
     Route::name('{channel}.')->prefix('{channel}')->group(function () {
+        /** WApp에 상품등록 */
+        Route::post('/product/wapp/regist/{offerId}', [MallController::class, "productWappRegist"])->name('productWappRegist');
         Route::post('/product/regist', [MallController::class, "productRegist"])->name('productRegist');
         Route::get('/product/log/{logId}', [MallController::class, "productLog"])->name('productLog');
 

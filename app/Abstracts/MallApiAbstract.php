@@ -15,29 +15,33 @@ use App\Packages\JwtPackage;
 use App\Traits\MallCategoryTrait;
 use App\Traits\MallImageTrait;
 use App\Traits\MallOrderTrait;
+use App\Traits\MallProductTrait;
 use Carbon\Carbon;
 use Exception;
 
 abstract class MallApiAbstract
 {
-    use MallCategoryTrait, MallOrderTrait, MallImageTrait;
+    use MallCategoryTrait, MallOrderTrait, MallImageTrait, MallProductTrait;
 
     protected array $returnMsg;
     protected JwtPackage $jwtPackage;
     protected string $channel;
     protected OrderAbstract $orderW1;
     private TransApiAbstract $transApiAbstract;
+    protected ProductAbstract $productW1;
 
     public function __construct(
         JwtPackage $jwtPackage,
         string $channel,
         OrderAbstract $orderW1,
-        TransApiAbstract $transApiAbstract
+        TransApiAbstract $transApiAbstract,
+        ProductAbstract $productW1
     )
     {
         $this->initCategoryTrait($channel);
         $this->initOrderTrait($channel, $orderW1);
         $this->initImageTrait($channel, $transApiAbstract);
+        $this->initProductTrait($channel, $productW1);
         $this->returnMsg  = helpers_fail_message();
         $this->jwtPackage = $jwtPackage;
         $this->channel    = $channel;

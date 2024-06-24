@@ -452,6 +452,93 @@
                 ]
             }
         },
+        "/api/mall/{channel}/product/wapp/regist/{offerId}": {
+            "post": {
+                "tags": [
+                    "상품"
+                ],
+                "summary": "WApp 상품 생성",
+                "description": "WApp 상품 생성 endPoint",
+                "operationId": "b17f64f11cc069776f26711dc6af4bc1",
+                "parameters": [
+                    {
+                        "name": "channel",
+                        "in": "path",
+                        "description": "채널 ID",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "offerId",
+                        "in": "path",
+                        "description": "제품 ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/WappProductCreateSchema"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SuccessResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Authorization Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/401ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/400ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/500ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            }
+        },
         "/api/mall/{channel}/order/{orderId}": {
             "get": {
                 "tags": [
@@ -721,6 +808,75 @@
                             "application/json": {
                                 "schema": {
                                     "$ref": "#/components/schemas/ImageUploadSuccessResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Authorization Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/401ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/400ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/500ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/w/collect/pallet/validation/{pallet_id}": {
+            "get": {
+                "tags": [
+                    "수집"
+                ],
+                "summary": "팔레트 수집 여부 조회",
+                "description": "팔레트 수집 여부 조회 endPoint",
+                "operationId": "c9af9e5a2b951e2900817bb78fd8c3c8",
+                "parameters": [
+                    {
+                        "name": "pallet_id",
+                        "in": "path",
+                        "description": "팔레트ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PalletValidationSuccessResponse"
                                 }
                             }
                         }
@@ -1098,6 +1254,25 @@
                 },
                 "type": "object"
             },
+            "WappProductCreateSchema": {
+                "required": [
+                    "channel_type",
+                    "channel_code"
+                ],
+                "properties": {
+                    "channel_type": {
+                        "description": "채널별 상품 전송 타입",
+                        "type": "string",
+                        "example": "30"
+                    },
+                    "channel_code": {
+                        "description": "채널별 상품 고유 코드",
+                        "type": "string",
+                        "example": "CH2012311"
+                    }
+                },
+                "type": "object"
+            },
             "OrderCreateSchema": {
                 "required": [
                     "offer_id",
@@ -1404,6 +1579,41 @@
                                     },
                                     "type": "object"
                                 }
+                            }
+                        },
+                        "type": "object"
+                    }
+                },
+                "type": "object"
+            },
+            "PalletValidationSuccessResponse": {
+                "properties": {
+                    "status": {
+                        "type": "integer",
+                        "example": 200
+                    },
+                    "meta": {
+                        "properties": {
+                            "timestamp": {
+                                "type": "string",
+                                "example": "2023-12-19 17:45:50"
+                            },
+                            "api_type": {
+                                "type": "string",
+                                "example": "w"
+                            }
+                        },
+                        "type": "object"
+                    },
+                    "data": {
+                        "required": [
+                            "validate"
+                        ],
+                        "properties": {
+                            "validate": {
+                                "description": "성공 여부",
+                                "type": "boolean",
+                                "example": true
                             }
                         },
                         "type": "object"

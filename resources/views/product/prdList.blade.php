@@ -450,10 +450,14 @@
                                         {{ number_format($data->start_quantity) }}
                                     </td>
                                     <td>
-                                        <img class="lazy-img preview-image" data-src="{{ $data->main_img->img_url_origin }}" width=60 height=60/>
+                                        @if( $data->main_img != null && $data->main_img->img_url_origin )
+                                            <img class="lazy-img preview-image" data-src="{{ $data->main_img->img_url_origin }}" width=60 height=60/>
+                                        @else
+                                            <img class="lazy-img preview-image" data-src='/assets/img/no_img.png'width=60 height=60>
+                                        @endif
                                     </td>
                                     <td>
-                                        @if( $data->main_img->img_url_trans )
+                                        @if( $data->main_img != null && $data->main_img->img_url_trans )
                                             <img class="lazy-img preview-image" data-src="{{ $data->main_img->img_url_trans }}" width=60 height=60/>
                                         @else
                                             <img class="lazy-img preview-image" data-src='/assets/img/no_img.png'width=60 height=60>

@@ -15,7 +15,6 @@ use App\Constants\ImageConstant;
 use App\Constants\ImageErrorMessageConstant;
 use App\Constants\InspectConstant;
 use App\Constants\LogConstant;
-use App\Constants\MallConstant;
 use App\Constants\OnchannelConstant;
 use App\Constants\OptionConstants;
 use App\Constants\ProductConstant;
@@ -2616,17 +2615,15 @@ class ProductW1 extends ProductAbstract
                                 "msg"        => ""
                             ]);
 
-                            if( !empty($payload["search_cls"]) && !empty($payload["keyword"]) ){
-                                if( $payload["search_cls"] == "productCollectionId" ){
-                                    ProductCollectPalletData::updateOrCreate(
-                                        [
-                                            "pallet_id" => $payload["keyword"],
-                                        ],
-                                        [
-                                            "offer_id" => $offerId
-                                        ]
-                                    );
-                                }
+                            if( isset($payload["offerQueryParam"]["productCollectionId"]) && $payload["offerQueryParam"]["productCollectionId"] ){
+                                ProductCollectPalletData::updateOrCreate(
+                                    [
+                                        "pallet_id" => $payload["keyword"],
+                                    ],
+                                    [
+                                        "offer_id" => $offerId
+                                    ]
+                                );
                             }
                         }
                     } catch (Exception $de) {
