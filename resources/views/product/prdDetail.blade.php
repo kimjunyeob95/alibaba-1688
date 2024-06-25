@@ -112,9 +112,9 @@
                                 @endif
                                 @endforeach
                                 @foreach ($prdObj->images as $prdImg)
-                                @if ($prdImg->img_type == "sub" && $prdImg->is_except == ImageConstant::IS_EXCEPT_N)
+                                @if ($prdImg->img_type == "sub" && $prdImg->is_except == ImageConstant::IS_EXCEPT_N && $prdImg->img_url_trans)
                                     <div class="swiper-slide">
-                                        <img src={{ $prdImg->img_url_trans}}>
+                                        <img src={{ $prdImg->img_url_trans }}>
                                     </div>
                                 @endif
                                 @endforeach
