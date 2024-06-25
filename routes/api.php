@@ -40,7 +40,9 @@ Route::name('w.')->prefix('w')->group(function () {
 
         /** 수집 */
         Route::name('collect.')->prefix('collect')->group(function () {
-            /** 팔레트 수집 여부 조회 */
+            /** WApp 팔레트 수집 조회 */
+            Route::get('/pallet/{palletId}', [WCollectController::class, "palletPrdList"])->name("palletPrdList");
+            /** WApp 팔레트 수집 여부 조회 */
             Route::get('/pallet/validation/{palletId}', [WCollectController::class, "palletValidation"])->name("palletValidation");
         });
 

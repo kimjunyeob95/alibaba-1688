@@ -7,18 +7,12 @@ namespace App\Annotations\v1\W\bProduct;
  * 
  * @OA\Schema(
  *     schema="WappProductCreateSchema",
- *     required={"channel_type", "channel_code"},
+ *     required={"channel_type"},
  *     @OA\Property(
  *         property="channel_type",
  *         type="string",
  *         example="30",
  *         description="채널별 상품 전송 타입"
- *     ),
- *     @OA\Property(
- *         property="channel_code",
- *         type="string",
- *         example="CH2012311",
- *         description="채널별 상품 고유 코드"
  *     )
  * )
  * 

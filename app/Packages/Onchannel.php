@@ -316,11 +316,14 @@ class Onchannel extends MallApiAbstract
                     if( $modiResult["isSuccess"] === true ){
                         $successIds[] = $offerId;
                     } else {
-                        $failIds[] = $offerId;
+                        $failIds[] = [
+                            "offer_id" => $offerId,
+                            "msg"      => $modiResult["msg"]
+                        ];
                     }
                 }
 
-                sleep(1.3);
+                sleep(1);
             }
         }
 
@@ -589,7 +592,7 @@ class Onchannel extends MallApiAbstract
 
                 $this->productModi([$offerId], $send_type);
 
-                sleep(1.3);
+                sleep(1);
             }
 
             debug_log("온채널 일괄 수정 전송 진행중({$page}/{$totalPages})", "onchannel/sendAllPrdModi", "sendAllPrdModi");

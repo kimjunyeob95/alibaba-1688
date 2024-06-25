@@ -2617,9 +2617,10 @@ class ProductW1 extends ProductAbstract
                                 ProductCollectPalletData::updateOrCreate(
                                     [
                                         "pallet_id" => $payload["offerQueryParam"]["productCollectionId"],
+                                        "offer_id"  => $offerId
                                     ],
                                     [
-                                        "offer_id" => $offerId
+                                        "updated_at" => Carbon::now()
                                     ]
                                 );
                             }

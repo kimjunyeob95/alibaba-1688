@@ -14,6 +14,17 @@ class CollectService
    }
 
    /**
+     * @func palletPrdList
+     * @description 'WApp 팔레트 수집 조회'
+     * @param array $params
+     * @return array
+   */
+   public function palletPrdList(array $params): array
+   {
+      return $this->collectAbstract->palletPrdList($params);
+   }
+
+   /**
      * @func palletValidation
      * @description '팔레트 수집 여부 조회'
      * @param int $palletId

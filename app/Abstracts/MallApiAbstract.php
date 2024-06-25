@@ -192,5 +192,38 @@ abstract class MallApiAbstract
         return $returnMsg;
     }
 
+    /**
+     * @func productWappRegist
+     * @description 'WApp에 상품등록'
+     * @param int $offerId
+     * @param array $params
+     * @return array
+    */
+    public function productWappRegist(int $offerId, array $params): array
+    {
+        $returnMsg = $this->returnMsg;
+        try {
+            $result = $this->productWappRegistTrait($offerId);
+            if( $result["isSuccess"] != true ){
+                throw new Exception($result["msg"]);
+            }
+
+            if( $this->channel == MallConstant::MALL_ONCHANNEL ){
+                $regResult = $this->productRegist([$offerId], [$params["channel_type"]]);
+
+                if( !empty($regResult["data"]["fail"]) ){
+                    throw new Exception($regResult["data"]["fail"][0]["msg"]);
+                }
+                if( !empty($regResult["data"]["success"]) ){
+                    $returnMsg = helpers_success_message($regResult["data"]["success"]);
+                }
+            }
+        } catch (Exception $e) {
+            $returnMsg = helpers_fail_message($e->getMessage());
+        }
+
+        return $returnMsg;
+    }
+
     /****************************************** 상품 end **********************************************/
 }

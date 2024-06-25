@@ -313,21 +313,16 @@ class MallController extends Controller
         try {
             $validator = Validator::make($this->request->all(), [
                 'channel_type' => 'required|string',
-                'channel_code' => 'required|string',
             ], [
                 'channel_type.required' => MallErrorMessageConstant::getNotHaveErrorMessage("CHANNEL_TYPE"),
-                'channel_code.required' => MallErrorMessageConstant::getNotHaveErrorMessage("CHANNEL_CODE"),
             ]);
             if ($validator->fails()) {
                 throw new Exception($validator->errors()->first());
             }
 
             $channelType = $this->request->post("channel_type");
-            $channelCode = $this->request->post("channel_code");
-
             $params       = [
-                "channelType" => $channelType,
-                "channelCode" => $channelCode
+                "channel_type" => $channelType,
             ];
 
             $result = $this->mallApiService->productWappRegist($offerId, $params);

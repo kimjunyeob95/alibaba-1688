@@ -1461,13 +1461,82 @@
                 ]
             }
         },
+        "/api/w/collect/pallet/{pallet_id}": {
+            "get": {
+                "tags": [
+                    "수집"
+                ],
+                "summary": "WApp 팔레트 수집 조회",
+                "description": "WApp 팔레트 수집 조회 endPoint",
+                "operationId": "272d85830427e05a987f6c6470663d60",
+                "parameters": [
+                    {
+                        "name": "pallet_id",
+                        "in": "path",
+                        "description": "팔레트ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SuccessResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Authorization Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/401ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/400ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/500ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            }
+        },
         "/api/w/collect/pallet/validation/{pallet_id}": {
             "get": {
                 "tags": [
                     "수집"
                 ],
-                "summary": "팔레트 수집 여부 조회",
-                "description": "팔레트 수집 여부 조회 endPoint",
+                "summary": "WApp 팔레트 수집 여부 조회",
+                "description": "WApp 팔레트 수집 여부 조회 endPoint",
                 "operationId": "c9af9e5a2b951e2900817bb78fd8c3c8",
                 "parameters": [
                     {
