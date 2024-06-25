@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\W;
 
+use App\Constants\Constant1688;
 use App\Constants\HttpConstant;
 use App\Constants\ImageConstant;
 use App\Constants\ImageErrorMessageConstant;
@@ -681,6 +682,26 @@ class WProductController extends Controller
         ];
 
         $result = $this->service1688Product->searchKeywordQuery($params);
+        if( $result["isSuccess"] == true ){
+            return helpers_json_response(HttpConstant::OK, $result);
+        } else {
+            return helpers_json_response(HttpConstant::BAD_REQUEST, [], $result["msg"]);
+        }
+    }
+
+    public function searchDetail(int $offerId): JsonResponse
+    {
+        $validator = Validator::make($this->request->all(), [
+            'country' => 'required|string',
+        ], [
+            "country" => ProductErrorMessageConstant::getNotHaveErrorMessage("COUNTRY"),
+        ]);
+        if ($validator->fails()) {
+            throw new Exception($validator->errors()->first());
+        }
+
+        $country = $this->request->get("country", Constant1688::LANGUAGE_KO);
+        $result = $this->service1688Product->searchDetail($offerId, $country);
         if( $result["isSuccess"] == true ){
             return helpers_json_response(HttpConstant::OK, $result);
         } else {

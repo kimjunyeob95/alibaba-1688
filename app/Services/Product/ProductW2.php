@@ -1462,9 +1462,9 @@ class ProductW2 extends ProductAbstract
         $subjectTrans = $detailProduct["translateTitle"];
 
         // 3-1. 삭제어
-        $subjectForbiddenTrans = $this->removeForbiddenText($deletePrdForbiddenWords, $subjectTrans, ForbiddenWordConstant::KEYWORD_APPLY_TITLE);
+        $subjectForbiddenTrans = removeForbiddenText($deletePrdForbiddenWords, $subjectTrans, ForbiddenWordConstant::KEYWORD_APPLY_TITLE);
         // 3-2. 교체어
-        $subjectForbiddenTrans = $this->replaceForbiddenText($replacePrdForbiddenWords, $subjectForbiddenTrans, ForbiddenWordConstant::KEYWORD_APPLY_TITLE);
+        $subjectForbiddenTrans = replaceForbiddenText($replacePrdForbiddenWords, $subjectForbiddenTrans, ForbiddenWordConstant::KEYWORD_APPLY_TITLE);
 
         $subjectForbiddenTrans = trim($subjectForbiddenTrans);
         $subjectForbiddenTrans = removeDuplicateWords($subjectForbiddenTrans);
@@ -1633,9 +1633,9 @@ class ProductW2 extends ProductAbstract
             }
 
             // 고시명 삭제어
-            $nameTrans = $this->removeForbiddenText($deleteNoticeForbiddenWords, $attributeNameTrans, ForbiddenWordConstant::KEYWORD_APPLY_ATTR_NAME);
+            $nameTrans = removeForbiddenText($deleteNoticeForbiddenWords, $attributeNameTrans, ForbiddenWordConstant::KEYWORD_APPLY_ATTR_NAME);
             // 고시명 교체어
-            $nameTrans = $this->replaceForbiddenText($replaceNoticeForbiddenWords, $nameTrans, ForbiddenWordConstant::KEYWORD_APPLY_ATTR_NAME);
+            $nameTrans = replaceForbiddenText($replaceNoticeForbiddenWords, $nameTrans, ForbiddenWordConstant::KEYWORD_APPLY_ATTR_NAME);
             $nameTrans = trim($nameTrans);
             if( $attributeNameTrans != $nameTrans ){ 
                 ProductForbiddenData::updateOrCreate(
@@ -1651,9 +1651,9 @@ class ProductW2 extends ProductAbstract
             }
 
             // 고시값 삭제어
-            $valueTrans = $this->removeForbiddenText($deleteNoticeForbiddenWords, $attrValueTrans, ForbiddenWordConstant::KEYWORD_APPLY_ATTR_VALUE);
+            $valueTrans = removeForbiddenText($deleteNoticeForbiddenWords, $attrValueTrans, ForbiddenWordConstant::KEYWORD_APPLY_ATTR_VALUE);
             // 고시값 교체어
-            $valueTrans = $this->replaceForbiddenText($replaceNoticeForbiddenWords, $valueTrans, ForbiddenWordConstant::KEYWORD_APPLY_ATTR_VALUE);
+            $valueTrans = replaceForbiddenText($replaceNoticeForbiddenWords, $valueTrans, ForbiddenWordConstant::KEYWORD_APPLY_ATTR_VALUE);
             $valueTrans = trim($valueTrans);
             if( $attrValueTrans != $valueTrans ){ 
                 ProductForbiddenData::updateOrCreate(

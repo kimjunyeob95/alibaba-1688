@@ -48,8 +48,10 @@ Route::name('w.')->prefix('w')->group(function () {
             Route::get('/', [WProductController::class, "apiPrdList"])->name("");
             /** 상품 상세 조회 */
             Route::get('/{offerId}', [WProductController::class, "apiPrdDetail"])->name("detail");
-            /** 상품 키워드 조회 */
+            /** W 상품 키워드 조회 */
             Route::get('/search/keywordQuery', [WProductController::class, "searchKeywordQuery"])->name("searchKeywordQuery");
+            /** W 상품 상세 조회 */
+            Route::get('/search/detail/{offerId}', [WProductController::class, "searchDetail"])->name("searchDetail");
         });
     });
 

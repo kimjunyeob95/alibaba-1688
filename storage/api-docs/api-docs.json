@@ -717,6 +717,85 @@
                 ]
             }
         },
+        "/api/w/products/search/detail/{offerId}": {
+            "get": {
+                "tags": [
+                    "상품"
+                ],
+                "summary": "W 상품 상세 조회",
+                "description": "W 상품 상세 조회 endPoint",
+                "operationId": "fab530d2cf3ecee16f683671595cda31",
+                "parameters": [
+                    {
+                        "name": "offerId",
+                        "in": "path",
+                        "description": "제품 ID",
+                        "required": true,
+                        "schema": {
+                            "type": "intger",
+                            "example": "539753036122"
+                        }
+                    },
+                    {
+                        "name": "country",
+                        "in": "query",
+                        "description": "언어 ko: 국문, en: 영문",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "example": "ko"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SuccessResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Authorization Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/401ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/400ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/500ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            }
+        },
         "/api/mall/{channel}/order/{orderId}": {
             "get": {
                 "tags": [

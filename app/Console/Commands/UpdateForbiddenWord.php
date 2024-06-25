@@ -65,9 +65,9 @@ class UpdateForbiddenWord extends Command
                 }
     
                 // 1. 삭제어
-                $upText = $this->productAbstract->removeForbiddenText($deletePrdForbiddenWords, $prd_name_kr, ForbiddenWordConstant::KEYWORD_APPLY_TITLE);
+                $upText = removeForbiddenText($deletePrdForbiddenWords, $prd_name_kr, ForbiddenWordConstant::KEYWORD_APPLY_TITLE);
                 // 2. 교체어
-                $upText = $this->productAbstract->replaceForbiddenText($replacePrdForbiddenWords, $upText, ForbiddenWordConstant::KEYWORD_APPLY_TITLE);
+                $upText = replaceForbiddenText($replacePrdForbiddenWords, $upText, ForbiddenWordConstant::KEYWORD_APPLY_TITLE);
                 $upText = trim($upText);
                 $upText = removeDuplicateWords($upText);
                 if( $upText != "" && $prd_name_kr != $upText ){
@@ -120,9 +120,9 @@ class UpdateForbiddenWord extends Command
                 }
 
                 // 고시값 삭제어
-                $valueTrans = $this->productAbstract->removeForbiddenText($deleteNoticeForbiddenWords, $attrValueTrans, ForbiddenWordConstant::KEYWORD_APPLY_ATTR_VALUE);
+                $valueTrans = removeForbiddenText($deleteNoticeForbiddenWords, $attrValueTrans, ForbiddenWordConstant::KEYWORD_APPLY_ATTR_VALUE);
                 // 고시값 교체어
-                $valueTrans = $this->productAbstract->replaceForbiddenText($replaceNoticeForbiddenWords, $valueTrans, ForbiddenWordConstant::KEYWORD_APPLY_ATTR_VALUE);
+                $valueTrans = replaceForbiddenText($replaceNoticeForbiddenWords, $valueTrans, ForbiddenWordConstant::KEYWORD_APPLY_ATTR_VALUE);
                 $valueTrans = trim($valueTrans);
                 if( $valueTrans != "" && $attrValueTrans != $valueTrans ){ 
                     ProductForbiddenData::updateOrCreate(

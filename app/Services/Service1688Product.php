@@ -463,13 +463,25 @@ class Service1688Product
 
    /**
      * @func searchKeywordQuery
-     * @description '상품 키워드 조회'
+     * @description 'W 상품 키워드 조회'
      * @param array $params
      * @return array
    */
    public function searchKeywordQuery(array $params): array
    {
       return $this->productAbstract->searchKeywordQuery($params);
+   }
+
+   /**
+     * @func searchDetail
+     * @description 'W 상품 상세 조회'
+     * @param int $offerId
+     * @param string $country
+     * @return array
+   */
+   public function searchDetail(int $offerId, string $country): array
+   {
+      return $this->productAbstract->searchDetail($offerId, $country);
    }
 
    /****************************************** WApp W2 **********************************************/
