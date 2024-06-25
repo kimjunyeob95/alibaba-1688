@@ -2102,7 +2102,7 @@ class ProductW1 extends ProductAbstract
                     "width"             => (float) sprintf("%.2f", $width),
                     "length"            => (float) sprintf("%.2f", $length),
                     "height"            => (float) sprintf("%.2f", $height),
-                    "weight"            => (float) sprintf("%.2f", $weight),
+                    "weight"            => $weight,
                 ]);
                 $product1688OptionDtoList[] = $product1688OptionDto;
             }
@@ -2222,7 +2222,7 @@ class ProductW1 extends ProductAbstract
             }
 
             /** 중량 여부로 판매 상태 업데이트 */
-            upPrdStatusByWeight($offerId);
+            upWeightStatus($offerId);
 
             $returnMsg = helpers_success_message();
         } catch (Exception $e) {

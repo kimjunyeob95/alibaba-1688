@@ -228,15 +228,15 @@ class ProductTest extends TestCase
     }
 
     /** 중량 여부로 판매 상태 업데이트 */
-    # php artisan test --filter testUpPrdStatusByWeight
-    public function testUpPrdStatusByWeight()
+    # php artisan test --filter testupWeightStatus
+    public function testupWeightStatus()
     {
         $prdObjs = ProductOptionData::select('offer_id', DB::raw('MAX(weight) as max_weight'))
         ->where("weight", ">=", 20)
         ->groupBy("offer_id")->get();
 
         foreach ($prdObjs as $prdObj) {
-            upPrdStatusByWeight($prdObj->offer_id);
+            upWeightStatus($prdObj->offer_id);
         }
         dd("끝");
     }

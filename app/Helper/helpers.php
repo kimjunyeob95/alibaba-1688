@@ -1,5 +1,6 @@
 <?php
 
+use App\Constants\CategoryConstant;
 use App\Constants\EasySellConstant;
 use App\Constants\ForbiddenWordConstant;
 use App\Constants\GenuioConstant;
@@ -10,6 +11,7 @@ use App\Constants\MallConstant;
 use App\Constants\ProductConstant;
 use App\Constants\WConstant;
 use App\Models\Category;
+use App\Models\CategoryWeightData;
 use App\Models\EasysellProductLog;
 use App\Models\GenuioAiData;
 use App\Models\ProductData;
@@ -17,6 +19,7 @@ use App\Models\ProductImageData;
 use App\Models\ProductInspectData;
 use App\Models\ProductModiData;
 use App\Models\ProductOptionData;
+use App\Models\ProductWeightData;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\JsonResponse;
@@ -946,10 +949,12 @@ if (!function_exists("findChildCategoryIds")) {
     }
 }
 
-/** 중량 여부로 판매 상태 업데이트 */
-if (!function_exists("upPrdStatusByWeight")) {
-    function upPrdStatusByWeight(int $offerId): void
+/** 중량 여부로 관련 상태 업데이트 */
+if (!function_exists("upWeightStatus")) {
+    function upWeightStatus(int $offerId): void
     {
+
+
         $obj = ProductOptionData::select('offer_id', DB::raw('MAX(weight) as max_weight'))
         ->where("offer_id", $offerId)
         ->groupBy("offer_id")->first();
@@ -958,6 +963,35 @@ if (!function_exists("upPrdStatusByWeight")) {
                 ProductData::where("offer_id", $offerId)->update([
                     "status" => ProductConstant::PRD_STATUS_EXCEPT
                 ]);
+            } else {
+                $weight        = $obj->max_weight;
+                $deliveryPrice = ProductConstant::WEIGHT_STATUS_NONE_PRICE;
+                $weightType    = ProductConstant::WEIGHT_STATUS_NONE;
+                if( $weight > 0 ){
+                    $deliveryPrice = CategoryConstant::WEIGHTS[$weight];
+                    $weightType    = ProductConstant::WEIGHT_STATUS_PRODUCT;
+                } else {
+                    $prdObj = ProductData::where("offer_id", $offerId)->first();
+                    if( $prdObj != null ){
+                        $cateObj = CategoryWeightData::where("category_id", $prdObj->category_id)->first();
+                        if( $cateObj != null ){
+                            $weight        = $cateObj->weight;
+                            $deliveryPrice = CategoryConstant::WEIGHTS[$weight];
+                            $weightType    = ProductConstant::WEIGHT_STATUS_CATEGORY;
+                        }
+                    }
+                }
+
+                ProductWeightData::updateOrCreate(
+                    [
+                        "offer_id"   => $offerId,
+                    ],
+                    [
+                        "weight"         => $weight,
+                        "weight_type"    => $weightType,
+                        "delivery_price" => $deliveryPrice
+                    ]
+                );
             }
         }
     }
