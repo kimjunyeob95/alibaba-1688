@@ -953,8 +953,6 @@ if (!function_exists("findChildCategoryIds")) {
 if (!function_exists("upWeightStatus")) {
     function upWeightStatus(int $offerId): void
     {
-
-
         $obj = ProductOptionData::select('offer_id', DB::raw('MAX(weight) as max_weight'))
         ->where("offer_id", $offerId)
         ->groupBy("offer_id")->first();
@@ -964,9 +962,10 @@ if (!function_exists("upWeightStatus")) {
                     "status" => ProductConstant::PRD_STATUS_EXCEPT
                 ]);
             } else {
-                $weight        = $obj->max_weight;
+                $weight        = (int)$obj->max_weight;
                 $deliveryPrice = ProductConstant::WEIGHT_STATUS_NONE_PRICE;
                 $weightType    = ProductConstant::WEIGHT_STATUS_NONE;
+
                 if( $weight > 0 ){
                     $deliveryPrice = CategoryConstant::WEIGHTS[$weight];
                     $weightType    = ProductConstant::WEIGHT_STATUS_PRODUCT;
