@@ -3,8 +3,10 @@
 namespace App\Http\Controllers\Api\W;
 
 use App\Constants\CategoryErrorMessageConstant;
+use App\Constants\Constant1688;
 use App\Constants\HttpConstant;
 use App\Constants\ProductConstant;
+use App\Constants\ProductErrorMessageConstant;
 use App\Http\Controllers\Controller;
 use App\Services\Service1688Category;
 use Exception;
@@ -93,26 +95,30 @@ class WCategoryController extends Controller
 
     public function wMapping(): JsonResponse
     {
-        $validator = Validator::make($this->request->all(), [
-            'category_ids' => 'required|string',
-            'w_cate_id'    => 'required|int',
-        ], [
-            'category_ids.required' => CategoryErrorMessageConstant::getNotHaveErrorMessage("CATEGORYID"),
-            'w_cate_id.required'    => CategoryErrorMessageConstant::getNotHaveErrorMessage("W_CATEGORYID"),
-        ]);
-        if ($validator->fails()) {
-            throw new Exception($validator->errors()->first());
-        }
+        try {
+            $validator = Validator::make($this->request->all(), [
+                'category_ids' => 'required|string',
+                'w_cate_id'    => 'required|int',
+            ], [
+                'category_ids.required' => CategoryErrorMessageConstant::getNotHaveErrorMessage("CATEGORYID"),
+                'w_cate_id.required'    => CategoryErrorMessageConstant::getNotHaveErrorMessage("W_CATEGORYID"),
+            ]);
+            if ($validator->fails()) {
+                throw new Exception($validator->errors()->first());
+            }
 
-        $params = [
-            "category_ids" => explode(",", $this->request->post("category_ids")),
-            "w_cate_id"    => $this->request->post("w_cate_id"),
-        ];
-        $result = $this->service1688Category->wMapping($params);
-        if( $result["isSuccess"] == true ){
-            return helpers_json_response(HttpConstant::OK, $result);
-        } else {
-            return helpers_json_response(HttpConstant::BAD_REQUEST, [], $result["msg"]);
+            $params = [
+                "category_ids" => explode(",", $this->request->post("category_ids")),
+                "w_cate_id"    => $this->request->post("w_cate_id"),
+            ];
+            $result = $this->service1688Category->wMapping($params);
+            if( $result["isSuccess"] == true ){
+                return helpers_json_response(HttpConstant::OK, $result);
+            } else {
+                return helpers_json_response(HttpConstant::BAD_REQUEST, [], $result["msg"]);
+            }
+        } catch (Exception $e) {
+            return helpers_json_response(HttpConstant::BAD_REQUEST, [], $e->getMessage());
         }
     }
 
@@ -128,98 +134,152 @@ class WCategoryController extends Controller
 
     public function getWDepth(): JsonResponse
     {
-        $validator = Validator::make($this->request->all(), [
-            'level'     => 'required|int',
-            'cate_name' => 'required|string',
-        ], [
-            'level.required'     => CategoryErrorMessageConstant::getNotHaveErrorMessage("LEVEL"),
-            'cate_name.required' => CategoryErrorMessageConstant::getNotHaveErrorMessage("CATEGORY_NAME"),
-        ]);
-        if ($validator->fails()) {
-            throw new Exception($validator->errors()->first());
-        }
+        try {
+            $validator = Validator::make($this->request->all(), [
+                'level'     => 'required|int',
+                'cate_name' => 'required|string',
+            ], [
+                'level.required'     => CategoryErrorMessageConstant::getNotHaveErrorMessage("LEVEL"),
+                'cate_name.required' => CategoryErrorMessageConstant::getNotHaveErrorMessage("CATEGORY_NAME"),
+            ]);
+            if ($validator->fails()) {
+                throw new Exception($validator->errors()->first());
+            }
 
-        $params = [
-            "level"     => $this->request->post("level"),
-            "cate_name" => $this->request->post("cate_name"),
-        ];
-        $result = $this->service1688Category->getWDepth($params);
-        if( $result["isSuccess"] == true ){
-            return helpers_json_response(HttpConstant::OK, $result);
-        } else {
-            return helpers_json_response(HttpConstant::BAD_REQUEST, [], $result["msg"]);
+            $params = [
+                "level"     => $this->request->post("level"),
+                "cate_name" => $this->request->post("cate_name"),
+            ];
+            $result = $this->service1688Category->getWDepth($params);
+            if( $result["isSuccess"] == true ){
+                return helpers_json_response(HttpConstant::OK, $result);
+            } else {
+                return helpers_json_response(HttpConstant::BAD_REQUEST, [], $result["msg"]);
+            }
+        } catch (Exception $e) {
+            return helpers_json_response(HttpConstant::BAD_REQUEST, [], $e->getMessage());
         }
     }
 
     public function getInfos(): JsonResponse
     {
-        $validator = Validator::make($this->request->all(), [
-            'categoryIds' => 'required|array',
-        ], [
-            'categoryIds.required' => CategoryErrorMessageConstant::getNotHaveErrorMessage("CATEGORYID"),
-        ]);
-        if ($validator->fails()) {
-            throw new Exception($validator->errors()->first());
-        }
+        try {
+            $validator = Validator::make($this->request->all(), [
+                'categoryIds' => 'required|array',
+            ], [
+                'categoryIds.required' => CategoryErrorMessageConstant::getNotHaveErrorMessage("CATEGORYID"),
+            ]);
+            if ($validator->fails()) {
+                throw new Exception($validator->errors()->first());
+            }
 
-        $result = $this->service1688Category->getInfos($this->request->post("categoryIds"));
-        if( $result["isSuccess"] == true ){
-            return helpers_json_response(HttpConstant::OK, $result);
-        } else {
-            return helpers_json_response(HttpConstant::BAD_REQUEST, [], $result["msg"]);
+            $result = $this->service1688Category->getInfos($this->request->post("categoryIds"));
+            if( $result["isSuccess"] == true ){
+                return helpers_json_response(HttpConstant::OK, $result);
+            } else {
+                return helpers_json_response(HttpConstant::BAD_REQUEST, [], $result["msg"]);
+            }
+        } catch (Exception $e) {
+            return helpers_json_response(HttpConstant::BAD_REQUEST, [], $e->getMessage());
         }
     }
 
     public function weightSave(): JsonResponse
     {
-        $validator = Validator::make($this->request->all(), [
-            'category_ids' => 'required|string',
-            'weight'       => 'required|int',
-        ], [
-            'category_ids.required' => CategoryErrorMessageConstant::getNotHaveErrorMessage("CATEGORYID"),
-            'weight.required'       => CategoryErrorMessageConstant::getNotHaveErrorMessage("WEIGHT"),
-        ]);
-        if ($validator->fails()) {
-            throw new Exception($validator->errors()->first());
-        }
+        try {
+            $validator = Validator::make($this->request->all(), [
+                'category_ids' => 'required|string',
+                'weight'       => 'required|int',
+            ], [
+                'category_ids.required' => CategoryErrorMessageConstant::getNotHaveErrorMessage("CATEGORYID"),
+                'weight.required'       => CategoryErrorMessageConstant::getNotHaveErrorMessage("WEIGHT"),
+            ]);
+            if ($validator->fails()) {
+                throw new Exception($validator->errors()->first());
+            }
 
-        $categoryIds = explode(",", $this->request->post("category_ids"));
-        $weight      = $this->request->post("weight");
-        $result      = $this->service1688Category->weightSave($categoryIds, $weight);
-        if( $result["isSuccess"] == true ){
-            return helpers_json_response(HttpConstant::OK, $result);
-        } else {
-            return helpers_json_response(HttpConstant::BAD_REQUEST, [], $result["msg"]);
+            $categoryIds = explode(",", $this->request->post("category_ids"));
+            $weight      = $this->request->post("weight");
+            $result      = $this->service1688Category->weightSave($categoryIds, $weight);
+            if( $result["isSuccess"] == true ){
+                return helpers_json_response(HttpConstant::OK, $result);
+            } else {
+                return helpers_json_response(HttpConstant::BAD_REQUEST, [], $result["msg"]);
+            }
+        } catch (Exception $e) {
+                return helpers_json_response(HttpConstant::BAD_REQUEST, [], $e->getMessage());
         }
     }
 
     public function weightRemove(): JsonResponse
     {
-        $validator = Validator::make($this->request->all(), [
-            'category_ids' => 'required|array',
-        ], [
-            'category_ids.required' => CategoryErrorMessageConstant::getNotHaveErrorMessage("CATEGORYID"),
-        ]);
-        if ($validator->fails()) {
-            throw new Exception($validator->errors()->first());
-        }
+        try {
+            $validator = Validator::make($this->request->all(), [
+                'category_ids' => 'required|array',
+            ], [
+                'category_ids.required' => CategoryErrorMessageConstant::getNotHaveErrorMessage("CATEGORYID"),
+            ]);
+            if ($validator->fails()) {
+                throw new Exception($validator->errors()->first());
+            }
 
-        $categoryIds = $this->request->post("category_ids");
-        $result      = $this->service1688Category->weightRemove($categoryIds);
-        if( $result["isSuccess"] == true ){
-            return helpers_json_response(HttpConstant::OK, $result);
-        } else {
-            return helpers_json_response(HttpConstant::BAD_REQUEST, [], $result["msg"]);
+            $categoryIds = $this->request->post("category_ids");
+            $result      = $this->service1688Category->weightRemove($categoryIds);
+            if( $result["isSuccess"] == true ){
+                return helpers_json_response(HttpConstant::OK, $result);
+            } else {
+                return helpers_json_response(HttpConstant::BAD_REQUEST, [], $result["msg"]);
+            }
+        } catch (Exception $e) {
+            return helpers_json_response(HttpConstant::BAD_REQUEST, [], $e->getMessage());
         }
     }
 
     public function topList(int $categoryId): JsonResponse
     {
-        $result = $this->service1688Category->topList($categoryId);
-        if( $result["isSuccess"] == true ){
-            return helpers_json_response(HttpConstant::OK, $result);
-        } else {
-            return helpers_json_response(HttpConstant::BAD_REQUEST, [], $result["msg"]);
+        try {
+            $validator = Validator::make($this->request->all(), [
+                'country' => 'required|string',
+            ], [
+                "country" => ProductErrorMessageConstant::getNotHaveErrorMessage("COUNTRY"),
+            ]);
+            if ($validator->fails()) {
+                throw new Exception($validator->errors()->first());
+            }
+
+            $country = $this->request->get("country", Constant1688::LANGUAGE_KO);
+            $result = $this->service1688Category->topList($categoryId, $country);
+            if( $result["isSuccess"] == true ){
+                return helpers_json_response(HttpConstant::OK, $result);
+            } else {
+                return helpers_json_response(HttpConstant::BAD_REQUEST, [], $result["msg"]);
+            }
+        } catch (Exception $e) {
+            return helpers_json_response(HttpConstant::BAD_REQUEST, [], $e->getMessage());
+        }
+    }
+
+    public function topKeyword(int $categoryId): JsonResponse
+    {
+        try {
+            $validator = Validator::make($this->request->all(), [
+                'country' => 'required|string',
+            ], [
+                "country" => ProductErrorMessageConstant::getNotHaveErrorMessage("COUNTRY"),
+            ]);
+            if ($validator->fails()) {
+                throw new Exception($validator->errors()->first());
+            }
+
+            $country = $this->request->get("country", Constant1688::LANGUAGE_KO);
+            $result = $this->service1688Category->topKeyword($categoryId, $country);
+            if( $result["isSuccess"] == true ){
+                return helpers_json_response(HttpConstant::OK, $result);
+            } else {
+                return helpers_json_response(HttpConstant::BAD_REQUEST, [], $result["msg"]);
+            }
+        } catch (Exception $e) {
+            return helpers_json_response(HttpConstant::BAD_REQUEST, [], $e->getMessage());
         }
     }
 }

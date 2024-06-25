@@ -7,9 +7,9 @@ namespace App\Annotations\v1\W\b001Category;
  * 
  *
  * @OA\Get(
- *     path="/api/w/category/topList/{categoryId}",
- *     summary="W 카테고리별 인기상품 조회",
- *     description="W 카테고리별 인기상품 조회 endPoint",
+ *     path="/api/w/category/topKeyword/{categoryId}",
+ *     summary="W 카테고리별 인기검색어 조회",
+ *     description="W 카테고리별 인기검색어 조회 endPoint",
  *     tags={"카테고리"},
  *     security={{"BearerAuth": {}}},
  *     @OA\Parameter(
@@ -56,5 +56,5 @@ namespace App\Annotations\v1\W\b001Category;
 */
 
 
-class DTopListAnnotataion{
+class ETopKeywordAnnotataion{
 }

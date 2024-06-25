@@ -34,6 +34,8 @@ Route::name('w.')->prefix('w')->group(function () {
             Route::get('/mapping/{channel?}', [WCategoryController::class, 'getMappingCategory'])->name('getMappingCategory');
             /** W 카테고리별 인기상품 조회 */
             Route::get('/topList/{categoryId}', [WCategoryController::class, 'topList'])->name('topList');
+            /** W 카테고리별 인기검색어 조회 */
+            Route::get('/topKeyword/{categoryId}', [WCategoryController::class, 'topKeyword'])->name('topKeyword');
         });
 
         /** 수집 */

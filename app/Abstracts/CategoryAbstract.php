@@ -2,6 +2,7 @@
 
 namespace App\Abstracts;
 
+use App\Constants\CategoryErrorMessageConstant;
 use App\Constants\Constant1688;
 use App\Constants\ForbiddenWordConstant;
 use App\Models\ForbiddenWordData;
@@ -169,9 +170,10 @@ abstract class CategoryAbstract
      * @func topList
      * @description 'W 카테고리별 인기상품 조회'
      * @param int $categoryId '카테고리 ID'
+     * @param string $country '언어'
      * @return array
     */
-    public function topList(int $categoryId): array
+    public function topList(int $categoryId, string $country): array
     {
         $returnMsg = $this->returnMsg;
         try {
@@ -182,7 +184,7 @@ abstract class CategoryAbstract
                     'rankId'   => $categoryId,
                     'rankType' => Constant1688::RANK_TYPE_COMPLEX,
                     'limit'    => 10,
-                    'language' => Constant1688::LANGUAGE_KO,
+                    'language' => $country,
                 ]
             ];
             $result = curl_1688("post", $endPoint, $payload);
@@ -208,6 +210,40 @@ abstract class CategoryAbstract
                 $res = $datas;
                 $returnMsg = helpers_success_message($res);
             }
+        } catch (Exception $e) {
+            $returnMsg = helpers_fail_message($e->getMessage());
+        }
+
+        return $returnMsg;
+    }
+
+    /**
+     * @func topKeyword
+     * @description 'W 카테고리별 인기검색어 조회'
+     * @param int $categoryId '카테고리 ID'
+     * @param string $country '언어'
+     * @return array
+    */
+    public function topKeyword(int $categoryId, string $country): array
+    {
+        $returnMsg = $this->returnMsg;
+        try {
+            $endPoint = "param2/1/com.alibaba.fenxiao.crossborder/product.search.topKeyword/";
+            $payload = [
+                'access_token'     => $this->accessToken,
+                'topSeKeywordParam' => [
+                    'sourceId'       => $categoryId,
+                    'hotKeywordType' => Constant1688::HOT_KEYWORD_TYPE,
+                    'country'        => $country,
+                ]
+            ];
+            $result = curl_1688("post", $endPoint, $payload);
+            if( !isset($result["data"]["result"]["result"]) || count($result["data"]["result"]["result"]) < 1 ){
+                throw new Exception(CategoryErrorMessageConstant::getFitErrorMessage("SEARCH_TOPKEYWORD"));
+            }
+
+            $datas = $result["data"]["result"]["result"];
+            $returnMsg = helpers_success_message($datas);
         } catch (Exception $e) {
             $returnMsg = helpers_fail_message($e->getMessage());
         }

@@ -279,8 +279,8 @@
                 "tags": [
                     "카테고리"
                 ],
-                "summary": "W 카테고리별 인기상품 리스트",
-                "description": "W 카테고리별 인기상품 리스트 endPoint",
+                "summary": "W 카테고리별 인기상품 조회",
+                "description": "W 카테고리별 인기상품 조회 endPoint",
                 "operationId": "b9df86f6cdcdd96869f2195ea7ecf7fb",
                 "parameters": [
                     {
@@ -291,6 +291,95 @@
                         "schema": {
                             "type": "integer",
                             "example": "10165"
+                        }
+                    },
+                    {
+                        "name": "country",
+                        "in": "query",
+                        "description": "언어 ko: 국문, en: 영문",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "example": "ko"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SuccessResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Authorization Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/401ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/400ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/500ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/w/category/topKeyword/{categoryId}": {
+            "get": {
+                "tags": [
+                    "카테고리"
+                ],
+                "summary": "W 카테고리별 인기검색어 조회",
+                "description": "W 카테고리별 인기검색어 조회 endPoint",
+                "operationId": "55272e4ee1241ab6fe7dc56499a214e4",
+                "parameters": [
+                    {
+                        "name": "categoryId",
+                        "in": "path",
+                        "description": "카테고리 ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": "10165"
+                        }
+                    },
+                    {
+                        "name": "country",
+                        "in": "query",
+                        "description": "언어 ko: 국문, en: 영문",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "example": "ko"
                         }
                     }
                 ],
