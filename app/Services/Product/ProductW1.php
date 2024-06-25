@@ -61,7 +61,6 @@ use ValueError;
 
 class ProductW1 extends ProductAbstract
 {
-    private string $accessToken;
     private TransApiAbstract $transApiAbstract;
     private UploadAbstract $uploadAbstract;
     private ProductAbstract $productW2;
@@ -73,7 +72,6 @@ class ProductW1 extends ProductAbstract
     )
     {
         parent::__construct();
-        $this->accessToken      = env("1688_ACCESS_TOKEN");
         $this->transApiAbstract = $transApiAbstract;
         $this->uploadAbstract   = $uploadAbstract;
         $this->productW2        = $productAbstract;

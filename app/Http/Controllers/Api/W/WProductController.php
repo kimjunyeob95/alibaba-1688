@@ -652,4 +652,39 @@ class WProductController extends Controller
             return helpers_json_response(HttpConstant::BAD_REQUEST, [], $result["msg"]);
         }
     }
+
+    public function searchKeywordQuery(): JsonResponse
+    {
+        $validator = Validator::make($this->request->all(), [
+            'keyword'    => 'required|string',
+            'begin_page' => 'required|string',
+            'page_size'  => 'required|string',
+            'sort'       => 'required|string',
+            'country'    => 'required|string',
+        ], [
+            "keyword"    => ProductErrorMessageConstant::getNotHaveErrorMessage("KEYWORD"),
+            "begin_page" => ProductErrorMessageConstant::getNotHaveErrorMessage("BEGINPAGE"),
+            "page_size"  => ProductErrorMessageConstant::getNotHaveErrorMessage("PAGESIZE"),
+            "sort"       => ProductErrorMessageConstant::getNotHaveErrorMessage("SORT"),
+            "country"    => ProductErrorMessageConstant::getNotHaveErrorMessage("COUNTRY"),
+        ]);
+        if ($validator->fails()) {
+            throw new Exception($validator->errors()->first());
+        }
+
+        $params = [
+            "keyword"    => $this->request->get("keyword"),
+            "begin_page" => $this->request->get("begin_page"),
+            "page_size"  => $this->request->get("page_size") > 50 ? 50 : $this->request->get("page_size"),
+            "sort"       => $this->request->get("sort"),
+            "country"    => $this->request->get("country"),
+        ];
+
+        $result = $this->service1688Product->searchKeywordQuery($params);
+        if( $result["isSuccess"] == true ){
+            return helpers_json_response(HttpConstant::OK, $result);
+        } else {
+            return helpers_json_response(HttpConstant::BAD_REQUEST, [], $result["msg"]);
+        }
+    }
 }

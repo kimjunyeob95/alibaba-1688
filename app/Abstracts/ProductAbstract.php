@@ -7,6 +7,7 @@ use App\Constants\ForbiddenWordConstant;
 use App\Constants\LogConstant;
 use App\Models\ProductNoticeData;
 use App\Models\WNoticeData;
+use App\Traits\WProductKeywordTrait;
 use Exception;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\UploadedFile;
@@ -14,11 +15,17 @@ use Illuminate\Pagination\LengthAwarePaginator;
 
 abstract class ProductAbstract
 {
+    use WProductKeywordTrait;
+
     protected array $returnMsg;
+    protected string $accessToken;
 
     public function __construct()
     {
-        $this->returnMsg = helpers_fail_message();
+        $this->returnMsg   = helpers_fail_message();
+        $this->accessToken = env("1688_ACCESS_TOKEN");
+
+        $this->initWProductKeywordTrait($this->accessToken);
     }
 
 

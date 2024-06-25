@@ -528,7 +528,7 @@
                 ],
                 "summary": "WApp 상품 생성",
                 "description": "WApp 상품 생성 endPoint",
-                "operationId": "b17f64f11cc069776f26711dc6af4bc1",
+                "operationId": "20e80bb5c4d96b74ebd4efeb14cf5ea2",
                 "parameters": [
                     {
                         "name": "channel",
@@ -559,6 +559,115 @@
                         }
                     }
                 },
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SuccessResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Authorization Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/401ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/400ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/500ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/w/products/search/keywordQuery": {
+            "get": {
+                "tags": [
+                    "상품"
+                ],
+                "summary": "W 상품 키워드 조회",
+                "description": "W 상품 키워드 조회 endPoint",
+                "operationId": "839267a6dca296d12e57260814a7934a",
+                "parameters": [
+                    {
+                        "name": "keyword",
+                        "in": "query",
+                        "description": "검색어",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "example": "가방"
+                        }
+                    },
+                    {
+                        "name": "begin_page",
+                        "in": "query",
+                        "description": "페이지 수",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    },
+                    {
+                        "name": "page_size",
+                        "in": "query",
+                        "description": "페이징 사이즈 Max: 50",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 50
+                        }
+                    },
+                    {
+                        "name": "sort",
+                        "in": "query",
+                        "description": "정렬조건 페이지마다 정렬임(전체 정렬X) | monthSold: 판매량, price: 가격",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "example": "monthSold|desc"
+                        }
+                    },
+                    {
+                        "name": "country",
+                        "in": "query",
+                        "description": "언어 ko: 국문, en: 영문",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "example": "ko"
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "Successful operation",

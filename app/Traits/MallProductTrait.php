@@ -8,8 +8,6 @@ use App\Constants\MallErrorMessageConstant;
 use App\Constants\OnchannelConstant;
 use App\Models\OnchannelProductDetailLog;
 use App\Models\OnchannelProductLog;
-use App\Models\OnchProductData;
-use App\Models\ProductData;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Support\Facades\DB;

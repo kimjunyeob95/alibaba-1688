@@ -56,6 +56,11 @@ class ProductErrorMessageConstant
     public const ERROR_MESSAGE_WEIGHT                                  = "weight";
     public const ERROR_MESSAGE_ATTRIBUTE_IDS                           = "attribute_ids";
     public const ERROR_MESSAGE_APPLY_ATTRIBUTE_NAME                    = "apply_attribute_name";
+    public const ERROR_MESSAGE_KEYWORD                                 = "keyword";
+    public const ERROR_MESSAGE_BEGINPAGE                               = "beginPage";
+    public const ERROR_MESSAGE_PAGESIZE                                = "pageSize";
+    public const ERROR_MESSAGE_SORT                                    = "sort";
+    public const ERROR_MESSAGE_COUNTRY                                 = "country";
  
     public static function getErrorMessageNotDefault($constantName): string
     {

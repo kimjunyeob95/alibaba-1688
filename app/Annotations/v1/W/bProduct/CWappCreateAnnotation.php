@@ -75,5 +75,5 @@ namespace App\Annotations\v1\W\bProduct;
 */
 
 
-class WappCreateAnnotation{
+class CWappCreateAnnotation{
 }

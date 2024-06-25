@@ -461,6 +461,17 @@ class Service1688Product
       return $this->productAbstract->noticeNameUpdate($attributeIds, $applyAttributeName);
    }
 
+   /**
+     * @func searchKeywordQuery
+     * @description '상품 키워드 조회'
+     * @param array $params
+     * @return array
+   */
+   public function searchKeywordQuery(array $params): array
+   {
+      return $this->productAbstract->searchKeywordQuery($params);
+   }
+
    /****************************************** WApp W2 **********************************************/
 
    /**
