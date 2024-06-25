@@ -2539,6 +2539,7 @@ class ProductW1 extends ProductAbstract
     public function saveKeywordQueryRecursively(int $logId, array $payload, int $page, int $pageSize, int $totalPage = 0): void
     {
         try {
+            dd($payload);
             $endPoint = "param2/1/com.alibaba.fenxiao.crossborder/product.search.keywordQuery/";
 
             $payload["offerQueryParam"]["beginPage"] = $page;
@@ -2616,7 +2617,7 @@ class ProductW1 extends ProductAbstract
                             if( isset($payload["offerQueryParam"]["productCollectionId"]) && $payload["offerQueryParam"]["productCollectionId"] ){
                                 ProductCollectPalletData::updateOrCreate(
                                     [
-                                        "pallet_id" => $payload["keyword"],
+                                        "pallet_id" => $payload["offerQueryParam"]["productCollectionId"],
                                     ],
                                     [
                                         "offer_id" => $offerId
