@@ -194,7 +194,7 @@ Route::name('mall.')->prefix('mall')->group(function () {
     Route::get('/product/regist/log/{offerId}', [MallController::class, "productRegistLog"])->name('productRegistLog');
 
     Route::name('{channel}.')->prefix('{channel}')->group(function () {
-        /** WApp에 상품등록 */
+        /** WApp 상품 생성 후 채널 전송 */
         Route::post('/product/wapp/regist/{offerId}', [MallController::class, "productWappRegist"])->name('productWappRegist');
         Route::post('/product/regist', [MallController::class, "productRegist"])->name('productRegist');
         Route::get('/product/log/{logId}', [MallController::class, "productLog"])->name('productLog');

@@ -615,8 +615,8 @@
                 "tags": [
                     "상품"
                 ],
-                "summary": "WApp 상품 생성",
-                "description": "WApp 상품 생성 endPoint",
+                "summary": "WApp 상품 생성 후 채널 전송",
+                "description": "WApp 상품 생성 후 채널 전송 endPoint",
                 "operationId": "20e80bb5c4d96b74ebd4efeb14cf5ea2",
                 "parameters": [
                     {
@@ -1936,19 +1936,13 @@
             },
             "WappProductCreateSchema": {
                 "required": [
-                    "channel_type",
-                    "channel_code"
+                    "channel_type"
                 ],
                 "properties": {
                     "channel_type": {
                         "description": "채널별 상품 전송 타입",
                         "type": "string",
                         "example": "30"
-                    },
-                    "channel_code": {
-                        "description": "채널별 상품 고유 코드",
-                        "type": "string",
-                        "example": "CH2012311"
                     }
                 },
                 "type": "object"

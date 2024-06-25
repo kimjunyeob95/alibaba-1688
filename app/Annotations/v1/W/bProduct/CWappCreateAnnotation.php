@@ -37,8 +37,8 @@ namespace App\Annotations\v1\W\bProduct;
  *             type="integer"
  *         )
  *     ),
- *     summary="WApp 상품 생성",
- *     description="WApp 상품 생성 endPoint",
+ *     summary="WApp 상품 생성 후 채널 전송",
+ *     description="WApp 상품 생성 후 채널 전송 endPoint",
  *     tags={"상품"},
  *     security={{"BearerAuth": {}}},
  *     @OA\RequestBody(
