@@ -2,7 +2,6 @@
 
 namespace App\Abstracts;
 
-use App\Constants\CollectErrorMessageConstant;
 use App\Models\ProductCollectPalletData;
 use Exception;
 

@@ -2539,7 +2539,6 @@ class ProductW1 extends ProductAbstract
     public function saveKeywordQueryRecursively(int $logId, array $payload, int $page, int $pageSize, int $totalPage = 0): void
     {
         try {
-            dd($payload);
             $endPoint = "param2/1/com.alibaba.fenxiao.crossborder/product.search.keywordQuery/";
 
             $payload["offerQueryParam"]["beginPage"] = $page;
