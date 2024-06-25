@@ -1061,6 +1061,95 @@
                 ]
             }
         },
+        "/api/w/products/search/recommend": {
+            "get": {
+                "tags": [
+                    "상품"
+                ],
+                "summary": "W 인기상품 조회",
+                "description": "W 인기상품 조회 endPoint",
+                "operationId": "a445d98b6b4cdde93f126dc168e907e0",
+                "parameters": [
+                    {
+                        "name": "begin_page",
+                        "in": "query",
+                        "description": "페이지 수",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    },
+                    {
+                        "name": "page_size",
+                        "in": "query",
+                        "description": "페이징 사이즈 Max: 20",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 20
+                        }
+                    },
+                    {
+                        "name": "country",
+                        "in": "query",
+                        "description": "언어 ko: 국문, en: 영문",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "example": "ko"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SuccessResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Authorization Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/401ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/400ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/500ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            }
+        },
         "/api/mall/{channel}/order/{orderId}": {
             "get": {
                 "tags": [

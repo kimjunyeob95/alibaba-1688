@@ -794,4 +794,37 @@ class WProductController extends Controller
             return helpers_json_response(HttpConstant::BAD_REQUEST, [], $e->getMessage());
         }
     }
+
+    public function searchRecommend(): JsonResponse
+    {
+        try {
+            $validator = Validator::make($this->request->all(), [
+                'begin_page' => 'required|int',
+                'page_size'  => 'required|int',
+                'country'    => 'required|string',
+            ], [
+                "begin_page" => ProductErrorMessageConstant::getNotHaveErrorMessage("BEGINPAGE"),
+                "page_size"  => ProductErrorMessageConstant::getNotHaveErrorMessage("PAGESIZE"),
+                "country"    => ProductErrorMessageConstant::getNotHaveErrorMessage("COUNTRY"),
+            ]);
+            if ($validator->fails()) {
+                throw new Exception($validator->errors()->first());
+            }
+            
+            $params = [
+                "begin_page" => $this->request->get("begin_page"),
+                "page_size"  => $this->request->get("page_size") > 20 ? 20 : $this->request->get("page_size"),
+                "country"    => $this->request->get("country"),
+            ];
+
+            $result = $this->service1688Product->searchRecommend($params);
+            if( $result["isSuccess"] == true ){
+                return helpers_json_response(HttpConstant::OK, $result);
+            } else {
+                return helpers_json_response(HttpConstant::BAD_REQUEST, [], $result["msg"]);
+            }
+        } catch (Exception $e) {
+            return helpers_json_response(HttpConstant::BAD_REQUEST, [], $e->getMessage());
+        }
+    }
 }

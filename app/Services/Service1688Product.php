@@ -506,6 +506,17 @@ class Service1688Product
       return $this->productAbstract->searchImageQuery($params);
    }
 
+   /**
+     * @func searchRecommend
+     * @description 'W 인기상품 조회'
+     * @param array $params
+     * @return array
+   */
+   public function searchRecommend(array $params): array
+   {
+      return $this->productAbstract->searchRecommend($params);
+   }
+
    /****************************************** WApp W2 **********************************************/
 
    /**

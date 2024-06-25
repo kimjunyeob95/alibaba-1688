@@ -356,4 +356,62 @@ trait WProductSearchTrait
 
         return $returnMsg;
     }
+
+    /**
+     * @func searchRecommend
+     * @description 'W 인기상품 조회'
+     * @param array $params
+     * @return array
+    */
+    public function searchRecommend(array $params): array
+    {
+        $returnMsg = $this->returnMsg;
+        try {
+            $endPoint = "param2/1/com.alibaba.fenxiao.crossborder/product.search.offerRecommend/";
+            $payload  = [
+                'access_token'    => $this->accessToken,
+                'recommendOfferParam' => [
+                    'beginPage'  => $params["begin_page"],
+                    'pageSize'   => $params["page_size"],
+                    'country'    => $params["country"],
+                ]
+            ];
+
+            $apiDatas = curl_1688("POST", $endPoint, $payload);
+
+            if( !isset($apiDatas["data"]["result"]["result"]) || count($apiDatas["data"]["result"]["result"]) < 1 ){
+                throw new Exception(ProductErrorMessageConstant::getNotHaveErrorMessage("PRODUCT_SEARCH_OFFERRECOMMEND"));
+            }
+
+            $datas                    = $apiDatas["data"]["result"]["result"];
+            $deletePrdForbiddenWords  = ForbiddenWordData::where("keyword_type", ForbiddenWordConstant::KEYWORD_DELETE)->get();
+            $replacePrdForbiddenWords = ForbiddenWordData::where("keyword_type", ForbiddenWordConstant::KEYWORD_REPLACE)->get();
+            foreach ($datas as &$data) {
+                $ocPrice          = ocPrice((float)$data["priceInfo"]["price"]);
+                $data["oc_orice"] = $ocPrice;
+
+                $subjectTrans = $data["subjectTrans"];
+                // 삭제어
+                $subjectForbiddenTrans = removeForbiddenText($deletePrdForbiddenWords, $subjectTrans, ForbiddenWordConstant::KEYWORD_APPLY_TITLE);
+                // 교체어
+                $subjectForbiddenTrans = replaceForbiddenText($replacePrdForbiddenWords, $subjectForbiddenTrans, ForbiddenWordConstant::KEYWORD_APPLY_TITLE);
+
+                $subjectForbiddenTrans = trim($subjectForbiddenTrans);
+                $subjectForbiddenTrans = removeDuplicateWords($subjectForbiddenTrans);
+
+                $data["subjectTrans"] = $subjectForbiddenTrans;
+            }
+
+            $res = [
+                "page_size" => (int)$params["page_size"],
+                "records"   => $datas,
+            ];
+
+            $returnMsg = helpers_success_message($res);
+        } catch (Exception $e) {
+            $returnMsg = helpers_fail_message($e->getMessage());
+        }
+
+        return $returnMsg;
+    }
 }
