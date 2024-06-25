@@ -484,6 +484,28 @@ class Service1688Product
       return $this->productAbstract->searchDetail($offerId, $country);
    }
 
+   /**
+     * @func searchCreateImageId
+     * @description 'W 상품 이미지 ID 생성'
+     * @param UploadedFile $file
+     * @return array
+   */
+   public function searchCreateImageId(UploadedFile $file): array
+   {
+      return $this->productAbstract->searchCreateImageId($file);
+   }
+
+   /**
+     * @func searchImageQuery
+     * @description 'W 상품 이미지 조회'
+     * @param array $params
+     * @return array
+   */
+   public function searchImageQuery(array $params): array
+   {
+      return $this->productAbstract->searchImageQuery($params);
+   }
+
    /****************************************** WApp W2 **********************************************/
 
    /**

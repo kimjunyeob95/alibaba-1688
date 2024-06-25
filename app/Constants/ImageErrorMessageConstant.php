@@ -21,6 +21,8 @@ class ImageErrorMessageConstant
     public const ERROR_MESSAGE_IMAGES_BASE64 = "images base64";
     public const ERROR_MESSAGE_S3_IMG_UPLOAD = "S3 image Upload";
     public const ERROR_MESSAGE_EXCEPT_IMG    = "제외 이미지로 인한 패스";
+    public const ERROR_MESSAGE_W_IMAGE_ID    = "w image id";
+    public const ERROR_MESSAGE_W_IMAGE_QUERY = "w image query";
 
  
     public static function getErrorMessageNotDefault($constantName): string

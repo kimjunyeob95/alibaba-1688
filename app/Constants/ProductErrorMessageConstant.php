@@ -61,6 +61,8 @@ class ProductErrorMessageConstant
     public const ERROR_MESSAGE_PAGESIZE                                = "pageSize";
     public const ERROR_MESSAGE_SORT                                    = "sort";
     public const ERROR_MESSAGE_COUNTRY                                 = "country";
+    public const ERROR_MESSAGE_IMG_FILE                                = "img_file";
+    public const ERROR_MESSAGE_IMG_ID                                  = "img_id";
  
     public static function getErrorMessageNotDefault($constantName): string
     {
