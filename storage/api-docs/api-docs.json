@@ -821,7 +821,7 @@
                         "description": "제품 ID",
                         "required": true,
                         "schema": {
-                            "type": "intger",
+                            "type": "string",
                             "example": "539753036122"
                         }
                     },

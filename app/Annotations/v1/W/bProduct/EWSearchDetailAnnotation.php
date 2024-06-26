@@ -18,7 +18,7 @@ namespace App\Annotations\v1\W\bProduct;
  *         required=true,
  *         description="제품 ID",
  *         @OA\Schema(
- *             type="intger",
+ *             type="string",
  *             example="539753036122"
  *         )
  *     ),

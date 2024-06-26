@@ -215,13 +215,22 @@ trait WProductSearchTrait
                                 $deliveryPrice = $weights[$cateObj->weight];
                             }
                         }
-
+                        
+                        $price = 0;
+                        if( isset($prdOptions["price"]) ){
+                            $price = $prdOptions["price"];
+                        } else if( isset($detailProduct["productSaleInfo"]["priceRangeList"][0]["price"]) ){
+                            $price = $detailProduct["productSaleInfo"]["priceRangeList"][0]["price"];
+                        } else {
+                            continue;
+                        }
+                        
                         $productSkuInfos[$key]           = $prdOptions;
                         $productSkuInfos[$key]["width"]  = $width;
                         $productSkuInfos[$key]["length"] = $length;
                         $productSkuInfos[$key]["height"] = $height;
                         $productSkuInfos[$key]["weight"] = $weight;
-                        $productSkuInfos[$key]["ocPrice"] = ocPrice($prdOptions["price"], $deliveryPrice);
+                        $productSkuInfos[$key]["ocPrice"] = ocPrice($price, $deliveryPrice);
                     }
                 }
                 $res = [
