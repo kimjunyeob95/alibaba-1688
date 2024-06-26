@@ -321,7 +321,7 @@ class GenuioService extends TransApiAbstract
                 throw new ValueError(TransApiConstant::getNotHaveErrorMessage("PRODUCT"));
             }
 
-            debug_log(json_encode($params, JSON_UNESCAPED_UNICODE), "genuio/imgTrans", "imgTrans");
+            // debug_log(json_encode($params, JSON_UNESCAPED_UNICODE), "genuio/imgTrans", "imgTrans");
 
             if( $getGenuioObj->send_type == GenuioConstant::IMG_TRANS ){
 
@@ -425,16 +425,12 @@ class GenuioService extends TransApiAbstract
                                 ]);
                             }
                         } else {
+                            /** 어떠한 이유로 S3로 업로드 실패 시 제외처리 */
                             ProductImageData::where("id", $imgId)->update([
+                                "is_except"      => ImageConstant::IS_EXCEPT_Y,
                                 "img_url_trans"  => $img_url_trans,
                                 "trans_dated_at" => null,
                             ]);
-                        }
-    
-                        if( $errorImgFlag == true ) {
-                            // 1688 측 이미지 자체가 유효하지 않은 상태 기록
-                            // $errMsg = "원본 이미지 upload error | img: " . $img_url_origin;
-                            // debug_log(json_encode($errMsg, JSON_UNESCAPED_UNICODE), "genuio", "genuio-img");
                         }
         
                         GenuioQueueDetailData::where([
@@ -532,6 +528,11 @@ class GenuioService extends TransApiAbstract
 
                             ProductImageData::where("id", $imgId)->update([
                                 "img_url_trans" => $img_url_ai
+                            ]);
+                        } else {
+                            /** 어떠한 이유로 S3로 업로드 실패 시 제외처리 */
+                            ProductImageData::where("id", $imgId)->update([
+                                "is_except" => ImageConstant::IS_EXCEPT_Y,
                             ]);
                         }
         
@@ -649,7 +650,9 @@ class GenuioService extends TransApiAbstract
                                 ]);
                             }
                         } else {
+                            /** 어떠한 이유로 S3로 업로드 실패 시 제외처리 */
                             ProductImageData::where("id", $imgId)->update([
+                                "is_except"      => ImageConstant::IS_EXCEPT_Y,
                                 "img_url_trans"  => $img_url_trans,
                                 "trans_dated_at" => null,
                             ]);
