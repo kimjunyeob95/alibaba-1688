@@ -321,6 +321,8 @@ class GenuioService extends TransApiAbstract
                 throw new ValueError(TransApiConstant::getNotHaveErrorMessage("PRODUCT"));
             }
 
+            debug_log(json_encode($params, JSON_UNESCAPED_UNICODE), "genuio/imgTrans", "imgTrans");
+
             if( $getGenuioObj->send_type == GenuioConstant::IMG_TRANS ){
 
                 $dateName = $prdObj->created_at->format('Y/m/d');
