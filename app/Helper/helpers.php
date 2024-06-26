@@ -448,20 +448,22 @@ if (!function_exists("ocPrice")) {
     function ocPrice(float $price, int $delivery_price = 0): array
     {
         $option_price     = round( $price * env("1688_EXCHANGE_RATE", 200) , -1);
+        $option_price     = $option_price + $delivery_price;
+
         $option_price_sum = (int)intval($option_price) + intval($option_price * env("OPTION_PRICE_RATE", 0.12));
         $option_price_cal = round($option_price_sum / 10) * 10;
         $onch_price       = $option_price_cal;
 
-        $recom_cus_price_sum = (int)intval($option_price) + intval($option_price * env("RECOM_CUS_PRICE_RATE", 0.45));
+        $recom_cus_price_sum = (int)intval($option_price) + intval($option_price * env("RECOM_CUS_PRICE_RATE", 0.30));
         $recom_cus_price_cal = round($recom_cus_price_sum / 10) * 10;
         $cus_price           = $recom_cus_price_cal;
         $recom_cus_price     = $recom_cus_price_cal;
 
         return [
             "option_price"    => $option_price,
-            "onch_price"      => $onch_price + $delivery_price,
-            "cus_price"       => $cus_price + $delivery_price,
-            "recom_cus_price" => $recom_cus_price + $delivery_price,
+            "onch_price"      => $option_price,
+            "cus_price"       => $cus_price,
+            "recom_cus_price" => $recom_cus_price,
         ];
     }
 }

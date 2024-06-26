@@ -206,8 +206,8 @@ class Onchannel extends MallApiAbstract
             
                         $options = [];
                         foreach ($prdObj->no_except_options as $option) {
-                            // $ocPrice = ocPrice($option->price_1688_option, (int)$delivery_price);
-                            $ocPrice = ocPrice($option->price_1688, (int)$delivery_price);
+                            $ocPrice = ocPrice($option->price_1688_option, (int)$delivery_price);
+                            // $ocPrice = ocPrice($option->price_1688, (int)$delivery_price);
 
                             $options[] = [
                                 "op_rank"      => "1",
@@ -489,8 +489,8 @@ class Onchannel extends MallApiAbstract
         
                     $options = [];
                     foreach ($prdObj->no_except_options as $option) {
-                        // $ocPrice = ocPrice($option->price_1688_option, (int)$delivery_price);
-                        $ocPrice = ocPrice($option->price_1688, (int)$delivery_price);
+                        $ocPrice = ocPrice($option->price_1688_option, (int)$delivery_price);
+                        // $ocPrice = ocPrice($option->price_1688, (int)$delivery_price);
 
                         $options[] = [
                             "op_rank"      => "1",
