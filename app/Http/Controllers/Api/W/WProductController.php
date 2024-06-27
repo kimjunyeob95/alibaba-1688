@@ -48,8 +48,8 @@ class WProductController extends Controller
             $log_type = $this->request->post("log_type", LogConstant::COLLECT_API_OFFERID);
             $aiActive = $this->request->post("ai_active", CollectConstatnt::AI_ACTIVE_FALSE);
 
-            $options = "--offerids=" . helperEscape(implode(",", $offerIds)) . " --type=" . helperEscape($log_type);
-            $command = "nohup php artisan save_1688_collect_product " . $options . " > /dev/null 2>&1 &";
+            $options = "--offerids=" . helperEscape(implode(",", $offerIds)) . " --type=" . helperEscape($log_type) . " --aiactive=" . helperEscape($aiActive);
+            $command = "nohup " . $this->phpAlias . " artisan save_1688_collect_product " . $options . " > /dev/null 2>&1 &";
             $process = Process::fromShellCommandline($command);
             $process->setWorkingDirectory(env("WORK_DIRECTORY", "/web1/1688"));
             $process->setTimeout(null); // 실행 시간 제한 없음
@@ -101,8 +101,8 @@ class WProductController extends Controller
                 throw new Exception(ProductErrorMessageConstant::getNotHaveErrorMessage("PRODUCT_KEYWORD"));
             }
 
-            $options = "--search_cls=" . helperEscape($searchCls) . " --keyword=" . helperEscape($keyword) . " --sort=" . helperEscape($sort);
-            $command = "nohup php artisan save_1688_product_keyword_query " . $options . " > /dev/null 2>&1 &";
+            $options = "--search_cls=" . helperEscape($searchCls) . " --keyword=" . helperEscape($keyword) . " --sort=" . helperEscape($sort) . " --aiactive=" . helperEscape($aiActive);
+            $command = "nohup " . $this->phpAlias . " artisan save_1688_product_keyword_query " . $options . " > /dev/null 2>&1 &";
             $process = Process::fromShellCommandline($command);
             $process->setWorkingDirectory(env("WORK_DIRECTORY", "/web1/1688"));
             $process->setTimeout(null); // 실행 시간 제한 없음
@@ -162,8 +162,8 @@ class WProductController extends Controller
             $offerIds = $this->request->post("offer_ids");
             $aiActive = $this->request->post("ai_active", CollectConstatnt::AI_ACTIVE_FALSE);
             
-            $options = "--offerids=" . helperEscape(implode(",", $offerIds)) . " --type=" . helperEscape(LogConstant::COLLECT_API_IMAGEQUERY);
-            $command = "nohup php artisan save_1688_collect_product " . $options . " > /dev/null 2>&1 &";
+            $options = "--offerids=" . helperEscape(implode(",", $offerIds)) . " --type=" . helperEscape(LogConstant::COLLECT_API_IMAGEQUERY) . " --aiactive=" . helperEscape($aiActive);
+            $command = "nohup " . $this->phpAlias . " artisan save_1688_collect_product " . $options . " > /dev/null 2>&1 &";
             $process = Process::fromShellCommandline($command);
             $process->setWorkingDirectory(env("WORK_DIRECTORY", "/web1/1688"));
             $process->setTimeout(null); // 실행 시간 제한 없음
@@ -185,8 +185,8 @@ class WProductController extends Controller
                 throw new Exception(ImageErrorMessageConstant::getNotHaveErrorMessage("IMG_ID"));   
             }
 
-            $options = "--imageIds=" . $imageIds . " --sort=" . helperEscape($sort);
-            $command = "nohup php artisan save_1688_product_image_query " . $options . " > /dev/null 2>&1 &";
+            $options = "--imageIds=" . $imageIds . " --sort=" . helperEscape($sort) . " --aiactive=" . helperEscape($aiActive);
+            $command = "nohup " . $this->phpAlias . " artisan save_1688_product_image_query " . $options . " > /dev/null 2>&1 &";
             $process = Process::fromShellCommandline($command);
             $process->setWorkingDirectory(env("WORK_DIRECTORY", "/web1/1688"));
             $process->setTimeout(null); // 실행 시간 제한 없음
