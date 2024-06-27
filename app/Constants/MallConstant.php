@@ -47,5 +47,9 @@ class MallConstant
         self::SEND_TYPE_MODI   => "수정",
     ];
 
+    /** 자동등록 타입 */
+    public const AUTO_REGIST_TRUE  = "true";
+    public const AUTO_REGIST_FALSE = "false";
+
 
 }

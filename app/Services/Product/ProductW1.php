@@ -16,6 +16,7 @@ use App\Constants\ImageConstant;
 use App\Constants\ImageErrorMessageConstant;
 use App\Constants\InspectConstant;
 use App\Constants\LogConstant;
+use App\Constants\MallConstant;
 use App\Constants\OnchannelConstant;
 use App\Constants\OptionConstants;
 use App\Constants\ProductConstant;
@@ -2233,13 +2234,16 @@ class ProductW1 extends ProductAbstract
 
             // 7. 이미지 번역 요청 통신
             if( $product1688Dto->status == ProductConstant::PRD_STATUS_PUBLISH ) {
+                $params = [
+                    "send_easysell" => MallConstant::AUTO_REGIST_TRUE
+                ];
                 if( $aiActive === CollectConstatnt::AI_ACTIVE_TRUE ){
-                    $transResult = $this->transApiAbstract->createTransProductImg($product1688ImageDtoList, $offerId);
+                    $transResult = $this->transApiAbstract->createTransProductImg($product1688ImageDtoList, $offerId, false, $params);
                     if( $transResult["isSuccess"] == false ){
                         throw new Exception("createTransProductImg error: " . $transResult["msg"]);
                     }
                 } else if( $aiActive === CollectConstatnt::AI_ACTIVE_FALSE && $hasProduct === true ){
-                    $transResult = $this->transApiAbstract->createTransProductImgAgain($product1688ImageDtoList, $offerId);
+                    $transResult = $this->transApiAbstract->createTransProductImgAgain($product1688ImageDtoList, $offerId, false, $params);
                     if( $transResult["isSuccess"] == false ){
                         throw new Exception("createTransProductImgAgain error: " . $transResult["msg"]);
                     }
