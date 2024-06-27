@@ -61,9 +61,11 @@ class Onchannel extends MallApiAbstract
         if( isset($params["sendTypeList"]) ){
             $sendTypeList = $params["sendTypeList"];
         }
-
         foreach ($sendTypeList as $sendType) {
             foreach ($offerIds as $offerId) {
+                
+                upWeightStatus($offerId);
+
                 $regCnt = OnchannelProductLog::where([
                     "offer_id"       => $offerId,
                     "member_id"      => OnchannelConstant::ONCH1688,
@@ -117,6 +119,8 @@ class Onchannel extends MallApiAbstract
                         $noticeInfo   = $prdObj->no_except_notices->pluck("attribute_value_kr","attribute_name_kr")->toArray();
                         $notice_desc  = getNoticeInfoTable($noticeInfo);
                         $prd_desc    .= $notice_desc;
+
+                        $prd_desc .= "<div style='text-align: center !important'>" . $prd_desc . "</div>";
             
                         $images = [];
                         foreach ($prdObj->images as $imgObj) {
@@ -399,6 +403,8 @@ class Onchannel extends MallApiAbstract
                     $noticeInfo   = $prdObj->no_except_notices->pluck("attribute_value_kr","attribute_name_kr")->toArray();
                     $notice_desc  = getNoticeInfoTable($noticeInfo);
                     $prd_desc    .= $notice_desc;
+
+                    $prd_desc .= "<div style='text-align: center !important'>" . $prd_desc . "</div>";
         
                     $images = [];
                     foreach ($prdObj->images as $imgObj) {

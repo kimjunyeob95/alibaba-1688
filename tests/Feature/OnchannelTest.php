@@ -33,27 +33,23 @@ class OnchannelTest extends TestCase
         dd("끝");
     }
 
-    # 온채널 관리자 상품 등록
+    # 온채널 등록된 상품 일괄 수정
     # php artisan test --filter testOnchProductModi
     public function testOnchProductModi()
     {
-        $token    = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJtZW1iZXJfaWQiOiJvbmNoMTY4OCIsIm1tYnJfdHlwZSI6Im9uY2htYW4iLCJ0aW1lc3RhbXAiOjQ4NjkxODE5ODJ9.AijywuhAP6ZkxySsZWOqEU-ID8XoesePcm8lSB1w1rw";
-        $endPoint = "https://task.onch3.co.kr/api/w/product/edit";
-
-        $getPrdObjs = ProductData::with([
-            "images",
-            "options",
-        ])
-        ->select(["product_datas.*", "b.prd_code"])
+        $builder = ProductData::select(["product_datas.offer_id", "b.send_type"])
         ->join("onchannel_product_logs as b","product_datas.offer_id", "=", "b.offer_id")
-        ->where("b.regist_success", "Y");
+        ->where("b.regist_success", "Y")
+        ->where("b.created_at", "<=", "2024-06-27 23:59:59");
 
-        $perPage = 900;
+        $perPage = 2000;
 
-        $totalCount = $getPrdObjs->count();
+        $onchannel = app(Onchannel::class);
+
+        $totalCount = $builder->count();
         $totalPages = ceil($totalCount / $perPage);
 
-        debug_log("실행", "onchannel", "modiOnchannel");
+        debug_log("실행", "onchannel/modiAllProduct", "modiAllProduct");
 
         for ($page = 1; $page <= $totalPages; $page++) {
             Paginator::currentPageResolver(function () use ($page) {
@@ -61,71 +57,19 @@ class OnchannelTest extends TestCase
             });
         
             // paginate 메소드는 새 Paginator 인스턴스를 반환합니다.
-            $pagedData = $getPrdObjs->paginate($perPage);
+            $pagedData = $builder->paginate($perPage);
             $results   = $pagedData->items();
 
-            $msg = "(" . $page . "/" . $totalPages. ") prdCnt: " . count($results) . " 실행시작";
-            debug_log($msg, "onchannel", "modiOnchannel");
-
-            foreach ($results as $prdObj) {
-                try {
-                    $offer_id = $prdObj->offer_id;
-
-                    $payload = [
-                        "prd_code"  => $prdObj->prd_code,
-                        "min_count" => $prdObj->start_quantity,
-                    ];
-        
-                    $images = [];
-                    foreach ($prdObj->images as $img) {
-                        if( $img->is_except == "Y" && $img->lang != "kr") continue;
-                        $images[] = [
-                            "img_type" => $img->img_type,
-                            "img_url"  => $img->img_url_origin,
-                        ];
-                    }
-
-                    $payload["images"] = $images;
-
-                    $options = [];
-                    foreach ($prdObj->options as $option) {
-                        $options[] = [
-                            "op_code"   => $option->id,
-                            "option_nm" => $option->option_name_kr,
-                        ];
-                    }
-                    $payload["options"] = $options;
-
-                    $header = array(
-                        'Content-type: application/json',
-                        'Authorization: Bearer '.$token,
-                    );
-
-                    $result = helpers_curl("POST", $endPoint, $header, $payload);
-                    
-                    if( !isset($result["isSuccess"]) || $result["isSuccess"] != true ){
-                        $res = [
-                            "offer_id" => $offer_id,
-                            "prd_code" => $prdObj->prd_code,
-                            "result"   => $result
-                        ];
-                        debug_log(json_encode($res, JSON_UNESCAPED_UNICODE), "onchannel", "modiOnchannel");
-                    }
-                } catch (Exception $e) {
-                    $res = [
-                        "offer_id" => $offer_id,
-                        "prd_code" => $prdObj->prd_code,
-                        "error"    => $e->getMessage()
-                    ];
-                    debug_log(json_encode($res, JSON_UNESCAPED_UNICODE), "onchannel", "modiOnchannel");
-                }
-
-                sleep(1);
+            foreach ($results as $obj) {
+                $onchannel->productRegist([$obj->offer_id], ["sendTypeList" => [$obj->send_type]]);
             }
+
+            $msg = "(" . $page . "/" . $totalPages. ") prdCnt: " . count($results) . " 완료";
+            debug_log($msg, "onchannel/modiAllProduct", "modiAllProduct");
         }
         
 
-        debug_log("종료", "onchannel", "modiOnchannel");
+        debug_log("종료", "onchannel/modiAllProduct", "modiAllProduct");
     }
 
     # 온채널 이미지 콜백
