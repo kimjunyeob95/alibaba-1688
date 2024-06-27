@@ -22,11 +22,13 @@ class WProductController extends Controller
 {
     private Request $request;
     private Service1688Product $service1688Product;
+    private string $phpAlias;
 
     function __construct(Request $request, Service1688Product $service1688Product)
     {
         $this->request            = $request;
         $this->service1688Product = $service1688Product;
+        $this->phpAlias           = env("PHP_ALIAS", "php80");
     }
 
     public function collectProduct(): JsonResponse
@@ -45,7 +47,7 @@ class WProductController extends Controller
             $log_type = $this->request->post("log_type", LogConstant::COLLECT_API_OFFERID);
 
             $options = "--offerids=" . helperEscape(implode(",", $offerIds)) . " --type=" . helperEscape($log_type);
-            $command = "nohup php artisan save_1688_collect_product " . $options . " > /dev/null 2>&1 &";
+            $command = "nohup " . $this->phpAlias . " artisan save_1688_collect_product " . $options . " > /dev/null 2>&1 &";
             $process = Process::fromShellCommandline($command);
             $process->setWorkingDirectory(env("WORK_DIRECTORY", "/web1/1688"));
             $process->setTimeout(null); // 실행 시간 제한 없음
@@ -73,7 +75,7 @@ class WProductController extends Controller
             $log_type = $this->request->post("log_type", LogConstant::RE_COLLECT_API_OFFERID);
 
             $options = "--offerids=" . helperEscape(implode(",", $offerIds)) . " --type=" . helperEscape($log_type);
-            $command = "nohup php artisan save_1688_collect_product " . $options . " > /dev/null 2>&1 &";
+            $command = "nohup " . $this->phpAlias . " artisan save_1688_collect_product " . $options . " > /dev/null 2>&1 &";
             $process = Process::fromShellCommandline($command);
             $process->setWorkingDirectory(env("WORK_DIRECTORY", "/web1/1688"));
             $process->setTimeout(null); // 실행 시간 제한 없음
@@ -97,7 +99,7 @@ class WProductController extends Controller
             }
 
             $options = "--search_cls=" . helperEscape($searchCls) . " --keyword=" . helperEscape($keyword) . " --sort=" . helperEscape($sort);
-            $command = "nohup php artisan save_1688_product_keyword_query " . $options . " > /dev/null 2>&1 &";
+            $command = "nohup " . $this->phpAlias . " artisan save_1688_product_keyword_query " . $options . " > /dev/null 2>&1 &";
             $process = Process::fromShellCommandline($command);
             $process->setWorkingDirectory(env("WORK_DIRECTORY", "/web1/1688"));
             $process->setTimeout(null); // 실행 시간 제한 없음
@@ -157,7 +159,7 @@ class WProductController extends Controller
             $offerIds = $this->request->post("offer_ids");
             
             $options = "--offerids=" . helperEscape(implode(",", $offerIds)) . " --type=" . helperEscape(LogConstant::COLLECT_API_IMAGEQUERY);
-            $command = "nohup php artisan save_1688_collect_product " . $options . " > /dev/null 2>&1 &";
+            $command = "nohup " . $this->phpAlias . " artisan save_1688_collect_product " . $options . " > /dev/null 2>&1 &";
             $process = Process::fromShellCommandline($command);
             $process->setWorkingDirectory(env("WORK_DIRECTORY", "/web1/1688"));
             $process->setTimeout(null); // 실행 시간 제한 없음
@@ -179,7 +181,7 @@ class WProductController extends Controller
             }
 
             $options = "--imageIds=" . $imageIds . " --sort=" . helperEscape($sort);
-            $command = "nohup php artisan save_1688_product_image_query " . $options . " > /dev/null 2>&1 &";
+            $command = "nohup " . $this->phpAlias . " artisan save_1688_product_image_query " . $options . " > /dev/null 2>&1 &";
             $process = Process::fromShellCommandline($command);
             $process->setWorkingDirectory(env("WORK_DIRECTORY", "/web1/1688"));
             $process->setTimeout(null); // 실행 시간 제한 없음
@@ -206,7 +208,7 @@ class WProductController extends Controller
             $offerIds = $this->request->post("offer_ids");
             
             $options = "--offerids=" . helperEscape(implode(",", $offerIds)) . " --type=" . helperEscape(LogConstant::COLLECT_API_URLQUERY);
-            $command = "nohup php artisan save_1688_collect_product " . $options . " > /dev/null 2>&1 &";
+            $command = "nohup " . $this->phpAlias . " artisan save_1688_collect_product " . $options . " > /dev/null 2>&1 &";
             $process = Process::fromShellCommandline($command);
             $process->setWorkingDirectory(env("WORK_DIRECTORY", "/web1/1688"));
             $process->setTimeout(null); // 실행 시간 제한 없음
@@ -359,7 +361,7 @@ class WProductController extends Controller
             $offerIds = implode(",", $offerIds);
 
             $options = "--offerIds=" . helperEscape($offerIds) . " --search_title=" . helperEscape($search_title) . " --search_type=" . helperEscape($search_type);
-            $command = "nohup php artisan save_product_search_data " . $options . " > /dev/null 2>&1 &";
+            $command = "nohup " . $this->phpAlias . " artisan save_product_search_data " . $options . " > /dev/null 2>&1 &";
             $process = Process::fromShellCommandline($command);
             $process->setWorkingDirectory(env("WORK_DIRECTORY", "/web1/1688"));
             $process->setTimeout(null); // 실행 시간 제한 없음

@@ -21,13 +21,14 @@ class Save1688AllProducts extends Command
     */
     public function handle()
     {
-        $killpid = $this->option('killpid', 'false');
+        $killpid  = $this->option('killpid', 'false');
+        $phpAlias = env("PHP_ALIAS", "php80");
 
         $getCategoryObjs = Category::get();
         $processes = [];
         foreach ($getCategoryObjs as $getCategoryObj) {
             $categoryId = $getCategoryObj->category_id;
-            $command    = "nohup php artisan save_1688_product --categoryid=" . helperEscape($categoryId) . " > /dev/null 2>&1 &";;
+            $command    = "nohup " . $phpAlias . " save_1688_product --categoryid=" . helperEscape($categoryId) . " > /dev/null 2>&1 &";;
 
             // 1. 실행 중인 동일 커맨드 찾은 후 PID들에 대해 강제 종료 실행
             $findProcessCommand = "ps aux | grep '".escapeshellcmd($command)."' | grep -v grep | awk '{print $2}'";

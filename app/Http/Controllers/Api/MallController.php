@@ -19,11 +19,13 @@ class MallController extends Controller
 {
     private Request $request;
     private MallApiService $mallApiService;
+    private string $phpAlias;
 
     function __construct(Request $request, MallApiService $mallApiService)
     {
         $this->request        = $request;
         $this->mallApiService = $mallApiService;
+        $this->phpAlias       = env("PHP_ALIAS", "php80");
     }
 
     public function tokenCreate(): JsonResponse
@@ -271,7 +273,7 @@ class MallController extends Controller
             if( !empty($es_send_type) ){
                 $options = "--offerids=" . helperEscape(implode(",", $offerIds)) . " --type=" . helperEscape(implode(",", $es_send_type));
 
-                $command = "nohup php artisan easy_sell_command --func=productRegist " . $options . " > /dev/null 2>&1 &";
+                $command = "nohup " . $this->phpAlias . " artisan easy_sell_command --func=productRegist " . $options . " > /dev/null 2>&1 &";
                 $process1 = Process::fromShellCommandline($command);
                 $process1->setWorkingDirectory(env("WORK_DIRECTORY", "/web1/1688"));
                 $process1->setTimeout(null); // 실행 시간 제한 없음
@@ -281,7 +283,7 @@ class MallController extends Controller
             if( !empty($oc_send_type) ){
                 $options = "--offerids=" . helperEscape(implode(",", $offerIds)) . " --sendtype=" . helperEscape(implode(",", $oc_send_type));
 
-                $command = "nohup php artisan onchannel_command --func=productRegist " . $options . " > /dev/null 2>&1 &";
+                $command = "nohup " . $this->phpAlias . " artisan onchannel_command --func=productRegist " . $options . " > /dev/null 2>&1 &";
                 $process2 = Process::fromShellCommandline($command);
                 $process2->setWorkingDirectory(env("WORK_DIRECTORY", "/web1/1688"));
                 $process2->setTimeout(null); // 실행 시간 제한 없음
