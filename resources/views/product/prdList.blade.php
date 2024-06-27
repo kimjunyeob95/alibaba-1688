@@ -54,6 +54,7 @@
                     <input type="hidden" name="cate_second" value={{ $cate_second }}>
                     <input type="hidden" name="cate_third" value={{ $cate_third }}>
                     <input type="hidden" name="no_send_channel" value='{{ $no_send_channel }}'>
+                    <input type="hidden" name="quantity_count" value='{{ $quantity_count }}'>
 
                     <div class="card">
                         <div class="card-header">
@@ -261,6 +262,17 @@
                                         value="{{ ProductConstant::WEIGHT_STATUS_CATEGORY }}">{{ ProductConstant::WEIGHT_STATUS[ProductConstant::WEIGHT_STATUS_CATEGORY] }}</button>
                                         <button type="button" name="weight_status" class="btn-status btn btn-sm {{ $weight_status == ProductConstant::WEIGHT_STATUS_NONE ? "btn-primary" : "btn-dark" }}"
                                         value="{{ ProductConstant::WEIGHT_STATUS_NONE }}">{{ ProductConstant::WEIGHT_STATUS[ProductConstant::WEIGHT_STATUS_NONE] }}</button>
+                                    </td>
+                                </tr>
+                                <tr class="align-middle">
+                                    <th style="width: 120px">최소 구매 수량</th>
+                                    <td colspan="2">
+                                        <button type="button" name="quantity_count" class="btn-status btn btn-sm {{ $quantity_count == "" ? "btn-primary" : "btn-dark" }}"
+                                        value="">전체</button>
+                                        <button type="button" name="quantity_count" class="btn-status btn btn-sm {{ $quantity_count == ProductConstant::QUANTITY_COUNT_1 ? "btn-primary" : "btn-dark" }}"
+                                        value="{{ ProductConstant::QUANTITY_COUNT_1 }}">{{ ProductConstant::QUANTITY_LIST[ProductConstant::QUANTITY_COUNT_1] }}</button>
+                                        <button type="button" name="quantity_count" class="btn-status btn btn-sm {{ $quantity_count == ProductConstant::QUANTITY_COUNT_2 ? "btn-primary" : "btn-dark" }}"
+                                        value="{{ ProductConstant::QUANTITY_COUNT_2 }}">{{ ProductConstant::QUANTITY_LIST[ProductConstant::QUANTITY_COUNT_2] }}</button>
                                     </td>
                                 </tr>
                                 <tr class="align-middle">
