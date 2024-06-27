@@ -194,7 +194,7 @@ abstract class MallApiAbstract
 
     /**
      * @func productWappRegist
-     * @description 'WApp에 상품등록'
+     * @description 'WApp 상품 생성 후 채널 전송'
      * @param int $offerId
      * @param array $params
      * @return array
@@ -204,12 +204,13 @@ abstract class MallApiAbstract
         $returnMsg = $this->returnMsg;
         try {
             $result = $this->productWappRegistTrait($offerId);
+
             if( $result["isSuccess"] != true ){
                 throw new Exception($result["msg"]);
             }
 
             if( $this->channel == MallConstant::MALL_ONCHANNEL ){
-                $regResult = $this->productRegist([$offerId], [$params["channel_type"]]);
+                $regResult = $this->productRegist([$offerId], ["sendTypeList" => [$params["channel_type"]]]);
 
                 if( !empty($regResult["data"]["fail"]) ){
                     throw new Exception($regResult["data"]["fail"][0]["msg"]);
