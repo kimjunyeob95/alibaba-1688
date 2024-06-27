@@ -28,7 +28,7 @@ abstract class TransApiAbstract
 
     /**
      * @func createTransProductImgAgain
-     * @description '추가 이미지 번역 통신'
+     * @description '이미지 재번역 통신'
      * @param array $product1688ImageDtoList
      * @param int $offerId
      */

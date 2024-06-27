@@ -267,6 +267,7 @@ class Onchannel extends MallApiAbstract
                                 if(is_array($resultCurl)){
                                     $resultCurl = json_encode($resultCurl, JSON_UNESCAPED_UNICODE);
                                 }
+                                $resultCurl = "offerId: {$offerId} \r\n" . $resultCurl;
                                 debug_log($resultCurl, "onchannel/prdRegist", "prdRegist");
                             }
                             $log = OnchannelProductLog::updateOrCreate(
@@ -520,8 +521,8 @@ class Onchannel extends MallApiAbstract
                     );
 
                     $endPoint = $this->domain . "/api/w/product/edit";
-                    $result   = helpers_curl("POST", $endPoint, $header, $payload);
-                    if( isset($result["prd_code"]) && $result["prd_code"] ){
+                    $resultCurl   = helpers_curl("POST", $endPoint, $header, $payload);
+                    if( isset($resultCurl["prd_code"]) && $resultCurl["prd_code"] ){
 
                         OnchannelProductDetailLog::create([
                             "log_id"     => $logObj->id,
@@ -533,10 +534,14 @@ class Onchannel extends MallApiAbstract
                         $returnMsg = helpers_success_message();
                     } else {
                         $msg = "온채널 통신 에러";
-                        if( isset($result["msg"]) ){
-                            $msg = $result["msg"];
+                        if( isset($resultCurl["msg"]) ){
+                            $msg = $resultCurl["msg"];
                         } else {
-                            debug_log(json_encode($result, JSON_UNESCAPED_UNICODE), "onchannel/prdModi", "prdModi");
+                            if(is_array($resultCurl)){
+                                $resultCurl = json_encode($resultCurl, JSON_UNESCAPED_UNICODE);
+                            }
+                            $resultCurl = "offerId: {$offerId} \r\n" . $resultCurl;
+                            debug_log($resultCurl, "onchannel/prdModi", "prdModi");
                         }
 
                         OnchannelProductDetailLog::create([

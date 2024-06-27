@@ -1,12 +1,13 @@
 <?php
 namespace App\Console\Commands;
 
+use App\Constants\CollectConstatnt;
 use App\Services\Service1688Product;
 use Illuminate\Console\Command;
 
 class Save1688ProductImageQuery extends Command
 {
-    protected $signature   = 'save_1688_product_image_query {--imageIds=} {--sort=}';
+    protected $signature   = 'save_1688_product_image_query {--imageIds=} {--sort=} {--aiactive=}';
     protected $description = '1688API imageQueryAPI로 상품 수집';
 
     protected Service1688Product $service1688Product;
@@ -25,7 +26,8 @@ class Save1688ProductImageQuery extends Command
     public function handle()
     {
         $imageIds = $this->option('imageIds', "");
-        $sort    = $this->option('sort') ?? "";
+        $sort     = $this->option('sort') ?? "";
+        $aiActive = $this->option('aiactive') ?? CollectConstatnt::AI_ACTIVE_FALSE;
         
         if( $imageIds ){
             $params = [
@@ -33,6 +35,7 @@ class Save1688ProductImageQuery extends Command
                 "sort"     => $sort,
                 "page"     => 1,
                 "pageSize" => 50,
+                "aiActive" => $aiActive
             ];
             $this->service1688Product->saveImageQuery($params);
         }

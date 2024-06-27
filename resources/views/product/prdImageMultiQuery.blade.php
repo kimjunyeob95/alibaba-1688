@@ -65,9 +65,16 @@
                     </div>
                 </form>
                 
-                <div class="mt-3 d-flex justify-content-end">
-                    <button class="btn btn-md btn-outline-success" id="btn-all">전체상품 수집</button>
+                <div class="mt-3 d-flex align-items-center justify-content-between">
+                    <div class="d-flex justify-content-start">
+                        <input type="checkbox" id="chk-ai-active" class="me-2">
+                        <label for="chk-ai-active" class="text-danger">수집 시 자동 번역 요청(이지셀: 더블유)</label>
+                    </div>
+                    <div class="d-flex justify-content-end">
+                        <button class="btn btn-md btn-outline-success" id="btn-all">전체상품 수집</button>
+                    </div>
                 </div>
+
             </div>
         </div>
 
@@ -131,6 +138,9 @@
         $("#btn-all").click(function(){
             let imageIds = $("#imageIds").val();
             let formData = $("#searchFrm").serialize();
+            let aiActive = $("#chk-ai-active").is(":checked") ? 'true' : 'false';
+
+            formData += `&ai_active=${aiActive}`;
 
             if( imageIds.trim() == "" ){
                 return alert("이미지 ID가 없습니다. 이미지를 등록하세요.");

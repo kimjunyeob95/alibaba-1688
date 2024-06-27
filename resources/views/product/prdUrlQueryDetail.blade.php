@@ -39,7 +39,14 @@
         </nav>
         
         <div class="row my-4 bg-white py-3">
-            <div class="col-12 mb-3">
+            <div class="mt-3 d-flex align-items-center justify-content-between">
+                <div class="d-flex justify-content-start">
+                    <input type="checkbox" id="chk-ai-active" class="me-2">
+                    <label for="chk-ai-active" class="text-danger">수집 시 자동 번역 요청(이지셀: 더블유)</label>
+                </div>
+            </div>
+
+            <div class="col-12 mb-3 mt-3">
                 <div class="card">
                     <div class="card-header d-flex justify-content-between align-items-center">
                         <div style="max-width: 250px; overflow-wrap: break-word;">제목: {{ $obj->search_title }}</div>
@@ -120,6 +127,7 @@
         $("#btn-select").click(function(){
             let offer_ids = [];
             let hasPrd    = false;
+            let aiActive  = $("#chk-ai-active").is(":checked") ? 'true' : 'false';
 
             $(".chk-inp:checked").each(function(index, element){
                 offer_ids.push($(this).val());
@@ -142,7 +150,11 @@
                     "headers"    : {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
                     "type"       : "POST",
                     "url"        : "{{ route('w.product.collectProduct') }}",
-                    "data"       : { offer_ids, log_type },
+                    "data"       : { 
+                        offer_ids,
+                        log_type,
+                        "ai_active": aiActive
+                    },
                     beforeSend: function () {
                     },
                     complete: function () {
@@ -161,6 +173,7 @@
         $("#btn-all").click(function(){
             let offer_ids = [];
             let hasPrd    = false;
+            let aiActive  = $("#chk-ai-active").is(":checked") ? 'true' : 'false';
 
             $(".chk-inp").each(function(index, element){
                 offer_ids.push($(this).val());
@@ -183,7 +196,11 @@
                     "headers"    : {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
                     "type"       : "POST",
                     "url"        : "{{ route('w.product.collectProduct') }}",
-                    "data"       : { offer_ids, log_type },
+                    "data"       : { 
+                        offer_ids,
+                        log_type,
+                        "ai_active": aiActive
+                    },
                     beforeSend: function () {
                     },
                     complete: function () {
