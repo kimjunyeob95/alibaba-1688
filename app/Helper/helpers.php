@@ -769,23 +769,22 @@ if (!function_exists("compareWSalePrice")) {
 
 /** 수정 상품 저장 */
 if (!function_exists("saveModiProduct")) {
-    function saveModiProduct(int $offerId, string $wType = EasySellConstant::TYPE_W): void
+    function saveModiProduct(int $offerId): void
     {
         foreach (MallConstant::MALL_LIST as $channel) {
-            $regCnt = 0;
+            $objs = collect();
 
             if( $channel == MallConstant::MALL_EASYSELL ){
-                $regCnt = EasysellProductLog::where([
+                $objs = EasysellProductLog::where([
                     "offer_id"       => $offerId,
-                    "w_type"         => $wType,
                     "regist_success" => MallConstant::REGIST_SUCCESS,
-                ])->count();
+                ])->get();
             }
 
-            if( $regCnt > 0 ){
+            foreach ($objs as $obj) {
                 ProductModiData::updateOrCreate([
                     "offer_id"      => $offerId,
-                    "w_type"        => $wType,
+                    "w_type"        => $obj->w_type,
                     "is_send"       => ProductConstant::IS_SEND_N,
                     "channel"       => $channel,
                     "msg"           => "",
