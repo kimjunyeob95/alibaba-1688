@@ -323,7 +323,7 @@ class MallController extends Controller
             }
 
             $channelType = $this->request->post("channel_type");
-            $params       = [
+            $params      = [
                 "channel_type" => $channelType,
             ];
 

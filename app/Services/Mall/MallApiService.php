@@ -78,7 +78,7 @@ class MallApiService
 
     /**
      * @func productWappRegist
-     * @description 'WApp에 상품등록'
+     * @description 'WApp 상품 생성 후 채널 전송'
      * @param int $offerId
      * @param array $params
      * @return array
