@@ -723,19 +723,21 @@ class GenuioService extends TransApiAbstract
             chkTransStatus($getGenuioObj->offer_id);
 
             /** 이지셀 W 상품 전송 */
-            $easyWCnt = EasysellProductLog::where([
-                "offer_id"       => $offerId,
-                "w_type"         => EasySellConstant::TYPE_W,
-                "regist_success" => MallConstant::REGIST_SUCCESS,
-            ])->count();
+            if( env('APP_ENV', 'local') === "production" ){
+                $easyWCnt = EasysellProductLog::where([
+                    "offer_id"       => $offerId,
+                    "w_type"         => EasySellConstant::TYPE_W,
+                    "regist_success" => MallConstant::REGIST_SUCCESS,
+                ])->count();
 
-            if( $easyWCnt == 0 ){
-                $options = "--func=productRegist --offerids=" . helperEscape($offerId) . " --type=" . helperEscape(EasySellConstant::TYPE_W);
-                $command = "nohup " . $this->phpAlias . " artisan easy_sell_command " . $options . " > /dev/null 2>&1 &";
-                $process = Process::fromShellCommandline($command);
-                $process->setWorkingDirectory(env("WORK_DIRECTORY", "/web1/1688"));
-                $process->setTimeout(null); // 실행 시간 제한 없음
-                $process->start();
+                if( $easyWCnt == 0 ){
+                    $options = "--func=productRegist --offerids=" . helperEscape($offerId) . " --type=" . helperEscape(EasySellConstant::TYPE_W);
+                    $command = "nohup " . $this->phpAlias . " artisan easy_sell_command " . $options . " > /dev/null 2>&1 &";
+                    $process = Process::fromShellCommandline($command);
+                    $process->setWorkingDirectory(env("WORK_DIRECTORY", "/web1/1688"));
+                    $process->setTimeout(null); // 실행 시간 제한 없음
+                    $process->start();
+                }
             }
 
             // 수정 상품 저장
