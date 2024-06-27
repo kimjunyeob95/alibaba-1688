@@ -2,6 +2,7 @@
 
 namespace App\Abstracts;
 
+use App\Constants\GenuioConstant;
 use App\Traits\Genuio\QueueTrait;
 use App\Traits\Genuio\WebTrait;
 
@@ -23,16 +24,22 @@ abstract class TransApiAbstract
      * @description '이미지 번역 통신'
      * @param array $product1688ImageDtoList
      * @param int $offerId
+     * @param bool $priority
+     * @param array $params
+     * @return array
      */
-    abstract function createTransProductImg(array $product1688ImageDtoList, int $offerId): array;
+    abstract function createTransProductImg(array $product1688ImageDtoList, int $offerId, bool $priority = GenuioConstant::PRIORITY_FALSE, array $params = []): array;
 
     /**
      * @func createTransProductImgAgain
      * @description '이미지 재번역 통신'
      * @param array $product1688ImageDtoList
      * @param int $offerId
+     * @param bool $priority
+     * @param array $params
+     * @return array
      */
-    abstract function createTransProductImgAgain(array $product1688ImageDtoList, int $offerId): array;
+    abstract function createTransProductImgAgain(array $product1688ImageDtoList, int $offerId, bool $priority = GenuioConstant::PRIORITY_FALSE, array $params = []): array;
 
     /**
      * @func translateImage

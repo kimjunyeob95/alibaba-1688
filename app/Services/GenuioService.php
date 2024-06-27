@@ -95,8 +95,11 @@ class GenuioService extends TransApiAbstract
      * @description '이미지 번역 통신'
      * @param array $product1688ImageDtoList
      * @param int $offerId
+     * @param bool $priority
+     * @param array $params
+     * @return array
      */
-    public function createTransProductImg(array $product1688ImageDtoList, int $offerId, bool $priority = GenuioConstant::PRIORITY_FALSE): array
+    public function createTransProductImg(array $product1688ImageDtoList, int $offerId, bool $priority = GenuioConstant::PRIORITY_FALSE, array $params = []): array
     {
         $returnMsg = $this->returnMsg;
         try {
@@ -119,7 +122,8 @@ class GenuioService extends TransApiAbstract
             $payload = [
                 "jobId"  => $nextId,
                 "images" => [],
-                "prdObj" => $prdObj->toArray()
+                "prdObj" => $prdObj->toArray(),
+                "params" => $params
             ];
 
             $queueDetailInsList = [];
@@ -192,8 +196,11 @@ class GenuioService extends TransApiAbstract
      * @description '이미지 재번역 통신'
      * @param array $product1688ImageDtoList
      * @param int $offerId
+     * @param bool $priority
+     * @param array $params
+     * @return array
      */
-    public function createTransProductImgAgain(array $product1688ImageDtoList, int $offerId, bool $priority = GenuioConstant::PRIORITY_FALSE): array
+    public function createTransProductImgAgain(array $product1688ImageDtoList, int $offerId, bool $priority = GenuioConstant::PRIORITY_FALSE, array $params = []): array
     {
         $returnMsg = $this->returnMsg;
         try {
@@ -216,7 +223,8 @@ class GenuioService extends TransApiAbstract
             $payload = [
                 "jobId"  => $nextId,
                 "images" => [],
-                "prdObj" => $prdObj->toArray()
+                "prdObj" => $prdObj->toArray(),
+                "params" => $params
             ];
 
             $queueDetailInsList = [];
@@ -723,7 +731,11 @@ class GenuioService extends TransApiAbstract
             chkTransStatus($getGenuioObj->offer_id);
 
             /** 이지셀 W 상품 전송 */
-            if( env('APP_ENV', 'local') === "production" ){
+            $sendEasysell = MallConstant::AUTO_REGIST_FALSE;
+            if( isset($payloadJson["params"]["send_easysell"]) ){
+                $sendEasysell = $payloadJson["params"]["send_easysell"];
+            }
+            if( env('APP_ENV', 'local') === "production" && $sendEasysell === MallConstant::AUTO_REGIST_TRUE ){
                 $easyWCnt = EasysellProductLog::where([
                     "offer_id"       => $offerId,
                     "w_type"         => EasySellConstant::TYPE_W,
