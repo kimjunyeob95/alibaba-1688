@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Abstracts\TransApiAbstract;
 use App\Abstracts\UploadAbstract;
+use App\Constants\EasySellConstant;
 use App\Constants\GenuioConstant;
 use App\Constants\ImageConstant;
 use App\Constants\ImageErrorMessageConstant;
@@ -12,6 +13,7 @@ use App\Constants\OnchannelConstant;
 use App\Constants\TransApiConstant;
 use App\Constants\WConstant;
 use App\Models\ApiUser;
+use App\Models\EasysellProductLog;
 use App\Models\GenuioAiData;
 use App\Models\GenuioImageData;
 use App\Models\GenuioQueueData;
@@ -27,6 +29,7 @@ use Exception;
 use InvalidArgumentException;
 use JsonException;
 use ValueError;
+use Symfony\Component\Process\Process;
 
 class GenuioService extends TransApiAbstract
 {
@@ -35,6 +38,7 @@ class GenuioService extends TransApiAbstract
     protected string $domain;
     protected string $token;
     protected array $returnMsg;
+    private string $phpAlias;
 
     public function __construct(
         JwtPackage $jwtPackage,
@@ -47,6 +51,7 @@ class GenuioService extends TransApiAbstract
         $this->domain         = env("GENUIO_DOMAIN");
         $this->token          = env("GENUIO_TOKEN");
         $this->returnMsg      = helpers_fail_message();
+        $this->phpAlias       = env("PHP_ALIAS", "php80");
     }
 
     public function translateImage(string $imgPath): array
@@ -717,8 +722,25 @@ class GenuioService extends TransApiAbstract
             // 변역 완료 여부 체크
             chkTransStatus($getGenuioObj->offer_id);
 
+            /** 이지셀 W 상품 전송 */
+            $easyWCnt = EasysellProductLog::where([
+                "offer_id"       => $offerId,
+                "w_type"         => EasySellConstant::TYPE_W,
+                "regist_success" => MallConstant::REGIST_SUCCESS,
+            ])->count();
+
+            if( $easyWCnt == 0 ){
+                $options = "--func=productRegist --offerids=" . helperEscape($offerId) . " --type=" . helperEscape(EasySellConstant::TYPE_W);
+                $command = "nohup " . $this->phpAlias . " artisan easy_sell_command " . $options . " > /dev/null 2>&1 &";
+                $process = Process::fromShellCommandline($command);
+                $process->setWorkingDirectory(env("WORK_DIRECTORY", "/web1/1688"));
+                $process->setTimeout(null); // 실행 시간 제한 없음
+                $process->start();
+            }
+
             // 수정 상품 저장
             saveModiProduct($offerId);
+
 
             // GenuioQueueData::where([
             //     "id" => $getGenuioObj->offer_id,

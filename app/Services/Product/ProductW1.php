@@ -1188,7 +1188,7 @@ class ProductW1 extends ProductAbstract
                     $product1688NoticeDtoList = $prdDto["product1688NoticeDtoList"];
                     $product1688OptionDtoList = $prdDto["product1688OptionDtoList"];
     
-                    $saveResult = $this->save1688ProductData($product1688Dto, $product1688ExtendDto, $product1688ImageDtoList, $product1688NoticeDtoList, $product1688OptionDtoList);
+                    $saveResult = $this->save1688ProductData($product1688Dto, $product1688ExtendDto, $product1688ImageDtoList, $product1688NoticeDtoList, $product1688OptionDtoList, $aiActive);
                     if( $saveResult["isSuccess"] != true ){
                         throw new Exception($saveResult["msg"]);
                     }
