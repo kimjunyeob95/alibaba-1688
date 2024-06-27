@@ -777,6 +777,7 @@ if (!function_exists("saveModiProduct")) {
             if( $channel == MallConstant::MALL_EASYSELL ){
                 $regCnt = EasysellProductLog::where([
                     "offer_id"       => $offerId,
+                    "w_type"         => $wType,
                     "regist_success" => MallConstant::REGIST_SUCCESS,
                 ])->count();
             }
