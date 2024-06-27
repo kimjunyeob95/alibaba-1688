@@ -17,7 +17,27 @@ namespace App\Annotations\v1\W\eCollect;
  *         description="팔레트ID",
  *         @OA\Schema(
  *             type="integer",
+ *             example=215858073
+ *         )
+ *     ),
+ *     @OA\Parameter(
+ *         name="begin_page",
+ *         in="query",
+ *         required=true,
+ *         description="페이지 수",
+ *         @OA\Schema(
+ *             type="integer",
  *             example=1
+ *         )
+ *     ),
+ *     @OA\Parameter(
+ *         name="page_size",
+ *         in="query",
+ *         required=true,
+ *         description="페이지 사이즈 Max 50",
+ *         @OA\Schema(
+ *             type="integer",
+ *             example=50
  *         )
  *     ),
  *     @OA\Response(
