@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\W;
 
+use App\Constants\CollectConstatnt;
 use App\Constants\Constant1688;
 use App\Constants\HttpConstant;
 use App\Constants\ImageConstant;
@@ -43,8 +44,9 @@ class WProductController extends Controller
 
             $offerIds = $this->request->post("offer_ids");
             $log_type = $this->request->post("log_type", LogConstant::COLLECT_API_OFFERID);
+            $aiActive = $this->request->post("ai_active", CollectConstatnt::AI_ACTIVE_FALSE);
 
-            $options = "--offerids=" . helperEscape(implode(",", $offerIds)) . " --type=" . helperEscape($log_type);
+            $options = "--offerids=" . helperEscape(implode(",", $offerIds)) . " --type=" . helperEscape($log_type) . " --aiactive=" . helperEscape($aiActive);
             $command = "nohup php artisan save_1688_collect_product " . $options . " > /dev/null 2>&1 &";
             $process = Process::fromShellCommandline($command);
             $process->setWorkingDirectory(env("WORK_DIRECTORY", "/web1/1688"));
@@ -91,12 +93,13 @@ class WProductController extends Controller
             $searchCls = $this->request->post("search_cls", "productCollectionId");
             $keyword   = $this->request->post("keyword", "");
             $sort      = $this->request->post("sort", "monthSold|desc");
+            $aiActive  = $this->request->post("ai_active", CollectConstatnt::AI_ACTIVE_FALSE);
 
             if( $keyword == "" ){
                 throw new Exception(ProductErrorMessageConstant::getNotHaveErrorMessage("PRODUCT_KEYWORD"));
             }
 
-            $options = "--search_cls=" . helperEscape($searchCls) . " --keyword=" . helperEscape($keyword) . " --sort=" . helperEscape($sort);
+            $options = "--search_cls=" . helperEscape($searchCls) . " --keyword=" . helperEscape($keyword) . " --sort=" . helperEscape($sort) . " --aiactive=" . helperEscape($aiActive);
             $command = "nohup php artisan save_1688_product_keyword_query " . $options . " > /dev/null 2>&1 &";
             $process = Process::fromShellCommandline($command);
             $process->setWorkingDirectory(env("WORK_DIRECTORY", "/web1/1688"));
@@ -155,8 +158,9 @@ class WProductController extends Controller
             }
     
             $offerIds = $this->request->post("offer_ids");
+            $aiActive = $this->request->post("ai_active", CollectConstatnt::AI_ACTIVE_FALSE);
             
-            $options = "--offerids=" . helperEscape(implode(",", $offerIds)) . " --type=" . helperEscape(LogConstant::COLLECT_API_IMAGEQUERY);
+            $options = "--offerids=" . helperEscape(implode(",", $offerIds)) . " --type=" . helperEscape(LogConstant::COLLECT_API_IMAGEQUERY) . " --aiactive=" . helperEscape($aiActive);
             $command = "nohup php artisan save_1688_collect_product " . $options . " > /dev/null 2>&1 &";
             $process = Process::fromShellCommandline($command);
             $process->setWorkingDirectory(env("WORK_DIRECTORY", "/web1/1688"));
@@ -174,11 +178,12 @@ class WProductController extends Controller
         try {
             $imageIds = $this->request->post("imageIds");
             $sort     = $this->request->post("sort", "monthSold|desc");
+            $aiActive = $this->request->post("ai_active", CollectConstatnt::AI_ACTIVE_FALSE);
             if( !$imageIds ){
                 throw new Exception(ImageErrorMessageConstant::getNotHaveErrorMessage("IMG_ID"));   
             }
 
-            $options = "--imageIds=" . $imageIds . " --sort=" . helperEscape($sort);
+            $options = "--imageIds=" . $imageIds . " --sort=" . helperEscape($sort) . " --aiactive=" . helperEscape($aiActive);
             $command = "nohup php artisan save_1688_product_image_query " . $options . " > /dev/null 2>&1 &";
             $process = Process::fromShellCommandline($command);
             $process->setWorkingDirectory(env("WORK_DIRECTORY", "/web1/1688"));

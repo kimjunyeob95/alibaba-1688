@@ -514,6 +514,7 @@ if (!function_exists("getPrice1688V2")) {
     }
 }
 
+/** 번역상태 변경 */
 if (!function_exists("chkTransStatus")) {
     function chkTransStatus(int $offerId): void
     {

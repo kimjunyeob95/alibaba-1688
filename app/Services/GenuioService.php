@@ -184,7 +184,7 @@ class GenuioService extends TransApiAbstract
 
     /**
      * @func createTransProductImgAgain
-     * @description '추가 이미지 번역 통신'
+     * @description '이미지 재번역 통신'
      * @param array $product1688ImageDtoList
      * @param int $offerId
      */
@@ -737,10 +737,6 @@ class GenuioService extends TransApiAbstract
     {
         $returnMsg = $this->returnMsg;
 
-        if( env("APP_ENV", "local") != "production" ){
-            return helpers_fail_message("운영 환경에서만 사용 가능합니다.");
-        }
-
         try {
             foreach ($offerIds as $offerId) {
                 $product1688ImageDtoList = [];
@@ -878,10 +874,6 @@ class GenuioService extends TransApiAbstract
     {
         $returnMsg = $this->returnMsg;
 
-        if( env("APP_ENV", "local") != "production" ){
-            return helpers_fail_message("운영 환경에서만 사용 가능합니다.");
-        }
-
         try {
             foreach ($imgIds as $imgId) {
                 $imgId    = (int)$imgId;
@@ -964,10 +956,6 @@ class GenuioService extends TransApiAbstract
     {
         $returnMsg = $this->returnMsg;
 
-        if( env("APP_ENV", "local") != "production" ){
-            return helpers_fail_message("운영 환경에서만 사용 가능합니다.");
-        }
-
         try {
             $imgObjs = ProductImageData::where("offer_id", $offerId)->where("lang", WConstant::WAPP_KR)->whereIn("img_type", [ImageConstant::IMAGE_TYPE_MAIN, ImageConstant::IMAGE_TYPE_SUB])->get();
             foreach ($imgObjs as $imgObj) {
@@ -1014,10 +1002,6 @@ class GenuioService extends TransApiAbstract
     public function imgDescTransRequest(int $offerId): array
     {
         $returnMsg = $this->returnMsg;
-
-        if( env("APP_ENV", "local") != "production" ){
-            return helpers_fail_message("운영 환경에서만 사용 가능합니다.");
-        }
 
         try {
             $imgObjs = ProductImageData::where("offer_id", $offerId)->where("lang", WConstant::WAPP_KR)->where("img_type", ImageConstant::IMAGE_TYPE_DESC)->get();
@@ -1066,10 +1050,6 @@ class GenuioService extends TransApiAbstract
     public function channelImgTransRequest(string $channel, array $params): array
     {
         $returnMsg = $this->returnMsg;
-
-        if( env("APP_ENV", "local") != "production" ){
-            return helpers_fail_message("운영 환경에서만 사용 가능합니다.");
-        }
 
         try {
             $wappDomain = env("WAPP_DOMAIN", "https://task-1688.onch3.co.kr");

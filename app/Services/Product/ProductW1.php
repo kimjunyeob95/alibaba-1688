@@ -6,6 +6,7 @@ use App\Abstracts\ProductAbstract;
 use App\Abstracts\TransApiAbstract;
 use App\Abstracts\UploadAbstract;
 use App\Constants\CategoryConstant;
+use App\Constants\CollectConstatnt;
 use App\Constants\Constant1688;
 use App\Constants\ExceptConstant;
 use App\Constants\ForbiddenWordConstant;
@@ -1121,7 +1122,7 @@ class ProductW1 extends ProductAbstract
         }
     }
 
-    public function collectProduct(array $offerIds, string $type = LogConstant::COLLECT_API_KEYWORDQUERY): void
+    public function collectProduct(array $offerIds, string $type = LogConstant::COLLECT_API_KEYWORDQUERY, string $aiActive = CollectConstatnt::AI_ACTIVE_FALSE): void
     {
         $logId = ProductCollectLog::insertGetId([
             "type"       => $type,
@@ -2119,11 +2120,12 @@ class ProductW1 extends ProductAbstract
 
     public function save1688ProductData(
         Product1688Dto $product1688Dto, Product1688ExtendDto $product1688ExtendDto, array $product1688ImageDtoList,
-        array $product1688NoticeDtoList, array $product1688OptionDtoList): array
+        array $product1688NoticeDtoList, array $product1688OptionDtoList, string $aiActive = CollectConstatnt::AI_ACTIVE_FALSE): array
     {
         $returnMsg = helpers_fail_message();
         try {
-            $offerId = (int)$product1688Dto->offer_id;
+            $offerId    = (int)$product1688Dto->offer_id;
+            $hasProduct = ProductData::where("offer_id", $offerId)->count() > 0 ? true : false;
 
             // 1. product_datas upsert
             $upsertWhere = $product1688Dto->getAllProperties();
@@ -2211,18 +2213,26 @@ class ProductW1 extends ProductAbstract
             // 6. 기존 이미지 삭제
             $this->delProductImage($product1688ImageDtoList);
 
+            /** 번역상태 변경 */   
             chkTransStatus($offerId);
-            
-            // 7. 이미지 번역 요청 통신
-            if( env("APP_ENV", "local") == "production" && $product1688Dto->status == ProductConstant::PRD_STATUS_PUBLISH ) {
-                // $transResult = $this->transApiAbstract->createTransProductImg($product1688ImageDtoList, $offerId);
-                // if( $transResult["isSuccess"] == false ){
-                //     throw new Exception($transResult["msg"]);
-                // }
-            }
-
+                        
             /** 중량 여부로 판매 상태 업데이트 */
             upWeightStatus($offerId);
+
+            // 7. 이미지 번역 요청 통신
+            if( $product1688Dto->status == ProductConstant::PRD_STATUS_PUBLISH ) {
+                if( $aiActive === CollectConstatnt::AI_ACTIVE_TRUE ){
+                    $transResult = $this->transApiAbstract->createTransProductImg($product1688ImageDtoList, $offerId);
+                    if( $transResult["isSuccess"] == false ){
+                        throw new Exception("createTransProductImg error: " . $transResult["msg"]);
+                    }
+                } else if( $aiActive === CollectConstatnt::AI_ACTIVE_FALSE && $hasProduct === true ){
+                    $transResult = $this->transApiAbstract->createTransProductImgAgain($product1688ImageDtoList, $offerId);
+                    if( $transResult["isSuccess"] == false ){
+                        throw new Exception("createTransProductImgAgain error: " . $transResult["msg"]);
+                    }
+                }
+            }
 
             $returnMsg = helpers_success_message();
         } catch (Exception $e) {
@@ -2478,6 +2488,7 @@ class ProductW1 extends ProductAbstract
         ];
         $page     = $params["page"];
         $pageSize = $params["pageSize"];
+        $aiActive = isset($params["aiActive"]) ? $params["aiActive"] : CollectConstatnt::AI_ACTIVE_FALSE;
         $payload  = [
             'access_token'    => $this->accessToken,
             'offerQueryParam' => [
@@ -2500,7 +2511,7 @@ class ProductW1 extends ProductAbstract
                 "created_at" => Carbon::now()
             ]);
 
-            $this->saveKeywordQueryRecursively($logId, $payload, $page, $pageSize);
+            $this->saveKeywordQueryRecursively($logId, $payload, $page, $pageSize, $aiActive);
         } catch (Exception $e) {
             $msg = "======================== 에러 발생 (params_json: {$params_json}) ========================\r\n";
             $msg .= $e->getMessage();
@@ -2536,7 +2547,7 @@ class ProductW1 extends ProductAbstract
         return $returnMsg;
     }
 
-    public function saveKeywordQueryRecursively(int $logId, array $payload, int $page, int $pageSize, int $totalPage = 0): void
+    public function saveKeywordQueryRecursively(int $logId, array $payload, int $page, int $pageSize, int $totalPage = 0, string $aiActive = CollectConstatnt::AI_ACTIVE_FALSE): void
     {
         try {
             $endPoint = "param2/1/com.alibaba.fenxiao.crossborder/product.search.keywordQuery/";
@@ -2600,7 +2611,7 @@ class ProductW1 extends ProductAbstract
                             $product1688NoticeDtoList = $prdDto["product1688NoticeDtoList"];
                             $product1688OptionDtoList = $prdDto["product1688OptionDtoList"];
 
-                            $saveResult = $this->save1688ProductData($product1688Dto, $product1688ExtendDto, $product1688ImageDtoList, $product1688NoticeDtoList, $product1688OptionDtoList);
+                            $saveResult = $this->save1688ProductData($product1688Dto, $product1688ExtendDto, $product1688ImageDtoList, $product1688NoticeDtoList, $product1688OptionDtoList, $aiActive);
 
                             if( $saveResult["isSuccess"] != true ){
                                 throw new Exception($saveResult["msg"]);
@@ -2644,7 +2655,7 @@ class ProductW1 extends ProductAbstract
             $totalPage = $apiDatas["data"]["result"]["result"]["totalPage"];
             if( $page < $totalPage ){
                 $nextPage = $page + 1;
-                $this->saveKeywordQueryRecursively($logId, $payload, $nextPage, $pageSize, $totalPage);
+                $this->saveKeywordQueryRecursively($logId, $payload, $nextPage, $pageSize, $totalPage, $aiActive);
             }
         } catch (Exception $e) {
             $msg = $e->getMessage();
@@ -2652,7 +2663,7 @@ class ProductW1 extends ProductAbstract
 
             if( $page < $totalPage ){
                 $nextPage = $page + 1;
-                $this->saveKeywordQueryRecursively($logId, $payload, $nextPage, $pageSize, $totalPage);
+                $this->saveKeywordQueryRecursively($logId, $payload, $nextPage, $pageSize, $totalPage, $aiActive);
             }
         }
     }
@@ -2816,6 +2827,7 @@ class ProductW1 extends ProductAbstract
         $page     = $params["page"];
         $pageSize = $params["pageSize"];
         $imageIds = $params["imageIds"];
+        $aiActive = isset($params["aiActive"]) ? $params["aiActive"] : CollectConstatnt::AI_ACTIVE_FALSE;
 
         try {
             $logId = ProductCollectLog::insertGetId([
@@ -2837,7 +2849,7 @@ class ProductW1 extends ProductAbstract
                     ]
                 ];
 
-                $this->saveImageQueryRecursively($logId, $payload, $page, $pageSize);
+                $this->saveImageQueryRecursively($logId, $payload, $page, $pageSize, $aiActive);
             }
         } catch (Exception $e) {
             $msg = "======================== 에러 발생 (params_json: {$params_json}) ========================\r\n";
@@ -2860,7 +2872,7 @@ class ProductW1 extends ProductAbstract
         return $returnMsg;
     }
 
-    public function saveImageQueryRecursively(int $logId, array $payload, int $page, int $pageSize, int $totalPage = 0): void
+    public function saveImageQueryRecursively(int $logId, array $payload, int $page, int $pageSize, int $totalPage = 0, string $aiActive = CollectConstatnt::AI_ACTIVE_FALSE): void
     {
         try {
             $endPoint = "param2/1/com.alibaba.fenxiao.crossborder/product.search.imageQuery/";
@@ -2924,7 +2936,7 @@ class ProductW1 extends ProductAbstract
                             $product1688NoticeDtoList = $prdDto["product1688NoticeDtoList"];
                             $product1688OptionDtoList = $prdDto["product1688OptionDtoList"];
 
-                            $saveResult = $this->save1688ProductData($product1688Dto, $product1688ExtendDto, $product1688ImageDtoList, $product1688NoticeDtoList, $product1688OptionDtoList);
+                            $saveResult = $this->save1688ProductData($product1688Dto, $product1688ExtendDto, $product1688ImageDtoList, $product1688NoticeDtoList, $product1688OptionDtoList, $aiActive);
 
                             if( $saveResult["isSuccess"] != true ){
                                 throw new Exception($saveResult["msg"]);
@@ -2956,7 +2968,7 @@ class ProductW1 extends ProductAbstract
             $totalPage = $apiDatas["data"]["result"]["result"]["totalPage"];
             if( $page < $totalPage ){
                 $nextPage = $page + 1;
-                $this->saveImageQueryRecursively($logId, $payload, $nextPage, $pageSize, $totalPage);
+                $this->saveImageQueryRecursively($logId, $payload, $nextPage, $pageSize, $totalPage, $aiActive);
             }
         } catch (Exception $e) {
             $msg = $e->getMessage();
@@ -2964,7 +2976,7 @@ class ProductW1 extends ProductAbstract
 
             if( $page < $totalPage ){
                 $nextPage = $page + 1;
-                $this->saveImageQueryRecursively($logId, $payload, $nextPage, $pageSize, $totalPage);
+                $this->saveImageQueryRecursively($logId, $payload, $nextPage, $pageSize, $totalPage, $aiActive);
             }
         }
     }

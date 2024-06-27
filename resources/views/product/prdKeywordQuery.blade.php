@@ -83,10 +83,16 @@
                         </div>
                     </div>
                 </form>
-                
-                <div class="mt-3 d-flex justify-content-end">
-                    <button class="btn btn-md btn-outline-dark me-2" id="btn-select">선택상품 수집</button>
-                    <button class="btn btn-md btn-outline-success" id="btn-all">전체상품 수집</button>
+
+                <div class="mt-3 d-flex align-items-center justify-content-between">
+                    <div class="d-flex justify-content-start">
+                        <input type="checkbox" id="chk-ai-active" class="me-2">
+                        <label for="chk-ai-active" class="text-danger">수집 시 자동 번역 요청(이지셀: 더블유)</label>
+                    </div>
+                    <div class="d-flex justify-content-end">
+                        <button class="btn btn-md btn-outline-dark me-2" id="btn-select">선택상품 수집</button>
+                        <button class="btn btn-md btn-outline-success" id="btn-all">전체상품 수집</button>
+                    </div>
                 </div>
 
                 <div class="table-responsive mt-3">
@@ -170,6 +176,7 @@
         $("#btn-select").click(function(){
             let offer_ids = [];
             let hasPrd    = false;
+            let aiActive  = $("#chk-ai-active").is(":checked") ? 'true' : 'false';
 
             $(".chk-inp:checked").each(function(index, element){
                 if( $(this).attr("hasPrd") == "N" ){
@@ -190,7 +197,7 @@
                     "headers"    : {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
                     "type"       : "POST",
                     "url"        : "{{ route('w.product.collectProduct') }}",
-                    "data"       : { offer_ids },
+                    "data"       : { offer_ids, "ai_active": aiActive },
                     beforeSend: function () {
                     },
                     complete: function () {
@@ -209,6 +216,8 @@
         $("#btn-all").click(function(){
             let totalRecords = "{{ $totalRecords }}";
             let formData     = $("#searchFrm").serialize();
+            let aiActive     = $("#chk-ai-active").is(":checked") ? 'true' : 'false';
+            formData += `&ai_active=${aiActive}`;
 
             if(totalRecords < 1){
                 return alert("검색 된 상품이 없습니다.");

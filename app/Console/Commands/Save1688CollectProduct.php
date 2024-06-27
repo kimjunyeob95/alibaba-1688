@@ -1,6 +1,7 @@
 <?php
 namespace App\Console\Commands;
 
+use App\Constants\CollectConstatnt;
 use App\Constants\LogConstant;
 use App\Constants\WConstant;
 use App\Services\Service1688Product;
@@ -8,7 +9,7 @@ use Illuminate\Console\Command;
 
 class Save1688CollectProduct extends Command
 {
-    protected $signature   = 'save_1688_collect_product {--offerids=} {--type=} {--wversion=}';
+    protected $signature   = 'save_1688_collect_product {--offerids=} {--type=} {--wversion=} {--aiactive=}';
     protected $description = '1688API 제품ID로 조회 후 DB저장';
 
     protected Service1688Product $service1688Product;
@@ -28,12 +29,13 @@ class Save1688CollectProduct extends Command
         $offerids = explode(",", $this->option('offerids'));
         $type     = $this->option('type') ?? LogConstant::COLLECT_API_OFFERID;
         $wversion = $this->option('wversion') ?? WConstant::WAPP_W1;
+        $aiActive = $this->option('aiactive') ?? CollectConstatnt::AI_ACTIVE_FALSE;
 
         if( !empty($offerids) ){
             if( $wversion == WConstant::WAPP_W1 ){
-                $this->service1688Product->collectProduct($offerids, $type);
+                $this->service1688Product->collectProduct($offerids, $type, $aiActive);
             } else if( $wversion == WConstant::WAPP_W2 ){
-                $this->service1688Product->collectProductW2($offerids, $type);
+                $this->service1688Product->collectProductW2($offerids, $type, $aiActive);
             }
         }
     }

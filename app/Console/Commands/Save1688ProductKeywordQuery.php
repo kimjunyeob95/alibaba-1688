@@ -1,12 +1,13 @@
 <?php
 namespace App\Console\Commands;
 
+use App\Constants\CollectConstatnt;
 use App\Services\Service1688Product;
 use Illuminate\Console\Command;
 
 class Save1688ProductKeywordQuery extends Command
 {
-    protected $signature   = 'save_1688_product_keyword_query {--search_cls=} {--keyword=} {--sort=}';
+    protected $signature   = 'save_1688_product_keyword_query {--search_cls=} {--keyword=} {--sort=} {--aiactive=}';
     protected $description = '1688API keywordQueryAPI로 상품 수집';
 
     protected Service1688Product $service1688Product;
@@ -27,6 +28,7 @@ class Save1688ProductKeywordQuery extends Command
         $search_cls = $this->option('search_cls') ?? "";
         $keyword    = $this->option('keyword') ?? "";
         $sort       = $this->option('sort') ?? "";
+        $aiActive   = $this->option('aiactive') ?? CollectConstatnt::AI_ACTIVE_FALSE;
         
         if( $keyword != "" ){
             $params = [
@@ -35,6 +37,7 @@ class Save1688ProductKeywordQuery extends Command
                 "sort"       => $sort,
                 "page"       => 1,
                 "pageSize"   => 50,
+                "aiActive"   => $aiActive
             ];
             $this->service1688Product->saveKeywordQuery($params);
         }

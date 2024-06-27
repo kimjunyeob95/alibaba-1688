@@ -213,7 +213,7 @@
                         if( resp.data.fails.length > 0 ){
                             resp.data.fails.map(function(ele){
                                 alertMsg += `queuueId: ${ele.queueId} | error: ${ele.msg}\n`;
-                            });;
+                            });
                         }
                         alert(alertMsg);
                     },
@@ -256,7 +256,7 @@
                         if( resp.data.fails.length > 0 ){
                             resp.data.fails.map(function(ele){
                                 alertMsg += `queuueId: ${ele.queueId} | error: ${ele.msg}\n`;
-                            });;
+                            });
                         }
                         alert(alertMsg);
                     },
