@@ -50,6 +50,7 @@ class WProductController extends Controller
 
             $options = "--offerids=" . helperEscape(implode(",", $offerIds)) . " --type=" . helperEscape($log_type) . " --aiactive=" . helperEscape($aiActive);
             $command = "nohup " . $this->phpAlias . " artisan save_1688_collect_product " . $options . " > /dev/null 2>&1 &";
+            dd($command, env("WORK_DIRECTORY", "/web1/1688"));
             $process = Process::fromShellCommandline($command);
             $process->setWorkingDirectory(env("WORK_DIRECTORY", "/web1/1688"));
             $process->setTimeout(null); // 실행 시간 제한 없음
