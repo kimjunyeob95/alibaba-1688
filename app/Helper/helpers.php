@@ -787,9 +787,9 @@ if (!function_exists("saveModiProduct")) {
                     "w_type"        => $obj->w_type,
                     "is_send"       => ProductConstant::IS_SEND_N,
                     "channel"       => $channel,
-                    "msg"           => "",
                     "send_dated_at" => Null,
                 ],[
+                    "msg"        => "",
                     "updated_at" => Carbon::now()
                 ]);
             }
