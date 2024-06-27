@@ -16,11 +16,13 @@ class GenuioController extends Controller
 {
     private Request $request;
     private GenuioService $genuioService;
+    private string $phpAlias;
 
     function __construct(Request $request, GenuioService $genuioService)
     {
         $this->request       = $request;
         $this->genuioService = $genuioService;
+        $this->phpAlias      = env("PHP_ALIAS", "php80");
     }
 
     public function tokenCreate(): JsonResponse
@@ -92,7 +94,7 @@ class GenuioController extends Controller
             $offerIds = $this->request->post("offerIds");
             
             $options = "--func=imgTransRequest --offerids=" . helperEscape(implode(",", $offerIds));
-            $command = "nohup php artisan genuio_command " . $options . " > /dev/null 2>&1 &";
+            $command = "nohup " . $this->phpAlias . " artisan genuio_command " . $options . " > /dev/null 2>&1 &";
             $process = Process::fromShellCommandline($command);
             $process->setWorkingDirectory(env("WORK_DIRECTORY", "/web1/1688"));
             $process->setTimeout(null); // 실행 시간 제한 없음

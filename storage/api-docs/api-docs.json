@@ -302,6 +302,16 @@
                             "type": "string",
                             "example": "ko"
                         }
+                    },
+                    {
+                        "name": "page_size",
+                        "in": "query",
+                        "description": "페이징 사이즈 Max: 20",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 20
+                        }
                     }
                 ],
                 "responses": {
@@ -1477,7 +1487,27 @@
                         "required": true,
                         "schema": {
                             "type": "integer",
+                            "example": 215858073
+                        }
+                    },
+                    {
+                        "name": "begin_page",
+                        "in": "query",
+                        "description": "페이지 수",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
                             "example": 1
+                        }
+                    },
+                    {
+                        "name": "page_size",
+                        "in": "query",
+                        "description": "페이지 사이즈 Max 50",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 50
                         }
                     }
                 ],
@@ -1546,7 +1576,7 @@
                         "required": true,
                         "schema": {
                             "type": "integer",
-                            "example": 1
+                            "example": 215858073
                         }
                     }
                 ],

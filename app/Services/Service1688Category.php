@@ -223,11 +223,12 @@ class Service1688Category
      * @description 'W 카테고리별 인기상품 조회'
      * @param int $categoryId '카테고리 ID'
      * @param string $country '언어'
+     * @param int $pageSize '페이징 수'
      * @return array
    */
-   public function topList(int $categoryId, string $country): array
+   public function topList(int $categoryId, string $country, int $pageSize): array
    {
-      return $this->categoryAbstract->topList($categoryId, $country);
+      return $this->categoryAbstract->topList($categoryId, $country, $pageSize);
    }
 
    /**

@@ -171,9 +171,10 @@ abstract class CategoryAbstract
      * @description 'W 카테고리별 인기상품 조회'
      * @param int $categoryId '카테고리 ID'
      * @param string $country '언어'
+     * @param int $pageSize '페이징 수'
      * @return array
     */
-    public function topList(int $categoryId, string $country): array
+    public function topList(int $categoryId, string $country, int $pageSize): array
     {
         $returnMsg = $this->returnMsg;
         try {
@@ -183,7 +184,7 @@ abstract class CategoryAbstract
                 'rankQueryParams' => [
                     'rankId'   => $categoryId,
                     'rankType' => Constant1688::RANK_TYPE_COMPLEX,
-                    'limit'    => 10,
+                    'limit'    => $pageSize,
                     'language' => $country,
                 ]
             ];

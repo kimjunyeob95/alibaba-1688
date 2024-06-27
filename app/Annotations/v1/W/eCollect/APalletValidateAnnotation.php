@@ -38,7 +38,7 @@ namespace App\Annotations\v1\W\eCollect;
  *         description="팔레트ID",
  *         @OA\Schema(
  *             type="integer",
- *             example=1
+ *             example=215858073
  *         )
  *     ),
  *     @OA\Response(

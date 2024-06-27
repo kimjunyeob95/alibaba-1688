@@ -21,7 +21,8 @@ class Save1688AllProducts extends Command
     */
     public function handle()
     {
-        $killpid = $this->option('killpid', 'false');
+        $killpid  = $this->option('killpid', 'false');
+        $phpAlias = env("PHP_ALIAS", "php80");
 
         $getCategoryObjs = Category::get();
         $processes = [];
