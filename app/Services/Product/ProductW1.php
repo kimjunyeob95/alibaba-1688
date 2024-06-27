@@ -92,6 +92,7 @@ class ProductW1 extends ProductAbstract
         $weight_status   = "";
         $sortArr         = explode("|", $params["sort"]);
         $no_send_channel = "";
+        $quantity_count  = "";
 
         $cate_first     = "";
         $cate_second    = "";
@@ -111,6 +112,9 @@ class ProductW1 extends ProductAbstract
         }
         if( isset($params["cate_third"]) ){
             $cate_third = $params["cate_third"];
+        }
+        if( isset($params["quantity_count"]) ){
+            $quantity_count = $params["quantity_count"];
         }
         $firstCateObjs  = [];
         $secondCateObjs = [];
@@ -372,6 +376,14 @@ class ProductW1 extends ProductAbstract
                     $query->whereIn("product_datas.category_id", $allChildCates)
                     ->orWhere("product_datas.category_id", $cate_first);
                 });
+            }
+        }
+
+        if( !empty($quantity_count) ){
+            if( $quantity_count == ProductConstant::QUANTITY_COUNT_1 ) {
+                $prdBuilder->where("product_datas.start_quantity", 1);
+            } else if( $quantity_count == ProductConstant::QUANTITY_COUNT_2 ) {
+                $prdBuilder->where("product_datas.start_quantity", ">", 1);
             }
         }
 

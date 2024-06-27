@@ -194,4 +194,12 @@ class ProductConstant
     public const COLLECT_KR = "kr";
     public const COLLECT_EN = "en";
 
+    /** 최소 구매 수량 여부 */
+    public const QUANTITY_COUNT_1 = "1";
+    public const QUANTITY_COUNT_2 = "2";
+    public const QUANTITY_LIST = [
+        self::QUANTITY_COUNT_1 => "1개",
+        self::QUANTITY_COUNT_2 => "2개 이상",
+    ];
+
 }
