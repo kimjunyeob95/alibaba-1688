@@ -239,16 +239,19 @@ class WCategoryController extends Controller
     {
         try {
             $validator = Validator::make($this->request->all(), [
-                'country' => 'required|string',
+                'country'   => 'required|string',
+                'page_size' => 'required|int',
             ], [
-                "country" => ProductErrorMessageConstant::getNotHaveErrorMessage("COUNTRY"),
+                "country"   => ProductErrorMessageConstant::getNotHaveErrorMessage("COUNTRY"),
+                "page_size" => ProductErrorMessageConstant::getNotHaveErrorMessage("PAGESIZE"),
             ]);
             if ($validator->fails()) {
                 throw new Exception($validator->errors()->first());
             }
 
-            $country = $this->request->get("country", Constant1688::LANGUAGE_KO);
-            $result = $this->service1688Category->topList($categoryId, $country);
+            $country  = $this->request->get("country", Constant1688::LANGUAGE_KO);
+            $pageSize = $this->request->get("page_size") > 20 ? 20 : $this->request->get("page_size");
+            $result   = $this->service1688Category->topList($categoryId, $country, $pageSize);
             if( $result["isSuccess"] == true ){
                 return helpers_json_response(HttpConstant::OK, $result);
             } else {

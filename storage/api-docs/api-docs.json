@@ -302,6 +302,16 @@
                             "type": "string",
                             "example": "ko"
                         }
+                    },
+                    {
+                        "name": "page_size",
+                        "in": "query",
+                        "description": "페이징 사이즈 Max: 20",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 20
+                        }
                     }
                 ],
                 "responses": {

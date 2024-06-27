@@ -32,6 +32,16 @@ namespace App\Annotations\v1\W\b001Category;
  *             example="ko"
  *         )
  *     ),
+ *     @OA\Parameter(
+ *         name="page_size",
+ *         in="query",
+ *         required=true,
+ *         description="페이징 사이즈 Max: 20",
+ *         @OA\Schema(
+ *             type="integer",
+ *             example=20
+ *         )
+ *     ),
  *     @OA\Response(
  *         response=200,
  *         description="Successful operation",
