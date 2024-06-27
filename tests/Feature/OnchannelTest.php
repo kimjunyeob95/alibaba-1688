@@ -42,7 +42,7 @@ class OnchannelTest extends TestCase
         ->where("b.regist_success", "Y")
         ->where("b.created_at", "<=", "2024-06-27 23:59:59");
 
-        $perPage = 2000;
+        $perPage = 900;
 
         $onchannel = app(Onchannel::class);
 
