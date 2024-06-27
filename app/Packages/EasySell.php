@@ -338,11 +338,12 @@ class EasySell extends MallApiAbstract
         $now      = Carbon::now();
         $modiObjs = ProductModiData::where("is_send", ProductConstant::IS_SEND_N)
         ->where("channel", MallConstant::MALL_EASYSELL)
-        ->groupBy("offer_id", "w_type")
+        ->groupBy("offer_id")
         ->get();
         foreach ($modiObjs as $modiObj) {
+            $type = EasysellProductLog::where("offer_id", $modiObj->offer_id)->pluck("w_type")->toArray();
             $param = [
-                "type" => $modiObj->w_type
+                "type" => $type
             ];
             $result = $this->productRegist([$modiObj->offer_id], $param);
 
