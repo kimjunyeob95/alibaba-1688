@@ -698,7 +698,7 @@ class GenuioService extends TransApiAbstract
             $returnMsg = helpers_fail_message($e->getMessage());
         }
 
-        if( $getGenuioObj != null ){
+        if( $getGenuioObj != null && $returnMsg["isSuccess"] === true ){
             $bindParam = [
                 "offerId"       => $getGenuioObj->offer_id,
                 "parent_id"     => $getGenuioObj->id,
@@ -720,9 +720,9 @@ class GenuioService extends TransApiAbstract
             // 수정 상품 저장
             saveModiProduct($offerId);
 
-            GenuioQueueData::where([
-                "id" => $getGenuioObj->offer_id,
-            ])->delete();
+            // GenuioQueueData::where([
+            //     "id" => $getGenuioObj->offer_id,
+            // ])->delete();
         }
 
         return $returnMsg;
