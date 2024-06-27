@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\GenuioController;
 use App\Http\Controllers\Api\MallCategoryController;
 use App\Http\Controllers\Api\MallController;
 use App\Http\Controllers\Api\W\W2ProductController;
+use App\Http\Controllers\Api\W\WCollectController;
 use App\Http\Controllers\Api\W\WExceptController;
 use App\Http\Controllers\Api\W\WForbiddenWordController;
 use Illuminate\Support\Facades\Route;
@@ -31,14 +32,40 @@ Route::name('w.')->prefix('w')->group(function () {
             Route::get('/tree/{categoryId?}', [WCategoryController::class, 'getTreeCategory'])->name('getTreeCategory');
             /** 1688<->채널 카테고리 맵핑 조회 */
             Route::get('/mapping/{channel?}', [WCategoryController::class, 'getMappingCategory'])->name('getMappingCategory');
+            /** W 카테고리별 인기상품 조회 */
+            Route::get('/topList/{categoryId}', [WCategoryController::class, 'topList'])->name('topList');
+            /** W 카테고리별 인기검색어 조회 */
+            Route::get('/topKeyword/{categoryId}', [WCategoryController::class, 'topKeyword'])->name('topKeyword');
         });
 
-        /** 상품 조회 */
-        Route::get('/products', [WProductController::class, "apiPrdList"])->name("products");
-        /** 상품 상세 조회 */
-        Route::get('/products/{offerId}', [WProductController::class, "apiPrdDetail"])->name("productsDetail");
+        /** 수집 */
+        Route::name('collect.')->prefix('collect')->group(function () {
+            /** WApp 팔레트 수집 조회 */
+            Route::get('/pallet/{palletId}', [WCollectController::class, "palletPrdList"])->name("palletPrdList");
+            /** WApp 팔레트 수집 여부 조회 */
+            Route::get('/pallet/validation/{palletId}', [WCollectController::class, "palletValidation"])->name("palletValidation");
+        });
+
+        /** 상품 */
+        Route::name('products.')->prefix('products')->group(function () {
+            /** 상품 조회 */
+            Route::get('/', [WProductController::class, "apiPrdList"])->name("");
+            /** 상품 상세 조회 */
+            Route::get('/{offerId}', [WProductController::class, "apiPrdDetail"])->name("detail");
+            /** W 상품 키워드 조회 */
+            Route::get('/search/keywordQuery', [WProductController::class, "searchKeywordQuery"])->name("searchKeywordQuery");
+            /** W 상품 상세 조회 */
+            Route::get('/search/detail/{offerId}', [WProductController::class, "searchDetail"])->name("searchDetail");
+            /** W 상품 이미지 ID 생성 */
+            Route::post('/search/create/imageId', [WProductController::class, "searchCreateImageId"])->name("searchCreateImageId");
+            /** W 상품 이미지 조회 */
+            Route::get('/search/imageQuery', [WProductController::class, "searchImageQuery"])->name("searchImageQuery");
+            /** W 인기상품 조회 */
+            Route::get('/search/recommend', [WProductController::class, "searchRecommend"])->name("searchRecommend");
+        });
     });
 
+    /** 상품 */
     Route::name('product.')->prefix('product')->group(function () {
         /** 1688 상품ID 별 수집 */
         Route::post('/collect', [WProductController::class, 'collectProduct'])->name('collectProduct');
@@ -80,6 +107,7 @@ Route::name('w.')->prefix('w')->group(function () {
         Route::post('/notice/name/update', [WProductController::class, 'noticeNameUpdate'])->name('noticeNameUpdate');
     });
 
+    /** 카테고리 */
     Route::name('category.')->prefix('category')->group(function () {
         /** W 카테고리 조회 */
         Route::post('/', [WCategoryController::class, 'getW'])->name('getW');
@@ -166,6 +194,8 @@ Route::name('mall.')->prefix('mall')->group(function () {
     Route::get('/product/regist/log/{offerId}', [MallController::class, "productRegistLog"])->name('productRegistLog');
 
     Route::name('{channel}.')->prefix('{channel}')->group(function () {
+        /** WApp 상품 생성 후 채널 전송 */
+        Route::post('/product/wapp/regist/{offerId}', [MallController::class, "productWappRegist"])->name('productWappRegist');
         Route::post('/product/regist', [MallController::class, "productRegist"])->name('productRegist');
         Route::get('/product/log/{logId}', [MallController::class, "productLog"])->name('productLog');
 

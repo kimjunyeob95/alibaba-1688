@@ -25,8 +25,8 @@ class MethodTest extends TestCase
         dd($cleanHtml);
     }
 
-    # php artisan test --filter testImgUpload
-    public function testImgUpload()
+    # php artisan test --filter testBase64ImgUpload
+    public function testBase64ImgUpload()
     {
         $filePath = public_path('app/base64.txt');
         if (!File::exists($filePath)) {
@@ -43,6 +43,14 @@ class MethodTest extends TestCase
         $img_url_trans = env("AWS_URL") . $imgName;
 
         dd($uploadResult, $img_url_trans);
+    }
+
+    # php artisan test --filter testImgUpload
+    public function testImgUpload()
+    {
+        $img_url_origin = "https://cbu01.alicdn.com/img/ibank/2019/441/080/10439080144_1843455893.jpg";
+        $fileContent = fileContents($img_url_origin);
+        dd($fileContent);
     }
 
 }

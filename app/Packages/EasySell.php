@@ -4,6 +4,7 @@ namespace App\Packages;
 
 use App\Abstracts\MallApiAbstract;
 use App\Abstracts\OrderAbstract;
+use App\Abstracts\ProductAbstract;
 use App\Abstracts\TransApiAbstract;
 use App\Constants\CategoryConstant;
 use App\Constants\EasySellConstant;
@@ -34,10 +35,11 @@ class EasySell extends MallApiAbstract
         JwtPackage $jwtPackage,
         string $channel,
         OrderAbstract $orderW1,
-        TransApiAbstract $transApiAbstract
+        TransApiAbstract $transApiAbstract,
+        ProductAbstract $productW1
     )
     {
-        parent::__construct($jwtPackage, $channel, $orderW1, $transApiAbstract);
+        parent::__construct($jwtPackage, $channel, $orderW1, $transApiAbstract, $productW1);
     }
 
     /****************************************** 상품 start **********************************************/
@@ -336,11 +338,12 @@ class EasySell extends MallApiAbstract
         $now      = Carbon::now();
         $modiObjs = ProductModiData::where("is_send", ProductConstant::IS_SEND_N)
         ->where("channel", MallConstant::MALL_EASYSELL)
-        ->groupBy("offer_id", "w_type")
+        ->groupBy("offer_id")
         ->get();
         foreach ($modiObjs as $modiObj) {
+            $type = EasysellProductLog::where("offer_id", $modiObj->offer_id)->pluck("w_type")->toArray();
             $param = [
-                "type" => $modiObj->w_type
+                "type" => $type
             ];
             $result = $this->productRegist([$modiObj->offer_id], $param);
 

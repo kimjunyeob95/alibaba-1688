@@ -44,6 +44,9 @@ class MallErrorMessageConstant
     public const ERROR_MESSAGE_LOGID              = "logId";
     public const ERROR_MESSAGE_PRD_DESC_KR        = "상세설명 국문 번역 미완료";
     public const ERROR_MESSAGE_TRANS_STATUS       = "번역 미완료 상태";
+    public const ERROR_MESSAGE_CHANNEL_TYPE       = "channel_type";
+    public const ERROR_MESSAGE_CHANNEL_CODE       = "channel_code";
+    public const ERROR_MESSAGE_W_PRD_COLLECT      = "W 상품 수집";
 
     public static function getErrorMessageNotDefault($constantName): string
     {

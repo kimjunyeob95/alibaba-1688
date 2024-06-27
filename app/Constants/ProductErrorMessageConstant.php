@@ -56,6 +56,14 @@ class ProductErrorMessageConstant
     public const ERROR_MESSAGE_WEIGHT                                  = "weight";
     public const ERROR_MESSAGE_ATTRIBUTE_IDS                           = "attribute_ids";
     public const ERROR_MESSAGE_APPLY_ATTRIBUTE_NAME                    = "apply_attribute_name";
+    public const ERROR_MESSAGE_KEYWORD                                 = "keyword";
+    public const ERROR_MESSAGE_BEGINPAGE                               = "beginPage";
+    public const ERROR_MESSAGE_PAGESIZE                                = "pageSize";
+    public const ERROR_MESSAGE_SORT                                    = "sort";
+    public const ERROR_MESSAGE_COUNTRY                                 = "country";
+    public const ERROR_MESSAGE_IMG_FILE                                = "img_file";
+    public const ERROR_MESSAGE_IMG_ID                                  = "img_id";
+    public const ERROR_MESSAGE_PRODUCT_SEARCH_OFFERRECOMMEND           = "product.search.offerRecommend";
  
     public static function getErrorMessageNotDefault($constantName): string
     {

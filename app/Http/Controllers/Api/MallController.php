@@ -307,4 +307,32 @@ class MallController extends Controller
             return helpers_json_response(HttpConstant::BAD_REQUEST, [], $e->getMessage());
         }
     }
+
+    public function productWappRegist(string $channel, int $offerId): JsonResponse
+    {
+        try {
+            $validator = Validator::make($this->request->all(), [
+                'channel_type' => 'required|string',
+            ], [
+                'channel_type.required' => MallErrorMessageConstant::getNotHaveErrorMessage("CHANNEL_TYPE"),
+            ]);
+            if ($validator->fails()) {
+                throw new Exception($validator->errors()->first());
+            }
+
+            $channelType = $this->request->post("channel_type");
+            $params       = [
+                "channel_type" => $channelType,
+            ];
+
+            $result = $this->mallApiService->productWappRegist($offerId, $params);
+            if( $result["isSuccess"] == true ){
+                return helpers_json_response(HttpConstant::OK, $result);
+            } else {
+                return helpers_json_response(HttpConstant::BAD_REQUEST, [], $result["msg"]);
+            }
+        } catch (Exception $e) {
+            return helpers_json_response(HttpConstant::BAD_REQUEST, [], $e->getMessage());
+        }
+    }
 }

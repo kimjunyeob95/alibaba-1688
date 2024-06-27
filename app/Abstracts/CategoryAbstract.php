@@ -2,8 +2,23 @@
 
 namespace App\Abstracts;
 
+use App\Constants\CategoryErrorMessageConstant;
+use App\Constants\Constant1688;
+use App\Constants\ForbiddenWordConstant;
+use App\Models\ForbiddenWordData;
+use Exception;
+
 abstract class CategoryAbstract
 {
+    protected array $returnMsg;
+    protected string $accessToken;
+
+    public function __construct()
+    {
+        $this->returnMsg   = helpers_fail_message();
+        $this->accessToken = env("1688_ACCESS_TOKEN");
+    }
+
     /**
      * @func getAllCategory
      * @description '수집 한 카테고리를 단계별로 정리한 데이터 목록'
@@ -150,4 +165,89 @@ abstract class CategoryAbstract
      * @return array
     */
     abstract function weightRemove(array $categoryIds): array;
+
+    /**
+     * @func topList
+     * @description 'W 카테고리별 인기상품 조회'
+     * @param int $categoryId '카테고리 ID'
+     * @param string $country '언어'
+     * @return array
+    */
+    public function topList(int $categoryId, string $country): array
+    {
+        $returnMsg = $this->returnMsg;
+        try {
+            $endPoint = "param2/1/com.alibaba.fenxiao.crossborder/product.topList.query/";
+            $payload = [
+                'access_token'     => $this->accessToken,
+                'rankQueryParams' => [
+                    'rankId'   => $categoryId,
+                    'rankType' => Constant1688::RANK_TYPE_COMPLEX,
+                    'limit'    => 10,
+                    'language' => $country,
+                ]
+            ];
+            $result = curl_1688("post", $endPoint, $payload);
+            if( isset($result["data"]["result"]["result"]) ){
+                $datas = $result["data"]["result"]["result"];
+                if( isset($datas["rankProductModels"]) && count($datas["rankProductModels"]) > 0 ){
+                    $deletePrdForbiddenWords  = ForbiddenWordData::where("keyword_type", ForbiddenWordConstant::KEYWORD_DELETE)->get();
+                    $replacePrdForbiddenWords = ForbiddenWordData::where("keyword_type", ForbiddenWordConstant::KEYWORD_REPLACE)->get();
+
+                    foreach ($datas["rankProductModels"] as &$data) {
+                        $subjectTrans = $data["translateTitle"];
+                        // 삭제어
+                        $subjectForbiddenTrans = removeForbiddenText($deletePrdForbiddenWords, $subjectTrans, ForbiddenWordConstant::KEYWORD_APPLY_TITLE);
+                        // 교체어
+                        $subjectForbiddenTrans = replaceForbiddenText($replacePrdForbiddenWords, $subjectForbiddenTrans, ForbiddenWordConstant::KEYWORD_APPLY_TITLE);
+
+                        $subjectForbiddenTrans = trim($subjectForbiddenTrans);
+                        $subjectForbiddenTrans = removeDuplicateWords($subjectForbiddenTrans);
+
+                        $data["translateTitle"] = $subjectForbiddenTrans;
+                    }
+                }
+                $res = $datas;
+                $returnMsg = helpers_success_message($res);
+            }
+        } catch (Exception $e) {
+            $returnMsg = helpers_fail_message($e->getMessage());
+        }
+
+        return $returnMsg;
+    }
+
+    /**
+     * @func topKeyword
+     * @description 'W 카테고리별 인기검색어 조회'
+     * @param int $categoryId '카테고리 ID'
+     * @param string $country '언어'
+     * @return array
+    */
+    public function topKeyword(int $categoryId, string $country): array
+    {
+        $returnMsg = $this->returnMsg;
+        try {
+            $endPoint = "param2/1/com.alibaba.fenxiao.crossborder/product.search.topKeyword/";
+            $payload = [
+                'access_token'     => $this->accessToken,
+                'topSeKeywordParam' => [
+                    'sourceId'       => $categoryId,
+                    'hotKeywordType' => Constant1688::HOT_KEYWORD_TYPE,
+                    'country'        => $country,
+                ]
+            ];
+            $result = curl_1688("post", $endPoint, $payload);
+            if( !isset($result["data"]["result"]["result"]) || count($result["data"]["result"]["result"]) < 1 ){
+                throw new Exception(CategoryErrorMessageConstant::getFitErrorMessage("SEARCH_TOPKEYWORD"));
+            }
+
+            $datas = $result["data"]["result"]["result"];
+            $returnMsg = helpers_success_message($datas);
+        } catch (Exception $e) {
+            $returnMsg = helpers_fail_message($e->getMessage());
+        }
+
+        return $returnMsg;
+    }
 }

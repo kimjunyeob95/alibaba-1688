@@ -2,11 +2,18 @@
 
 namespace Tests\Feature;
 
+use App\Constants\MallConstant;
+use App\Constants\OnchannelConstant;
 use App\Constants\ProductConstant;
 use App\Models\CategoryMapping;
+use App\Models\OcProductImageData;
+use App\Models\OnchannelProductLog;
 use App\Models\OnchCategoryExcelDataCopy2;
+use App\Models\OnchProductData;
+use App\Models\ProductCollectDetailLog;
+use App\Models\ProductCollectLog;
 use App\Models\ProductData;
-use App\Models\WCategory;
+use App\Models\ProductImageData;
 use App\Packages\Onchannel;
 use Exception;
 use Tests\TestCase;
@@ -26,27 +33,23 @@ class OnchannelTest extends TestCase
         dd("끝");
     }
 
-    # 온채널 관리자 상품 등록
+    # 온채널 등록된 상품 일괄 수정
     # php artisan test --filter testOnchProductModi
     public function testOnchProductModi()
     {
-        $token    = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJtZW1iZXJfaWQiOiJvbmNoMTY4OCIsIm1tYnJfdHlwZSI6Im9uY2htYW4iLCJ0aW1lc3RhbXAiOjQ4NjkxODE5ODJ9.AijywuhAP6ZkxySsZWOqEU-ID8XoesePcm8lSB1w1rw";
-        $endPoint = "https://task.onch3.co.kr/api/w/product/edit";
-
-        $getPrdObjs = ProductData::with([
-            "images",
-            "options",
-        ])
-        ->select(["product_datas.*", "b.prd_code"])
+        $builder = ProductData::select(["product_datas.offer_id", "b.send_type"])
         ->join("onchannel_product_logs as b","product_datas.offer_id", "=", "b.offer_id")
-        ->where("b.regist_success", "Y");
+        ->where("b.regist_success", "Y")
+        ->where("b.created_at", "<=", "2024-06-27 23:59:59");
 
-        $perPage = 900;
+        $perPage = 2000;
 
-        $totalCount = $getPrdObjs->count();
+        $onchannel = app(Onchannel::class);
+
+        $totalCount = $builder->count();
         $totalPages = ceil($totalCount / $perPage);
 
-        debug_log("실행", "onchannel", "modiOnchannel");
+        debug_log("실행", "onchannel/modiAllProduct", "modiAllProduct");
 
         for ($page = 1; $page <= $totalPages; $page++) {
             Paginator::currentPageResolver(function () use ($page) {
@@ -54,71 +57,19 @@ class OnchannelTest extends TestCase
             });
         
             // paginate 메소드는 새 Paginator 인스턴스를 반환합니다.
-            $pagedData = $getPrdObjs->paginate($perPage);
+            $pagedData = $builder->paginate($perPage);
             $results   = $pagedData->items();
 
-            $msg = "(" . $page . "/" . $totalPages. ") prdCnt: " . count($results) . " 실행시작";
-            debug_log($msg, "onchannel", "modiOnchannel");
-
-            foreach ($results as $prdObj) {
-                try {
-                    $offer_id = $prdObj->offer_id;
-
-                    $payload = [
-                        "prd_code"  => $prdObj->prd_code,
-                        "min_count" => $prdObj->start_quantity,
-                    ];
-        
-                    $images = [];
-                    foreach ($prdObj->images as $img) {
-                        if( $img->is_except == "Y" && $img->lang != "kr") continue;
-                        $images[] = [
-                            "img_type" => $img->img_type,
-                            "img_url"  => $img->img_url_origin,
-                        ];
-                    }
-
-                    $payload["images"] = $images;
-
-                    $options = [];
-                    foreach ($prdObj->options as $option) {
-                        $options[] = [
-                            "op_code"   => $option->id,
-                            "option_nm" => $option->option_name_kr,
-                        ];
-                    }
-                    $payload["options"] = $options;
-
-                    $header = array(
-                        'Content-type: application/json',
-                        'Authorization: Bearer '.$token,
-                    );
-
-                    $result = helpers_curl("POST", $endPoint, $header, $payload);
-                    
-                    if( !isset($result["isSuccess"]) || $result["isSuccess"] != true ){
-                        $res = [
-                            "offer_id" => $offer_id,
-                            "prd_code" => $prdObj->prd_code,
-                            "result"   => $result
-                        ];
-                        debug_log(json_encode($res, JSON_UNESCAPED_UNICODE), "onchannel", "modiOnchannel");
-                    }
-                } catch (Exception $e) {
-                    $res = [
-                        "offer_id" => $offer_id,
-                        "prd_code" => $prdObj->prd_code,
-                        "error"    => $e->getMessage()
-                    ];
-                    debug_log(json_encode($res, JSON_UNESCAPED_UNICODE), "onchannel", "modiOnchannel");
-                }
-
-                sleep(1);
+            foreach ($results as $obj) {
+                $onchannel->productRegist([$obj->offer_id], ["sendTypeList" => [$obj->send_type]]);
             }
+
+            $msg = "(" . $page . "/" . $totalPages. ") prdCnt: " . count($results) . " 완료";
+            debug_log($msg, "onchannel/modiAllProduct", "modiAllProduct");
         }
         
 
-        debug_log("종료", "onchannel", "modiOnchannel");
+        debug_log("종료", "onchannel/modiAllProduct", "modiAllProduct");
     }
 
     # 온채널 이미지 콜백
@@ -167,5 +118,170 @@ class OnchannelTest extends TestCase
             }
         }
         dd("끝");
+    }
+
+    # 온채널 상품 검색
+    # php artisan test --filter testOnchPrdSearch
+    public function testOnchPrdSearch()
+    {
+        debug_log("실행", "onchannel/prdSearch", "prdSearch");
+
+        $channel = OnchannelConstant::PRD_CHANNEL;
+        // $channel = OnchannelConstant::PRD_CHANNEL_PRIVATE;
+
+        $builder = OnchannelProductLog::select(["offer_id"])
+        ->where([
+            "send_type"      => $channel,
+            "regist_success" => MallConstant::REGIST_SUCCESS
+        ]);
+
+        $perPage = 2000;
+
+        $totalCount = $builder->count();
+        $totalPages = ceil($totalCount / $perPage);
+
+
+        for ($page = 1; $page <= $totalPages; $page++) {
+            Paginator::currentPageResolver(function () use ($page) {
+                return $page;
+            });
+        
+            // paginate 메소드는 새 Paginator 인스턴스를 반환합니다.
+            $pagedData = $builder->paginate($perPage);
+            $results   = $pagedData->items();
+
+            foreach ($results as $obj) {
+                $ocObj = OnchProductData::where([
+                    "prd_channel" => $channel,
+                    "product_id"  => OnchannelConstant::ONCH1688,
+                    "jejo_code"   => $obj->offer_id
+                ])->first();
+
+                if( $ocObj == null ){
+                    $log = "empty " . $obj->offer_id;
+                    debug_log($log, "onchannel/prdSearch", "prdSearch");
+                }
+            }
+
+            $log = "완료 ({$page}/{$totalPages})";
+            debug_log($log, "onchannel/prdSearch", "prdSearch");
+        };
+
+        debug_log("종료", "onchannel/prdSearch", "prdSearch");
+    }
+
+    # 온채널 상품 삭제
+    # php artisan test --filter testOnchPrdDelete
+    public function testOnchPrdDelete()
+    {
+        debug_log("실행", "onchannel/prdDelete", "prdDelete");
+
+        $channel = OnchannelConstant::PRD_CHANNEL;
+        // $channel = OnchannelConstant::PRD_CHANNEL_PRIVATE;
+
+        $objs = OnchProductData::select("jejo_code")->where([
+            "prd_channel" => $channel,
+            "product_id"  => OnchannelConstant::ONCH1688
+        ])->groupBy('jejo_code')
+        ->havingRaw('COUNT(*) > 1')
+        ->get();
+
+        foreach ($objs as $obj) {
+            $wObj = OnchannelProductLog::where([
+                "offer_id"       => $obj->jejo_code,
+                "send_type"      => $channel,
+                "regist_success" => MallConstant::REGIST_SUCCESS
+            ])->first();
+
+            if( $wObj != null ){
+                OnchProductData::where("jejo_code", $obj->jejo_code)
+                ->where("prd_channel", $channel)
+                ->where("prd_code", "!=", $wObj->prd_code)
+                ->delete();
+            } else {
+                OnchProductData::where("jejo_code", $obj->jejo_code)
+                ->where("prd_channel", $channel)
+                ->delete();
+            }
+        }
+
+        debug_log("종료", "onchannel/prdDelete", "prdDelete");
+    }
+
+    # 온채널 이미지 원복
+    # php artisan test --filter testOnchImgReset
+    public function testOnchImgReset()
+    {
+        debug_log("실행", "onchannel/imgRest", "imgRest");
+
+        $objs = ProductCollectLog::where("created_at", ">=", "2024-06-24 00:00:00")
+        ->where("created_at", "<=", "2024-06-24 23:59:59")->get();
+
+        foreach ($objs as $obj) {
+            $prdObjs = ProductCollectDetailLog::where("log_id", $obj->id)->get();
+            foreach ($prdObjs as $prdObj) {
+                $offerId = $prdObj->offer_id;
+
+                $krMainObj = ProductImageData::where([
+                    "offer_id" => $offerId,
+                    "lang"     => "kr",
+                    "img_type" => "main",
+                ])->first();
+                $krSubObj = ProductImageData::where([
+                    "offer_id" => $offerId,
+                    "lang"     => "kr",
+                    "img_type" => "sub",
+                ])->orderBy("id", "asc")->first();
+
+                if( $krMainObj != null && $krSubObj != null ){
+                    ProductImageData::where("id", $krMainObj->id)->update([
+                        "img_type" => "sub"
+                    ]);
+                    ProductImageData::where("id", $krSubObj->id)->update([
+                        "img_type" => "main"
+                    ]);
+
+                    OcProductImageData::where([
+                        "offer_id" => $offerId,
+                        "img_type" => "main"
+                    ])->update([
+                        "img_type" => "sub"
+                    ]);
+    
+                    OcProductImageData::where([
+                        "offer_id"       => $offerId,
+                        "img_type"       => "sub",
+                        "img_url_origin" => $krSubObj->img_url_origin
+                    ])->update([
+                        "img_type" => "main"
+                    ]);
+                }
+
+                $enMainObj = ProductImageData::where([
+                    "offer_id" => $offerId,
+                    "lang"     => "en",
+                    "img_type" => "main",
+                ])->first();
+
+                $enSubObj = ProductImageData::where([
+                    "offer_id" => $offerId,
+                    "lang"     => "en",
+                    "img_type" => "sub",
+                ])->orderBy("id", "asc")->first();
+
+                if( $enMainObj != null && $enSubObj != null ){    
+                    ProductImageData::where("id", $enMainObj->id)->update([
+                        "img_type" => "sub"
+                    ]);
+                    ProductImageData::where("id", $enSubObj->id)->update([
+                        "img_type" => "main"
+                    ]);
+                }
+
+                
+            }
+        }
+
+        debug_log("종료", "onchannel/imgRest", "imgRest");
     }
 }

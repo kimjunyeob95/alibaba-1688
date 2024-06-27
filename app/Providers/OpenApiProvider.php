@@ -10,8 +10,11 @@ use App\Packages\EasySell;
 use App\Packages\JwtPackage;
 use App\Packages\Onchannel;
 use App\Packages\S3;
+use App\Services\Collect\CollectW1;
+use App\Services\CollectService;
 use App\Services\GenuioService;
 use App\Services\Order\OrderW1;
+use App\Services\Product\ProductW1;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Route;
 
@@ -22,6 +25,18 @@ class OpenApiProvider extends ServiceProvider
      */
     public function register(): void
     {
+        /**
+         * 수집 의존성 의존성 START
+         * 
+        */
+        $this->app->bind(CollectService::class, function ($app) {
+            return new CollectService($app->make(CollectW1::class));
+        });
+        /**
+         * 수집 의존성 의존성 END
+         * 
+        */
+
         /**
          * Genuio API 의존성 설정
          * start
@@ -54,11 +69,11 @@ class OpenApiProvider extends ServiceProvider
 
         /** EasySell 싱글톤으로 등록 */
         $this->app->singleton(EasySell::class, function () {
-            return new EasySell(app(JwtPackage::class), MallConstant::MALL_EASYSELL, app(OrderW1::class), app(GenuioService::class));
+            return new EasySell(app(JwtPackage::class), MallConstant::MALL_EASYSELL, app(OrderW1::class), app(GenuioService::class), app(ProductW1::class));
         });
         /** Onchannel 싱글톤으로 등록 */
         $this->app->singleton(Onchannel::class, function () {
-            return new Onchannel(app(JwtPackage::class), MallConstant::MALL_ONCHANNEL, app(OrderW1::class), app(GenuioService::class));
+            return new Onchannel(app(JwtPackage::class), MallConstant::MALL_ONCHANNEL, app(OrderW1::class), app(GenuioService::class), app(ProductW1::class));
         });
 
 

@@ -15,7 +15,6 @@ use App\Constants\ImageConstant;
 use App\Constants\ImageErrorMessageConstant;
 use App\Constants\InspectConstant;
 use App\Constants\LogConstant;
-use App\Constants\MallConstant;
 use App\Constants\OnchannelConstant;
 use App\Constants\OptionConstants;
 use App\Constants\ProductConstant;
@@ -30,6 +29,7 @@ use App\Models\GenuioImageData;
 use App\Models\GenuioQueueData;
 use App\Models\ProductCollectDetailLog;
 use App\Models\ProductCollectLog;
+use App\Models\ProductCollectPalletData;
 use App\Models\ProductCollectTypeData;
 use App\Models\ProductData;
 use App\Models\ProductExceptData;
@@ -61,7 +61,6 @@ use ValueError;
 
 class ProductW1 extends ProductAbstract
 {
-    private string $accessToken;
     private TransApiAbstract $transApiAbstract;
     private UploadAbstract $uploadAbstract;
     private ProductAbstract $productW2;
@@ -73,7 +72,6 @@ class ProductW1 extends ProductAbstract
     )
     {
         parent::__construct();
-        $this->accessToken      = env("1688_ACCESS_TOKEN");
         $this->transApiAbstract = $transApiAbstract;
         $this->uploadAbstract   = $uploadAbstract;
         $this->productW2        = $productAbstract;
@@ -1378,9 +1376,9 @@ class ProductW1 extends ProductAbstract
         $product1688ImageDtoList = [];
         // 1-1. 국문 이미지
         $mainImgKey = 0;
-        if( count($detailProduct["productImage"]["images"]) > 4 ){
-            $mainImgKey = 4;
-        }
+        // if( count($detailProduct["productImage"]["images"]) > 4 ){
+        //     $mainImgKey = 4;
+        // }
         foreach ($detailProduct["productImage"]["images"] as $imgKey => $prdImage) {
             if( $imgKey == $mainImgKey ) {
                 $imgType = ImageConstant::IMAGE_TYPE_MAIN;
@@ -1495,9 +1493,9 @@ class ProductW1 extends ProductAbstract
 
         // 1-1. 영문 이미지
         $mainImgKey = 0;
-        if( count($detailEnProduct["productImage"]["images"]) > 4 ){
-            $mainImgKey = 4;
-        }
+        // if( count($detailEnProduct["productImage"]["images"]) > 4 ){
+        //     $mainImgKey = 4;
+        // }
         foreach ($detailEnProduct["productImage"]["images"] as $imgKey => $prdImage) {
             if( $imgKey == $mainImgKey ) {
                 $imgType = ImageConstant::IMAGE_TYPE_MAIN;
@@ -1735,9 +1733,9 @@ class ProductW1 extends ProductAbstract
         $subjectTrans = $detailProduct["subjectTrans"];
 
         // 3-1. 삭제어
-        $subjectForbiddenTrans = $this->removeForbiddenText($deletePrdForbiddenWords, $subjectTrans, ForbiddenWordConstant::KEYWORD_APPLY_TITLE);
+        $subjectForbiddenTrans = removeForbiddenText($deletePrdForbiddenWords, $subjectTrans, ForbiddenWordConstant::KEYWORD_APPLY_TITLE);
         // 3-2. 교체어
-        $subjectForbiddenTrans = $this->replaceForbiddenText($replacePrdForbiddenWords, $subjectForbiddenTrans, ForbiddenWordConstant::KEYWORD_APPLY_TITLE);
+        $subjectForbiddenTrans = replaceForbiddenText($replacePrdForbiddenWords, $subjectForbiddenTrans, ForbiddenWordConstant::KEYWORD_APPLY_TITLE);
 
         $subjectForbiddenTrans = trim($subjectForbiddenTrans);
         $subjectForbiddenTrans = removeDuplicateWords($subjectForbiddenTrans);
@@ -1790,7 +1788,7 @@ class ProductW1 extends ProductAbstract
         $trade_medal_level           = 0.0;
         $composite_service_score     = 0.0;
         $logistics_experience_score  = 0.0;
-        $dispute_complaint_score      = 0.0;
+        $dispute_complaint_score     = 0.0;
         $offer_experience_score      = 0.0;
         $consulting_experience_score = 0.0;
         $trade_score                 = 0.0;
@@ -1913,9 +1911,9 @@ class ProductW1 extends ProductAbstract
             }
 
             // 고시명 삭제어
-            $nameTrans = $this->removeForbiddenText($deleteNoticeForbiddenWords, $attributeNameTrans, ForbiddenWordConstant::KEYWORD_APPLY_ATTR_NAME);
+            $nameTrans = removeForbiddenText($deleteNoticeForbiddenWords, $attributeNameTrans, ForbiddenWordConstant::KEYWORD_APPLY_ATTR_NAME);
             // 고시명 교체어
-            $nameTrans = $this->replaceForbiddenText($replaceNoticeForbiddenWords, $nameTrans, ForbiddenWordConstant::KEYWORD_APPLY_ATTR_NAME);
+            $nameTrans = replaceForbiddenText($replaceNoticeForbiddenWords, $nameTrans, ForbiddenWordConstant::KEYWORD_APPLY_ATTR_NAME);
             $nameTrans = trim($nameTrans);
             if( $attributeNameTrans != $nameTrans ){ 
                 ProductForbiddenData::updateOrCreate(
@@ -1931,9 +1929,9 @@ class ProductW1 extends ProductAbstract
             }
 
             // 고시값 삭제어
-            $valueTrans = $this->removeForbiddenText($deleteNoticeForbiddenWords, $attrValueTrans, ForbiddenWordConstant::KEYWORD_APPLY_ATTR_VALUE);
+            $valueTrans = removeForbiddenText($deleteNoticeForbiddenWords, $attrValueTrans, ForbiddenWordConstant::KEYWORD_APPLY_ATTR_VALUE);
             // 고시값 교체어
-            $valueTrans = $this->replaceForbiddenText($replaceNoticeForbiddenWords, $valueTrans, ForbiddenWordConstant::KEYWORD_APPLY_ATTR_VALUE);
+            $valueTrans = replaceForbiddenText($replaceNoticeForbiddenWords, $valueTrans, ForbiddenWordConstant::KEYWORD_APPLY_ATTR_VALUE);
             $valueTrans = trim($valueTrans);
             if( $attrValueTrans != $valueTrans ){ 
                 ProductForbiddenData::updateOrCreate(
@@ -2104,7 +2102,7 @@ class ProductW1 extends ProductAbstract
                     "width"             => (float) sprintf("%.2f", $width),
                     "length"            => (float) sprintf("%.2f", $length),
                     "height"            => (float) sprintf("%.2f", $height),
-                    "weight"            => (float) sprintf("%.2f", $weight),
+                    "weight"            => $weight,
                 ]);
                 $product1688OptionDtoList[] = $product1688OptionDto;
             }
@@ -2224,7 +2222,7 @@ class ProductW1 extends ProductAbstract
             }
 
             /** 중량 여부로 판매 상태 업데이트 */
-            upPrdStatusByWeight($offerId);
+            upWeightStatus($offerId);
 
             $returnMsg = helpers_success_message();
         } catch (Exception $e) {
@@ -2607,14 +2605,26 @@ class ProductW1 extends ProductAbstract
                             if( $saveResult["isSuccess"] != true ){
                                 throw new Exception($saveResult["msg"]);
                             }
-                        }
 
-                        ProductCollectDetailLog::create([
-                            "log_id"     => $logId,
-                            "offer_id"   => $offerId,
-                            "is_collect" => LogConstant::COLLECT_DETAIL_Y,
-                            "msg"        => ""
-                        ]);
+                            ProductCollectDetailLog::create([
+                                "log_id"     => $logId,
+                                "offer_id"   => $offerId,
+                                "is_collect" => LogConstant::COLLECT_DETAIL_Y,
+                                "msg"        => ""
+                            ]);
+
+                            if( isset($payload["offerQueryParam"]["productCollectionId"]) && $payload["offerQueryParam"]["productCollectionId"] ){
+                                ProductCollectPalletData::updateOrCreate(
+                                    [
+                                        "pallet_id" => $payload["offerQueryParam"]["productCollectionId"],
+                                        "offer_id"  => $offerId
+                                    ],
+                                    [
+                                        "updated_at" => Carbon::now()
+                                    ]
+                                );
+                            }
+                        }
                     } catch (Exception $de) {
                         $msg = $de->getMessage() . " | page: {$page} | offerId: {$offerId}";
                         debug_log($msg, "collectProduct/keywordQueryAll", "keywordQueryAll", LogLevel::ERROR);

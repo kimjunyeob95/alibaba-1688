@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\W;
 
+use App\Constants\Constant1688;
 use App\Constants\HttpConstant;
 use App\Constants\ImageConstant;
 use App\Constants\ImageErrorMessageConstant;
@@ -611,45 +612,219 @@ class WProductController extends Controller
 
     public function weightSave(): JsonResponse
     {
-        $validator = Validator::make($this->request->all(), [
-            'offerIds' => 'required|array',
-            'weight'   => 'required|int',
-        ], [
-            'offerIds.required' => ProductErrorMessageConstant::getNotHaveErrorMessage("OFFER_IDS"),
-            'weight.required'   => ProductErrorMessageConstant::getNotHaveErrorMessage("WEIGHT"),
-        ]);
-        if ($validator->fails()) {
-            throw new Exception($validator->errors()->first());
-        }
+        try {
+            $validator = Validator::make($this->request->all(), [
+                'offerIds' => 'required|array',
+                'weight'   => 'required|int',
+            ], [
+                'offerIds.required' => ProductErrorMessageConstant::getNotHaveErrorMessage("OFFER_IDS"),
+                'weight.required'   => ProductErrorMessageConstant::getNotHaveErrorMessage("WEIGHT"),
+            ]);
+            if ($validator->fails()) {
+                throw new Exception($validator->errors()->first());
+            }
 
-        $offerIds = $this->request->post("offerIds");
-        $weight   = $this->request->post("weight");
-        $result   = $this->service1688Product->weightSave($offerIds, $weight);
-        if( $result["isSuccess"] == true ){
-            return helpers_json_response(HttpConstant::OK, $result);
-        } else {
-            return helpers_json_response(HttpConstant::BAD_REQUEST, [], $result["msg"]);
+            $offerIds = $this->request->post("offerIds");
+            $weight   = $this->request->post("weight");
+            $result   = $this->service1688Product->weightSave($offerIds, $weight);
+            if( $result["isSuccess"] == true ){
+                return helpers_json_response(HttpConstant::OK, $result);
+            } else {
+                return helpers_json_response(HttpConstant::BAD_REQUEST, [], $result["msg"]);
+            }
+        } catch (Exception $e) {
+            return helpers_json_response(HttpConstant::BAD_REQUEST, [], $e->getMessage());
         }
     }
 
     public function noticeNameUpdate(): JsonResponse
     {
-        $validator = Validator::make($this->request->all(), [
-            'attribute_ids' => 'required|array',
-        ], [
-            'attribute_ids.required' => ProductErrorMessageConstant::getNotHaveErrorMessage("ATTRIBUTE_IDS"),
-        ]);
-        if ($validator->fails()) {
-            throw new Exception($validator->errors()->first());
-        }
+        try {
+            $validator = Validator::make($this->request->all(), [
+                'attribute_ids' => 'required|array',
+            ], [
+                'attribute_ids.required' => ProductErrorMessageConstant::getNotHaveErrorMessage("ATTRIBUTE_IDS"),
+            ]);
+            if ($validator->fails()) {
+                throw new Exception($validator->errors()->first());
+            }
 
-        $attributeIds       = $this->request->post("attribute_ids");
-        $applyAttributeName = $this->request->post("apply_attribute_name", "") ?? "";
-        $result             = $this->service1688Product->noticeNameUpdate($attributeIds, $applyAttributeName);
-        if( $result["isSuccess"] == true ){
-            return helpers_json_response(HttpConstant::OK, $result);
-        } else {
-            return helpers_json_response(HttpConstant::BAD_REQUEST, [], $result["msg"]);
+            $attributeIds       = $this->request->post("attribute_ids");
+            $applyAttributeName = $this->request->post("apply_attribute_name", "") ?? "";
+            $result             = $this->service1688Product->noticeNameUpdate($attributeIds, $applyAttributeName);
+            if( $result["isSuccess"] == true ){
+                return helpers_json_response(HttpConstant::OK, $result);
+            } else {
+                return helpers_json_response(HttpConstant::BAD_REQUEST, [], $result["msg"]);
+            }
+        } catch (Exception $e) {
+            return helpers_json_response(HttpConstant::BAD_REQUEST, [], $e->getMessage());
+        }
+    }
+
+    public function searchKeywordQuery(): JsonResponse
+    {
+        try {
+            $validator = Validator::make($this->request->all(), [
+                'keyword'    => 'required|string',
+                'begin_page' => 'required|string',
+                'page_size'  => 'required|string',
+                'sort'       => 'required|string',
+                'country'    => 'required|string',
+            ], [
+                "keyword"    => ProductErrorMessageConstant::getNotHaveErrorMessage("KEYWORD"),
+                "begin_page" => ProductErrorMessageConstant::getNotHaveErrorMessage("BEGINPAGE"),
+                "page_size"  => ProductErrorMessageConstant::getNotHaveErrorMessage("PAGESIZE"),
+                "sort"       => ProductErrorMessageConstant::getNotHaveErrorMessage("SORT"),
+                "country"    => ProductErrorMessageConstant::getNotHaveErrorMessage("COUNTRY"),
+            ]);
+            if ($validator->fails()) {
+                throw new Exception($validator->errors()->first());
+            }
+    
+            $params = [
+                "keyword"    => $this->request->get("keyword"),
+                "begin_page" => $this->request->get("begin_page"),
+                "page_size"  => $this->request->get("page_size") > 50 ? 50 : $this->request->get("page_size"),
+                "sort"       => $this->request->get("sort"),
+                "country"    => $this->request->get("country"),
+            ];
+    
+            $result = $this->service1688Product->searchKeywordQuery($params);
+            if( $result["isSuccess"] == true ){
+                return helpers_json_response(HttpConstant::OK, $result);
+            } else {
+                return helpers_json_response(HttpConstant::BAD_REQUEST, [], $result["msg"]);
+            }
+        } catch (Exception $e) {
+            return helpers_json_response(HttpConstant::BAD_REQUEST, [], $e->getMessage());
+        }
+    }
+
+    public function searchDetail(int $offerId): JsonResponse
+    {
+        try {
+            $validator = Validator::make($this->request->all(), [
+                'country' => 'required|string',
+            ], [
+                "country" => ProductErrorMessageConstant::getNotHaveErrorMessage("COUNTRY"),
+            ]);
+            if ($validator->fails()) {
+                throw new Exception($validator->errors()->first());
+            }
+
+            $country = $this->request->get("country", Constant1688::LANGUAGE_KO);
+            $result = $this->service1688Product->searchDetail($offerId, $country);
+            if( $result["isSuccess"] == true ){
+                return helpers_json_response(HttpConstant::OK, $result);
+            } else {
+                return helpers_json_response(HttpConstant::BAD_REQUEST, [], $result["msg"]);
+            }
+        } catch (Exception $e) {
+            return helpers_json_response(HttpConstant::BAD_REQUEST, [], $e->getMessage());
+        }
+    }
+
+    public function searchCreateImageId(): JsonResponse
+    {
+        try {
+            $validator = Validator::make($this->request->all(), [
+                'img_file' => 'required|file',
+            ], [
+                "img_file" => ProductErrorMessageConstant::getNotHaveErrorMessage("IMG_FILE"),
+            ]);
+            if ($validator->fails()) {
+                throw new Exception($validator->errors()->first());
+            }
+
+            $imgFile = $this->request->file('img_file');
+            if (strpos($imgFile->getClientMimeType(), 'image') !== 0) {
+                throw new Exception(ImageErrorMessageConstant::getFitErrorMessage("TYPE"));
+            }
+            if ($imgFile->getSize() > 300 * 1024) {
+                throw new Exception(ImageErrorMessageConstant::getFitErrorMessage("SIZE"));
+            }
+
+            $result = $this->service1688Product->searchCreateImageId($imgFile);
+            if( $result["isSuccess"] == true ){
+                return helpers_json_response(HttpConstant::OK, $result);
+            } else {
+                return helpers_json_response(HttpConstant::BAD_REQUEST, [], $result["msg"]);
+            }
+        } catch (Exception $e) {
+            return helpers_json_response(HttpConstant::BAD_REQUEST, [], $e->getMessage());
+        }
+    }
+
+    public function searchImageQuery(): JsonResponse
+    {
+        try {
+            $validator = Validator::make($this->request->all(), [
+                'img_id'     => 'required|int',
+                'begin_page' => 'required|int',
+                'page_size'  => 'required|int',
+                'sort'       => 'required|string',
+                'country'    => 'required|string',
+            ], [
+                "img_id"     => ProductErrorMessageConstant::getNotHaveErrorMessage("IMG_ID"),
+                "begin_page" => ProductErrorMessageConstant::getNotHaveErrorMessage("BEGINPAGE"),
+                "page_size"  => ProductErrorMessageConstant::getNotHaveErrorMessage("PAGESIZE"),
+                "sort"       => ProductErrorMessageConstant::getNotHaveErrorMessage("SORT"),
+                "country"    => ProductErrorMessageConstant::getNotHaveErrorMessage("COUNTRY"),
+            ]);
+            if ($validator->fails()) {
+                throw new Exception($validator->errors()->first());
+            }
+            
+            $params = [
+                "img_id"     => $this->request->get("img_id"),
+                "begin_page" => $this->request->get("begin_page"),
+                "page_size"  => $this->request->get("page_size") > 50 ? 50 : $this->request->get("page_size"),
+                "sort"       => $this->request->get("sort"),
+                "country"    => $this->request->get("country"),
+            ];
+
+            $result = $this->service1688Product->searchImageQuery($params);
+            if( $result["isSuccess"] == true ){
+                return helpers_json_response(HttpConstant::OK, $result);
+            } else {
+                return helpers_json_response(HttpConstant::BAD_REQUEST, [], $result["msg"]);
+            }
+        } catch (Exception $e) {
+            return helpers_json_response(HttpConstant::BAD_REQUEST, [], $e->getMessage());
+        }
+    }
+
+    public function searchRecommend(): JsonResponse
+    {
+        try {
+            $validator = Validator::make($this->request->all(), [
+                'begin_page' => 'required|int',
+                'page_size'  => 'required|int',
+                'country'    => 'required|string',
+            ], [
+                "begin_page" => ProductErrorMessageConstant::getNotHaveErrorMessage("BEGINPAGE"),
+                "page_size"  => ProductErrorMessageConstant::getNotHaveErrorMessage("PAGESIZE"),
+                "country"    => ProductErrorMessageConstant::getNotHaveErrorMessage("COUNTRY"),
+            ]);
+            if ($validator->fails()) {
+                throw new Exception($validator->errors()->first());
+            }
+            
+            $params = [
+                "begin_page" => $this->request->get("begin_page"),
+                "page_size"  => $this->request->get("page_size") > 20 ? 20 : $this->request->get("page_size"),
+                "country"    => $this->request->get("country"),
+            ];
+
+            $result = $this->service1688Product->searchRecommend($params);
+            if( $result["isSuccess"] == true ){
+                return helpers_json_response(HttpConstant::OK, $result);
+            } else {
+                return helpers_json_response(HttpConstant::BAD_REQUEST, [], $result["msg"]);
+            }
+        } catch (Exception $e) {
+            return helpers_json_response(HttpConstant::BAD_REQUEST, [], $e->getMessage());
         }
     }
 }

@@ -57,14 +57,12 @@ use ValueError;
 
 class ProductW2 extends ProductAbstract
 {
-    private string $accessToken;
     private TransApiAbstract $transApiAbstract;
     private UploadAbstract $uploadAbstract;
 
     public function __construct(TransApiAbstract $transApiAbstract, UploadAbstract $uploadAbstract)
     {
         parent::__construct();
-        $this->accessToken      = env("1688_ACCESS_TOKEN");
         $this->transApiAbstract = $transApiAbstract;
         $this->uploadAbstract   = $uploadAbstract;
     }
@@ -1101,9 +1099,9 @@ class ProductW2 extends ProductAbstract
         $product1688ImageDtoList = [];
         // 1-1. 국문 이미지
         $mainImgKey = 0;
-        if( count($detailProduct["imageUrlList"]) > 4 ){
-            $mainImgKey = 4;
-        }
+        // if( count($detailProduct["imageUrlList"]) > 4 ){
+        //     $mainImgKey = 4;
+        // }
         foreach ($detailProduct["imageUrlList"] as $imgKey => $prdImage) {
             if( $imgKey == $mainImgKey ) {
                 $imgType = ImageConstant::IMAGE_TYPE_MAIN;
@@ -1218,9 +1216,9 @@ class ProductW2 extends ProductAbstract
 
         // 1-2. 영문 이미지
         $mainImgKey = 0;
-        if( count($detailEnProduct["imageUrlList"]) > 4 ){
-            $mainImgKey = 4;
-        }
+        // if( count($detailEnProduct["imageUrlList"]) > 4 ){
+        //     $mainImgKey = 4;
+        // }
         foreach ($detailEnProduct["imageUrlList"] as $imgKey => $prdImage) {
             if( $imgKey == $mainImgKey ) {
                 $imgType = ImageConstant::IMAGE_TYPE_MAIN;
@@ -1464,9 +1462,9 @@ class ProductW2 extends ProductAbstract
         $subjectTrans = $detailProduct["translateTitle"];
 
         // 3-1. 삭제어
-        $subjectForbiddenTrans = $this->removeForbiddenText($deletePrdForbiddenWords, $subjectTrans, ForbiddenWordConstant::KEYWORD_APPLY_TITLE);
+        $subjectForbiddenTrans = removeForbiddenText($deletePrdForbiddenWords, $subjectTrans, ForbiddenWordConstant::KEYWORD_APPLY_TITLE);
         // 3-2. 교체어
-        $subjectForbiddenTrans = $this->replaceForbiddenText($replacePrdForbiddenWords, $subjectForbiddenTrans, ForbiddenWordConstant::KEYWORD_APPLY_TITLE);
+        $subjectForbiddenTrans = replaceForbiddenText($replacePrdForbiddenWords, $subjectForbiddenTrans, ForbiddenWordConstant::KEYWORD_APPLY_TITLE);
 
         $subjectForbiddenTrans = trim($subjectForbiddenTrans);
         $subjectForbiddenTrans = removeDuplicateWords($subjectForbiddenTrans);
@@ -1635,9 +1633,9 @@ class ProductW2 extends ProductAbstract
             }
 
             // 고시명 삭제어
-            $nameTrans = $this->removeForbiddenText($deleteNoticeForbiddenWords, $attributeNameTrans, ForbiddenWordConstant::KEYWORD_APPLY_ATTR_NAME);
+            $nameTrans = removeForbiddenText($deleteNoticeForbiddenWords, $attributeNameTrans, ForbiddenWordConstant::KEYWORD_APPLY_ATTR_NAME);
             // 고시명 교체어
-            $nameTrans = $this->replaceForbiddenText($replaceNoticeForbiddenWords, $nameTrans, ForbiddenWordConstant::KEYWORD_APPLY_ATTR_NAME);
+            $nameTrans = replaceForbiddenText($replaceNoticeForbiddenWords, $nameTrans, ForbiddenWordConstant::KEYWORD_APPLY_ATTR_NAME);
             $nameTrans = trim($nameTrans);
             if( $attributeNameTrans != $nameTrans ){ 
                 ProductForbiddenData::updateOrCreate(
@@ -1653,9 +1651,9 @@ class ProductW2 extends ProductAbstract
             }
 
             // 고시값 삭제어
-            $valueTrans = $this->removeForbiddenText($deleteNoticeForbiddenWords, $attrValueTrans, ForbiddenWordConstant::KEYWORD_APPLY_ATTR_VALUE);
+            $valueTrans = removeForbiddenText($deleteNoticeForbiddenWords, $attrValueTrans, ForbiddenWordConstant::KEYWORD_APPLY_ATTR_VALUE);
             // 고시값 교체어
-            $valueTrans = $this->replaceForbiddenText($replaceNoticeForbiddenWords, $valueTrans, ForbiddenWordConstant::KEYWORD_APPLY_ATTR_VALUE);
+            $valueTrans = replaceForbiddenText($replaceNoticeForbiddenWords, $valueTrans, ForbiddenWordConstant::KEYWORD_APPLY_ATTR_VALUE);
             $valueTrans = trim($valueTrans);
             if( $attrValueTrans != $valueTrans ){ 
                 ProductForbiddenData::updateOrCreate(
@@ -1805,7 +1803,7 @@ class ProductW2 extends ProductAbstract
                     "width"             => (float) sprintf("%.2f", $width),
                     "length"            => (float) sprintf("%.2f", $length),
                     "height"            => (float) sprintf("%.2f", $height),
-                    "weight"            => (float) sprintf("%.2f", $weight),
+                    "weight"            => $weight,
                 ]);
                 $product1688OptionDtoList[] = $product1688OptionDto;
             }
@@ -1925,7 +1923,7 @@ class ProductW2 extends ProductAbstract
             }
 
             /** 중량 여부로 판매 상태 업데이트 */
-            upPrdStatusByWeight($offerId);
+            upWeightStatus($offerId);
 
             $returnMsg = helpers_success_message();
         } catch (Exception $e) {

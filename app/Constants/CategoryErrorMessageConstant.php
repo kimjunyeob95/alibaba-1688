@@ -22,6 +22,7 @@ class CategoryErrorMessageConstant
     public const ERROR_MESSAGE_CATEGORY_NAME       = "category name";
     public const ERROR_MESSAGE_WEIGHT              = "weight";
     public const ERROR_MESSAGE_CHANNELCATECODE     = "channelCateCode";
+    public const ERROR_MESSAGE_SEARCH_TOPKEYWORD   = "product.search.topKeyword";
  
     public static function getErrorMessageNotDefault($constantName): string
     {

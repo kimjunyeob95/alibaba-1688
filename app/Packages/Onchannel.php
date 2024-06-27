@@ -4,6 +4,7 @@ namespace App\Packages;
 
 use App\Abstracts\MallApiAbstract;
 use App\Abstracts\OrderAbstract;
+use App\Abstracts\ProductAbstract;
 use App\Abstracts\TransApiAbstract;
 use App\Constants\CategoryConstant;
 use App\Constants\ImageConstant;
@@ -33,10 +34,11 @@ class Onchannel extends MallApiAbstract
         JwtPackage $jwtPackage,
         string $channel,
         OrderAbstract $orderW1,
-        TransApiAbstract $transApiAbstract
+        TransApiAbstract $transApiAbstract,
+        ProductAbstract $productW1
     )
     {
-        parent::__construct($jwtPackage, $channel, $orderW1, $transApiAbstract);
+        parent::__construct($jwtPackage, $channel, $orderW1, $transApiAbstract, $productW1);
         $this->token  = env("ON_TOKEN");
         $this->domain = env("OC_DOMAIN", "https://task.onch3.co.kr");
     }
@@ -59,9 +61,11 @@ class Onchannel extends MallApiAbstract
         if( isset($params["sendTypeList"]) ){
             $sendTypeList = $params["sendTypeList"];
         }
-
         foreach ($sendTypeList as $sendType) {
             foreach ($offerIds as $offerId) {
+                
+                upWeightStatus($offerId);
+
                 $regCnt = OnchannelProductLog::where([
                     "offer_id"       => $offerId,
                     "member_id"      => OnchannelConstant::ONCH1688,
@@ -115,6 +119,8 @@ class Onchannel extends MallApiAbstract
                         $noticeInfo   = $prdObj->no_except_notices->pluck("attribute_value_kr","attribute_name_kr")->toArray();
                         $notice_desc  = getNoticeInfoTable($noticeInfo);
                         $prd_desc    .= $notice_desc;
+
+                        $prd_desc .= "<div style='text-align: center !important'>" . $prd_desc . "</div>";
             
                         $images = [];
                         foreach ($prdObj->images as $imgObj) {
@@ -204,8 +210,8 @@ class Onchannel extends MallApiAbstract
             
                         $options = [];
                         foreach ($prdObj->no_except_options as $option) {
-                            // $ocPrice = ocPrice($option->price_1688_option, (int)$delivery_price);
-                            $ocPrice = ocPrice($option->price_1688, (int)$delivery_price);
+                            $ocPrice = ocPrice($option->price_1688_option, (int)$delivery_price);
+                            // $ocPrice = ocPrice($option->price_1688, (int)$delivery_price);
 
                             $options[] = [
                                 "op_rank"      => "1",
@@ -314,11 +320,14 @@ class Onchannel extends MallApiAbstract
                     if( $modiResult["isSuccess"] === true ){
                         $successIds[] = $offerId;
                     } else {
-                        $failIds[] = $offerId;
+                        $failIds[] = [
+                            "offer_id" => $offerId,
+                            "msg"      => $modiResult["msg"]
+                        ];
                     }
                 }
 
-                sleep(1.3);
+                sleep(1);
             }
         }
 
@@ -394,6 +403,8 @@ class Onchannel extends MallApiAbstract
                     $noticeInfo   = $prdObj->no_except_notices->pluck("attribute_value_kr","attribute_name_kr")->toArray();
                     $notice_desc  = getNoticeInfoTable($noticeInfo);
                     $prd_desc    .= $notice_desc;
+
+                    $prd_desc .= "<div style='text-align: center !important'>" . $prd_desc . "</div>";
         
                     $images = [];
                     foreach ($prdObj->images as $imgObj) {
@@ -484,8 +495,8 @@ class Onchannel extends MallApiAbstract
         
                     $options = [];
                     foreach ($prdObj->no_except_options as $option) {
-                        // $ocPrice = ocPrice($option->price_1688_option, (int)$delivery_price);
-                        $ocPrice = ocPrice($option->price_1688, (int)$delivery_price);
+                        $ocPrice = ocPrice($option->price_1688_option, (int)$delivery_price);
+                        // $ocPrice = ocPrice($option->price_1688, (int)$delivery_price);
 
                         $options[] = [
                             "op_rank"      => "1",
@@ -587,7 +598,7 @@ class Onchannel extends MallApiAbstract
 
                 $this->productModi([$offerId], $send_type);
 
-                sleep(1.3);
+                sleep(1);
             }
 
             debug_log("온채널 일괄 수정 전송 진행중({$page}/{$totalPages})", "onchannel/sendAllPrdModi", "sendAllPrdModi");

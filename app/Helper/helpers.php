@@ -1,6 +1,8 @@
 <?php
 
+use App\Constants\CategoryConstant;
 use App\Constants\EasySellConstant;
+use App\Constants\ForbiddenWordConstant;
 use App\Constants\GenuioConstant;
 use App\Constants\HttpConstant;
 use App\Constants\ImageConstant;
@@ -9,6 +11,7 @@ use App\Constants\MallConstant;
 use App\Constants\ProductConstant;
 use App\Constants\WConstant;
 use App\Models\Category;
+use App\Models\CategoryWeightData;
 use App\Models\EasysellProductLog;
 use App\Models\GenuioAiData;
 use App\Models\ProductData;
@@ -16,6 +19,8 @@ use App\Models\ProductImageData;
 use App\Models\ProductInspectData;
 use App\Models\ProductModiData;
 use App\Models\ProductOptionData;
+use App\Models\ProductWeightData;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Carbon;
@@ -443,20 +448,22 @@ if (!function_exists("ocPrice")) {
     function ocPrice(float $price, int $delivery_price = 0): array
     {
         $option_price     = round( $price * env("1688_EXCHANGE_RATE", 200) , -1);
+        $option_price     = $option_price + $delivery_price;
+
         $option_price_sum = (int)intval($option_price) + intval($option_price * env("OPTION_PRICE_RATE", 0.12));
         $option_price_cal = round($option_price_sum / 10) * 10;
         $onch_price       = $option_price_cal;
 
-        $recom_cus_price_sum = (int)intval($option_price) + intval($option_price * env("RECOM_CUS_PRICE_RATE", 0.45));
+        $recom_cus_price_sum = (int)intval($option_price) + intval($option_price * env("RECOM_CUS_PRICE_RATE", 0.30));
         $recom_cus_price_cal = round($recom_cus_price_sum / 10) * 10;
         $cus_price           = $recom_cus_price_cal;
         $recom_cus_price     = $recom_cus_price_cal;
 
         return [
             "option_price"    => $option_price,
-            "onch_price"      => $onch_price + $delivery_price,
-            "cus_price"       => $cus_price + $delivery_price,
-            "recom_cus_price" => $recom_cus_price + $delivery_price,
+            "onch_price"      => $option_price,
+            "cus_price"       => $cus_price,
+            "recom_cus_price" => $recom_cus_price,
         ];
     }
 }
@@ -944,9 +951,9 @@ if (!function_exists("findChildCategoryIds")) {
     }
 }
 
-/** 중량 여부로 판매 상태 업데이트 */
-if (!function_exists("upPrdStatusByWeight")) {
-    function upPrdStatusByWeight(int $offerId): void
+/** 중량 여부로 관련 상태 업데이트 */
+if (!function_exists("upWeightStatus")) {
+    function upWeightStatus(int $offerId): void
     {
         $obj = ProductOptionData::select('offer_id', DB::raw('MAX(weight) as max_weight'))
         ->where("offer_id", $offerId)
@@ -956,7 +963,103 @@ if (!function_exists("upPrdStatusByWeight")) {
                 ProductData::where("offer_id", $offerId)->update([
                     "status" => ProductConstant::PRD_STATUS_EXCEPT
                 ]);
+            } else {
+                $weight        = (int)$obj->max_weight;
+                $deliveryPrice = ProductConstant::WEIGHT_STATUS_NONE_PRICE;
+                $weightType    = ProductConstant::WEIGHT_STATUS_NONE;
+
+                if( $weight > 0 ){
+                    $deliveryPrice = CategoryConstant::WEIGHTS[$weight];
+                    $weightType    = ProductConstant::WEIGHT_STATUS_PRODUCT;
+                } else {
+                    $prdObj = ProductData::where("offer_id", $offerId)->first();
+                    if( $prdObj != null ){
+                        $cateObj = CategoryWeightData::where("category_id", $prdObj->category_id)->first();
+                        if( $cateObj != null ){
+                            $weight        = $cateObj->weight;
+                            $deliveryPrice = CategoryConstant::WEIGHTS[$weight];
+                            $weightType    = ProductConstant::WEIGHT_STATUS_CATEGORY;
+                        }
+                    }
+                }
+
+                ProductWeightData::updateOrCreate(
+                    [
+                        "offer_id"   => $offerId,
+                    ],
+                    [
+                        "weight"         => $weight,
+                        "weight_type"    => $weightType,
+                        "delivery_price" => $deliveryPrice
+                    ]
+                );
             }
         }
+    }
+}
+
+if (!function_exists("removeForbiddenText")) {
+    /**
+     * @func removeForbiddenText
+     * @description '삭제어 처리'
+     * @param Collection $removeForbiddenWords
+     * @param string $text
+     * @return string
+     */
+    function removeForbiddenText(Collection $removeForbiddenWords, string $text, string $apply_type): string
+    {
+        foreach ($removeForbiddenWords as $delObj) {
+            if( $delObj->apply_type == ForbiddenWordConstant::KEYWORD_APPLY_ALL || $delObj->apply_type == $apply_type ){
+                $removeWord = $delObj->target_keyword;
+    
+                // 1. 삭제어 앞과 뒤에 공백이 없는 경우 삭제어만 삭제
+                //    예: "HelloWord"에서 "Word"를 삭제 -> "Hello"
+                $pattern1 = '/(?<!\s)' . preg_quote($removeWord, '/') . '(?!\s)/';
+                if (preg_match($pattern1, $text)) {
+                    $text = preg_replace($pattern1, '', $text);
+                }
+    
+                // 2. 삭제어 앞 또는 뒤에 공백이 있는 경우 삭제어만 삭제
+                //    예: "Hello Word "에서 "Word"를 삭제 -> "Hello "
+                $pattern2 = '/(?<=\s)' . preg_quote($removeWord, '/') . '(?!\s)|(?<!\s)' . preg_quote($removeWord, '/') . '(?=\s)/';
+                if (preg_match($pattern2, $text)) {
+                    $text = preg_replace($pattern2, '', $text);
+                }
+    
+                // 3. 삭제어 앞과 뒤에 공백이 있는 경우 하나의 공백과 삭제어만 삭제
+                //    예: "Hello Word Test"에서 "Word"를 삭제 -> "Hello Test"
+                $pattern3 = '/\s+' . preg_quote($removeWord, '/') . '\s+/';
+                if (preg_match($pattern3, $text)) {
+                    $text = preg_replace($pattern3, ' ', $text);
+                }
+            }
+        }
+
+        return $text;
+    }
+}
+
+if (!function_exists("replaceForbiddenText")) {
+    /**
+     * @func replaceForbiddenText
+     * @description '교체어 처리'
+     * @param Collection $replaceForbiddenWords
+     * @param string $text
+     * @return string
+     */
+    function replaceForbiddenText(Collection $replaceForbiddenWords, string $text, string $apply_type): string
+    {
+        foreach ($replaceForbiddenWords as $replaceObj) {
+            if( $replaceObj->apply_type == ForbiddenWordConstant::KEYWORD_APPLY_ALL || $replaceObj->apply_type == $apply_type ){
+
+                $originWord  = $replaceObj->target_keyword;
+                $replaceWord = $replaceObj->replace_keyword;
+
+                // 1. 해당 텍스트가 originWord에 걸릴 시 replaceWord로 교체
+                $text = str_replace($originWord, $replaceWord, $text);
+            }
+        }
+
+        return $text;
     }
 }

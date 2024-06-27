@@ -18,7 +18,7 @@ class App1688Provider extends ServiceProvider
      */
     public function register(): void
     {
-        // S3 싱글톤으로 등록
+        /** S3 싱글톤으로 등록 **/
         $this->app->singleton(S3::class, function () {
             return new S3();
         });

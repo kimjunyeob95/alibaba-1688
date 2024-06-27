@@ -217,4 +217,28 @@ class Service1688Category
    {
       return $this->categoryAbstract->weightRemove($categoryIds);
    }
+
+   /**
+     * @func topList
+     * @description 'W 카테고리별 인기상품 조회'
+     * @param int $categoryId '카테고리 ID'
+     * @param string $country '언어'
+     * @return array
+   */
+   public function topList(int $categoryId, string $country): array
+   {
+      return $this->categoryAbstract->topList($categoryId, $country);
+   }
+
+   /**
+     * @func topKeyword
+     * @description 'W 카테고리별 인기검색어 조회'
+     * @param int $categoryId '카테고리 ID'
+     * @param string $country '언어'
+     * @return array
+   */
+   public function topKeyword(int $categoryId, string $country): array
+   {
+      return $this->categoryAbstract->topKeyword($categoryId, $country);
+   }
 }

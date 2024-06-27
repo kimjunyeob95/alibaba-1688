@@ -3,6 +3,8 @@
 namespace App\Annotations\v1\W\bProduct;
 
 /**
+ * 
+ * 
  * @OA\Schema(
  *     schema="ProductListSuccessResponse",
  *     @OA\Property(property="status", type="integer", example=200),

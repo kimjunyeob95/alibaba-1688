@@ -33,6 +33,7 @@ class MallConstant
     public const REGIST_TYPE_LIST = [
         self::REGIST_SUCCESS => "성공",
         self::REGIST_FAIL    => "실패",
+        self::REGIST_ERROR   => "에러",
     ];
 
     public const MODI_SUCCESS = "Y";
@@ -43,7 +44,7 @@ class MallConstant
     public const SEND_TYPE_MODI   = "modi";
     public const SEND_TYPE_LIST = [
         self::SEND_TYPE_REGIST => "등록",
-        self::SEND_TYPE_MODI => "수정",
+        self::SEND_TYPE_MODI   => "수정",
     ];
 
 

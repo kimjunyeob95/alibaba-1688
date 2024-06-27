@@ -450,10 +450,14 @@
                                         {{ number_format($data->start_quantity) }}
                                     </td>
                                     <td>
-                                        <img class="lazy-img preview-image" data-src="{{ $data->main_img->img_url_origin }}" width=60 height=60/>
+                                        @if( $data->main_img != null && $data->main_img->img_url_origin )
+                                            <img class="lazy-img preview-image" data-src="{{ $data->main_img->img_url_origin }}" width=60 height=60/>
+                                        @else
+                                            <img class="lazy-img preview-image" data-src='/assets/img/no_img.png'width=60 height=60>
+                                        @endif
                                     </td>
                                     <td>
-                                        @if( $data->main_img->img_url_trans )
+                                        @if( $data->main_img != null && $data->main_img->img_url_trans )
                                             <img class="lazy-img preview-image" data-src="{{ $data->main_img->img_url_trans }}" width=60 height=60/>
                                         @else
                                             <img class="lazy-img preview-image" data-src='/assets/img/no_img.png'width=60 height=60>
@@ -601,6 +605,7 @@
                                         @if ($data->prd_name_en != "")
                                             <button class="btn btn-sm btn-outline-success btn-en-detail mt-2" offerid={{ $data->offer_id }}>영문 상세</button>
                                         @endif
+                                        {{-- <button class="btn btn-sm btn-outline-success AItoolBtn mt-2" offerid={{ $data->offer_id }}>A.I Tool</button> --}}
                                     </td>
                                 </tr>
                             @endforeach
@@ -1059,6 +1064,16 @@
     $(document).ready(function(){
         var weightList = '{!! json_encode(CategoryConstant::WEIGHTS) !!}';
         weightList = JSON.parse(weightList);
+
+        var sai_tool_doamin = "{{ env('GENUIO_TOOL_DOMAIN', 'https://dev-sai.genu.io') }}";
+
+        $(".AItoolBtn").click(function(){
+            let offerId = $(this).attr("offerid");
+
+            window.open(`${sai_tool_doamin}/quick-fix/inpaint?img_url=${img_url}&offer_id=${offerId}&ch=wapp`, '_blank');
+
+            
+        })
 
         $(".btn-log-detail").click(function(){
             let offerId = $(this).attr("offerid");

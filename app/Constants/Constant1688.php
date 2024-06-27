@@ -39,4 +39,8 @@ class Constant1688
     public const FILTER_LIST      = [
         "aigcOffer" => "영문 이미지 번역"
     ];
+
+    /** 기타etc.. */
+    public const RANK_TYPE_COMPLEX = "complex";
+    public const HOT_KEYWORD_TYPE  = "cate";
 }

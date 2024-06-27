@@ -20,8 +20,8 @@ use Psr\Log\LogLevel;
 
 class CategoryW1 extends CategoryAbstract
 {
-    private array $returnMsg;
-    private string $accessToken;
+    protected array $returnMsg;
+    protected string $accessToken;
 
     public function __construct()
     {

@@ -461,6 +461,62 @@ class Service1688Product
       return $this->productAbstract->noticeNameUpdate($attributeIds, $applyAttributeName);
    }
 
+   /**
+     * @func searchKeywordQuery
+     * @description 'W 상품 키워드 조회'
+     * @param array $params
+     * @return array
+   */
+   public function searchKeywordQuery(array $params): array
+   {
+      return $this->productAbstract->searchKeywordQuery($params);
+   }
+
+   /**
+     * @func searchDetail
+     * @description 'W 상품 상세 조회'
+     * @param int $offerId
+     * @param string $country
+     * @return array
+   */
+   public function searchDetail(int $offerId, string $country): array
+   {
+      return $this->productAbstract->searchDetail($offerId, $country);
+   }
+
+   /**
+     * @func searchCreateImageId
+     * @description 'W 상품 이미지 ID 생성'
+     * @param UploadedFile $file
+     * @return array
+   */
+   public function searchCreateImageId(UploadedFile $file): array
+   {
+      return $this->productAbstract->searchCreateImageId($file);
+   }
+
+   /**
+     * @func searchImageQuery
+     * @description 'W 상품 이미지 조회'
+     * @param array $params
+     * @return array
+   */
+   public function searchImageQuery(array $params): array
+   {
+      return $this->productAbstract->searchImageQuery($params);
+   }
+
+   /**
+     * @func searchRecommend
+     * @description 'W 인기상품 조회'
+     * @param array $params
+     * @return array
+   */
+   public function searchRecommend(array $params): array
+   {
+      return $this->productAbstract->searchRecommend($params);
+   }
+
    /****************************************** WApp W2 **********************************************/
 
    /**
