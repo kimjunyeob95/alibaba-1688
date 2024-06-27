@@ -1,10 +1,22 @@
 <?php
 
+$productLog["dev"]        = [];
 $productLog["production"] = [];
 if( env('APP_ENV', 'local') != "production" ){
     $productLog["production"] = [
         'name' => 'Production',
         'host' => 'https://task-1688.onch3.co.kr/logs',
+        'auth' => [
+            'token' => env('LOG_VIEWER_PRODUCTION_TOKEN', ""),
+        ],
+        'headers' => [
+            'X-Foo' => 'Bar',
+        ],
+    ];
+
+    $productLog["dev"] = [
+        'name' => 'Dev',
+        'host' => 'https://task-dev-1688.onch3.co.kr/logs',
         'auth' => [
             'token' => env('LOG_VIEWER_PRODUCTION_TOKEN', ""),
         ],
@@ -115,6 +127,7 @@ return [
         'local' => [
             'name' => ucfirst(env('APP_ENV', 'local')),
         ],
+        'dev' => $productLog["dev"],
 
         // 'staging' => [
         //     'name' => 'Staging',
