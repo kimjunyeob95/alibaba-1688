@@ -229,7 +229,7 @@ class GenuioService extends TransApiAbstract
 
             $queueDetailInsList = [];
             foreach ($product1688ImageDtoList as $product1688ImageDto) {
-                if( $product1688ImageDto->is_change_img == true ){
+                if( $product1688ImageDto->is_change_img == true && $product1688ImageDto->lang == WConstant::WAPP_KR ){
                     $imgObj = ProductImageData::where([
                         "offer_id"       => $product1688ImageDto->offer_id,
                         "img_type"       => $product1688ImageDto->img_type,
