@@ -44,6 +44,10 @@ class ProductData extends Model
         return $this->hasMany(ProductImageData::class, "offer_id", "offer_id")->where("lang", WConstant::WAPP_EN)->where("img_type", ImageConstant::IMAGE_TYPE_SUB);
     }
 
+    public function no_except_en_sub_imgs () {
+        return $this->hasMany(ProductImageData::class, "offer_id", "offer_id")->where("lang", WConstant::WAPP_EN)->where("img_type", ImageConstant::IMAGE_TYPE_SUB)->where("is_except", ImageConstant::IS_EXCEPT_N);
+    }
+
     public function desc_imgs () {
         return $this->hasMany(ProductImageData::class, "offer_id", "offer_id")->where("lang", WConstant::WAPP_KR)->where("img_type", ImageConstant::IMAGE_TYPE_DESC);
     }

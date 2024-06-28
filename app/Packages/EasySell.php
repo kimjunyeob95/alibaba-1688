@@ -8,13 +8,10 @@ use App\Abstracts\ProductAbstract;
 use App\Abstracts\TransApiAbstract;
 use App\Constants\CategoryConstant;
 use App\Constants\EasySellConstant;
-use App\Constants\GosiConstants;
-use App\Constants\ImageConstant;
 use App\Constants\MallConstant;
 use App\Constants\MallErrorMessageConstant;
 use App\Constants\OptionConstants;
 use App\Constants\ProductConstant;
-use App\Constants\WConstant;
 use App\Models\CategoryMapping;
 use App\Models\EasysellProductDetailLog;
 use App\Models\EasysellProductLog;
@@ -93,11 +90,13 @@ class EasySell extends MallApiAbstract
                     }
 
                     $prdObj = ProductData::with([
-                        "images",
-                        "en_images",
+                        "main_img",
+                        "no_except_sub_imgs",
+                        "en_main_img",
+                        "no_except_en_sub_imgs",
                         "extends",
                         "options",
-                        "notices",
+                        "no_except_notices",
                         "es_mapping",
                         "es_fgn_mapping"
                     ])->where("offer_id", $offerId)->first();
@@ -236,11 +235,13 @@ class EasySell extends MallApiAbstract
                 }
 
                 $prdObj = ProductData::with([
-                    "images",
-                    "en_images",
+                    "main_img",
+                    "no_except_sub_imgs",
+                    "en_main_img",
+                    "no_except_en_sub_imgs",
                     "extends",
                     "options",
-                    "notices",
+                    "no_except_notices",
                     "es_mapping",
                     "es_fgn_mapping"
                 ])->where("offer_id", $offerId)->first();
@@ -417,7 +418,7 @@ class EasySell extends MallApiAbstract
             if(isset($prdObj->es_mapping) || !empty($prdObj->es_mapping->mapping_code)){
                 $categoryId .= "|".$prdObj->es_mapping->mapping_code;
             }
-            $ItemBrand = EasySellConstant::CATEGORY_MAPPING[substr($prdObj->es_fgn_mapping->mapping_code,0,6)];
+            $ItemBrand  = EasySellConstant::CATEGORY_MAPPING[substr($prdObj->es_fgn_mapping->mapping_code,0,6)];
             $noticeType = $this->_getNoticeType($prdObj->es_fgn_mapping->mapping_code);
 
             //연령제한 상품여부
@@ -425,20 +426,40 @@ class EasySell extends MallApiAbstract
                 throw new Exception("연령제한 상품입니다");
             }
 
+            $images = [];
             if($type == EasySellConstant::TYPE_W){
-                $ItemName = $prdObj->prd_name_kr;
-                $prdDesc  = $prdObj->prd_desc_kr;
+                $ItemName    = $prdObj->prd_name_kr;
+                $prdDesc     = $prdObj->prd_desc_kr;
                 $optionTitle = "옵션";
-                $noticeInfo = $prdObj->notices->where("is_except",GosiConstants::IS_EXCEPT_N)->pluck("attribute_value_kr","attribute_name_kr")->toArray();
-                $images = array_filter($prdObj->images->whereIn("img_type",[ImageConstant::IMAGE_TYPE_MAIN, ImageConstant::IMAGE_TYPE_SUB])->where("is_except",ImageConstant::IS_EXCEPT_N)->pluck("img_url_trans")->toArray());
+                $noticeInfo  = $prdObj->no_except_notices->pluck("attribute_value_kr","attribute_name_kr")->toArray();
+
+                $images[] = $prdObj->main_img->img_url_trans;
+                foreach ($prdObj->no_except_sub_imgs as $imgObj) {
+                    if( count($images) >= 10 ){
+                        break;
+                    }
+                    if( $imgObj->img_url_trans ){
+                        $images[] = $imgObj->img_url_trans;
+                    }
+                }
             }else if($type == EasySellConstant::TYPE_DROPHUB){
-                $ItemName = $prdObj->prd_name_en;
-                $prdDesc  = $prdObj->prd_desc_en_origin;
+                $ItemName    = $prdObj->prd_name_en;
+                $prdDesc     = $prdObj->prd_desc_en_origin;
                 $optionTitle = "option";
-                $noticeInfo = $prdObj->notices->where("is_except",GosiConstants::IS_EXCEPT_N)->pluck("attribute_value_en","attribute_name_en")->toArray();
-                $images = array_filter($prdObj->en_images->whereIn("img_type",[ImageConstant::IMAGE_TYPE_MAIN, ImageConstant::IMAGE_TYPE_SUB])->where("is_except",ImageConstant::IS_EXCEPT_N)->pluck("img_url_origin")->toArray());
+                $noticeInfo  = $prdObj->no_except_notices->pluck("attribute_value_en","attribute_name_en")->toArray();
+
+                $images[] = $prdObj->en_main_img->img_url_origin;
+                foreach ($prdObj->no_except_en_sub_imgs as $imgObj) {
+                    if( count($images) >= 10 ){
+                        break;
+                    }
+                    if( $imgObj->img_url_origin ){
+                        $images[] = $imgObj->img_url_origin;
+                    }
+                }
             }
-            if(!count($images)){
+
+            if(count($images) < 1){
                 throw new Exception("상품의 이미지가 없습니다");
             }
             $itemImage = implode("|", $images);
@@ -460,8 +481,8 @@ class EasySell extends MallApiAbstract
             }
 
             //옵션 설정
-            $unitInfo   = $optionTitle."|";
-            $idx = 0;
+            $unitInfo = $optionTitle."|";
+            $idx      = 0;
             foreach($prdObj->options->where("is_except", OptionConstants::IS_EXCEPT_N) as $option){
                 //옵션명
                 $replaceArr     = array("|",",","/");
@@ -469,10 +490,10 @@ class EasySell extends MallApiAbstract
 
                 if($type == EasySellConstant::TYPE_W){
                     $optionNm = str_replace($replaceArr, $replacementArr ,$option->option_name_kr);
-                    $price = calcEasySellSalePrice($option->price_1688, $option->md_price, $delivery_price, "static", EasySellConstant::TYPE_W);
+                    $price    = calcEasySellSalePrice($option->price_1688, $option->md_price, $delivery_price, "static", EasySellConstant::TYPE_W);
                 }else if($type == EasySellConstant::TYPE_DROPHUB){
                     $optionNm = str_replace($replaceArr, $replacementArr ,$option->option_name_en);
-                    $price = calcEasySellSalePrice($option->price_1688_option, $option->md_price, $delivery_price, "static", EasySellConstant::TYPE_DROPHUB);
+                    $price    = calcEasySellSalePrice($option->price_1688_option, $option->md_price, $delivery_price, "static", EasySellConstant::TYPE_DROPHUB);
                 }
 
                 if(!$idx){

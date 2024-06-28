@@ -274,6 +274,7 @@ class MallController extends Controller
                 $options = "--offerids=" . helperEscape(implode(",", $offerIds)) . " --type=" . helperEscape(implode(",", $es_send_type));
 
                 $command = "nohup " . $this->phpAlias . " artisan easy_sell_command --func=productRegist " . $options . " > /dev/null 2>&1 &";
+                dd($command);
                 $process1 = Process::fromShellCommandline($command);
                 $process1->setWorkingDirectory(env("WORK_DIRECTORY", "/web1/1688"));
                 $process1->setTimeout(null); // 실행 시간 제한 없음
