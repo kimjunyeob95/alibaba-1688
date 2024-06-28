@@ -127,6 +127,7 @@ class GenuioService extends TransApiAbstract
             ];
 
             $queueDetailInsList = [];
+            $imgIds             = [];
             foreach ($product1688ImageDtoList as $product1688ImageDto) {
                 if( $product1688ImageDto->is_change_img == true && $product1688ImageDto->lang == WConstant::WAPP_KR ){
                     $imgObj = ProductImageData::where([
@@ -134,26 +135,31 @@ class GenuioService extends TransApiAbstract
                         "img_type"       => $product1688ImageDto->img_type,
                         "lang"           => $product1688ImageDto->lang,
                         "img_url_origin" => $product1688ImageDto->img_url_origin,
-                    ])->first();
-                    
-                    $isThumbnail = false;
-                    if( $imgObj->img_type != ImageConstant::IMAGE_TYPE_DESC ){
-                        $isThumbnail = true;
-                    }
-                    $payload["images"][] = [
-                        "id"          => $imgObj->id,
-                        "imagePath"   => $product1688ImageDto->img_url_origin,
-                        "isThumbnail" => $isThumbnail,
-                        "priority"    => $priority
-                    ];
+                    ])->whereNotIn("id", $imgIds)->first();
 
-                    $queueDetailInsList[] = [
-                        "queue_id"     => $nextId,
-                        "img_id"       => $imgObj->id,
-                        "trans_status" => TransApiConstant::QUEUE_STAY,
-                        "base64"       => "",
-                        "created_at"   => Carbon::now()
-                    ];
+                    if( $imgObj != null ){
+                        $isThumbnail = false;
+                        if( $imgObj->img_type != ImageConstant::IMAGE_TYPE_DESC ){
+                            $isThumbnail = true;
+                        }
+                        $payload["images"][] = [
+                            "id"          => $imgObj->id,
+                            "imagePath"   => $product1688ImageDto->img_url_origin,
+                            "isThumbnail" => $isThumbnail,
+                            "priority"    => $priority
+                        ];
+    
+                        $queueDetailInsList[] = [
+                            "queue_id"     => $nextId,
+                            "img_id"       => $imgObj->id,
+                            "trans_status" => TransApiConstant::QUEUE_STAY,
+                            "base64"       => "",
+                            "created_at"   => Carbon::now()
+                        ];
+    
+                        $imgIds[] = $imgObj->id;
+                    }
+                    
                 }
             }
 
@@ -228,6 +234,7 @@ class GenuioService extends TransApiAbstract
             ];
 
             $queueDetailInsList = [];
+            $imgIds             = [];
             foreach ($product1688ImageDtoList as $product1688ImageDto) {
                 if( $product1688ImageDto->is_change_img == true && $product1688ImageDto->lang == WConstant::WAPP_KR ){
                     $imgObj = ProductImageData::where([
@@ -235,26 +242,30 @@ class GenuioService extends TransApiAbstract
                         "img_type"       => $product1688ImageDto->img_type,
                         "lang"           => $product1688ImageDto->lang,
                         "img_url_origin" => $product1688ImageDto->img_url_origin,
-                    ])->first();
-                    
-                    $isThumbnail = false;
-                    if( $imgObj->img_type != ImageConstant::IMAGE_TYPE_DESC ){
-                        $isThumbnail = true;
-                    }
-                    $payload["images"][] = [
-                        "id"          => $imgObj->id,
-                        "imagePath"   => $product1688ImageDto->img_url_origin,
-                        "isThumbnail" => $isThumbnail,
-                        "priority"    => $priority
-                    ];
+                    ])->whereNotIn("id", $imgIds)->first();
 
-                    $queueDetailInsList[] = [
-                        "queue_id"     => $nextId,
-                        "img_id"       => $imgObj->id,
-                        "trans_status" => TransApiConstant::QUEUE_STAY,
-                        "base64"       => "",
-                        "created_at"   => Carbon::now()
-                    ];
+                    if( $imgObj != null ){
+                        $isThumbnail = false;
+                        if( $imgObj->img_type != ImageConstant::IMAGE_TYPE_DESC ){
+                            $isThumbnail = true;
+                        }
+                        $payload["images"][] = [
+                            "id"          => $imgObj->id,
+                            "imagePath"   => $product1688ImageDto->img_url_origin,
+                            "isThumbnail" => $isThumbnail,
+                            "priority"    => $priority
+                        ];
+    
+                        $queueDetailInsList[] = [
+                            "queue_id"     => $nextId,
+                            "img_id"       => $imgObj->id,
+                            "trans_status" => TransApiConstant::QUEUE_STAY,
+                            "base64"       => "",
+                            "created_at"   => Carbon::now()
+                        ];
+    
+                        $imgIds[] = $imgObj->id;
+                    }
                 }
             }
 
