@@ -10,7 +10,6 @@ use App\Constants\CategoryConstant;
 use App\Constants\EasySellConstant;
 use App\Constants\MallConstant;
 use App\Constants\MallErrorMessageConstant;
-use App\Constants\OptionConstants;
 use App\Constants\ProductConstant;
 use App\Models\CategoryMapping;
 use App\Models\EasysellProductDetailLog;
@@ -95,7 +94,7 @@ class EasySell extends MallApiAbstract
                         "en_main_img",
                         "no_except_en_sub_imgs",
                         "extends",
-                        "options",
+                        "no_except_options",
                         "no_except_notices",
                         "es_mapping",
                         "es_fgn_mapping"
@@ -110,7 +109,7 @@ class EasySell extends MallApiAbstract
                     if( $prdObj->mapping_status != ProductConstant::MAPPING_STATUS_Y ){
                         throw new Exception(MallErrorMessageConstant::getFitErrorMessage("NOT_MAPPING_CATE"));
                     }
-                    if( count($prdObj->options->where("is_except", OptionConstants::IS_EXCEPT_N)) == 0 ){
+                    if( count($prdObj->no_except_options) == 0 ){
                         throw new Exception(MallErrorMessageConstant::getFitErrorMessage("OPTION"));
                     }
 
@@ -240,7 +239,7 @@ class EasySell extends MallApiAbstract
                     "en_main_img",
                     "no_except_en_sub_imgs",
                     "extends",
-                    "options",
+                    "no_except_options",
                     "no_except_notices",
                     "es_mapping",
                     "es_fgn_mapping"
@@ -255,7 +254,7 @@ class EasySell extends MallApiAbstract
                 if( $prdObj->mapping_status != ProductConstant::MAPPING_STATUS_Y ){
                     throw new Exception(MallErrorMessageConstant::getFitErrorMessage("NOT_MAPPING_CATE"));
                 }
-                if( count($prdObj->options->where("is_except", OptionConstants::IS_EXCEPT_N)) == 0 ){
+                if( count($prdObj->no_except_options) == 0 ){
                     throw new Exception(MallErrorMessageConstant::getFitErrorMessage("OPTION"));
                 }
 
@@ -483,7 +482,7 @@ class EasySell extends MallApiAbstract
             //옵션 설정
             $unitInfo = $optionTitle."|";
             $idx      = 0;
-            foreach($prdObj->options->where("is_except", OptionConstants::IS_EXCEPT_N) as $option){
+            foreach($prdObj->no_except_options as $option){
                 //옵션명
                 $replaceArr     = array("|",",","/");
                 $replacementArr = array("-","\,","-");
