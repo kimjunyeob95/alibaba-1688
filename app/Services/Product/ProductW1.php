@@ -2527,7 +2527,7 @@ class ProductW1 extends ProductAbstract
                 "created_at" => Carbon::now()
             ]);
 
-            $this->saveKeywordQueryRecursively($logId, $payload, $page, $pageSize, $aiActive);
+            $this->saveKeywordQueryRecursively($logId, $payload, $page, $pageSize, 0, $aiActive);
         } catch (Exception $e) {
             $msg = "======================== 에러 발생 (params_json: {$params_json}) ========================\r\n";
             $msg .= $e->getMessage();
@@ -2865,7 +2865,7 @@ class ProductW1 extends ProductAbstract
                     ]
                 ];
 
-                $this->saveImageQueryRecursively($logId, $payload, $page, $pageSize, $aiActive);
+                $this->saveImageQueryRecursively($logId, $payload, $page, $pageSize, 0, $aiActive);
             }
         } catch (Exception $e) {
             $msg = "======================== 에러 발생 (params_json: {$params_json}) ========================\r\n";
