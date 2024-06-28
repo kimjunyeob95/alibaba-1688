@@ -47,6 +47,10 @@ class MallErrorMessageConstant
     public const ERROR_MESSAGE_CHANNEL_TYPE       = "channel_type";
     public const ERROR_MESSAGE_CHANNEL_CODE       = "channel_code";
     public const ERROR_MESSAGE_W_PRD_COLLECT      = "W 상품 수집";
+    public const ERROR_MESSAGE_MAIN_IMAGE         = "메인 이미지";
+    public const ERROR_MESSAGE_MAIN_EN_IMAGE      = "메인 영문 이미지";
+    public const ERROR_MESSAGE_SUB_IMAGE          = "서브 이미지";
+    public const ERROR_MESSAGE_SUB_EN_IMAGE       = "서브 영문 이미지";
 
     public static function getErrorMessageNotDefault($constantName): string
     {
