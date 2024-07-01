@@ -146,7 +146,9 @@ class GenuioService extends TransApiAbstract
                             "id"          => $imgObj->id,
                             "imagePath"   => $product1688ImageDto->img_url_origin,
                             "isThumbnail" => $isThumbnail,
-                            "priority"    => $priority
+                            "priority"    => $priority,
+                            "img_type"    => $imgObj->img_type,
+                            "lang"        => $imgObj->lang,
                         ];
     
                         $queueDetailInsList[] = [
@@ -253,7 +255,9 @@ class GenuioService extends TransApiAbstract
                             "id"          => $imgObj->id,
                             "imagePath"   => $product1688ImageDto->img_url_origin,
                             "isThumbnail" => $isThumbnail,
-                            "priority"    => $priority
+                            "priority"    => $priority,
+                            "img_type"    => $imgObj->img_type,
+                            "lang"        => $imgObj->lang,
                         ];
     
                         $queueDetailInsList[] = [
@@ -954,7 +958,9 @@ class GenuioService extends TransApiAbstract
                         "id"          => $aiImgObj->id,
                         "imagePath"   => $aiImgObj->img_url_ai,
                         "isThumbnail" => $isThumbnail,
-                        "priority"    => GenuioConstant::PRIORITY_TRUE
+                        "priority"    => GenuioConstant::PRIORITY_TRUE,
+                        "img_type"    => $imgObj->img_type,
+                        "lang"        => $imgObj->lang,
                     ];
 
                     $queueDetailInsList[] = [
@@ -1155,7 +1161,7 @@ class GenuioService extends TransApiAbstract
                         "img_id"      => $prdImgId,
                         "origin_url"  => $originUrl,
                         "isThumbnail" => $isThumbnail,
-                        "priority"    => $priority
+                        "priority"    => $priority,
                     ];
                 }
             }
