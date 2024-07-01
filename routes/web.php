@@ -75,6 +75,8 @@ Route::prefix("category")->name("category.")->group(function(){
     Route::get("/", [CategoryController::class, "manage"])->name("list");
     /** 표준 중량(배송비) 관리 */
     Route::get("/weight/list", [CategoryController::class, "weightList"])->name("weightList");
+    /** 전송 카테고리 관리 */
+    Route::get("/send/mall", [CategoryController::class, "sendMallList"])->name("sendMallList");
 });
 
 /**

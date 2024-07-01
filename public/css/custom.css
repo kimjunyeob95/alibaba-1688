@@ -111,3 +111,8 @@ a:hover {text-decoration: underline; color: rgb(22, 22, 23);}
 .cursor-pointer {
   cursor: pointer;
 }
+
+.form-check-lg .form-check-input {
+  width: 25px;
+  height: 25px;
+}

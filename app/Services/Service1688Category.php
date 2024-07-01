@@ -131,6 +131,17 @@ class Service1688Category
    }
 
    /**
+     * @func sendMallList
+     * @description '전송 카테고리 관리'
+     * @param array $params
+     * @return array
+   */
+   public function sendMallList(array $params): array
+   {
+      return $this->categoryAbstract->sendMallList($params);
+   }
+
+   /**
      * @func getW
      * @description 'W 카테고리 조회'
      * @param array $params
@@ -216,6 +227,17 @@ class Service1688Category
    public function weightRemove(array $categoryIds): array
    {
       return $this->categoryAbstract->weightRemove($categoryIds);
+   }
+
+   /**
+     * @func sendMallUpdate
+     * @description '채널별 전송 카테고리 수정'
+     * @param array $cateParams '카테고리 정보'
+     * @return array
+   */
+   public function sendMallUpdate(array $cateParams): array
+   {
+      return $this->categoryAbstract->sendMallUpdate($cateParams);
    }
 
    /**

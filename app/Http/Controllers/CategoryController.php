@@ -96,4 +96,44 @@ class CategoryController extends Controller
         ];
         return view("category.weightList")->with($viewParams);
     }
+
+    public function sendMallList(): View
+    {
+        $page        = $this->request->post("page", 1);
+        $pageSize    = $this->request->post("pageSize", 100);
+        $keyword     = $this->request->get("keyword", "");
+        $send_type   = $this->request->get("send_type", "");
+        $is_regist   = $this->request->get("is_regist", "");
+        $cate_first  = $this->request->get("cate_first", "");
+        $cate_second = $this->request->get("cate_second", "");
+        $cate_third  = $this->request->get("cate_third", "");
+        $offset      = ($page - 1) * $pageSize;
+
+        $params = [
+            "page"        => $page,
+            "pageSize"    => $pageSize,
+            "keyword"     => $keyword,
+            "send_type"   => $send_type,
+            "is_regist"   => $is_regist,
+            "cate_first"  => $cate_first,
+            "cate_second" => $cate_second,
+            "cate_third"  => $cate_third
+        ];
+        $result = $this->service1688Category->sendMallList($params);
+        $viewParams = [
+            "send_type"      => $send_type,
+            "is_regist"      => $is_regist,
+            "keyword"        => $keyword,
+            "offset"         => $offset,
+            "datas"          => $result["data"]["paginator"],
+            "firstCateObjs"  => $result["data"]["firstCateObjs"],
+            "secondCateObjs" => $result["data"]["secondCateObjs"],
+            "thirdCateObjs"  => $result["data"]["thirdCateObjs"],
+            "cate_first"     => $cate_first,
+            "cate_second"    => $cate_second,
+            "cate_third"     => $cate_third,
+            "pageSize"       => $pageSize,
+        ];
+        return view("category.sendMallList")->with($viewParams);
+    }
 }

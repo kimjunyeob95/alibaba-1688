@@ -228,6 +228,11 @@
                         온채널 카테고리 맵핑
                     </a>
                 </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/category/send/mall">
+                        전송 카테고리 관리
+                    </a>
+                </li>
             </ul>
         </li>
 
