@@ -242,8 +242,8 @@ class WCategoryController extends Controller
                 'country'   => 'required|string',
                 'page_size' => 'required|int',
             ], [
-                "country"   => ProductErrorMessageConstant::getNotHaveErrorMessage("COUNTRY"),
-                "page_size" => ProductErrorMessageConstant::getNotHaveErrorMessage("PAGESIZE"),
+                "country.required"   => ProductErrorMessageConstant::getNotHaveErrorMessage("COUNTRY"),
+                "page_size.required" => ProductErrorMessageConstant::getNotHaveErrorMessage("PAGESIZE"),
             ]);
             if ($validator->fails()) {
                 throw new Exception($validator->errors()->first());
@@ -268,7 +268,7 @@ class WCategoryController extends Controller
             $validator = Validator::make($this->request->all(), [
                 'country' => 'required|string',
             ], [
-                "country" => ProductErrorMessageConstant::getNotHaveErrorMessage("COUNTRY"),
+                "country.required" => ProductErrorMessageConstant::getNotHaveErrorMessage("COUNTRY"),
             ]);
             if ($validator->fails()) {
                 throw new Exception($validator->errors()->first());
@@ -276,6 +276,40 @@ class WCategoryController extends Controller
 
             $country = $this->request->get("country", Constant1688::LANGUAGE_KO);
             $result = $this->service1688Category->topKeyword($categoryId, $country);
+            if( $result["isSuccess"] == true ){
+                return helpers_json_response(HttpConstant::OK, $result);
+            } else {
+                return helpers_json_response(HttpConstant::BAD_REQUEST, [], $result["msg"]);
+            }
+        } catch (Exception $e) {
+            return helpers_json_response(HttpConstant::BAD_REQUEST, [], $e->getMessage());
+        }
+    }
+
+    public function sendMallUpdate(): JsonResponse
+    {
+        try {
+            $validator = Validator::make($this->request->all(), [
+                'cateParams'              => 'required|array',
+                'cateParams.*.categoryId' => 'required|int',
+                'cateParams.*.ocPublic'   => 'required|string',
+                'cateParams.*.ocPrivate'  => 'required|string',
+                'cateParams.*.esW'        => 'required|string',
+                'cateParams.*.esDropHub'  => 'required|string',
+            ], [
+                'cateParams.required'              => CategoryErrorMessageConstant::getNotHaveErrorMessage("CATEPARAMS"),
+                'cateParams.*.categoryId.required' => CategoryErrorMessageConstant::getNotHaveErrorMessage("CATEGORYID"),
+                'cateParams.*.ocPublic.required'   => CategoryErrorMessageConstant::getNotHaveErrorMessage("OCPUBLIC"),
+                'cateParams.*.ocPrivate.required'  => CategoryErrorMessageConstant::getNotHaveErrorMessage("OCPRIVATE"),
+                'cateParams.*.esW.required'        => CategoryErrorMessageConstant::getNotHaveErrorMessage("ESW"),
+                'cateParams.*.esDropHub.required'  => CategoryErrorMessageConstant::getNotHaveErrorMessage("ESDROPHUB"),
+            ]);
+            if ($validator->fails()) {
+                throw new Exception($validator->errors()->first());
+            }
+
+            $cateParams = $this->request->post("cateParams");
+            $result      = $this->service1688Category->sendMallUpdate($cateParams);
             if( $result["isSuccess"] == true ){
                 return helpers_json_response(HttpConstant::OK, $result);
             } else {

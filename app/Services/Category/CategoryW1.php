@@ -6,11 +6,13 @@ use App\Abstracts\CategoryAbstract;
 use App\Constants\CategoryConstant;
 use App\Constants\CategoryErrorMessageConstant;
 use App\Constants\Constant1688;
+use App\Constants\MallConstant;
 use App\Constants\ProductConstant;
 use App\Models\Category;
 use App\Models\CategoryMapping;
 use App\Models\CategoryTree;
 use App\Models\CategoryWeightData;
+use App\Models\ChannelCategoryRegistData;
 use App\Models\ProductData;
 use App\Models\WCategory;
 use Exception;
@@ -797,6 +799,113 @@ class CategoryW1 extends CategoryAbstract
                     $qryBuilder->where(function($query1) {
                         $query1->where("c.weight", null)
                         ->orWhere("c.weight", 0);
+                    });
+                }
+            }
+
+            if( $cate_third ){
+                $qryBuilder->where("a.category_id", $cate_third);
+            } else if( $cate_second ){
+                $searchArr = [$cate_second];
+                foreach ($thirdCateObjs as $thirdCateObj) {
+                    $searchArr[] = $thirdCateObj->category_id;
+                }
+                $qryBuilder->whereIn("a.category_id", $searchArr);
+            } else if( $cate_first ){
+                $searchArr = [$cate_first];
+                foreach ($secondCateObjs as $secondCateObj) {
+                    $searchArr[] = $secondCateObj->category_id;
+                    $thirdObjs   = Category::select("category_id")->where("parent_cate_id", $secondCateObj->category_id)->get();
+                    foreach ($thirdObjs as $thirdObj) {
+                        $searchArr[] = $thirdObj->category_id;
+                    }
+                }
+                $qryBuilder->whereIn("a.category_id", $searchArr);
+            }
+
+            if( !empty($keyword) ){
+                $qryBuilder->where(function($query1) use ($keyword) {
+                    $query1->where("a.cate_first", "like", "%" . $keyword . "%")
+                         ->orWhere("a.cate_second", "like", "%" . $keyword . "%")
+                         ->orWhere("a.cate_third", "like", "%" . $keyword . "%")
+                    ->orWhere(function($query) use ($keyword) {
+                        $query->where("a.category_id", "like", "%" . $keyword . "%");
+                    });
+                });
+            }
+
+            $lists = $qryBuilder->paginate($pageSize)->appends($params);
+
+            $result = [
+                "paginator"      => $lists,
+                "firstCateObjs"  => $firstCateObjs,
+                "secondCateObjs" => $secondCateObjs,
+                "thirdCateObjs"  => $thirdCateObjs,
+            ];
+            $returnMsg = helpers_success_message($result);
+        } catch (Exception $e) {
+            $returnMsg = helpers_fail_message($e->getMessage());
+        }
+
+        return $returnMsg;
+    }
+
+    public function sendMallList(array $params): array
+    {
+        $returnMsg = $this->returnMsg;
+
+        try {
+            $pageSize    = $params["pageSize"];
+            $keyword     = $params["keyword"];
+            $send_type   = $params["send_type"];
+            $is_regist   = $params["is_regist"];
+            $cate_first  = $params["cate_first"];
+            $cate_second = $params["cate_second"];
+            $cate_third  = $params["cate_third"];
+
+            $firstCateObjs  = [];
+            $secondCateObjs = [];
+            $thirdCateObjs  = [];
+            if( $cate_first == "" ){
+                $firstCateObjs = Category::where("parent_cate_id", 0)->orderBy("category_name", "asc")->get();
+            }else {
+                if( $cate_first && $cate_second ){
+                    $firstCateObjs  = Category::where("parent_cate_id", 0)->orderBy("category_name", "asc")->get();
+                    $secondCateObjs = Category::where("parent_cate_id", $cate_first)->orderBy("category_name", "asc")->get();
+                    $thirdCateObjs  = Category::where("parent_cate_id", $cate_second)->orderBy("category_name", "asc")->get();
+                } else if( $cate_first ){
+                    $firstCateObjs  = Category::where("parent_cate_id", 0)->orderBy("category_name", "asc")->get();
+                    $secondCateObjs = Category::where("parent_cate_id", $cate_first)->orderBy("category_name", "asc")->get();
+                }
+            }
+
+            $qryBuilder = CategoryTree::from("category_trees as a")
+            ->select([
+                "a.*",
+            ])
+            ->with([
+                "cate_oc_public",
+                "cate_oc_private",
+                "cate_es_w",
+                "cate_es_drophub",
+            ])
+            ->leftJoin("channel_category_regist_datas as b", "a.category_id", "=", "b.category_id")
+            ->groupBy("a.category_id")
+            ->orderBy("a.cate_first", "asc")
+            ->orderBy("a.cate_second", "asc")
+            ->orderBy("a.cate_third", "asc");
+            
+            if( !empty($send_type) ) {
+                $qryBuilder->where("b.send_type", $send_type);
+            }
+
+            if( !empty($is_regist) ) {
+                if( $is_regist == MallConstant::REGIST_Y ){
+                    $qryBuilder->where("b.is_regist", $is_regist);
+                } else if( $is_regist == MallConstant::REGIST_N ){
+                    $qryBuilder->where(function($query1) {
+                        $query1->where("b.is_regist", MallConstant::REGIST_N)
+                             ->orWhere("b.is_regist", Null);
                     });
                 }
             }
