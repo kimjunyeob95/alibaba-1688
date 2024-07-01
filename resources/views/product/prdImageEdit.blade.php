@@ -443,7 +443,7 @@
         })
 
         $(".allAItoolBtn").click(function(){
-            window.open(`${sai_tool_doamin}/quick-fix/images?offer_id=${offer_id}&ch=wapp`, '_blank');
+            window.open(`${sai_tool_doamin}/quick-fix/inpaint?offer_id=${offer_id}&ch=wapp`, '_blank');
         });
 
         $(".AItoolBtn").click(function(){
@@ -461,7 +461,7 @@
                 let img_url = $(checked).attr("src");
                 let img_id = $(checked).attr("imgid");
 
-                window.open(`${sai_tool_doamin}/quick-fix/inpaint?img_url=${img_url}&offer_id=${offer_id}&ch=wapp`, '_blank');
+                window.open(`${sai_tool_doamin}/quick-fix/inpaint?img_id=${img_id}&offer_id=${offer_id}&ch=wapp`, '_blank');
             }
         })
 

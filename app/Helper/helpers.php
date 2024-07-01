@@ -833,14 +833,14 @@ if (!function_exists("getNoticeInfoTable")) {
             $title = "상품일반정보";
             $info = "위 내용은 상품정보제공 고시에 따라 작성되었습니다.";
         }
-        $noticeTable = "<div style='width: 960px;margin:0 auto;'>
+        $noticeTable = "<div style='width: 830px;margin:0 auto;'>
             <h4 style='font-size:20px;font-weight: 900;color:#000;margin-bottom: 10px;line-height:normal;text-align:left;display:block;font-family: \"Noto Sans KR Bold\";'>{$title}</h4>
             <table style='width: 100%;'>
               <colgroup>
-                <col width='170'>
-                <col width='310'>
-                <col width='170'>
-                <col width='310'>
+                <col width='140'>
+                <col width='275'>
+                <col width='140'>
+                <col width='275'>
               </colgroup>";
         $idx = 0;
         foreach($noticeInfo as $name => $value){
