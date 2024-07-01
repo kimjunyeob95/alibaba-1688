@@ -242,8 +242,8 @@ class WCategoryController extends Controller
                 'country'   => 'required|string',
                 'page_size' => 'required|int',
             ], [
-                "country"   => ProductErrorMessageConstant::getNotHaveErrorMessage("COUNTRY"),
-                "page_size" => ProductErrorMessageConstant::getNotHaveErrorMessage("PAGESIZE"),
+                "country.required"   => ProductErrorMessageConstant::getNotHaveErrorMessage("COUNTRY"),
+                "page_size.required" => ProductErrorMessageConstant::getNotHaveErrorMessage("PAGESIZE"),
             ]);
             if ($validator->fails()) {
                 throw new Exception($validator->errors()->first());
@@ -268,7 +268,7 @@ class WCategoryController extends Controller
             $validator = Validator::make($this->request->all(), [
                 'country' => 'required|string',
             ], [
-                "country" => ProductErrorMessageConstant::getNotHaveErrorMessage("COUNTRY"),
+                "country.required" => ProductErrorMessageConstant::getNotHaveErrorMessage("COUNTRY"),
             ]);
             if ($validator->fails()) {
                 throw new Exception($validator->errors()->first());
