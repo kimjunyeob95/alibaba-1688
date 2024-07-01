@@ -32,6 +32,13 @@ use Illuminate\Support\Str;
 
 class ProductTest extends TestCase
 {
+    # php artisan test --filter testCollectProductNotLog
+    public function testCollectProductNotLog()
+    {
+        $productW1 = app(ProductW1::class);
+        $productW1->collectProductNotLog(740167206861);
+    }
+
     # php artisan test --filter testCategoryList
     public function testCategoryList()
     {

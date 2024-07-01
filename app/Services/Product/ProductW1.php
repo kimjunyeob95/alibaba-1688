@@ -2266,11 +2266,14 @@ class ProductW1 extends ProductAbstract
         $subEnImgs  = [];
         $descEnImgs = [];
         $offerId    = 0;
-
-        $prdObj = ProductData::where("offer_id", $offerId)->first();
-
+        $prdObj     = null;
+        
         foreach ($product1688ImageDtoList as $product1688ImageDto) {
             $offerId = $product1688ImageDto->offer_id;
+            if( $prdObj == null ){
+                $prdObj = ProductData::where("offer_id", $offerId)->first();
+            }
+
             if( $product1688ImageDto->lang == WConstant::WAPP_KR ){
                 if( $product1688ImageDto->img_type == ImageConstant::IMAGE_TYPE_MAIN ){
                     $mainImg = $product1688ImageDto->img_url_origin;
@@ -2299,7 +2302,6 @@ class ProductW1 extends ProductAbstract
             if( $mainImg ){
                 ProductImageData::where('img_type', ImageConstant::IMAGE_TYPE_MAIN)
                 ->where('offer_id', $offerId)
-                ->where('is_except', ImageConstant::IS_EXCEPT_N)
                 ->where('lang', WConstant::WAPP_KR)
                 ->where('img_url_origin', '!=', $mainImg)
                 ->delete();
@@ -2307,7 +2309,6 @@ class ProductW1 extends ProductAbstract
             if( $mainEnImg ){
                 ProductImageData::where('img_type', ImageConstant::IMAGE_TYPE_MAIN)
                 ->where('offer_id', $offerId)
-                ->where('is_except', ImageConstant::IS_EXCEPT_N)
                 ->where('lang', WConstant::WAPP_EN)
                 ->where('img_url_origin', '!=', $mainEnImg)
                 ->delete();
@@ -2317,7 +2318,6 @@ class ProductW1 extends ProductAbstract
             if( !empty($subImgs) ){
                 ProductImageData::where('img_type', ImageConstant::IMAGE_TYPE_SUB)
                 ->where('offer_id', $offerId)
-                ->where('is_except', ImageConstant::IS_EXCEPT_N)
                 ->where('lang', WConstant::WAPP_KR)
                 ->whereNotIn('img_url_origin', $subImgs)
                 ->delete();
@@ -2325,17 +2325,49 @@ class ProductW1 extends ProductAbstract
             if( !empty($subEnImgs) ){
                 ProductImageData::where('img_type', ImageConstant::IMAGE_TYPE_SUB)
                 ->where('offer_id', $offerId)
-                ->where('is_except', ImageConstant::IS_EXCEPT_N)
                 ->where('lang', WConstant::WAPP_EN)
                 ->whereNotIn('img_url_origin', $subEnImgs)
                 ->delete();
+            }
+
+            /** 중복 이미지도 삭제 */
+            foreach ($subImgs as $subImg) {
+                $subCnt = ProductImageData::where('img_type', ImageConstant::IMAGE_TYPE_SUB)
+                ->where('offer_id', $offerId)
+                ->where('lang', WConstant::WAPP_KR)
+                ->where('img_url_origin', $subImg)
+                ->count();
+
+                if( $subCnt > 1 ){
+                    ProductImageData::where('img_type', ImageConstant::IMAGE_TYPE_SUB)
+                    ->where('offer_id', $offerId)
+                    ->where('lang', WConstant::WAPP_KR)
+                    ->where('img_url_origin', $subImg)
+                    ->where('img_url_trans', "")
+                    ->delete();
+                }
+            }
+            foreach ($subEnImgs as $subEnImg) {
+                $subCnt = ProductImageData::where('img_type', ImageConstant::IMAGE_TYPE_SUB)
+                ->where('offer_id', $offerId)
+                ->where('lang', WConstant::WAPP_EN)
+                ->where('img_url_origin', $subEnImg)
+                ->count();
+
+                if( $subCnt > 1 ){
+                    ProductImageData::where('img_type', ImageConstant::IMAGE_TYPE_SUB)
+                    ->where('offer_id', $offerId)
+                    ->where('lang', WConstant::WAPP_EN)
+                    ->where('img_url_origin', $subEnImg)
+                    ->where('img_url_trans', "")
+                    ->delete();
+                }
             }
 
             // 3. 상세 이미지 삭제
             if( !empty($descImgs) ){
                 ProductImageData::where('img_type', ImageConstant::IMAGE_TYPE_DESC)
                 ->where('offer_id', $offerId)
-                ->where('is_except', ImageConstant::IS_EXCEPT_N)
                 ->where('lang', WConstant::WAPP_KR)
                 ->whereNotIn('img_url_origin', $descImgs)
                 ->delete();
@@ -2343,11 +2375,44 @@ class ProductW1 extends ProductAbstract
             if( !empty($descEnImgs) ){
                 ProductImageData::where('img_type', ImageConstant::IMAGE_TYPE_DESC)
                 ->where('offer_id', $offerId)
-                ->where('is_except', ImageConstant::IS_EXCEPT_N)
                 ->where('lang', WConstant::WAPP_EN)
                 ->whereNotIn('img_url_origin', $descEnImgs)
                 ->delete();
             }
+            /** 중복 이미지도 삭제 */
+            foreach ($descImgs as $descImg) {
+                $descCnt = ProductImageData::where('img_type', ImageConstant::IMAGE_TYPE_DESC)
+                ->where('offer_id', $offerId)
+                ->where('lang', WConstant::WAPP_KR)
+                ->where('img_url_origin', $descImg)
+                ->count();
+
+                if( $descCnt > 1 ){
+                    ProductImageData::where('img_type', ImageConstant::IMAGE_TYPE_DESC)
+                    ->where('offer_id', $offerId)
+                    ->where('lang', WConstant::WAPP_KR)
+                    ->where('img_url_origin', $descImg)
+                    ->where('img_url_trans', "")
+                    ->delete();
+                }
+            }
+            foreach ($descEnImgs as $descEnImg) {
+                $descCnt = ProductImageData::where('img_type', ImageConstant::IMAGE_TYPE_DESC)
+                ->where('offer_id', $offerId)
+                ->where('lang', WConstant::WAPP_EN)
+                ->where('img_url_origin', $descEnImg)
+                ->count();
+
+                if( $descCnt > 1 ){
+                    ProductImageData::where('img_type', ImageConstant::IMAGE_TYPE_DESC)
+                    ->where('offer_id', $offerId)
+                    ->where('lang', WConstant::WAPP_EN)
+                    ->where('img_url_origin', $descEnImg)
+                    ->where('img_url_trans', "")
+                    ->delete();
+                }
+            }
+
         }
     }
 
