@@ -391,24 +391,23 @@ trait WProductSearchTrait
             if( !isset($apiDatas["data"]["result"]["result"]) || count($apiDatas["data"]["result"]["result"]) < 1 ){
                 throw new Exception(ProductErrorMessageConstant::getNotHaveErrorMessage("PRODUCT_SEARCH_OFFERRECOMMEND"));
             }
-
             $datas                    = $apiDatas["data"]["result"]["result"];
-            $deletePrdForbiddenWords  = ForbiddenWordData::where("keyword_type", ForbiddenWordConstant::KEYWORD_DELETE)->get();
-            $replacePrdForbiddenWords = ForbiddenWordData::where("keyword_type", ForbiddenWordConstant::KEYWORD_REPLACE)->get();
+            // $deletePrdForbiddenWords  = ForbiddenWordData::where("keyword_type", ForbiddenWordConstant::KEYWORD_DELETE)->get();
+            // $replacePrdForbiddenWords = ForbiddenWordData::where("keyword_type", ForbiddenWordConstant::KEYWORD_REPLACE)->get();
             foreach ($datas as &$data) {
                 $ocPrice          = ocPrice((float)$data["priceInfo"]["price"]);
                 $data["oc_orice"] = $ocPrice;
 
-                $subjectTrans = $data["subjectTrans"];
-                // 삭제어
-                $subjectForbiddenTrans = removeForbiddenText($deletePrdForbiddenWords, $subjectTrans, ForbiddenWordConstant::KEYWORD_APPLY_TITLE);
-                // 교체어
-                $subjectForbiddenTrans = replaceForbiddenText($replacePrdForbiddenWords, $subjectForbiddenTrans, ForbiddenWordConstant::KEYWORD_APPLY_TITLE);
+                // $subjectTrans = $data["subjectTrans"];
+                // // 삭제어
+                // $subjectForbiddenTrans = removeForbiddenText($deletePrdForbiddenWords, $subjectTrans, ForbiddenWordConstant::KEYWORD_APPLY_TITLE);
+                // // 교체어
+                // $subjectForbiddenTrans = replaceForbiddenText($replacePrdForbiddenWords, $subjectForbiddenTrans, ForbiddenWordConstant::KEYWORD_APPLY_TITLE);
 
-                $subjectForbiddenTrans = trim($subjectForbiddenTrans);
-                $subjectForbiddenTrans = removeDuplicateWords($subjectForbiddenTrans);
+                // $subjectForbiddenTrans = trim($subjectForbiddenTrans);
+                // $subjectForbiddenTrans = removeDuplicateWords($subjectForbiddenTrans);
 
-                $data["subjectTrans"] = $subjectForbiddenTrans;
+                // $data["subjectTrans"] = $subjectForbiddenTrans;
             }
 
             $res = [
