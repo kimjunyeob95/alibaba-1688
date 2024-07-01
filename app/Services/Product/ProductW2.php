@@ -1137,21 +1137,32 @@ class ProductW2 extends ProductAbstract
                 $imgByte   = $imageInfo["byte"];
                 $imgMime   = $imageInfo["mime"];
             }
-            $product1688ImageDto = new Product1688ImageDto();
-            $product1688ImageDto->bind([
-                "offerId"        => $offerId,
-                "imgType"        => $imgType,
-                "lang"           => WConstant::WAPP_KR,
-                "is_except"      => $is_except,
-                "img_url_origin" => $prdImage,
-                "img_url_trans"  => $img_url_trans,
-                "isChangeImg"    => $isChangeImg,
-                "width"          => $imgWidth,
-                "height"         => $imgHeight,
-                "byte"           => $imgByte,
-                "mime"           => $imgMime
-            ]);
-            $product1688ImageDtoList[] = $product1688ImageDto;
+            $aleadyHas = false;
+            foreach ($product1688ImageDtoList as $product1688ImageDto) {
+                if( $prdImage == $product1688ImageDto->img_url_origin && $offerId == $product1688ImageDto->offer_id
+                && $product1688ImageDto->lang == WConstant::WAPP_KR && $product1688ImageDto->img_type == $imgType ){
+                    $aleadyHas = true;
+                    break;
+                }
+            }
+
+            if( $aleadyHas == false ){
+                $product1688ImageDto = new Product1688ImageDto();
+                $product1688ImageDto->bind([
+                    "offerId"        => $offerId,
+                    "imgType"        => $imgType,
+                    "lang"           => WConstant::WAPP_KR,
+                    "is_except"      => $is_except,
+                    "img_url_origin" => $prdImage,
+                    "img_url_trans"  => $img_url_trans,
+                    "isChangeImg"    => $isChangeImg,
+                    "width"          => $imgWidth,
+                    "height"         => $imgHeight,
+                    "byte"           => $imgByte,
+                    "mime"           => $imgMime
+                ]);
+                $product1688ImageDtoList[] = $product1688ImageDto;
+            }
         }
         if( isset($detailProduct["skuList"]) ){
             foreach ($detailProduct["skuList"] as $prdOptions) {
@@ -1196,21 +1207,32 @@ class ProductW2 extends ProductAbstract
                         $imgByte   = $imageInfo["byte"];
                         $imgMime   = $imageInfo["mime"];
                     }
-                    $product1688ImageDto = new Product1688ImageDto();
-                    $product1688ImageDto->bind([
-                        "offerId"        => $offerId,
-                        "imgType"        => $imgType,
-                        "lang"           => WConstant::WAPP_KR,
-                        "is_except"      => $is_except,
-                        "img_url_origin" => $prdImage,
-                        "img_url_trans"  => $img_url_trans,
-                        "isChangeImg"    => $isChangeImg,
-                        "width"          => $imgWidth,
-                        "height"         => $imgHeight,
-                        "byte"           => $imgByte,
-                        "mime"           => $imgMime
-                    ]);
-                    $product1688ImageDtoList[] = $product1688ImageDto;
+                    $aleadyHas = false;
+                    foreach ($product1688ImageDtoList as $product1688ImageDto) {
+                        if( $prdImage == $product1688ImageDto->img_url_origin && $offerId == $product1688ImageDto->offer_id
+                        && $product1688ImageDto->lang == WConstant::WAPP_KR && $product1688ImageDto->img_type == $imgType ){
+                            $aleadyHas = true;
+                            break;
+                        }
+                    }
+
+                    if( $aleadyHas == false ){
+                        $product1688ImageDto = new Product1688ImageDto();
+                        $product1688ImageDto->bind([
+                            "offerId"        => $offerId,
+                            "imgType"        => $imgType,
+                            "lang"           => WConstant::WAPP_KR,
+                            "is_except"      => $is_except,
+                            "img_url_origin" => $prdImage,
+                            "img_url_trans"  => $img_url_trans,
+                            "isChangeImg"    => $isChangeImg,
+                            "width"          => $imgWidth,
+                            "height"         => $imgHeight,
+                            "byte"           => $imgByte,
+                            "mime"           => $imgMime
+                        ]);
+                        $product1688ImageDtoList[] = $product1688ImageDto;
+                    }
                 }
             }
         }
@@ -1254,21 +1276,32 @@ class ProductW2 extends ProductAbstract
                 $imgByte   = $imageInfo["byte"];
                 $imgMime   = $imageInfo["mime"];
             }
-            $product1688ImageDto = new Product1688ImageDto();
-            $product1688ImageDto->bind([
-                "offerId"        => $offerId,
-                "imgType"        => $imgType,
-                "lang"           => WConstant::WAPP_EN,
-                "is_except"      => $is_except,
-                "img_url_origin" => $prdImage,
-                "img_url_trans"  => $img_url_trans,
-                "isChangeImg"    => $isChangeImg,
-                "width"          => $imgWidth,
-                "height"         => $imgHeight,
-                "byte"           => $imgByte,
-                "mime"           => $imgMime
-            ]);
-            $product1688ImageDtoList[] = $product1688ImageDto;
+            $aleadyHas = false;
+            foreach ($product1688ImageDtoList as $product1688ImageDto) {
+                if( $prdImage == $product1688ImageDto->img_url_origin && $offerId == $product1688ImageDto->offer_id
+                && $product1688ImageDto->lang == WConstant::WAPP_EN && $product1688ImageDto->img_type == $imgType ){
+                    $aleadyHas = true;
+                    break;
+                }
+            }
+
+            if( $aleadyHas == false ){
+                $product1688ImageDto = new Product1688ImageDto();
+                $product1688ImageDto->bind([
+                    "offerId"        => $offerId,
+                    "imgType"        => $imgType,
+                    "lang"           => WConstant::WAPP_EN,
+                    "is_except"      => $is_except,
+                    "img_url_origin" => $prdImage,
+                    "img_url_trans"  => $img_url_trans,
+                    "isChangeImg"    => $isChangeImg,
+                    "width"          => $imgWidth,
+                    "height"         => $imgHeight,
+                    "byte"           => $imgByte,
+                    "mime"           => $imgMime
+                ]);
+                $product1688ImageDtoList[] = $product1688ImageDto;
+            }
         }
         if( isset($detailEnProduct["skuList"]) ){
             foreach ($detailEnProduct["skuList"] as $prdOptions) {
@@ -1313,21 +1346,33 @@ class ProductW2 extends ProductAbstract
                         $imgByte   = $imageInfo["byte"];
                         $imgMime   = $imageInfo["mime"];
                     }
-                    $product1688ImageDto = new Product1688ImageDto();
-                    $product1688ImageDto->bind([
-                        "offerId"        => $offerId,
-                        "imgType"        => $imgType,
-                        "lang"           => WConstant::WAPP_EN,
-                        "is_except"      => $is_except,
-                        "img_url_origin" => $prdImage,
-                        "img_url_trans"  => $img_url_trans,
-                        "isChangeImg"    => $isChangeImg,
-                        "width"          => $imgWidth,
-                        "height"         => $imgHeight,
-                        "byte"           => $imgByte,
-                        "mime"           => $imgMime
-                    ]);
-                    $product1688ImageDtoList[] = $product1688ImageDto;
+                    
+                    $aleadyHas = false;
+                    foreach ($product1688ImageDtoList as $product1688ImageDto) {
+                        if( $prdImage == $product1688ImageDto->img_url_origin && $offerId == $product1688ImageDto->offer_id
+                        && $product1688ImageDto->lang == WConstant::WAPP_EN && $product1688ImageDto->img_type == $imgType ){
+                            $aleadyHas = true;
+                            break;
+                        }
+                    }
+
+                    if( $aleadyHas == false ){
+                        $product1688ImageDto = new Product1688ImageDto();
+                        $product1688ImageDto->bind([
+                            "offerId"        => $offerId,
+                            "imgType"        => $imgType,
+                            "lang"           => WConstant::WAPP_EN,
+                            "is_except"      => $is_except,
+                            "img_url_origin" => $prdImage,
+                            "img_url_trans"  => $img_url_trans,
+                            "isChangeImg"    => $isChangeImg,
+                            "width"          => $imgWidth,
+                            "height"         => $imgHeight,
+                            "byte"           => $imgByte,
+                            "mime"           => $imgMime
+                        ]);
+                        $product1688ImageDtoList[] = $product1688ImageDto;
+                    }
                 }
             }
         }
@@ -1371,21 +1416,33 @@ class ProductW2 extends ProductAbstract
                 $imgByte   = $imageInfo["byte"];
                 $imgMime   = $imageInfo["mime"];
             }
-            $product1688ImageDto = new Product1688ImageDto();
-            $product1688ImageDto->bind([
-                "offerId"        => $offerId,
-                "imgType"        => $imgType,
-                "lang"           => WConstant::WAPP_KR,
-                "is_except"      => $is_except,
-                "img_url_origin" => $imageSrc,
-                "img_url_trans"  => $img_url_trans,
-                "isChangeImg"    => $isChangeImg,
-                "width"          => $imgWidth,
-                "height"         => $imgHeight,
-                "byte"           => $imgByte,
-                "mime"           => $imgMime
-            ]);
-            $product1688ImageDtoList[] = $product1688ImageDto;
+
+            $aleadyHas = false;
+            foreach ($product1688ImageDtoList as $product1688ImageDto) {
+                if( $imageSrc == $product1688ImageDto->img_url_origin && $offerId == $product1688ImageDto->offer_id
+                && $product1688ImageDto->lang == WConstant::WAPP_KR && $product1688ImageDto->img_type == $imgType ){
+                    $aleadyHas = true;
+                    break;
+                }
+            }
+
+            if( $aleadyHas == false ){
+                $product1688ImageDto = new Product1688ImageDto();
+                $product1688ImageDto->bind([
+                    "offerId"        => $offerId,
+                    "imgType"        => $imgType,
+                    "lang"           => WConstant::WAPP_KR,
+                    "is_except"      => $is_except,
+                    "img_url_origin" => $imageSrc,
+                    "img_url_trans"  => $img_url_trans,
+                    "isChangeImg"    => $isChangeImg,
+                    "width"          => $imgWidth,
+                    "height"         => $imgHeight,
+                    "byte"           => $imgByte,
+                    "mime"           => $imgMime
+                ]);
+                $product1688ImageDtoList[] = $product1688ImageDto;
+            }
         }
 
         // 2-2. 영문 이미지
@@ -1425,21 +1482,33 @@ class ProductW2 extends ProductAbstract
                 $imgByte   = $imageInfo["byte"];
                 $imgMime   = $imageInfo["mime"];
             }
-            $product1688ImageDto = new Product1688ImageDto();
-            $product1688ImageDto->bind([
-                "offerId"        => $offerId,
-                "imgType"        => $imgType,
-                "lang"           => WConstant::WAPP_EN,
-                "is_except"      => $is_except,
-                "img_url_origin" => $imageSrc,
-                "img_url_trans"  => $img_url_trans,
-                "isChangeImg"    => $isChangeImg,
-                "width"          => $imgWidth,
-                "height"         => $imgHeight,
-                "byte"           => $imgByte,
-                "mime"           => $imgMime
-            ]);
-            $product1688ImageDtoList[] = $product1688ImageDto;
+            
+            $aleadyHas = false;
+            foreach ($product1688ImageDtoList as $product1688ImageDto) {
+                if( $imageSrc == $product1688ImageDto->img_url_origin && $offerId == $product1688ImageDto->offer_id
+                && $product1688ImageDto->lang == WConstant::WAPP_EN && $product1688ImageDto->img_type == $imgType ){
+                    $aleadyHas = true;
+                    break;
+                }
+            }
+
+            if( $aleadyHas == false ){
+                $product1688ImageDto = new Product1688ImageDto();
+                $product1688ImageDto->bind([
+                    "offerId"        => $offerId,
+                    "imgType"        => $imgType,
+                    "lang"           => WConstant::WAPP_EN,
+                    "is_except"      => $is_except,
+                    "img_url_origin" => $imageSrc,
+                    "img_url_trans"  => $img_url_trans,
+                    "isChangeImg"    => $isChangeImg,
+                    "width"          => $imgWidth,
+                    "height"         => $imgHeight,
+                    "byte"           => $imgByte,
+                    "mime"           => $imgMime
+                ]);
+                $product1688ImageDtoList[] = $product1688ImageDto;
+            }
         }
 
         // 3. 상품 기본정보

@@ -1427,21 +1427,33 @@ class ProductW1 extends ProductAbstract
                 $imgByte   = $imageInfo["byte"];
                 $imgMime   = $imageInfo["mime"];
             }
-            $product1688ImageDto = new Product1688ImageDto();
-            $product1688ImageDto->bind([
-                "offerId"        => $offerId,
-                "imgType"        => $imgType,
-                "lang"           => WConstant::WAPP_KR,
-                "is_except"      => $is_except,
-                "img_url_origin" => $prdImage,
-                "img_url_trans"  => $img_url_trans,
-                "isChangeImg"    => $isChangeImg,
-                "width"          => $imgWidth,
-                "height"         => $imgHeight,
-                "byte"           => $imgByte,
-                "mime"           => $imgMime
-            ]);
-            $product1688ImageDtoList[] = $product1688ImageDto;
+
+            $aleadyHas = false;
+            foreach ($product1688ImageDtoList as $product1688ImageDto) {
+                if( $prdImage == $product1688ImageDto->img_url_origin && $offerId == $product1688ImageDto->offer_id
+                && $product1688ImageDto->lang == WConstant::WAPP_KR && $product1688ImageDto->img_type == $imgType ){
+                    $aleadyHas = true;
+                    break;
+                }
+            }
+
+            if( $aleadyHas == false ){
+                $product1688ImageDto = new Product1688ImageDto();
+                $product1688ImageDto->bind([
+                    "offerId"        => $offerId,
+                    "imgType"        => $imgType,
+                    "lang"           => WConstant::WAPP_KR,
+                    "is_except"      => $is_except,
+                    "img_url_origin" => $prdImage,
+                    "img_url_trans"  => $img_url_trans,
+                    "isChangeImg"    => $isChangeImg,
+                    "width"          => $imgWidth,
+                    "height"         => $imgHeight,
+                    "byte"           => $imgByte,
+                    "mime"           => $imgMime
+                ]);
+                $product1688ImageDtoList[] = $product1688ImageDto;
+            }
         }
         if( isset($detailProduct["productSkuInfos"]) ){
             foreach ($detailProduct["productSkuInfos"] as $prdOptions) {
@@ -1486,21 +1498,33 @@ class ProductW1 extends ProductAbstract
                         $imgByte   = $imageInfo["byte"];
                         $imgMime   = $imageInfo["mime"];
                     }
-                    $product1688ImageDto = new Product1688ImageDto();
-                    $product1688ImageDto->bind([
-                        "offerId"        => $offerId,
-                        "imgType"        => $imgType,
-                        "lang"           => WConstant::WAPP_KR,
-                        "is_except"      => $is_except,
-                        "img_url_origin" => $prdImage,
-                        "img_url_trans"  => $img_url_trans,
-                        "isChangeImg"    => $isChangeImg,
-                        "width"          => $imgWidth,
-                        "height"         => $imgHeight,
-                        "byte"           => $imgByte,
-                        "mime"           => $imgMime
-                    ]);
-                    $product1688ImageDtoList[] = $product1688ImageDto;
+
+                    $aleadyHas = false;
+                    foreach ($product1688ImageDtoList as $product1688ImageDto) {
+                        if( $prdImage == $product1688ImageDto->img_url_origin && $offerId == $product1688ImageDto->offer_id
+                        && $product1688ImageDto->lang == WConstant::WAPP_KR && $product1688ImageDto->img_type == $imgType ){
+                            $aleadyHas = true;
+                            break;
+                        }
+                    }
+
+                    if( $aleadyHas == false ){
+                        $product1688ImageDto = new Product1688ImageDto();
+                        $product1688ImageDto->bind([
+                            "offerId"        => $offerId,
+                            "imgType"        => $imgType,
+                            "lang"           => WConstant::WAPP_KR,
+                            "is_except"      => $is_except,
+                            "img_url_origin" => $prdImage,
+                            "img_url_trans"  => $img_url_trans,
+                            "isChangeImg"    => $isChangeImg,
+                            "width"          => $imgWidth,
+                            "height"         => $imgHeight,
+                            "byte"           => $imgByte,
+                            "mime"           => $imgMime
+                        ]);
+                        $product1688ImageDtoList[] = $product1688ImageDto;
+                    }
                 }
             }
         }
@@ -1544,21 +1568,33 @@ class ProductW1 extends ProductAbstract
                 $imgByte   = $imageInfo["byte"];
                 $imgMime   = $imageInfo["mime"];
             }
-            $product1688ImageDto = new Product1688ImageDto();
-            $product1688ImageDto->bind([
-                "offerId"        => $offerId,
-                "imgType"        => $imgType,
-                "lang"           => WConstant::WAPP_EN,
-                "is_except"      => $is_except,
-                "img_url_origin" => $prdImage,
-                "img_url_trans"  => $img_url_trans,
-                "isChangeImg"    => $isChangeImg,
-                "width"          => $imgWidth,
-                "height"         => $imgHeight,
-                "byte"           => $imgByte,
-                "mime"           => $imgMime
-            ]);
-            $product1688ImageDtoList[] = $product1688ImageDto;
+
+            $aleadyHas = false;
+            foreach ($product1688ImageDtoList as $product1688ImageDto) {
+                if( $prdImage == $product1688ImageDto->img_url_origin && $offerId == $product1688ImageDto->offer_id
+                && $product1688ImageDto->lang == WConstant::WAPP_EN && $product1688ImageDto->img_type == $imgType ){
+                    $aleadyHas = true;
+                    break;
+                }
+            }
+
+            if( $aleadyHas == false ){
+                $product1688ImageDto = new Product1688ImageDto();
+                $product1688ImageDto->bind([
+                    "offerId"        => $offerId,
+                    "imgType"        => $imgType,
+                    "lang"           => WConstant::WAPP_EN,
+                    "is_except"      => $is_except,
+                    "img_url_origin" => $prdImage,
+                    "img_url_trans"  => $img_url_trans,
+                    "isChangeImg"    => $isChangeImg,
+                    "width"          => $imgWidth,
+                    "height"         => $imgHeight,
+                    "byte"           => $imgByte,
+                    "mime"           => $imgMime
+                ]);
+                $product1688ImageDtoList[] = $product1688ImageDto;
+            }
         }
         if( isset($detailEnProduct["productSkuInfos"]) ){
             foreach ($detailEnProduct["productSkuInfos"] as $prdOptions) {
@@ -1603,21 +1639,33 @@ class ProductW1 extends ProductAbstract
                         $imgByte   = $imageInfo["byte"];
                         $imgMime   = $imageInfo["mime"];
                     }
-                    $product1688ImageDto = new Product1688ImageDto();
-                    $product1688ImageDto->bind([
-                        "offerId"        => $offerId,
-                        "imgType"        => $imgType,
-                        "lang"           => WConstant::WAPP_EN,
-                        "is_except"      => $is_except,
-                        "img_url_origin" => $prdImage,
-                        "img_url_trans"  => $img_url_trans,
-                        "isChangeImg"    => $isChangeImg,
-                        "width"          => $imgWidth,
-                        "height"         => $imgHeight,
-                        "byte"           => $imgByte,
-                        "mime"           => $imgMime
-                    ]);
-                    $product1688ImageDtoList[] = $product1688ImageDto;
+
+                    $aleadyHas = false;
+                    foreach ($product1688ImageDtoList as $product1688ImageDto) {
+                        if( $prdImage == $product1688ImageDto->img_url_origin && $offerId == $product1688ImageDto->offer_id
+                        && $product1688ImageDto->lang == WConstant::WAPP_EN && $product1688ImageDto->img_type == $imgType ){
+                            $aleadyHas = true;
+                            break;
+                        }
+                    }
+
+                    if( $aleadyHas == false ){
+                        $product1688ImageDto = new Product1688ImageDto();
+                        $product1688ImageDto->bind([
+                            "offerId"        => $offerId,
+                            "imgType"        => $imgType,
+                            "lang"           => WConstant::WAPP_EN,
+                            "is_except"      => $is_except,
+                            "img_url_origin" => $prdImage,
+                            "img_url_trans"  => $img_url_trans,
+                            "isChangeImg"    => $isChangeImg,
+                            "width"          => $imgWidth,
+                            "height"         => $imgHeight,
+                            "byte"           => $imgByte,
+                            "mime"           => $imgMime
+                        ]);
+                        $product1688ImageDtoList[] = $product1688ImageDto;
+                    }
                 }
             }
         }
@@ -1658,21 +1706,33 @@ class ProductW1 extends ProductAbstract
                 $imgByte   = $imageInfo["byte"];
                 $imgMime   = $imageInfo["mime"];
             }
-            $product1688ImageDto = new Product1688ImageDto();
-            $product1688ImageDto->bind([
-                "offerId"        => $offerId,
-                "imgType"        => $imgType,
-                "lang"           => WConstant::WAPP_KR,
-                "is_except"      => $is_except,
-                "img_url_origin" => $imageSrc,
-                "img_url_trans"  => $img_url_trans,
-                "isChangeImg"    => $isChangeImg,
-                "width"          => $imgWidth,
-                "height"         => $imgHeight,
-                "byte"           => $imgByte,
-                "mime"           => $imgMime
-            ]);
-            $product1688ImageDtoList[] = $product1688ImageDto;
+
+            $aleadyHas = false;
+            foreach ($product1688ImageDtoList as $product1688ImageDto) {
+                if( $imageSrc == $product1688ImageDto->img_url_origin && $offerId == $product1688ImageDto->offer_id
+                && $product1688ImageDto->lang == WConstant::WAPP_KR && $product1688ImageDto->img_type == $imgType ){
+                    $aleadyHas = true;
+                    break;
+                }
+            }
+
+            if( $aleadyHas == false ){
+                $product1688ImageDto = new Product1688ImageDto();
+                $product1688ImageDto->bind([
+                    "offerId"        => $offerId,
+                    "imgType"        => $imgType,
+                    "lang"           => WConstant::WAPP_KR,
+                    "is_except"      => $is_except,
+                    "img_url_origin" => $imageSrc,
+                    "img_url_trans"  => $img_url_trans,
+                    "isChangeImg"    => $isChangeImg,
+                    "width"          => $imgWidth,
+                    "height"         => $imgHeight,
+                    "byte"           => $imgByte,
+                    "mime"           => $imgMime
+                ]);
+                $product1688ImageDtoList[] = $product1688ImageDto;
+            }
         }
 
         // 2-2. 영문 이미지
@@ -1709,21 +1769,33 @@ class ProductW1 extends ProductAbstract
                 $imgByte   = $imageInfo["byte"];
                 $imgMime   = $imageInfo["mime"];
             }
-            $product1688ImageDto = new Product1688ImageDto();
-            $product1688ImageDto->bind([
-                "offerId"        => $offerId,
-                "imgType"        => $imgType,
-                "lang"           => WConstant::WAPP_EN,
-                "is_except"      => $is_except,
-                "img_url_origin" => $imageSrc,
-                "img_url_trans"  => $img_url_trans,
-                "isChangeImg"    => $isChangeImg,
-                "width"          => $imgWidth,
-                "height"         => $imgHeight,
-                "byte"           => $imgByte,
-                "mime"           => $imgMime
-            ]);
-            $product1688ImageDtoList[] = $product1688ImageDto;
+
+            $aleadyHas = false;
+            foreach ($product1688ImageDtoList as $product1688ImageDto) {
+                if( $imageSrc == $product1688ImageDto->img_url_origin && $offerId == $product1688ImageDto->offer_id
+                && $product1688ImageDto->lang == WConstant::WAPP_EN && $product1688ImageDto->img_type == $imgType ){
+                    $aleadyHas = true;
+                    break;
+                }
+            }
+
+            if( $aleadyHas == false ){
+                $product1688ImageDto = new Product1688ImageDto();
+                $product1688ImageDto->bind([
+                    "offerId"        => $offerId,
+                    "imgType"        => $imgType,
+                    "lang"           => WConstant::WAPP_EN,
+                    "is_except"      => $is_except,
+                    "img_url_origin" => $imageSrc,
+                    "img_url_trans"  => $img_url_trans,
+                    "isChangeImg"    => $isChangeImg,
+                    "width"          => $imgWidth,
+                    "height"         => $imgHeight,
+                    "byte"           => $imgByte,
+                    "mime"           => $imgMime
+                ]);
+                $product1688ImageDtoList[] = $product1688ImageDto;
+            }
         }
 
         // 3. 상품 기본정보
@@ -2332,34 +2404,38 @@ class ProductW1 extends ProductAbstract
 
             /** 중복 이미지도 삭제 */
             foreach ($subImgs as $subImg) {
-                $subCnt = ProductImageData::where('img_type', ImageConstant::IMAGE_TYPE_SUB)
+                $imgObjs = ProductImageData::where('img_type', ImageConstant::IMAGE_TYPE_SUB)
                 ->where('offer_id', $offerId)
                 ->where('lang', WConstant::WAPP_KR)
                 ->where('img_url_origin', $subImg)
-                ->count();
+                ->get();
 
-                if( $subCnt > 1 ){
+                if( $imgObjs->count() > 1 ){
+                    $firstId = $imgObjs->first()->id;
+
                     ProductImageData::where('img_type', ImageConstant::IMAGE_TYPE_SUB)
                     ->where('offer_id', $offerId)
                     ->where('lang', WConstant::WAPP_KR)
                     ->where('img_url_origin', $subImg)
-                    ->where('img_url_trans', "")
+                    ->where('id', '!=', $firstId)
                     ->delete();
                 }
             }
             foreach ($subEnImgs as $subEnImg) {
-                $subCnt = ProductImageData::where('img_type', ImageConstant::IMAGE_TYPE_SUB)
+                $imgObjs = ProductImageData::where('img_type', ImageConstant::IMAGE_TYPE_SUB)
                 ->where('offer_id', $offerId)
                 ->where('lang', WConstant::WAPP_EN)
                 ->where('img_url_origin', $subEnImg)
-                ->count();
+                ->get();
 
-                if( $subCnt > 1 ){
+                if( $imgObjs->count() > 1 ){
+                    $firstId = $imgObjs->first()->id;
+
                     ProductImageData::where('img_type', ImageConstant::IMAGE_TYPE_SUB)
                     ->where('offer_id', $offerId)
                     ->where('lang', WConstant::WAPP_EN)
                     ->where('img_url_origin', $subEnImg)
-                    ->where('img_url_trans', "")
+                    ->where('id', '!=', $firstId)
                     ->delete();
                 }
             }
@@ -2381,38 +2457,41 @@ class ProductW1 extends ProductAbstract
             }
             /** 중복 이미지도 삭제 */
             foreach ($descImgs as $descImg) {
-                $descCnt = ProductImageData::where('img_type', ImageConstant::IMAGE_TYPE_DESC)
+                $imgObjs = ProductImageData::where('img_type', ImageConstant::IMAGE_TYPE_DESC)
                 ->where('offer_id', $offerId)
                 ->where('lang', WConstant::WAPP_KR)
                 ->where('img_url_origin', $descImg)
-                ->count();
+                ->get();
 
-                if( $descCnt > 1 ){
+                if( $imgObjs->count() > 1 ){
+                    $firstId = $imgObjs->first()->id;
+
                     ProductImageData::where('img_type', ImageConstant::IMAGE_TYPE_DESC)
                     ->where('offer_id', $offerId)
                     ->where('lang', WConstant::WAPP_KR)
                     ->where('img_url_origin', $descImg)
-                    ->where('img_url_trans', "")
+                    ->where('id', '!=', $firstId)
                     ->delete();
                 }
             }
             foreach ($descEnImgs as $descEnImg) {
-                $descCnt = ProductImageData::where('img_type', ImageConstant::IMAGE_TYPE_DESC)
+                $imgObjs = ProductImageData::where('img_type', ImageConstant::IMAGE_TYPE_DESC)
                 ->where('offer_id', $offerId)
                 ->where('lang', WConstant::WAPP_EN)
                 ->where('img_url_origin', $descEnImg)
-                ->count();
+                ->get();
 
-                if( $descCnt > 1 ){
+                if( $imgObjs->count() > 1 ){
+                    $firstId = $imgObjs->first()->id;
+
                     ProductImageData::where('img_type', ImageConstant::IMAGE_TYPE_DESC)
                     ->where('offer_id', $offerId)
                     ->where('lang', WConstant::WAPP_EN)
                     ->where('img_url_origin', $descEnImg)
-                    ->where('img_url_trans', "")
+                    ->where('id', '!=', $firstId)
                     ->delete();
                 }
             }
-
         }
     }
 
