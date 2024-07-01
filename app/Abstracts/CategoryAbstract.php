@@ -5,6 +5,8 @@ namespace App\Abstracts;
 use App\Constants\CategoryErrorMessageConstant;
 use App\Constants\Constant1688;
 use App\Constants\ForbiddenWordConstant;
+use App\Constants\MallConstant;
+use App\Models\ChannelCategoryRegistData;
 use App\Models\ForbiddenWordData;
 use Exception;
 
@@ -103,6 +105,14 @@ abstract class CategoryAbstract
     abstract function weightList(array $params): array;
 
     /**
+     * @func sendMallList
+     * @description '전송 카테고리 관리'
+     * @param array $params
+     * @return array
+    */
+    abstract function sendMallList(array $params): array;
+
+    /**
      * @func getW
      * @description 'W 카테고리 조회'
      * @param array $params
@@ -165,6 +175,64 @@ abstract class CategoryAbstract
      * @return array
     */
     abstract function weightRemove(array $categoryIds): array;
+
+    /**
+     * @func sendMallUpdate
+     * @description '채널별 전송 카테고리 수정'
+     * @param array $cateParams '카테고리 정보'
+     * @return array
+    */
+    public function sendMallUpdate(array $cateParams): array
+    {
+        $returnMsg = $this->returnMsg;
+        try {
+            
+            foreach ($cateParams as $cateParam) {
+                $categoryId = $cateParam["categoryId"];
+                $ocPublic   = $cateParam["ocPublic"] == "true" ? MallConstant::REGIST_Y : MallConstant::REGIST_N;
+                $ocPrivate  = $cateParam["ocPrivate"] == "true" ? MallConstant::REGIST_Y : MallConstant::REGIST_N;
+                $esW        = $cateParam["esW"] == "true" ? MallConstant::REGIST_Y : MallConstant::REGIST_N;
+                $esDropHub  = $cateParam["esDropHub"] == "true" ? MallConstant::REGIST_Y : MallConstant::REGIST_N;
+
+                $channelList = MallConstant::SEND_CHANNEL_NAME_LIST;
+                
+                foreach ($channelList as $sendType => $channel) {
+                    $isRegist = MallConstant::REGIST_N;
+
+                    switch ($sendType) {
+                        case MallConstant::OC_PUBLIC:
+                            $isRegist = $ocPublic;
+                            break;
+                        case MallConstant::OC_PRIVATE:
+                            $isRegist = $ocPrivate;
+                            break;
+                        case MallConstant::EASYSELL_W:
+                            $isRegist = $esW;
+                            break;
+                        case MallConstant::EASYSELL_DROPHUB:
+                            $isRegist = $esDropHub;
+                            break;
+                    }
+                    ChannelCategoryRegistData::updateOrCreate(
+                        [
+                            "category_id" => $categoryId,
+                            "channel"     => $channel,
+                            "send_type"   => $sendType,
+                        ],
+                        [
+                            "is_regist" => $isRegist,
+                        ]
+                    );
+                }
+            }
+
+            $returnMsg = helpers_success_message();
+        } catch (Exception $e) {
+            $returnMsg = helpers_fail_message($e->getMessage());
+        }
+
+        return $returnMsg;
+    }
 
     /**
      * @func topList

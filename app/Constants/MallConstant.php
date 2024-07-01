@@ -16,9 +16,19 @@ class MallConstant
     /** 전송 채널 리스트 */
     public const OC_PUBLIC         = "30";
     public const OC_PRIVATE        = "28";
+    public const EASYSELL_W        = "W";
+    public const EASYSELL_DROPHUB  = "DropHub";
     public const SEND_CHANNEL_LIST = [
-        self::OC_PUBLIC  => "온채널 일반 상품",
-        self::OC_PRIVATE => "온채널 사입 상품",
+        self::OC_PUBLIC        => "온채널: 일반상품",
+        self::OC_PRIVATE       => "온채널: 사입상품",
+        self::EASYSELL_W       => "이지셀: 더블유",
+        self::EASYSELL_DROPHUB => "이지셀: Drop Hub",
+    ];
+    public const SEND_CHANNEL_NAME_LIST = [
+        self::OC_PUBLIC        => self::MALL_ONCHANNEL,
+        self::OC_PRIVATE       => self::MALL_ONCHANNEL,
+        self::EASYSELL_W       => self::MALL_EASYSELL,
+        self::EASYSELL_DROPHUB => self::MALL_EASYSELL,
     ];
 
     /** 상품등록상태 (등록 / 미등록) */
@@ -51,5 +61,7 @@ class MallConstant
     public const AUTO_REGIST_TRUE  = "true";
     public const AUTO_REGIST_FALSE = "false";
 
-
+    /** 등록여부 */
+    public const REGIST_Y = "Y";
+    public const REGIST_N = "N";
 }

@@ -16,6 +16,7 @@ class CategoryErrorMessageConstant
     public const ERROR_MESSAGE_CATEGORY            = "category";
     public const ERROR_MESSAGE_CATEGORY_TREE       = "categoryTree";
     public const ERROR_MESSAGE_CATEGORYID          = "1688 category id";
+    public const ERROR_MESSAGE_CATEGORYIDS         = "1688 category ids";
     public const ERROR_MESSAGE_W_CATEGORYID        = "W category id";
     public const ERROR_MESSAGE_LEVEL               = "level";
     public const ERROR_MESSAGE_CATE_FIRST          = "cate_first";
@@ -23,6 +24,11 @@ class CategoryErrorMessageConstant
     public const ERROR_MESSAGE_WEIGHT              = "weight";
     public const ERROR_MESSAGE_CHANNELCATECODE     = "channelCateCode";
     public const ERROR_MESSAGE_SEARCH_TOPKEYWORD   = "product.search.topKeyword";
+    public const ERROR_MESSAGE_OCPUBLIC            = "ocPublic";
+    public const ERROR_MESSAGE_OCPRIVATE           = "ocPrivate";
+    public const ERROR_MESSAGE_ESW                 = "esW";
+    public const ERROR_MESSAGE_ESDROPHUB           = "esDropHub";
+    public const ERROR_MESSAGE_CATEPARAMS          = "cateParams";
  
     public static function getErrorMessageNotDefault($constantName): string
     {

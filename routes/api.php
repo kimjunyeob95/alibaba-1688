@@ -123,6 +123,8 @@ Route::name('w.')->prefix('w')->group(function () {
         Route::post('/weight/save', [WCategoryController::class, 'weightSave'])->name('weightSave');
         /** 카테고리 중량 삭제 */
         Route::post('/weight/remove', [WCategoryController::class, 'weightRemove'])->name('weightRemove');
+        /** 채널별 전송 카테고리 수정 */
+        Route::post('/send/mall/update', [WCategoryController::class, 'sendMallUpdate'])->name('sendMallUpdate');
     });
 
     Route::name('forbiddenWord.')->prefix('forbiddenWord')->group(function () {
