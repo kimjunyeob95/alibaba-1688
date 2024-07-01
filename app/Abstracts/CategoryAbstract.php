@@ -257,26 +257,32 @@ abstract class CategoryAbstract
                 ]
             ];
             $result = curl_1688("post", $endPoint, $payload);
+            $res    = [];
             if( isset($result["data"]["result"]["result"]) ){
                 $datas = $result["data"]["result"]["result"];
-                // if( isset($datas["rankProductModels"]) && count($datas["rankProductModels"]) > 0 ){
-                //     $deletePrdForbiddenWords  = ForbiddenWordData::where("keyword_type", ForbiddenWordConstant::KEYWORD_DELETE)->get();
-                //     $replacePrdForbiddenWords = ForbiddenWordData::where("keyword_type", ForbiddenWordConstant::KEYWORD_REPLACE)->get();
+                if (isset($datas["rankProductModels"]) && count($datas["rankProductModels"]) > 0) {
+                    foreach ($datas["rankProductModels"] as $data) {
+                        if (isset($data["sort"])) {
+                            $sortKey = $data["sort"];
+                            /** sortKey를 비교 후 해당 순서의 앞에 push */
+                            $inserted = false;
+                            for ($i = 0; $i < count($res); $i++) {
+                                if (isset($res[$i]["sort"]) && $res[$i]["sort"] > $sortKey) {
+                                    array_splice($res, $i, 0, [$data]);
+                                    $inserted = true;
+                                    break;
+                                }
+                            }
+                            if (!$inserted) {
+                                $res[] = $data;
+                            }
+                        } else {
+                            /** sort가 없을 시 맨뒤로 이동 */
+                            $res[] = $data;
+                        }
+                    }
+                }
 
-                //     foreach ($datas["rankProductModels"] as &$data) {
-                //         $subjectTrans = $data["translateTitle"];
-                //         // 삭제어
-                //         $subjectForbiddenTrans = removeForbiddenText($deletePrdForbiddenWords, $subjectTrans, ForbiddenWordConstant::KEYWORD_APPLY_TITLE);
-                //         // 교체어
-                //         $subjectForbiddenTrans = replaceForbiddenText($replacePrdForbiddenWords, $subjectForbiddenTrans, ForbiddenWordConstant::KEYWORD_APPLY_TITLE);
-
-                //         $subjectForbiddenTrans = trim($subjectForbiddenTrans);
-                //         $subjectForbiddenTrans = removeDuplicateWords($subjectForbiddenTrans);
-
-                //         $data["translateTitle"] = $subjectForbiddenTrans;
-                //     }
-                // }
-                $res = $datas;
                 $returnMsg = helpers_success_message($res);
             }
         } catch (Exception $e) {
