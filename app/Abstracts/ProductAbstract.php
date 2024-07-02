@@ -15,6 +15,7 @@ use App\Models\ProductImageData;
 use App\Models\ProductNoticeData;
 use App\Models\ProductOptionData;
 use App\Models\WNoticeData;
+use App\Traits\WApp\CollectProductTrait;
 use App\Traits\WProductSearchTrait;
 use App\Vo\Product\Product1688Dto;
 use App\Vo\Product\Product1688ExtendDto;
@@ -26,7 +27,7 @@ abstract class ProductAbstract
 {
     private TransApiAbstract $transApiAbstract;
 
-    use WProductSearchTrait;
+    use WProductSearchTrait, CollectProductTrait;
 
     protected array $returnMsg;
     protected string $accessToken;
@@ -38,6 +39,7 @@ abstract class ProductAbstract
         $this->transApiAbstract = $transApiAbstract;
 
         $this->initWProductSearchTrait($this->accessToken);
+        $this->initCollectProductTrait($this->accessToken);
     }
 
 

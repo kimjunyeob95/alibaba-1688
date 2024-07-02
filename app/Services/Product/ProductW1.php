@@ -2191,6 +2191,9 @@ class ProductW1 extends ProductAbstract
             }
         }
 
+        /** WApp 추가 상품 정보 저장 */
+        $this->getWAppDto($detailProduct);
+
         return [
             "product1688Dto"           => $product1688Dto,
             "product1688ImageDtoList"  => $product1688ImageDtoList,
