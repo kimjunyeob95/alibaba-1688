@@ -21,6 +21,9 @@ Route::name('w.')->prefix('w')->group(function () {
         Route::get('/product/{offerId}', [WProductController::class, 'getProductData'])->name('getProductData');
         /** 1688에 카테고리 조회 endPoint를 호출 후 결과 반환 */
         Route::get('/category/{categoryId?}', [WCategoryController::class, 'getMallCategory'])->name('getMallCategory');
+
+        /** test */
+        Route::get('/test', [WCategoryController::class, 'testEndPoint'])->name('testEndPoint');
     });
 
     Route::middleware(["oepnApi.jwt.verify"])->group(function () {
