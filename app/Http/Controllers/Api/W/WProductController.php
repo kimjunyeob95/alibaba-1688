@@ -44,11 +44,11 @@ class WProductController extends Controller
                 throw new Exception($validator->errors()->first());
             }
 
-            $offerIds = $this->request->post("offer_ids");
-            $log_type = $this->request->post("log_type", LogConstant::COLLECT_API_OFFERID);
-            $aiActive = $this->request->post("ai_active", CollectConstatnt::AI_ACTIVE_FALSE);
+            $offerIds      = $this->request->post("offer_ids");
+            $log_type      = $this->request->post("log_type", LogConstant::COLLECT_API_OFFERID);
+            $collectParams = json_encode($this->request->post("collectParams"), JSON_UNESCAPED_UNICODE);
 
-            $options = "--offerids=" . helperEscape(implode(",", $offerIds)) . " --type=" . helperEscape($log_type) . " --aiactive=" . helperEscape($aiActive);
+            $options = "--offerids=" . helperEscape(implode(",", $offerIds)) . " --type=" . helperEscape($log_type) . " --collectparams=" . helperEscape($collectParams);
             $command = "nohup " . $this->phpAlias . " artisan save_1688_collect_product " . $options . " > /dev/null 2>&1 &";
             $process = Process::fromShellCommandline($command);
             $process->setWorkingDirectory(env("WORK_DIRECTORY", "/web1/1688"));
