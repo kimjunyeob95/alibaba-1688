@@ -468,10 +468,10 @@ abstract class ProductAbstract
                         throw new Exception("createTransProductImg error: " . $transResult["msg"]);
                     }
                 } else if( $aiActive === CollectConstatnt::AI_ACTIVE_FALSE && $hasProduct === true ){
-                    $transResult = $this->transApiAbstract->createTransProductImgAgain($product1688ImageDtoList, $offerId, false, $params);
-                    if( $transResult["isSuccess"] == false ){
-                        throw new Exception("createTransProductImgAgain error: " . $transResult["msg"]);
-                    }
+                    // $transResult = $this->transApiAbstract->createTransProductImgAgain($product1688ImageDtoList, $offerId, false, $params);
+                    // if( $transResult["isSuccess"] == false ){
+                    //     throw new Exception("createTransProductImgAgain error: " . $transResult["msg"]);
+                    // }
                 }
             }
 
