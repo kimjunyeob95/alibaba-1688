@@ -23,7 +23,7 @@ return new class extends Migration
             $table->decimal('price', 8, 2)->nullable(false)->comment('W 판매가');
             $table->decimal('jxhy_price', 8, 2)->nullable(false)->comment('W 제조사 공급가');
             $table->decimal('pf_jxhy_price', 8, 2)->nullable(false)->comment('W 제조사 확정 공급가');
-            $table->decimal('consign_price', 8, 2)->nullable(false)->comment('W 판매자가 제공하는 공급가');
+            $table->decimal('consign_price', 8, 2)->nullable(false)->comment('W 판매자가 제공받는 공급가');
             $table->decimal('promotion_price', 8, 2)->nullable(false)->comment('W 프로모션 가격');
 
             $table->timestamps();

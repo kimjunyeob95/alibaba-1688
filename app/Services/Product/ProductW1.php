@@ -1796,7 +1796,7 @@ class ProductW1 extends ProductAbstract
         }
 
         // 3. 상품 기본정보
-        $mapping_status = ProductConstant::MAPPING_STATUS_N;
+        $mapping_status        = ProductConstant::MAPPING_STATUS_N;
         $getCategoryMappingObj = CategoryMapping::select(["mapping_code"])
         ->where([
             "mapping_channel" => ProductConstant::MAPPING_WAPP,
@@ -1868,13 +1868,15 @@ class ProductW1 extends ProductAbstract
         ]);
 
         // 4. 상품 확장정보
-        $trade_medal_level           = 0.0;
-        $composite_service_score     = 0.0;
-        $logistics_experience_score  = 0.0;
-        $dispute_complaint_score     = 0.0;
-        $offer_experience_score      = 0.0;
-        $consulting_experience_score = 0.0;
-        $trade_score                 = 0.0;
+        $trade_medal_level            = 0.0;
+        $composite_service_score      = 0.0;
+        $logistics_experience_score   = 0.0;
+        $dispute_complaint_score      = 0.0;
+        $offer_experience_score       = 0.0;
+        $consulting_experience_score  = 0.0;
+        $trade_score                  = 0.0;
+        $repeat_purchase_percent      = 0.0;
+        $after_sales_experience_score = 0.0;
         if( isset($detailProduct["sellerDataInfo"]) ){
             $sellerDataInfo = $detailProduct["sellerDataInfo"];
             if( isset($sellerDataInfo["tradeMedalLevel"]) ){
@@ -1895,20 +1897,28 @@ class ProductW1 extends ProductAbstract
             if( isset($sellerDataInfo["consultingExperienceScore"]) ){
                 $consulting_experience_score = (float)$sellerDataInfo["consultingExperienceScore"];
             }
+            if( isset($sellerDataInfo["repeatPurchasePercent"]) ){
+                $repeat_purchase_percent = (float)$sellerDataInfo["repeatPurchasePercent"];
+            }
+            if( isset($sellerDataInfo["afterSalesExperienceScore"]) ){
+                $after_sales_experience_score = (float)$sellerDataInfo["afterSalesExperienceScore"];
+            }
         }
         if( isset($detailProduct["tradeScore"]) ){
             $trade_score = (float)$detailProduct["tradeScore"];
         }
         $product1688ExtendDto = new Product1688ExtendDto();
         $product1688ExtendDto->bind([
-            "offerId"                     => $offerId,
-            "trade_medal_level"           => $trade_medal_level,
-            "composite_service_score"     => $composite_service_score,
-            "logistics_experience_score"  => $logistics_experience_score,
+            "offerId"                      => $offerId,
+            "trade_medal_level"            => $trade_medal_level,
+            "composite_service_score"      => $composite_service_score,
+            "logistics_experience_score"   => $logistics_experience_score,
             "dispute_complaint_score"      => $dispute_complaint_score,
-            "offer_experience_score"      => $offer_experience_score,
-            "consulting_experience_score" => $consulting_experience_score,
-            "trade_score"                 => $trade_score,
+            "offer_experience_score"       => $offer_experience_score,
+            "consulting_experience_score"  => $consulting_experience_score,
+            "trade_score"                  => $trade_score,
+            "repeat_purchase_percent"      => $repeat_purchase_percent,
+            "after_sales_experience_score" => $after_sales_experience_score,
         ]);
 
         // 5. 상품 고시정보
@@ -2117,28 +2127,37 @@ class ProductW1 extends ProductAbstract
                     }
                 }
 
-                $width  = 0;
-                $length = 0;
-                $height = 0;
-                $weight = 0;
+                $send_goods_address_text = "";
+                $width                   = 0;
+                $length                  = 0;
+                $height                  = 0;
+                $weight                  = 0;
+                $pkg_size_source         = "";
 
                 if( isset($detailProduct["productShippingInfo"]) ){
                     $productShippingInfo = $detailProduct["productShippingInfo"];
-                    if( isset($productShippingInfo["skuShippingInfoList"]) ){
-                        $skuShippingInfoList = $productShippingInfo["skuShippingInfoList"];
-                        foreach ($skuShippingInfoList as $skuShippingInfo) {
-                            if( $skuShippingInfo["skuId"] == $prdOptions["skuId"] ){
-                                if( isset($skuShippingInfo["width"]) ) {
-                                    $width = $skuShippingInfo["width"];
+                    if( isset($productShippingInfo["sendGoodsAddressText"]) ){
+                        $send_goods_address_text = $productShippingInfo["sendGoodsAddressText"];
+                    }
+
+                    if( isset($productShippingInfo["skuShippingDetails"]) ){
+                        $skuShippingDetails = $productShippingInfo["skuShippingDetails"];
+                        foreach ($skuShippingDetails as $skuShippingDetail) {
+                            if( $skuShippingDetail["skuId"] == $prdOptions["skuId"] ){
+                                if( isset($skuShippingDetail["width"]) ) {
+                                    $width = $skuShippingDetail["width"];
                                 }
-                                if( isset($skuShippingInfo["length"]) ) {
-                                    $length = $skuShippingInfo["length"];
+                                if( isset($skuShippingDetail["length"]) ) {
+                                    $length = $skuShippingDetail["length"];
                                 }
-                                if( isset($skuShippingInfo["height"]) ) {
-                                    $height = $skuShippingInfo["height"];
+                                if( isset($skuShippingDetail["height"]) ) {
+                                    $height = $skuShippingDetail["height"];
                                 }
-                                if( isset($skuShippingInfo["weight"]) ) {
-                                    $weight = (int)ceil($skuShippingInfo["weight"] / 1000);
+                                if( isset($skuShippingDetail["weight"]) ) {
+                                    $weight = (int)ceil($skuShippingDetail["weight"]);
+                                }
+                                if( isset($skuShippingDetail["pkgSizeSource"]) ) {
+                                    $pkg_size_source = $skuShippingDetail["pkgSizeSource"];
                                 }
                             }
                         }
@@ -2153,7 +2172,10 @@ class ProductW1 extends ProductAbstract
                             $height = $productShippingInfo["height"];
                         }
                         if( isset($productShippingInfo["weight"]) ) {
-                            $weight = $productShippingInfo["weight"];
+                            $weight = (int)ceil($productShippingInfo["weight"]);
+                        }
+                        if( isset($productShippingInfo["pkgSizeSource"]) ) {
+                            $pkg_size_source = $productShippingInfo["pkgSizeSource"];
                         }
                     }
                 }
@@ -2170,22 +2192,24 @@ class ProductW1 extends ProductAbstract
 
                 $product1688OptionDto = new Product1688OptionDto();
                 $product1688OptionDto->bind([
-                    "offerId"           => $offerId,
-                    "skuId"             => $prdOptions["skuId"],
-                    "specId"            => $prdOptions["specId"],
-                    "status"            => $opt_status,
-                    "is_except"         => $is_except,
-                    "price_1688"        => $price_1688,
-                    "price_1688_option" => $price_1688_option,
-                    "optionName"        => rtrim($optionName, "_"),
-                    "optionNameTrans"   => rtrim($optionNameTrans, "_"),
-                    "optionNameTransEn" => rtrim($optionNameTransEn, "_"),
-                    "amountOnSale"      => $prdOptions["amountOnSale"],
-                    "cargoNumber"       => $prdOptions["cargoNumber"] ?? "",
-                    "width"             => (float) sprintf("%.2f", $width),
-                    "length"            => (float) sprintf("%.2f", $length),
-                    "height"            => (float) sprintf("%.2f", $height),
-                    "weight"            => $weight,
+                    "offerId"                 => $offerId,
+                    "skuId"                   => $prdOptions["skuId"],
+                    "specId"                  => $prdOptions["specId"],
+                    "status"                  => $opt_status,
+                    "is_except"               => $is_except,
+                    "price_1688"              => $price_1688,
+                    "price_1688_option"       => $price_1688_option,
+                    "optionName"              => rtrim($optionName, "_"),
+                    "optionNameTrans"         => rtrim($optionNameTrans, "_"),
+                    "optionNameTransEn"       => rtrim($optionNameTransEn, "_"),
+                    "amountOnSale"            => $prdOptions["amountOnSale"],
+                    "cargoNumber"             => $prdOptions["cargoNumber"] ?? "",
+                    "width"                   => (float) sprintf("%.2f", $width),
+                    "length"                  => (float) sprintf("%.2f", $length),
+                    "height"                  => (float) sprintf("%.2f", $height),
+                    "weight"                  => $weight,
+                    "send_goods_address_text" => $send_goods_address_text,
+                    "pkg_size_source"         => $pkg_size_source,
                 ]);
                 $product1688OptionDtoList[] = $product1688OptionDto;
             }

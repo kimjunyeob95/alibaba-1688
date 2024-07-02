@@ -18,22 +18,23 @@ return new class extends Migration
             $table->id();
 
             $table->unsignedBigInteger('offer_id')->nullable(false)->comment('제품ID');
-
+            $table->unsignedInteger('amount_on_sale')->nullable(false)->comment('전체 판매 가능 수량');
             $table->unsignedInteger('start_quantity')->nullable(false)->comment('시작 수량');
             
+            $table->unsignedTinyInteger('quote_type')->nullable(false)->comment('판매 타입');
+            $table->decimal('price', 8, 2)->nullable(false)->comment('가격');
+            $table->decimal('consign_price', 8, 2)->nullable(false)->comment('W 판매자가 제공받는 공급가');
             $table->decimal('jxhy_price', 8, 2)->nullable(false)->comment('W 제조사 공급가');
-            $table->decimal('pf_jxhy_price', 8, 2)->nullable(false)->comment('W 제조사 확정 공급가');
-            $table->decimal('consign_price', 8, 2)->nullable(false)->comment('W 판매자가 제공하는 공급가');
-            $table->decimal('promotion_price', 8, 2)->nullable(false)->comment('W 프로모션 가격');
 
             $table->timestamps();
             $table->softDeletes();
 
             $table->foreign('offer_id')->references('offer_id')->on('product_datas')->onDelete('cascade');
-            $table->foreign('sku_id')->references('sku_id')->on('product_option_datas')->onDelete('cascade');
 
             $table->index('offer_id');
-            $table->index('sku_id');
+            $table->index('amount_on_sale');
+            $table->index('start_quantity');
+            $table->index('quote_type');
         });
 
         DB::statement('ALTER TABLE product_sale_datas COMMENT "W 상품 추가 판매 정보 테이블"');
