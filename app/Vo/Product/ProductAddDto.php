@@ -12,7 +12,7 @@ class ProductAddDto extends Vo
     protected int $third_category_id  = 0;
     protected string $main_video      = "";
     protected string $detail_video    = "";
-    protected int $min_order_quantity = 0;
+    protected int $min_order_quantity = 1;
 
     public function bind(mixed $data): void
     {

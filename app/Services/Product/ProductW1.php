@@ -1363,6 +1363,7 @@ class ProductW1 extends ProductAbstract
 
         $detailProduct   = $detailResult["data"]["result"]["result"];
         $detailEnProduct = $detailEnResult["data"]["result"]["result"];
+        $this->getProductAddDto($detailProduct, $detailEnProduct);
         $offerId         = $detailProduct["offerId"];
         $prdCategoryId   = $detailProduct["categoryId"];
         $status          = $detailProduct["status"];
@@ -2215,8 +2216,8 @@ class ProductW1 extends ProductAbstract
             }
         }
 
-        /** WApp 추가 상품 정보 저장 */
-        $this->getWAppDto($detailProduct);
+        /** WApp 상품 추가 정보 Dto 생성 */
+        $this->getProductAddDto($detailProduct, $detailEnProduct);
 
         return [
             "product1688Dto"           => $product1688Dto,
