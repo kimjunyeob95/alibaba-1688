@@ -14,6 +14,7 @@ use App\Constants\OnchannelConstant;
 use App\Constants\ProductConstant;
 use App\Constants\WConstant;
 use App\Models\CategoryMapping;
+use App\Models\ChannelCategoryRegistData;
 use App\Models\OnchannelProductDetailLog;
 use App\Models\OnchannelProductLog;
 use App\Models\OnchCategoryExcelDataCopy2;
@@ -88,6 +89,17 @@ class Onchannel extends MallApiAbstract
 
                         if( $prdObj == null ){
                             throw new Exception(MallErrorMessageConstant::getNotHaveErrorMessage("PRODUCT"));
+                        }
+
+                        $channelCnt = ChannelCategoryRegistData::where([
+                            "channel"     => $this->channel,
+                            "send_type"   => $sendType,
+                            "category_id" => $prdObj->category_id,
+                            "is_regist"   => MallConstant::REGIST_Y,
+                        ])->count();
+
+                        if( $channelCnt == 0 ){
+                            throw new Exception(MallErrorMessageConstant::getFitErrorMessage("CATEGORY_REGIST"));
                         }
     
                         if(count($prdObj->no_except_options) < 1){
@@ -262,7 +274,7 @@ class Onchannel extends MallApiAbstract
                         } else {
                             $msg = "온채널 통신 에러";
                             if( isset($resultCurl["msg"]) ){
-                                $msg = $resultCurl["msg"];
+                                $msg = $msg . $resultCurl["msg"];
                             } else {
                                 if(is_array($resultCurl)){
                                     $resultCurl = json_encode($resultCurl, JSON_UNESCAPED_UNICODE);
@@ -373,6 +385,17 @@ class Onchannel extends MallApiAbstract
 
                     if( $prdObj == null ){
                         throw new Exception(MallErrorMessageConstant::getNotHaveErrorMessage("PRODUCT"));
+                    }
+
+                    $channelCnt = ChannelCategoryRegistData::where([
+                        "channel"     => $this->channel,
+                        "send_type"   => $sendType,
+                        "category_id" => $prdObj->category_id,
+                        "is_regist"   => MallConstant::REGIST_Y,
+                    ])->count();
+
+                    if( $channelCnt == 0 ){
+                        throw new Exception(MallErrorMessageConstant::getFitErrorMessage("CATEGORY_REGIST"));
                     }
 
                     if(count($prdObj->no_except_options) < 1){
@@ -520,8 +543,8 @@ class Onchannel extends MallApiAbstract
                         'Authorization: Bearer ' . $this->token,
                     );
 
-                    $endPoint = $this->domain . "/api/w/product/edit";
-                    $resultCurl   = helpers_curl("POST", $endPoint, $header, $payload);
+                    $endPoint   = $this->domain . "/api/w/product/edit";
+                    $resultCurl = helpers_curl("POST", $endPoint, $header, $payload);
                     if( isset($resultCurl["prd_code"]) && $resultCurl["prd_code"] ){
 
                         OnchannelProductDetailLog::create([
@@ -535,7 +558,7 @@ class Onchannel extends MallApiAbstract
                     } else {
                         $msg = "온채널 통신 에러";
                         if( isset($resultCurl["msg"]) ){
-                            $msg = $resultCurl["msg"];
+                            $msg = $msg . $resultCurl["msg"];
                         } else {
                             if(is_array($resultCurl)){
                                 $resultCurl = json_encode($resultCurl, JSON_UNESCAPED_UNICODE);

@@ -679,11 +679,11 @@ class WProductController extends Controller
                 'sort'       => 'required|string',
                 'country'    => 'required|string',
             ], [
-                "keyword"    => ProductErrorMessageConstant::getNotHaveErrorMessage("KEYWORD"),
-                "begin_page" => ProductErrorMessageConstant::getNotHaveErrorMessage("BEGINPAGE"),
-                "page_size"  => ProductErrorMessageConstant::getNotHaveErrorMessage("PAGESIZE"),
-                "sort"       => ProductErrorMessageConstant::getNotHaveErrorMessage("SORT"),
-                "country"    => ProductErrorMessageConstant::getNotHaveErrorMessage("COUNTRY"),
+                "keyword.required"    => ProductErrorMessageConstant::getNotHaveErrorMessage("KEYWORD"),
+                "begin_page.required" => ProductErrorMessageConstant::getNotHaveErrorMessage("BEGINPAGE"),
+                "page_size.required"  => ProductErrorMessageConstant::getNotHaveErrorMessage("PAGESIZE"),
+                "sort.required"       => ProductErrorMessageConstant::getNotHaveErrorMessage("SORT"),
+                "country.required"    => ProductErrorMessageConstant::getNotHaveErrorMessage("COUNTRY"),
             ]);
             if ($validator->fails()) {
                 throw new Exception($validator->errors()->first());
@@ -714,7 +714,7 @@ class WProductController extends Controller
             $validator = Validator::make($this->request->all(), [
                 'country' => 'required|string',
             ], [
-                "country" => ProductErrorMessageConstant::getNotHaveErrorMessage("COUNTRY"),
+                "country.required" => ProductErrorMessageConstant::getNotHaveErrorMessage("COUNTRY"),
             ]);
             if ($validator->fails()) {
                 throw new Exception($validator->errors()->first());
@@ -738,7 +738,7 @@ class WProductController extends Controller
             $validator = Validator::make($this->request->all(), [
                 'img_file' => 'required|file',
             ], [
-                "img_file" => ProductErrorMessageConstant::getNotHaveErrorMessage("IMG_FILE"),
+                "img_file.required" => ProductErrorMessageConstant::getNotHaveErrorMessage("IMG_FILE"),
             ]);
             if ($validator->fails()) {
                 throw new Exception($validator->errors()->first());
@@ -773,11 +773,11 @@ class WProductController extends Controller
                 'sort'       => 'required|string',
                 'country'    => 'required|string',
             ], [
-                "img_id"     => ProductErrorMessageConstant::getNotHaveErrorMessage("IMG_ID"),
-                "begin_page" => ProductErrorMessageConstant::getNotHaveErrorMessage("BEGINPAGE"),
-                "page_size"  => ProductErrorMessageConstant::getNotHaveErrorMessage("PAGESIZE"),
-                "sort"       => ProductErrorMessageConstant::getNotHaveErrorMessage("SORT"),
-                "country"    => ProductErrorMessageConstant::getNotHaveErrorMessage("COUNTRY"),
+                "img_id.required"     => ProductErrorMessageConstant::getNotHaveErrorMessage("IMG_ID"),
+                "begin_page.required" => ProductErrorMessageConstant::getNotHaveErrorMessage("BEGINPAGE"),
+                "page_size.required"  => ProductErrorMessageConstant::getNotHaveErrorMessage("PAGESIZE"),
+                "sort.required"       => ProductErrorMessageConstant::getNotHaveErrorMessage("SORT"),
+                "country.required"    => ProductErrorMessageConstant::getNotHaveErrorMessage("COUNTRY"),
             ]);
             if ($validator->fails()) {
                 throw new Exception($validator->errors()->first());
@@ -810,9 +810,9 @@ class WProductController extends Controller
                 'page_size'  => 'required|int',
                 'country'    => 'required|string',
             ], [
-                "begin_page" => ProductErrorMessageConstant::getNotHaveErrorMessage("BEGINPAGE"),
-                "page_size"  => ProductErrorMessageConstant::getNotHaveErrorMessage("PAGESIZE"),
-                "country"    => ProductErrorMessageConstant::getNotHaveErrorMessage("COUNTRY"),
+                "begin_page.required" => ProductErrorMessageConstant::getNotHaveErrorMessage("BEGINPAGE"),
+                "page_size.required"  => ProductErrorMessageConstant::getNotHaveErrorMessage("PAGESIZE"),
+                "country.required"    => ProductErrorMessageConstant::getNotHaveErrorMessage("COUNTRY"),
             ]);
             if ($validator->fails()) {
                 throw new Exception($validator->errors()->first());

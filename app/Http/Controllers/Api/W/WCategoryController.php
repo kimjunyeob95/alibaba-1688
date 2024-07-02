@@ -319,4 +319,15 @@ class WCategoryController extends Controller
             return helpers_json_response(HttpConstant::BAD_REQUEST, [], $e->getMessage());
         }
     }
+
+    public function testEndPoint(): JsonResponse
+    {
+        try {
+            $params = $this->request->all();
+            debug_log(json_encode($params, JSON_UNESCAPED_UNICODE), "test", "test");
+            return helpers_json_response(HttpConstant::OK);
+        } catch (Exception $e) {
+            return helpers_json_response(HttpConstant::BAD_REQUEST, [], $e->getMessage());
+        }
+    }
 }
