@@ -30,7 +30,7 @@ trait CollectProductTrait
      * @param array $detailEnProduct
      * @return array
     */
-    public function getProductAddDto(array $detailProduct, array $detailEnProduct): array
+    public function getProductAddDto(array $detailProduct, array $detailEnProduct = []): array
     {
         $returnMsg = $this->returnMsg;
         try {
@@ -71,21 +71,30 @@ trait CollectProductTrait
                 "minOrderQuantity" => $minOrderQuantity,
             ]);
 
-            $product1688ImageDto = new Product1688ImageDto();
-            $product1688ImageDto->bind([
-                "offerId"        => $offerId,
-                "imgType"        => ImageConstant::IMAGE_TYPE_WHITE,
-                "lang"           => WConstant::WAPP_EN,
-                "is_except"      => $is_except,
-                "img_url_origin" => $imageSrc,
-                "img_url_trans"  => $img_url_trans,
-                "isChangeImg"    => $isChangeImg,
-                "width"          => $imgWidth,
-                "height"         => $imgHeight,
-                "byte"           => $imgByte,
-                "mime"           => $imgMime
-            ]);
-            $product1688ImageDtoList[] = $product1688ImageDto;
+            if( isset($detailProduct["productImage"]["whiteImage"]) ){
+                $imageSrc = $detailProduct["productImage"]["whiteImage"];
+
+                $product1688ImageDto = new Product1688ImageDto();
+                $product1688ImageDto->bind([
+                    "offerId"        => $offerId,
+                    "imgType"        => ImageConstant::IMAGE_TYPE_WHITE,
+                    "lang"           => WConstant::WAPP_KR,
+                    "is_except"      => ImageConstant::IS_EXCEPT_N,
+                    "img_url_origin" => $imageSrc,
+                    "img_url_trans"  => "",
+                    "isChangeImg"    => ImageConstant::IS_CHANGE_IMG,
+                    "width"          => 0,
+                    "height"         => 0,
+                    "byte"           => 0,
+                    "mime"           => 0,
+                ]);
+            }
+
+            $productSkuDtos = [];
+            if( isset($detailProduct["productSkuInfos"]) ){
+                
+            }
+
 
             dd($detailProduct);
         } catch (Exception $e) {
