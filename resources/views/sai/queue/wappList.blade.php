@@ -246,6 +246,10 @@
                 return alert("선택 된 큐가 없습니다.");
             }
 
+            if(ids.length >= 100){
+                return alert("한 번에 처리는 100개까지만 가능합니다.");
+            }
+
             if(confirm('선택하신 큐를 삭제하시겠습니까?')){
                 $.ajax({
                     "headers"    : {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
