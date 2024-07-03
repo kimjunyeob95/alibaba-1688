@@ -65,6 +65,8 @@ Route::name('w.')->prefix('w')->group(function () {
             Route::get('/search/imageQuery', [WProductController::class, "searchImageQuery"])->name("searchImageQuery");
             /** W 인기상품 조회 */
             Route::get('/search/recommend', [WProductController::class, "searchRecommend"])->name("searchRecommend");
+            /** W 연관 상품 조회 */
+            Route::get('/search/related/recommend/{offerId}', [WProductController::class, "searchRelatedRecommend"])->name("searchRelatedRecommend");
         });
     });
 

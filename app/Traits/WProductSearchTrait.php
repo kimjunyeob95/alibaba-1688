@@ -260,4 +260,45 @@ trait WProductSearchTrait
 
         return $returnMsg;
     }
+
+    /**
+     * @func searchRelatedRecommend
+     * @description 'W 연관 상품 조회'
+     * @param int $offerId
+     * @param array $params
+     * @return array
+    */
+    public function searchRelatedRecommend(int $offerId, array $params): array
+    {
+        $returnMsg = $this->returnMsg;
+        try {
+            $endPoint = "param2/1/com.alibaba.fenxiao.crossborder/product.related.recommend/";
+            $payload  = [
+                'access_token'    => $this->accessToken,
+                'relatedQueryParams' => [
+                    'offerId'  => $offerId,
+                    'pageNo'   => $params["begin_page"],
+                    'pageSize' => $params["page_size"],
+                    'language' => $params["country"],
+                ]
+            ];
+
+            $apiDatas = curl_1688("POST", $endPoint, $payload);
+            if( !isset($apiDatas["data"]["result"]["result"]) || count($apiDatas["data"]["result"]["result"]) < 1 ){
+                throw new Exception(ProductErrorMessageConstant::getNotHaveErrorMessage("PRODUCT_RELATED_RECOMMEND"));
+            }
+            $datas = $apiDatas["data"]["result"]["result"];
+            $res = [
+                "begin_page" => (int)$params["begin_page"],
+                "page_size"  => (int)$params["page_size"],
+                "records"    => $datas,
+            ];
+
+            $returnMsg = helpers_success_message($res);
+        } catch (Exception $e) {
+            $returnMsg = helpers_fail_message($e->getMessage());
+        }
+
+        return $returnMsg;
+    }
 }

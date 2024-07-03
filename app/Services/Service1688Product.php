@@ -519,6 +519,18 @@ class Service1688Product
       return $this->productAbstract->searchRecommend($params);
    }
 
+   /**
+     * @func searchRelatedRecommend
+     * @description 'W 연관 상품 조회'
+     * @param int $offerId
+     * @param array $params
+     * @return array
+   */
+   public function searchRelatedRecommend(int $offerId, array $params): array
+   {
+      return $this->productAbstract->searchRelatedRecommend($offerId, $params);
+   }
+
    /****************************************** WApp W2 **********************************************/
 
    /**

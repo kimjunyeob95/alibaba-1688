@@ -1160,6 +1160,105 @@
                 ]
             }
         },
+        "/api/w/products/search/related/recommend/{offerId}": {
+            "get": {
+                "tags": [
+                    "상품"
+                ],
+                "summary": "W 연관 상품 조회",
+                "description": "W 연관 상품 조회 endPoint",
+                "operationId": "3fafb6afccc77d4c12bef11217dfd0e0",
+                "parameters": [
+                    {
+                        "name": "offerId",
+                        "in": "path",
+                        "description": "제품 ID",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "example": "539753036122"
+                        }
+                    },
+                    {
+                        "name": "begin_page",
+                        "in": "query",
+                        "description": "페이지 수",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    },
+                    {
+                        "name": "page_size",
+                        "in": "query",
+                        "description": "페이징 사이즈 Max: 10",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 10
+                        }
+                    },
+                    {
+                        "name": "country",
+                        "in": "query",
+                        "description": "언어 ko: 국문, en: 영문",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "example": "ko"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SuccessResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Authorization Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/401ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/400ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/500ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            }
+        },
         "/api/mall/{channel}/order/{orderId}": {
             "get": {
                 "tags": [
