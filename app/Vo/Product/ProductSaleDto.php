@@ -21,7 +21,7 @@ class ProductSaleDto extends Vo
         $this->amount_on_sale  = $data["amountOnSale"];
         $this->start_quantity  = $data["startQuantity"];
         $this->price           = $data["price"];
-        $this->quote_type      = $data["quote_type"];
+        $this->quote_type      = $data["quoteType"];
         $this->promotion_price = $data["promotionPrice"];
         $this->consign_price   = $data["consignPrice"];
         $this->jxhy_price      = $data["jxhyPrice"];

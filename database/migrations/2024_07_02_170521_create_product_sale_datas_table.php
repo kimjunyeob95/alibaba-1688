@@ -23,6 +23,7 @@ return new class extends Migration
             
             $table->unsignedTinyInteger('quote_type')->nullable(false)->comment('판매 타입');
             $table->decimal('price', 8, 2)->nullable(false)->comment('가격');
+            $table->decimal('promotion_price', 8, 2)->nullable(false)->comment('W 프로모션 가격');
             $table->decimal('consign_price', 8, 2)->nullable(false)->comment('W 판매자가 제공받는 공급가');
             $table->decimal('jxhy_price', 8, 2)->nullable(false)->comment('W 제조사 공급가');
 
