@@ -2,24 +2,12 @@
 
 namespace App\Abstracts;
 
-use App\Constants\CollectConstatnt;
 use App\Constants\Constant1688;
-use App\Constants\ImageConstant;
 use App\Constants\LogConstant;
-use App\Constants\MallConstant;
-use App\Constants\ProductConstant;
-use App\Constants\WConstant;
-use App\Models\ProductData;
-use App\Models\ProductExtendData;
-use App\Models\ProductImageData;
 use App\Models\ProductNoticeData;
-use App\Models\ProductOptionData;
 use App\Models\WNoticeData;
 use App\Traits\WApp\CollectProductTrait;
 use App\Traits\WProductSearchTrait;
-use App\Vo\Product\Product1688Dto;
-use App\Vo\Product\Product1688ExtendDto;
-use App\Vo\Product\ProductAddDto;
 use Exception;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Pagination\LengthAwarePaginator;
