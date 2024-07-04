@@ -159,6 +159,43 @@ trait WProductSearchTrait
     }
 
     /**
+     * @func searchCreateImageIdByUrl
+     * @description 'W 상품 이미지URL로 이미지 ID 생성'
+     * @param string $imgUrl
+     * @return array
+    */
+    public function searchCreateImageIdByUrl(string $imgUrl): array
+    {
+        $returnMsg = $this->returnMsg;
+        try {
+            $fileContent   = fileContents($imgUrl);
+            $base64Encoded = base64_encode($fileContent);
+
+            $endPoint = "param2/1/com.alibaba.fenxiao.crossborder/product.image.upload/";
+            $payload = [
+                'access_token' => $this->accessToken,
+                'uploadImageParam' => [
+                    "imageBase64" => $base64Encoded
+                ]
+            ];
+            $apiDatas = curl_1688("POST", $endPoint, $payload);
+            
+            if( !isset($apiDatas["data"]["result"]["result"]) || !$apiDatas["data"]["result"]["result"] ){
+                throw new Exception(ImageErrorMessageConstant::getNotHaveErrorMessage("W_IMAGE_ID"));
+            }
+
+            $res = [
+                "img_id" => $apiDatas["data"]["result"]["result"]
+            ];
+            $returnMsg = helpers_success_message($res);
+        } catch (Exception $e) {
+            $returnMsg = helpers_fail_message($e->getMessage());
+        }
+
+        return $returnMsg;
+    }
+
+    /**
      * @func searchImageQuery
      * @description 'W 상품 이미지 조회'
      * @param array $params

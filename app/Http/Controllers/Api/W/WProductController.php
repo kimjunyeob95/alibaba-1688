@@ -763,6 +763,30 @@ class WProductController extends Controller
         }
     }
 
+    public function searchCreateImageIdByUrl(): JsonResponse
+    {
+        try {
+            $validator = Validator::make($this->request->all(), [
+                'img_url' => 'required|string',
+            ], [
+                "img_url.required" => ProductErrorMessageConstant::getNotHaveErrorMessage("IMG_URL"),
+            ]);
+            if ($validator->fails()) {
+                throw new Exception($validator->errors()->first());
+            }
+
+            $imgUrl = $this->request->post('img_url');
+            $result = $this->service1688Product->searchCreateImageIdByUrl($imgUrl);
+            if( $result["isSuccess"] == true ){
+                return helpers_json_response(HttpConstant::OK, $result);
+            } else {
+                return helpers_json_response(HttpConstant::BAD_REQUEST, [], $result["msg"]);
+            }
+        } catch (Exception $e) {
+            return helpers_json_response(HttpConstant::BAD_REQUEST, [], $e->getMessage());
+        }
+    }
+
     public function searchImageQuery(): JsonResponse
     {
         try {

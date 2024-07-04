@@ -498,6 +498,17 @@ class Service1688Product
    }
 
    /**
+     * @func searchCreateImageIdByUrl
+     * @description 'W 상품 이미지URL로 이미지 ID 생성'
+     * @param string $imgUrl
+     * @return array
+   */
+   public function searchCreateImageIdByUrl(string $imgUrl): array
+   {
+      return $this->productAbstract->searchCreateImageIdByUrl($imgUrl);
+   }
+
+   /**
      * @func searchImageQuery
      * @description 'W 상품 이미지 조회'
      * @param array $params
