@@ -63,7 +63,9 @@ class ProductErrorMessageConstant
     public const ERROR_MESSAGE_COUNTRY                                 = "country";
     public const ERROR_MESSAGE_IMG_FILE                                = "img_file";
     public const ERROR_MESSAGE_IMG_ID                                  = "img_id";
+    public const ERROR_MESSAGE_IMG_URL                                 = "img_url";
     public const ERROR_MESSAGE_PRODUCT_SEARCH_OFFERRECOMMEND           = "product.search.offerRecommend";
+    public const ERROR_MESSAGE_PRODUCT_RELATED_RECOMMEND               = "product.related.recommend";
  
     public static function getErrorMessageNotDefault($constantName): string
     {

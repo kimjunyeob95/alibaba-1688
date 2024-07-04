@@ -61,10 +61,14 @@ Route::name('w.')->prefix('w')->group(function () {
             Route::get('/search/detail/{offerId}', [WProductController::class, "searchDetail"])->name("searchDetail");
             /** W 상품 이미지 ID 생성 */
             Route::post('/search/create/imageId', [WProductController::class, "searchCreateImageId"])->name("searchCreateImageId");
+            /** W 상품 이미지URL로 이미지 ID 생성 */
+            Route::post('/search/create/imageIdByUrl', [WProductController::class, "searchCreateImageIdByUrl"])->name("searchCreateImageIdByUrl");
             /** W 상품 이미지 조회 */
             Route::get('/search/imageQuery', [WProductController::class, "searchImageQuery"])->name("searchImageQuery");
             /** W 인기상품 조회 */
             Route::get('/search/recommend', [WProductController::class, "searchRecommend"])->name("searchRecommend");
+            /** W 연관 상품 조회 */
+            Route::get('/search/related/recommend/{offerId}', [WProductController::class, "searchRelatedRecommend"])->name("searchRelatedRecommend");
         });
     });
 

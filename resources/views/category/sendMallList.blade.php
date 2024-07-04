@@ -252,6 +252,9 @@
             if(cateParams.length < 1){
                 return alert("선택 된 카테고리가 없습니다.");
             }
+            if(cateParams.length > 100){
+                return alert("한 번에 처리는 100개까지만 가능합니다.");
+            }
 
             if(confirm("선택 한 카테고리를 수정하시겠습니까?")){
                 $.ajax({

@@ -358,12 +358,10 @@
                                         @endif
                                     </td>
                                     <td class="text-center">
-                                        @if($data->regist_success == MallConstant::REGIST_SUCCESS)
-                                            <small>{{ $data->registed_at }}</small>
-                                        @else
-                                            <small>{{ $data->b_updated_at }}</small>
+                                        @if(isset($data->onchannel->last_log))
+                                            <small>{{ $data->onchannel->last_log->created_at }}</small>
+                                            <button class="btn btn-sm btn-success text-white btn-log-modal" logid="{{ $data->log_id }}">전송로그</button>
                                         @endif
-                                        <button class="btn btn-sm btn-success text-white btn-log-modal" logid={{ $data->log_id }}>전송로그</button>
                                     </td>
                                     <td class="text-center">
                                         <button class="btn btn-sm btn-outline-success btn-detail" offerid={{ $data->offer_id }}>국문 상세</button>

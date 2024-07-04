@@ -159,6 +159,43 @@ trait WProductSearchTrait
     }
 
     /**
+     * @func searchCreateImageIdByUrl
+     * @description 'W 상품 이미지URL로 이미지 ID 생성'
+     * @param string $imgUrl
+     * @return array
+    */
+    public function searchCreateImageIdByUrl(string $imgUrl): array
+    {
+        $returnMsg = $this->returnMsg;
+        try {
+            $fileContent   = fileContents($imgUrl);
+            $base64Encoded = base64_encode($fileContent);
+
+            $endPoint = "param2/1/com.alibaba.fenxiao.crossborder/product.image.upload/";
+            $payload = [
+                'access_token' => $this->accessToken,
+                'uploadImageParam' => [
+                    "imageBase64" => $base64Encoded
+                ]
+            ];
+            $apiDatas = curl_1688("POST", $endPoint, $payload);
+            
+            if( !isset($apiDatas["data"]["result"]["result"]) || !$apiDatas["data"]["result"]["result"] ){
+                throw new Exception(ImageErrorMessageConstant::getNotHaveErrorMessage("W_IMAGE_ID"));
+            }
+
+            $res = [
+                "img_id" => $apiDatas["data"]["result"]["result"]
+            ];
+            $returnMsg = helpers_success_message($res);
+        } catch (Exception $e) {
+            $returnMsg = helpers_fail_message($e->getMessage());
+        }
+
+        return $returnMsg;
+    }
+
+    /**
      * @func searchImageQuery
      * @description 'W 상품 이미지 조회'
      * @param array $params
@@ -251,6 +288,47 @@ trait WProductSearchTrait
             $res = [
                 "page_size" => (int)$params["page_size"],
                 "records"   => $datas,
+            ];
+
+            $returnMsg = helpers_success_message($res);
+        } catch (Exception $e) {
+            $returnMsg = helpers_fail_message($e->getMessage());
+        }
+
+        return $returnMsg;
+    }
+
+    /**
+     * @func searchRelatedRecommend
+     * @description 'W 연관 상품 조회'
+     * @param int $offerId
+     * @param array $params
+     * @return array
+    */
+    public function searchRelatedRecommend(int $offerId, array $params): array
+    {
+        $returnMsg = $this->returnMsg;
+        try {
+            $endPoint = "param2/1/com.alibaba.fenxiao.crossborder/product.related.recommend/";
+            $payload  = [
+                'access_token'    => $this->accessToken,
+                'relatedQueryParams' => [
+                    'offerId'  => $offerId,
+                    'pageNo'   => $params["begin_page"],
+                    'pageSize' => $params["page_size"],
+                    'language' => $params["country"],
+                ]
+            ];
+
+            $apiDatas = curl_1688("POST", $endPoint, $payload);
+            if( !isset($apiDatas["data"]["result"]["result"]) || count($apiDatas["data"]["result"]["result"]) < 1 ){
+                throw new Exception(ProductErrorMessageConstant::getNotHaveErrorMessage("PRODUCT_RELATED_RECOMMEND"));
+            }
+            $datas = $apiDatas["data"]["result"]["result"];
+            $res = [
+                "begin_page" => (int)$params["begin_page"],
+                "page_size"  => (int)$params["page_size"],
+                "records"    => $datas,
             ];
 
             $returnMsg = helpers_success_message($res);

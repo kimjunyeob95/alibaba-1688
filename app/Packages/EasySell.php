@@ -486,6 +486,19 @@ class EasySell extends MallApiAbstract
             if(count($images) < 1){
                 throw new Exception("상품의 이미지가 없습니다");
             }
+
+            $prdImgDesc = "<div><div style='width: 830px; margin:20px auto;'>
+            <h5 style='text-align: center; padding: 0px; font-size: 20px; text-align: center; color: #000;font-weight: 900; margin-bottom: 40px;'>상품 이미지</h5>
+            <ul style='display: flex; flex-wrap: wrap; justify-content: center;'>";
+            foreach ($images as $imgUrl) {
+                /** html 코드 작성 */
+                $prdImgDesc .= "<li style='display: block; width: 138px; height:138px; margin:0 4px 20px 4px;'>
+                    <img src='{$imgUrl}' alt='img' style='width:100%; height:100%;'>
+                </li> ";
+            }
+            $prdImgDesc = $prdImgDesc . "</ul></div>";
+            $prdDesc    = $prdImgDesc . $prdDesc . "</div>";
+
             $itemImage = implode("|", $images);
 
             $notice = getNoticeInfoTable($noticeInfo, $type);

@@ -60,6 +60,7 @@ class OnchannelService
                 "img_inspect",
                 "prd_inspect",
                 "gosi_inspect",
+                "onchannel.last_log"
             ])
             ->join("onchannel_product_logs as b", "product_datas.offer_id", "=", "b.offer_id")
             ->leftJoin('product_weight_datas as pwd', function ($join) {

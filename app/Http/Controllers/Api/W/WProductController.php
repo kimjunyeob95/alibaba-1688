@@ -770,6 +770,30 @@ class WProductController extends Controller
         }
     }
 
+    public function searchCreateImageIdByUrl(): JsonResponse
+    {
+        try {
+            $validator = Validator::make($this->request->all(), [
+                'img_url' => 'required|string',
+            ], [
+                "img_url.required" => ProductErrorMessageConstant::getNotHaveErrorMessage("IMG_URL"),
+            ]);
+            if ($validator->fails()) {
+                throw new Exception($validator->errors()->first());
+            }
+
+            $imgUrl = $this->request->post('img_url');
+            $result = $this->service1688Product->searchCreateImageIdByUrl($imgUrl);
+            if( $result["isSuccess"] == true ){
+                return helpers_json_response(HttpConstant::OK, $result);
+            } else {
+                return helpers_json_response(HttpConstant::BAD_REQUEST, [], $result["msg"]);
+            }
+        } catch (Exception $e) {
+            return helpers_json_response(HttpConstant::BAD_REQUEST, [], $e->getMessage());
+        }
+    }
+
     public function searchImageQuery(): JsonResponse
     {
         try {
@@ -832,6 +856,39 @@ class WProductController extends Controller
             ];
 
             $result = $this->service1688Product->searchRecommend($params);
+            if( $result["isSuccess"] == true ){
+                return helpers_json_response(HttpConstant::OK, $result);
+            } else {
+                return helpers_json_response(HttpConstant::BAD_REQUEST, [], $result["msg"]);
+            }
+        } catch (Exception $e) {
+            return helpers_json_response(HttpConstant::BAD_REQUEST, [], $e->getMessage());
+        }
+    }
+
+    public function searchRelatedRecommend(int $offerId): JsonResponse
+    {
+        try {
+            $validator = Validator::make($this->request->all(), [
+                'begin_page' => 'required|int',
+                'page_size'  => 'required|int',
+                'country'    => 'required|string',
+            ], [
+                "begin_page.required" => ProductErrorMessageConstant::getNotHaveErrorMessage("BEGINPAGE"),
+                "page_size.required"  => ProductErrorMessageConstant::getNotHaveErrorMessage("PAGESIZE"),
+                "country.required"    => ProductErrorMessageConstant::getNotHaveErrorMessage("COUNTRY"),
+            ]);
+            if ($validator->fails()) {
+                throw new Exception($validator->errors()->first());
+            }
+            
+            $params = [
+                "begin_page" => $this->request->get("begin_page"),
+                "page_size"  => $this->request->get("page_size") > 10 ? 10 : $this->request->get("page_size"),
+                "country"    => $this->request->get("country"),
+            ];
+
+            $result = $this->service1688Product->searchRelatedRecommend($offerId, $params);
             if( $result["isSuccess"] == true ){
                 return helpers_json_response(HttpConstant::OK, $result);
             } else {

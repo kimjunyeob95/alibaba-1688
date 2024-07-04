@@ -902,13 +902,80 @@
                 ],
                 "summary": "W 상품 이미지 ID 생성",
                 "description": "W 상품 이미지 ID 생성 endPoint",
-                "operationId": "27ed593c23f18b0491d30b3a82235fd0",
+                "operationId": "b15af92235cd540a1ce48a065fcdca62",
                 "requestBody": {
                     "required": true,
                     "content": {
                         "multipart/form-data": {
                             "schema": {
                                 "$ref": "#/components/schemas/WSearchCreateImageIdSchema"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SuccessResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Authorization Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/401ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/400ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/500ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/w/products/search/create/imageIdByUrl": {
+            "post": {
+                "tags": [
+                    "상품"
+                ],
+                "summary": "W 상품 이미지URL로 이미지 ID 생성",
+                "description": "W 상품 이미지URL로 이미지 ID 생성 endPoint",
+                "operationId": "56c18ccfb497834c424c64551784c10f",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/WSearchCreateImageIdByUrlSchema"
                             }
                         }
                     }
@@ -1098,6 +1165,105 @@
                         "schema": {
                             "type": "integer",
                             "example": 20
+                        }
+                    },
+                    {
+                        "name": "country",
+                        "in": "query",
+                        "description": "언어 ko: 국문, en: 영문",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "example": "ko"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SuccessResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Authorization Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/401ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/400ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/500ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/w/products/search/related/recommend/{offerId}": {
+            "get": {
+                "tags": [
+                    "상품"
+                ],
+                "summary": "W 연관 상품 조회",
+                "description": "W 연관 상품 조회 endPoint",
+                "operationId": "3fafb6afccc77d4c12bef11217dfd0e0",
+                "parameters": [
+                    {
+                        "name": "offerId",
+                        "in": "path",
+                        "description": "제품 ID",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "example": "539753036122"
+                        }
+                    },
+                    {
+                        "name": "begin_page",
+                        "in": "query",
+                        "description": "페이지 수",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    },
+                    {
+                        "name": "page_size",
+                        "in": "query",
+                        "description": "페이징 사이즈 Max: 10",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 10
                         }
                     },
                     {
@@ -1986,6 +2152,19 @@
                         "description": "이미지 파일 (파일 크기는 300KB 이하, 이미지 형식만 전송)",
                         "type": "file",
                         "example": ""
+                    }
+                },
+                "type": "object"
+            },
+            "WSearchCreateImageIdByUrlSchema": {
+                "required": [
+                    "img_url"
+                ],
+                "properties": {
+                    "img_url": {
+                        "description": "이미지 URL",
+                        "type": "string",
+                        "example": "https://nhci-aigc.oss-cn-zhangjiakou.aliyuncs.com/ppc-records%2Fimage-remove%2Fd184c97f-6f3e-452b-8be2-36106f495637.png?OSSAccessKeyId=LTAI5tCv9DpB7gYic1oGsAyv&Expires=4924420085&Signature=cc8oiKbhGtUSe5aGuoVXidQTZRM%3D"
                     }
                 },
                 "type": "object"

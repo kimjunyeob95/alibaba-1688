@@ -15,7 +15,6 @@ use App\Models\ProductCollectLog;
 use App\Models\ProductData;
 use App\Models\ProductImageData;
 use App\Packages\Onchannel;
-use Exception;
 use Tests\TestCase;
 use Illuminate\Pagination\Paginator;
 
