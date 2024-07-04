@@ -7,7 +7,7 @@
     use App\Constants\MallConstant;
     use App\Constants\OnchannelConstant;
 
-    $exchangeRate = env("1688_EXCHANGE_RATE", 200);
+    $exchangeRate = config('1688_EXCHANGE_RATE', 200);
 @endphp
 @extends('dashboard.base')
 
@@ -406,7 +406,7 @@
                                 <th scope="col" style="width: 80px">번역이미지</th>
                                 <th scope="col" style="width: 120px" class="text-center">
                                     W 공급가<br>
-                                    (환율: {{ number_format($exchangeRate) }}원)
+                                    (환율: {{ number_format($exchangeRate, 2); }}원)
                                 </th>
                                 <th scope="col" style="width: 120px" class="text-center">
                                     기준: 중량 (kg)<br>

@@ -5,7 +5,7 @@
     use App\Constants\GosiConstants;
     use App\Constants\OptionConstants;
     use App\Constants\InspectConstant;
-    $exchangeRate = env("1688_EXCHANGE_RATE", 200);
+    $exchangeRate = config('1688_EXCHANGE_RATE', 200);
 @endphp
 @extends('dashboard.base')
 

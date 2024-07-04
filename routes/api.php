@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\W\WProductController;
 use App\Http\Controllers\Api\GenuioController;
 use App\Http\Controllers\Api\MallCategoryController;
 use App\Http\Controllers\Api\MallController;
+use App\Http\Controllers\Api\W\ExchangeRateController;
 use App\Http\Controllers\Api\W\W2ProductController;
 use App\Http\Controllers\Api\W\WCollectController;
 use App\Http\Controllers\Api\W\WExceptController;
@@ -69,6 +70,11 @@ Route::name('w.')->prefix('w')->group(function () {
             Route::get('/search/recommend', [WProductController::class, "searchRecommend"])->name("searchRecommend");
             /** W 연관 상품 조회 */
             Route::get('/search/related/recommend/{offerId}', [WProductController::class, "searchRelatedRecommend"])->name("searchRelatedRecommend");
+        });
+
+        /** 환율 조회 */
+        Route::name('exchangeRate.')->prefix('exchangeRate')->group(function() {
+            Route::get('/{date}', [ExchangeRateController::class, "getExchangeRate"])->name("/");
         });
     });
 

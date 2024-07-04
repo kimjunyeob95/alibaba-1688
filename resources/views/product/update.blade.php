@@ -4,7 +4,7 @@
     use App\Constants\ImageConstant;
     use App\Constants\GosiConstants;
     use App\Constants\ExceptConstant;
-    $exchangeRate = env("1688_EXCHANGE_RATE", 200);
+    $exchangeRate = config('1688_EXCHANGE_RATE', 200);
 @endphp
 @extends('dashboard.base')
 
