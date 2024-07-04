@@ -22,6 +22,7 @@ use App\Models\ProductData;
 use App\Models\ProductWeightData;
 use Carbon\Carbon;
 use Exception;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Pagination\Paginator;
@@ -58,7 +59,6 @@ class Onchannel extends MallApiAbstract
         $successIds   = [];
         $failIds      = [];
         $sendTypeList = [ OnchannelConstant::PRD_CHANNEL ];
-        $weights      = CategoryConstant::WEIGHTS;
         if( isset($params["sendTypeList"]) ){
             $sendTypeList = $params["sendTypeList"];
         }
@@ -91,156 +91,12 @@ class Onchannel extends MallApiAbstract
                             throw new Exception(MallErrorMessageConstant::getNotHaveErrorMessage("PRODUCT"));
                         }
 
-                        $channelCnt = ChannelCategoryRegistData::where([
-                            "channel"     => $this->channel,
-                            "send_type"   => $sendType,
-                            "category_id" => $prdObj->category_id,
-                            "is_regist"   => MallConstant::REGIST_Y,
-                        ])->count();
+                        $getPrdParams = $this->_getPrdParams($prdObj, $sendType, MallConstant::SEND_TYPE_REGIST);
+                        if( $getPrdParams["isSuccess"] === false ){
+                            throw new Exception($getPrdParams["msg"]);
+                        }
+                        $payload = $getPrdParams["data"];
 
-                        if( $channelCnt == 0 ){
-                            throw new Exception(MallErrorMessageConstant::getFitErrorMessage("CATEGORY_REGIST"));
-                        }
-    
-                        if(count($prdObj->no_except_options) < 1){
-                            throw new Exception(MallErrorMessageConstant::getNotHaveErrorMessage("OPTIONS"));
-                        }
-    
-                        if( $prdObj->w_mapping == null ){
-                            throw new Exception(MallErrorMessageConstant::getFitErrorMessage("W_APP_MAPPINGCODE"));
-                        }
-    
-                        if( $prdObj->oc_mapping == null ){
-                            throw new Exception(MallErrorMessageConstant::getFitErrorMessage("OC_MAPPINGCODE"));
-                        }
-
-                        if( $sendType == OnchannelConstant::PRD_CHANNEL_PRIVATE ){
-                            if( $prdObj->trans_stauts == ProductConstant::TRANS_STATUS_N ){
-                                throw new Exception(MallErrorMessageConstant::getFitErrorMessage("TRANS_STATUS"));
-                            }
-                            if( $prdObj->prd_desc_kr == "" ){
-                                throw new Exception(MallErrorMessageConstant::getFitErrorMessage("PRD_DESC_KR"));
-                            }
-                        }
-    
-                        $prd_desc     = $prdObj->prd_desc;
-                        if( $sendType == OnchannelConstant::PRD_CHANNEL_PRIVATE ){
-                            $prd_desc = $prdObj->prd_desc_kr;
-                        }
-
-                        $noticeInfo   = $prdObj->no_except_notices->pluck("attribute_value_kr","attribute_name_kr")->toArray();
-                        $notice_desc  = getNoticeInfoTable($noticeInfo);
-                        $prd_desc    .= $notice_desc;
-
-                        $prd_desc .= "<div style='text-align: center !important'>" . $prd_desc . "</div>";
-            
-                        $images = [];
-                        foreach ($prdObj->images as $imgObj) {
-                            if( $imgObj->is_except == ImageConstant::IS_EXCEPT_N && $imgObj->lang == WConstant::WAPP_KR ){
-                                if( $sendType == OnchannelConstant::PRD_CHANNEL_PRIVATE ){
-                                    if( $imgObj->img_url_trans == "" ){
-                                        $msg = $imgObj->img_url_origin . " 번역 미완료 이미지";
-                                        throw new Exception($msg);
-                                    }
-
-                                    $images[] = [
-                                        "img_type" => $imgObj->img_type,
-                                        "img_url"  => $imgObj->img_url_trans
-                                    ];
-                                } else {
-                                    $images[] = [
-                                        "img_type" => $imgObj->img_type,
-                                        "img_url"  => $imgObj->img_url_origin
-                                    ];
-                                }
-                            }
-                        }
-
-                        $img_url = $prdObj->main_img->img_url_origin;
-                        if( $sendType == OnchannelConstant::PRD_CHANNEL_PRIVATE ){
-                            $img_url = $prdObj->main_img->img_url_trans;
-                        }
-
-                        $img_nm_550 = "";
-                        $img_nm_300 = "";
-                        $img_nm_130 = "";
-                        if( isset($prdObj->no_except_sub_imgs[0]->img_url_origin) ){
-                            $img_nm_550 = $prdObj->no_except_sub_imgs[0]->img_url_origin;
-                            if( $sendType == OnchannelConstant::PRD_CHANNEL_PRIVATE ){
-                                $img_nm_550 = $prdObj->no_except_sub_imgs[0]->img_url_trans;
-                            }
-                        }
-                        if( isset($prdObj->no_except_sub_imgs[1]->img_url_origin) ){
-                            $img_nm_300 = $prdObj->no_except_sub_imgs[1]->img_url_origin;
-                            if( $sendType == OnchannelConstant::PRD_CHANNEL_PRIVATE ){
-                                $img_nm_300 = $prdObj->no_except_sub_imgs[1]->img_url_trans;
-                            }
-                        }
-                        if( isset($prdObj->no_except_sub_imgs[2]->img_url_origin) ){
-                            $img_nm_130 = $prdObj->no_except_sub_imgs[2]->img_url_origin;
-                            if( $sendType == OnchannelConstant::PRD_CHANNEL_PRIVATE ){
-                                $img_nm_130 = $prdObj->no_except_sub_imgs[2]->img_url_trans;
-                            }
-                        }
-
-                        $delivery_price = ProductConstant::WEIGHT_STATUS_NONE_PRICE;
-                        $weightObj      = ProductWeightData::where("offer_id", $prdObj->offer_id)->first();
-
-                        if( $weightObj != null ){
-                            $delivery_price = $weights[$weightObj->weight];
-                        }
-
-                        $payload = [
-                            "nat_sec"         => OnchannelConstant::NAT_SEC,
-                            "supp_sec"        => OnchannelConstant::SUPP_SEC,
-                            "jejo_code"       => $prdObj->offer_id,
-                            "product_nm"      => $prdObj->prd_name_kr,
-                            "prd_char1"       => $prdObj->minor_not_sale,
-                            "trans_info"      => OnchannelConstant::TRANS_INFO,
-                            "send_check"      => OnchannelConstant::SEND_CHECK,
-                            "send_price"      => (int)0,
-                            "jeju_send_price" => (int)$prdObj->extends->send_jeju_price,
-                            "etc_send_price"  => (int)$prdObj->extends->send_etc_price,
-                            "trans_nm"        => OnchannelConstant::TRANS_NM,
-                            "prd_channel"     => $sendType,
-                            "sale_num"        => OnchannelConstant::SALE_NUM,
-                            "etc_comment"     => OnchannelConstant::ETC_COMMENT,
-                            "return_comment"  => $prdObj->return_comment,
-                            "sec_tax"         => OnchannelConstant::SEC_TAX,
-                            "subject"         => $prdObj->prd_name_kr,
-                            "contents"        => $prd_desc,
-                            "img_url"         => $img_url,
-                            "img_nm_550"      => $img_nm_550,
-                            "img_nm_300"      => $img_nm_300,
-                            "img_nm_130"      => $img_nm_130,
-                            "min_count"       => $prdObj->start_quantity,
-                            "images"          => $images,
-                            "cate_num"        => 26,
-                            "store_code"      => (string)$prdObj->oc_mapping->mapping_code,
-                            "brand_info"      => OnchannelConstant::BRAND_INFO
-                        ];
-            
-                        $options = [];
-                        foreach ($prdObj->no_except_options as $option) {
-                            $ocPrice = ocPrice($option->price_1688_option, (int)$delivery_price);
-                            // $ocPrice = ocPrice($option->price_1688, (int)$delivery_price);
-
-                            $options[] = [
-                                "op_rank"      => "1",
-                                "op_code"      => $option->id,
-                                "option_nm"    => $option->option_name_kr,
-                                "cus_price"    => $ocPrice["cus_price"],
-                                "disc_price"   => 0,
-                                "option_price" => 0,
-                                "vendor_price" => 0,
-                                "onch_price"   => $ocPrice["onch_price"],
-                                "total_count"  => 0,
-                                "weight"       => $option->weight,
-                                "volume"       => "",
-                                "amount"       => 0
-                            ];
-                        }
-                        $payload["options"] = $options;
                         $header = array(
                             'Content-type: application/json',
                             'Authorization: Bearer ' . $this->token,
@@ -272,7 +128,7 @@ class Onchannel extends MallApiAbstract
 
                             $successIds[] = $offerId;
                         } else {
-                            $msg = "온채널 통신 에러";
+                            $msg = "온채널 통신 에러 ";
                             if( isset($resultCurl["msg"]) ){
                                 $msg = $msg . $resultCurl["msg"];
                             } else {
@@ -329,7 +185,7 @@ class Onchannel extends MallApiAbstract
                         ]);
                     }
                 } else {
-                    $modiResult = $this->productModi([$offerId]);
+                    $modiResult = $this->productModi([$offerId], $sendType);
                     if( $modiResult["isSuccess"] === true ){
                         $successIds[] = $offerId;
                     } else {
@@ -359,7 +215,6 @@ class Onchannel extends MallApiAbstract
     public function productModi(array $offerIds, int $sendType = OnchannelConstant::PRD_CHANNEL): array
     {
         $returnMsg = $this->returnMsg;
-        $weights   = CategoryConstant::WEIGHTS;
 
         foreach ($offerIds as $offerId) {
             $logObj = OnchannelProductLog::where([
@@ -387,157 +242,12 @@ class Onchannel extends MallApiAbstract
                         throw new Exception(MallErrorMessageConstant::getNotHaveErrorMessage("PRODUCT"));
                     }
 
-                    $channelCnt = ChannelCategoryRegistData::where([
-                        "channel"     => $this->channel,
-                        "send_type"   => $sendType,
-                        "category_id" => $prdObj->category_id,
-                        "is_regist"   => MallConstant::REGIST_Y,
-                    ])->count();
-
-                    if( $channelCnt == 0 ){
-                        throw new Exception(MallErrorMessageConstant::getFitErrorMessage("CATEGORY_REGIST"));
+                    $getPrdParams = $this->_getPrdParams($prdObj, $sendType, MallConstant::SEND_TYPE_MODI);
+                    if( $getPrdParams["isSuccess"] === false ){
+                        throw new Exception($getPrdParams["msg"]);
                     }
+                    $payload = $getPrdParams["data"];
 
-                    if(count($prdObj->no_except_options) < 1){
-                        throw new Exception(MallErrorMessageConstant::getNotHaveErrorMessage("OPTIONS"));
-                    }
-
-                    if( $prdObj->w_mapping == null ){
-                        throw new Exception(MallErrorMessageConstant::getFitErrorMessage("W_APP_MAPPINGCODE"));
-                    }
-
-                    if( $prdObj->oc_mapping == null ){
-                        throw new Exception(MallErrorMessageConstant::getFitErrorMessage("OC_MAPPINGCODE"));
-                    }
-
-                    if( $sendType == OnchannelConstant::PRD_CHANNEL_PRIVATE ){
-                        if( $prdObj->trans_stauts == ProductConstant::TRANS_STATUS_N ){
-                            throw new Exception(MallErrorMessageConstant::getFitErrorMessage("TRANS_STATUS"));
-                        }
-                        if( $prdObj->prd_desc_kr == "" ){
-                            throw new Exception(MallErrorMessageConstant::getFitErrorMessage("PRD_DESC_KR"));
-                        }
-                    }
-
-                    $prd_desc     = $prdObj->prd_desc;
-                    if( $sendType == OnchannelConstant::PRD_CHANNEL_PRIVATE ){
-                        $prd_desc = $prdObj->prd_desc_kr;
-                    }
-
-                    $noticeInfo   = $prdObj->no_except_notices->pluck("attribute_value_kr","attribute_name_kr")->toArray();
-                    $notice_desc  = getNoticeInfoTable($noticeInfo);
-                    $prd_desc    .= $notice_desc;
-
-                    $prd_desc .= "<div style='text-align: center !important'>" . $prd_desc . "</div>";
-        
-                    $images = [];
-                    foreach ($prdObj->images as $imgObj) {
-                        if( $imgObj->is_except == ImageConstant::IS_EXCEPT_N && $imgObj->lang == WConstant::WAPP_KR ){
-                            if( $sendType == OnchannelConstant::PRD_CHANNEL_PRIVATE ){
-                                if( $imgObj->img_url_trans == "" ){
-                                    $msg = $imgObj->img_url_origin . " 번역 미완료 이미지";
-                                    throw new Exception($msg);
-                                }
-
-                                $images[] = [
-                                    "img_type" => $imgObj->img_type,
-                                    "img_url"  => $imgObj->img_url_trans
-                                ];
-                            } else {
-                                $images[] = [
-                                    "img_type" => $imgObj->img_type,
-                                    "img_url"  => $imgObj->img_url_origin
-                                ];
-                            }
-                        }
-                    }
-
-                    $img_url = $prdObj->main_img->img_url_origin;
-                    if( $sendType == OnchannelConstant::PRD_CHANNEL_PRIVATE ){
-                        $img_url = $prdObj->main_img->img_url_trans;
-                    }
-
-                    $img_nm_550 = "";
-                    $img_nm_300 = "";
-                    $img_nm_130 = "";
-                    if( isset($prdObj->no_except_sub_imgs[0]->img_url_origin) ){
-                        $img_nm_550 = $prdObj->no_except_sub_imgs[0]->img_url_origin;
-                        if( $sendType == OnchannelConstant::PRD_CHANNEL_PRIVATE ){
-                            $img_nm_550 = $prdObj->no_except_sub_imgs[0]->img_url_trans;
-                        }
-                    }
-                    if( isset($prdObj->no_except_sub_imgs[1]->img_url_origin) ){
-                        $img_nm_300 = $prdObj->no_except_sub_imgs[1]->img_url_origin;
-                        if( $sendType == OnchannelConstant::PRD_CHANNEL_PRIVATE ){
-                            $img_nm_300 = $prdObj->no_except_sub_imgs[1]->img_url_trans;
-                        }
-                    }
-                    if( isset($prdObj->no_except_sub_imgs[2]->img_url_origin) ){
-                        $img_nm_130 = $prdObj->no_except_sub_imgs[2]->img_url_origin;
-                        if( $sendType == OnchannelConstant::PRD_CHANNEL_PRIVATE ){
-                            $img_nm_130 = $prdObj->no_except_sub_imgs[2]->img_url_trans;
-                        }
-                    }
-
-                    $delivery_price = ProductConstant::WEIGHT_STATUS_NONE_PRICE;
-                    $weightObj      = ProductWeightData::where("offer_id", $prdObj->offer_id)->first();
-
-                    if( $weightObj != null ){
-                        $delivery_price = $weights[$weightObj->weight];
-                    }
-
-                    $payload = [
-                        "prd_code"        => $prdObj->oc_public_log->prd_code,
-                        "nat_sec"         => OnchannelConstant::NAT_SEC,
-                        "supp_sec"        => OnchannelConstant::SUPP_SEC,
-                        "jejo_code"       => $prdObj->offer_id,
-                        "product_nm"      => $prdObj->prd_name_kr,
-                        "prd_char1"       => $prdObj->minor_not_sale,
-                        "trans_info"      => OnchannelConstant::TRANS_INFO,
-                        "send_check"      => OnchannelConstant::SEND_CHECK,
-                        "send_price"      => (int)0,
-                        "jeju_send_price" => (int)$prdObj->extends->send_jeju_price,
-                        "etc_send_price"  => (int)$prdObj->extends->send_etc_price,
-                        "trans_nm"        => OnchannelConstant::TRANS_NM,
-                        "prd_channel"     => $sendType,
-                        "sale_num"        => OnchannelConstant::SALE_NUM,
-                        "etc_comment"     => OnchannelConstant::ETC_COMMENT,
-                        "return_comment"  => $prdObj->return_comment,
-                        "sec_tax"         => OnchannelConstant::SEC_TAX,
-                        "subject"         => $prdObj->prd_name_kr,
-                        "contents"        => $prd_desc,
-                        "img_url"         => $img_url,
-                        "img_nm_550"      => $img_nm_550,
-                        "img_nm_300"      => $img_nm_300,
-                        "img_nm_130"      => $img_nm_130,
-                        "min_count"       => $prdObj->start_quantity,
-                        "images"          => $images,
-                        "cate_num"        => 26,
-                        "store_code"      => (string)$prdObj->oc_mapping->mapping_code,
-                        "brand_info"      => OnchannelConstant::BRAND_INFO
-                    ];
-        
-                    $options = [];
-                    foreach ($prdObj->no_except_options as $option) {
-                        $ocPrice = ocPrice($option->price_1688_option, (int)$delivery_price);
-                        // $ocPrice = ocPrice($option->price_1688, (int)$delivery_price);
-
-                        $options[] = [
-                            "op_rank"      => "1",
-                            "op_code"      => $option->id,
-                            "option_nm"    => $option->option_name_kr,
-                            "cus_price"    => $ocPrice["cus_price"],
-                            "disc_price"   => 0,
-                            "option_price" => 0,
-                            "vendor_price" => 0,
-                            "onch_price"   => $ocPrice["onch_price"],
-                            "total_count"  => 0,
-                            "weight"       => $option->weight,
-                            "volume"       => "",
-                            "amount"       => 0
-                        ];
-                    }
-                    $payload["options"] = $options;
                     $header = array(
                         'Content-type: application/json',
                         'Authorization: Bearer ' . $this->token,
@@ -556,7 +266,7 @@ class Onchannel extends MallApiAbstract
 
                         $returnMsg = helpers_success_message();
                     } else {
-                        $msg = "온채널 통신 에러";
+                        $msg = "온채널 통신 에러 ";
                         if( isset($resultCurl["msg"]) ){
                             $msg = $msg . $resultCurl["msg"];
                         } else {
@@ -633,6 +343,195 @@ class Onchannel extends MallApiAbstract
         }
         
         debug_log("온채널 일괄 수정 전송 종료", "onchannel/sendAllPrdModi", "sendAllPrdModi");
+    }
+
+    /**
+     * api param 생성 - 상품 등록/수정 공통사용
+     *
+     * @param Model $prdObj
+     * @param int $sendType
+     * @param string $mod
+     * @return array
+     */
+    private function _getPrdParams(Model $prdObj, int $sendType, string $mode = MallConstant::SEND_TYPE_REGIST): array
+    {
+        $return = helpers_fail_message();
+
+        try{
+            $channelCnt = ChannelCategoryRegistData::where([
+                "channel"     => $this->channel,
+                "send_type"   => $sendType,
+                "category_id" => $prdObj->category_id,
+                "is_regist"   => MallConstant::REGIST_Y,
+            ])->count();
+
+            if( $channelCnt == 0 ){
+                throw new Exception(MallErrorMessageConstant::getFitErrorMessage("CATEGORY_REGIST"));
+            }
+
+            if(count($prdObj->no_except_options) < 1){
+                throw new Exception(MallErrorMessageConstant::getNotHaveErrorMessage("OPTIONS"));
+            }
+
+            if( $prdObj->w_mapping == null ){
+                throw new Exception(MallErrorMessageConstant::getFitErrorMessage("W_APP_MAPPINGCODE"));
+            }
+
+            if( $prdObj->oc_mapping == null ){
+                throw new Exception(MallErrorMessageConstant::getFitErrorMessage("OC_MAPPINGCODE"));
+            }
+
+            if( $sendType == OnchannelConstant::PRD_CHANNEL_PRIVATE ){
+                if( $prdObj->trans_stauts == ProductConstant::TRANS_STATUS_N ){
+                    throw new Exception(MallErrorMessageConstant::getFitErrorMessage("TRANS_STATUS"));
+                }
+                if( $prdObj->prd_desc_kr == "" ){
+                    throw new Exception(MallErrorMessageConstant::getFitErrorMessage("PRD_DESC_KR"));
+                }
+            }
+
+            $weights = CategoryConstant::WEIGHTS;
+
+            $images = [];
+            foreach ($prdObj->images as $imgObj) {
+                if( $imgObj->is_except == ImageConstant::IS_EXCEPT_N && $imgObj->lang == WConstant::WAPP_KR ){
+                    if( $sendType == OnchannelConstant::PRD_CHANNEL_PRIVATE ){
+                        if( $imgObj->img_url_trans == "" ){
+                            $msg = $imgObj->img_url_origin . " 번역 미완료 이미지";
+                            throw new Exception($msg);
+                        }
+
+                        $images[] = [
+                            "img_type" => $imgObj->img_type,
+                            "img_url"  => $imgObj->img_url_trans
+                        ];
+                    } else {
+                        $images[] = [
+                            "img_type" => $imgObj->img_type,
+                            "img_url"  => $imgObj->img_url_origin
+                        ];
+                    }
+                }
+            }
+
+            $prd_desc = $prdObj->prd_desc;
+            if( $sendType == OnchannelConstant::PRD_CHANNEL_PRIVATE ){
+                $prd_desc = $prdObj->prd_desc_kr;
+            }
+
+            $noticeInfo   = $prdObj->no_except_notices->pluck("attribute_value_kr","attribute_name_kr")->toArray();
+            $notice_desc  = getNoticeInfoTable($noticeInfo);
+            $prd_desc    .= $notice_desc;
+
+            $prd_desc .= "<div style='text-align: center !important'>" . $prd_desc . "</div>";
+
+            $prdImgDesc = "<div><div style='width: 830px; margin:20px auto;'>
+            <h5 style='text-align: center; padding: 0px; font-size: 20px; text-align: center; color: #000;font-weight: 900; margin-bottom: 40px;'>상품 이미지</h5>
+            <ul style='display: flex; flex-wrap: wrap; justify-content: center;'>";
+            foreach ($images as $imgObj) {
+                /** html 코드 작성 */
+                $prdImgDesc .= "<li style='display: block; width: 138px; height:138px; margin:0 4px 20px 4px;'>
+                    <img src='{$imgObj['img_url']}' alt='img' style='width:100%; height:100%;'>
+                </li> ";
+            }
+            $prdImgDesc = $prdImgDesc . "</ul></div>";
+            $prd_desc   = $prdImgDesc . $prd_desc . "</div>";
+
+            $img_url = $prdObj->main_img->img_url_origin;
+            if( $sendType == OnchannelConstant::PRD_CHANNEL_PRIVATE ){
+                $img_url = $prdObj->main_img->img_url_trans;
+            }
+            $img_nm_550 = "";
+            $img_nm_300 = "";
+            $img_nm_130 = "";
+            if( isset($prdObj->no_except_sub_imgs[0]->img_url_origin) ){
+                $img_nm_550 = $prdObj->no_except_sub_imgs[0]->img_url_origin;
+                if( $sendType == OnchannelConstant::PRD_CHANNEL_PRIVATE ){
+                    $img_nm_550 = $prdObj->no_except_sub_imgs[0]->img_url_trans;
+                }
+            }
+            if( isset($prdObj->no_except_sub_imgs[1]->img_url_origin) ){
+                $img_nm_300 = $prdObj->no_except_sub_imgs[1]->img_url_origin;
+                if( $sendType == OnchannelConstant::PRD_CHANNEL_PRIVATE ){
+                    $img_nm_300 = $prdObj->no_except_sub_imgs[1]->img_url_trans;
+                }
+            }
+            if( isset($prdObj->no_except_sub_imgs[2]->img_url_origin) ){
+                $img_nm_130 = $prdObj->no_except_sub_imgs[2]->img_url_origin;
+                if( $sendType == OnchannelConstant::PRD_CHANNEL_PRIVATE ){
+                    $img_nm_130 = $prdObj->no_except_sub_imgs[2]->img_url_trans;
+                }
+            }
+
+            $delivery_price = ProductConstant::WEIGHT_STATUS_NONE_PRICE;
+            $weightObj      = ProductWeightData::where("offer_id", $prdObj->offer_id)->first();
+
+            if( $weightObj != null ){
+                $delivery_price = $weights[$weightObj->weight];
+            }
+
+            $payload = [
+                "nat_sec"         => OnchannelConstant::NAT_SEC,
+                "supp_sec"        => OnchannelConstant::SUPP_SEC,
+                "jejo_code"       => $prdObj->offer_id,
+                "product_nm"      => $prdObj->prd_name_kr,
+                "prd_char1"       => $prdObj->minor_not_sale,
+                "trans_info"      => OnchannelConstant::TRANS_INFO,
+                "send_check"      => OnchannelConstant::SEND_CHECK,
+                "send_price"      => (int)0,
+                "jeju_send_price" => (int)$prdObj->extends->send_jeju_price,
+                "etc_send_price"  => (int)$prdObj->extends->send_etc_price,
+                "trans_nm"        => OnchannelConstant::TRANS_NM,
+                "prd_channel"     => $sendType,
+                "sale_num"        => OnchannelConstant::SALE_NUM,
+                "etc_comment"     => OnchannelConstant::ETC_COMMENT,
+                "return_comment"  => $prdObj->return_comment,
+                "sec_tax"         => OnchannelConstant::SEC_TAX,
+                "subject"         => $prdObj->prd_name_kr,
+                "contents"        => $prd_desc,
+                "img_url"         => $img_url,
+                "img_nm_550"      => $img_nm_550,
+                "img_nm_300"      => $img_nm_300,
+                "img_nm_130"      => $img_nm_130,
+                "min_count"       => $prdObj->start_quantity,
+                "images"          => $images,
+                "cate_num"        => 26,
+                "store_code"      => (string)$prdObj->oc_mapping->mapping_code,
+                "brand_info"      => OnchannelConstant::BRAND_INFO
+            ];
+
+            if( $mode == MallConstant::SEND_TYPE_MODI ){
+                $payload["prd_code"] = $prdObj->oc_public_log->prd_code;
+            }
+
+            $options = [];
+            foreach ($prdObj->no_except_options as $option) {
+                $ocPrice = ocPrice($option->price_1688_option, (int)$delivery_price);
+                // $ocPrice = ocPrice($option->price_1688, (int)$delivery_price);
+
+                $options[] = [
+                    "op_rank"      => "1",
+                    "op_code"      => $option->id,
+                    "option_nm"    => $option->option_name_kr,
+                    "cus_price"    => $ocPrice["cus_price"],
+                    "disc_price"   => 0,
+                    "option_price" => 0,
+                    "vendor_price" => 0,
+                    "onch_price"   => $ocPrice["onch_price"],
+                    "total_count"  => 0,
+                    "weight"       => $option->weight,
+                    "volume"       => "",
+                    "amount"       => 0
+                ];
+            }
+            $payload["options"] = $options;
+
+            $return = helpers_success_message($payload);
+        } catch(Exception $e){
+            $return = helpers_fail_message($e->getMessage());
+        }
+
+        return $return;
     }
 
     /****************************************** 상품 end **********************************************/
