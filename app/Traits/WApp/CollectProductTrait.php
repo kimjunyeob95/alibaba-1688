@@ -324,15 +324,10 @@ trait CollectProductTrait
                 );
             }
 
+            ProductSaleData::where("offer_id", $offerId)->forceDelete();
             foreach ($productSaleDtos as $productSaleDto) {
                 $upsertWhere = $productSaleDto->getAllProperties();
-                unset($upsertWhere["offer_id"]);
-                ProductSaleData::updateOrCreate(
-                    [
-                        "offer_id" => $offerId,
-                    ],
-                    $upsertWhere
-                );
+                ProductSaleData::create($upsertWhere);
             }
 
             if( $productWhiteImageDto->offer_id != 0 ){
