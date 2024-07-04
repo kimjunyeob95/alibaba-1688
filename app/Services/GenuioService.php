@@ -16,6 +16,7 @@ use App\Models\ApiUser;
 use App\Models\EasysellProductLog;
 use App\Models\GenuioAiData;
 use App\Models\GenuioImageData;
+use App\Models\GenuioImageExtendData;
 use App\Models\GenuioQueueData;
 use App\Models\GenuioQueueDetailData;
 use App\Models\OcGeQueueData;
@@ -378,11 +379,14 @@ class GenuioService extends TransApiAbstract
     
                         $img_url_origin = $imgObj->img_url_origin;
     
-                        $uploadResult   = false;
-                        $errorImgFlag   = false;
-                        $imgTransBase64 = "";
-                        $img_url_trans  = "";
-                        $mime           = pathinfo($img_url_origin, PATHINFO_EXTENSION);
+                        $uploadResult        = false;
+                        $uploadCleanedResult = false;
+                        $errorImgFlag        = false;
+                        $imgTransBase64      = "";
+                        $img_url_trans       = "";
+                        $cleanedBase64       = "";
+                        $textData            = "";
+                        $mime                = pathinfo($img_url_origin, PATHINFO_EXTENSION);
                         if (preg_match('/^(jpg|jpeg|png|gif)/i', $mime, $matches)) {
                             $mime = $matches[0];
                         }
@@ -412,6 +416,19 @@ class GenuioService extends TransApiAbstract
                                 $errorImgFlag   = true;
                                 $imgTransBase64 = TransApiConstant::getFitErrorMessage("1688_IMG");
                             }
+                        }
+
+                        $geImageExtendCnt = GenuioImageExtendData::where([
+                            "offer_id" => $offerId,
+                            "img_id"   => $imgId,
+                        ])->count();
+                        $cleanedImgName = "/genuio/cleaned-img/" . $dateName . "/" . $offerId . "_" . $imgId . "_" . ($geImageExtendCnt+1) . "_" . $imgObj->img_type . "." . $mime;
+                        if( isset($image["cleaned_base64"]) && !empty($image["cleaned_base64"]) ){
+                            $cleanedBase64       = $image["cleaned_base64"];
+                            $uploadCleanedResult = $this->uploadAbstract->uploadFile($cleanedImgName, base64_decode($cleanedBase64));
+                        }
+                        if( isset($image["text_data"]) ){
+                            $textData = $image["text_data"];
                         }
     
                         if( $uploadResult == true ) {
@@ -468,6 +485,15 @@ class GenuioService extends TransApiAbstract
                         ])->update([
                             "trans_status" => $uploadResult == true ? TransApiConstant::QUEUE_SUCCESS : TransApiConstant::QUEUE_FAIL
                         ]);
+
+                        if( $uploadCleanedResult === true ){
+                            GenuioImageExtendData::create([
+                                "offer_id"        => $offerId,
+                                "img_id"          => $imgId,
+                                "cleaned_img_url" => $cleanedImgName,
+                                "text_data"       => $textData,
+                            ]);
+                        }
                     } catch (ValueError $ve) {
                         $imgData = $image;
                         unset($imgData["imgTransBase64"]);
@@ -512,11 +538,14 @@ class GenuioService extends TransApiAbstract
 
                         $img_url_ai_origin = $imgObj->img_url_ai;
     
-                        $uploadResult   = false;
-                        $errorImgFlag   = false;
-                        $imgTransBase64 = "";
-                        $mime           = pathinfo($img_url_ai_origin, PATHINFO_EXTENSION);
-                        $dateName       = Carbon::now()->format('Y/m/d');
+                        $uploadResult        = false;
+                        $uploadCleanedResult = false;
+                        $errorImgFlag        = false;
+                        $imgTransBase64      = "";
+                        $cleanedBase64       = "";
+                        $textData            = "";
+                        $mime                = pathinfo($img_url_ai_origin, PATHINFO_EXTENSION);
+                        $dateName            = Carbon::now()->format('Y/m/d');
                         if (preg_match('/^(jpg|jpeg|png|gif)/i', $mime, $matches)) {
                             $mime = $matches[0];
                         }
@@ -542,6 +571,19 @@ class GenuioService extends TransApiAbstract
                                 $errorImgFlag   = true;
                                 $imgTransBase64 = TransApiConstant::getFitErrorMessage("1688_IMG");
                             }
+                        }
+
+                        $geImageExtendCnt = GenuioImageExtendData::where([
+                            "offer_id" => $offerId,
+                            "img_id"   => $imgId,
+                        ])->count();
+                        $cleanedImgName = "/genuio/cleaned-img/" . $dateName . "/" . $offerId . "_" . $imgId . "_" . ($geImageExtendCnt+1) . "_" . $imgObj->img_type . "." . $mime;
+                        if( isset($image["cleaned_base64"]) && !empty($image["cleaned_base64"]) ){
+                            $cleanedBase64       = $image["cleaned_base64"];
+                            $uploadCleanedResult = $this->uploadAbstract->uploadFile($cleanedImgName, base64_decode($cleanedBase64));
+                        }
+                        if( isset($image["text_data"]) ){
+                            $textData = $image["text_data"];
                         }
 
                         if( $uploadResult == true ) {
@@ -571,6 +613,15 @@ class GenuioService extends TransApiAbstract
                         ])->update([
                             "trans_status" => $uploadResult == true ? TransApiConstant::QUEUE_SUCCESS : TransApiConstant::QUEUE_FAIL
                         ]);
+
+                        if( $uploadCleanedResult === true ){
+                            GenuioImageExtendData::create([
+                                "offer_id"        => $offerId,
+                                "img_id"          => $imgId,
+                                "cleaned_img_url" => $cleanedImgName,
+                                "text_data"       => $textData,
+                            ]);
+                        }
                     } catch (ValueError $ve) {
                         $imgData = $image;
                         unset($imgData["imgTransBase64"]);
@@ -605,13 +656,16 @@ class GenuioService extends TransApiAbstract
                         
                         $parentImgCnt = GenuioImageData::where("img_id", $imgId)->count();
 
-                        $img_url_origin = $imgObj->img_url_origin;
-                        $uploadResult   = false;
-                        $errorImgFlag   = false;
-                        $imgTransBase64 = "";
-                        $img_url_trans  = "";
-                        $mime           = pathinfo($img_url_origin, PATHINFO_EXTENSION);
-                        $dateName       = Carbon::now()->format('Y/m/d');
+                        $img_url_origin      = $imgObj->img_url_origin;
+                        $uploadResult        = false;
+                        $uploadCleanedResult = false;
+                        $errorImgFlag        = false;
+                        $imgTransBase64      = "";
+                        $img_url_trans       = "";
+                        $cleanedBase64       = "";
+                        $textData            = "";
+                        $mime                = pathinfo($img_url_origin, PATHINFO_EXTENSION);
+                        $dateName            = Carbon::now()->format('Y/m/d');
                         if (preg_match('/^(jpg|jpeg|png|gif)/i', $mime, $matches)) {
                             $mime = $matches[0];
                         }
@@ -639,6 +693,19 @@ class GenuioService extends TransApiAbstract
                             }
                         }
     
+                        $geImageExtendCnt = GenuioImageExtendData::where([
+                            "offer_id" => $offerId,
+                            "img_id"   => $imgId,
+                        ])->count();
+                        $cleanedImgName = "/genuio/cleaned-img/" . $dateName . "/" . $offerId . "_" . $imgId . "_" . ($geImageExtendCnt+1) . "_" . $imgObj->img_type . "." . $mime;
+                        if( isset($image["cleaned_base64"]) && !empty($image["cleaned_base64"]) ){
+                            $cleanedBase64       = $image["cleaned_base64"];
+                            $uploadCleanedResult = $this->uploadAbstract->uploadFile($cleanedImgName, base64_decode($cleanedBase64));
+                        }
+                        if( isset($image["text_data"]) ){
+                            $textData = $image["text_data"];
+                        }
+
                         if( $uploadResult == true ) {
                             $img_url_trans = env("AWS_URL") . $imgName;
                             ProductImageData::where("id", $imgId)->update([
@@ -693,6 +760,15 @@ class GenuioService extends TransApiAbstract
                         ])->update([
                             "trans_status" => $uploadResult == true ? TransApiConstant::QUEUE_SUCCESS : TransApiConstant::QUEUE_FAIL
                         ]);
+
+                        if( $uploadCleanedResult === true ){
+                            GenuioImageExtendData::create([
+                                "offer_id"        => $offerId,
+                                "img_id"          => $imgId,
+                                "cleaned_img_url" => $cleanedImgName,
+                                "text_data"       => $textData,
+                            ]);
+                        }
                     } catch (ValueError $ve) {
                         $imgData = $image;
                         unset($imgData["imgTransBase64"]);
@@ -861,7 +937,7 @@ class GenuioService extends TransApiAbstract
                         "ai_type"    => GenuioConstant::IMG_Ai_TRANS,
                         "is_origin"  => GenuioConstant::IS_ORIGIN_N,
                         "img_url_ai" => "",
-                        "created_at"  => Carbon::now()
+                        "created_at" => Carbon::now()
                     ]);
 
                     $parentImgCnt = GenuioImageData::where("img_id", $imgObj->id)->count();
@@ -873,6 +949,23 @@ class GenuioService extends TransApiAbstract
                     }
                     $imgName        = "/genuio/ai-img/" . $dateName . "/" . $offerId . "_" . $imgObj->id . "_" . ($parentImgCnt+1) . "_" . $imgObj->img_type . "." . $mime;
                     $uploadResult   = $this->uploadAbstract->uploadFile($imgName, base64_decode($image["base64"]));
+
+                    $uploadCleanedResult = false;
+                    $cleanedBase64       = "";
+                    $textData            = "";
+
+                    $geImageExtendCnt = GenuioImageExtendData::where([
+                        "offer_id" => $offerId,
+                        "img_id"   => $imgObj->id,
+                    ])->count();
+                    $cleanedImgName = "/genuio/cleaned-img/" . $dateName . "/" . $offerId . "_" . $imgObj->id . "_" . ($geImageExtendCnt+1) . "_" . $imgObj->img_type . "." . $mime;
+                    if( isset($image["cleaned_base64"]) && !empty($image["cleaned_base64"]) ){
+                        $cleanedBase64       = $image["cleaned_base64"];
+                        $uploadCleanedResult = $this->uploadAbstract->uploadFile($cleanedImgName, base64_decode($cleanedBase64));
+                    }
+                    if( isset($image["text_data"]) ){
+                        $textData = $image["text_data"];
+                    }
 
                     if( $uploadResult == true ) {
                         $img_url_ai = env("AWS_URL") . $imgName;
@@ -886,6 +979,15 @@ class GenuioService extends TransApiAbstract
                     } else {
                         GenuioImageData::where("id", $imgId)->forceDelete();
                         throw new ValueError(ImageErrorMessageConstant::getFitErrorMessage("S3_IMG_UPLOAD"));
+                    }
+
+                    if( $uploadCleanedResult === true ){
+                        GenuioImageExtendData::create([
+                            "offer_id"        => $offerId,
+                            "img_id"          => $imgObj->id,
+                            "cleaned_img_url" => $cleanedImgName,
+                            "text_data"       => $textData,
+                        ]);
                     }
 
                     $resultImgs[] = [
