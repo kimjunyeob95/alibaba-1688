@@ -139,7 +139,7 @@
                 return alert("검색 된 상품이 없습니다.");
             }
 
-            if(confirm(`${offer_ids.length}건의 상품을 수집 하시겠습니까?\n이미 수집 된 상품은 수집 대상에서 제외 됩니다.`)){
+            if(confirm(`${offer_ids.length}건의 상품을 수집 하시겠습니까?\n재 수집 시 저장 된 상품의 정보가 초기화 됩니다.`)){
                 $.ajax({
                     "headers"    : {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
                     "type"       : "POST",
@@ -178,7 +178,7 @@
                 return alert("검색 된 상품이 없습니다.");
             }
 
-            if(confirm(`${offer_ids.length}건의 상품을 수집 하시겠습니까?\n이미 수집 된 상품은 수집 대상에서 제외 됩니다.`)){
+            if(confirm(`${offer_ids.length}건의 상품을 수집 하시겠습니까?\n재 수집 시 저장 된 상품의 정보가 초기화 됩니다.`)){
                 $.ajax({
                     "headers"    : {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
                     "type"       : "POST",

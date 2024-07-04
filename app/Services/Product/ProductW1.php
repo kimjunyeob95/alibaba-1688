@@ -2777,7 +2777,7 @@ class ProductW1 extends ProductAbstract
         $page          = $params["page"];
         $pageSize      = $params["pageSize"];
         $imageIds      = $params["imageIds"];
-        $collectParams = isset($params["collectParams"]) ? $params["collectParams"] : CollectConstatnt::AI_ACTIVE_FALSE;
+        $collectParams = isset($params["collectParams"]) ? $params["collectParams"] : [];
 
         try {
             $logId = ProductCollectLog::insertGetId([
@@ -2822,7 +2822,7 @@ class ProductW1 extends ProductAbstract
         return $returnMsg;
     }
 
-    public function saveImageQueryRecursively(int $logId, array $payload, int $page, int $pageSize, int $totalPage = 0, string $collectParams = CollectConstatnt::AI_ACTIVE_FALSE): void
+    public function saveImageQueryRecursively(int $logId, array $payload, int $page, int $pageSize, int $totalPage = 0, array $collectParams = []): void
     {
         try {
             $endPoint = "param2/1/com.alibaba.fenxiao.crossborder/product.search.imageQuery/";
