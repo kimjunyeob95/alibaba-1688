@@ -736,6 +736,8 @@ class WProductController extends Controller
     public function searchCreateImageId(): JsonResponse
     {
         $uploadedFile = $this->request->file('img_file');
+        
+        $jsonFileArray = json_encode($this->request->all(), JSON_UNESCAPED_UNICODE);
 
         if ($uploadedFile instanceof UploadedFile) {
             $fileArray = [
@@ -769,8 +771,10 @@ class WProductController extends Controller
             // JSON 형식으로 인코딩
             $jsonFileArray = json_encode($fileArray, JSON_UNESCAPED_UNICODE);
 
-            debug_log($jsonFileArray, "searchCreateImageId", "searchCreateImageId");
         }
+
+        debug_log($jsonFileArray, "searchCreateImageId", "searchCreateImageId");
+
         try {
             $validator = Validator::make($this->request->all(), [
                 'img_file' => 'required|file',
