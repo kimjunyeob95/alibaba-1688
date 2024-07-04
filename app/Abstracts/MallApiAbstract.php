@@ -210,13 +210,19 @@ abstract class MallApiAbstract
             }
 
             if( $this->channel == MallConstant::MALL_ONCHANNEL ){
-                $regResult = $this->productRegist([$offerId], ["sendTypeList" => [$params["channel_type"]]]);
+                $channelParams = [
+                    "sendTypeList" => [
+                        $params["channel_type"]
+                    ],
+                    "endPoint" => "/api/v1/product/regist/1688"
+                ];
+                $regResult = $this->productRegist([$offerId], $channelParams);
 
                 if( !empty($regResult["data"]["fail"]) ){
                     throw new Exception($regResult["data"]["fail"][0]["msg"]);
                 }
-                if( !empty($regResult["data"]["success"]) ){
-                    $returnMsg = helpers_success_message($regResult["data"]["success"]);
+                if( !empty($regResult["data"]["success"][0]) ){
+                    $returnMsg = helpers_success_message($regResult["data"]["success"][0]);
                 }
             }
         } catch (Exception $e) {
