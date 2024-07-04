@@ -96,11 +96,7 @@
                                         {{ $data["subjectTrans"] }}
                                     </td>
                                     <td>
-                                        @if (count($data["productImage"]["images"]) > 4)
-                                            <img class="lazy-img preview-image" data-src="{{ $data["productImage"]["images"][4] }}" width=60 height=60/>
-                                        @else
-                                            <img class="lazy-img preview-image" data-src="{{ $data["productImage"]["images"][0] }}" width=60 height=60/>
-                                        @endif
+                                        <img class="lazy-img preview-image" data-src="{{ $data["productImage"]["images"][0] }}" width=60 height=60/>
                                     </td>
                                     <td>
                                         {{ $data["soldOut"] }}

@@ -366,7 +366,11 @@ trait CollectProductTrait
                     "send_easysell" => MallConstant::AUTO_REGIST_TRUE
                 ];
                 if( $aiActive === CollectConstatnt::AI_ACTIVE_TRUE ){
-                    $transResult = $this->transApiAbstract->createTransProductImg($product1688ImageDtoList, $offerId, false, $params);
+                    if( $hasProduct === true ){
+                        $transResult = $this->transApiAbstract->createTransProductImgAgain($product1688ImageDtoList, $offerId, false, $params);
+                    } else {
+                        $transResult = $this->transApiAbstract->createTransProductImg($product1688ImageDtoList, $offerId, false, $params);
+                    }
                     if( $transResult["isSuccess"] == false ){
                         throw new Exception("createTransProductImg error: " . $transResult["msg"]);
                     }

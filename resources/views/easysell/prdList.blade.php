@@ -371,16 +371,8 @@ input[name='channelCategory']{
                                         @endif
                                     </td>
                                     <td class="text-center">
-                                        @if(isset($data->easysell->detail_log))
-                                            @php
-                                                $detailLog = $data->easysell->detail_log
-                                                    ->where("is_success",MallConstant::REGIST_SUCCESS)
-                                                    ->sortByDesc('created_at')
-                                                    ->first();
-                                            @endphp
-                                            @if($detailLog)
-                                                <small>{{ $detailLog->created_at }}</small>
-                                            @endif
+                                        @if(isset($data->easysell->last_log))
+                                            <small>{{ $data->easysell->last_log->created_at }}</small>
                                             <button class="btn btn-sm btn-success text-white btn-log-modal" logid="{{ $data->log_id }}">전송로그</button>
                                         @endif
                                     </td>

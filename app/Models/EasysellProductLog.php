@@ -16,6 +16,10 @@ class EasysellProductLog extends Model
     protected $fillable   = [];
 
     public function detail_log () {
-        return $this->hasMany(EasysellProductDetailLog::class, "log_id", "id")->orderBy("id",);
+        return $this->hasMany(EasysellProductDetailLog::class, "log_id", "id");
+    }
+
+    public function last_log () {
+        return $this->hasOne(EasysellProductDetailLog::class, "log_id", "id")->orderBy("created_at", "desc");
     }
 }
