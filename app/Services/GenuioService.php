@@ -417,19 +417,6 @@ class GenuioService extends TransApiAbstract
                                 $imgTransBase64 = TransApiConstant::getFitErrorMessage("1688_IMG");
                             }
                         }
-
-                        $geImageExtendCnt = GenuioImageExtendData::where([
-                            "offer_id" => $offerId,
-                            "img_id"   => $imgId,
-                        ])->count();
-                        $cleanedImgName = "/genuio/cleaned-img/" . $dateName . "/" . $offerId . "_" . $imgId . "_" . ($geImageExtendCnt+1) . "_" . $imgObj->img_type . "." . $mime;
-                        if( isset($image["cleaned_base64"]) && !empty($image["cleaned_base64"]) ){
-                            $cleanedBase64       = $image["cleaned_base64"];
-                            $uploadCleanedResult = $this->uploadAbstract->uploadFile($cleanedImgName, base64_decode($cleanedBase64));
-                        }
-                        if( isset($image["text_data"]) ){
-                            $textData = $image["text_data"];
-                        }
     
                         if( $uploadResult == true ) {
                             $img_url_trans = env("AWS_URL") . $imgName;
@@ -469,29 +456,42 @@ class GenuioService extends TransApiAbstract
                                     "updated_at" => Carbon::now()
                                 ]);
                             }
+
+                            $geImageExtendCnt = GenuioImageExtendData::where([
+                                "offer_id" => $offerId,
+                                "img_id"   => $aiImgObj->id,
+                            ])->count();
+                            $cleanedImgName = "/genuio/cleaned-img/" . $dateName . "/" . $offerId . "_" . $aiImgObj->id . "_" . ($geImageExtendCnt+1) . "." . $mime;
+                            if( isset($image["cleaned_base64"]) && !empty($image["cleaned_base64"]) ){
+                                $cleanedBase64       = $image["cleaned_base64"];
+                                $uploadCleanedResult = $this->uploadAbstract->uploadFile($cleanedImgName, base64_decode($cleanedBase64));
+                            }
+                            if( isset($image["text_data"]) ){
+                                $textData = $image["text_data"];
+                            }
+
+                            if( $uploadCleanedResult === true ){
+                                GenuioImageExtendData::create([
+                                    "offer_id"        => $offerId,
+                                    "img_id"          => $aiImgObj->id,
+                                    "cleaned_img_url" => env("AWS_URL") . $cleanedImgName,
+                                    "text_data"       => $textData,
+                                ]);
+                            }
+
+                            GenuioQueueDetailData::where([
+                                "queue_id"     => $jobId,
+                                "img_id"       => $imgId,
+                                "trans_status" => TransApiConstant::QUEUE_STAY,
+                            ])->update([
+                                "trans_status" => $uploadResult == true ? TransApiConstant::QUEUE_SUCCESS : TransApiConstant::QUEUE_FAIL
+                            ]);
                         } else {
                             /** 어떠한 이유로 S3로 업로드 실패 시 제외처리 */
                             ProductImageData::where("id", $imgId)->update([
                                 "is_except"      => ImageConstant::IS_EXCEPT_Y,
                                 "img_url_trans"  => $img_url_trans,
                                 "trans_dated_at" => null,
-                            ]);
-                        }
-        
-                        GenuioQueueDetailData::where([
-                            "queue_id"     => $jobId,
-                            "img_id"       => $imgId,
-                            "trans_status" => TransApiConstant::QUEUE_STAY,
-                        ])->update([
-                            "trans_status" => $uploadResult == true ? TransApiConstant::QUEUE_SUCCESS : TransApiConstant::QUEUE_FAIL
-                        ]);
-
-                        if( $uploadCleanedResult === true ){
-                            GenuioImageExtendData::create([
-                                "offer_id"        => $offerId,
-                                "img_id"          => $imgId,
-                                "cleaned_img_url" => $cleanedImgName,
-                                "text_data"       => $textData,
                             ]);
                         }
                     } catch (ValueError $ve) {
@@ -618,7 +618,7 @@ class GenuioService extends TransApiAbstract
                             GenuioImageExtendData::create([
                                 "offer_id"        => $offerId,
                                 "img_id"          => $imgId,
-                                "cleaned_img_url" => $cleanedImgName,
+                                "cleaned_img_url" => env("AWS_URL") . $cleanedImgName,
                                 "text_data"       => $textData,
                             ]);
                         }
@@ -765,7 +765,7 @@ class GenuioService extends TransApiAbstract
                             GenuioImageExtendData::create([
                                 "offer_id"        => $offerId,
                                 "img_id"          => $imgId,
-                                "cleaned_img_url" => $cleanedImgName,
+                                "cleaned_img_url" => env("AWS_URL") . $cleanedImgName,
                                 "text_data"       => $textData,
                             ]);
                         }
@@ -985,7 +985,7 @@ class GenuioService extends TransApiAbstract
                         GenuioImageExtendData::create([
                             "offer_id"        => $offerId,
                             "img_id"          => $imgObj->id,
-                            "cleaned_img_url" => $cleanedImgName,
+                            "cleaned_img_url" => env("AWS_URL") . $cleanedImgName,
                             "text_data"       => $textData,
                         ]);
                     }
