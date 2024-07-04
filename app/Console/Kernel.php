@@ -3,6 +3,7 @@
 namespace App\Console;
 
 use App\Console\Commands\EasySellCommand;
+use App\Console\Commands\ExchangeRateCommand;
 use App\Console\Commands\GenuioCommand;
 use App\Console\Commands\MissProductReCollect;
 use App\Console\Commands\OnchannelCommand;
@@ -56,6 +57,8 @@ class Kernel extends ConsoleKernel
         UpdateWeightDelivery::class,
         /** Genuio */
         GenuioCommand::class,
+        /** 환율조회 */
+        ExchangeRateCommand::class
     ];
 
     protected function schedule(Schedule $schedule)
