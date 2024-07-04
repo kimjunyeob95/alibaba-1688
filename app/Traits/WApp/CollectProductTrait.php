@@ -219,9 +219,9 @@ trait CollectProductTrait
         $returnMsg = helpers_fail_message();
         try {
             $nCollectOption   = CollectConstatnt::COLLECT_PRODUCT;
-            $nTranslateOption = CollectConstatnt::COLLECT_NONE;
+            $nTranslateOption = CollectConstatnt::TRANSLATE_NONE;
             $yCollectOption   = CollectConstatnt::COLLECT_PRODUCT;
-            $yTranslateOption = CollectConstatnt::COLLECT_NONE;
+            $yTranslateOption = CollectConstatnt::TRANSLATE_NONE;
 
             $collectFlag   = true;
             $translateFlag = false;
@@ -247,7 +247,7 @@ trait CollectProductTrait
                 if( $nCollectOption == CollectConstatnt::COLLECT_NONE ) {
                     $collectFlag = false;
                 }
-                if( $collectFlag === true && $nTranslateOption != CollectConstatnt::COLLECT_NONE ){
+                if( $collectFlag === true && $nTranslateOption != CollectConstatnt::TRANSLATE_NONE ){
                     $translateFlag = true;
                 }
             } else if( $hasProduct === true ){
