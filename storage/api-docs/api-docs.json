@@ -1795,14 +1795,26 @@
                 ]
             }
         },
-        "/api/w/exchangeRate": {
+        "/api/w/exchangeRate/{date}": {
             "get": {
                 "tags": [
                     "환율"
                 ],
                 "summary": "WApp 환율 조회",
                 "description": "WApp 환율 조회 endPoint",
-                "operationId": "9fe09181e5e7b64b8353f4e786244a2e",
+                "operationId": "f293239e8ae19f05e6d93722ff408b3c",
+                "parameters": [
+                    {
+                        "name": "date",
+                        "in": "path",
+                        "description": "날짜(YYYYMMDD)",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "example": 20240704
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "Successful operation",

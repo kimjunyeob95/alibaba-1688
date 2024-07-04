@@ -1,6 +1,6 @@
 @php
     use App\Constants\ProductConstant;
-    $exchangeRate = env("1688_EXCHANGE_RATE", 200);
+    $exchangeRate = config('1688_EXCHANGE_RATE', 200);
 @endphp
 @extends('dashboard.base')
 
@@ -70,7 +70,7 @@
                                 <th scope="col" style="width: 100px">판매량</th>
                                 <th scope="col" style="width: 150px" class="text-center">
                                     W 공급가<br>
-                                    (환율: {{ number_format($exchangeRate) }}원)
+                                    (환율: {{ number_format($exchangeRate, 2); }}원)
                                 </th>
                             </tr>
                         </thead>

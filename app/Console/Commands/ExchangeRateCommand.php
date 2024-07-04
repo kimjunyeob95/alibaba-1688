@@ -2,31 +2,30 @@
 
 namespace App\Console\Commands;
 
-use App\Services\ExchangeRateService;
+use App\Packages\ExchangeRate;
 use Illuminate\Console\Command;
 
 class ExchangeRateCommand extends Command
 {
-    protected $signature = 'save_exchage_rate';
-    protected $description = 'get today´s exchange rate';
+    protected $signature   = 'save_exchage_rate';
+    protected $description = '환율 조회';
 
-    protected ExchangeRateService $exchangeRateService;
+    protected ExchangeRate $exchageRate;
 
-    public function __construct(ExchangeRateService $exchangeRateService)
+    public function __construct(ExchangeRate $exchageRate)
     {
         parent::__construct();
 
-        $this->exchangeRateService = $exchangeRateService;
+        $this->exchageRate = $exchageRate;
     }
 
     /**
-     * 환율 조회 및 저장
-     *
-     * @return void
+     * 환율 조회 후 저장
+     * php artisan save_exchage_rate
      */
     public function handle()
     {
-        $return = $this->exchangeRateService->getExchangeRate();
-        dump($return);
+        $return = $this->exchageRate->getExchangeRate();
+        dd($return);
     }
 }

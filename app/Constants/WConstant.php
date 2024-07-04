@@ -12,7 +12,4 @@ class WConstant
     /** 언어 */
     public const WAPP_KR = "kr";
     public const WAPP_EN = "en";
-
-    //통화단위
-    public const CURRENCY_UNIT = "CNH";
 }

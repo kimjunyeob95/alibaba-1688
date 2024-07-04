@@ -71,6 +71,11 @@ Route::name('w.')->prefix('w')->group(function () {
             /** W 연관 상품 조회 */
             Route::get('/search/related/recommend/{offerId}', [WProductController::class, "searchRelatedRecommend"])->name("searchRelatedRecommend");
         });
+
+        /** 환율 조회 */
+        Route::name('exchangeRate.')->prefix('exchangeRate')->group(function() {
+            Route::get('/{date}', [ExchangeRateController::class, "getExchangeRate"])->name("/");
+        });
     });
 
     /** 상품 */
@@ -157,11 +162,6 @@ Route::name('w.')->prefix('w')->group(function () {
     Route::name('except.')->prefix('except')->group(function () {
         /** 정보고시 제외 적용 update */
         Route::post('/notice/update', [WExceptController::class, 'noticeUpdate'])->name('noticeUpdate');
-    });
-
-    //환율조회 api
-    Route::group(["prefix" => "exchangeRate"], function() {
-        Route::get('/', [ExchangeRateController::class, "getExchangeRate"])->name("exchangeRate");
     });
 });
 
