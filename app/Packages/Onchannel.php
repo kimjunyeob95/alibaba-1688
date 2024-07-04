@@ -59,9 +59,15 @@ class Onchannel extends MallApiAbstract
         $successIds   = [];
         $failIds      = [];
         $sendTypeList = [ OnchannelConstant::PRD_CHANNEL ];
+        $endPoint     = $this->domain . "/api/v1/product/regist";
+
         if( isset($params["sendTypeList"]) ){
             $sendTypeList = $params["sendTypeList"];
         }
+        if( isset($params["endPoint"]) ){
+            $endPoint = $this->domain . $params["endPoint"];
+        }
+
         foreach ($sendTypeList as $sendType) {
             foreach ($offerIds as $offerId) {
                 
@@ -101,7 +107,6 @@ class Onchannel extends MallApiAbstract
                             'Content-type: application/json',
                             'Authorization: Bearer ' . $this->token,
                         );
-                        $endPoint   = $this->domain . "/api/v1/product/regist";
                         $resultCurl = helpers_curl("POST", $endPoint, $header, $payload);
     
                         if( isset($resultCurl["prd_code"]) && $resultCurl["prd_code"] ){
@@ -126,7 +131,10 @@ class Onchannel extends MallApiAbstract
                                 "message"    => ""
                             ]);
 
-                            $successIds[] = $offerId;
+                            $successIds[] = [
+                                "offer_id" => $offerId,
+                                "prd_code" => $resultCurl["prd_code"]
+                            ];
                         } else {
                             $msg = "온채널 통신 에러 ";
                             if( isset($resultCurl["msg"]) ){
@@ -186,8 +194,11 @@ class Onchannel extends MallApiAbstract
                     }
                 } else {
                     $modiResult = $this->productModi([$offerId], $sendType);
-                    if( $modiResult["isSuccess"] === true ){
-                        $successIds[] = $offerId;
+                    if( $modiResult["isSuccess"] === true && isset($modiResult["data"]["prd_code"]) ){
+                        $successIds[] = [
+                            "offer_id" => $offerId,
+                            "prd_code" => $modiResult["data"]["prd_code"]
+                        ];
                     } else {
                         $failIds[] = [
                             "offer_id" => $offerId,
@@ -264,7 +275,7 @@ class Onchannel extends MallApiAbstract
                             "message"    => ""
                         ]);
 
-                        $returnMsg = helpers_success_message();
+                        $returnMsg = helpers_success_message($resultCurl);
                     } else {
                         $msg = "온채널 통신 에러 ";
                         if( isset($resultCurl["msg"]) ){

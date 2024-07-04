@@ -1,13 +1,12 @@
 <?php
 namespace App\Console\Commands;
 
-use App\Constants\CollectConstatnt;
 use App\Services\Service1688Product;
 use Illuminate\Console\Command;
 
 class Save1688ProductKeywordQuery extends Command
 {
-    protected $signature   = 'save_1688_product_keyword_query {--search_cls=} {--keyword=} {--sort=} {--aiactive=}';
+    protected $signature   = 'save_1688_product_keyword_query {--search_cls=} {--keyword=} {--sort=} {--collectparams=}';
     protected $description = '1688API keywordQueryAPI로 상품 수집';
 
     protected Service1688Product $service1688Product;
@@ -25,19 +24,20 @@ class Save1688ProductKeywordQuery extends Command
     */
     public function handle()
     {
-        $search_cls = $this->option('search_cls') ?? "";
-        $keyword    = $this->option('keyword') ?? "";
-        $sort       = $this->option('sort') ?? "";
-        $aiActive   = $this->option('aiactive') ?? CollectConstatnt::AI_ACTIVE_FALSE;
+        $search_cls    = $this->option('search_cls') ?? "";
+        $keyword       = $this->option('keyword') ?? "";
+        $sort          = $this->option('sort') ?? "";
+        $collectParams = $this->option('collectparams') ?? '{}';
+        $collectParams = json_decode($collectParams, JSON_UNESCAPED_UNICODE);
         
         if( $keyword != "" ){
             $params = [
-                "search_cls" => $search_cls,
-                "keyword"    => $keyword,
-                "sort"       => $sort,
-                "page"       => 1,
-                "pageSize"   => 50,
-                "aiActive"   => $aiActive
+                "search_cls"    => $search_cls,
+                "keyword"       => $keyword,
+                "sort"          => $sort,
+                "page"          => 1,
+                "pageSize"      => 50,
+                "collectParams" => $collectParams
             ];
             $this->service1688Product->saveKeywordQuery($params);
         }

@@ -170,12 +170,12 @@ class Service1688Product
      * @description '1688API 제품ID로 조회 후 DB저장'
      * @param array $offerIds '제품ID'
      * @param string $type '요청 페이지'
-     * @param string $aiActive 'ai 번역 여부'
+     * @param array $collectParams
      * @return void
-     */
-   public function collectProduct(array $offerIds, string $type = LogConstant::COLLECT_API_KEYWORDQUERY, string $aiActive = CollectConstatnt::AI_ACTIVE_FALSE): void
+   */
+   public function collectProduct(array $offerIds, string $type = LogConstant::COLLECT_API_KEYWORDQUERY, array $collectParams = []): void
    {
-      $this->productAbstract->collectProduct($offerIds, $type, $aiActive);
+      $this->productAbstract->collectProduct($offerIds, $type, $collectParams);
    }
 
    /**
@@ -560,12 +560,12 @@ class Service1688Product
      * @description '1688API 제품ID로 조회 후 DB저장'
      * @param array $offerIds '제품ID'
      * @param string $type '요청 페이지'
-     * @param string $aiActive 'ai 번역 여부'
+     * @param array $collectParams
      * @return void
    */
-   public function collectProductW2(array $offerIds, string $type = LogConstant::COLLECT_API_KEYWORDQUERY, string $aiActive = CollectConstatnt::AI_ACTIVE_FALSE): void
+   public function collectProductW2(array $offerIds, string $type = LogConstant::COLLECT_API_KEYWORDQUERY, array $collectParams = []): void
    {
-      $this->productAbstractW2->collectProduct($offerIds, $type, $aiActive);
+      $this->productAbstractW2->collectProduct($offerIds, $type, $collectParams);
    }
 
    /**
