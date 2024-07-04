@@ -737,6 +737,12 @@ class WProductController extends Controller
     {
         $uploadedFile = $this->request->file('img_file');
         
+        $logList = [];
+        $logList = [
+            "_FILES" => $_FILES,
+            "_REQUEST" => $_REQUEST,
+        ];
+        return helpers_json_response(HttpConstant::OK, $logList);
         $logTest = $this->request->all();
 
         if ($uploadedFile instanceof UploadedFile) {
