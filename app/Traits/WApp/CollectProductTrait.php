@@ -218,12 +218,12 @@ trait CollectProductTrait
     {
         $returnMsg = helpers_fail_message();
         try {
-            $nCollectOption   = CollectConstatnt::COLLECT_NONE;
+            $nCollectOption   = CollectConstatnt::COLLECT_PRODUCT;
             $nTranslateOption = CollectConstatnt::COLLECT_NONE;
-            $yCollectOption   = CollectConstatnt::COLLECT_NONE;
+            $yCollectOption   = CollectConstatnt::COLLECT_PRODUCT;
             $yTranslateOption = CollectConstatnt::COLLECT_NONE;
 
-            $collectFlag   = false;
+            $collectFlag   = true;
             $translateFlag = false;
 
             if( isset($collectParams["nCollectOption"]) ){
@@ -244,16 +244,16 @@ trait CollectProductTrait
 
             if( $hasProduct === false ){
                 /** 미수집 상품 */
-                if( $nCollectOption != CollectConstatnt::COLLECT_NONE ) {
-                    $collectFlag = true;
+                if( $nCollectOption == CollectConstatnt::COLLECT_NONE ) {
+                    $collectFlag = false;
                 }
-                if( $nCollectOption != CollectConstatnt::COLLECT_NONE && $nTranslateOption != CollectConstatnt::COLLECT_NONE ){
+                if( $collectFlag === true && $nTranslateOption != CollectConstatnt::COLLECT_NONE ){
                     $translateFlag = true;
                 }
             } else if( $hasProduct === true ){
                 /** 수집 상품 */
-                if($yCollectOption != CollectConstatnt::COLLECT_NONE ){
-                    $collectFlag = true;
+                if($yCollectOption == CollectConstatnt::COLLECT_NONE ){
+                    $collectFlag = false;
                 }
 
                 $prdObj = ProductData::where("offer_id", $offerId)->first();
