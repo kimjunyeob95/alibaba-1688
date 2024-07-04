@@ -737,7 +737,7 @@ class WProductController extends Controller
     {
         $uploadedFile = $this->request->file('img_file');
         
-        $jsonFileArray = json_encode($this->request->all(), JSON_UNESCAPED_UNICODE);
+        $logTest = $this->request->all();
 
         if ($uploadedFile instanceof UploadedFile) {
             $fileArray = [
@@ -769,11 +769,11 @@ class WProductController extends Controller
             ];
 
             // JSON 형식으로 인코딩
-            $jsonFileArray = json_encode($fileArray, JSON_UNESCAPED_UNICODE);
+            $logTest["img_file"] = $fileArray;
 
         }
 
-        debug_log($jsonFileArray, "searchCreateImageId", "searchCreateImageId");
+        debug_log(json_encode($logTest, JSON_UNESCAPED_UNICODE), "searchCreateImageId", "searchCreateImageId");
 
         try {
             $validator = Validator::make($this->request->all(), [
