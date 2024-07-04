@@ -826,7 +826,7 @@ if (!function_exists("inspectStatusUpdate")) {
 if (!function_exists("getNoticeInfoTable")) {
     function getNoticeInfoTable(array $noticeInfo, string $type = ""): string
     {
-        if($type == WConstant::WAPP_W2){
+        if($type == EasySellConstant::TYPE_DROPHUB){
             $title = "Product Description";
             $info = "The above table was written in accordance with the product information attribute.";
         }else{

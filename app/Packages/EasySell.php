@@ -12,6 +12,7 @@ use App\Constants\MallConstant;
 use App\Constants\MallErrorMessageConstant;
 use App\Constants\ProductConstant;
 use App\Models\CategoryMapping;
+use App\Models\ChannelCategoryRegistData;
 use App\Models\EasysellProductDetailLog;
 use App\Models\EasysellProductLog;
 use App\Models\ProductData;
@@ -67,10 +68,10 @@ class EasySell extends MallApiAbstract
                 try{
                     switch($w_type){
                         case EasySellConstant::TYPE_W :
-                            $account      = EasySellConstant::USER_ID_W;
+                            $account = EasySellConstant::USER_ID_W;
                             break;
                         case EasySellConstant::TYPE_DROPHUB:
-                            $account      = EasySellConstant::USER_ID_DROPHUB;
+                            $account = EasySellConstant::USER_ID_DROPHUB;
                             break;
                         default :
                             throw new Exception(MallErrorMessageConstant::getNotHaveErrorMessage("TYPE"));
@@ -103,6 +104,18 @@ class EasySell extends MallApiAbstract
                     if( $prdObj == null ){
                         throw new Exception(MallErrorMessageConstant::getNotHaveErrorMessage("PRODUCT"));
                     }
+
+                    $channelCnt = ChannelCategoryRegistData::where([
+                        "channel"     => $this->channel,
+                        "send_type"   => $w_type,
+                        "category_id" => $prdObj->category_id,
+                        "is_regist"   => MallConstant::REGIST_Y,
+                    ])->count();
+
+                    if( $channelCnt == 0 ){
+                        throw new Exception(MallErrorMessageConstant::getFitErrorMessage("CATEGORY_REGIST"));
+                    }
+
                     if( $prdObj->trans_status != ProductConstant::IMG_TRANS_Y ){
                         throw new Exception(MallErrorMessageConstant::getFitErrorMessage("NOT_TRANS_IMG"));
                     }
@@ -248,6 +261,18 @@ class EasySell extends MallApiAbstract
                 if( $prdObj == null ){
                     throw new Exception(MallErrorMessageConstant::getNotHaveErrorMessage("PRODUCT"));
                 }
+
+                $channelCnt = ChannelCategoryRegistData::where([
+                    "channel"     => $this->channel,
+                    "send_type"   => $type,
+                    "category_id" => $prdObj->category_id,
+                    "is_regist"   => MallConstant::REGIST_Y,
+                ])->count();
+
+                if( $channelCnt == 0 ){
+                    throw new Exception(MallErrorMessageConstant::getFitErrorMessage("CATEGORY_REGIST"));
+                }
+
                 if( $prdObj->trans_status != ProductConstant::IMG_TRANS_Y ){
                     throw new Exception(MallErrorMessageConstant::getFitErrorMessage("NOT_TRANS_IMG"));
                 }
@@ -461,6 +486,19 @@ class EasySell extends MallApiAbstract
             if(count($images) < 1){
                 throw new Exception("상품의 이미지가 없습니다");
             }
+
+            $prdImgDesc = "<div><div style='width: 830px; margin:20px auto;'>
+            <h5 style='text-align: center; padding: 0px; font-size: 20px; text-align: center; color: #000;font-weight: 900; margin-bottom: 40px;'>상품 이미지</h5>
+            <ul style='display: flex; flex-wrap: wrap; justify-content: center;'>";
+            foreach ($images as $imgUrl) {
+                /** html 코드 작성 */
+                $prdImgDesc .= "<li style='display: block; width: 138px; height:138px; margin:0 4px 20px 4px;'>
+                    <img src='{$imgUrl}' alt='img' style='width:100%; height:100%;'>
+                </li> ";
+            }
+            $prdImgDesc = $prdImgDesc . "</ul></div>";
+            $prdDesc    = $prdImgDesc . $prdDesc . "</div>";
+
             $itemImage = implode("|", $images);
 
             $notice = getNoticeInfoTable($noticeInfo, $type);

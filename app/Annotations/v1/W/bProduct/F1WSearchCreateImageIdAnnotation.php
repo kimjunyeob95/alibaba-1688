@@ -52,5 +52,5 @@ namespace App\Annotations\v1\W\bProduct;
 */
 
 
-class FWSearchCreateImageIdAnnotation{
+class F1WSearchCreateImageIdAnnotation{
 }

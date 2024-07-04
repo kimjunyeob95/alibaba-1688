@@ -51,6 +51,7 @@ class MallErrorMessageConstant
     public const ERROR_MESSAGE_MAIN_EN_IMAGE      = "메인 영문 이미지";
     public const ERROR_MESSAGE_SUB_IMAGE          = "서브 이미지";
     public const ERROR_MESSAGE_SUB_EN_IMAGE       = "서브 영문 이미지";
+    public const ERROR_MESSAGE_CATEGORY_REGIST    = "채널 카테고리 전송 등록";
 
     public static function getErrorMessageNotDefault($constantName): string
     {

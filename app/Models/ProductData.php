@@ -126,6 +126,10 @@ class ProductData extends Model
         return $this->hasOne(EasysellProductLog::class, "offer_id", "offer_id");
     }
 
+    public function onchannel () {
+        return $this->hasOne(OnchannelProductLog::class, "offer_id", "offer_id");
+    }
+
     public function img_inspect () {
         return $this->hasOne(ProductInspectData::class, "offer_id", "offer_id")->where("inspect_type", InspectConstant::INSPECT_IMAGE);
     }
