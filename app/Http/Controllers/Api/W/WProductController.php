@@ -709,7 +709,7 @@ class WProductController extends Controller
     }
 
     public function searchDetail(int $offerId): JsonResponse
-    {
+    {   
         try {
             $validator = Validator::make($this->request->all(), [
                 'country' => 'required|string',
@@ -734,6 +734,13 @@ class WProductController extends Controller
 
     public function searchCreateImageId(): JsonResponse
     {
+        $logArray = [
+            "_FILES"      => $_FILES,
+            "_REQUEST"    => $_REQUEST,
+            "request_all" => $this->request->all(),
+        ];
+        debug_log(json_encode($logArray, JSON_UNESCAPED_UNICODE), "searchCreateImageId", "searchCreateImageId");
+
         try {
             $validator = Validator::make($this->request->all(), [
                 'img_file' => 'required|file',
