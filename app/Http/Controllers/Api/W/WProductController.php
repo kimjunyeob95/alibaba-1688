@@ -18,6 +18,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Symfony\Component\Process\Process;
+use Illuminate\Http\UploadedFile;
 
 class WProductController extends Controller
 {
@@ -734,7 +735,42 @@ class WProductController extends Controller
 
     public function searchCreateImageId(): JsonResponse
     {
-        debug_log(json_encode($this->request->all(), JSON_UNESCAPED_UNICODE), "searchCreateImageId", "searchCreateImageId");
+        $uploadedFile = $this->request->file('img_file');
+
+        if ($uploadedFile instanceof UploadedFile) {
+            $fileArray = [
+                'originalName' => $uploadedFile->getClientOriginalName(),
+                'mimeType'     => $uploadedFile->getClientMimeType(),
+                'error'        => $uploadedFile->getError(),
+                'hashName'     => $uploadedFile->hashName(),
+                'path'         => $uploadedFile->path(),
+                'filename'     => $uploadedFile->getFilename(),
+                'basename'     => $uploadedFile->getBasename(),
+                'pathname'     => $uploadedFile->getPathname(),
+                'extension'    => $uploadedFile->getClientOriginalExtension(),
+                'realPath'     => $uploadedFile->getRealPath(),
+                'aTime'        => $uploadedFile->getATime(),
+                'mTime'        => $uploadedFile->getMTime(),
+                'cTime'        => $uploadedFile->getCTime(),
+                'inode'        => $uploadedFile->getInode(),
+                'size'         => $uploadedFile->getSize(),
+                'perms'        => $uploadedFile->getPerms(),
+                'owner'        => $uploadedFile->getOwner(),
+                'group'        => $uploadedFile->getGroup(),
+                'type'         => $uploadedFile->getType(),
+                'writable'     => $uploadedFile->isWritable(),
+                'readable'     => $uploadedFile->isReadable(),
+                'executable'   => $uploadedFile->isExecutable(),
+                'file'         => $uploadedFile->isFile(),
+                'dir'          => $uploadedFile->isDir(),
+                'link'         => $uploadedFile->isLink(),
+            ];
+
+            // JSON 형식으로 인코딩
+            $jsonFileArray = json_encode($fileArray, JSON_UNESCAPED_UNICODE);
+
+            debug_log($jsonFileArray, "searchCreateImageId", "searchCreateImageId");
+        }
         try {
             $validator = Validator::make($this->request->all(), [
                 'img_file' => 'required|file',
