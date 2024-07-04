@@ -15,6 +15,7 @@ class Product1688OptionDto extends Vo
     protected string $option_name             = "";
     protected string $option_name_kr          = "";
     protected string $option_name_en          = "";
+    protected string $sku_img_url             = "";
     protected float $price_1688               = 0.0;
     protected float $price_1688_option        = 0.0;
     protected float $option_price             = 0.0;
@@ -42,6 +43,7 @@ class Product1688OptionDto extends Vo
         $this->option_name             = $data["optionName"];
         $this->option_name_kr          = $data["optionNameTrans"];
         $this->option_name_en          = $data["optionNameTransEn"];
+        $this->sku_img_url             = $data["skuImageUrl"];
         $this->price_1688              = (float)$data["price_1688"];
         $this->price_1688_option       = (float)$data["price_1688_option"];
         $this->md_price                = isset($data["md_price"]) ? (int)$data["md_price"] : 0;

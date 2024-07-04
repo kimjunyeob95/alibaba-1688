@@ -36,7 +36,8 @@ class ProductTest extends TestCase
     public function testCollectProductNotLog()
     {
         $productW1 = app(ProductW1::class);
-        $productW1->collectProductNotLog(709737090544);
+        $result = $productW1->collectProductNotLog(671048632318);
+        dd($result);
     }
 
     # php artisan test --filter testCategoryList

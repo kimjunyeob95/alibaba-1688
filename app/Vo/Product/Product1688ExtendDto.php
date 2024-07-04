@@ -19,8 +19,8 @@ class Product1688ExtendDto extends Vo
     protected float $trade_score                  = 0.0;
     protected float $repeat_purchase_percent      = 0.0;
     protected float $after_sales_experience_score = 0.0;
+    protected float $selling_point                = 0.0;
     
-
     public function bind(mixed $data): void
     {
         $this->offer_id                     = $data["offerId"];
@@ -33,5 +33,6 @@ class Product1688ExtendDto extends Vo
         $this->trade_score                  = $data["trade_score"];
         $this->repeat_purchase_percent      = $data["repeat_purchase_percent"];
         $this->after_sales_experience_score = $data["after_sales_experience_score"];
+        $this->selling_point                = $data["after_sales_experience_score"];
     }
 }

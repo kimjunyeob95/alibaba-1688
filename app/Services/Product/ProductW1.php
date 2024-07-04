@@ -1296,7 +1296,7 @@ class ProductW1 extends ProductAbstract
 
             $returnMsg = helpers_fail_message($msg);
         }
-        dd($returnMsg);
+
         return $returnMsg;
     }
 
@@ -1910,6 +1910,8 @@ class ProductW1 extends ProductAbstract
         $trade_score                  = 0.0;
         $repeat_purchase_percent      = 0.0;
         $after_sales_experience_score = 0.0;
+        $selling_point                = 0.0;
+
         if( isset($detailProduct["sellerDataInfo"]) ){
             $sellerDataInfo = $detailProduct["sellerDataInfo"];
             if( isset($sellerDataInfo["tradeMedalLevel"]) ){
@@ -1940,6 +1942,9 @@ class ProductW1 extends ProductAbstract
         if( isset($detailProduct["tradeScore"]) ){
             $trade_score = (float)$detailProduct["tradeScore"];
         }
+        if( isset($detailProduct["sellingPoint"]) ){
+            $selling_point = (float)$detailProduct["sellingPoint"];
+        }
         $product1688ExtendDto = new Product1688ExtendDto();
         $product1688ExtendDto->bind([
             "offerId"                      => $offerId,
@@ -1952,6 +1957,7 @@ class ProductW1 extends ProductAbstract
             "trade_score"                  => $trade_score,
             "repeat_purchase_percent"      => $repeat_purchase_percent,
             "after_sales_experience_score" => $after_sales_experience_score,
+            "selling_point"                => $selling_point,
         ]);
 
         // 5. 상품 고시정보
@@ -2131,6 +2137,7 @@ class ProductW1 extends ProductAbstract
                 $optionName        = "";
                 $optionNameTrans   = "";
                 $optionNameTransEn = "";
+                $skuImageUrl       = "";
                 foreach ($prdOptions["skuAttributes"] as $prdOption) {
                     $optValue      = "";
                     $optValueTrans = "";
@@ -2157,6 +2164,10 @@ class ProductW1 extends ProductAbstract
                             }
                             $optionNameTransEn .= $optValueEnTrans .  "_";
                         }
+                    }
+
+                    if( isset($prdOption["skuImageUrl"])) {
+                        $skuImageUrl = $prdOption["skuImageUrl"];
                     }
                 }
 
@@ -2235,6 +2246,7 @@ class ProductW1 extends ProductAbstract
                     "optionName"              => rtrim($optionName, "_"),
                     "optionNameTrans"         => rtrim($optionNameTrans, "_"),
                     "optionNameTransEn"       => rtrim($optionNameTransEn, "_"),
+                    "skuImageUrl"             => $skuImageUrl,
                     "amountOnSale"            => $prdOptions["amountOnSale"],
                     "cargoNumber"             => $prdOptions["cargoNumber"] ?? "",
                     "width"                   => (float) sprintf("%.2f", $width),
