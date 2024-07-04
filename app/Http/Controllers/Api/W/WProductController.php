@@ -734,6 +734,7 @@ class WProductController extends Controller
 
     public function searchCreateImageId(): JsonResponse
     {
+        debug_log(json_encode($this->request->all(), JSON_UNESCAPED_UNICODE), "searchCreateImageId", "searchCreateImageId");
         try {
             $validator = Validator::make($this->request->all(), [
                 'img_file' => 'required|file',
