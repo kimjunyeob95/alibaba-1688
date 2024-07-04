@@ -14,4 +14,8 @@ class OnchannelProductLog extends Model
     protected $table      = 'onchannel_product_logs';
     protected $guarded    = [];
     protected $fillable   = [];
+
+    public function last_log () {
+        return $this->hasOne(OnchannelProductDetailLog::class, "log_id", "id")->orderBy("created_at", "desc");
+    }
 }

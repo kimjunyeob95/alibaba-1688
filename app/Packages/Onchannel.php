@@ -350,7 +350,7 @@ class Onchannel extends MallApiAbstract
      *
      * @param Model $prdObj
      * @param int $sendType
-     * @param string $mod
+     * @param string $mode
      * @return array
      */
     private function _getPrdParams(Model $prdObj, int $sendType, string $mode = MallConstant::SEND_TYPE_REGIST): array
