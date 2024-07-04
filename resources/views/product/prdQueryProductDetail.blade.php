@@ -203,11 +203,6 @@
             let yTranslateOption = $('input[name=yTranslateOption]:checked').val();
 
             $(".chk-inp:checked").each(function(index, element){
-                // if( $(this).attr("hasPrd") == "N" ){
-                //     offer_ids.push($(this).val());
-                // } else {
-                //     hasPrd = true;
-                // }
                 offer_ids.push($(this).val());
             });
 

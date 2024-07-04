@@ -92,16 +92,16 @@ class WProductController extends Controller
     public function collectKeywordQuery(): JsonResponse
     {
         try {
-            $searchCls = $this->request->post("search_cls", "productCollectionId");
-            $keyword   = $this->request->post("keyword", "");
-            $sort      = $this->request->post("sort", "monthSold|desc");
-            $aiActive  = $this->request->post("ai_active", CollectConstatnt::AI_ACTIVE_FALSE);
+            $searchCls     = $this->request->post("search_cls", "productCollectionId");
+            $keyword       = $this->request->post("keyword", "");
+            $sort          = $this->request->post("sort", "monthSold|desc");
+            $collectParams = json_encode($this->request->post("collectParams"), JSON_UNESCAPED_UNICODE);
 
             if( $keyword == "" ){
                 throw new Exception(ProductErrorMessageConstant::getNotHaveErrorMessage("PRODUCT_KEYWORD"));
             }
 
-            $options = "--search_cls=" . helperEscape($searchCls) . " --keyword=" . helperEscape($keyword) . " --sort=" . helperEscape($sort) . " --aiactive=" . helperEscape($aiActive);
+            $options = "--search_cls=" . helperEscape($searchCls) . " --keyword=" . helperEscape($keyword) . " --sort=" . helperEscape($sort) . " --collectparams=" . helperEscape($collectParams);
             $command = "nohup " . $this->phpAlias . " artisan save_1688_product_keyword_query " . $options . " > /dev/null 2>&1 &";
             $process = Process::fromShellCommandline($command);
             $process->setWorkingDirectory(env("WORK_DIRECTORY", "/web1/1688"));
@@ -159,10 +159,10 @@ class WProductController extends Controller
                 throw new Exception($validator->errors()->first());
             }
     
-            $offerIds = $this->request->post("offer_ids");
-            $aiActive = $this->request->post("ai_active", CollectConstatnt::AI_ACTIVE_FALSE);
+            $offerIds      = $this->request->post("offer_ids");
+            $collectParams = json_encode($this->request->post("collectParams"), JSON_UNESCAPED_UNICODE);
             
-            $options = "--offerids=" . helperEscape(implode(",", $offerIds)) . " --type=" . helperEscape(LogConstant::COLLECT_API_IMAGEQUERY) . " --aiactive=" . helperEscape($aiActive);
+            $options = "--offerids=" . helperEscape(implode(",", $offerIds)) . " --type=" . helperEscape(LogConstant::COLLECT_API_IMAGEQUERY) . " --collectparams=" . helperEscape($collectParams);
             $command = "nohup " . $this->phpAlias . " artisan save_1688_collect_product " . $options . " > /dev/null 2>&1 &";
             $process = Process::fromShellCommandline($command);
             $process->setWorkingDirectory(env("WORK_DIRECTORY", "/web1/1688"));
@@ -178,14 +178,14 @@ class WProductController extends Controller
     public function collectImageQuery(): JsonResponse
     {
         try {
-            $imageIds = $this->request->post("imageIds");
-            $sort     = $this->request->post("sort", "monthSold|desc");
-            $aiActive = $this->request->post("ai_active", CollectConstatnt::AI_ACTIVE_FALSE);
+            $imageIds      = $this->request->post("imageIds");
+            $sort          = $this->request->post("sort", "monthSold|desc");
+            $collectParams = json_encode($this->request->post("collectParams"), JSON_UNESCAPED_UNICODE);
             if( !$imageIds ){
                 throw new Exception(ImageErrorMessageConstant::getNotHaveErrorMessage("IMG_ID"));   
             }
 
-            $options = "--imageIds=" . $imageIds . " --sort=" . helperEscape($sort) . " --aiactive=" . helperEscape($aiActive);
+            $options = "--imageIds=" . $imageIds . " --sort=" . helperEscape($sort) . " --collectparams=" . helperEscape($collectParams);
             $command = "nohup " . $this->phpAlias . " artisan save_1688_product_image_query " . $options . " > /dev/null 2>&1 &";
             $process = Process::fromShellCommandline($command);
             $process->setWorkingDirectory(env("WORK_DIRECTORY", "/web1/1688"));
