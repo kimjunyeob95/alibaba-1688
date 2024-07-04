@@ -423,7 +423,7 @@ class Onchannel extends MallApiAbstract
             $notice_desc  = getNoticeInfoTable($noticeInfo);
             $prd_desc    .= $notice_desc;
 
-            $prd_desc .= "<div style='text-align: center !important'>" . $prd_desc . "</div>";
+            $prd_desc = "<div style='text-align: center !important'>" . $prd_desc . "</div>";
 
             $prdImgDesc = "<div><div style='width: 830px; margin:20px auto;'>
             <h5 style='text-align: center; padding: 0px; font-size: 20px; text-align: center; color: #000;font-weight: 900; margin-bottom: 40px;'>상품 이미지</h5>
