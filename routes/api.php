@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\W\WProductController;
 use App\Http\Controllers\Api\GenuioController;
 use App\Http\Controllers\Api\MallCategoryController;
 use App\Http\Controllers\Api\MallController;
+use App\Http\Controllers\Api\W\ExchangeRateController;
 use App\Http\Controllers\Api\W\W2ProductController;
 use App\Http\Controllers\Api\W\WCollectController;
 use App\Http\Controllers\Api\W\WExceptController;
@@ -156,6 +157,11 @@ Route::name('w.')->prefix('w')->group(function () {
     Route::name('except.')->prefix('except')->group(function () {
         /** 정보고시 제외 적용 update */
         Route::post('/notice/update', [WExceptController::class, 'noticeUpdate'])->name('noticeUpdate');
+    });
+
+    //환율조회 api
+    Route::group(["prefix" => "exchangeRate"], function() {
+        Route::get('/', [ExchangeRateController::class, "getExchangeRate"])->name("exchangeRate");
     });
 });
 

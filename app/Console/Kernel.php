@@ -77,6 +77,9 @@ class Kernel extends ConsoleKernel
             $schedule->command("onchannel_command --func=newProductRegist")->cron("0 5 * * *")->description("온채널 신규 상품 등록")->withoutOverlapping()->runInBackground();
 
             $schedule->command("test --filter testAllProductReCollectW1")->description("모든 상품 W1 재수집")->withoutOverlapping()->runInBackground();
+
+            /** 환율 기록 */
+            $schedule->command("save_exchage_rate")->cron("0 9 * * *")->description("환율 수집")->withoutOverlapping()->runInBackground();
         }
     }
 
