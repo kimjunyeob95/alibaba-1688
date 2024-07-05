@@ -709,7 +709,7 @@ class WProductController extends Controller
     }
 
     public function searchDetail(int $offerId): JsonResponse
-    {
+    {   
         try {
             $validator = Validator::make($this->request->all(), [
                 'country' => 'required|string',
