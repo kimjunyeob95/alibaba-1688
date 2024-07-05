@@ -56,13 +56,7 @@ class ExchangeRate
                 ]);
 
                 $rsMsg = helpers_success_message();
-            }else{
-                $errorArr = [
-                    "apiParams"    => $apiParams,
-                    "currencyUnit" => $currencyUnit,
-                ];
-                debug_log(json_encode($errorArr, JSON_UNESCAPED_UNICODE), "getExchangeRate", "getExchangeRate");
-                
+            }else{                
                 throw new Exception($cnhResult["msg"]);
             }
         }catch(Exception $e){
@@ -83,10 +77,10 @@ class ExchangeRate
             $apiParams = [
                 "authkey"    => $this->authKey,
                 "searchdate" => $searchDate,
-                "data"       => ExchangeRateConstant::AP02,
+                "data"       => ExchangeRateConstant::AP01,
             ];
             $rsData = helpers_curl("GET", $this->endPoint, $this->headers, $apiParams);
-            debug_log(json_encode($rsData, JSON_UNESCAPED_UNICODE), "getExchangeRate/rsData", "rsData");
+
             $res = [];
             if($rsData === false){
                 throw new Exception(ExchangeRateErrorMessageConstant::getFitErrorMessage("RESPONSE"));
@@ -109,6 +103,7 @@ class ExchangeRate
                 $returnMsg = helpers_success_message($res);
             }
         }catch(Exception $e){
+            debug_log(json_encode($rsData, JSON_UNESCAPED_UNICODE), "getExchangeRate/response", "response");
             $returnMsg = helpers_fail_message($e->getMessage());
         }
 
