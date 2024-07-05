@@ -458,8 +458,8 @@ class GenuioService extends TransApiAbstract
                             }
 
                             $geImageExtendCnt = GenuioImageExtendData::where([
-                                "offer_id" => $offerId,
-                                "img_id"   => $aiImgObj->id,
+                                "offer_id"  => $offerId,
+                                "ge_img_id" => $aiImgObj->id,
                             ])->count();
                             $cleanedImgName = "/genuio/cleaned-img/" . $dateName . "/" . $offerId . "_" . $aiImgObj->id . "_" . ($geImageExtendCnt+1) . "." . $mime;
                             if( isset($image["cleaned_base64"]) && !empty($image["cleaned_base64"]) ){
@@ -473,7 +473,7 @@ class GenuioService extends TransApiAbstract
                             if( $uploadCleanedResult === true ){
                                 GenuioImageExtendData::create([
                                     "offer_id"        => $offerId,
-                                    "img_id"          => $aiImgObj->id,
+                                    "ge_img_id"       => $aiImgObj->id,
                                     "cleaned_img_url" => env("AWS_URL") . $cleanedImgName,
                                     "text_data"       => $textData,
                                 ]);
@@ -588,8 +588,8 @@ class GenuioService extends TransApiAbstract
                             ]);
 
                             $geImageExtendCnt = GenuioImageExtendData::where([
-                                "offer_id" => $offerId,
-                                "img_id"   => $aiImgObj->id,
+                                "offer_id"  => $offerId,
+                                "ge_img_id" => $aiImgObj->id,
                             ])->count();
                             $cleanedImgName = "/genuio/cleaned-img/" . $dateName . "/" . $offerId . "_" . $aiImgObj->id . "_" . ($geImageExtendCnt+1) . "." . $mime;
                             if( isset($image["cleaned_base64"]) && !empty($image["cleaned_base64"]) ){
@@ -603,7 +603,7 @@ class GenuioService extends TransApiAbstract
                             if( $uploadCleanedResult === true ){
                                 GenuioImageExtendData::create([
                                     "offer_id"        => $offerId,
-                                    "img_id"          => $aiImgObj->id,
+                                    "ge_img_id"       => $aiImgObj->id,
                                     "cleaned_img_url" => env("AWS_URL") . $cleanedImgName,
                                     "text_data"       => $textData,
                                 ]);
@@ -733,8 +733,8 @@ class GenuioService extends TransApiAbstract
                             }
 
                             $geImageExtendCnt = GenuioImageExtendData::where([
-                                "offer_id" => $offerId,
-                                "img_id"   => $aiImgObj->id,
+                                "offer_id"  => $offerId,
+                                "ge_img_id" => $aiImgObj->id,
                             ])->count();
                             $cleanedImgName = "/genuio/cleaned-img/" . $dateName . "/" . $offerId . "_" . $aiImgObj->id . "_" . ($geImageExtendCnt+1) . "." . $mime;
                             if( isset($image["cleaned_base64"]) && !empty($image["cleaned_base64"]) ){
@@ -748,7 +748,7 @@ class GenuioService extends TransApiAbstract
                             if( $uploadCleanedResult === true ){
                                 GenuioImageExtendData::create([
                                     "offer_id"        => $offerId,
-                                    "img_id"          => $aiImgObj->id,
+                                    "ge_img_id"       => $aiImgObj->id,
                                     "cleaned_img_url" => env("AWS_URL") . $cleanedImgName,
                                     "text_data"       => $textData,
                                 ]);
@@ -965,8 +965,8 @@ class GenuioService extends TransApiAbstract
                         ]);
 
                         $geImageExtendCnt = GenuioImageExtendData::where([
-                            "offer_id" => $offerId,
-                            "img_id"   => $aiImgObj->id,
+                            "offer_id"  => $offerId,
+                            "ge_img_id" => $aiImgObj->id,
                         ])->count();
                         $cleanedImgName = "/genuio/cleaned-img/" . $dateName . "/" . $offerId . "_" . $aiImgObj->id . "_" . ($geImageExtendCnt+1) . "." . $mime;
                         if( isset($image["cleaned_base64"]) && !empty($image["cleaned_base64"]) ){
@@ -980,7 +980,7 @@ class GenuioService extends TransApiAbstract
                         if( $uploadCleanedResult === true ){
                             GenuioImageExtendData::create([
                                 "offer_id"        => $offerId,
-                                "img_id"          => $aiImgObj->id,
+                                "ge_img_id"       => $aiImgObj->id,
                                 "cleaned_img_url" => env("AWS_URL") . $cleanedImgName,
                                 "text_data"       => $textData,
                             ]);
