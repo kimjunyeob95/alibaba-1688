@@ -26,6 +26,8 @@ class AppServiceProvider extends ServiceProvider
     {
         /** 최신 환율 config 등록 */
         $lastestObj = ExchangeRateHistory::orderBy("date", "desc")->first();
-        config(['1688_EXCHANGE_RATE' => $lastestObj->exchange_rate]);
+        if( $lastestObj != null ){
+            config(['1688_EXCHANGE_RATE' => $lastestObj->exchange_rate]);
+        }
     }
 }
