@@ -3,6 +3,7 @@
 namespace App\Console;
 
 use App\Console\Commands\EasySellCommand;
+use App\Console\Commands\ExchangeRateCommand;
 use App\Console\Commands\GenuioCommand;
 use App\Console\Commands\MissProductReCollect;
 use App\Console\Commands\OnchannelCommand;
@@ -56,6 +57,8 @@ class Kernel extends ConsoleKernel
         UpdateWeightDelivery::class,
         /** Genuio */
         GenuioCommand::class,
+        /** 환율조회 */
+        ExchangeRateCommand::class
     ];
 
     protected function schedule(Schedule $schedule)
@@ -77,6 +80,9 @@ class Kernel extends ConsoleKernel
             $schedule->command("onchannel_command --func=newProductRegist")->cron("0 5 * * *")->description("온채널 신규 상품 등록")->withoutOverlapping()->runInBackground();
 
             // $schedule->command("test --filter testAllProductReCollectW1")->description("모든 상품 W1 재수집")->withoutOverlapping()->runInBackground();
+
+            /** 환율 기록 */
+            $schedule->command("save_exchage_rate")->cron("0 9 * * *")->description("환율 수집")->withoutOverlapping()->runInBackground();
         }
     }
 

@@ -820,7 +820,7 @@ class ProductW2 extends ProductAbstract
         }
     }
 
-    public function collectProduct(array $offerIds, string $type = LogConstant::COLLECT_API_KEYWORDQUERY, string $aiActive = CollectConstatnt::AI_ACTIVE_FALSE): void
+    public function collectProduct(array $offerIds, string $type = LogConstant::COLLECT_API_KEYWORDQUERY, array $collectParams = []): void
     {
         $logId = ProductCollectLog::insertGetId([
             "type"       => $type,

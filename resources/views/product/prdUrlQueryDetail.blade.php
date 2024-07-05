@@ -1,6 +1,7 @@
 @php
     use App\Constants\ProductConstant;
     use App\Constants\LogConstant;
+    use App\Constants\CollectConstatnt;
 @endphp
 @extends('dashboard.base')
 
@@ -39,27 +40,91 @@
         </nav>
         
         <div class="row my-4 bg-white py-3">
-            <div class="mt-3 d-flex align-items-center justify-content-between">
-                <div class="d-flex justify-content-start">
-                    <input type="checkbox" id="chk-ai-active" class="me-2">
-                    <label for="chk-ai-active" class="text-danger">수집 시 자동 번역 요청(이지셀: 더블유)</label>
-                </div>
-            </div>
-
             <div class="col-12 mb-3 mt-3">
+                
                 <div class="card">
-                    <div class="card-header d-flex justify-content-between align-items-center">
+                    <div class="card-header d-flex justify-content-around align-items-center">
                         <div style="max-width: 250px; overflow-wrap: break-word;">제목: {{ $obj->search_title }}</div>
                         <div>상태: {{ ProductConstant::SEARCH_STATUS[$obj->status] }}</div>
                         <div>요청 수 : {{ number_format($obj->search_count) }}건</div>
                         <div>완료 수 : {{ number_format($obj->details_y_cnt()) }}건</div>
                         <div>실패 수 : {{ number_format($obj->details_n_cnt()) }}건</div>
-                        <div>
-                            <button class="btn btn-md btn-outline-dark me-2" id="btn-select">선택상품 수집</button>
-                            <button class="btn btn-md btn-outline-success" id="btn-all">전체상품 수집</button>
+                    </div>
+                </div>
+
+                <div class="card mt-3">
+                    <div class="card-header">
+                        <h4>상품 수집 옵션</h4>
+                    </div>
+                    <div class="card-body">
+                        <table class="table">
+                            <tr class="align-middle">
+                                <th style="width: 120px;">미수집 상품</th>
+                                <td class="d-flex align-items-center">
+                                    <div class="d-flex align-items-center me-4">
+                                        <label class="bg-light px-2 py-1 rounded me-2">상품 수집</label>
+                                        <div class="btn-group" role="group" aria-label="상품 수집">
+                                            <input type="radio" class="btn-check" name="nCollectOption" id="nCollectNone" value="{{ CollectConstatnt::COLLECT_NONE }}" checked>
+                                            <label class="btn btn-outline-primary" for="nCollectNone">{{ CollectConstatnt::COLLECT_NAME_KR[CollectConstatnt::COLLECT_NONE] }}</label>
+                
+                                            <input type="radio" class="btn-check" name="nCollectOption" id="nCollect" value="{{ CollectConstatnt::COLLECT_PRODUCT }}">
+                                            <label class="btn btn-outline-primary" for="nCollect">{{ CollectConstatnt::COLLECT_NAME_KR[CollectConstatnt::COLLECT_PRODUCT] }}</label>
+                                        </div>
+                                    </div>
+                                    <div class="d-flex align-items-center">
+                                        <label class="bg-light px-2 py-1 rounded me-2">번역 요청</label>
+                                        <div class="btn-group" role="group" aria-label="번역 요청">
+                                            <input type="radio" class="btn-check" name="nTranslateOption" id="nTranslateNone" value="{{ CollectConstatnt::TRANSLATE_NONE }}" checked>
+                                            <label class="btn btn-outline-primary" for="nTranslateNone">{{ CollectConstatnt::COLLECT_NAME_KR[CollectConstatnt::TRANSLATE_NONE] }}</label>
+                
+                                            <input type="radio" class="btn-check" name="nTranslateOption" id="nTranslateAll" value="{{ CollectConstatnt::TRANSLATE_ALL }}">
+                                            <label class="btn btn-outline-primary" for="nTranslateAll">{{ CollectConstatnt::COLLECT_NAME_KR[CollectConstatnt::TRANSLATE_ALL] }}</label>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+
+                            <tr class="align-middle">
+                                <th style="width: 120px;">수집완료 상품</th>
+                                <td class="d-flex align-items-center">
+                                    <div class="d-flex align-items-center me-4">
+                                        <label class="bg-light px-2 py-1 rounded me-2">상품 수집</label>
+                                        <div class="btn-group" role="group" aria-label="상품 수집">
+                                            <input type="radio" class="btn-check" name="yCollectOption" id="yCollectNone" value="{{ CollectConstatnt::COLLECT_NONE }}" checked>
+                                            <label class="btn btn-outline-primary" for="yCollectNone">{{ CollectConstatnt::COLLECT_NAME_KR[CollectConstatnt::COLLECT_NONE] }}</label>
+                
+                                            <input type="radio" class="btn-check" name="yCollectOption" id="yCollect" value="{{ CollectConstatnt::COLLECT_PRODUCT }}">
+                                            <label class="btn btn-outline-primary" for="yCollect">{{ CollectConstatnt::COLLECT_NAME_KR[CollectConstatnt::COLLECT_PRODUCT] }}</label>
+                                        </div>
+                                    </div>
+                                    <div class="d-flex align-items-center">
+                                        <label class="bg-light px-2 py-1 rounded me-2">번역 요청</label>
+                                        <div class="btn-group" role="group" aria-label="번역 요청">
+                                            <input type="radio" class="btn-check" name="yTranslateOption" id="yTranslateNone" value="{{ CollectConstatnt::TRANSLATE_NONE }}" checked>
+                                            <label class="btn btn-outline-primary" for="yTranslateNone">{{ CollectConstatnt::COLLECT_NAME_KR[CollectConstatnt::TRANSLATE_NONE] }}</label>
+                
+                                            <input type="radio" class="btn-check" name="yTranslateOption" id="yTranslateAll" value="{{ CollectConstatnt::TRANSLATE_ALL }}">
+                                            <label class="btn btn-outline-primary" for="yTranslateAll">{{ CollectConstatnt::COLLECT_NAME_KR[CollectConstatnt::TRANSLATE_ALL] }}</label>
+
+                                            <input type="radio" class="btn-check" name="yTranslateOption" id="yTranslateStatusY" value="{{ CollectConstatnt::TRANSLATE_STATUS_Y }}">
+                                            <label class="btn btn-outline-primary" for="yTranslateStatusY">{{ CollectConstatnt::COLLECT_NAME_KR[CollectConstatnt::TRANSLATE_STATUS_Y] }}</label>
+
+                                            <input type="radio" class="btn-check" name="yTranslateOption" id="yTranslateStatusN" value="{{ CollectConstatnt::TRANSLATE_STATUS_N }}">
+                                            <label class="btn btn-outline-primary" for="yTranslateStatusN">{{ CollectConstatnt::COLLECT_NAME_KR[CollectConstatnt::TRANSLATE_STATUS_N] }}</label>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+
+                        </table>
+                        <div class="d-flex justify-content-start">
+                            <button type="button" class="btn btn-md btn-outline-dark me-2" id="btn-select">선택상품 수집</button>
+                            <button type="button" class="btn btn-md btn-outline-success" id="btn-all">전체상품 수집</button>
                         </div>
                     </div>
+                </div>
 
+                <div class="card mt-3">
                     <div class="card-body">
                         <div class="mb-3 d-flex justify-content-start">
                             <label class="form-check-label me-2" for="allCheckbox">전체 선택</label>
@@ -113,9 +178,8 @@
             
                     </div>
                 </div>
+
             </div>
-
-
         </div>
         
         
@@ -125,15 +189,15 @@
         var log_type = "{{ LogConstant::COLLECT_API_URLQUERY }}";
 
         $("#btn-select").click(function(){
-            let offer_ids = [];
-            let hasPrd    = false;
-            let aiActive  = $("#chk-ai-active").is(":checked") ? 'true' : 'false';
+            let offer_ids        = [];
+            let hasPrd           = false;
+            let nCollectOption   = $('input[name=nCollectOption]:checked').val();
+            let nTranslateOption = $('input[name=nTranslateOption]:checked').val();
+            let yCollectOption   = $('input[name=yCollectOption]:checked').val();
+            let yTranslateOption = $('input[name=yTranslateOption]:checked').val();
 
             $(".chk-inp:checked").each(function(index, element){
                 offer_ids.push($(this).val());
-                if( $(this).attr("hasPrd") != "N" ){
-                    hasPrd = true;
-                }
             });
             
             if(offer_ids.length < 1 ){
@@ -153,7 +217,12 @@
                     "data"       : { 
                         offer_ids,
                         log_type,
-                        "ai_active": aiActive
+                        "collectParams": {
+                            nCollectOption,
+                            nTranslateOption,
+                            yCollectOption,
+                            yTranslateOption
+                        } 
                     },
                     beforeSend: function () {
                     },
@@ -171,15 +240,15 @@
         });
 
         $("#btn-all").click(function(){
-            let offer_ids = [];
-            let hasPrd    = false;
-            let aiActive  = $("#chk-ai-active").is(":checked") ? 'true' : 'false';
+            let offer_ids        = [];
+            let hasPrd           = false;
+            let nCollectOption   = $('input[name=nCollectOption]:checked').val();
+            let nTranslateOption = $('input[name=nTranslateOption]:checked').val();
+            let yCollectOption   = $('input[name=yCollectOption]:checked').val();
+            let yTranslateOption = $('input[name=yTranslateOption]:checked').val();
 
             $(".chk-inp").each(function(index, element){
                 offer_ids.push($(this).val());
-                if( $(this).attr("hasPrd") != "N" ){
-                    hasPrd = true;
-                }
             });
 
             if(offer_ids.length < 1 ){
@@ -199,7 +268,12 @@
                     "data"       : { 
                         offer_ids,
                         log_type,
-                        "ai_active": aiActive
+                        "collectParams": {
+                            nCollectOption,
+                            nTranslateOption,
+                            yCollectOption,
+                            yTranslateOption
+                        } 
                     },
                     beforeSend: function () {
                     },

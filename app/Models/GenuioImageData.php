@@ -18,4 +18,8 @@ class GenuioImageData extends Model
     public function image () {
         return $this->hasOne(ProductImageData::class, "id", "img_id");
     }
+
+    public function history_imgs () {
+        return $this->hasMany(GenuioImageExtendData::class, "ge_img_id", "id")->orderBy("updated_at", "desc");
+    }
 }

@@ -447,7 +447,7 @@ if (!function_exists("curl_1688_v2")) {
 if (!function_exists("ocPrice")) {
     function ocPrice(float $price, int $delivery_price = 0): array
     {
-        $option_price     = round( $price * env("1688_EXCHANGE_RATE", 200) , -1);
+        $option_price     = round( $price * config('1688_EXCHANGE_RATE', 200) , -1);
         $option_price     = $option_price + $delivery_price;
 
         $option_price_sum = (int)intval($option_price) + intval($option_price * env("OPTION_PRICE_RATE", 0.12));
@@ -472,7 +472,7 @@ if (!function_exists("ocPrice")) {
 if (!function_exists("wOptionPrice")) {
     function wOptionPrice(float $price): int
     {
-        $option_price = round( $price * env("1688_EXCHANGE_RATE", 200) , -1);
+        $option_price = round( $price * config('1688_EXCHANGE_RATE', 200) , -1);
 
         return $option_price;
     }
@@ -698,7 +698,7 @@ if (!function_exists("calcEasySellSalePrice")) {
     function calcEasySellSalePrice(?float $price = 0, ?int $md_price, int $delivery_price = ProductConstant::WEIGHT_STATUS_NONE_PRICE, string $type = "dynamic", string $sendType = EasySellConstant::TYPE_W): array
     {
         //1688 공급가
-        $option_price = round( $price * env("1688_EXCHANGE_RATE", 200) , -1);
+        $option_price = round( $price * config('1688_EXCHANGE_RATE', 200) , -1);
 
         //이지셀 공급가
         $buyPrice = ceil(($option_price) / 100) * 100 + $delivery_price;
@@ -730,7 +730,7 @@ if (!function_exists("calcEasySellSalePrice")) {
 if (!function_exists("calcOnchannelSalePrice")) {
     function calcOnchannelSalePrice(float $price): int
     {
-        $option_price = round( $price * env("1688_EXCHANGE_RATE", 200) , -1);
+        $option_price = round( $price * config('1688_EXCHANGE_RATE', 200) , -1);
 
         return $option_price + env("ONCHANNEL_DELIVERY_PRICE", 12000);
     }
@@ -740,7 +740,7 @@ if (!function_exists("calcOnchannelSalePrice")) {
 if (!function_exists("calcOnchannelOptionPrice")) {
     function calcOnchannelOptionPrice(float $price, int $delivery_price = ProductConstant::WEIGHT_STATUS_NONE_PRICE): int
     {
-        $option_price = round( $price * env("1688_EXCHANGE_RATE", 200) , -1);
+        $option_price = round( $price * config('1688_EXCHANGE_RATE', 200) , -1);
         return $option_price + $delivery_price;
     }
 }
@@ -749,7 +749,7 @@ if (!function_exists("calcOnchannelOptionPrice")) {
 if (!function_exists("calcWSalePrice")) {
     function calcWSalePrice(float $price = 0, int $delivery_price = ProductConstant::WEIGHT_STATUS_NONE_PRICE): int
     {
-        $option_price = round( $price * env("1688_EXCHANGE_RATE", 200) , -1);
+        $option_price = round( $price * config('1688_EXCHANGE_RATE', 200) , -1);
 
         return ( ceil(($option_price * env("W_SALE_PRICE_RATE", "1.35")) / 100) * 100 ) + $delivery_price;
     }

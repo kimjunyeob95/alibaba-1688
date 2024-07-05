@@ -214,166 +214,206 @@ trait CollectProductTrait
         Product1688Dto $product1688Dto, Product1688ExtendDto $product1688ExtendDto, array $product1688ImageDtoList,
         array $product1688NoticeDtoList, array $product1688OptionDtoList, ProductAddDto $productAddDto,
         array $productSkuDtos, array $productSaleDtos, Product1688ImageDto $productWhiteImageDto,
-        string $aiActive = CollectConstatnt::AI_ACTIVE_FALSE): array
+        array $collectParams = []): array
     {
         $returnMsg = helpers_fail_message();
         try {
+            $nCollectOption   = CollectConstatnt::COLLECT_PRODUCT;
+            $nTranslateOption = CollectConstatnt::TRANSLATE_NONE;
+            $yCollectOption   = CollectConstatnt::COLLECT_PRODUCT;
+            $yTranslateOption = CollectConstatnt::TRANSLATE_NONE;
+
+            $collectFlag   = true;
+            $translateFlag = false;
+
+            if( isset($collectParams["nCollectOption"]) ){
+                $nCollectOption = $collectParams["nCollectOption"];
+            }
+            if( isset($collectParams["nTranslateOption"]) ){
+                $nTranslateOption = $collectParams["nTranslateOption"];
+            }
+            if( isset($collectParams["yCollectOption"]) ){
+                $yCollectOption = $collectParams["yCollectOption"];
+            }
+            if( isset($collectParams["yTranslateOption"]) ){
+                $yTranslateOption = $collectParams["yTranslateOption"];
+            }
+
             $offerId    = (int)$product1688Dto->offer_id;
             $hasProduct = ProductData::where("offer_id", $offerId)->count() > 0 ? true : false;
 
-            // 1. product_datas upsert
-            $upsertWhere = $product1688Dto->getAllProperties();
-            unset($upsertWhere["offer_id"]);
-            ProductData::updateOrCreate(
-                ["offer_id" => $offerId],
-                $upsertWhere
-            );
+            if( $hasProduct === false ){
+                /** 미수집 상품 */
+                if( $nCollectOption == CollectConstatnt::COLLECT_NONE ) {
+                    $collectFlag = false;
+                }
+                if( $collectFlag === true && $nTranslateOption != CollectConstatnt::TRANSLATE_NONE ){
+                    $translateFlag = true;
+                }
+            } else if( $hasProduct === true ){
+                /** 수집 상품 */
+                if($yCollectOption == CollectConstatnt::COLLECT_NONE ){
+                    $collectFlag = false;
+                }
 
-            // 2. product_extend_datas upsert
-            $upsertWhere = $product1688ExtendDto->getAllProperties();
-            unset($upsertWhere["offer_id"]);
-            ProductExtendData::updateOrCreate(
-                ["offer_id" => $offerId],
-                $upsertWhere
-            );
+                $prdObj = ProductData::where("offer_id", $offerId)->first();
+                if( $yTranslateOption == CollectConstatnt::TRANSLATE_ALL ){
+                    $translateFlag = true;
+                } else if( $yTranslateOption == CollectConstatnt::TRANSLATE_STATUS_Y && $prdObj->trans_status == ProductConstant::TRANS_STATUS_Y ){
+                    $translateFlag = true;
+                } else if( $yTranslateOption == CollectConstatnt::TRANSLATE_STATUS_N && $prdObj->trans_status == ProductConstant::TRANS_STATUS_N ){
+                    $translateFlag = true;
+                }
+            }
 
-            // 3. product_image_datas, product_image_detail_datas upsert
-            foreach ($product1688ImageDtoList as $product1688ImageDto) {
-                // 메인 이미지
-                if( $product1688ImageDto->is_change_img == true && $product1688ImageDto->img_type == ImageConstant::IMAGE_TYPE_MAIN ){
+            if( $collectFlag === true ){
+                // 1. product_datas upsert
+                $upsertWhere = $product1688Dto->getAllProperties();
+                unset($upsertWhere["offer_id"]);
+                ProductData::updateOrCreate(
+                    ["offer_id" => $offerId],
+                    $upsertWhere
+                );
+
+                // 2. product_extend_datas upsert
+                $upsertWhere = $product1688ExtendDto->getAllProperties();
+                unset($upsertWhere["offer_id"]);
+                ProductExtendData::updateOrCreate(
+                    ["offer_id" => $offerId],
+                    $upsertWhere
+                );
+
+                // 3. product_image_datas, product_image_detail_datas upsert
+                foreach ($product1688ImageDtoList as $product1688ImageDto) {
+                    // 메인 이미지
+                    if( $product1688ImageDto->is_change_img == true && $product1688ImageDto->img_type == ImageConstant::IMAGE_TYPE_MAIN ){
+                        ProductImageData::updateOrCreate(
+                            [
+                                "offer_id" => $offerId,
+                                "img_type" => ImageConstant::IMAGE_TYPE_MAIN,
+                                "lang"     => $product1688ImageDto->lang,
+                            ],
+                            [
+                                "img_url_origin" => $product1688ImageDto->img_url_origin,
+                                // "img_url_trans"  => "",
+                                // "trans_dated_at" => null
+                            ]
+                        );
+                    }
+                    // 서브 이미지 or 상세 이미지
+                    if( $product1688ImageDto->is_change_img == true && $product1688ImageDto->img_type != ImageConstant::IMAGE_TYPE_MAIN ){
+                        ProductImageData::updateOrCreate(
+                            [
+                                "offer_id"       => $offerId,
+                                "img_type"       => $product1688ImageDto->img_type,
+                                "img_url_origin" => $product1688ImageDto->img_url_origin,
+                                "lang"           => $product1688ImageDto->lang,
+                            ],
+                            [
+                                // "img_url_trans" => "",
+                                // "trans_dated_at" => null
+                            ]
+                        );
+                    }
+                }
+
+                // 4. product_notice_datas upsert
+                foreach ($product1688NoticeDtoList as $product1688NoticeDto) {
+                    $upsertWhere = $product1688NoticeDto->getAllProperties();
+                    unset($upsertWhere["offer_id"]);
+                    unset($upsertWhere["attribute_id"]);
+                    ProductNoticeData::updateOrCreate(
+                        [
+                            "offer_id"     => $offerId,
+                            "attribute_id" => $product1688NoticeDto->attribute_id,
+                        ],
+                        $upsertWhere
+                    );
+                }
+
+                // 5. product_option_datas upsert
+                // 5-1. 우선 전체 품절처리
+                ProductOptionData::where("offer_id", $offerId)->update(["status" => ProductConstant::OPTION_SEC_OUT_OF_STOCK_NUMBER]);
+                // 5-2. Upsert
+                foreach ($product1688OptionDtoList as $product1688OptionDto) {
+                    $upsertWhere = $product1688OptionDto->getAllProperties();
+                    unset($upsertWhere["offer_id"]);
+                    unset($upsertWhere["sku_id"]);
+                    unset($upsertWhere["spec_id"]);
+                    ProductOptionData::updateOrCreate(
+                        [
+                            "offer_id" => $offerId,
+                            "sku_id"   => $product1688OptionDto->sku_id,
+                            "spec_id"  => $product1688OptionDto->spec_id,
+                        ],
+                        $upsertWhere
+                    );
+                }
+
+                $upsertWhere = $productAddDto->getAllProperties();
+                unset($upsertWhere["offer_id"]);
+                ProductAddData::updateOrCreate(
+                    ["offer_id" => $offerId],
+                    $upsertWhere
+                );
+                
+                foreach ($productSkuDtos as $productSkuDto) {
+                    $upsertWhere = $productSkuDto->getAllProperties();
+                    unset($upsertWhere["offer_id"]);
+                    unset($upsertWhere["sku_id"]);
+                    ProductSkuData::updateOrCreate(
+                        [
+                            "offer_id" => $offerId,
+                            "sku_id"   => $product1688OptionDto->sku_id,
+                        ],
+                        $upsertWhere
+                    );
+                }
+
+                ProductSaleData::where("offer_id", $offerId)->forceDelete();
+                foreach ($productSaleDtos as $productSaleDto) {
+                    $upsertWhere = $productSaleDto->getAllProperties();
+                    ProductSaleData::create($upsertWhere);
+                }
+
+                if( $productWhiteImageDto->offer_id != 0 ){
                     ProductImageData::updateOrCreate(
                         [
                             "offer_id" => $offerId,
-                            "img_type" => ImageConstant::IMAGE_TYPE_MAIN,
-                            "lang"     => $product1688ImageDto->lang,
+                            "img_type" => ImageConstant::IMAGE_TYPE_WHITE,
                         ],
                         [
-                            "img_url_origin" => $product1688ImageDto->img_url_origin,
-                            // "img_url_trans"  => "",
-                            // "trans_dated_at" => null
+                            "lang"           => $productWhiteImageDto->lang,
+                            "is_except"      => $productWhiteImageDto->is_except,
+                            "img_url_origin" => $productWhiteImageDto->img_url_origin,
+                            "img_url_trans"  => $productWhiteImageDto->img_url_trans,
+                            "trans_dated_at" => null
                         ]
                     );
                 }
-                // 서브 이미지 or 상세 이미지
-                if( $product1688ImageDto->is_change_img == true && $product1688ImageDto->img_type != ImageConstant::IMAGE_TYPE_MAIN ){
-                    ProductImageData::updateOrCreate(
-                        [
-                            "offer_id"       => $offerId,
-                            "img_type"       => $product1688ImageDto->img_type,
-                            "img_url_origin" => $product1688ImageDto->img_url_origin,
-                            "lang"           => $product1688ImageDto->lang,
-                        ],
-                        [
-                            // "img_url_trans" => "",
-                            // "trans_dated_at" => null
-                        ]
-                    );
-                }
+
+                // 6. 기존 이미지 삭제
+                $this->delProductImage($product1688ImageDtoList);
+
+                /** 번역상태 변경 */   
+                chkTransStatus($offerId);
+                            
+                /** 중량 여부로 판매 상태 업데이트 */
+                upWeightStatus($offerId);
             }
-
-            // 4. product_notice_datas upsert
-            foreach ($product1688NoticeDtoList as $product1688NoticeDto) {
-                $upsertWhere = $product1688NoticeDto->getAllProperties();
-                unset($upsertWhere["offer_id"]);
-                unset($upsertWhere["attribute_id"]);
-                ProductNoticeData::updateOrCreate(
-                    [
-                        "offer_id"     => $offerId,
-                        "attribute_id" => $product1688NoticeDto->attribute_id,
-                    ],
-                    $upsertWhere
-                );
-            }
-
-            // 5. product_option_datas upsert
-            // 5-1. 우선 전체 품절처리
-            ProductOptionData::where("offer_id", $offerId)->update(["status" => ProductConstant::OPTION_SEC_OUT_OF_STOCK_NUMBER]);
-            // 5-2. Upsert
-            foreach ($product1688OptionDtoList as $product1688OptionDto) {
-                $upsertWhere = $product1688OptionDto->getAllProperties();
-                unset($upsertWhere["offer_id"]);
-                unset($upsertWhere["sku_id"]);
-                unset($upsertWhere["spec_id"]);
-                ProductOptionData::updateOrCreate(
-                    [
-                        "offer_id" => $offerId,
-                        "sku_id"   => $product1688OptionDto->sku_id,
-                        "spec_id"  => $product1688OptionDto->spec_id,
-                    ],
-                    $upsertWhere
-                );
-            }
-
-            $upsertWhere = $productAddDto->getAllProperties();
-            unset($upsertWhere["offer_id"]);
-            ProductAddData::updateOrCreate(
-                ["offer_id" => $offerId],
-                $upsertWhere
-            );
-            
-            foreach ($productSkuDtos as $productSkuDto) {
-                $upsertWhere = $productSkuDto->getAllProperties();
-                unset($upsertWhere["offer_id"]);
-                unset($upsertWhere["sku_id"]);
-                ProductSkuData::updateOrCreate(
-                    [
-                        "offer_id" => $offerId,
-                        "sku_id"   => $product1688OptionDto->sku_id,
-                    ],
-                    $upsertWhere
-                );
-            }
-
-            ProductSaleData::where("offer_id", $offerId)->forceDelete();
-            foreach ($productSaleDtos as $productSaleDto) {
-                $upsertWhere = $productSaleDto->getAllProperties();
-                ProductSaleData::create($upsertWhere);
-            }
-
-            if( $productWhiteImageDto->offer_id != 0 ){
-                ProductImageData::updateOrCreate(
-                    [
-                        "offer_id" => $offerId,
-                        "img_type" => ImageConstant::IMAGE_TYPE_WHITE,
-                    ],
-                    [
-                        "lang"           => $productWhiteImageDto->lang,
-                        "is_except"      => $productWhiteImageDto->is_except,
-                        "img_url_origin" => $productWhiteImageDto->img_url_origin,
-                        "img_url_trans"  => $productWhiteImageDto->img_url_trans,
-                        "trans_dated_at" => null
-                    ]
-                );
-            }
-
-            // 6. 기존 이미지 삭제
-            $this->delProductImage($product1688ImageDtoList);
-
-            /** 번역상태 변경 */   
-            chkTransStatus($offerId);
-                        
-            /** 중량 여부로 판매 상태 업데이트 */
-            upWeightStatus($offerId);
 
             // 7. 이미지 번역 요청 통신
-            if( $product1688Dto->status == ProductConstant::PRD_STATUS_PUBLISH ) {
+            if( $product1688Dto->status == ProductConstant::PRD_STATUS_PUBLISH && $translateFlag === true ) {
                 $params = [
                     "send_easysell" => MallConstant::AUTO_REGIST_TRUE
                 ];
-                if( $aiActive === CollectConstatnt::AI_ACTIVE_TRUE ){
-                    if( $hasProduct === true ){
-                        $transResult = $this->transApiAbstract->createTransProductImgAgain($product1688ImageDtoList, $offerId, false, $params);
-                    } else {
-                        $transResult = $this->transApiAbstract->createTransProductImg($product1688ImageDtoList, $offerId, false, $params);
-                    }
-                    if( $transResult["isSuccess"] == false ){
-                        throw new Exception("createTransProductImg error: " . $transResult["msg"]);
-                    }
-                } else if( $aiActive === CollectConstatnt::AI_ACTIVE_FALSE && $hasProduct === true ){
-                    // $transResult = $this->transApiAbstract->createTransProductImgAgain($product1688ImageDtoList, $offerId, false, $params);
-                    // if( $transResult["isSuccess"] == false ){
-                    //     throw new Exception("createTransProductImgAgain error: " . $transResult["msg"]);
-                    // }
+                if( $hasProduct === true ){
+                    $transResult = $this->transApiAbstract->createTransProductImgAgain($product1688ImageDtoList, $offerId, false, $params);
+                } else {
+                    $transResult = $this->transApiAbstract->createTransProductImg($product1688ImageDtoList, $offerId, false, $params);
+                }
+                if( $transResult["isSuccess"] == false ){
+                    throw new Exception("이미지 번역 요청 통신 error: " . $transResult["msg"]);
                 }
             }
 
@@ -381,6 +421,7 @@ trait CollectProductTrait
         } catch (Exception $e) {
             $returnMsg = helpers_fail_message($e->getMessage());
         }
+
         return $returnMsg;
     }
 

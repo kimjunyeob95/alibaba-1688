@@ -459,9 +459,6 @@ class EasySell extends MallApiAbstract
 
                 $images[] = $prdObj->main_img->img_url_trans;
                 foreach ($prdObj->no_except_sub_imgs as $imgObj) {
-                    if( count($images) >= 10 ){
-                        break;
-                    }
                     if( $imgObj->img_url_trans ){
                         $images[] = $imgObj->img_url_trans;
                     }
@@ -474,9 +471,6 @@ class EasySell extends MallApiAbstract
 
                 $images[] = $prdObj->en_main_img->img_url_origin;
                 foreach ($prdObj->no_except_en_sub_imgs as $imgObj) {
-                    if( count($images) >= 10 ){
-                        break;
-                    }
                     if( $imgObj->img_url_origin ){
                         $images[] = $imgObj->img_url_origin;
                     }

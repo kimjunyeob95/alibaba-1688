@@ -20,6 +20,7 @@ use App\Services\GenuioService;
 use App\Services\Product\ProductW1;
 use App\Services\Product\ProductW2;
 use App\Vo\Product\Product1688ImageDto;
+use Carbon\Carbon;
 use Exception;
 use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
@@ -253,23 +254,15 @@ class ProductTest extends TestCase
     # php artisan test --filter testAllProductReCollectW1
     public function testAllProductReCollectW1()
     {
-        if (now()->format('Y-m-d H:i') != '2024-06-14 18:00') {
-            return false;
-        }
 
-        $msg = "testAllProductReCollectW1 시작";
+        $msg = "모든 상품 W1 수집 시작";
         debug_log($msg, "product/testAllProductReCollectW1", "testAllProductReCollectW1");
 
+        $today     = Carbon::today()->startOfDay();
         $productW1 = app(ProductW1::class);
         $builder   = ProductData::select(["offer_id"]);
         $builder->where("status", "!=", ProductConstant::PRD_STATUS_EXCEPT);
-        // $builder->where(function($query) {
-        //     $query->where("w_type", WConstant::WAPP_W2)
-        //     ->orWhere(function($query2) {
-        //         $query2->where("w_type", WConstant::WAPP_W1)
-        //         ->where("prd_name_en", "");
-        //     });
-        // });
+        $builder->where("created_at", "<", $today);
 
         $perPage    = 900;
         $totalCount = $builder->count();
@@ -289,14 +282,17 @@ class ProductTest extends TestCase
 
                 $apiResult = $productW1->collectProductNotLog($offerId);
                 if( $apiResult["isSuccess"] != true ){
-                    $msg = $apiResult["msg"];
+                    $msg = "offerId: {$offerId} | error: " . $apiResult["msg"];
                     debug_log($msg, "product/testAllProductReCollectW1", "testAllProductReCollectW1", LogLevel::ERROR);
                 }
             }
+
+            $msg = "({$page}/{$totalPages}) 완료";
+            debug_log($msg, "product/testAllProductReCollectW1", "testAllProductReCollectW1", LogLevel::ERROR);
         }
 
 
-        $msg = "testAllProductReCollectW1 종료";
+        $msg = "모든 상품 W1 수집 종료";
         debug_log($msg, "product/testAllProductReCollectW1", "testAllProductReCollectW1");
     }
 
@@ -453,7 +449,7 @@ class ProductTest extends TestCase
 
         foreach ($prdObjs as $prdObj) {
             $price_1688 = $prdObj->price_1688;
-            $option_price = round( $price_1688 * env("1688_EXCHANGE_RATE", 200) , -1);  // 1의 자리 반올림
+            $option_price = round( $price_1688 * config('1688_EXCHANGE_RATE', 200) , -1);  // 1의 자리 반올림
 
             $option_price_sum = (int)intval($option_price) + intval($option_price * env("OPTION_PRICE_RATE", 0.12));
             $option_price_cal = round($option_price_sum / 10) * 10;
