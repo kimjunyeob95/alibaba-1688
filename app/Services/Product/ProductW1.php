@@ -151,7 +151,7 @@ class ProductW1 extends ProductAbstract
         }
 
         $prdBuilder = ProductData::select([
-            "product_datas.offer_id",
+            "product_datas.*",
         ])->with([
             "main_img",
             "options", 
