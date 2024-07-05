@@ -29,7 +29,7 @@ class ExchangeRateService
             $searchDate  = Carbon::parse($date)->format("Y-m-d");
             $exchangeObj = ExchangeRateHistory::where("date", $searchDate)->first();
             if( $exchangeObj === null ){
-                throw new Exception(ExchangeRateErrorMessageConstant::getNotHaveErrorMessage("EXCHANGEOBJ"));   
+                $exchangeObj = ExchangeRateHistory::orderBy('date', 'desc')->first();
             }
 
             $result = [
