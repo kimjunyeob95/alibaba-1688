@@ -287,8 +287,8 @@ class ProductTest extends TestCase
                 }
             }
 
-            $msg = "({$page}/{$totalPages}) 완료";
-            debug_log($msg, "product/testAllProductReCollectW1", "testAllProductReCollectW1", LogLevel::ERROR);
+            $msg = "모든 상품 W1 수집 ({$page}/{$totalPages}) 완료";
+            debug_log($msg, "product/testAllProductReCollectW1", "testAllProductReCollectW1");
         }
 
 
