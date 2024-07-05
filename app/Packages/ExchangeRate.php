@@ -86,7 +86,7 @@ class ExchangeRate
                 "data"       => ExchangeRateConstant::AP02,
             ];
             $rsData = helpers_curl("GET", $this->endPoint, $this->headers, $apiParams);
-
+            debug_log(json_encode($rsData, JSON_UNESCAPED_UNICODE), "getExchangeRate/rsData", "rsData");
             $res = [];
             if($rsData === false){
                 throw new Exception(ExchangeRateErrorMessageConstant::getFitErrorMessage("RESPONSE"));
