@@ -151,11 +151,12 @@ class ProductW1 extends ProductAbstract
         }
 
         $prdBuilder = ProductData::select([
-            "product_datas.*",
+            "product_datas.offer_id",
         ])->with([
             "main_img",
             "options", 
-            "images.ai_all_imgs",
+            "images",
+            "images.ai_all_imgs.history_imgs",
             "img_inspect",
             "prd_inspect",
             "gosi_inspect",
@@ -506,7 +507,7 @@ class ProductW1 extends ProductAbstract
         $prdBuilder = ProductData::select(["product_datas.*"])->with([
             "main_img",
             "options", 
-            "images.ai_all_imgs",
+            "images.ai_all_imgs.history_imgs",
             "img_inspect",
             "prd_inspect",
             "gosi_inspect",
@@ -746,7 +747,7 @@ class ProductW1 extends ProductAbstract
 
         try {
             $prdObj = ProductData::with([
-                "images.ai_all_imgs",
+                "images.ai_all_imgs.history_imgs",
                 "extends",
                 "options",
                 "notices",

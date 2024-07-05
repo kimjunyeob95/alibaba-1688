@@ -258,11 +258,12 @@ class Service1688Product
 
             foreach ($image->ai_all_imgs as $ai_img) {
                $data["images"][$key]["ai_images"][] = [
-                  "id"         => $ai_img->id,
-                  "img_id"     => $ai_img->img_id,
-                  "is_origin"  => $ai_img->is_origin,
-                  "img_url_ai" => $ai_img->img_url_ai,
-                  "created_at" => $ai_img->created_at,
+                  "id"           => $ai_img->id,
+                  "img_id"       => $ai_img->img_id,
+                  "is_origin"    => $ai_img->is_origin,
+                  "img_url_ai"   => $ai_img->img_url_ai,
+                  "created_at"   => $ai_img->created_at,
+                  "history_imgs" => $ai_img->history_imgs
                ]; 
             }
          }
