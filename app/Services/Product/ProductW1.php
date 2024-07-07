@@ -1222,7 +1222,7 @@ class ProductW1 extends ProductAbstract
                 $successCnt++;
             } catch (Exception $e) {
                 $msg = "offerId: {$offerId} | error: " . $e->getMessage();
-                debug_log($msg, "collectProduct/".$type, $type, LogLevel::ERROR);
+                // debug_log($msg, "collectProduct/".$type, $type, LogLevel::ERROR);
 
                 ProductCollectDetailLog::create([
                     "log_id"     => $logId,
@@ -1369,7 +1369,7 @@ class ProductW1 extends ProductAbstract
                 $successCnt++;
             } catch (Exception $e) {
                 $msg = "offerId: {$offerId} | error: " . $e->getMessage();
-                debug_log($msg, "collectProduct", "collectProduct", LogLevel::ERROR);
+                // debug_log($msg, "collectProduct", "collectProduct", LogLevel::ERROR);
 
                 ProductCollectDetailLog::create([
                     "log_id"     => $logId,
@@ -2425,7 +2425,7 @@ class ProductW1 extends ProductAbstract
 
         $params_json = json_encode($params, JSON_UNESCAPED_UNICODE);
         $msg = "======================== 실행 시작 (params_json: {$params_json}) ========================";
-        debug_log($msg, "collectProduct/keywordQueryAll", "keywordQueryAll");
+        // debug_log($msg, "collectProduct/keywordQueryAll", "keywordQueryAll");
 
         $sortArr = explode("|", $params["sort"]);
         $sort = [
@@ -2460,7 +2460,7 @@ class ProductW1 extends ProductAbstract
         } catch (Exception $e) {
             $msg = "======================== 에러 발생 (params_json: {$params_json}) ========================\r\n";
             $msg .= $e->getMessage();
-            debug_log($msg, "collectProduct/keywordQueryAll", "keywordQueryAll", LogLevel::ERROR);
+            // debug_log($msg, "collectProduct/keywordQueryAll", "keywordQueryAll", LogLevel::ERROR);
         }
 
         $log_count = ProductCollectDetailLog::where([
@@ -2473,7 +2473,7 @@ class ProductW1 extends ProductAbstract
         ]);
 
         $msg = "======================== 실행 종료 (params_json: {$params_json}) ========================";
-        debug_log($msg, "collectProduct/keywordQueryAll", "keywordQueryAll");
+        // debug_log($msg, "collectProduct/keywordQueryAll", "keywordQueryAll");
 
         /** 2. filter: aigcOffer로 호출 */
         $payload  = [
@@ -2589,7 +2589,7 @@ class ProductW1 extends ProductAbstract
                         }
                     } catch (Exception $de) {
                         $msg = $de->getMessage() . " | page: {$page} | offerId: {$offerId}";
-                        debug_log($msg, "collectProduct/keywordQueryAll", "keywordQueryAll", LogLevel::ERROR);
+                        // debug_log($msg, "collectProduct/keywordQueryAll", "keywordQueryAll", LogLevel::ERROR);
 
                         ProductCollectDetailLog::create([
                             "log_id"     => $logId,
@@ -2610,7 +2610,7 @@ class ProductW1 extends ProductAbstract
             }
         } catch (Exception $e) {
             $msg = $e->getMessage();
-            debug_log($msg, "collectProduct/keywordQueryAll", "keywordQueryAll", LogLevel::ERROR);
+            // debug_log($msg, "collectProduct/keywordQueryAll", "keywordQueryAll", LogLevel::ERROR);
 
             if( $page < $totalPage ){
                 $nextPage = $page + 1;
@@ -2769,7 +2769,7 @@ class ProductW1 extends ProductAbstract
 
         $params_json = json_encode($params, JSON_UNESCAPED_UNICODE);
         $msg = "======================== 실행 시작 (params_json: {$params_json}) ========================";
-        debug_log($msg, "collectProduct/imageQueryAll", "imageQueryAll");
+        // debug_log($msg, "collectProduct/imageQueryAll", "imageQueryAll");
 
         $sortArr = explode("|", $params["sort"]);
         $sort = [
@@ -2805,7 +2805,7 @@ class ProductW1 extends ProductAbstract
         } catch (Exception $e) {
             $msg = "======================== 에러 발생 (params_json: {$params_json}) ========================\r\n";
             $msg .= $e->getMessage();
-            debug_log($msg, "collectProduct/imageQueryAll", "imageQueryAll", LogLevel::ERROR);
+            // debug_log($msg, "collectProduct/imageQueryAll", "imageQueryAll", LogLevel::ERROR);
         }
 
         $log_count = ProductCollectDetailLog::where([
@@ -2818,7 +2818,7 @@ class ProductW1 extends ProductAbstract
         ]);
 
         $msg = "======================== 실행 종료 (params_json: {$params_json}) ========================";
-        debug_log($msg, "collectProduct/imageQueryAll", "imageQueryAll");
+        // debug_log($msg, "collectProduct/imageQueryAll", "imageQueryAll");
 
         return $returnMsg;
     }
@@ -2908,7 +2908,7 @@ class ProductW1 extends ProductAbstract
                         ]);
                     } catch (Exception $de) {
                         $msg = $de->getMessage() . " | page: {$page} | offerId: {$offerId}";
-                        debug_log($msg, "collectProduct/imageQueryAll", "imageQueryAll", LogLevel::ERROR);
+                        // debug_log($msg, "collectProduct/imageQueryAll", "imageQueryAll", LogLevel::ERROR);
 
                         ProductCollectDetailLog::create([
                             "log_id"     => $logId,
@@ -2929,7 +2929,7 @@ class ProductW1 extends ProductAbstract
             }
         } catch (Exception $e) {
             $msg = $e->getMessage();
-            debug_log($msg, "collectProduct/imageQueryAll", "imageQueryAll", LogLevel::ERROR);
+            // debug_log($msg, "collectProduct/imageQueryAll", "imageQueryAll", LogLevel::ERROR);
 
             if( $page < $totalPage ){
                 $nextPage = $page + 1;

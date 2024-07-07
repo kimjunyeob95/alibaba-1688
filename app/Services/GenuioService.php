@@ -497,6 +497,7 @@ class GenuioService extends TransApiAbstract
                     } catch (ValueError $ve) {
                         $imgData = $image;
                         unset($imgData["imgTransBase64"]);
+                        unset($imgData["cleaned_base64"]);
 
                         $errMsg = [
                             "img"   => $imgData,
@@ -625,6 +626,7 @@ class GenuioService extends TransApiAbstract
                     } catch (ValueError $ve) {
                         $imgData = $image;
                         unset($imgData["imgTransBase64"]);
+                        unset($imgData["cleaned_base64"]);
 
                         $errMsg = [
                             "img"   => $imgData,
@@ -772,6 +774,7 @@ class GenuioService extends TransApiAbstract
                     } catch (ValueError $ve) {
                         $imgData = $image;
                         unset($imgData["imgTransBase64"]);
+                        unset($imgData["cleaned_base64"]);
 
                         $errMsg = [
                             "img"   => $imgData,
