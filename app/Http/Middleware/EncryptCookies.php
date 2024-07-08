@@ -45,9 +45,7 @@ class EncryptCookies extends Middleware
      */
     protected function getCookieDomain($name)
     {
-        // 여기서 쿠키의 도메인을 추출하는 로직을 추가합니다.
-        // 예제로서 현재 null을 반환합니다.
-        // 실제 구현에서는 $_COOKIE 또는 다른 방법으로 도메인을 추출할 수 있습니다.
+        // 여기서 쿠키의 도메인을 추출하는 로직을 추가
         if (isset($_COOKIE[$name])) {
             // 도메인 추출 로직을 추가합니다.
             if( isset($_SERVER['HTTP_REFERER']) ){
