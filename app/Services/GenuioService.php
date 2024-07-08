@@ -1078,12 +1078,17 @@ class GenuioService extends TransApiAbstract
         
                     if( count($payload["images"]) > 0 ){
                         $apiResult = $this->apiCurl("post", "/translate-img", $payload);
-        
-                        $upWhere  = [
-                            "payload_json"  => json_encode($payload, JSON_UNESCAPED_UNICODE),
-                            "response_json" => json_encode($apiResult, JSON_UNESCAPED_UNICODE)
-                        ];
-                        GenuioQueueData::where("id", $nextId)->update($upWhere);
+
+                        if( isset($apiResult["data"]) ){
+                            $upWhere  = [
+                                "payload_json"  => json_encode($payload, JSON_UNESCAPED_UNICODE),
+                                "response_json" => json_encode($apiResult["data"], JSON_UNESCAPED_UNICODE)
+                            ];
+                            GenuioQueueData::where("id", $nextId)->update($upWhere);
+                        } else {
+                            $errorJson = json_encode($apiResult, JSON_UNESCAPED_UNICODE);
+                            throw new Exception($errorJson);
+                        }
             
                         foreach ($queueDetailInsList as $queueDetailIns) {
                             GenuioQueueDetailData::insert($queueDetailIns);
