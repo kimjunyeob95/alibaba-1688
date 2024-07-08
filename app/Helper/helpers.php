@@ -116,10 +116,19 @@ if (!function_exists("debug_log")) {
 
         $logStr = "[excuteTime: $time_str] $str";
 
+        // 로그 경로 생성
+        $logPath = storage_path('logs/'.$dirname);
+        if (!file_exists($logPath)) {
+            mkdir($logPath, 0775, true);
+        }
+
+        // 파일 이름과 경로 설정
+        $logFile = $logPath . '/' . $filename . date('Ymd') . '.log';
+
         // 경로와 파일 이름을 사용하여 로그 채널 동적으로 생성
         $logChannel = Log::build([
             'driver' => 'single',
-            'path'   => storage_path('logs/'.$dirname.'/'.$filename.date('Ymd').'.log'),
+            'path'   => $logFile,
         ]);
 
         switch ($level) {

@@ -82,9 +82,7 @@ class ExchangeRate
             $rsData = helpers_curl("GET", $this->endPoint, $this->headers, $apiParams);
 
             $res = [];
-            if($rsData === false){
-                throw new Exception(ExchangeRateErrorMessageConstant::getFitErrorMessage("RESPONSE"));
-            }else{
+            if(is_array($rsData) === true){
                 foreach($rsData as $data){
                     if($data['cur_unit'] == $currencyUnit && $data["result"] == 1){
                         $res = [
@@ -101,6 +99,8 @@ class ExchangeRate
                 }
 
                 $returnMsg = helpers_success_message($res);
+            }else{
+                throw new Exception(ExchangeRateErrorMessageConstant::getFitErrorMessage("RESPONSE"));
             }
         }catch(Exception $e){
             debug_log(json_encode($rsData, JSON_UNESCAPED_UNICODE), "getExchangeRate/response", "response");

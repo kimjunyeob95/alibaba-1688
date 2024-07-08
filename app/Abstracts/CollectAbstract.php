@@ -3,6 +3,7 @@
 namespace App\Abstracts;
 
 use App\Constants\CategoryConstant;
+use App\Constants\MallConstant;
 use App\Constants\ProductConstant;
 use App\Models\ProductCollectPalletData;
 use App\Models\ProductData;
@@ -32,11 +33,13 @@ abstract class CollectAbstract
             $beginPage = $params["begin_page"];
             $pageSize  = $params["page_size"];
 
-            $builder = ProductData::select(["product_datas.*"])
+            $builder = ProductData::select(["product_datas.*", "c.prd_code"])
             ->with(["main_img", "no_except_options"])
             ->join("product_collect_pallet_datas as b", "product_datas.offer_id", "=", "b.offer_id")
+            ->join("onchannel_product_logs as c", "product_datas.offer_id", "=", "c.offer_id")
             ->where("b.pallet_id", $palletId)
-            ->where("status", ProductConstant::PRD_STATUS_PUBLISH);
+            ->where("status", ProductConstant::PRD_STATUS_PUBLISH)
+            ->where("c.regist_success", MallConstant::REGIST_Y);
 
             $lists = $builder->paginate($pageSize, ['*'], 'page', $beginPage);
 
