@@ -112,7 +112,7 @@ trait MallOrderTrait
                     "order_id"             => 0,
                     "option_id"            => $optObj->id,
                     "quantity"             => $quantity,
-                    "origin_option_price"  => $optObj->option_price,
+                    "origin_option_price"  => $optObj->price_1688_option,
                     "channel_option_price" => $optionPrice,
                 ];
                 $orderDetailDto = new OrderDetailDto();
