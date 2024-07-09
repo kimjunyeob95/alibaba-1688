@@ -200,6 +200,7 @@
                                     <th scope="col">옵션명(영문)</th>
                                     <th scope="col">W 공급가(위안)</th>
                                     <th scope="col">W 공급가(원)</th>
+                                    <th scope="col">MD 판매가(원)</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -222,6 +223,9 @@
                                         </td>
                                         <td>
                                             {{ number_format(wOptionPrice($option->price_1688)) }}
+                                        </td>
+                                        <td>
+                                            {{ number_format($option->md_price) }}
                                         </td>
                                     </tr>
                                 @endforeach
