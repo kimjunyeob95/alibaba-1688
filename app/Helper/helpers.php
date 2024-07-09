@@ -14,6 +14,7 @@ use App\Models\Category;
 use App\Models\CategoryWeightData;
 use App\Models\EasysellProductLog;
 use App\Models\GenuioAiData;
+use App\Models\OnchannelProductLog;
 use App\Models\ProductData;
 use App\Models\ProductImageData;
 use App\Models\ProductInspectData;
@@ -456,21 +457,14 @@ if (!function_exists("curl_1688_v2")) {
 if (!function_exists("ocPrice")) {
     function ocPrice(float $price, int $delivery_price = 0): array
     {
-        $option_price     = round( $price * config('1688_EXCHANGE_RATE', 200) , -1);
-        $option_price     = $option_price + $delivery_price;
-
-        $option_price_sum = (int)intval($option_price) + intval($option_price * env("OPTION_PRICE_RATE", 0.12));
-        $option_price_cal = round($option_price_sum / 10) * 10;
-        $onch_price       = $option_price_cal;
-
-        $recom_cus_price_sum = (int)intval($option_price) + intval($option_price * env("RECOM_CUS_PRICE_RATE", 0.30));
+        $recom_cus_price_sum = (int)intval($price) + intval($price * env("RECOM_CUS_PRICE_RATE", 0.35));
         $recom_cus_price_cal = round($recom_cus_price_sum / 10) * 10;
         $cus_price           = $recom_cus_price_cal;
         $recom_cus_price     = $recom_cus_price_cal;
 
         return [
-            "option_price"    => $option_price,
-            "onch_price"      => $option_price,
+            "option_price"    => $price,
+            "onch_price"      => $price,
             "cus_price"       => $cus_price,
             "recom_cus_price" => $recom_cus_price,
         ];
@@ -788,15 +782,26 @@ if (!function_exists("saveModiProduct")) {
                     "offer_id"       => $offerId,
                     "regist_success" => MallConstant::REGIST_SUCCESS,
                 ])->get();
+            } else if($channel == MallConstant::MALL_ONCHANNEL ){
+                $objs = OnchannelProductLog::where([
+                    "offer_id"       => $offerId,
+                    "regist_success" => MallConstant::REGIST_SUCCESS,
+                ])->get();
             }
 
             foreach ($objs as $obj) {
+                if( $channel == MallConstant::MALL_EASYSELL ){
+                    $wType = $obj->w_type;
+                } else if($channel == MallConstant::MALL_ONCHANNEL ){
+                    $wType = $obj->send_type;
+                }
+
                 ProductModiData::updateOrCreate([
                     "offer_id"      => $offerId,
-                    "w_type"        => $obj->w_type,
+                    "w_type"        => $wType,
                     "is_send"       => ProductConstant::IS_SEND_N,
                     "channel"       => $channel,
-                    "send_dated_at" => Null,
+                    "send_dated_at" => null,
                 ],[
                     "msg"        => "",
                     "updated_at" => Carbon::now()
