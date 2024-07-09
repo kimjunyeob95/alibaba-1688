@@ -21,8 +21,8 @@ class ExchangeRate
         $this->headers   = [
             "content-type: application/json"
         ];
-        $this->endPoint = env('EXCHANGE_RATE_URL','https://www.koreaexim.go.kr/site/program/financial/exchangeJSON');
-        $this->authKey  = env('EXCHANGE_RATE_KEY','OjId9ekbQbVxVxYpsqacQCVnk4emDYCp');
+        $this->endPoint = env('EXCHANGE_RATE_URL','https://ecos.bok.or.kr/api/StatisticSearch');
+        $this->authKey  = env('EXCHANGE_RATE_KEY','1317QLDZZ3M8F37CGXL0');
     }
 
     public function getExchangeRate(): array
@@ -30,13 +30,14 @@ class ExchangeRate
         $rsMsg = $this->returnMsg;
 
         try{
-            $searchDate   = date("Ymd");
-            $currencyUnit = ExchangeRateConstant::CURRENCY_UNIT;
+            //전일 환율 기준으로 금일 환율 적용함
+            $searchDate   = date("Ymd", strtotime("-1 day"));
+            $currencyUnit = ExchangeRateConstant::ITEM_CODE_CNH;
 
-            /** 기존에 호출된 날짜가 있으면 통신이 에러가 발생하므로 기록여부 체크 */
+            /** 1일 1회 기록, 기록여부 체크 */
             $exrObj = ExchangeRateHistory::where([
-                "date"          => Carbon::parse($searchDate)->format("Y-m-d"),
-                "currency_unit" => $currencyUnit,
+                "date"          => Carbon::parse($searchDate)->addDays()->format("Y-m-d"),
+                "currency_unit" => ExchangeRateConstant::CURRENCY_UNIT[$currencyUnit],
             ]);
             if($exrObj->exists()){
                 throw new Exception(ExchangeRateErrorMessageConstant::getFitErrorMessage("ALEADY_EXCHANGEOBJ"));
@@ -50,13 +51,13 @@ class ExchangeRate
 
             if($cnhResult["isSuccess"] === true){
                 ExchangeRateHistory::create([
-                    "date"          => Carbon::parse($searchDate)->format("Y-m-d"),
+                    "date"          => Carbon::parse($searchDate)->addDays()->format("Y-m-d"),
                     "exchange_rate" => $cnhResult["data"]["deal_bas_r"],
-                    "currency_unit" => $currencyUnit
+                    "currency_unit" => $cnhResult["data"]["cur_unit"]
                 ]);
 
                 $rsMsg = helpers_success_message();
-            }else{                
+            }else{
                 throw new Exception($cnhResult["msg"]);
             }
         }catch(Exception $e){
@@ -75,20 +76,33 @@ class ExchangeRate
             $currencyUnit = $params["currencyUnit"];
 
             $apiParams = [
-                "authkey"    => $this->authKey,
-                "searchdate" => $searchDate,
-                "data"       => ExchangeRateConstant::AP01,
+                "authkey"      => $this->authKey,
+                "responseType" => ExchangeRateConstant::REQUEST_TYPE_JSON,
+                "langType"     => ExchangeRateConstant::LANG_TYPE_KR,
+                "startCnt"     => 1,
+                "endCnt"       => 1,
+                "statCode"     => ExchangeRateConstant::STAT_CODE,
+                "cycle"        => ExchangeRateConstant::CYCLE_DAY,
+                "startDate"    => $searchDate,
+                "endDate"      => $searchDate,
+                "data"         => $currencyUnit,
             ];
-            $rsData = helpers_curl("GET", $this->endPoint, $this->headers, $apiParams);
+
+            $queryString = implode("/", $apiParams);
+
+            $endPoint = $this->endPoint ."/". $queryString;
+            $rsData = helpers_curl("GET", $endPoint, $this->headers);
 
             $res = [];
-            if(is_array($rsData) === true){
-                foreach($rsData as $data){
-                    if($data['cur_unit'] == $currencyUnit && $data["result"] == 1){
+            if($rsData === false){
+                throw new Exception(ExchangeRateErrorMessageConstant::getFitErrorMessage("RESPONSE"));
+            }else{
+                if(isset($rsData["StatisticSearch"]["row"])){
+                    foreach($rsData["StatisticSearch"]["row"] as $data){
                         $res = [
-                            "cur_unit"   => $data['cur_unit'],
-                            "cur_nm"     => $data['cur_nm'],
-                            "deal_bas_r" => $data['deal_bas_r'],
+                            "cur_unit"   => ExchangeRateConstant::CURRENCY_UNIT[$currencyUnit],
+                            "cur_nm"     => $data['ITEM_NAME1'],
+                            "deal_bas_r" => $data['DATA_VALUE'],
                         ];
                         break;
                     }
@@ -99,8 +113,6 @@ class ExchangeRate
                 }
 
                 $returnMsg = helpers_success_message($res);
-            }else{
-                throw new Exception(ExchangeRateErrorMessageConstant::getFitErrorMessage("RESPONSE"));
             }
         }catch(Exception $e){
             debug_log(json_encode($rsData, JSON_UNESCAPED_UNICODE), "getExchangeRate/response", "response");

@@ -7,7 +7,7 @@ use Illuminate\Console\Command;
 
 class ExchangeRateCommand extends Command
 {
-    protected $signature   = 'save_exchage_rate';
+    protected $signature   = 'save_exchange_rate';
     protected $description = '환율 조회';
 
     protected ExchangeRate $exchageRate;
@@ -21,7 +21,7 @@ class ExchangeRateCommand extends Command
 
     /**
      * 환율 조회 후 저장
-     * php artisan save_exchage_rate
+     * php artisan save_exchange_rate
      */
     public function handle()
     {
