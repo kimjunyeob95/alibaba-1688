@@ -2138,7 +2138,7 @@ class ProductW1 extends ProductAbstract
                     }
                 }
 
-                foreach ($detailProduct["productSaleInfo"]["priceRangeList"] as $key => $saleInfo) {
+                foreach ($productSaleInfo["priceRangeList"] as $key => $saleInfo) {
                     if( $key === 0 ){
                         $price_1688        = $saleInfo["price"];
                         $price_1688_option = $saleInfo["price"];
@@ -2197,9 +2197,10 @@ class ProductW1 extends ProductAbstract
             } else if( $quoteType == ProductConstant::QUOTETYPE_2 ){
                 /** 복수옵션(단일가격) */
                 if( isset($detailProduct["productSaleInfo"]["priceRangeList"]) ){
-                    foreach ($detailProduct["productSaleInfo"]["priceRangeList"] as $range) {
-                        if( $range["price"] > $price_1688 ){
+                    foreach ($detailProduct["productSaleInfo"]["priceRangeList"] as $key => $range) {
+                        if( $key === 0 ){
                             $price_1688 = $range["price"];
+                            break;
                         }
                     }
                 }
