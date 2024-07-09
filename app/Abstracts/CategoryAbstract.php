@@ -251,7 +251,7 @@ abstract class CategoryAbstract
                 'access_token'     => $this->accessToken,
                 'rankQueryParams' => [
                     'rankId'   => $categoryId,
-                    'rankType' => Constant1688::RANK_TYPE_COMPLEX,
+                    'rankType' => Constant1688::RANK_TYPE_HOT,
                     'limit'    => $pageSize,
                     'language' => $country,
                 ]
