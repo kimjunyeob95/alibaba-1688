@@ -3,7 +3,7 @@
     use App\Constants\WConstant;
     use App\Constants\ImageConstant;
     use App\Constants\GosiConstants;
-    use App\Constants\OptionConstants;
+    use App\Constants\OptionConstant;
     use App\Constants\InspectConstant;
     $exchangeRate = config('1688_EXCHANGE_RATE', 200);
 @endphp
@@ -239,7 +239,7 @@
                             </thead>
                             <tbody>
                                 @foreach ($prdObj->options as $option)
-                                    <tr class="text-center @if($option->is_except == OptionConstants::IS_EXCEPT_Y) line-through @endif">
+                                    <tr class="text-center @if($option->is_except == OptionConstant::IS_EXCEPT_Y) line-through @endif">
                                         <td>
                                             {{ $option->sku_id }}
                                         </td>

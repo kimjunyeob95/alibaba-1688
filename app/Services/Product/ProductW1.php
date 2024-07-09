@@ -16,7 +16,7 @@ use App\Constants\ImageErrorMessageConstant;
 use App\Constants\InspectConstant;
 use App\Constants\LogConstant;
 use App\Constants\OnchannelConstant;
-use App\Constants\OptionConstants;
+use App\Constants\OptionConstant;
 use App\Constants\ProductConstant;
 use App\Constants\ProductErrorMessageConstant;
 use App\Constants\TransApiConstant;
@@ -1402,8 +1402,21 @@ class ProductW1 extends ProductAbstract
         if( $status != ProductConstant::PRD_STATUS_PUBLISH ){
             $status = ProductConstant::PRD_STATUS_STOP;
         }
-        if( !isset($detailProduct["productSkuInfos"]) || empty($detailProduct["productSkuInfos"]) ){
-            $status = ProductConstant::PRD_STATUS_MISS;
+
+        if( !isset($detailProduct["productSaleInfo"]["quoteType"]) ){
+            throw new Exception(ProductErrorMessageConstant::getNotHaveErrorMessage("PRODUCT_SALEINFO_QUOTETYPE"));
+        }
+        
+        $quoteType = $detailProduct["productSaleInfo"]["quoteType"];
+
+        if( !in_array($quoteType, [ProductConstant::QUOTETYPE_0, ProductConstant::QUOTETYPE_1, ProductConstant::QUOTETYPE_2]) ){
+            throw new Exception(ProductErrorMessageConstant::getFitErrorMessage("PRODUCT_SALEINFO_QUOTETYPE"));
+        }
+
+        if( in_array($quoteType, [ProductConstant::QUOTETYPE_1, ProductConstant::QUOTETYPE_2]) ){
+            if( !isset($detailProduct["productSkuInfos"]) ){
+                throw new Exception(ProductErrorMessageConstant::getNotHaveErrorMessage("PRODUCT_SKUINFOS"));
+            }
         }
 
         $prdObj = ProductData::where("offer_id", $offerId)->first();
@@ -2097,24 +2110,101 @@ class ProductW1 extends ProductAbstract
         $product1688OptionDtoList = [];
 
         $price_1688 = 0;
-        // 6-1. price 컬럼이 있을 경우
-        if( isset($detailProduct["productSkuInfos"][0]["price"]) ){
-            foreach ($detailProduct["productSkuInfos"] as $prdOptions) {
-                if( $prdOptions["price"] > $price_1688 ){
-                    $price_1688 = $prdOptions["price"];
+
+        if( $quoteType == ProductConstant::QUOTETYPE_0 ){
+            /** 단일옵션(단일가격) */
+            if( isset($detailProduct["productSaleInfo"]["priceRangeList"]) ){
+                $productSaleInfo = $detailProduct["productSaleInfo"];
+
+                $amountOnSale            = 0;
+                $send_goods_address_text = "";
+                $width                   = 0;
+                $length                  = 0;
+                $height                  = 0;
+                $weight                  = 0;
+                $pkg_size_source         = "";
+
+                if( isset($productSaleInfo["amountOnSale"]) ){
+                    $amountOnSale = $productSaleInfo["amountOnSale"];
+                }
+
+                if( isset($detailProduct["productShippingInfo"]) ){
+                    $productShippingInfo = $detailProduct["productShippingInfo"];
+                    if( isset($productShippingInfo["sendGoodsAddressText"]) ){
+                        $send_goods_address_text = $productShippingInfo["sendGoodsAddressText"];
+                    }
+                    if( isset($productShippingInfo["pkgSizeSource"]) ) {
+                        $pkg_size_source = $productShippingInfo["pkgSizeSource"];
+                    }
+                }
+
+                foreach ($detailProduct["productSaleInfo"]["priceRangeList"] as $key => $saleInfo) {
+                    if( $key === 0 ){
+                        $price_1688        = $saleInfo["price"];
+                        $price_1688_option = $saleInfo["price"];
+                        $is_except         = OptionConstant::IS_EXCEPT_N;
+                        $optionObj         = ProductOptionData::where([
+                            "offer_id" => $offerId,
+                            "sku_id"   => $offerId,
+                            "spec_id"  => $offerId,
+                        ])->first();
+                        if( $optionObj != null ){
+                            $is_except = $optionObj->is_except;
+                        }
+
+                        $opt_status = ProductConstant::OPTION_SEC_ON_SALE_NUMBER;
+                        if( $status != ProductConstant::PRD_STATUS_PUBLISH ){
+                            $opt_status = ProductConstant::OPTION_SEC_OUT_OF_STOCK_NUMBER;
+                        }
+
+                        $product1688OptionDto = new Product1688OptionDto();
+                        $product1688OptionDto->bind([
+                            "offerId"                 => $offerId,
+                            "skuId"                   => $offerId,
+                            "specId"                  => $offerId,
+                            "status"                  => $opt_status,
+                            "is_except"               => $is_except,
+                            "price_1688"              => $price_1688,
+                            "price_1688_option"       => $price_1688_option,
+                            "optionName"              => OptionConstant::NAME_CH,
+                            "optionNameTrans"         => OptionConstant::NAME_KO,
+                            "optionNameTransEn"       => OptionConstant::NAME_EN,
+                            "skuImageUrl"             => "",
+                            "amountOnSale"            => $amountOnSale,
+                            "cargoNumber"             => "",
+                            "width"                   => $width,
+                            "length"                  => $length,
+                            "height"                  => $height,
+                            "weight"                  => $weight,
+                            "send_goods_address_text" => $send_goods_address_text,
+                            "pkg_size_source"         => $pkg_size_source,
+                        ]);
+                        $product1688OptionDtoList[] = $product1688OptionDto;
+
+                        break;
+                    }
                 }
             }
-        } else if( !isset($detailProduct["productSkuInfos"][0]["price"]) &&
-            isset($detailProduct["productSaleInfo"]["priceRangeList"])
-        ) {
-            $price_1688 = $detailProduct["productSaleInfo"]["priceRangeList"][0]["price"];
-        }
+        } else if( $quoteType == ProductConstant::QUOTETYPE_1 || $quoteType == ProductConstant::QUOTETYPE_2 ) {
 
-        if( $price_1688 == 0 ){
-            throw new Exception(ProductErrorMessageConstant::getFitErrorMessage("PRICE_1688"));
-        }
+            if( $quoteType == ProductConstant::QUOTETYPE_1 ){
+                /** 복수옵션(복수가격) */
+                foreach ($detailProduct["productSkuInfos"] as $prdOptions) {
+                    if( $prdOptions["price"] > $price_1688 ){
+                        $price_1688 = $prdOptions["price"];
+                    }
+                }
+            } else if( $quoteType == ProductConstant::QUOTETYPE_2 ){
+                /** 복수옵션(단일가격) */
+                if( isset($detailProduct["productSaleInfo"]["priceRangeList"]) ){
+                    foreach ($detailProduct["productSaleInfo"]["priceRangeList"] as $range) {
+                        if( $range["price"] > $price_1688 ){
+                            $price_1688 = $range["price"];
+                        }
+                    }
+                }
+            }
 
-        if( isset($detailProduct["productSkuInfos"]) ){
             foreach ($detailProduct["productSkuInfos"] as $prdOptions) {
                 if( isset($prdOptions["price"]) ){
                     $price_1688_option = $prdOptions["price"];
@@ -2224,7 +2314,7 @@ class ProductW1 extends ProductAbstract
                     }
                 }
 
-                $is_except = OptionConstants::IS_EXCEPT_N;
+                $is_except = OptionConstant::IS_EXCEPT_N;
                 $optionObj = ProductOptionData::where([
                     "offer_id" => $offerId,
                     "sku_id"   => $prdOptions["skuId"],
@@ -2258,6 +2348,10 @@ class ProductW1 extends ProductAbstract
                 ]);
                 $product1688OptionDtoList[] = $product1688OptionDto;
             }
+        }
+
+        if( $price_1688 == 0 ){
+            throw new Exception(ProductErrorMessageConstant::getFitErrorMessage("PRICE_1688"));
         }
 
         /** WApp 상품 추가 정보 Dto 생성 */
@@ -3468,7 +3562,7 @@ class ProductW1 extends ProductAbstract
 
             foreach ($optionList as $option) {
                 $qry = ProductOptionData::where("id", $option["id"]);
-                if( $option["is_except"] == OptionConstants::IS_EXCEPT_N ){
+                if( $option["is_except"] == OptionConstant::IS_EXCEPT_N ){
                     $qry->update([
                         "is_except"      => $option["is_except"],
                         "option_name_kr" => $option["option_name_kr"],

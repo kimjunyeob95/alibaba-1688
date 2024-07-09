@@ -19,6 +19,8 @@ class ProductErrorMessageConstant
     public const ERROR_MESSAGE_PRODUCT_SEARCH_QUERYPRODUCTDETAIL_W2_KR = "product.search.queryProductDetail.W2.KR";
     public const ERROR_MESSAGE_PRODUCT_SEARCH_QUERYPRODUCTDETAIL_W2_EN = "product.search.queryProductDetail.W2.EN";
     public const ERROR_MESSAGE_PRODUCT_SKUINFOS                        = "productSkuInfos";
+    public const ERROR_MESSAGE_PRODUCT_SALEINFO                        = "productSaleInfo";
+    public const ERROR_MESSAGE_PRODUCT_SALEINFO_QUOTETYPE              = "productSaleInfo quoteType";
     public const ERROR_MESSAGE_PRICE_1688                              = "1688 Price";
     public const ERROR_MESSAGE_PRODUCT_CONSIGN_PRICE                   = "productSkuInfos consignPrice";
     public const ERROR_MESSAGE_PRODUCT_TRANS_IMG                       = "Genuio imageTranslate";

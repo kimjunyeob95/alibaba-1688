@@ -6,7 +6,7 @@ use App\Constants\HttpConstant;
 use App\Constants\ImageConstant;
 use App\Constants\ImageErrorMessageConstant;
 use App\Constants\LogConstant;
-use App\Constants\OptionConstants;
+use App\Constants\OptionConstant;
 use App\Constants\ProductConstant;
 use App\Constants\ProductErrorMessageConstant;
 use App\Constants\WConstant;
@@ -476,7 +476,7 @@ class W2ProductController extends Controller
             ]);
 
             foreach ($this->request->post('optionList') as $key => $option) {
-                if ($option['is_except'] == OptionConstants::IS_EXCEPT_N) {
+                if ($option['is_except'] == OptionConstant::IS_EXCEPT_N) {
                     $validator->sometimes('optionList.' . $key . '.option_name_kr', 'required|string', function () {
                         return true;
                     });

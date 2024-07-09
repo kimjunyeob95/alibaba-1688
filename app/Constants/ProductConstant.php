@@ -202,4 +202,14 @@ class ProductConstant
         self::QUANTITY_COUNT_2 => "2개 이상",
     ];
 
+    /** quoteType 타입 */
+    public const QUOTETYPE_0 = 0;
+    public const QUOTETYPE_1 = 1;
+    public const QUOTETYPE_2 = 2;
+    public const QUOTETYPE_STATUS = [
+        self::QUOTETYPE_0 => "단일옵션(단일가격)",
+        self::QUOTETYPE_1 => "복수옵션(복수가격)",
+        self::QUOTETYPE_2 => "복수옵션(단일가격)",
+    ];
+
 }
