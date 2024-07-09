@@ -21,7 +21,6 @@ class Product1688OptionDto extends Vo
     protected float $md_price                 = 0.0;
     protected int $amount_on_sale             = 0;
     protected string $cargo_number            = "";
-    protected float $exchange_rate            = 0.0;
     protected float $width                    = 0.0;
     protected float $length                   = 0.0;
     protected float $height                   = 0.0;
