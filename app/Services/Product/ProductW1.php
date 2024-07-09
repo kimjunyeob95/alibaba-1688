@@ -6,7 +6,6 @@ use App\Abstracts\ProductAbstract;
 use App\Abstracts\TransApiAbstract;
 use App\Abstracts\UploadAbstract;
 use App\Constants\CategoryConstant;
-use App\Constants\CollectConstatnt;
 use App\Constants\Constant1688;
 use App\Constants\ExceptConstant;
 use App\Constants\ForbiddenWordConstant;
@@ -2576,15 +2575,18 @@ class ProductW1 extends ProductAbstract
                             ]);
 
                             if( isset($payload["offerQueryParam"]["productCollectionId"]) && $payload["offerQueryParam"]["productCollectionId"] ){
-                                ProductCollectPalletData::updateOrCreate(
-                                    [
-                                        "pallet_id" => $payload["offerQueryParam"]["productCollectionId"],
-                                        "offer_id"  => $offerId
-                                    ],
-                                    [
-                                        "updated_at" => Carbon::now()
-                                    ]
-                                );
+                                $prdCnt = ProductData::where("offer_id", $offerId)->count();
+                                if( $prdCnt > 0 ){
+                                    ProductCollectPalletData::updateOrCreate(
+                                        [
+                                            "pallet_id" => $payload["offerQueryParam"]["productCollectionId"],
+                                            "offer_id"  => $offerId
+                                        ],
+                                        [
+                                            "updated_at" => Carbon::now()
+                                        ]
+                                    );
+                                }
                             }
                         }
                     } catch (Exception $de) {
