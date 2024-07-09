@@ -258,7 +258,7 @@ class ProductTest extends TestCase
         $msg = "모든 상품 W1 수집 시작";
         debug_log($msg, "product/testAllProductReCollectW1", "testAllProductReCollectW1");
 
-        $today     = Carbon::today()->startOfDay();
+        $today     = "2024-07-06 00:00:00";
         $productW1 = app(ProductW1::class);
         $builder   = ProductData::select(["offer_id"]);
         $builder->where("status", "!=", ProductConstant::PRD_STATUS_EXCEPT);
