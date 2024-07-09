@@ -1390,8 +1390,11 @@ class ProductW1 extends ProductAbstract
 
     public function get1688ProductDto(array $detailResult, array $detailEnResult): array
     {
-        if( empty($detailEnResult) ){
-            throw new Exception(ProductErrorMessageConstant::getFitErrorMessage("PRODUCT_SEARCH_QUERYPRODUCTDETAIL_W2_EN"));
+        if( !isset($detailResult["data"]["result"]["result"]) || empty($detailResult["data"]["result"]["result"])) {
+            throw new Exception(ProductErrorMessageConstant::getFitErrorMessage("PRODUCT_SEARCH_QUERYPRODUCTDETAIL"));
+        }
+        if( !isset($detailEnResult["data"]["result"]["result"]) || empty($detailEnResult["data"]["result"]["result"])) {
+            throw new Exception(ProductErrorMessageConstant::getFitErrorMessage("SEARCH_QUERYPRODUCTDETAIL_EN"));
         }
 
         $detailProduct   = $detailResult["data"]["result"]["result"];
