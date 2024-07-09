@@ -348,8 +348,6 @@
                                             <option value="created_at|asc" @if($sort == "created_at|asc") selected @endif>동록일 오름차순</option>
                                             <option value="start_quantity|desc" @if($sort == "start_quantity|desc") selected @endif>최소구매수량 내림차순</option>
                                             <option value="start_quantity|asc" @if($sort == "start_quantity|asc") selected @endif>최소구매수량 오름차순</option>
-                                            <option value="option_price|desc" @if($sort == "option_price|desc") selected @endif>W 공급가 내림차순</option>
-                                            <option value="option_price|asc" @if($sort == "option_price|asc") selected @endif>W 공급가 오름차순</option>
                                             <option value="md_price|desc" @if($sort == "md_price|desc") selected @endif>MD 판매가 내림차순</option>
                                             <option value="md_price|asc" @if($sort == "md_price|asc") selected @endif>MD 판매가 오름차순</option>
                                         </select>
