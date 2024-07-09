@@ -19,7 +19,8 @@ class ExchangeRate
     {
         $this->returnMsg = helpers_fail_message();
         $this->headers   = [
-            "content-type: application/json"
+            "content-type: application/json",
+            "Cookie: JSESSIONID=a3wgCMPhBsg8ZoHwOCPosh1lZ5SOgy3nZ0711DzQMswa14RKzzrGsaTXWqAkf55w.aG1wX2RvbWFpbi9ITVBNUzEy; WMONID=m-gxp8136l7"
         ];
         $this->endPoint = env('EXCHANGE_RATE_URL','https://www.koreaexim.go.kr/site/program/financial/exchangeJSON');
         $this->authKey  = env('EXCHANGE_RATE_KEY','OjId9ekbQbVxVxYpsqacQCVnk4emDYCp');
@@ -56,7 +57,7 @@ class ExchangeRate
                 ]);
 
                 $rsMsg = helpers_success_message();
-            }else{                
+            }else{
                 throw new Exception($cnhResult["msg"]);
             }
         }catch(Exception $e){

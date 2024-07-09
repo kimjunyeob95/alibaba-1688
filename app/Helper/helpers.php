@@ -704,7 +704,7 @@ if (!function_exists("upPrdDescTrans")) {
 
 //이지셀 판매가 계산
 if (!function_exists("calcEasySellSalePrice")) {
-    function calcEasySellSalePrice(?float $price = 0, ?int $md_price, int $delivery_price = ProductConstant::WEIGHT_STATUS_NONE_PRICE, string $type = "dynamic", string $sendType = EasySellConstant::TYPE_W): array
+    function calcEasySellSalePrice(?float $price = 0, ?int $md_price = 0, int $delivery_price = ProductConstant::WEIGHT_STATUS_NONE_PRICE, string $type = "dynamic", string $sendType = EasySellConstant::TYPE_W): array
     {
         //1688 공급가
         $option_price = round( $price * config('1688_EXCHANGE_RATE', 200) , -1);
@@ -1024,21 +1024,21 @@ if (!function_exists("removeForbiddenText")) {
         foreach ($removeForbiddenWords as $delObj) {
             if( $delObj->apply_type == ForbiddenWordConstant::KEYWORD_APPLY_ALL || $delObj->apply_type == $apply_type ){
                 $removeWord = $delObj->target_keyword;
-    
+
                 // 1. 삭제어 앞과 뒤에 공백이 없는 경우 삭제어만 삭제
                 //    예: "HelloWord"에서 "Word"를 삭제 -> "Hello"
                 $pattern1 = '/(?<!\s)' . preg_quote($removeWord, '/') . '(?!\s)/';
                 if (preg_match($pattern1, $text)) {
                     $text = preg_replace($pattern1, '', $text);
                 }
-    
+
                 // 2. 삭제어 앞 또는 뒤에 공백이 있는 경우 삭제어만 삭제
                 //    예: "Hello Word "에서 "Word"를 삭제 -> "Hello "
                 $pattern2 = '/(?<=\s)' . preg_quote($removeWord, '/') . '(?!\s)|(?<!\s)' . preg_quote($removeWord, '/') . '(?=\s)/';
                 if (preg_match($pattern2, $text)) {
                     $text = preg_replace($pattern2, '', $text);
                 }
-    
+
                 // 3. 삭제어 앞과 뒤에 공백이 있는 경우 하나의 공백과 삭제어만 삭제
                 //    예: "Hello Word Test"에서 "Word"를 삭제 -> "Hello Test"
                 $pattern3 = '/\s+' . preg_quote($removeWord, '/') . '\s+/';
