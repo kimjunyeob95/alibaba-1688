@@ -34,7 +34,13 @@ abstract class CollectAbstract
             $pageSize  = $params["page_size"];
 
             $builder = ProductData::select(["product_datas.*", "c.prd_code"])
-            ->with(["main_img", "no_except_options"])
+            ->with([
+                "main_img",
+                "no_except_options",
+                "extends",
+                "no_except_notices",
+                "category"
+            ])
             ->join("product_collect_pallet_datas as b", "product_datas.offer_id", "=", "b.offer_id")
             ->join("onchannel_product_logs as c", "product_datas.offer_id", "=", "c.offer_id")
             ->where("b.pallet_id", $palletId)

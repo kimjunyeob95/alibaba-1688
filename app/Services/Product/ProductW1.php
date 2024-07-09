@@ -750,7 +750,7 @@ class ProductW1 extends ProductAbstract
                 "images.ai_all_imgs.history_imgs",
                 "extends",
                 "options",
-                "notices",
+                "no_except_notices",
                 "category",
                 "w_mapping.w_cate_name",
             ])->where("offer_id", $offerId)->first();
