@@ -348,7 +348,7 @@ class Onchannel extends MallApiAbstract
                 // 2. 전송 에러 시
                 $query->update([
                     "is_send" => ProductConstant::IS_SEND_E,
-                    "msg"     => $result["data"]["fail"][0]['msg']
+                    "msg"     => $result["msg"]
                 ]);
             }
         }
