@@ -37,7 +37,7 @@ class ProductTest extends TestCase
     public function testCollectProductNotLog()
     {
         $productW1 = app(ProductW1::class);
-        $result = $productW1->collectProductNotLog(765044330416);
+        $result = $productW1->collectProductNotLog(588888014736);
         dd($result);
     }
 
@@ -284,8 +284,7 @@ class ProductTest extends TestCase
 
                 $apiResult = $productW1->collectProductNotLog($offerId);
                 if( $apiResult["isSuccess"] != true ){
-                    $msg = "offerId: {$offerId} | error: " . $apiResult["msg"];
-                    debug_log($msg, "product/testAllProductReCollectW1", "testAllProductReCollectW1", LogLevel::ERROR);
+                    debug_log($apiResult["msg"], "product/testAllProductReCollectW1", "testAllProductReCollectW1", LogLevel::ERROR);
                 }
             }
 

@@ -5,21 +5,23 @@ use App\Constants\LogConstant;
 use App\Constants\ProductConstant;
 use App\Constants\WConstant;
 use App\Models\ProductData;
-use App\Services\Service1688Product;
+use App\Services\Product\ProductW1;
 use Illuminate\Console\Command;
+use Illuminate\Pagination\Paginator;
+use Psr\Log\LogLevel;
 
 class MissProductReCollect extends Command
 {
     protected $signature   = 'miss_product_re_collect {--wversion=}';
     protected $description = '정보부족 상품 재수집';
 
-    protected Service1688Product $service1688Product;
+    protected ProductW1 $productW1;
 
-    public function __construct(Service1688Product $service1688Product)
+    public function __construct(ProductW1 $productW1)
     {
         parent::__construct();
 
-        $this->service1688Product = $service1688Product;
+        $this->productW1 = $productW1;
     }
     /*
      * 실행 구문 
@@ -31,20 +33,28 @@ class MissProductReCollect extends Command
         $type     = LogConstant::COLLECT_MISS_PRODUCT;
 
         if( $wversion == WConstant::WAPP_W1 ){
-            $offerIds = ProductData::where("status", ProductConstant::PRD_STATUS_MISS)
-            ->where("w_type", WConstant::WAPP_W1)->pluck('offer_id')
-            ->toArray();
+            $builder = ProductData::select(["offer_id"])->where("status", ProductConstant::PRD_STATUS_MISS);
 
-            if( !empty($offerIds) ){
-                $this->service1688Product->collectProduct($offerIds, $type);
-            }
-        } else if( $wversion == WConstant::WAPP_W2 ){
-            $offerIds = ProductData::where("status", ProductConstant::PRD_STATUS_MISS)
-            ->where("w_type", WConstant::WAPP_W2)->pluck('offer_id')
-            ->toArray();
+            $perPage    = 900;
+            $totalCount = $builder->count();
+            $totalPages = ceil($totalCount / $perPage);
 
-            if( !empty($offerIds) ){
-                $this->service1688Product->collectProductW2($offerIds, $type);
+            for ($page = 1; $page <= $totalPages; $page++) {
+                
+                Paginator::currentPageResolver(function () use ($page) {
+                    return $page;
+                });
+                
+                // paginate 메소드는 새 Paginator 인스턴스를 반환합니다.
+                $pagedData = $builder->paginate($perPage);
+                $results   = $pagedData->items();
+    
+                foreach ($results as $obj) {
+                    $apiResult = $this->productW1->collectProductNotLog($obj->offer_id);
+                    if( $apiResult["isSuccess"] != true ){
+                        debug_log($apiResult["msg"], "product/{$type}", $type, LogLevel::ERROR);
+                    }
+                }
             }
         }
     }

@@ -17,7 +17,7 @@ use App\Constants\ImageConstant;
 use App\Constants\ImageErrorMessageConstant;
 use App\Constants\InspectConstant;
 use App\Constants\LogConstant;
-use App\Constants\OptionConstants;
+use App\Constants\OptionConstant;
 use App\Constants\ProductConstant;
 use App\Constants\ProductErrorMessageConstant;
 use App\Constants\WConstant;
@@ -1846,7 +1846,7 @@ class ProductW2 extends ProductAbstract
                     }
                 }
 
-                $is_except = OptionConstants::IS_EXCEPT_N;
+                $is_except = OptionConstant::IS_EXCEPT_N;
                 $optionObj = ProductOptionData::where([
                     "offer_id" => $offerId,
                     "sku_id"   => $prdOptions["skuId"],
@@ -3079,7 +3079,7 @@ class ProductW2 extends ProductAbstract
 
             foreach ($optionList as $option) {
                 $qry = ProductOptionData::where("id", $option["id"]);
-                if( $option["is_except"] == OptionConstants::IS_EXCEPT_N ){
+                if( $option["is_except"] == OptionConstant::IS_EXCEPT_N ){
                     $qry->update([
                         "is_except"      => $option["is_except"],
                         "option_name_kr" => $option["option_name_kr"],

@@ -8,7 +8,7 @@ use App\Constants\GosiConstants;
 use App\Constants\ImageConstant;
 use App\Constants\InspectConstant;
 use App\Constants\OnchannelConstant;
-use App\Constants\OptionConstants;
+use App\Constants\OptionConstant;
 use App\Constants\ProductConstant;
 use App\Constants\WConstant;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -73,7 +73,7 @@ class ProductData extends Model
     }
 
     public function no_except_options () {
-        return $this->hasMany(ProductOptionData::class, "offer_id", "offer_id")->where("is_except", OptionConstants::IS_EXCEPT_N);
+        return $this->hasMany(ProductOptionData::class, "offer_id", "offer_id")->where("is_except", OptionConstant::IS_EXCEPT_N);
     }
 
     public function extends () {
