@@ -42,5 +42,6 @@ class Constant1688
 
     /** 기타etc.. */
     public const RANK_TYPE_COMPLEX = "complex";
+    public const RANK_TYPE_HOT     = "hot";
     public const HOT_KEYWORD_TYPE  = "cate";
 }
