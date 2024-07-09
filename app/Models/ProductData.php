@@ -57,7 +57,7 @@ class ProductData extends Model
     }
 
     public function images () {
-        return $this->hasMany(ProductImageData::class, "offer_id", "offer_id")->where("lang", WConstant::WAPP_KR)->orderBy('img_type', 'asc')->orderBy('id', 'asc');
+        return $this->hasMany(ProductImageData::class, "offer_id", "offer_id")->where("lang", WConstant::WAPP_KR)->where("img_type", "!=", ImageConstant::IMAGE_TYPE_WHITE)->orderBy('img_type', 'asc')->orderBy('id', 'asc');
     }
 
     public function en_images () {

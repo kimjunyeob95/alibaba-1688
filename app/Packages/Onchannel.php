@@ -403,6 +403,11 @@ class Onchannel extends MallApiAbstract
 
             $weights = CategoryConstant::WEIGHTS;
 
+            $prdState = OnchannelConstant::STATUS_ON_SALE_NUMBER;
+            if( $prdObj->status != ProductConstant::PRD_STATUS_PUBLISH ){
+                $prdState = OnchannelConstant::STATUS_OUT_OF_STOCK_NUMBER;
+            }
+
             $images = [];
             foreach ($prdObj->images as $imgObj) {
                 if( $imgObj->is_except == ImageConstant::IS_EXCEPT_N && $imgObj->lang == WConstant::WAPP_KR ){
@@ -512,7 +517,8 @@ class Onchannel extends MallApiAbstract
             ];
 
             if( $mode == MallConstant::SEND_TYPE_MODI ){
-                $payload["prd_code"] = $prdObj->oc_public_log->prd_code;
+                $payload["prd_code"]  = $prdObj->oc_public_log->prd_code;
+                $payload["prd_state"] = $prdState;
             }
 
             $options = [];
