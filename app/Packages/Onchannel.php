@@ -326,17 +326,17 @@ class Onchannel extends MallApiAbstract
             "is_send" => ProductConstant::IS_SEND_N,
             "channel" => MallConstant::MALL_ONCHANNEL
         ])
-        ->groupBy("offer_id", "send_type")
+        ->groupBy("offer_id", "w_type")
         ->get();
 
         foreach ($modiObjs as $modiObj) {
-            $result = $this->productModi([$modiObj->offer_id], $modiObj->send_type);
+            $result = $this->productModi([$modiObj->offer_id], $modiObj->w_type);
 
             $query = ProductModiData::where("is_send", ProductConstant::IS_SEND_N)
             ->where("created_at", "<=", $now)
             ->where("offer_id", $modiObj->offer_id)
             ->where("channel", MallConstant::MALL_ONCHANNEL)
-            ->where("w_type", $modiObj->send_type);
+            ->where("w_type", $modiObj->w_type);
 
             if( $result["isSuccess"] === true ){
                 // 1. 전송 성공 시
