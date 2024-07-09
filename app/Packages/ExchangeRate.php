@@ -30,13 +30,12 @@ class ExchangeRate
         $rsMsg = $this->returnMsg;
 
         try{
-            //전일 환율 기준으로 금일 환율 적용함
-            $searchDate   = date("Ymd", strtotime("-1 day"));
+            $searchDate   = Carbon::now();
             $currencyUnit = ExchangeRateConstant::ITEM_CODE_CNH;
 
             /** 1일 1회 기록, 기록여부 체크 */
             $exrObj = ExchangeRateHistory::where([
-                "date"          => Carbon::parse($searchDate)->addDays()->format("Y-m-d"),
+                "date"          => $searchDate->format("Y-m-d"),
                 "currency_unit" => ExchangeRateConstant::CURRENCY_UNIT[$currencyUnit],
             ]);
             if($exrObj->exists()){
@@ -44,14 +43,14 @@ class ExchangeRate
             }
 
             $apiParams = [
-                "searchDate"   => $searchDate,
+                "searchDate"   => $searchDate->format("Ymd"),
                 "currencyUnit" => $currencyUnit
             ];
             $cnhResult = $this->_callExchangeRate($apiParams);
 
             if($cnhResult["isSuccess"] === true){
                 ExchangeRateHistory::create([
-                    "date"          => Carbon::parse($searchDate)->addDays()->format("Y-m-d"),
+                    "date"          => $searchDate->format("Y-m-d"),
                     "exchange_rate" => $cnhResult["data"]["deal_bas_r"],
                     "currency_unit" => $cnhResult["data"]["cur_unit"]
                 ]);
@@ -91,9 +90,9 @@ class ExchangeRate
             $queryString = implode("/", $apiParams);
 
             $endPoint = $this->endPoint ."/". $queryString;
-            $rsData = helpers_curl("GET", $endPoint, $this->headers);
+            $rsData   = helpers_curl("GET", $endPoint, $this->headers);
+            $res      = [];
 
-            $res = [];
             if($rsData === false){
                 throw new Exception(ExchangeRateErrorMessageConstant::getFitErrorMessage("RESPONSE"));
             }else{
