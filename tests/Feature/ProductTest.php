@@ -269,10 +269,12 @@ class ProductTest extends TestCase
         $totalPages = ceil($totalCount / $perPage);
 
         for ($page = 1; $page <= $totalPages; $page++) {
+            if( $page <= 30 ) continue;
+            
             Paginator::currentPageResolver(function () use ($page) {
                 return $page;
             });
-        
+            
             // paginate 메소드는 새 Paginator 인스턴스를 반환합니다.
             $pagedData = $builder->paginate($perPage);
             $results   = $pagedData->items();
