@@ -108,7 +108,6 @@ class Onchannel extends MallApiAbstract
                             'Authorization: Bearer ' . $this->token,
                         );
                         $resultCurl = helpers_curl("POST", $endPoint, $header, $payload);
-    
                         if( isset($resultCurl["prd_code"]) && $resultCurl["prd_code"] ){
                             $log = OnchannelProductLog::updateOrCreate(
                                 [
@@ -165,6 +164,11 @@ class Onchannel extends MallApiAbstract
                                 "is_success" => MallConstant::REGIST_FAIL,
                                 "message"    => $msg
                             ]);
+
+                            $failIds[] = [
+                                "offer_id" => $offerId,
+                                "msg"      => $msg
+                            ];
                         }
                     } catch (Exception $e) {
                         $failIds[] = [
