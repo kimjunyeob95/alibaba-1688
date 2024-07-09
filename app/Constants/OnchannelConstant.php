@@ -53,4 +53,25 @@ class OnchannelConstant
         self::PRD_CHANNEL         => self::PUBLIC_PRD_CHANNEL,
         self::PRD_CHANNEL_PRIVATE => self::PRIVATE_PRD_CHANNEL,
     ];
+
+    /** 상품 판매 상태 */
+    public const STATUS_ON_SALE_NUMBER                = 1;
+    public const STATUS_TEMPORARY_SUSPENSION_NUMBER   = 2;
+    public const STATUS_SALES_SUSPENSION_NUMBER       = 3;
+    public const STATUS_TEMPORARY_OUT_OF_STOCK_NUMBER = 4;
+    public const STATUS_OUT_OF_STOCK_NUMBER           = 5;
+
+    public const STATUS_ON_SALE                = "정상판매";
+    public const STATUS_TEMPORARY_SUSPENSION   = "일시중단";
+    public const STATUS_SALES_SUSPENSION       = "판매중단";
+    public const STATUS_TEMPORARY_OUT_OF_STOCK = "임시품절";
+    public const STATUS_OUT_OF_STOCK           = "품절";
+
+    public const PRD_STATUS = [
+        self::STATUS_ON_SALE_NUMBER                => self::STATUS_ON_SALE,
+        self::STATUS_TEMPORARY_SUSPENSION_NUMBER   => self::STATUS_TEMPORARY_SUSPENSION,
+        self::STATUS_SALES_SUSPENSION_NUMBER       => self::STATUS_SALES_SUSPENSION,
+        self::STATUS_TEMPORARY_OUT_OF_STOCK_NUMBER => self::STATUS_TEMPORARY_OUT_OF_STOCK,
+        self::STATUS_OUT_OF_STOCK_NUMBER           => self::STATUS_OUT_OF_STOCK
+    ];
 }

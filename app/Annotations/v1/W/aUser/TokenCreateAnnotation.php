@@ -35,7 +35,8 @@ namespace App\Annotations\v1\W\aUser;
  *         required=true,
  *         description="채널 ID",
  *         @OA\Schema(
- *             type="string"
+ *             type="string",
+ *             example="easySell"
  *         )
  *     ),
  *     summary="토큰 생성",

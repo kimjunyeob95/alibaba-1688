@@ -19,13 +19,13 @@ use App\Models\OnchannelProductDetailLog;
 use App\Models\OnchannelProductLog;
 use App\Models\OnchCategoryExcelDataCopy2;
 use App\Models\ProductData;
+use App\Models\ProductModiData;
 use App\Models\ProductWeightData;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
-use Illuminate\Pagination\Paginator;
 
 class Onchannel extends MallApiAbstract
 {
@@ -321,39 +321,37 @@ class Onchannel extends MallApiAbstract
      */
     public function sendModiProduct(): void
     {
-        debug_log("온채널 일괄 수정 전송 시작", "onchannel/sendAllPrdModi", "sendAllPrdModi");
+        $now      = Carbon::now();
+        $modiObjs = ProductModiData::where([
+            "is_send" => ProductConstant::IS_SEND_N,
+            "channel" => MallConstant::MALL_ONCHANNEL
+        ])
+        ->groupBy("offer_id", "send_type")
+        ->get();
 
-        $builder = OnchannelProductLog::where([
-            "member_id"      => OnchannelConstant::ONCH1688,
-            "regist_success" => MallConstant::REGIST_SUCCESS,
-        ]);
+        foreach ($modiObjs as $modiObj) {
+            $result = $this->productModi([$modiObj->offer_id], $modiObj->send_type);
 
-        $perPage    = 900;
-        $totalCount = $builder->count();
-        $totalPages = ceil($totalCount / $perPage);
+            $query = ProductModiData::where("is_send", ProductConstant::IS_SEND_N)
+            ->where("created_at", "<=", $now)
+            ->where("offer_id", $modiObj->offer_id)
+            ->where("channel", MallConstant::MALL_ONCHANNEL)
+            ->where("w_type", $modiObj->send_type);
 
-        for ($page = 1; $page <= $totalPages; $page++) {
-            Paginator::currentPageResolver(function () use ($page) {
-                return $page;
-            });
-        
-            // paginate 메소드는 새 Paginator 인스턴스를 반환합니다.
-            $pagedData = $builder->paginate($perPage);
-            $results   = $pagedData->items();
-
-            foreach ($results as $obj) {
-                $offerId   = $obj->offer_id;
-                $send_type = $obj->send_type;
-
-                $this->productModi([$offerId], $send_type);
-
-                sleep(1);
+            if( $result["isSuccess"] === true ){
+                // 1. 전송 성공 시
+                $query->update([
+                    "is_send"       => ProductConstant::IS_SEND_Y,
+                    "send_dated_at" => Carbon::now()
+                ]);
+            } else {
+                // 2. 전송 에러 시
+                $query->update([
+                    "is_send" => ProductConstant::IS_SEND_E,
+                    "msg"     => $result["data"]["fail"][0]['msg']
+                ]);
             }
-
-            debug_log("온채널 일괄 수정 전송 진행중({$page}/{$totalPages})", "onchannel/sendAllPrdModi", "sendAllPrdModi");
         }
-        
-        debug_log("온채널 일괄 수정 전송 종료", "onchannel/sendAllPrdModi", "sendAllPrdModi");
     }
 
     /**
@@ -369,15 +367,17 @@ class Onchannel extends MallApiAbstract
         $return = helpers_fail_message();
 
         try{
-            $channelCnt = ChannelCategoryRegistData::where([
-                "channel"     => $this->channel,
-                "send_type"   => $sendType,
-                "category_id" => $prdObj->category_id,
-                "is_regist"   => MallConstant::REGIST_Y,
-            ])->count();
-
-            if( $channelCnt == 0 ){
-                throw new Exception(MallErrorMessageConstant::getFitErrorMessage("CATEGORY_REGIST"));
+            if( $mode == MallConstant::SEND_TYPE_REGIST ){
+                $channelCnt = ChannelCategoryRegistData::where([
+                    "channel"     => $this->channel,
+                    "send_type"   => $sendType,
+                    "category_id" => $prdObj->category_id,
+                    "is_regist"   => MallConstant::REGIST_Y,
+                ])->count();
+    
+                if( $channelCnt == 0 ){
+                    throw new Exception(MallErrorMessageConstant::getFitErrorMessage("CATEGORY_REGIST"));
+                }
             }
 
             if(count($prdObj->no_except_options) < 1){
@@ -402,6 +402,11 @@ class Onchannel extends MallApiAbstract
             }
 
             $weights = CategoryConstant::WEIGHTS;
+
+            $prdState = OnchannelConstant::STATUS_ON_SALE_NUMBER;
+            if( $prdObj->status != ProductConstant::PRD_STATUS_PUBLISH ){
+                $prdState = OnchannelConstant::STATUS_OUT_OF_STOCK_NUMBER;
+            }
 
             $images = [];
             foreach ($prdObj->images as $imgObj) {
@@ -512,13 +517,13 @@ class Onchannel extends MallApiAbstract
             ];
 
             if( $mode == MallConstant::SEND_TYPE_MODI ){
-                $payload["prd_code"] = $prdObj->oc_public_log->prd_code;
+                $payload["prd_code"]  = $prdObj->oc_public_log->prd_code;
+                $payload["prd_state"] = $prdState;
             }
 
             $options = [];
             foreach ($prdObj->no_except_options as $option) {
                 $ocPrice = ocPrice($option->price_1688_option, (int)$delivery_price);
-                // $ocPrice = ocPrice($option->price_1688, (int)$delivery_price);
 
                 $options[] = [
                     "op_rank"      => "1",
@@ -528,7 +533,7 @@ class Onchannel extends MallApiAbstract
                     "disc_price"   => 0,
                     "option_price" => 0,
                     "vendor_price" => 0,
-                    "onch_price"   => $ocPrice["onch_price"],
+                    "onch_price"   => $option->price_1688_option,
                     "total_count"  => 0,
                     "weight"       => $option->weight,
                     "volume"       => "",

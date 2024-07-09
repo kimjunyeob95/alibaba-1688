@@ -417,6 +417,11 @@ trait CollectProductTrait
                 }
             }
 
+            /** 정상상태가 아니면 채널상태 변경 */
+            if( $hasProduct === true && $product1688Dto->status != ProductConstant::PRD_STATUS_PUBLISH ){
+                saveModiProduct($offerId);
+            }
+
             $returnMsg = helpers_success_message();
         } catch (Exception $e) {
             $returnMsg = helpers_fail_message($e->getMessage());

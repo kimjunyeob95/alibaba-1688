@@ -19,7 +19,8 @@
                         "description": "채널 ID",
                         "required": true,
                         "schema": {
-                            "type": "string"
+                            "type": "string",
+                            "example": "easySell"
                         }
                     }
                 ],
