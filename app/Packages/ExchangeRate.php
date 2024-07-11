@@ -42,8 +42,9 @@ class ExchangeRate
                 throw new Exception(ExchangeRateErrorMessageConstant::getFitErrorMessage("ALEADY_EXCHANGEOBJ"));
             }
 
+            //전 날 환율이 오늘의 환율이 됨
             $apiParams = [
-                "searchDate"   => $searchDate->format("Ymd"),
+                "searchDate"   => (clone $searchDate)->subDay()->format("Ymd"),
                 "currencyUnit" => $currencyUnit
             ];
             $cnhResult = $this->_callExchangeRate($apiParams);
