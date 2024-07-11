@@ -11,6 +11,8 @@ class OrderBaseDto extends Vo
     protected string $order_id = "";
     /** 제품ID */
     protected int $offer_id = 0;
+    /** 채널명 */
+    protected string $channel = "";
     /** 주문상태 */
     protected string $status = "";
     /** 주문처리 완료 시간(송장입력) */
@@ -96,6 +98,7 @@ class OrderBaseDto extends Vo
     {
         $this->order_id              = $data["orderId"];
         $this->offer_id              = $data["offerId"];
+        $this->channel               = $data["channel"];
         $this->status                = $data["status"] ?? "";
         $this->all_delivered_time    = $data["allDeliveredTime"] ?? null;
         $this->pay_time              = $data["payTime"] ?? null;

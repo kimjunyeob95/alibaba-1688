@@ -8,6 +8,7 @@ class OrderDto extends Vo
 {
     protected string $order_id = "";
     protected int $offer_id    = 0;
+    protected string $channel  = "";
     protected OrderBaseDto $orderBaseDto;
     protected array $orderTradeDtos    = [];
     protected array $orderProductDtos  = [];
@@ -19,9 +20,11 @@ class OrderDto extends Vo
 
         $this->order_id = $baseInfo["id"];
         $this->offer_id = $data["offerId"];
+        $this->channel  = $data["channel"];
 
         $baseInfo["orderId"] = $this->order_id;
         $baseInfo["offerId"] = $this->offer_id;
+        $baseInfo["channel"] = $this->channel;
         $this->orderBaseDto  = $this->bindBaseDto($baseInfo);
 
         $tradeTerms = $data["tradeTerms"];

@@ -10,8 +10,12 @@ class OrderChannelDto extends Vo
     protected string $order_id = "";
     /** 채널 주문ID */
     protected string $channel_order_id = "";
-    /** 제품ID */
-    protected int $offer_id = 0;
+    /** DB에 저장된 총 금액 */
+    protected float $total_price = 0;
+    /** 채널에서 전송한 총 금액 */
+    protected float $total_channel_price = 0;
+    /** 총 주문수량 */
+    protected int $total_quantity = 0;
     /** 구매자명 */
     protected string $buyer_name = "";
     /** 구매자 개인통관번호 */
@@ -31,7 +35,9 @@ class OrderChannelDto extends Vo
     {
         $this->order_id               = $data["orderId"];
         $this->channel_order_id       = $data["channelOrderId"];
-        $this->offer_id               = $data["offerId"];
+        $this->total_quantity         = $data["totalQuantity"];
+        $this->total_price            = $data["totalPrice"];
+        $this->total_channel_price    = $data["totalChannelPrice"];
         $this->buyer_name             = $data["buyerName"];
         $this->buyer_clearance_number = $data["buyerClearanceNumber"];
         $this->buyer_number           = $data["buyerNumber"];

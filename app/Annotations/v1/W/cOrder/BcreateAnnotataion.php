@@ -14,11 +14,11 @@ namespace App\Annotations\v1\W\cOrder;
  * 
  * @OA\Schema(
  *     schema="OrderCreateSchema",
- *     required={"offer_id", "channel_order_id", "optionParamList", "option_price", "buyer_name", "buyer_clearance_number", "buyer_number", "buyer_phone", "buyer_zipcode", "buyer_address", "buyer_memo"},
+ *     required={"offer_id", "channel_order_id", "option_param_list", "buyer_name", "buyer_clearance_number", "buyer_number", "buyer_phone", "buyer_zipcode", "buyer_address", "buyer_memo"},
  *     @OA\Property(
  *         property="offer_id",
  *         type="integer",
- *         example=715819550080,
+ *         example=730855260845,
  *         description="제품 ID"
  *     ),
  *     @OA\Property(
@@ -28,15 +28,20 @@ namespace App\Annotations\v1\W\cOrder;
  *         description="채널 주문 번호"
  *     ),
  *     @OA\Property(
- *         property="optionParamList",
+ *         property="option_param_list",
  *         type="array",
  *         @OA\Items(
  *             type="object",
- *             required={"option_id", "quantity"},
+ *             required={"option_id", "price", "quantity"},
  *             @OA\Property(
  *                  property="option_id",
  *                  type="integer",
  *                  description="옵션 ID"
+ *              ),
+ *             @OA\Property(
+ *                  property="price",
+ *                  type="float",
+ *                  description="채널에 등록 된 제품 가격(WAPP에서 전송한 가격)"
  *              ),
  *              @OA\Property(
  *                  property="quantity",
@@ -47,21 +52,17 @@ namespace App\Annotations\v1\W\cOrder;
  *         example=
  *         {
  *             {
- *                 "option_id": 217126,
+ *                 "option_id": 3479928,
+ *                 "price": 35.05,
  *                 "quantity": 1
  *             },
  *             {
- *                 "option_id": 217127,
+ *                 "option_id": 3479929,
+ *                 "price": 35.02,
  *                 "quantity": 2
  *             }
  *         },
  *         description="주문 생성 제품 정보"
- *     ),
- *     @OA\Property(
- *         property="option_price",
- *         type="integer",
- *         example=6180,
- *         description="채널에 등록 된 제품 가격(WAPP에서 전송한 가격)"
  *     ),
  *     @OA\Property(
  *         property="buyer_name",

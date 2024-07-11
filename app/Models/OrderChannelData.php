@@ -6,12 +6,12 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class OrderData extends Model
+class OrderChannelData extends Model
 {
     use HasFactory;
     use SoftDeletes;
 
-    protected $table      = 'order_datas';
+    protected $table      = 'order_channel_datas';
     protected $guarded    = [];
     protected $fillable   = [];
 }

@@ -19,6 +19,7 @@ return new class extends Migration
 
             $table->string('order_id', 25)->unique()->nullable(false)->comment('주문ID');
             $table->unsignedBigInteger('offer_id')->nullable(false)->comment('제품ID');
+            $table->string('channel', 10)->nullable(false)->comment('채널명');
             $table->string('status', 50)->nullable(false)->comment('주문상태');
             $table->timestamp('all_delivered_time')->nullable()->comment('주문처리 완료 시간(송장입력)');
             $table->timestamp('pay_time')->nullable()->comment('결제시간');
@@ -67,6 +68,7 @@ return new class extends Migration
 
             $table->index('order_id');
             $table->index('offer_id');
+            $table->index('channel');
             $table->index('status');
         });
 
