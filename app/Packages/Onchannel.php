@@ -142,7 +142,7 @@ class Onchannel extends MallApiAbstract
                                 if(is_array($resultCurl)){
                                     $resultCurl = json_encode($resultCurl, JSON_UNESCAPED_UNICODE);
                                 }
-                                $resultCurl = "offerId: {$offerId} \r\n" . $resultCurl;
+                                $resultCurl = "offerId: {$offerId} | endPoint: {$endPoint} \r\n" . $resultCurl;
                                 debug_log($resultCurl, "onchannel/prdRegist", "prdRegist");
                             }
                             $log = OnchannelProductLog::updateOrCreate(
@@ -288,7 +288,7 @@ class Onchannel extends MallApiAbstract
                             if(is_array($resultCurl)){
                                 $resultCurl = json_encode($resultCurl, JSON_UNESCAPED_UNICODE);
                             }
-                            $resultCurl = "offerId: {$offerId} \r\n" . $resultCurl;
+                            $resultCurl = "offerId: {$offerId} | endPoint: {$endPoint} \r\n" . $resultCurl;
                             debug_log($resultCurl, "onchannel/prdModi", "prdModi");
                         }
 
