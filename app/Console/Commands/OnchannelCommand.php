@@ -8,6 +8,7 @@ use App\Models\ProductData;
 use App\Packages\Onchannel;
 use App\Services\Mall\MallApiService;
 use Illuminate\Console\Command;
+use Illuminate\Pagination\Paginator;
 
 class OnchannelCommand extends Command
 {
@@ -34,32 +35,36 @@ class OnchannelCommand extends Command
              * php artisan onchannel_command --func=newProductRegist
              */
             case 'newProductRegist':
-                $prdBuilder = ProductData::select([
-                    "product_datas.offer_id",
-                ])
+                $builder = ProductData::select(["product_datas.offer_id"])
                 ->leftJoin("onchannel_product_logs as b", "product_datas.offer_id", "=", "b.offer_id")
                 ->where("product_datas.mapping_status", ProductConstant::MAPPING_STATUS_Y)
                 ->where("product_datas.status", "!=", ProductConstant::PRD_STATUS_MISS)
                 ->groupBy("product_datas.offer_id");
 
-                $prdBuilder->where(function($query) {
+                $builder->where(function($query) {
                     $query->where(function($query1) {
-                            $query1->where("b.regist_success", MallConstant::REGIST_ERROR)
-                                   ->where("b.message", "온채널 통신 에러");
-                        })
-                        ->orWhere(function($query2) {
-                            $query2->where("b.regist_success", MallConstant::REGIST_ERROR)
-                                   ->where("b.message", "Empty options");
+                            $query1->where("b.regist_success", MallConstant::REGIST_ERROR);
+                                //    ->where("b.message", "like", "%" . "온채널 통신 에러" . "%");
                         })
                         ->orWhereNull("b.regist_success");
                 });
 
-                $objs = $prdBuilder->pluck('offer_id')->toArray();
                 $params = [
                     "sendTypeList" => [ OnchannelConstant::PRD_CHANNEL ]
                 ];
-                if( !empty($objs) ){
-                    $this->mallApiService->productRegist($objs, $params);
+
+                $perPage    = 900;
+                $totalCount = count($builder->get());
+                $totalPages = ceil($totalCount / $perPage);
+                for ($page = 1; $page <= $totalPages; $page++) {
+                    Paginator::currentPageResolver(function () use ($page) {
+                        return $page;
+                    });
+                    
+                    // paginate 메소드는 새 Paginator 인스턴스를 반환합니다.
+                    $pagedData = $builder->paginate($perPage);
+                    $results   = $pagedData->pluck('offer_id')->toArray();
+                    $this->mallApiService->productRegist($results, $params);
                 }
 
                 break;
