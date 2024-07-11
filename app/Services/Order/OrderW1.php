@@ -17,8 +17,8 @@ class OrderW1 extends OrderAbstract
 
     public function __construct()
     {
-        $this->returnMsg        = helpers_fail_message();
-        $this->accessToken      = env("1688_ACCESS_TOKEN");
+        $this->returnMsg   = helpers_fail_message();
+        $this->accessToken = env("1688_ACCESS_TOKEN");
     }
 
     public function getWOrder(string $orderId): array

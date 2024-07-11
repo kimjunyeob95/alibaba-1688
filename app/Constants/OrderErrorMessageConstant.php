@@ -16,11 +16,12 @@ class OrderErrorMessageConstant
     public const ERROR_MESSAGE_SPEC_ID                = "제품 spec ID";
     public const ERROR_MESSAGE_OPTION_ID              = "option_id";
     public const ERROR_MESSAGE_QUANTITY               = "제품 수량";
+    public const ERROR_MESSAGE_PRICE                  = "price";
     public const ERROR_MESSAGE_RECEIVE_NAME           = "수취인 이름";
     public const ERROR_MESSAGE_RECEIVE_TELL           = "수취인 전화번호";
     public const ERROR_MESSAGE_RECEIVE_PHONE          = "수취인 휴대폰번호";
     public const ERROR_MESSAGE_PRODUCTPARAMLIST       = "productParamList";
-    public const ERROR_MESSAGE_OPTIONPARAMLIST        = "optionParamList";
+    public const ERROR_MESSAGE_OPTIONPARAMLIST        = "option_param_list";
     public const ERROR_MESSAGE_OPTION_PRICE           = "option_price";
     public const ERROR_MESSAGE_BUYER_NAME             = "buyer_name";
     public const ERROR_MESSAGE_BUYER_CLEARANCE_NUMBER = "buyer_clearance_number";
@@ -31,6 +32,8 @@ class OrderErrorMessageConstant
     public const ERROR_MESSAGE_BUYER_MEMO             = "buyer_memo";
     public const ERROR_MESSAGE_START_QUANTITY         = "최소 구매 수량 이상으로 주문을 요청해주세요.";
     public const ERROR_MESSAGE_ORDER                  = "Order";
+    public const ERROR_MESSAGE_TOTAL_QUANTITY         = "총 주문수량";
+    public const ERROR_MESSAGE_W_DETAIL               = "W 주문 detail 조회";
  
     public static function getErrorMessageNotDefault($constantName): string
     {
