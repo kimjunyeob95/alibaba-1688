@@ -135,7 +135,7 @@ class Onchannel extends MallApiAbstract
                                 "prd_code" => $resultCurl["prd_code"]
                             ];
                         } else {
-                            $msg = "온채널 통신 에러 | endPoint " . $endPoint;
+                            $msg = "온채널 통신 에러";
                             if( isset($resultCurl["msg"]) ){
                                 $msg = $msg . " " . $resultCurl["msg"];
                             } else {
@@ -281,7 +281,7 @@ class Onchannel extends MallApiAbstract
 
                         $returnMsg = helpers_success_message($resultCurl);
                     } else {
-                        $msg = "온채널 통신 에러 | endPoint " . $endPoint;
+                        $msg = "온채널 통신 에러";
                         if( isset($resultCurl["msg"]) ){
                             $msg = $msg . $resultCurl["msg"];
                         } else {
