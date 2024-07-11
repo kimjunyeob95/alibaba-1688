@@ -6,51 +6,69 @@ use App\Vo\Vo;
 
 class OrderDto extends Vo
 {
-    protected string $order_id               = "";
-    protected int $offer_id                  = 0;
-    protected string $buyer_name             = "";
-    protected string $buyer_clearance_number = "";
-    protected string $buyer_number           = "";
-    protected string $buyer_phone            = "";
-    protected string $buyer_zipcode          = "";
-    protected string $buyer_address          = "";
-    protected string $buyer_memo             = "";
-    protected int $total_quantity            = 0;
-    protected float $total_price             = 0.0;
+    protected string $order_id = "";
+    protected int $offer_id    = 0;
+    protected OrderBaseDto $orderBaseDto;
+    protected array $orderTradeDtos    = [];
+    protected array $orderProductDtos  = [];
+    protected array $orderLogisticDtos = [];
 
     public function bind(mixed $data): void
     {
-        $baseInfo = $data["baseInfo"] ?? [];
+        $baseInfo = $data["baseInfo"];
 
-        if( !empty($baseInfo) ){
-            $this->order_id            = $data["id"];
-            $this->status              = $data["status"];
-            $this->all_delivered_time  = $data["allDeliveredTime"] ?? null;
-            $this->pay_time            = $data["payTime"] ?? null;
-            $this->discount            = $data["discount"] ?? 0;
-            $this->sum_product_payment = $data["sumProductPayment"] ?? 0;
-            $this->modify_time         = $data["modifyTime"] ?? null;
-            $this->close_reason        = $data["closeReason"] ?? "";
-            $this->complete_time       = $data["completeTime"] ?? null;
-            $this->close_operate_type  = $data["closeOperateType"] ?? "";
-            $this->total_amount        = $data["totalAmount"] ?? 0;
-            $this->seller_id           = $data["sellerID"] ?? "";
-            $this->shipping_fee        = $data["shippingFee"] ?? 0;
-            $this->refund              = $data["refund"] ?? 0;
-            $this->refund_payment      = $data["refundPayment"] ?? 0;
-            $this->refund_status       = $data["refundStatus"] ?? 0;
+        $this->order_id = $baseInfo["id"];
+        $this->offer_id = $data["offerId"];
+
+        $baseInfo["orderId"] = $this->order_id;
+        $baseInfo["offerId"] = $this->offer_id;
+        $this->orderBaseDto  = $this->bindBaseDto($baseInfo);
+
+        $tradeTerms = $data["tradeTerms"];
+        foreach ($tradeTerms as $tradeTerm) {
+            $tradeTerm["orderId"]   = $this->order_id;
+            $tradeTerm["offerId"]   = $this->offer_id;
+            $this->orderTradeDtos[] = $this->bindTradeDto($tradeTerm);
         }
 
-        $this->offer_id               = $data["offerId"];
-        $this->channel                = $data["channel"];
-        // $this->buyer_name             = $data["buyer_name"];
-        // $this->buyer_clearance_number = $data["buyer_clearance_number"];
-        // $this->buyer_number           = $data["buyer_number"];
-        // $this->buyer_phone            = $data["buyer_phone"];
-        // $this->buyer_zipcode          = $data["buyer_zipcode"];
-        // $this->buyer_address          = $data["buyer_address"];
-        // $this->buyer_memo             = $data["buyer_memo"];
-        // $this->total_quantity         = $data["total_quantity"];
-        // $this->total_price            = $data["total_price"];
+        $productItems = $data["productItems"];
+        foreach ($productItems as $productItem) {
+            $productItem["orderId"]   = $this->order_id;
+            $this->orderProductDtos[] = $this->bindProductDto($productItem);
+        }
+
+        $logisticsItems = $data["nativeLogistics"]["logisticsItems"] ?? [];
+        foreach ($logisticsItems as $logisticsItem) {
+            $logisticsItem["orderId"]  = $this->order_id;
+            $this->orderLogisticDtos[] = $this->bindLogisticDto($logisticsItem);
+        }
+    }
+
+    public function bindBaseDto(mixed $data): OrderBaseDto
+    {
+        $orderBaseDto = new OrderBaseDto();
+        $orderBaseDto->bind($data);
+        return $orderBaseDto;
+    }
+
+    public function bindTradeDto(mixed $data): OrderTradeDto
+    {
+        $orderTradeDto = new OrderTradeDto();
+        $orderTradeDto->bind($data);
+        return $orderTradeDto;
+    }
+
+    public function bindProductDto(mixed $data): OrderProductDto
+    {
+        $orderProductDto = new OrderProductDto();
+        $orderProductDto->bind($data);
+        return $orderProductDto;
+    }
+
+    public function bindLogisticDto(mixed $data): OrderLogisticDto
+    {
+        $orderLogisticDto = new OrderLogisticDto();
+        $orderLogisticDto->bind($data);
+        return $orderLogisticDto;
     }
 }
