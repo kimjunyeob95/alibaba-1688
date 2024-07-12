@@ -2,6 +2,13 @@
 
 namespace Tests\Feature;
 
+use App\Models\OrderBaseData;
+use App\Models\OrderLogisticsData;
+use App\Models\OrderProductData;
+use App\Models\OrderTradeData;
+use App\Vo\Order\OrderDto;
+use Exception;
+use Illuminate\Support\Facades\File;
 use Tests\TestCase;
 
 class OrderTest extends TestCase
@@ -111,5 +118,84 @@ class OrderTest extends TestCase
         ];
         $returnMsg = curl_1688("post", $endPoint, $payload);
         dd($returnMsg);
+    }
+
+    # dto 테스트
+    # php artisan test --filter testOrderDto
+    Public function testOrderDto()
+    {
+        $filePath = public_path('app/order/info3.json');
+        try {
+            if (File::exists($filePath)) {
+                $jsonContent = File::get($filePath);
+                $data        = json_decode($jsonContent, true);
+                $result = $data["data"];
+                
+                $result["offerId"] = 596612162251;
+                $orderDto = new OrderDto();
+                $orderDto->bind($result);
+
+                $baseInfo    = $orderDto->orderBaseDto;
+                $upsertWhere = $baseInfo->getAllProperties();
+                unset($upsertWhere["order_id"]);
+                OrderBaseData::updateOrCreate(
+                    [
+                        "order_id" => $baseInfo->order_id,
+                    ],
+                    $upsertWhere
+                );
+
+                $orderTradeDtos = $orderDto->orderTradeDtos;
+                foreach ($orderTradeDtos as $orderTradeDto) {
+                    $upsertWhere = $orderTradeDto->getAllProperties();
+                    unset($upsertWhere["order_id"]);
+                    unset($upsertWhere["phase"]);
+                    OrderTradeData::updateOrCreate(
+                        [
+                            "order_id" => $orderTradeDto->order_id,
+                            "phase"    => $orderTradeDto->phase,
+                        ],
+                        $upsertWhere
+                    );
+                }
+
+                $orderProductDtos = $orderDto->orderProductDtos;
+                foreach ($orderProductDtos as $orderProductDto) {
+                    $upsertWhere = $orderProductDto->getAllProperties();
+                    unset($upsertWhere["order_id"]);
+                    unset($upsertWhere["offer_id"]);
+                    unset($upsertWhere["spec_id"]);
+                    OrderProductData::updateOrCreate(
+                        [
+                            "order_id" => $orderProductDto->order_id,
+                            "offer_id" => $orderProductDto->offer_id,
+                            "spec_id"  => $orderProductDto->spec_id,
+                        ],
+                        $upsertWhere
+                    );
+                }
+
+                $orderLogisticDtos = $orderDto->orderLogisticDtos;
+                foreach ($orderLogisticDtos as $orderLogisticDto) {
+                    $upsertWhere = $orderLogisticDto->getAllProperties();
+                    unset($upsertWhere["logistics_id"]);
+                    OrderLogisticsData::updateOrCreate(
+                        [
+                            "logistics_id" => $orderLogisticDto->logistics_id,
+                        ],
+                        $upsertWhere
+                    );
+                }
+
+                dd("끝");
+
+            } else {
+                throw new Exception("파일이 존재하지 않습니다.");
+            }
+        } catch (Exception $e) {
+            $msg = "======================== 에러 발생 ========================\r\n";
+            $msg .= $e->getMessage();
+            dd($msg);
+        }
     }
 }
