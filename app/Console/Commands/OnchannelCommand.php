@@ -53,6 +53,9 @@ class OnchannelCommand extends Command
                     "sendTypeList" => [ OnchannelConstant::PRD_CHANNEL ]
                 ];
 
+                $msg = "온채널 자동 상품등록 전송 시작";
+                debug_log($msg, "onchanne/autoPrdRegist", "autoPrdRegist");
+
                 $perPage    = 900;
                 $totalCount = count($builder->get());
                 $totalPages = ceil($totalCount / $perPage);
@@ -65,8 +68,16 @@ class OnchannelCommand extends Command
                     $pagedData = $builder->paginate($perPage);
                     $results   = $pagedData->pluck('offer_id')->toArray();
                     $this->mallApiService->productRegist($results, $params);
+
+                    // 퍼센트 계산
+                    $percent = round(($page / $totalPages) * 100);
+
+                    $msg = "온채널 자동 상품등록 전송 진행중 ({$page}/{$totalPages}) | {$percent}% 완료";
+                    debug_log($msg, "onchanne/autoPrdRegist", "autoPrdRegist");
                 }
 
+                $msg = "온채널 자동 상품등록 전송 종료";
+                debug_log($msg, "onchanne/autoPrdRegist", "autoPrdRegist");
                 break;
 
             /**
