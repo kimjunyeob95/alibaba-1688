@@ -2243,8 +2243,7 @@
                 "required": [
                     "offer_id",
                     "channel_order_id",
-                    "optionParamList",
-                    "option_price",
+                    "option_param_list",
                     "buyer_name",
                     "buyer_clearance_number",
                     "buyer_number",
@@ -2257,25 +2256,31 @@
                     "offer_id": {
                         "description": "제품 ID",
                         "type": "integer",
-                        "example": 715819550080
+                        "example": 730855260845
                     },
                     "channel_order_id": {
                         "description": "채널 주문 번호",
                         "type": "string",
                         "example": "test2016179999"
                     },
-                    "optionParamList": {
+                    "option_param_list": {
                         "description": "주문 생성 제품 정보",
                         "type": "array",
                         "items": {
                             "required": [
                                 "option_id",
+                                "price",
                                 "quantity"
                             ],
                             "properties": {
                                 "option_id": {
                                     "description": "옵션 ID",
                                     "type": "integer"
+                                },
+                                "price": {
+                                    "description": "채널에 등록 된 제품 가격(WAPP에서 전송한 가격)",
+                                    "type": "number",
+                                    "format": "float"
                                 },
                                 "quantity": {
                                     "description": "구매 수량",
@@ -2286,19 +2291,16 @@
                         },
                         "example": [
                             {
-                                "option_id": 217126,
+                                "option_id": 3479928,
+                                "price": 35.05,
                                 "quantity": 1
                             },
                             {
-                                "option_id": 217127,
+                                "option_id": 3479929,
+                                "price": 35.02,
                                 "quantity": 2
                             }
                         ]
-                    },
-                    "option_price": {
-                        "description": "채널에 등록 된 제품 가격(WAPP에서 전송한 가격)",
-                        "type": "integer",
-                        "example": 6180
                     },
                     "buyer_name": {
                         "description": "구매자명",

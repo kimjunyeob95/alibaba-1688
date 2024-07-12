@@ -1,0 +1,160 @@
+{
+    "status": 200,
+    "meta": {
+        "timestamp": "2024-07-11 15:03:10",
+        "api_type": "mall"
+    },
+    "msg": "정상 처리 되었습니다.",
+    "data": {
+        "baseInfo": {
+            "discount": 0,
+            "alipayTradeId": "UNCREATED",
+            "sumProductPayment": 31.45,
+            "flowTemplateCode": "assureTrade",
+            "sellerOrder": false,
+            "buyerLoginId": "sellerhub4",
+            "modifyTime": "20240626093136000+0800",
+            "id": 2204762379516135493,
+            "closeReason": "buyerCancel",
+            "buyerContact": {
+                "phone": "82-10-36392210",
+                "imInPlatform": "sellerhub4",
+                "name": "Yeon Jin Chu",
+                "companyName": "Sellerhub, Inc."
+            },
+            "completeTime": "20240626093136000+0800",
+            "sellerLoginId": "taixin2018",
+            "buyerID": "b2b-221741213935443542",
+            "closeOperateType": "CLOSE_TRADE_BY_BUYER",
+            "totalAmount": 37.45,
+            "sellerID": "b2b-388626367808743",
+            "shippingFee": 6,
+            "refund": 0,
+            "status": "cancel",
+            "refundPayment": 0,
+            "sellerContact": {
+                "phone": "86-",
+                "email": "3541726065@qq.com",
+                "imInPlatform": "taixin2018",
+                "name": "陈李可",
+                "mobile": "13410623778",
+                "companyName": "深圳市泰鑫塑胶模具有限公司"
+            },
+            "couponFee": 0,
+            "receiverInfo": {
+                "toFullName": "SELLERHUB",
+                "toDivisionCode": "371002",
+                "toMobile": "15684570398",
+                "toPost": "264206",
+                "toTownCode": "371002102",
+                "toArea": "山东省 威海市 环翠区 温泉镇 柳林惠友路3号鸿泉服装院西"
+            },
+            "closeRemark": "null",
+            "tradeType": "50060",
+            "idOfStr": "2204762379516135493",
+            "stepPayAll": false,
+            "createTime": "20240626092954000+0800",
+            "businessType": "cn",
+            "overSeaOrder": false,
+            "tradeTypeDesc": "担保交易",
+            "payChannelList": [],
+            "tradeTypeCode": "assureTrade",
+            "payTimeout": 432000,
+            "payTimeoutType": 0,
+            "payChannelCodeList": []
+        },
+        "orderBizInfo": {
+            "odsCyd": false,
+            "creditOrder": false,
+            "dropshipping": false
+        },
+        "tradeTerms": [],
+        "productItems": [
+            {
+                "cargoNumber": "15寸二代支架内胆包-墨绿",
+                "itemAmount": 31.45,
+                "name": "苹果支架保护套14寸笔记本电脑包13.3寸16.1寸macbook超薄内胆包",
+                "price": 31.45,
+                "productID": 596612162251,
+                "productImgUrl": [
+                    "http://cbu01.alicdn.com/img/ibank/O1CN016zIZ4Q1Bs2y0ZIh3D_!!0-0-cib.80x80.jpg",
+                    "http://cbu01.alicdn.com/img/ibank/O1CN016zIZ4Q1Bs2y0ZIh3D_!!0-0-cib.jpg"
+                ],
+                "productSnapshotUrl": "https://trade.1688.com/order/offer_snapshot.htm?order_entry_id=2204762379516135493",
+                "quantity": 1,
+                "refund": 0,
+                "skuID": 4894152225538,
+                "status": "cancel",
+                "subItemID": 2204762379516135493,
+                "type": "common",
+                "unit": "pcs",
+                "guaranteesTerms": [
+                    {
+                        "assuranceInfo": "卖家承诺买家签收货物后7天内，在“商品完好”的情形下，向买家提供退货服务。",
+                        "assuranceType": "qtwlybt",
+                        "qualityAssuranceType": "7天无理由退货"
+                    },
+                    {
+                        "assuranceInfo": "卖家在承诺买家保障服务的基础上，向买家提供“48小时发货延必赔”的服务。在买家通过支付宝担保交易完成付款或通过货到付款下单成功后，卖家承诺在买家支付成功起48小时内发货。如卖家未履行前述承诺，买家可在指定期限内发起维权，并申请赔付。",
+                        "assuranceType": "ssbxsfh",
+                        "qualityAssuranceType": "48小时发货"
+                    },
+                    {
+                        "assuranceInfo": "“在符合一定的退款申请原因、时效和退款金额范围内，可享受0秒退款服务。",
+                        "assuranceType": "jstk_p",
+                        "qualityAssuranceType": "极速退款"
+                    }
+                ],
+                "productCargoNumber": "二代包",
+                "skuInfos": [
+                    {
+                        "name": "颜色",
+                        "value": "绿色"
+                    },
+                    {
+                        "name": "适用型号",
+                        "value": "15.4/15.6/16.1寸通用（现货当天发）"
+                    }
+                ],
+                "entryDiscount": 0,
+                "specId": "a3eebb0b6f2a1142d5281ecf0ba8ff5e",
+                "quantityFactor": 1,
+                "statusStr": "交易取消",
+                "closeReason": "buyerCancel",
+                "logisticsStatus": 1,
+                "gmtCreate": "20240626092954000+0800",
+                "gmtModified": "20240626093136000+0800",
+                "gmtCompleted": "20240626093136000+0800",
+                "gmtPayExpireTime": "2024-06-26 09:44:53",
+                "subItemIDString": "2204762379516135493"
+            }
+        ],
+        "nativeLogistics": {
+            "address": "柳林惠友路3号鸿泉服装院西",
+            "area": "环翠区",
+            "areaCode": "371002",
+            "city": "威海市",
+            "contactPerson": "SELLERHUB",
+            "mobile": "15684570398",
+            "province": "山东省",
+            "zip": "264206",
+            "townCode": "371002102",
+            "town": "温泉镇"
+        },
+        "guaranteesTerms": {
+            "assuranceInfo": "卖家承诺买家签收货物后7天内，在“商品完好”的情形下，向买家提供退货服务。",
+            "assuranceType": "qtwlybt",
+            "qualityAssuranceType": "7天无理由退货"
+        },
+        "orderRateInfo": {
+            "buyerRateStatus": 5,
+            "sellerRateStatus": 5
+        },
+        "extAttributes": [
+            {
+                "key": "preSelectPayChannel",
+                "value": "alipay"
+            }
+        ]
+    }
+}

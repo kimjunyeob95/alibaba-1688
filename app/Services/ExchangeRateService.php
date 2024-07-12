@@ -32,10 +32,11 @@ class ExchangeRateService
                 $exchangeObj = ExchangeRateHistory::orderBy('date', 'desc')->first();
             }
 
+            $exchageRate = round((float)$exchangeObj->exchange_rate - (float)env("EXCHANGE_DEDUCT", "0.42"), 2);
             $result = [
                 "date"          => $exchangeObj->date,
                 "currency_unit" => $exchangeObj->currency_unit,
-                "exchange_rate" => $exchangeObj->exchange_rate,
+                "exchange_rate" => $exchageRate,
             ];
 
             $returnMsg = helpers_success_message($result);
