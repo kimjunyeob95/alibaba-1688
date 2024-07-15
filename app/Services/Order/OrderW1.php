@@ -12,13 +12,9 @@ use Exception;
 
 class OrderW1 extends OrderAbstract
 {
-    private array $returnMsg;
-    private string $accessToken;
-
     public function __construct()
     {
-        $this->returnMsg   = helpers_fail_message();
-        $this->accessToken = env("1688_ACCESS_TOKEN");
+        parent::__construct();
     }
 
     public function getWOrder(string $orderId): array

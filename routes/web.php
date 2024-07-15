@@ -8,6 +8,7 @@ use App\Http\Controllers\GenuioController;
 use App\Http\Controllers\OnchannelController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProductW2Controller;
+use App\Http\Controllers\WApp\Order\OrderController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -66,6 +67,17 @@ Route::prefix("product")->name("product.")->group(function(){
     });
 
 });
+
+/**
+ * 주문
+ */
+Route::prefix("wapp")->name("wapp.")->group(function(){
+    Route::prefix("order")->name("order.")->group(function(){
+        /** 주문 리스트 */
+        Route::get("/list", [OrderController::class, "orderList"])->name("list");
+    });
+});
+
 
 /**
  * 카테고리
