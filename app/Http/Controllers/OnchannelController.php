@@ -21,7 +21,7 @@ class OnchannelController extends Controller
     public function getPrdList(int $send_type = OnchannelConstant::PRD_CHANNEL): View
     {
         $page         = $this->request->get("page", 1);
-        $pageSize     = $this->request->get("pageSize", 100);
+        $pageSize     = $this->request->get("pageSize", 50);
         $registStatus = $this->request->get("registStatus", "");
         $search_cls   = $this->request->get("search_cls", "offer_id");
         $keyword      = $this->request->get("keyword", "");
