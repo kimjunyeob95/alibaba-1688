@@ -42,10 +42,12 @@ class ExchangeRate
                 throw new Exception(ExchangeRateErrorMessageConstant::getFitErrorMessage("ALEADY_EXCHANGEOBJ"));
             }
 
-            //전 날 환율이 오늘의 환율이 됨
+            $subDay = 5;
             $apiParams = [
-                "searchDate"   => (clone $searchDate)->subDay()->format("Ymd"),
-                "currencyUnit" => $currencyUnit
+                "startDate"    => (clone $searchDate)->subDays($subDay)->format("Ymd"),
+                "endDate"      => $searchDate->format("Ymd"),
+                "currencyUnit" => $currencyUnit,
+                "subDay"       => $subDay,
             ];
             $cnhResult = $this->_callExchangeRate($apiParams);
 
@@ -72,19 +74,21 @@ class ExchangeRate
         $returnMsg = $this->returnMsg;
 
         try{
-            $searchDate   = $params["searchDate"];
+            $startDate    = $params["startDate"];
+            $endDate      = $params["endDate"];
             $currencyUnit = $params["currencyUnit"];
+            $subDay       = $params["subDay"];
 
             $apiParams = [
                 "authkey"      => $this->authKey,
                 "responseType" => ExchangeRateConstant::REQUEST_TYPE_JSON,
                 "langType"     => ExchangeRateConstant::LANG_TYPE_KR,
                 "startCnt"     => 1,
-                "endCnt"       => 1,
+                "endCnt"       => $subDay,
                 "statCode"     => ExchangeRateConstant::STAT_CODE,
                 "cycle"        => ExchangeRateConstant::CYCLE_DAY,
-                "startDate"    => $searchDate,
-                "endDate"      => $searchDate,
+                "startDate"    => $startDate,
+                "endDate"      => $endDate,
                 "data"         => $currencyUnit,
             ];
 
@@ -104,7 +108,6 @@ class ExchangeRate
                             "cur_nm"     => $data['ITEM_NAME1'],
                             "deal_bas_r" => $data['DATA_VALUE'],
                         ];
-                        break;
                     }
                 }
 
