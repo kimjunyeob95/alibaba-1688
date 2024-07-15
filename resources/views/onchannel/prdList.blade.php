@@ -155,9 +155,9 @@
                     <div class="mt-3 d-flex justify-content-between">
                         <div>
                             <select id="selectPageSize" class="form-select" name="pageSize">
+                                <option value=50 @if($pageSize == 50) selected @endif>50개 노출</option>
                                 <option value=100 @if($pageSize == 100) selected @endif>100개 노출</option>
                                 <option value=300 @if($pageSize == 300) selected @endif>300개 노출</option>
-                                <option value=500 @if($pageSize == 500) selected @endif>500개 노출</option>
                             </select>
                         </div>
                         <button type="button" class="btn btn-md btn-outline-dark me-2" id="btn-select">상품전송</button>
