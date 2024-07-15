@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\MallCategoryController;
 use App\Http\Controllers\Api\MallController;
 use App\Http\Controllers\Api\W\ExchangeRateController;
 use App\Http\Controllers\Api\W\W2ProductController;
+use App\Http\Controllers\Api\W\WAppOrderController;
 use App\Http\Controllers\Api\W\WCollectController;
 use App\Http\Controllers\Api\W\WExceptController;
 use App\Http\Controllers\Api\W\WForbiddenWordController;
@@ -118,6 +119,14 @@ Route::name('w.')->prefix('w')->group(function () {
         Route::post('/weight/save', [WProductController::class, 'weightSave'])->name('weightSave');
         /** 정보고시 적용 항목명 update */
         Route::post('/notice/name/update', [WProductController::class, 'noticeNameUpdate'])->name('noticeNameUpdate');
+    });
+
+    /** 주문 */
+    Route::prefix("order")->name("order.")->group(function(){
+        /** WApp 주문 업데이트 */
+        Route::post("/update", [WAppOrderController::class, "orderUpdate"])->name("update");
+        /** WApp 주문 결제 링크 생성 */
+        Route::post("/payLink/create", [WAppOrderController::class, "orderPayLinkCreate"])->name("orderPayLinkCreate");
     });
 
     /** 카테고리 */

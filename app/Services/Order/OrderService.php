@@ -23,6 +23,28 @@ class OrderService
     */
    public function orderList(array $params): array
    {
-      return $this->orderAbstract->getPrdList($params);
+      return $this->orderAbstract->orderList($params);
+   }
+
+   /**
+    * @func orderUpdate
+    * @description 'W -> WApp 주문 업데이트'
+    * @param array $orderIds
+    * @return array
+    */
+   public function orderUpdate(array $orderIds): array
+   {
+      return $this->orderAbstract->orderUpdate($orderIds);
+   }
+
+   /**
+    * @func orderPayLinkCreate
+    * @description 'WApp 주문 결제 링크 생성'
+    * @param array $params
+    * @return array
+   */
+   public function orderPayLinkCreate(array $params): array
+   {
+      return $this->orderAbstract->orderPayLinkCreate($params);
    }
 }

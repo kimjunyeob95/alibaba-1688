@@ -2,9 +2,6 @@
 
 namespace App\Abstracts;
 
-use Exception;
-use Illuminate\Pagination\LengthAwarePaginator;
-
 abstract class OrderAbstract
 {
     protected array $returnMsg;
@@ -39,40 +36,21 @@ abstract class OrderAbstract
     * @param array $params
     * @return array
     */
-    public function getPrdList(array $params): array
-    {
-        $returnMsg = $this->returnMsg;
-        try {
-            $page     = $params["page"];
-            $pageSize = $params["pageSize"];
+    abstract function orderList(array $params): array;
 
-            $endPoint = "param2/1/com.alibaba.trade/alibaba.trade.getBuyerOrderList/";
-            $payload = [
-                'access_token' => $this->accessToken,
-                'page'         => (int)$page,
-                'pageSize'     => (int)$pageSize,
-            ];
-            $curlResult = curl_1688("post", $endPoint, $payload);
-            
-            $result = [];
-            if( isset($curlResult["data"]["result"]) && !empty($curlResult["data"]["result"]) ){
-                $apiData      = $curlResult["data"];
-                $totalRecords = $apiData["totalRecord"];
+    /**
+    * @func orderUpdate
+    * @description 'W -> WApp 주문 업데이트'
+    * @param array $orderIds
+    * @return array
+    */
+    abstract function orderUpdate(array $orderIds): array;
 
-                $paginator    = new LengthAwarePaginator(
-                    collect($apiData["result"])->forPage($page, $pageSize), // 현재 페이지의 아이템들
-                    $totalRecords, // 총 아이템 수
-                    $pageSize, // 페이지 당 아이템 수
-                    $page, // 현재 페이지
-                    ['path' => LengthAwarePaginator::resolveCurrentPath()] // 현재 URL 경로
-                );
-            }
-
-            $returnMsg = helpers_success_message($paginator);
-        } catch (Exception $e) {
-            $returnMsg = helpers_fail_message($e->getMessage());
-        }
-
-        return $returnMsg;
-    }
+    /**
+    * @func orderPayLinkCreate
+    * @description 'WApp 주문 결제 링크 생성'
+    * @param array $params
+    * @return array
+    */
+    abstract function orderPayLinkCreate(array $orderIds): array;
 }
