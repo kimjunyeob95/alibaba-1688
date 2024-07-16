@@ -304,7 +304,7 @@
                             <h5 class="modal-title" id="htmlModalLabel">결제하기</h5>
                         </div>
                         <div class="modal-body text-center">
-                            <input type="hidden" name="orderId" />
+                            <input type="hidden" name="orderIds[]" />
                             
                             <h4 class="mb-4 font-weight-bold">결제 방법을 선택 하세요.</h4>
                             <div class="d-flex justify-content-center mb-4">
