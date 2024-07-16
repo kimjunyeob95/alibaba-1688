@@ -43,10 +43,10 @@ class OnchannelCommand extends Command
 
                 $builder->where(function($query) {
                     $query->where(function($query1) {
-                            $query1->where("b.regist_success", MallConstant::REGIST_ERROR);
-                                //    ->where("b.message", "like", "%" . "온채널 통신 에러" . "%");
-                        })
-                        ->orWhereNull("b.regist_success");
+                        $query1->where("b.regist_success", MallConstant::REGIST_ERROR)
+                        ->where("b.message", "like", "%" . "온채널 통신 에러" . "%");
+                    })
+                    ->orWhereNull("b.regist_success");
                 });
 
                 $params = [
