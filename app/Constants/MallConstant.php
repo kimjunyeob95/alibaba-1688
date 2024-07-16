@@ -12,6 +12,10 @@ class MallConstant
         self::MALL_EASYSELL,
         self::MALL_ONCHANNEL,
     ];
+    public const MALL_NAME = [
+        self::MALL_ONCHANNEL => "이지셀",
+        self::MALL_EASYSELL  => "온채널",
+    ];
 
     /** 전송 채널 리스트 */
     public const OC_PUBLIC         = "30";

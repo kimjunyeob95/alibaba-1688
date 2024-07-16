@@ -1081,3 +1081,31 @@ if (!function_exists("replaceForbiddenText")) {
         return $text;
     }
 }
+
+if (!function_exists("formatToKST")) {
+    function formatToKST(string $dateString): string
+    {
+        // 날짜 문자열을 파싱하여 DateTime 객체로 변환
+        $date = DateTime::createFromFormat('YmdHisvO', $dateString);
+
+        // 한국 시간대로 설정
+        $date->setTimezone(new DateTimeZone('Asia/Seoul'));
+
+        // 원하는 형식으로 출력 (예: Y-m-d H:i:s)
+        return $date->format('Y-m-d H:i:s');
+    }
+}
+
+if (!function_exists("formatToCST")) {
+    function formatToCST(string $dateString): string
+    {
+        // 날짜 문자열을 파싱하여 DateTime 객체로 변환 (한국 시간대 기준)
+        $date = DateTime::createFromFormat('Y-m-d H:i:s', $dateString . ' 00:00:00', new DateTimeZone('Asia/Seoul'));
+
+        // 중국 시간대로 설정
+        $date->setTimezone(new DateTimeZone('Asia/Shanghai'));
+
+        // 원하는 형식으로 출력 (예: YmdHisO)
+        return $date->format('YmdHisvO');
+    }
+}

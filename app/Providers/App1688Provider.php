@@ -5,6 +5,8 @@ namespace App\Providers;
 use App\Packages\S3;
 use App\Services\Category\CategoryW1;
 use App\Services\GenuioService;
+use App\Services\Order\OrderService;
+use App\Services\Order\OrderW1;
 use App\Services\Product\ProductW1;
 use App\Services\Product\ProductW2;
 use App\Services\Service1688Category;
@@ -49,6 +51,15 @@ class App1688Provider extends ServiceProvider
             $productAbstract2 = $app->make(ProductW2::class);
 
             return new Service1688Product($productAbstract, $productAbstract2);
+        });
+
+        /**
+         * 주문 의존성
+         */
+        $this->app->bind(OrderService::class, function ($app) {
+            $orderAbstract = $app->make(OrderW1::class);
+
+            return new OrderService($orderAbstract);
         });
     }
 

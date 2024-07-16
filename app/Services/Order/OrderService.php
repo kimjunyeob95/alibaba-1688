@@ -1,0 +1,50 @@
+<?php
+
+namespace App\Services\Order;
+
+use App\Abstracts\OrderAbstract;
+
+class OrderService
+{
+   private OrderAbstract $orderAbstract;
+
+   public function __construct(
+      OrderAbstract $orderAbstract
+   )
+   {
+      $this->orderAbstract = $orderAbstract;
+   }
+
+   /**
+    * @func orderList
+    * @description '주문 리스트'
+    * @param array $params
+    * @return array
+    */
+   public function orderList(array $params): array
+   {
+      return $this->orderAbstract->orderList($params);
+   }
+
+   /**
+    * @func orderUpdate
+    * @description 'W -> WApp 주문 업데이트'
+    * @param array $orderIds
+    * @return array
+    */
+   public function orderUpdate(array $orderIds): array
+   {
+      return $this->orderAbstract->orderUpdate($orderIds);
+   }
+
+   /**
+    * @func orderPayLinkCreate
+    * @description 'WApp 주문 결제 링크 생성'
+    * @param array $params
+    * @return array
+   */
+   public function orderPayLinkCreate(array $params): array
+   {
+      return $this->orderAbstract->orderPayLinkCreate($params);
+   }
+}

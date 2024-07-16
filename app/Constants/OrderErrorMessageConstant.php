@@ -34,6 +34,7 @@ class OrderErrorMessageConstant
     public const ERROR_MESSAGE_ORDER                  = "Order";
     public const ERROR_MESSAGE_TOTAL_QUANTITY         = "총 주문수량";
     public const ERROR_MESSAGE_W_DETAIL               = "W 주문 detail 조회";
+    public const ERROR_MESSAGE_BASE_INFO              = "baseInfo";
  
     public static function getErrorMessageNotDefault($constantName): string
     {
