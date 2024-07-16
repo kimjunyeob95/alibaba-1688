@@ -51,9 +51,9 @@ class MissProductReCollect extends Command
     
                 foreach ($results as $obj) {
                     $apiResult = $this->productW1->collectProductNotLog($obj->offer_id);
-                    if( $apiResult["isSuccess"] != true ){
-                        debug_log($apiResult["msg"], "product/{$type}", $type, LogLevel::ERROR);
-                    }
+                    // if( $apiResult["isSuccess"] != true ){
+                    //     debug_log($apiResult["msg"], "product/{$type}", $type, LogLevel::ERROR);
+                    // }
                 }
             }
         }
