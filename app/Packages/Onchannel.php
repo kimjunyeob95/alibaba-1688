@@ -757,7 +757,7 @@ class Onchannel extends MallApiAbstract
         }
 
         $returnMsg["params"] = $params;
-        debug_log(json_encode($returnMsg, JSON_UNESCAPED_UNICODE), "onchannel/imgCallBack", "imgCallBack");
+        // debug_log(json_encode($returnMsg, JSON_UNESCAPED_UNICODE), "onchannel/imgCallBack", "imgCallBack");
 
         return $returnMsg;   
     }
