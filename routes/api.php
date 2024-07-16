@@ -127,6 +127,10 @@ Route::name('w.')->prefix('w')->group(function () {
         Route::post("/update", [WAppOrderController::class, "orderUpdate"])->name("update");
         /** WApp 주문 결제 링크 생성 */
         Route::post("/payLink/create", [WAppOrderController::class, "orderPayLinkCreate"])->name("orderPayLinkCreate");
+        /** 주문 조회 */
+        Route::get('/{orderId}', [WAppOrderController::class, "orderInfo"])->name("orderInfo");
+        /** 주문정보 업데이트 */
+        Route::post('/info/update', [WAppOrderController::class, "orderInfoUpdate"])->name("orderInfoUpdate");
     });
 
     /** 카테고리 */

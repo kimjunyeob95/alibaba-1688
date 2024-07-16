@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\W;
 
 use App\Constants\HttpConstant;
+use App\Constants\OrderErrorMessageConstant;
 use App\Http\Controllers\Controller;
 use App\Services\Order\OrderService;
 use Exception;
@@ -78,6 +79,66 @@ class WAppOrderController extends Controller
             } else {
                 return helpers_json_response(HttpConstant::BAD_REQUEST, [], $result["msg"]);
             }
+        } catch (Exception $e) {
+            return helpers_json_response(HttpConstant::BAD_REQUEST, [], $e->getMessage());
+        }
+    }
+
+    public function orderInfo(string $orderId): JsonResponse
+    {
+        try {
+            $result = $this->orderService->orderInfo($orderId);
+            if( $result["isSuccess"] == true ){
+                return helpers_json_response(HttpConstant::OK, $result);
+            } else {
+                return helpers_json_response(HttpConstant::BAD_REQUEST, [], $result["msg"]);
+            }
+        } catch (Exception $e) {
+            return helpers_json_response(HttpConstant::BAD_REQUEST, [], $e->getMessage());
+        }
+    }
+
+    public function orderInfoUpdate(): JsonResponse
+    {
+        try {
+            $validator = Validator::make($this->request->all(), [
+                'orderId'              => 'required|string',
+                'channelPrices'        => 'required|array',
+                'orderChannel'         => 'required|string',
+                'channelOrderId'       => 'required|string',
+                'buyerName'            => 'required|string',
+                'buyerClearanceNumber' => 'required|string',
+                'buyerNumber'          => 'required|string',
+                'buyerPhone'           => 'required|string',
+                'buyerAddress'         => 'required|string',
+                'buyerZipcode'         => 'required|string',
+                'buyerMemo'            => 'required|string',
+            ], [
+                'orderId.required'              => OrderErrorMessageConstant::getNotHaveErrorMessage("ORDER_ID"),
+                'channelPrices.required'        => OrderErrorMessageConstant::getNotHaveErrorMessage("CHANNEL_PRICES"),
+                'orderChannel.required'         => OrderErrorMessageConstant::getNotHaveErrorMessage("ORDER_CHANNEL"),
+                'channelOrderId.required'       => OrderErrorMessageConstant::getNotHaveErrorMessage("CHANNEL_ORDER_ID"),
+                'buyerName.required'            => OrderErrorMessageConstant::getNotHaveErrorMessage("BUYER_NAME"),
+                'buyerClearanceNumber.required' => OrderErrorMessageConstant::getNotHaveErrorMessage("BUYER_CLEARANCE_NUMBER"),
+                'buyerNumber.required'          => OrderErrorMessageConstant::getNotHaveErrorMessage("BUYER_NUMBER"),
+                'buyerPhone.required'           => OrderErrorMessageConstant::getNotHaveErrorMessage("BUYER_PHONE"),
+                'buyerAddress.required'         => OrderErrorMessageConstant::getNotHaveErrorMessage("BUYER_ADDRESS"),
+                'buyerZipcode.required'         => OrderErrorMessageConstant::getNotHaveErrorMessage("BUYER_ZIPCODE"),
+                'buyerMemo.required'            => OrderErrorMessageConstant::getNotHaveErrorMessage("BUYER_MEMO"),
+            ]);
+            if ($validator->fails()) {
+                throw new Exception($validator->errors()->first());
+            }
+
+            $result = $this->orderService->orderInfoUpdate($this->request->all());
+            if( $result["isSuccess"] == true ){
+                return helpers_json_response(HttpConstant::OK, $result);
+            } else {
+                return helpers_json_response(HttpConstant::BAD_REQUEST, [], $result["msg"]);
+            }
+          
+
+            return helpers_json_response(HttpConstant::OK, helpers_success_message([], "주문 업데이트 요청 완료"));
         } catch (Exception $e) {
             return helpers_json_response(HttpConstant::BAD_REQUEST, [], $e->getMessage());
         }

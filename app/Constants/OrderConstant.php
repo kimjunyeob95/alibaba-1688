@@ -22,6 +22,13 @@ class OrderConstant
         self::STATUS_SUCCESS          => "거래완료",
         self::STATUS_TERMINATED       => "거래종료"
     ];
+    public const STATUS_FILTER = [
+        self::STATUS_SUCCESS          => "거래완료",
+        self::STATUS_CANCEL           => "주문취소",
+        self::STATUS_WAITBUYERPAY     => "결제대기",
+        self::STATUS_WAITSELLERSEND   => "결제완료",
+        self::STATUS_WAITBUYERRECEIVE => "발송완료",
+    ];
 
     /** 주문 취소 사유 */
     public const CANCEL_REASON_BUYER_CANCEL            = "buyerCancel";

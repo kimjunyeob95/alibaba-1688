@@ -52,7 +52,7 @@ class OrderController extends Controller
             "startTime"    => $startTime,
             "endTime"      => $endTime,
         ];
-        // dd($viewParams["paginator"]->items()[0]["baseObj"]->toArray());
+        // dd($viewParams["paginator"]->items()[0]["productItems"]);
         // dd($viewParams["paginator"]->items());
         return view("order.list")->with($viewParams);
     }

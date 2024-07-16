@@ -6,15 +6,18 @@ namespace App\Constants;
 class MallConstant
 {
     // Mall 리스트
+    public const MALL_WAPP      = "wapp";
     public const MALL_EASYSELL  = "easySell";
     public const MALL_ONCHANNEL = "onchannel";
-    public const MALL_LIST = [
+    public const MALL_LIST      = [
+        self::MALL_WAPP,
         self::MALL_EASYSELL,
         self::MALL_ONCHANNEL,
     ];
     public const MALL_NAME = [
-        self::MALL_ONCHANNEL => "이지셀",
-        self::MALL_EASYSELL  => "온채널",
+        self::MALL_WAPP      => "WApp",
+        self::MALL_EASYSELL  => "이지셀",
+        self::MALL_ONCHANNEL => "온채널",
     ];
 
     /** 전송 채널 리스트 */

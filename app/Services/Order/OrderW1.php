@@ -12,9 +12,13 @@ use App\Models\ProductData;
 use Illuminate\Pagination\LengthAwarePaginator;
 use App\Models\OrderBaseData;
 use App\Models\OrderChannelData;
+use App\Models\OrderChannelDetailData;
 use App\Models\OrderLogisticsData;
 use App\Models\OrderProductData;
 use App\Models\OrderTradeData;
+use App\Models\ProductOptionData;
+use App\Vo\Order\OrderChannelDetailDto;
+use App\Vo\Order\OrderChannelDto;
 use App\Vo\Order\OrderDto;
 use Exception;
 use Illuminate\Support\Facades\DB;
@@ -218,7 +222,7 @@ class OrderW1 extends OrderAbstract
 
                 foreach ($apiData["result"] as &$data) {
                     $baseInfo = $data["baseInfo"];
-                    $orderId  = $baseInfo["id"];
+                    $orderId  = $baseInfo["idOfStr"];
                     
                     $data["baseObj"]    = OrderBaseData::where("order_id", $orderId)->first();
                     $data["channelObj"] = OrderChannelData::where("order_id", $orderId)->first();
@@ -368,6 +372,194 @@ class OrderW1 extends OrderAbstract
             if( isset($curlResult["data"]["payUrl"]) ){
                 $returnMsg = helpers_success_message($curlResult["data"]);
             }
+        } catch (Exception $e) {
+            $returnMsg = helpers_fail_message($e->getMessage());
+        }
+
+        return $returnMsg;
+    }
+
+    /**
+    * @func orderInfoUpdate
+    * @description '주문정보 업데이트'
+    * @param array $params
+    * @return array
+    */
+    public function orderInfoUpdate(array $params): array
+    {
+        $returnMsg = $this->returnMsg;
+        try {
+            $orderId              = trim($params["orderId"]);
+            $channelPrices        = $params["channelPrices"];
+            $orderChannel         = trim($params["orderChannel"]);
+            $channelOrderId       = trim($params["channelOrderId"]);
+            $buyerName            = trim($params["buyerName"]);
+            $buyerClearanceNumber = trim($params["buyerClearanceNumber"]);
+            $buyerNumber          = trim($params["buyerNumber"]);
+            $buyerPhone           = trim($params["buyerPhone"]);
+            $buyerAddress         = trim($params["buyerAddress"]);
+            $buyerZipcode         = trim($params["buyerZipcode"]);
+            $buyerMemo            = trim($params["buyerMemo"]);
+
+            $orderDetailResult = $this->getWOrder($orderId);
+            if( $orderDetailResult["isSuccess"] == false || 
+                !isset($orderDetailResult["data"]["result"]["baseInfo"]) ||
+                empty($orderDetailResult["data"]["result"]["baseInfo"])
+            ){
+                throw new Exception(OrderErrorMessageConstant::getFitErrorMessage("W_DETAIL"));
+            }
+
+            try {
+                DB::beginTransaction();
+
+                $orderData = $orderDetailResult["data"]["result"];
+                $offerId   = $orderData["productItems"][0]["productID"];
+
+                $prdCnt = ProductData::where("offer_id", $offerId)->count();
+                if( $prdCnt == 0 ){
+                    throw new Exception(OrderErrorMessageConstant::getNotHaveErrorMessage("PRODUCT"));
+                }
+
+                $orderData["offerId"] = $offerId;
+                $orderData["channel"] = $orderChannel;
+                $orderDto             = new OrderDto();
+                $orderDto->bind($orderData);
+
+                $totalQuantity     = 0;
+                $totalPrice        = 0;
+                $totalChannelPrice = 0;
+
+                foreach ($orderDto->orderProductDtos as $key => $orderProductDto) {
+                    $channelPrice = $channelPrices[$key] ?? 0;
+                    $quantity     = $orderProductDto->quantity;
+
+                    $optObj = ProductOptionData::where([
+                        "offer_id" => $offerId,
+                        "spec_id"  => $orderProductDto->spec_id,
+                        "sku_id"   => $orderProductDto->sku_id,
+                    ])->first();
+
+                    if( $optObj == null ){
+                        throw new Exception(OrderErrorMessageConstant::getNotHaveErrorMessage("OPTION"));
+                    }
+
+                    $totalQuantity     += $quantity;
+                    $totalPrice         = $totalPrice + ( $optObj->price_1688_option * $quantity );
+                    $totalChannelPrice  = $totalChannelPrice + ( $channelPrice * $quantity );
+
+                    $orderChannelDetailDtoBind = [
+                        "orderChannelId" => 0,
+                        "optionId"       => $optObj->id,
+                        "originPrice"    => $optObj->price_1688_option,
+                        "channelPrice"   => $channelPrice,
+                        "quantity"       => $quantity,
+                    ];
+                    $orderChannelDetailDto = new OrderChannelDetailDto();
+                    $orderChannelDetailDto->bind($orderChannelDetailDtoBind);
+    
+                    $orderChannelDetailDtos[] = $orderChannelDetailDto;
+                }
+
+                $baseInfo    = $orderDto->orderBaseDto;
+                $upsertWhere = $baseInfo->getAllProperties();
+                unset($upsertWhere["order_id"]);
+                OrderBaseData::updateOrCreate(
+                    [
+                        "order_id" => $baseInfo->order_id,
+                    ],
+                    $upsertWhere
+                );
+
+                $orderTradeDtos = $orderDto->orderTradeDtos;
+                foreach ($orderTradeDtos as $orderTradeDto) {
+                    $upsertWhere = $orderTradeDto->getAllProperties();
+                    unset($upsertWhere["order_id"]);
+                    unset($upsertWhere["phase"]);
+                    OrderTradeData::updateOrCreate(
+                        [
+                            "order_id" => $orderTradeDto->order_id,
+                            "phase"    => $orderTradeDto->phase,
+                        ],
+                        $upsertWhere
+                    );
+                }
+
+                $orderProductDtos = $orderDto->orderProductDtos;
+                foreach ($orderProductDtos as $orderProductDto) {
+                    $upsertWhere = $orderProductDto->getAllProperties();
+                    unset($upsertWhere["order_id"]);
+                    unset($upsertWhere["offer_id"]);
+                    unset($upsertWhere["spec_id"]);
+                    OrderProductData::updateOrCreate(
+                        [
+                            "order_id" => $orderProductDto->order_id,
+                            "offer_id" => $orderProductDto->offer_id,
+                            "spec_id"  => $orderProductDto->spec_id,
+                        ],
+                        $upsertWhere
+                    );
+                }
+
+                $orderLogisticDtos = $orderDto->orderLogisticDtos;
+                foreach ($orderLogisticDtos as $orderLogisticDto) {
+                    $upsertWhere = $orderLogisticDto->getAllProperties();
+                    unset($upsertWhere["logistics_id"]);
+                    OrderLogisticsData::updateOrCreate(
+                        [
+                            "logistics_id" => $orderLogisticDto->logistics_id,
+                        ],
+                        $upsertWhere
+                    );
+                }
+
+                $orderChannelDtoBind = [
+                    "orderId"              => $orderId,
+                    "channelOrderId"       => $channelOrderId,
+                    "totalQuantity"        => $totalQuantity,
+                    "totalPrice"           => $totalPrice,
+                    "totalChannelPrice"    => $totalChannelPrice,
+                    "buyerName"            => $buyerName,
+                    "buyerClearanceNumber" => $buyerClearanceNumber,
+                    "buyerNumber"          => $buyerNumber,
+                    "buyerPhone"           => $buyerPhone,
+                    "buyerZipcode"         => $buyerZipcode,
+                    "buyerAddress"         => $buyerAddress,
+                    "buyerMemo"            => $buyerMemo,
+                ];
+                $orderChannelDto = new OrderChannelDto();
+                $orderChannelDto->bind($orderChannelDtoBind);
+
+                $upsertWhere = $orderChannelDto->getAllProperties();
+                unset($upsertWhere["order_id"]);
+                $ocdObj = OrderChannelData::updateOrCreate(
+                    [
+                        "order_id" => $orderChannelDto->order_id,
+                    ],
+                    $upsertWhere
+                );
+
+                foreach ($orderChannelDetailDtos as $orderChannelDetailDto) {
+                    $upsertWhere = $orderChannelDetailDto->getAllProperties();
+                    unset($upsertWhere["order_channel_id"]);
+                    unset($upsertWhere["option_id"]);
+                    OrderChannelDetailData::updateOrCreate(
+                        [
+                            "order_channel_id" => $ocdObj->id,
+                            "option_id"        => $orderChannelDetailDto->option_id
+                        ],
+                        $upsertWhere
+                    );
+                }
+
+                DB::commit();
+
+                $returnMsg = helpers_success_message();
+            } catch (Exception $ee) {
+                DB::rollBack();
+
+                $returnMsg = helpers_fail_message($ee->getMessage());
+            }
+
         } catch (Exception $e) {
             $returnMsg = helpers_fail_message($e->getMessage());
         }
