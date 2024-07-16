@@ -13,7 +13,7 @@ class OnchannelConstant
     public const TRANS_NM            = "대한통운";
     public const PRD_CHANNEL         = 30;
     public const PRD_CHANNEL_PRIVATE = 28;
-    public const SALE_NUM            = 3;
+    public const SALE_NUM            = 0;
     public const ETC_COMMENT         = "해외배송 상품 입니다.";
     public const SEC_TAX             = "N";
     public const CATE_NUM            = 26;

@@ -126,6 +126,21 @@
                 <svg class="nav-icon">
                     <use xlink:href="/vendors/@coreui/icons/svg/free.svg#cil-3d"></use>
                 </svg>
+                주문 관리
+            </a>
+            <ul class="nav-group-items">
+                <li class="nav-item">
+                    <a class="nav-link" href="/wapp/order/list">
+                        주문 리스트
+                    </a>
+                </li>
+            </ul>
+        </li>
+        <li class="nav-group">
+            <a class="nav-link nav-group-toggle" href="javascript:;">
+                <svg class="nav-icon">
+                    <use xlink:href="/vendors/@coreui/icons/svg/free.svg#cil-3d"></use>
+                </svg>
                 카테고리 관리
             </a>
             <ul class="nav-group-items">

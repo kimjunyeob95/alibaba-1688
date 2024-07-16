@@ -7,6 +7,7 @@ use App\Console\Commands\ExchangeRateCommand;
 use App\Console\Commands\GenuioCommand;
 use App\Console\Commands\MissProductReCollect;
 use App\Console\Commands\OnchannelCommand;
+use App\Console\Commands\OrderCommand;
 use App\Console\Commands\Save1688AllCategory;
 use App\Console\Commands\Save1688AllProducts;
 use App\Console\Commands\Save1688Category;
@@ -58,7 +59,9 @@ class Kernel extends ConsoleKernel
         /** Genuio */
         GenuioCommand::class,
         /** 환율조회 */
-        ExchangeRateCommand::class
+        ExchangeRateCommand::class,
+        /** 주문 */
+        OrderCommand::class,
     ];
 
     protected function schedule(Schedule $schedule)

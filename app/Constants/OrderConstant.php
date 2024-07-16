@@ -7,20 +7,20 @@ class OrderConstant
 {
     /** 주문상태 */
     public const STATUS_WAITBUYERPAY     = "waitbuyerpay";
-    public const STATUS_WAITELLEREND     = "waitellerend";
+    public const STATUS_WAITSELLERSEND   = "waitsellersend";
     public const STATUS_WAITBUYERRECEIVE = "waitbuyerreceive";
     public const STATUS_CONFIRM_GOODS    = "confirm_goods";
     public const STATUS_SUCCESS          = "success";
     public const STATUS_CANCEL           = "cancel";
     public const STATUS_TERMINATED       = "terminated";
     public const STATUS                  = [
-        self::STATUS_WAITBUYERPAY     => "결제대기(구매자 결제대기)",
-        self::STATUS_WAITELLEREND     => "결제완료(판매자 발송 대기)",
-        self::STATUS_WAITBUYERRECEIVE => "출고(구매자 수령대기)",
-        self::STATUS_CONFIRM_GOODS    => "배송완료(수령확인)",
+        self::STATUS_CANCEL           => "주문취소",
+        self::STATUS_WAITBUYERPAY     => "결제대기",
+        self::STATUS_WAITSELLERSEND   => "결제완료",
+        self::STATUS_WAITBUYERRECEIVE => "발송완료",
+        self::STATUS_CONFIRM_GOODS    => "배송완료",
         self::STATUS_SUCCESS          => "거래완료",
-        self::STATUS_CANCEL           => "거래취소",
-        self::STATUS_TERMINATED       => "거래종료(기타상태)"
+        self::STATUS_TERMINATED       => "거래종료"
     ];
 
     /** 주문 취소 사유 */
@@ -55,10 +55,10 @@ class OrderConstant
     public const REFUND_STATUS_REFUNDSUCCESS     = "refundsuccess";
     public const REFUND_STATUS_REFUNDCLOSE       = "refundclose";
     public const REFUND_STATUS                   = [
-        self::REFUND_STATUS_WAITSELLERAGREE   => "판매자 동의대기",
-        self::REFUND_STATUS_WAITBUYERMODIFY   => "구매자 수정대기",
-        self::REFUND_STATUS_WAITBUYERSEND     => "구매자 발송대기",
-        self::REFUND_STATUS_WAITSELLERRECEIVE => "판매자 수령대기",
+        self::REFUND_STATUS_WAITSELLERAGREE   => "환불요청",
+        self::REFUND_STATUS_WAITBUYERMODIFY   => "환불 확인 중",
+        self::REFUND_STATUS_WAITBUYERSEND     => "반품 상품 발송 전",
+        self::REFUND_STATUS_WAITSELLERRECEIVE => "반품 상품 수령 전",
         self::REFUND_STATUS_REFUNDSUCCESS     => "환불완료",
         self::REFUND_STATUS_REFUNDCLOSE       => "환불실패",
     ];
@@ -208,5 +208,9 @@ class OrderConstant
         self::LOGISTICS_STATUS_5 => "부분 배송됨",
         self::LOGISTICS_STATUS_8 => "아직 물류 주문이 생성되지 않음",
     ];
+
+    /** 결제 방법 */
+    public const PAY_ALIPAY       = "alipay";
+    public const PAY_CROSS_BORDER = "crossBorder";
 
 }
