@@ -43,6 +43,7 @@ class OrderErrorMessageConstant
     public const ERROR_MESSAGE_ORDER_CHANNEL          = "order_channel";
     public const ERROR_MESSAGE_PRODUCT                = "product";
     public const ERROR_MESSAGE_OPTION                 = "option";
+    public const ERROR_MESSAGE_DELIVERY_PRICE         = "delivery_price";
  
     public static function getErrorMessageNotDefault($constantName): string
     {

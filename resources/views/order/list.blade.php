@@ -372,14 +372,14 @@
                                                             <th scope="col" style="width: 6%">spec_id</th>
                                                             <th scope="col" style="width: 6%">옵션명</th>
                                                             <th scope="col" style="width: 2%">수량</th>
-                                                            <th scope="col" style="width: 3%">1688 가격</th>
-                                                            <th scope="col" style="width: 3%">채널가격</th>
+                                                            <th scope="col" style="width: 3%">1688 가격(위안)</th>
+                                                            <th scope="col" style="width: 3%">채널가격(원화)</th>
                                                         </tr>
                                                     </thead>
                                                     <tbody class="opt-tbody">
                                                     </tbody>
                                                 </table>
-                                                <p class="text-danger mt-2 small">* 채널가격: 채널의 판매가 입력(미입력 시, 1688의 가격이 입력됩니다.)</p>
+                                                <p class="text-danger mt-2 small">* 채널가격: 채널의 판매가 입력(미입력 시, 1688의 가격(환율적용)이 입력됩니다.)</p>
                                             </div>
                                         </div>
                                     </div>
@@ -455,8 +455,14 @@
                                                 <div class="col-md-2 d-flex align-items-center">
                                                     <small class="fw-bold text-center" style="width: 100px;">우편번호</small>
                                                 </div>
-                                                <div class="col-md-10">
+                                                <div class="col-md-4">
                                                     <input type="text" class="form-control reqired-inp" name="buyerZipcode" value="">
+                                                </div>
+                                                <div class="col-md-2 d-flex align-items-center">
+                                                    <small class="fw-bold text-center" style="width: 100px;">채널 배송비(원화)</small>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <input type="number" class="form-control reqired-inp" name="deliveryPrice" value=0>
                                                 </div>
                                             </div>
                                             <div class="row mb-2">
@@ -493,6 +499,7 @@
     $(document).ready(function() {
         var waitStatus  = "{{ OrderConstant::STATUS_WAITBUYERPAY }}";
         var optionValue = "{{ OptionConstant::NAME_EN }}";
+        var exchangeRate = {{ $exchangeRate }};
 
         $(".btn-status").click(function(){
             let name  = $(this).attr("name");
@@ -517,37 +524,37 @@
             $('.reqired-inp').each(function(key, ele){
                 if( $(ele).val().trim() == "" ){
                     validate = false;
+                    $(ele).focus();
+                    alert("빈 값이 없이 모두 입력해주세요.");
+                    return false;
                 } else {
                     $(ele).val($(ele).val().trim());
                 }
             });
 
-            if( validate == false ){
-                return alert("빈 값이 없이 모두 입력해주세요.");
-            }
-            
-
-            if(confirm("작성하신 주문정보를 저장하시겠습니까?")){
-                $.ajax({
-                    "headers"    : {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
-                    "type"       : "POST",
-                    "url"        : "{{ route('w.order.orderInfoUpdate') }}",
-                    "data"       : formData,
-                    beforeSend: function () {
-                        $("#loadingOverlay").show();
-                    },
-                    complete: function () {
-                        $("#loadingOverlay").hide();
-                    },
-                    success: function (resp) {
-                        alert(resp.msg);
-                        location.reload();
-                    },
-                    error: function error(request, status, _error) {
-                        let { error } = JSON.parse(request.responseText);
-                        alert(error.message);
-                    }
-                });
+            if( validate === true ){  
+                if(confirm("작성하신 주문정보를 저장하시겠습니까?")){
+                    $.ajax({
+                        "headers"    : {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
+                        "type"       : "POST",
+                        "url"        : "{{ route('w.order.orderInfoUpdate') }}",
+                        "data"       : formData,
+                        beforeSend: function () {
+                            $("#loadingOverlay").show();
+                        },
+                        complete: function () {
+                            $("#loadingOverlay").hide();
+                        },
+                        success: function (resp) {
+                            alert(resp.msg);
+                            location.reload();
+                        },
+                        error: function error(request, status, _error) {
+                            let { error } = JSON.parse(request.responseText);
+                            alert(error.message);
+                        }
+                    });
+                }
             }
         });
 
@@ -587,6 +594,7 @@
                             }
                         });
 
+                        let channelPrice = Math.round( ( ele.price * exchangeRate) / 10) * 10;
                         $(".opt-tbody").append(`
                             <tr>
                                 <td>${key+1}</td>
@@ -595,7 +603,7 @@
                                 <td>${optValue}</td>
                                 <td>${ele.quantity}</td>
                                 <td>${ele.price}</td>
-                                <td><input type="number" class="form-control" name="channelPrices[]" value="${ele.price}"></td>
+                                <td><input type="number" class="form-control" name="channelPrices[]" value="${channelPrice}"></td>
                             </tr>
                         `);
                     });

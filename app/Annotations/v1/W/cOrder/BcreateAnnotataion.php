@@ -14,7 +14,7 @@ namespace App\Annotations\v1\W\cOrder;
  * 
  * @OA\Schema(
  *     schema="OrderCreateSchema",
- *     required={"offer_id", "channel_order_id", "option_param_list", "buyer_name", "buyer_clearance_number", "buyer_number", "buyer_phone", "buyer_zipcode", "buyer_address", "buyer_memo"},
+ *     required={"offer_id", "channel_order_id", "option_param_list", "delivery_price", "buyer_name", "buyer_clearance_number", "buyer_number", "buyer_phone", "buyer_zipcode", "buyer_address", "buyer_memo"},
  *     @OA\Property(
  *         property="offer_id",
  *         type="integer",
@@ -41,7 +41,7 @@ namespace App\Annotations\v1\W\cOrder;
  *             @OA\Property(
  *                  property="price",
  *                  type="float",
- *                  description="채널에 등록 된 제품 가격(WAPP에서 전송한 가격)"
+ *                  description="채널에 등록 된 제품 가격(WAPP에서 전송한 가격: 원화)"
  *              ),
  *              @OA\Property(
  *                  property="quantity",
@@ -53,16 +53,21 @@ namespace App\Annotations\v1\W\cOrder;
  *         {
  *             {
  *                 "option_id": 3479928,
- *                 "price": 35.05,
+ *                 "price": 1300,
  *                 "quantity": 1
  *             },
  *             {
  *                 "option_id": 3479929,
- *                 "price": 35.02,
+ *                 "price": 1200,
  *                 "quantity": 2
  *             }
  *         },
  *         description="주문 생성 제품 정보"
+ *     ),
+ *     @OA\Property(
+ *         property="delivery_price",
+ *         example="3000",
+ *         description="배송비(원화)"
  *     ),
  *     @OA\Property(
  *         property="buyer_name",

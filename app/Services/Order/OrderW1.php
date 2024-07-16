@@ -393,6 +393,7 @@ class OrderW1 extends OrderAbstract
             $channelPrices        = $params["channelPrices"];
             $orderChannel         = trim($params["orderChannel"]);
             $channelOrderId       = trim($params["channelOrderId"]);
+            $deliveryPrice        = (float)$params["deliveryPrice"];
             $buyerName            = trim($params["buyerName"]);
             $buyerClearanceNumber = trim($params["buyerClearanceNumber"]);
             $buyerNumber          = trim($params["buyerNumber"]);
@@ -517,6 +518,7 @@ class OrderW1 extends OrderAbstract
                     "channelOrderId"       => $channelOrderId,
                     "totalQuantity"        => $totalQuantity,
                     "totalPrice"           => $totalPrice,
+                    "deliveryPrice"        => $deliveryPrice,
                     "totalChannelPrice"    => $totalChannelPrice,
                     "buyerName"            => $buyerName,
                     "buyerClearanceNumber" => $buyerClearanceNumber,
