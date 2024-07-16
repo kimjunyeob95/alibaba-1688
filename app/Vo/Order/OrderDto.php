@@ -36,6 +36,13 @@ class OrderDto extends Vo
 
         $productItems = $data["productItems"];
         foreach ($productItems as $productItem) {
+            if( !isset($productItem["specId"]) ){
+                $productItem["specId"] = $this->offer_id;
+            }
+            if( !isset($productItem["skuID"]) ){
+                $productItem["skuID"] = $this->offer_id;
+            }
+
             $productItem["orderId"]   = $this->order_id;
             $this->orderProductDtos[] = $this->bindProductDto($productItem);
         }

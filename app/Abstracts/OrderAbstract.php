@@ -53,4 +53,12 @@ abstract class OrderAbstract
     * @return array
     */
     abstract function orderPayLinkCreate(array $orderIds): array;
+
+    /**
+    * @func orderInfoUpdate
+    * @description '주문정보 업데이트'
+    * @param array $params
+    * @return array
+    */
+    abstract function orderInfoUpdate(array $params): array;
 }

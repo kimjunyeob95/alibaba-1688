@@ -47,4 +47,26 @@ class OrderService
    {
       return $this->orderAbstract->orderPayLinkCreate($params);
    }
+
+   /**
+    * @func orderInfo
+    * @description 'W 주문 조회'
+    * @param string $orderId
+    * @return array
+    */
+   public function orderInfo(string $orderId): array
+   {
+      return $this->orderAbstract->getWOrder($orderId);
+   }
+
+   /**
+    * @func orderInfoUpdate
+    * @description '주문정보 업데이트'
+    * @param array $params
+    * @return array
+   */
+   public function orderInfoUpdate(array $params): array
+   {
+      return $this->orderAbstract->orderInfoUpdate($params);
+   }
 }
