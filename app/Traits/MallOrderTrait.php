@@ -82,6 +82,7 @@ trait MallOrderTrait
             $offerId              = $params["offer_id"];
             $channelOrderId       = $params["channel_order_id"];
             $optionParamList      = $params["option_param_list"];
+            $deliveryPrice        = $params["delivery_price"] ?? 0;
             $buyerName            = $params["buyer_name"];
             $buyerClearanceNumber = $params["buyer_clearance_number"];
             $buyerNumber          = $params["buyer_number"];
@@ -217,6 +218,7 @@ trait MallOrderTrait
                         "totalQuantity"        => $totalQuantity,
                         "totalPrice"           => $totalPrice,
                         "totalChannelPrice"    => $totalChannelPrice,
+                        "deliveryPrice"        => $deliveryPrice,
                         "buyerName"            => $buyerName,
                         "buyerClearanceNumber" => $buyerClearanceNumber,
                         "buyerNumber"          => $buyerNumber,
