@@ -222,6 +222,9 @@ if (!function_exists("helpers_json_response")) {
                     "message" => trim($message) != "" ? $message : "잘못 된 접근입니다.",
                 ]
             ];
+            if( isset($params["error_code"]) && !empty($params["error_code"]) ){
+                $error["error"]["code"] = $params["error_code"];
+            }
             if( isset($params["data"]) && !empty($params["data"]) ){
                 $error["data"] = $params["data"];
             }

@@ -333,7 +333,11 @@ class MallController extends Controller
             if( $result["isSuccess"] == true ){
                 return helpers_json_response(HttpConstant::OK, $result);
             } else {
-                return helpers_json_response(HttpConstant::BAD_REQUEST, [], $result["msg"]);
+                $errorCode = ["error_code" => ""];
+                if( isset($result["data"]["error_code"]) ){
+                    $errorCode["error_code"] = $result["data"]["error_code"];
+                }
+                return helpers_json_response(HttpConstant::BAD_REQUEST, $errorCode, $result["msg"]);
             }
         } catch (Exception $e) {
             return helpers_json_response(HttpConstant::BAD_REQUEST, [], $e->getMessage());

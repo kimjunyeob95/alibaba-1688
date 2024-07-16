@@ -6,6 +6,7 @@ use App\Constants\EasySellConstant;
 use App\Constants\MallConstant;
 use App\Constants\MallErrorMessageConstant;
 use App\Constants\OnchannelConstant;
+use App\Exceptions\ArrayValueError;
 use App\Models\ApiUser;
 use App\Models\EasysellProductDetailLog;
 use App\Models\EasysellProductLog;
@@ -206,7 +207,11 @@ abstract class MallApiAbstract
             $result = $this->productWappRegistTrait($offerId);
 
             if( $result["isSuccess"] != true ){
-                throw new Exception($result["msg"]);
+                $errArray = [
+                    "msg"        => $result["msg"],
+                    "error_code" => MallErrorMessageConstant::ERROR_CODE["WAPP"]
+                ];
+                throw new ArrayValueError($errArray);
             }
 
             if( $this->channel == MallConstant::MALL_ONCHANNEL ){
@@ -217,16 +222,21 @@ abstract class MallApiAbstract
                     "endPoint" => "/api/v1/product/regist/1688"
                 ];
                 $regResult = $this->productRegist([$offerId], $channelParams);
-
                 if( !empty($regResult["data"]["fail"]) ){
-                    throw new Exception($regResult["data"]["fail"][0]["msg"]);
+                    $errArray = [
+                        "msg"        => $regResult["data"]["fail"][0]["msg"],
+                        "error_code" => $regResult["data"]["fail"][0]["error_code"]
+                    ];
+                    throw new ArrayValueError($errArray);
                 }
                 if( !empty($regResult["data"]["success"][0]) ){
                     $returnMsg = helpers_success_message($regResult["data"]["success"][0]);
                 }
             }
-        } catch (Exception $e) {
-            $returnMsg = helpers_fail_message($e->getMessage());
+        } catch (ArrayValueError $e) {
+            $errorArray = $e->getErrorArray();
+            $msg        = $errorArray["msg"];
+            $returnMsg  = helpers_fail_message($msg, ["error_code" => $errorArray["error_code"]]);
         }
 
         return $returnMsg;

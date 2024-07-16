@@ -53,6 +53,19 @@ class MallErrorMessageConstant
     public const ERROR_MESSAGE_SUB_EN_IMAGE       = "서브 영문 이미지";
     public const ERROR_MESSAGE_CATEGORY_REGIST    = "채널 카테고리 전송 등록";
 
+    public const ERROR_CODE = [
+        "PRODUCT"           => "EP1001",
+        "CATEGORY_REGIST"   => "EP1002",
+        "OPTIONS"           => "EP1003",
+        "W_APP_MAPPINGCODE" => "EP1004",
+        "OC_MAPPINGCODE"    => "EP1005",
+        "TRANS_STATUS"      => "ET2001",
+        "PRD_DESC_KR"       => "ET2002",
+        "TRANS_IMG"         => "ET2003",
+        "OC_API"            => "ES3001",
+        "WAPP"              => "WAppError",
+    ];
+
     public static function getErrorMessageNotDefault($constantName): string
     {
         $errorMessage = constant('self::ERROR_MESSAGE_' . $constantName);

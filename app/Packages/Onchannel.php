@@ -13,6 +13,7 @@ use App\Constants\MallErrorMessageConstant;
 use App\Constants\OnchannelConstant;
 use App\Constants\ProductConstant;
 use App\Constants\WConstant;
+use App\Exceptions\ArrayValueError;
 use App\Models\CategoryMapping;
 use App\Models\ChannelCategoryRegistData;
 use App\Models\OnchannelProductDetailLog;
@@ -94,16 +95,24 @@ class Onchannel extends MallApiAbstract
                         ])->where("offer_id", $offerId)->first();
 
                         if( $prdObj == null ){
-                            throw new Exception(MallErrorMessageConstant::getNotHaveErrorMessage("PRODUCT"));
+                            $errArray = [
+                                "msg"        => MallErrorMessageConstant::getNotHaveErrorMessage("PRODUCT"),
+                                "error_code" => MallErrorMessageConstant::ERROR_CODE["PRODUCT"]
+                            ];
+                            throw new ArrayValueError($errArray);
                         }
 
                         $getPrdParams = $this->_getPrdParams($prdObj, $sendType, MallConstant::SEND_TYPE_REGIST);
                         if( $getPrdParams["isSuccess"] === false ){
-                            throw new Exception($getPrdParams["msg"]);
+                            $errArray = [
+                                "msg"        => $getPrdParams["msg"],
+                                "error_code" => $getPrdParams["data"]["error_code"]
+                            ];
+                            throw new ArrayValueError($errArray);
                         }
-                        $payload = $getPrdParams["data"];
 
-                        $header = array(
+                        $payload = $getPrdParams["data"];
+                        $header  = array(
                             'Content-type: application/json',
                             'Authorization: Bearer ' . $this->token,
                         );
@@ -145,35 +154,19 @@ class Onchannel extends MallApiAbstract
                                 $resultCurl = "offerId: {$offerId} | endPoint: {$endPoint} \r\n" . $resultCurl;
                                 debug_log($resultCurl, "onchannel/prdRegist", "prdRegist");
                             }
-                            $log = OnchannelProductLog::updateOrCreate(
-                                [
-                                    "offer_id"  => $offerId,
-                                    "member_id" => OnchannelConstant::ONCH1688,
-                                    "send_type" => $sendType,
-                                ],
-                                [
-                                    "prd_code"       => 0,
-                                    "regist_success" => MallConstant::REGIST_ERROR,
-                                    "message"        => $msg,
-                                ]
-                            );
-
-                            OnchannelProductDetailLog::create([
-                                "log_id"     => $log->id,
-                                "send_type"  => MallConstant::SEND_TYPE_REGIST,
-                                "is_success" => MallConstant::REGIST_FAIL,
-                                "message"    => $msg
-                            ]);
-
-                            $failIds[] = [
-                                "offer_id" => $offerId,
-                                "msg"      => $msg
+                            $errArray = [
+                                "msg"        => $msg,
+                                "error_code" => MallErrorMessageConstant::ERROR_CODE["OC_API"]
                             ];
+                            throw new ArrayValueError($errArray);
                         }
-                    } catch (Exception $e) {
-                        $failIds[] = [
-                            "offer_id" => $offerId,
-                            "msg"      => $e->getMessage()
+                    } catch (ArrayValueError $e) {
+                        $errorArray = $e->getErrorArray();
+                        $msg        = $errorArray["msg"];
+                        $failIds[]  = [
+                            "offer_id"   => $offerId,
+                            "msg"        => $msg,
+                            "error_code" => $errorArray["error_code"]
                         ];
     
                         $log = OnchannelProductLog::updateOrCreate(
@@ -185,7 +178,7 @@ class Onchannel extends MallApiAbstract
                             [
                                 "prd_code"       => 0,
                                 "regist_success" => MallConstant::REGIST_ERROR,
-                                "message"        => $e->getMessage(),
+                                "message"        => $msg,
                             ]
                         );
 
@@ -193,7 +186,34 @@ class Onchannel extends MallApiAbstract
                             "log_id"     => $log->id,
                             "send_type"  => MallConstant::SEND_TYPE_REGIST,
                             "is_success" => MallConstant::REGIST_FAIL,
-                            "message"    => $e->getMessage(),
+                            "message"    => $msg,
+                        ]);
+                    } catch (Exception $e) {
+                        $msg = $e->getMessage();
+
+                        $failIds[] = [
+                            "offer_id"   => $offerId,
+                            "msg"        => $msg,
+                            "error_code" => MallErrorMessageConstant::ERROR_CODE["WAPP"]
+                        ];
+                        $log = OnchannelProductLog::updateOrCreate(
+                            [
+                                "offer_id"  => $offerId,
+                                "member_id" => OnchannelConstant::ONCH1688,
+                                "send_type" => $sendType,
+                            ],
+                            [
+                                "prd_code"       => 0,
+                                "regist_success" => MallConstant::REGIST_ERROR,
+                                "message"        => $msg,
+                            ]
+                        );
+
+                        OnchannelProductDetailLog::create([
+                            "log_id"     => $log->id,
+                            "send_type"  => MallConstant::SEND_TYPE_REGIST,
+                            "is_success" => MallConstant::REGIST_FAIL,
+                            "message"    => $msg,
                         ]);
                     }
                 } else {
@@ -205,8 +225,9 @@ class Onchannel extends MallApiAbstract
                         ];
                     } else {
                         $failIds[] = [
-                            "offer_id" => $offerId,
-                            "msg"      => $modiResult["msg"]
+                            "offer_id"   => $offerId,
+                            "msg"        => $modiResult["msg"],
+                            "error_code" => $modiResult["data"]["error_code"]
                         ];
                     }
                 }
@@ -254,12 +275,20 @@ class Onchannel extends MallApiAbstract
                     ])->where("offer_id", $offerId)->first();
 
                     if( $prdObj == null ){
-                        throw new Exception(MallErrorMessageConstant::getNotHaveErrorMessage("PRODUCT"));
+                        $errArray = [
+                            "msg"        => MallErrorMessageConstant::getNotHaveErrorMessage("PRODUCT"),
+                            "error_code" => MallErrorMessageConstant::ERROR_CODE["PRODUCT"]
+                        ];
+                        throw new ArrayValueError($errArray);
                     }
 
                     $getPrdParams = $this->_getPrdParams($prdObj, $sendType, MallConstant::SEND_TYPE_MODI);
                     if( $getPrdParams["isSuccess"] === false ){
-                        throw new Exception($getPrdParams["msg"]);
+                        $errArray = [
+                            "msg"        => $getPrdParams["msg"],
+                            "error_code" => $getPrdParams["data"]["error_code"]
+                        ];
+                        throw new ArrayValueError($errArray);
                     }
                     $payload = $getPrdParams["data"];
 
@@ -291,16 +320,24 @@ class Onchannel extends MallApiAbstract
                             $resultCurl = "offerId: {$offerId} | endPoint: {$endPoint} \r\n" . $resultCurl;
                             debug_log($resultCurl, "onchannel/prdModi", "prdModi");
                         }
-
-                        OnchannelProductDetailLog::create([
-                            "log_id"     => $logObj->id,
-                            "send_type"  => MallConstant::SEND_TYPE_MODI,
-                            "is_success" => MallConstant::REGIST_ERROR,
-                            "message"    => $msg
-                        ]);
-
-                        $returnMsg = helpers_fail_message($msg);
+                        $errArray = [
+                            "msg"        => $msg,
+                            "error_code" => MallErrorMessageConstant::ERROR_CODE["OC_API"]
+                        ];
+                        throw new ArrayValueError($errArray);
                     }
+                } catch (ArrayValueError $e) {
+                    $errorArray = $e->getErrorArray();
+                    $msg        = $errorArray["msg"];
+                    
+                    OnchannelProductDetailLog::create([
+                        "log_id"     => $logObj->id,
+                        "send_type"  => MallConstant::SEND_TYPE_MODI,
+                        "is_success" => MallConstant::REGIST_ERROR,
+                        "message"    => $msg
+                    ]);
+
+                    $returnMsg = helpers_fail_message($msg, ["error_code" => $errorArray["error_code"]]);
                 } catch (Exception $e) {
                     $msg = $e->getMessage();
                     OnchannelProductDetailLog::create([
@@ -310,7 +347,7 @@ class Onchannel extends MallApiAbstract
                         "message"    => $msg
                     ]);
 
-                    $returnMsg = helpers_fail_message($msg);
+                    $returnMsg = helpers_fail_message($msg, ["error_code" => MallErrorMessageConstant::ERROR_CODE["WAPP"]]);
                 }
             }
         }
@@ -380,28 +417,52 @@ class Onchannel extends MallApiAbstract
                 ])->count();
     
                 if( $channelCnt == 0 ){
-                    throw new Exception(MallErrorMessageConstant::getFitErrorMessage("CATEGORY_REGIST"));
+                    $errArray = [
+                        "msg"        => MallErrorMessageConstant::getFitErrorMessage("CATEGORY_REGIST"),
+                        "error_code" => MallErrorMessageConstant::ERROR_CODE["CATEGORY_REGIST"]
+                    ];
+                    throw new ArrayValueError($errArray);
                 }
             }
 
             if(count($prdObj->no_except_options) < 1){
-                throw new Exception(MallErrorMessageConstant::getNotHaveErrorMessage("OPTIONS"));
+                $errArray = [
+                    "msg"        => MallErrorMessageConstant::getFitErrorMessage("OPTIONS"),
+                    "error_code" => MallErrorMessageConstant::ERROR_CODE["OPTIONS"]
+                ];
+                throw new ArrayValueError($errArray);
             }
 
             if( $prdObj->w_mapping == null ){
-                throw new Exception(MallErrorMessageConstant::getFitErrorMessage("W_APP_MAPPINGCODE"));
+                $errArray = [
+                    "msg"        => MallErrorMessageConstant::getFitErrorMessage("W_APP_MAPPINGCODE"),
+                    "error_code" => MallErrorMessageConstant::ERROR_CODE["W_APP_MAPPINGCODE"]
+                ];
+                throw new ArrayValueError($errArray);
             }
 
             if( $prdObj->oc_mapping == null ){
-                throw new Exception(MallErrorMessageConstant::getFitErrorMessage("OC_MAPPINGCODE"));
+                $errArray = [
+                    "msg"        => MallErrorMessageConstant::getFitErrorMessage("OC_MAPPINGCODE"),
+                    "error_code" => MallErrorMessageConstant::ERROR_CODE["OC_MAPPINGCODE"]
+                ];
+                throw new ArrayValueError($errArray);
             }
 
             if( $sendType == OnchannelConstant::PRD_CHANNEL_PRIVATE ){
                 if( $prdObj->trans_stauts == ProductConstant::TRANS_STATUS_N ){
-                    throw new Exception(MallErrorMessageConstant::getFitErrorMessage("TRANS_STATUS"));
+                    $errArray = [
+                        "msg"        => MallErrorMessageConstant::getFitErrorMessage("TRANS_STATUS"),
+                        "error_code" => MallErrorMessageConstant::ERROR_CODE["TRANS_STATUS"]
+                    ];
+                    throw new ArrayValueError($errArray);
                 }
                 if( $prdObj->prd_desc_kr == "" ){
-                    throw new Exception(MallErrorMessageConstant::getFitErrorMessage("PRD_DESC_KR"));
+                    $errArray = [
+                        "msg"        => MallErrorMessageConstant::getFitErrorMessage("PRD_DESC_KR"),
+                        "error_code" => MallErrorMessageConstant::ERROR_CODE["PRD_DESC_KR"]
+                    ];
+                    throw new ArrayValueError($errArray);
                 }
             }
 
@@ -418,7 +479,11 @@ class Onchannel extends MallApiAbstract
                     if( $sendType == OnchannelConstant::PRD_CHANNEL_PRIVATE ){
                         if( $imgObj->img_url_trans == "" ){
                             $msg = $imgObj->img_url_origin . " 번역 미완료 이미지";
-                            throw new Exception($msg);
+                            $errArray = [
+                                "msg"        => $msg,
+                                "error_code" => MallErrorMessageConstant::ERROR_CODE["TRANS_IMG"]
+                            ];
+                            throw new ArrayValueError($errArray);
                         }
 
                         $images[] = [
@@ -547,8 +612,12 @@ class Onchannel extends MallApiAbstract
             $payload["options"] = $options;
 
             $return = helpers_success_message($payload);
+        } catch(ArrayValueError $e){
+            $errorArray = $e->getErrorArray();
+            $msg        = $errorArray["msg"];
+            $return     = helpers_fail_message($msg, ["error_code" => $errorArray["error_code"]]);
         } catch(Exception $e){
-            $return = helpers_fail_message($e->getMessage());
+            $return = helpers_fail_message($e->getMessage(), ["error_code" => MallErrorMessageConstant::ERROR_CODE["WAPP"]]);
         }
 
         return $return;
