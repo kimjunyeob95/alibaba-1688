@@ -542,6 +542,7 @@ class EasySell extends MallApiAbstract
 
                 $idx++;
             }
+            debug_log($unitInfo, "easysell/{$type}", $type);
 
             $voParams = [
                 "ItemNo"                => $offerId,
