@@ -10,8 +10,8 @@ class WhiteListIpMiddleware
     public function handle(Request $request, Closure $next)
     {
         $exceptRoute = $request->getRequestUri();
+        $allowRoutes = ["/api/w/1688/test"];
 
-        $allowRoutes = ["/api/w/1688/test", "/api/w/login", "/api/w/logout"];
         if( !in_array($exceptRoute, $allowRoutes) ){
             // .env에서 허용된 IP 목록을 가져옵니다.
             $allowedIps = explode(',', env('WHITELIST_IPS'));

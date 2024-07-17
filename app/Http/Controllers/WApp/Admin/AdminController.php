@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use App\Models\AdminData;
+use Carbon\Carbon;
 use Exception;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
@@ -48,6 +49,9 @@ class AdminController extends Controller
             }
 
             session(['adminInfo' => $user]);
+            AdminData::where('user_id', $credentials['user_id'])->update([
+                "last_logined_at" => Carbon::now()
+            ]);
 
             $html = "<script>alert('" . $user->name . "님 환영합니다. '); window.location.href='" . route('product.queryProductDetail') . "';</script>";
             return response($html);

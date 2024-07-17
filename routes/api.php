@@ -28,7 +28,7 @@ Route::name('w.')->prefix('w')->group(function () {
         Route::get('/test', [WCategoryController::class, 'testEndPoint'])->name('testEndPoint');
     });
 
-    Route::middleware(["oepnApi.jwt.verify"])->group(function () {
+    Route::middleware(["oepnApi.jwt.verify", "whiteIp"])->group(function () {
         /** 카테고리 */
         Route::name('category.')->prefix('category')->group(function () {
             /** 1688에서 수집 한 카테고리를 단계별로 정리한 데이터 목록 */
@@ -234,7 +234,7 @@ Route::name('mall.')->prefix('mall')->group(function () {
             Route::post("/mapping", [MallCategoryController::class, "mapping"])->name("mapping");
         });
 
-        Route::middleware(["oepnApi.jwt.verify"])->group(function () {
+        Route::middleware(["oepnApi.jwt.verify", "whiteIp"])->group(function () {
             /** 주문 조회 */
             Route::get('/order/{orderId}', [MallController::class, "orderInfo"])->name("orderInfo");
             /** 주문 생성 */
@@ -260,7 +260,7 @@ Route::name('mall.')->prefix('mall')->group(function () {
 Route::name('genuio.')->prefix('genuio')->group(function () {
     Route::post('/token/create', [GenuioController::class, "tokenCreate"])->name("tokenCreate");
 
-    Route::middleware(["oepnApi.jwt.verify"])->group(function () {
+    Route::middleware(["oepnApi.jwt.verify", "whiteIp"])->group(function () {
         Route::post('/img/trans', [GenuioController::class, "imgTrans"])->name("imgTrans");
 
         /** 상품 조회 */
