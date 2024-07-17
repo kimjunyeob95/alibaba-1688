@@ -721,6 +721,8 @@ if (!function_exists("calcEasySellSalePrice")) {
             "option_price"   => $option_price,
             "marginRating"   => $marginRating,
             "delivery_price" => $delivery_price,
+            "margin"         => env("EASYSELL_PRICE_RATE"),
+            "margin"         => (float)env("EASYSELL_PRICE_RATE", "1"),
         ], JSON_UNESCAPED_UNICODE), "easysell/{$type}", $type);
 
         if($type != "static"){
