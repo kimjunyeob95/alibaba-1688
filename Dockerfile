@@ -6,6 +6,10 @@ ARG PROFILE
 #dev/prod
 ENV ENVIRONMENT=${PROFILE}
 
+ENV LANG=ko_KR.UTF-8
+ENV LANGUAGE=ko_KR:ko
+ENV LC_ALL=ko_KR.UTF-8
+
 # Install dependencies
 RUN apt-get update && apt-get install -y \
     wget \
@@ -26,12 +30,13 @@ RUN apt-get update && apt-get install -y \
     libffi-dev \
     curl \
     unzip \
-    libmcrypt4 \
     locales \
     libzip-dev \
     vim \
     awscli \
-    nginx net-tools procps \
+    nginx \
+    net-tools \
+    procps \
     supervisor \
     exiftool \
     libmagickwand-dev \
@@ -40,12 +45,10 @@ RUN apt-get update && apt-get install -y \
     libfreetype6-dev \
     fonts-nanum
 
-RUN locale-gen ko_KR.UTF-8 && \
-    update-locale LANG=ko_KR.UTF-8
-
-ENV LANG=ko_KR.UTF-8
-ENV LANGUAGE=ko_KR:ko
-ENV LC_ALL=ko_KR.UTF-8
+# 로케일 생성 및 업데이트
+RUN echo "ko_KR.UTF-8 UTF-8" > /etc/locale.gen && \
+    locale-gen ko_KR.UTF-8 && \
+    update-locale LANG=ko_KR.UTF-8 LC_ALL=ko_KR.UTF-8
 
 # Python 3.7 설치
 RUN wget https://www.python.org/ftp/python/3.7.12/Python-3.7.12.tgz && \
