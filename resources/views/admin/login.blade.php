@@ -98,7 +98,8 @@
         <script type="text/javascript">
 
             $(document).ready(function(){
-                $('#login').click(function(){
+
+                function form_submit() {
                     let user_id  = $("#user_id").val();
                     let password = $("#password").val();
 
@@ -112,6 +113,16 @@
                     }
 
                     $("#loginFrm").submit();
+                }
+
+                $('#password').keypress(function(event) {
+                    if (event.which === 13) { // 13은 엔터 키
+                        form_submit();
+                    }
+                });
+
+                $('#login').click(function(){
+                    form_submit();
                 });
             });
         </script>
