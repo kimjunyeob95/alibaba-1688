@@ -9,12 +9,12 @@ class AdminMiddleware
 {
     public function handle(Request $request, Closure $next)
     {
-        $exceptRoute = $request->getRequestUri();
+        $exceptRoute = "/" . $request->path();
         $allowRoutes = ["/wapp/admin/login", "/wapp/admin/signIn"];
 
         if( !in_array($exceptRoute, $allowRoutes) ){
             if (!session()->has('adminInfo') || !session('adminInfo')) {
-                return redirect()->route('wapp.admin.login');
+                return redirect()->route('wapp.admin.login', ['redirect_url' => $exceptRoute]);
             }
         }
 

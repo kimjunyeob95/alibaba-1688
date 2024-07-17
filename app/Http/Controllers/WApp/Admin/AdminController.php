@@ -22,7 +22,10 @@ class AdminController extends Controller
 
     public function login(): View
     {   
-        return view("admin.login")->with([]);
+        $redirect_url = $this->request->get("redirect_url", "");
+        return view("admin.login")->with([
+            "redirect_url" => $redirect_url
+        ]);
     }
 
     public function signIn()
@@ -53,7 +56,12 @@ class AdminController extends Controller
                 "last_logined_at" => Carbon::now()
             ]);
 
-            $html = "<script>alert('" . $user->name . "님 환영합니다. '); window.location.href='" . route('product.queryProductDetail') . "';</script>";
+            $redirect_url = $this->request->post("redirect_url");
+            if( empty($redirect_url) ){
+                $redirect_url = route('product.queryProductDetail');
+            }
+
+            $html = "<script>alert('" . $user->name . "님 환영합니다. '); window.location.href='" . $redirect_url . "';</script>";
             return response($html);
         } catch (Exception $e) {
             return back()->withErrors(['error' => $e->getMessage()])->withInput();

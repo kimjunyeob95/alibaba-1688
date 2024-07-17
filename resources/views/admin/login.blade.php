@@ -46,6 +46,8 @@
                         <img src="{{ url('/assets/img/logo.png') }}" alt="Logo" class="logo">
                         <form action="{{ route('wapp.admin.signIn') }}" method="POST" id="loginFrm">
                             @csrf
+                            <input type="hidden" name="redirect_url" value="{{ $redirect_url }}" />
+
                             <div class="card-body">
                                 <h1>WApp Login</h1>
                                 @if ($errors->has('error'))
