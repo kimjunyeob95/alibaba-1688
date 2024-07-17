@@ -5,5 +5,13 @@
                 <use xlink:href="/vendors/@coreui/icons/svg/free.svg#cil-menu"></use>
             </svg>
         </button>
+        <div class="d-flex ms-auto">
+            <button class="btn btn-outline-danger" id="btn-logout" type="button">
+                <svg class="icon">
+                    <use xlink:href="/vendors/@coreui/icons/svg/free.svg#cil-account-logout"></use>
+                </svg>
+                Logout
+            </button>
+        </div>
     </div>
 </header>
