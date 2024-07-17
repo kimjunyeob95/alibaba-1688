@@ -716,6 +716,12 @@ if (!function_exists("calcEasySellSalePrice")) {
 
         //이지셀 판매가
         $salePrice = ceil(($option_price * $marginRating) / 100) * 100 + $delivery_price;
+        debug_log(json_encode([
+            "salePrice"      => $salePrice,
+            "option_price"   => $option_price,
+            "marginRating"   => $marginRating,
+            "delivery_price" => $delivery_price,
+        ], JSON_UNESCAPED_UNICODE), "easysell/{$type}", $type);
 
         if($type != "static"){
             $salePrice = !empty($md_price) ? $md_price : $salePrice;
