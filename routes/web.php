@@ -8,6 +8,7 @@ use App\Http\Controllers\GenuioController;
 use App\Http\Controllers\OnchannelController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProductW2Controller;
+use App\Http\Controllers\WApp\Admin\AdminController;
 use App\Http\Controllers\WApp\Order\OrderController;
 use Illuminate\Support\Facades\Route;
 
@@ -22,7 +23,8 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get("/", [ProductController::class, "getPrdList"]);
+Route::get("/", [ProductController::class, "queryProductDetail"])->name("/");
+
 
 /**
  * 상품
@@ -69,9 +71,26 @@ Route::prefix("product")->name("product.")->group(function(){
 });
 
 /**
- * 주문
+ * WApp
  */
 Route::prefix("wapp")->name("wapp.")->group(function(){
+    /** 관리자 */
+    Route::prefix("admin")->name("admin.")->group(function(){
+        /** 로그인 페이지 */
+        Route::get("/login", [AdminController::class, "login"])->name("login");
+        /** 로그인 처리 */
+        Route::post("/signIn", [AdminController::class, "signIn"])->name("signIn");
+        /** 로그아웃 처리 */
+        Route::get("/logout", [AdminController::class, "logout"])->name("logout");
+        /** 회원생성 페이지 */
+        Route::get("/regist", [AdminController::class, "registForm"])->name("registForm");
+        /** 회원생성 */
+        Route::post("/regist", [AdminController::class, "regist"])->name("regist");
+    });
+
+    /**
+     * 주문
+     */
     Route::prefix("order")->name("order.")->group(function(){
         /** 주문 리스트 */
         Route::get("/list", [OrderController::class, "orderList"])->name("list");
