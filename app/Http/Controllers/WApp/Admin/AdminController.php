@@ -2,12 +2,15 @@
 
 namespace App\Http\Controllers\WApp\Admin;
 
+use App\Constants\AdminErrorMessageConstant;
+use App\Constants\HttpConstant;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use App\Models\AdminData;
 use Carbon\Carbon;
 use Exception;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 
@@ -74,5 +77,59 @@ class AdminController extends Controller
 
         $html = "<script>alert('로그아웃되었습니다.'); window.location.href='" . route('wapp.admin.login') . "';</script>";
         return response($html);
+    }
+
+    public function registForm(): View
+    {   
+        return view("admin.regist")->with([]);
+    }
+
+    public function regist(): JsonResponse
+    {   
+        try {
+            $validator = Validator::make($this->request->all(), [
+                'user_id'  => 'required|string',
+                'password' => 'required|string',
+                'email'    => 'required|email',
+                'company'  => 'required|string',
+                'name'     => 'required|string',
+                'level'    => 'required|string',
+            ], [
+                'user_id.required'  => AdminErrorMessageConstant::getNotHaveErrorMessage('USER_ID'),
+                'password.required' => AdminErrorMessageConstant::getNotHaveErrorMessage('PASSWORD'),
+                'email.required'    => AdminErrorMessageConstant::getNotHaveErrorMessage('EMAIL'),
+                'company.required'  => AdminErrorMessageConstant::getNotHaveErrorMessage('COMPANY'),
+                'name.required'     => AdminErrorMessageConstant::getNotHaveErrorMessage('NAME'),
+                'level.required'    => AdminErrorMessageConstant::getNotHaveErrorMessage('LEVEL'),
+            ]);
+            if ($validator->fails()) {
+                throw new Exception($validator->errors()->first());
+            }
+
+            $password = Hash::make($this->request->post("password"));
+            $insParam = [
+                'user_id'  => $this->request->post('user_id'),
+                'password' => $password,
+                'email'    => $this->request->post('email'),
+                'company'  => $this->request->post('company'),
+                'name'     => $this->request->post('name'),
+                'level'    => $this->request->post('level'),
+            ];
+
+            $idCnt = AdminData::where("user_id", $insParam["user_id"])->count();
+            if( $idCnt > 0 ){
+                throw new Exception(AdminErrorMessageConstant::getHaveErrorMessage('USER_ID'));
+            }
+            $emailCnt = AdminData::where("email", $insParam["email"])->count();
+            if( $emailCnt > 0 ){
+                throw new Exception(AdminErrorMessageConstant::getHaveErrorMessage('EMAIL'));
+            }
+
+            AdminData::create($insParam);
+
+            return helpers_json_response(HttpConstant::OK, [], "생성되었습니다.");
+        } catch (Exception $e) {
+            return helpers_json_response(HttpConstant::BAD_REQUEST, [], $e->getMessage());
+        }
     }
 }

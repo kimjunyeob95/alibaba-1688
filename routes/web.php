@@ -78,8 +78,14 @@ Route::prefix("wapp")->name("wapp.")->group(function(){
     Route::prefix("admin")->name("admin.")->group(function(){
         /** 로그인 페이지 */
         Route::get("/login", [AdminController::class, "login"])->name("login");
+        /** 로그인 처리 */
         Route::post("/signIn", [AdminController::class, "signIn"])->name("signIn");
+        /** 로그아웃 처리 */
         Route::get("/logout", [AdminController::class, "logout"])->name("logout");
+        /** 회원생성 페이지 */
+        Route::get("/regist", [AdminController::class, "registForm"])->name("registForm");
+        /** 회원생성 */
+        Route::post("/regist", [AdminController::class, "regist"])->name("regist");
     });
 
     /**
