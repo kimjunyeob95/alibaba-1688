@@ -9,7 +9,10 @@ class AdminMiddleware
 {
     public function handle(Request $request, Closure $next)
     {
-        $exceptRoute = "/" . $request->path();
+        $exceptRoute = $request->path();
+        if( $exceptRoute != "/"){
+            $exceptRoute = "/" . $exceptRoute;
+        }
         $allowRoutes = ["/wapp/admin/login", "/wapp/admin/signIn"];
 
         if( !in_array($exceptRoute, $allowRoutes) ){
