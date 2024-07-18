@@ -168,11 +168,90 @@ class OrderW1 extends OrderAbstract
 
     /**
     * @func orderList
-    * @description '주문 리스트'
+    * @description 'WApp 주문 리스트'
     * @param array $params
     * @return array
     */
     public function orderList(array $params): array
+    {
+        $returnMsg = $this->returnMsg;
+        try {
+            $page         = (int)$params["page"];
+            $pageSize     = (int)$params["pageSize"];
+            $orderStatus  = $params["orderStatus"];
+            $refundStatus = $params["refundStatus"];
+            $timeCls      = $params["timeCls"];
+            $startTime    = $params["startTime"];
+            $endTime      = $params["endTime"];
+
+            $endPoint = "param2/1/com.alibaba.trade/alibaba.trade.getBuyerOrderList/";
+            $payload = [
+                'access_token' => $this->accessToken,
+                'page'         => $page,
+                'pageSize'     => $pageSize,
+            ];
+
+            if( !empty($orderStatus) ){
+                $payload["orderStatus"] = $orderStatus;
+            }
+            if( !empty($refundStatus) ){
+                $payload["refundStatus"] = $refundStatus;
+            }
+            if( !empty($timeCls) ){
+                if( $timeCls == "createOrder" ){
+                    if( !empty($startTime) ) {
+                        $payload["createStartTime"] = formatToCST($startTime);
+                    }
+                    if( !empty($endTime) ) {
+                        $payload["createEndTime"] = formatToCST($endTime);
+                    }
+                } else if( $timeCls == "modiOrder" ){
+                    if( !empty($startTime) ) {
+                        $payload["modifyStartTime"] = formatToCST($startTime);
+                    }
+                    if( !empty($endTime) ) {
+                        $payload["modifyEndTime"] = formatToCST($endTime);
+                    }
+                }
+            }
+            $curlResult = curl_1688("get", $endPoint, $payload);
+            $paginator  = new LengthAwarePaginator(collect(), 0, $page, $pageSize);
+            if( isset($curlResult["data"]["result"]) && !empty($curlResult["data"]["result"]) ){
+                $apiData      = $curlResult["data"];
+                $totalRecords = $apiData["totalRecord"];
+
+                foreach ($apiData["result"] as &$data) {
+                    $baseInfo = $data["baseInfo"];
+                    $orderId  = $baseInfo["idOfStr"];
+                    
+                    $data["baseObj"]    = OrderBaseData::where("order_id", $orderId)->first();
+                    $data["channelObj"] = OrderChannelData::where("order_id", $orderId)->first();
+                }
+
+                $paginator = new LengthAwarePaginator(
+                    collect($apiData["result"]), // 현재 페이지의 아이템들
+                    $totalRecords, // 총 아이템 수
+                    $pageSize, // 페이지 당 아이템 수
+                    $page, // 현재 페이지
+                    ['path' => LengthAwarePaginator::resolveCurrentPath()] // 현재 URL 경로
+                );
+            }
+
+            $returnMsg = helpers_success_message($paginator);
+        } catch (Exception $e) {
+            $returnMsg = helpers_fail_message($e->getMessage());
+        }
+
+        return $returnMsg;
+    }
+
+    /**
+    * @func orderWList
+    * @description 'W 주문 리스트'
+    * @param array $params
+    * @return array
+    */
+    public function orderWList(array $params): array
     {
         $returnMsg = $this->returnMsg;
         try {

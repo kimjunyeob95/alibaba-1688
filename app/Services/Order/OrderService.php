@@ -17,13 +17,24 @@ class OrderService
 
    /**
     * @func orderList
-    * @description '주문 리스트'
+    * @description 'WApp 주문 리스트'
     * @param array $params
     * @return array
     */
    public function orderList(array $params): array
    {
       return $this->orderAbstract->orderList($params);
+   }
+
+   /**
+    * @func orderWList
+    * @description 'W 주문 리스트'
+    * @param array $params
+    * @return array
+    */
+   public function orderWList(array $params): array
+   {
+      return $this->orderAbstract->orderWList($params);
    }
 
    /**

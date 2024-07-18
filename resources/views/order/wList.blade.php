@@ -27,7 +27,7 @@
                 </li>
                 <li class="breadcrumb-item">W App</li>
                 <li class="breadcrumb-item">주문 관리</li>
-                <li class="breadcrumb-item active" aria-current="page">WApp 주문 리스트</li>
+                <li class="breadcrumb-item active" aria-current="page">W 주문 리스트</li>
             </ol>
         </nav>
 
@@ -35,24 +35,12 @@
             <div class="col-12 mb-3">
 
                 <form id="searchFrm">
-                    <input type="hidden" name="orderChannel" value={{ $orderChannel }}>
                     <input type="hidden" name="orderStatus" value={{ $orderStatus }}>
                     <input type="hidden" name="refundStatus" value={{ $refundStatus }}>
 
                     <div class="card">
                         <div class="card-header">
                             <table class="table">
-                                <tr class="align-middle">
-                                    <th style="width: 120px">주문 채널</th>
-                                    <td colspan="2">
-                                        <button type="button" name="orderChannel" class="btn-status btn btn-sm {{ $orderChannel == "" ? "btn-primary" : "btn-dark" }}"
-                                        value="">전체</button>
-                                        @foreach (MallConstant::MALL_NAME as $mallKey => $mallValue)    
-                                            <button type="button" name="orderChannel" class="btn-status btn btn-sm {{ $orderChannel == $mallKey ? "btn-primary" : "btn-dark" }}"
-                                            value="{{ $mallKey }}">{{ $mallValue }}</button>
-                                        @endforeach
-                                    </td>
-                                </tr>
                                 <tr class="align-middle">
                                     <th style="width: 120px">주문 상태</th>
                                     <td colspan="2">

@@ -32,11 +32,19 @@ abstract class OrderAbstract
 
     /**
     * @func orderList
-    * @description '주문 리스트'
+    * @description 'WApp 주문 리스트'
     * @param array $params
     * @return array
     */
     abstract function orderList(array $params): array;
+
+    /**
+    * @func orderWList
+    * @description 'W 주문 리스트'
+    * @param array $params
+    * @return array
+    */
+    abstract function orderWList(array $params): array;
 
     /**
     * @func orderUpdate
