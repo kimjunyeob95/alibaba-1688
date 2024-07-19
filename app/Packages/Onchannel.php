@@ -312,7 +312,7 @@ class Onchannel extends MallApiAbstract
                     } else {
                         $msg = "온채널 통신 에러";
                         if( isset($resultCurl["msg"]) ){
-                            $msg = $msg . $resultCurl["msg"];
+                            $msg = $msg . " " . $resultCurl["msg"];
                         } else {
                             if(is_array($resultCurl)){
                                 $resultCurl = json_encode($resultCurl, JSON_UNESCAPED_UNICODE);
