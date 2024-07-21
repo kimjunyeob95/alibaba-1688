@@ -237,6 +237,8 @@ class OrderW1 extends OrderAbstract
                 );
             }
 
+            $paginator->appends($params);
+
             $returnMsg = helpers_success_message($paginator);
         } catch (Exception $e) {
             $returnMsg = helpers_fail_message($e->getMessage());
