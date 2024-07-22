@@ -12,10 +12,6 @@ use App\Models\ProductData;
 use Illuminate\Pagination\LengthAwarePaginator;
 use App\Models\OrderBaseData;
 use App\Models\OrderChannelData;
-use App\Models\OrderChannelDetailData;
-use App\Models\OrderLogisticsData;
-use App\Models\OrderProductData;
-use App\Models\OrderTradeData;
 use App\Models\ProductOptionData;
 use Illuminate\Pagination\Paginator;
 use App\Vo\Order\OrderChannelDetailDto;
@@ -170,11 +166,109 @@ class OrderW1 extends OrderAbstract
 
     /**
     * @func orderList
-    * @description '주문 리스트'
+    * @description 'WApp 주문 리스트'
     * @param array $params
     * @return array
     */
     public function orderList(array $params): array
+    {
+        $returnMsg = $this->returnMsg;
+        try {
+            $pageSize       = (int)$params["pageSize"];
+            $orderChannel   = $params["orderChannel"];
+            $orderStatus    = $params["orderStatus"];
+            $deliveryStatus = $params["deliveryStatus"];
+            $refundStatus   = $params["refundStatus"];
+            $timeCls        = $params["timeCls"];
+            $startTime      = $params["startTime"];
+            $endTime        = $params["endTime"];
+            $search_cls     = $params["search_cls"];
+            $keyword        = $params["keyword"];
+            $sortArr        = explode("|", $params["sort"]);
+
+            $builder = OrderBaseData::select([
+                "order_base_datas.*",
+                "b.channel_order_id",
+                "b.buyer_name",
+                "b.total_channel_price",
+                "c.phas_amount",
+            ])
+            ->with([
+                "product.main_img",
+                "w_options.option",
+                "logistics"
+            ])
+            ->join("order_channel_datas as b", "order_base_datas.order_id", "=", "b.order_id")
+            ->leftJoin("order_trade_datas as c", "order_base_datas.order_id", "=", "c.order_id");
+
+            if( !empty($orderChannel) ){
+                $builder->where("order_base_datas.channel", $orderChannel);
+            }
+            if( !empty($orderStatus) ){
+                $builder->where("order_base_datas.status", $orderStatus);
+            }
+            if( !empty($deliveryStatus) ){
+                $builder->whereHas('w_options', function($query) use ($deliveryStatus) {
+                    $query->where('logistics_status', $deliveryStatus);
+                });
+            }
+            if( !empty($refundStatus) ){
+                $builder->where("order_base_datas.refund_status", $refundStatus);
+            }
+            if( !empty($timeCls) ){
+                if( $timeCls == "createOrder" ){
+                    if( !empty($startTime) ) {
+                        $builder->where("order_base_datas.created_at", ">=", $startTime . " 00:00:00");
+                    }
+                    if( !empty($endTime) ) {
+                        $builder->where("order_base_datas.created_at", "<=", $endTime . " 23:59:59");
+                    }
+                } else if( $timeCls == "modiOrder" ){
+                    if( !empty($startTime) ) {
+                        $builder->where("order_base_datas.updated_at", ">=", $startTime . " 00:00:00");
+                    }
+                    if( !empty($endTime) ) {
+                        $builder->where("order_base_datas.updated_at", "<=", $endTime . " 23:59:59");
+                    }
+                }
+            }
+            if( !empty($keyword) ){
+                $keyword = preg_replace("/(\r\n|\r|\n)/", ",", trim($keyword));
+                $keyword = explode(",", $keyword);
+                // 각 배열 요소의 앞뒤 공백 제거
+                $keyword = array_map('trim', $keyword);
+                // 빈 값을 제거
+                $keyword = array_filter($keyword);
+                // 중복 제거
+                $keyword = array_unique($keyword);
+
+                if( $search_cls == "order_id"){
+                    $builder->whereIn("order_base_datas." . $search_cls, $keyword);
+                } else if( $search_cls == "channel_order_id"){
+                    $builder->whereIn("b." . $search_cls, $keyword);
+                } else if( $search_cls == "offer_id" ){
+                    $builder->whereIn("order_base_datas." . $search_cls, $keyword);
+                }
+            }
+            $builder->orderBy("order_base_datas." . $sortArr[0], $sortArr[1]);
+
+            $lists = $builder->paginate($pageSize)->appends($params);
+
+            $returnMsg = helpers_success_message($lists);
+        } catch (Exception $e) {
+            $returnMsg = helpers_fail_message($e->getMessage());
+        }
+
+        return $returnMsg;
+    }
+
+    /**
+    * @func orderWList
+    * @description 'W 주문 리스트'
+    * @param array $params
+    * @return array
+    */
+    public function orderWList(array $params): array
     {
         $returnMsg = $this->returnMsg;
         try {
@@ -282,56 +376,9 @@ class OrderW1 extends OrderAbstract
                     $orderDto = new OrderDto();
                     $orderDto->bind($orderData);
     
-                    $baseInfo    = $orderDto->orderBaseDto;
-                    $upsertWhere = $baseInfo->getAllProperties();
-                    unset($upsertWhere["order_id"]);
-                    OrderBaseData::updateOrCreate(
-                        [
-                            "order_id" => $baseInfo->order_id,
-                        ],
-                        $upsertWhere
-                    );
-    
-                    $orderTradeDtos = $orderDto->orderTradeDtos;
-                    foreach ($orderTradeDtos as $orderTradeDto) {
-                        $upsertWhere = $orderTradeDto->getAllProperties();
-                        unset($upsertWhere["order_id"]);
-                        unset($upsertWhere["phase"]);
-                        OrderTradeData::updateOrCreate(
-                            [
-                                "order_id" => $orderTradeDto->order_id,
-                                "phase"    => $orderTradeDto->phase,
-                            ],
-                            $upsertWhere
-                        );
-                    }
-    
-                    $orderProductDtos = $orderDto->orderProductDtos;
-                    foreach ($orderProductDtos as $orderProductDto) {
-                        $upsertWhere = $orderProductDto->getAllProperties();
-                        unset($upsertWhere["order_id"]);
-                        unset($upsertWhere["offer_id"]);
-                        unset($upsertWhere["spec_id"]);
-                        OrderProductData::updateOrCreate(
-                            [
-                                "order_id" => $orderProductDto->order_id,
-                                "offer_id" => $orderProductDto->offer_id,
-                                "spec_id"  => $orderProductDto->spec_id,
-                            ],
-                            $upsertWhere
-                        );
-                    }
-    
-                    $orderLogisticDtos = $orderDto->orderLogisticDtos;
-                    foreach ($orderLogisticDtos as $orderLogisticDto) {
-                        $upsertWhere = $orderLogisticDto->getAllProperties();
-                        unset($upsertWhere["logistics_id"]);
-                        OrderLogisticsData::updateOrCreate(
-                            [
-                                "logistics_id" => $orderLogisticDto->logistics_id,
-                            ],
-                            $upsertWhere
-                        );
+                    $updateResult = $this->upsertOrderBaseData($orderDto);
+                    if( $updateResult["isSuccess"] == false ){
+                        throw new Exception($updateResult["msg"]);
                     }
     
                     DB::commit();
@@ -398,56 +445,9 @@ class OrderW1 extends OrderAbstract
                     $orderDto = new OrderDto();
                     $orderDto->bind($orderData);
 
-                    $baseInfo    = $orderDto->orderBaseDto;
-                    $upsertWhere = $baseInfo->getAllProperties();
-                    unset($upsertWhere["order_id"]);
-                    OrderBaseData::updateOrCreate(
-                        [
-                            "order_id" => $baseInfo->order_id,
-                        ],
-                        $upsertWhere
-                    );
-
-                    $orderTradeDtos = $orderDto->orderTradeDtos;
-                    foreach ($orderTradeDtos as $orderTradeDto) {
-                        $upsertWhere = $orderTradeDto->getAllProperties();
-                        unset($upsertWhere["order_id"]);
-                        unset($upsertWhere["phase"]);
-                        OrderTradeData::updateOrCreate(
-                            [
-                                "order_id" => $orderTradeDto->order_id,
-                                "phase"    => $orderTradeDto->phase,
-                            ],
-                            $upsertWhere
-                        );
-                    }
-
-                    $orderProductDtos = $orderDto->orderProductDtos;
-                    foreach ($orderProductDtos as $orderProductDto) {
-                        $upsertWhere = $orderProductDto->getAllProperties();
-                        unset($upsertWhere["order_id"]);
-                        unset($upsertWhere["offer_id"]);
-                        unset($upsertWhere["spec_id"]);
-                        OrderProductData::updateOrCreate(
-                            [
-                                "order_id" => $orderProductDto->order_id,
-                                "offer_id" => $orderProductDto->offer_id,
-                                "spec_id"  => $orderProductDto->spec_id,
-                            ],
-                            $upsertWhere
-                        );
-                    }
-
-                    $orderLogisticDtos = $orderDto->orderLogisticDtos;
-                    foreach ($orderLogisticDtos as $orderLogisticDto) {
-                        $upsertWhere = $orderLogisticDto->getAllProperties();
-                        unset($upsertWhere["logistics_id"]);
-                        OrderLogisticsData::updateOrCreate(
-                            [
-                                "logistics_id" => $orderLogisticDto->logistics_id,
-                            ],
-                            $upsertWhere
-                        );
+                    $updateResult = $this->upsertOrderBaseData($orderDto);
+                    if( $updateResult["isSuccess"] == false ){
+                        throw new Exception($updateResult["msg"]);
                     }
 
                     DB::commit();
@@ -504,7 +504,7 @@ class OrderW1 extends OrderAbstract
 
     /**
     * @func orderInfoUpdate
-    * @description '주문정보 업데이트'
+    * @description '주문정보 전체 업데이트'
     * @param array $params
     * @return array
     */
@@ -584,56 +584,9 @@ class OrderW1 extends OrderAbstract
                     $orderChannelDetailDtos[] = $orderChannelDetailDto;
                 }
 
-                $baseInfo    = $orderDto->orderBaseDto;
-                $upsertWhere = $baseInfo->getAllProperties();
-                unset($upsertWhere["order_id"]);
-                OrderBaseData::updateOrCreate(
-                    [
-                        "order_id" => $baseInfo->order_id,
-                    ],
-                    $upsertWhere
-                );
-
-                $orderTradeDtos = $orderDto->orderTradeDtos;
-                foreach ($orderTradeDtos as $orderTradeDto) {
-                    $upsertWhere = $orderTradeDto->getAllProperties();
-                    unset($upsertWhere["order_id"]);
-                    unset($upsertWhere["phase"]);
-                    OrderTradeData::updateOrCreate(
-                        [
-                            "order_id" => $orderTradeDto->order_id,
-                            "phase"    => $orderTradeDto->phase,
-                        ],
-                        $upsertWhere
-                    );
-                }
-
-                $orderProductDtos = $orderDto->orderProductDtos;
-                foreach ($orderProductDtos as $orderProductDto) {
-                    $upsertWhere = $orderProductDto->getAllProperties();
-                    unset($upsertWhere["order_id"]);
-                    unset($upsertWhere["offer_id"]);
-                    unset($upsertWhere["spec_id"]);
-                    OrderProductData::updateOrCreate(
-                        [
-                            "order_id" => $orderProductDto->order_id,
-                            "offer_id" => $orderProductDto->offer_id,
-                            "spec_id"  => $orderProductDto->spec_id,
-                        ],
-                        $upsertWhere
-                    );
-                }
-
-                $orderLogisticDtos = $orderDto->orderLogisticDtos;
-                foreach ($orderLogisticDtos as $orderLogisticDto) {
-                    $upsertWhere = $orderLogisticDto->getAllProperties();
-                    unset($upsertWhere["logistics_id"]);
-                    OrderLogisticsData::updateOrCreate(
-                        [
-                            "logistics_id" => $orderLogisticDto->logistics_id,
-                        ],
-                        $upsertWhere
-                    );
+                $updateResult = $this->upsertOrderBaseData($orderDto);
+                if( $updateResult["isSuccess"] == false ){
+                    throw new Exception($updateResult["msg"]);
                 }
 
                 $orderChannelDtoBind = [
@@ -654,26 +607,9 @@ class OrderW1 extends OrderAbstract
                 $orderChannelDto = new OrderChannelDto();
                 $orderChannelDto->bind($orderChannelDtoBind);
 
-                $upsertWhere = $orderChannelDto->getAllProperties();
-                unset($upsertWhere["order_id"]);
-                $ocdObj = OrderChannelData::updateOrCreate(
-                    [
-                        "order_id" => $orderChannelDto->order_id,
-                    ],
-                    $upsertWhere
-                );
-
-                foreach ($orderChannelDetailDtos as $orderChannelDetailDto) {
-                    $upsertWhere = $orderChannelDetailDto->getAllProperties();
-                    unset($upsertWhere["order_channel_id"]);
-                    unset($upsertWhere["option_id"]);
-                    OrderChannelDetailData::updateOrCreate(
-                        [
-                            "order_channel_id" => $ocdObj->id,
-                            "option_id"        => $orderChannelDetailDto->option_id
-                        ],
-                        $upsertWhere
-                    );
+                $updateResult = $this->upsertOrderChannelData($orderChannelDto, $orderChannelDetailDtos);
+                if( $updateResult["isSuccess"] == false ){
+                    throw new Exception($updateResult["msg"]);
                 }
 
                 DB::commit();
@@ -685,6 +621,37 @@ class OrderW1 extends OrderAbstract
                 $returnMsg = helpers_fail_message($ee->getMessage());
             }
 
+        } catch (Exception $e) {
+            $returnMsg = helpers_fail_message($e->getMessage());
+        }
+
+        return $returnMsg;
+    }
+
+    /**
+    * @func orderLogisticsInfo
+    * @description 'W 주문 물류 조회'
+    * @param string $orderId
+    * @return array
+    */
+    public function orderLogisticsInfo(string $orderId): array
+    {
+        $returnMsg = $this->returnMsg;
+        try {
+            $endPoint = "param2/1/com.alibaba.logistics/alibaba.trade.getLogisticsTraceInfo.buyerView/";
+            $payload = [
+                'access_token' => $this->accessToken,
+                'orderId'      => $orderId,
+                'webSite'      => Constant1688::WEBSITE,
+            ];
+
+            $curlResult = curl_1688("get", $endPoint, $payload);
+            
+            $result = [];
+            if( isset($curlResult["data"]["logisticsTrace"]) ){
+                $result = $curlResult["data"]["logisticsTrace"];
+            }
+            $returnMsg = helpers_success_message($result);
         } catch (Exception $e) {
             $returnMsg = helpers_fail_message($e->getMessage());
         }

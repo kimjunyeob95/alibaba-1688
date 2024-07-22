@@ -6,11 +6,6 @@ use App\Abstracts\OrderAbstract;
 use App\Constants\OrderErrorMessageConstant;
 use App\Constants\ProductErrorMessageConstant;
 use App\Models\OrderBaseData;
-use App\Models\OrderChannelData;
-use App\Models\OrderChannelDetailData;
-use App\Models\OrderLogisticsData;
-use App\Models\OrderProductData;
-use App\Models\OrderTradeData;
 use App\Models\ProductOptionData;
 use App\Vo\Order\OrderChannelDetailDto;
 use App\Vo\Order\OrderChannelDto;
@@ -154,62 +149,15 @@ trait MallOrderTrait
                 try {
                     DB::beginTransaction();
 
-                    $orderData = $orderDetailResult["data"]["result"];
+                    $orderData            = $orderDetailResult["data"]["result"];
                     $orderData["offerId"] = $offerId;
                     $orderData["channel"] = $this->channel;
-                    $orderDto = new OrderDto();
+                    $orderDto             = new OrderDto();
                     $orderDto->bind($orderData);
     
-                    $baseInfo    = $orderDto->orderBaseDto;
-                    $upsertWhere = $baseInfo->getAllProperties();
-                    unset($upsertWhere["order_id"]);
-                    OrderBaseData::updateOrCreate(
-                        [
-                            "order_id" => $baseInfo->order_id,
-                        ],
-                        $upsertWhere
-                    );
-    
-                    $orderTradeDtos = $orderDto->orderTradeDtos;
-                    foreach ($orderTradeDtos as $orderTradeDto) {
-                        $upsertWhere = $orderTradeDto->getAllProperties();
-                        unset($upsertWhere["order_id"]);
-                        unset($upsertWhere["phase"]);
-                        OrderTradeData::updateOrCreate(
-                            [
-                                "order_id" => $orderTradeDto->order_id,
-                                "phase"    => $orderTradeDto->phase,
-                            ],
-                            $upsertWhere
-                        );
-                    }
-    
-                    $orderProductDtos = $orderDto->orderProductDtos;
-                    foreach ($orderProductDtos as $orderProductDto) {
-                        $upsertWhere = $orderProductDto->getAllProperties();
-                        unset($upsertWhere["order_id"]);
-                        unset($upsertWhere["offer_id"]);
-                        unset($upsertWhere["spec_id"]);
-                        OrderProductData::updateOrCreate(
-                            [
-                                "order_id" => $orderProductDto->order_id,
-                                "offer_id" => $orderProductDto->offer_id,
-                                "spec_id"  => $orderProductDto->spec_id,
-                            ],
-                            $upsertWhere
-                        );
-                    }
-    
-                    $orderLogisticDtos = $orderDto->orderLogisticDtos;
-                    foreach ($orderLogisticDtos as $orderLogisticDto) {
-                        $upsertWhere = $orderLogisticDto->getAllProperties();
-                        unset($upsertWhere["logistics_id"]);
-                        OrderLogisticsData::updateOrCreate(
-                            [
-                                "logistics_id" => $orderLogisticDto->logistics_id,
-                            ],
-                            $upsertWhere
-                        );
+                    $updateResult = $this->orderW1->upsertOrderBaseData($orderDto);
+                    if( $updateResult["isSuccess"] == false ){
+                        throw new Exception($updateResult["msg"]);
                     }
 
                     $orderChannelDtoBind = [
@@ -230,26 +178,9 @@ trait MallOrderTrait
                     $orderChannelDto = new OrderChannelDto();
                     $orderChannelDto->bind($orderChannelDtoBind);
 
-                    $upsertWhere = $orderChannelDto->getAllProperties();
-                    unset($upsertWhere["order_id"]);
-                    $ocdObj = OrderChannelData::updateOrCreate(
-                        [
-                            "order_id" => $orderChannelDto->order_id,
-                        ],
-                        $upsertWhere
-                    );
-
-                    foreach ($orderChannelDetailDtos as $orderChannelDetailDto) {
-                        $upsertWhere = $orderChannelDetailDto->getAllProperties();
-                        unset($upsertWhere["order_channel_id"]);
-                        unset($upsertWhere["option_id"]);
-                        OrderChannelDetailData::updateOrCreate(
-                            [
-                                "order_channel_id" => $ocdObj->id,
-                                "option_id"        => $orderChannelDetailDto->option_id
-                            ],
-                            $upsertWhere
-                        );
+                    $updateResult = $this->orderW1->upsertOrderChannelData($orderChannelDto, $orderChannelDetailDtos);
+                    if( $updateResult["isSuccess"] == false ){
+                        throw new Exception($updateResult["msg"]);
                     }
     
                     DB::commit();

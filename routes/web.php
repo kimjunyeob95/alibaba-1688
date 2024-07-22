@@ -92,8 +92,10 @@ Route::prefix("wapp")->name("wapp.")->group(function(){
      * 주문
      */
     Route::prefix("order")->name("order.")->group(function(){
-        /** 주문 리스트 */
+        /** WApp 주문 리스트 */
         Route::get("/list", [OrderController::class, "orderList"])->name("list");
+        /** W 주문 리스트 */
+        Route::get("/w/list", [OrderController::class, "orderWList"])->name("wList");
     });
 });
 

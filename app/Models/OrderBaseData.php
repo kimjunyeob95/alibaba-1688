@@ -14,4 +14,16 @@ class OrderBaseData extends Model
     protected $table      = 'order_base_datas';
     protected $guarded    = [];
     protected $fillable   = [];
+
+    public function product () {
+        return $this->hasOne(ProductData::class, "offer_id", "offer_id");
+    }
+
+    public function w_options () {
+        return $this->hasMany(OrderProductData::class, "order_id", "order_id");
+    }
+
+    public function logistics () {
+        return $this->hasMany(OrderLogisticsData::class, "order_id", "order_id");
+    }
 }

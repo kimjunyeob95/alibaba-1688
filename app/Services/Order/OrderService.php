@@ -17,13 +17,24 @@ class OrderService
 
    /**
     * @func orderList
-    * @description '주문 리스트'
+    * @description 'WApp 주문 리스트'
     * @param array $params
     * @return array
     */
    public function orderList(array $params): array
    {
       return $this->orderAbstract->orderList($params);
+   }
+
+   /**
+    * @func orderWList
+    * @description 'W 주문 리스트'
+    * @param array $params
+    * @return array
+    */
+   public function orderWList(array $params): array
+   {
+      return $this->orderAbstract->orderWList($params);
    }
 
    /**
@@ -71,12 +82,34 @@ class OrderService
 
    /**
     * @func orderInfoUpdate
-    * @description '주문정보 업데이트'
+    * @description '주문정보 전체 업데이트'
     * @param array $params
     * @return array
    */
    public function orderInfoUpdate(array $params): array
    {
       return $this->orderAbstract->orderInfoUpdate($params);
+   }
+
+   /**
+    * @func orderWappInfo
+    * @description 'WApp 주문 조회'
+    * @param string $orderId
+    * @return array
+    */
+   public function orderWappInfo(string $orderId): array
+   {
+      return $this->orderAbstract->orderWappInfo($orderId);
+   }
+
+   /**
+    * @func orderLogisticsInfo
+    * @description 'W 주문 물류 조회'
+    * @param string $orderId
+    * @return array
+    */
+   public function orderLogisticsInfo(string $orderId): array
+   {
+      return $this->orderAbstract->orderLogisticsInfo($orderId);
    }
 }

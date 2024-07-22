@@ -213,12 +213,12 @@ class OrderConstant
     public const LOGISTICS_STATUS_5 = 5;
     public const LOGISTICS_STATUS_8 = 8;
     public const LOGISTICS_STATUS   = [
-        self::LOGISTICS_STATUS_1 => "배송되지 않음",
-        self::LOGISTICS_STATUS_2 => "배송됨",
-        self::LOGISTICS_STATUS_3 => "수령됨",
-        self::LOGISTICS_STATUS_4 => "반품됨",
-        self::LOGISTICS_STATUS_5 => "부분 배송됨",
-        self::LOGISTICS_STATUS_8 => "아직 물류 주문이 생성되지 않음",
+        self::LOGISTICS_STATUS_1 => "배송전",
+        self::LOGISTICS_STATUS_2 => "배송중",
+        self::LOGISTICS_STATUS_3 => "배송완료",
+        self::LOGISTICS_STATUS_4 => "반송",
+        self::LOGISTICS_STATUS_5 => "부분 배송",
+        self::LOGISTICS_STATUS_8 => "접수전",
     ];
 
     /** 결제 방법 */

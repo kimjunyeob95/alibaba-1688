@@ -20,7 +20,8 @@ class NavConstant
     public const PRODUCT_ALL              = "전체 상품";
     public const PRODUCT_EXCEPT_ALL       = "판매제외 상품 리스트";
     public const ORDER_MANAGE             = "주문 관리";
-    public const ORDER_LIST               = "주문 리스트";
+    public const ORDER_W_LIST             = "W 주문 리스트";
+    public const ORDER_WAPP_LIST          = "WApp 주문 리스트";
     public const CATEGORY_MANAGE          = "카테고리 관리";
     public const CATEGORY_MAPPING_MANAGE  = "맵핑 관리";
     public const CATEGORY_DELIVERY_MANAGE = "표준 중량(배송비) 관리";
@@ -67,7 +68,8 @@ class NavConstant
                 self::PRODUCT_EXCEPT_ALL => "/product/except/list",
             ],
             self::ORDER_MANAGE => [
-                self::ORDER_LIST => "/wapp/order/list"
+                self::ORDER_WAPP_LIST => "/wapp/order/list",
+                self::ORDER_W_LIST    => "/wapp/order/w/list",
             ],
             self::CATEGORY_MANAGE => [
                 self::CATEGORY_MAPPING_MANAGE  => "/category",
