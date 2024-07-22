@@ -974,10 +974,11 @@ class ProductW1 extends ProductAbstract
                             $productSkuDtos           = $prdDto["productSkuDtos"];
                             $productSaleDtos          = $prdDto["productSaleDtos"];
                             $productWhiteImageDto     = $prdDto["productWhiteImageDto"];
+                            $productChannelPriceDtos  = $prdDto["productChannelPriceDtos"];
 
                             $saveResult = $this->save1688ProductData($product1688Dto, $product1688ExtendDto, $product1688ImageDtoList,
                             $product1688NoticeDtoList, $product1688OptionDtoList, $productAddDto, $productSkuDtos, $productSaleDtos,
-                            $productWhiteImageDto);
+                            $productWhiteImageDto, $productChannelPriceDtos);
 
                             if( $saveResult["isSuccess"] != true ){
                                 throw new Exception($saveResult["msg"]);
@@ -1107,10 +1108,11 @@ class ProductW1 extends ProductAbstract
                             $productSkuDtos           = $prdDto["productSkuDtos"];
                             $productSaleDtos          = $prdDto["productSaleDtos"];
                             $productWhiteImageDto     = $prdDto["productWhiteImageDto"];
+                            $productChannelPriceDtos  = $prdDto["productChannelPriceDtos"];
 
                             $saveResult = $this->save1688ProductData($product1688Dto, $product1688ExtendDto, $product1688ImageDtoList,
                             $product1688NoticeDtoList, $product1688OptionDtoList, $productAddDto, $productSkuDtos, $productSaleDtos,
-                            $productWhiteImageDto);
+                            $productWhiteImageDto, $productChannelPriceDtos);
 
                             if( $saveResult["isSuccess"] != true ){
                                 throw new Exception($saveResult["msg"]);
@@ -1201,10 +1203,11 @@ class ProductW1 extends ProductAbstract
                     $productSkuDtos           = $prdDto["productSkuDtos"];
                     $productSaleDtos          = $prdDto["productSaleDtos"];
                     $productWhiteImageDto     = $prdDto["productWhiteImageDto"];
+                    $productChannelPriceDtos  = $prdDto["productChannelPriceDtos"];
     
                     $saveResult = $this->save1688ProductData($product1688Dto, $product1688ExtendDto, $product1688ImageDtoList,
                     $product1688NoticeDtoList, $product1688OptionDtoList, $productAddDto, $productSkuDtos, $productSaleDtos,
-                    $productWhiteImageDto, $collectParams);
+                    $productWhiteImageDto, $productChannelPriceDtos, $collectParams);
 
                     if( $saveResult["isSuccess"] != true ){
                         throw new Exception($saveResult["msg"]);
@@ -1281,10 +1284,11 @@ class ProductW1 extends ProductAbstract
             $productSkuDtos           = $prdDto["productSkuDtos"];
             $productSaleDtos          = $prdDto["productSaleDtos"];
             $productWhiteImageDto     = $prdDto["productWhiteImageDto"];
+            $productChannelPriceDtos  = $prdDto["productChannelPriceDtos"];
 
             $saveResult = $this->save1688ProductData($product1688Dto, $product1688ExtendDto, $product1688ImageDtoList, 
             $product1688NoticeDtoList, $product1688OptionDtoList, $productAddDto, $productSkuDtos, $productSaleDtos,
-            $productWhiteImageDto);
+            $productWhiteImageDto, $productChannelPriceDtos);
 
             if( $saveResult["isSuccess"] != true ){
                 throw new Exception($saveResult["msg"]);
@@ -1349,10 +1353,11 @@ class ProductW1 extends ProductAbstract
                 $productSkuDtos           = $prdDto["productSkuDtos"];
                 $productSaleDtos          = $prdDto["productSaleDtos"];
                 $productWhiteImageDto     = $prdDto["productWhiteImageDto"];
+                $productChannelPriceDtos  = $prdDto["productChannelPriceDtos"];
 
                 $saveResult = $this->save1688ProductData($product1688Dto, $product1688ExtendDto, $product1688ImageDtoList,
                 $product1688NoticeDtoList, $product1688OptionDtoList, $productAddDto, $productSkuDtos, $productSaleDtos,
-                $productWhiteImageDto);
+                $productWhiteImageDto, $productChannelPriceDtos);
                 
                 if( $saveResult["isSuccess"] != true ){
                     throw new Exception($saveResult["msg"]);
@@ -2374,6 +2379,7 @@ class ProductW1 extends ProductAbstract
             "productSkuDtos"           => $addResult["data"]["productSkuDtos"],
             "productSaleDtos"          => $addResult["data"]["productSaleDtos"],
             "productWhiteImageDto"     => $addResult["data"]["productWhiteImageDto"],
+            "productChannelPriceDtos"  => $addResult["data"]["productChannelPriceDtos"],
         ];
     }
 
@@ -2656,10 +2662,11 @@ class ProductW1 extends ProductAbstract
                             $productSkuDtos           = $prdDto["productSkuDtos"];
                             $productSaleDtos          = $prdDto["productSaleDtos"];
                             $productWhiteImageDto     = $prdDto["productWhiteImageDto"];
+                            $productChannelPriceDtos  = $prdDto["productChannelPriceDtos"];
 
                             $saveResult = $this->save1688ProductData($product1688Dto, $product1688ExtendDto, $product1688ImageDtoList,
                             $product1688NoticeDtoList, $product1688OptionDtoList, $productAddDto, $productSkuDtos, $productSaleDtos, 
-                            $productWhiteImageDto, $collectParams);
+                            $productWhiteImageDto, $productChannelPriceDtos, $collectParams);
 
                             if( $saveResult["isSuccess"] != true ){
                                 throw new Exception($saveResult["msg"]);
@@ -2990,10 +2997,11 @@ class ProductW1 extends ProductAbstract
                             $productSkuDtos           = $prdDto["productSkuDtos"];
                             $productSaleDtos          = $prdDto["productSaleDtos"];
                             $productWhiteImageDto     = $prdDto["productWhiteImageDto"];
+                            $productChannelPriceDtos  = $prdDto["productChannelPriceDtos"];
 
                             $saveResult = $this->save1688ProductData($product1688Dto, $product1688ExtendDto, $product1688ImageDtoList,
                             $product1688NoticeDtoList, $product1688OptionDtoList, $productAddDto, $productSkuDtos, $productSaleDtos,
-                            $productWhiteImageDto, $collectParams);
+                            $productWhiteImageDto, $productChannelPriceDtos, $collectParams);
 
                             if( $saveResult["isSuccess"] != true ){
                                 throw new Exception($saveResult["msg"]);

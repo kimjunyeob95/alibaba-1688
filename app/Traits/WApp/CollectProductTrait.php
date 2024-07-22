@@ -19,6 +19,7 @@ use App\Vo\Product\Product1688Dto;
 use App\Vo\Product\Product1688ExtendDto;
 use App\Vo\Product\Product1688ImageDto;
 use App\Vo\Product\ProductAddDto;
+use App\Vo\Product\ProductChannelPriceDto;
 use App\Vo\Product\ProductSaleDto;
 use App\Vo\Product\ProductSkuDto;
 use Exception;
@@ -49,13 +50,15 @@ trait CollectProductTrait
     {
         $returnMsg = $this->returnMsg;
         try {
-            $offerId          = $detailProduct["offerId"];
-            $topCategoryId    = 0;
-            $secondCategoryId = 0;
-            $thirdCategoryId  = 0;
-            $mainVideo        = "";
-            $detailVideo      = "";
-            $minOrderQuantity = 1;
+            $offerId               = $detailProduct["offerId"];
+            $topCategoryId         = 0;
+            $secondCategoryId      = 0;
+            $thirdCategoryId       = 0;
+            $mainVideo             = "";
+            $detailVideo           = "";
+            $minOrderQuantity      = 1;
+            $shippingTimeGuarantee = "";
+
             if( isset($detailProduct["topCategoryId"]) ){
                 $topCategoryId = $detailProduct["topCategoryId"];
             }
@@ -74,16 +77,20 @@ trait CollectProductTrait
             if( isset($detailProduct["minOrderQuantity"]) ){
                 $minOrderQuantity = $detailProduct["minOrderQuantity"];
             }
+            if( isset($detailProduct["productShippingInfo"]["shippingTimeGuarantee"]) ){
+                $shippingTimeGuarantee = $detailProduct["productShippingInfo"]["shippingTimeGuarantee"];
+            }
 
             $productAddDto = new ProductAddDto();
             $productAddDto->bind([
-                "offerId"          => $offerId,
-                "topCategoryId"    => $topCategoryId,
-                "secondCategoryId" => $secondCategoryId,
-                "thirdCategoryId"  => $thirdCategoryId,
-                "mainVideo"        => $mainVideo,
-                "detailVideo"      => $detailVideo,
-                "minOrderQuantity" => $minOrderQuantity,
+                "offerId"               => $offerId,
+                "topCategoryId"         => $topCategoryId,
+                "secondCategoryId"      => $secondCategoryId,
+                "thirdCategoryId"       => $thirdCategoryId,
+                "mainVideo"             => $mainVideo,
+                "detailVideo"           => $detailVideo,
+                "minOrderQuantity"      => $minOrderQuantity,
+                "shippingTimeGuarantee" => $shippingTimeGuarantee,
             ]);
 
             $productWhiteImageDto = new Product1688ImageDto();
@@ -195,11 +202,38 @@ trait CollectProductTrait
                 }
             }
 
+            $productChannelPriceDtos = [];
+            if( isset($detailProduct["channelPrice"]["channelSkuPriceList"]) ){
+                $channelPrice = $detailProduct["channelPrice"];
+                foreach ($channelPrice["channelSkuPriceList"] as $channelSkuPrice) {
+                    $skuId         = 0;
+                    $currentPrice = "";
+
+                    if( isset($channelSkuPrice["skuId"]) ){
+                        $skuId = $channelSkuPrice["skuId"];
+                    }
+                    if( isset($channelSkuPrice["currentPrice"]) ){
+                        $currentPrice = $channelSkuPrice["currentPrice"];
+                    }
+
+                    if( $skuId ){
+                        $productChannelPriceDto = new ProductChannelPriceDto();
+                        $productChannelPriceDto->bind([
+                            "offerId"      => $offerId,
+                            "skuId"        => $skuId,
+                            "currentPrice" => $currentPrice,
+                        ]);
+                        $productChannelPriceDtos[] = $productChannelPriceDto;
+                    }
+                }
+            }
+
             $result = [
-                "productAddDto"        => $productAddDto,
-                "productSkuDtos"       => $productSkuDtos,
-                "productSaleDtos"      => $productSaleDtos,
-                "productWhiteImageDto" => $productWhiteImageDto,
+                "productAddDto"           => $productAddDto,
+                "productSkuDtos"          => $productSkuDtos,
+                "productSaleDtos"         => $productSaleDtos,
+                "productWhiteImageDto"    => $productWhiteImageDto,
+                "productChannelPriceDtos" => $productChannelPriceDtos,
             ];
 
             $returnMsg = helpers_success_message($result);
@@ -214,7 +248,7 @@ trait CollectProductTrait
         Product1688Dto $product1688Dto, Product1688ExtendDto $product1688ExtendDto, array $product1688ImageDtoList,
         array $product1688NoticeDtoList, array $product1688OptionDtoList, ProductAddDto $productAddDto,
         array $productSkuDtos, array $productSaleDtos, Product1688ImageDto $productWhiteImageDto,
-        array $collectParams = []): array
+        array $productChannelPriceDtos, array $collectParams = []): array
     {
         $returnMsg = helpers_fail_message();
         try {
@@ -389,6 +423,19 @@ trait CollectProductTrait
                             "img_url_trans"  => $productWhiteImageDto->img_url_trans,
                             "trans_dated_at" => null
                         ]
+                    );
+                }
+
+                foreach ($productChannelPriceDtos as $productChannelPriceDto) {
+                    $upsertWhere = $productChannelPriceDto->getAllProperties();
+                    unset($upsertWhere["offer_id"]);
+                    unset($upsertWhere["sku_id"]);
+                    ProductAddData::updateOrCreate(
+                        [
+                            "offer_id" => $offerId,
+                            "sku_id"   => $productChannelPriceDto->sku_id,
+                        ],
+                        $upsertWhere
                     );
                 }
 
