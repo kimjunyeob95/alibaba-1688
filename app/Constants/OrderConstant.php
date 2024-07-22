@@ -29,6 +29,11 @@ class OrderConstant
         self::STATUS_WAITSELLERSEND   => "결제완료",
         self::STATUS_WAITBUYERRECEIVE => "발송완료",
     ];
+    public const STATUS_BATCH_FILTER = [
+        self::STATUS_WAITBUYERPAY,
+        self::STATUS_WAITBUYERRECEIVE,
+        self::STATUS_WAITSELLERSEND,
+    ];
 
     /** 주문 취소 사유 */
     public const CANCEL_REASON_BUYER_CANCEL            = "buyerCancel";

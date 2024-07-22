@@ -17,11 +17,13 @@ use App\Models\OrderLogisticsData;
 use App\Models\OrderProductData;
 use App\Models\OrderTradeData;
 use App\Models\ProductOptionData;
+use Illuminate\Pagination\Paginator;
 use App\Vo\Order\OrderChannelDetailDto;
 use App\Vo\Order\OrderChannelDto;
 use App\Vo\Order\OrderDto;
 use Exception;
 use Illuminate\Support\Facades\DB;
+use Psr\Log\LogLevel;
 
 class OrderW1 extends OrderAbstract
 {
@@ -335,6 +337,8 @@ class OrderW1 extends OrderAbstract
                 );
             }
 
+            $paginator->appends($params);
+
             $returnMsg = helpers_success_message($paginator);
         } catch (Exception $e) {
             $returnMsg = helpers_fail_message($e->getMessage());
@@ -439,6 +443,125 @@ class OrderW1 extends OrderAbstract
         }
 
         return $returnMsg;
+    }
+
+    /**
+    * @func orderBatchUpdate
+    * @description 'WApp 주문 배치 업데이트'
+    * @return void
+    */
+    public function orderBatchUpdate(): void
+    {
+        $builder = OrderBaseData::select(["order_id"])->whereIn("status", OrderConstant::STATUS_BATCH_FILTER);
+
+        $msg = "주문 업데이트 배치 시작";
+        debug_log($msg, "order/batchUpdate", "batchUpdate");
+
+        $perPage    = 900;
+        $totalCount = $builder->count();
+        $totalPages = ceil($totalCount / $perPage);
+
+        for ($page = 1; $page <= $totalPages; $page++) {
+
+            Paginator::currentPageResolver(function () use ($page) {
+                return $page;
+            });
+
+            // paginate 메소드는 새 Paginator 인스턴스를 반환합니다.
+            $pagedData = $builder->paginate($perPage);
+            $results   = $pagedData->items();
+
+            foreach ($results as $obj) {
+                $orderId           = $obj->order_id;
+                $orderDetailResult = $this->getWOrder($orderId);
+                if( $orderDetailResult["isSuccess"] == false || 
+                    !isset($orderDetailResult["data"]["result"]["baseInfo"]) ||
+                    empty($orderDetailResult["data"]["result"]["baseInfo"])
+                ){
+                    throw new Exception(OrderErrorMessageConstant::getFitErrorMessage("W_DETAIL"));
+                }
+
+                try {
+                    DB::beginTransaction();
+
+                    $orderBaseObj = OrderBaseData::where("order_id", $orderId)->first();
+                    if( $orderBaseObj == null){
+                        throw new Exception(OrderErrorMessageConstant::getFitErrorMessage("BASE_INFO"));
+                    }
+
+                    $orderData = $orderDetailResult["data"]["result"];
+                    $orderData["offerId"] = $orderBaseObj->offer_id;
+                    $orderData["channel"] = $orderBaseObj->channel;
+                    $orderDto = new OrderDto();
+                    $orderDto->bind($orderData);
+
+                    $baseInfo    = $orderDto->orderBaseDto;
+                    $upsertWhere = $baseInfo->getAllProperties();
+                    unset($upsertWhere["order_id"]);
+                    OrderBaseData::updateOrCreate(
+                        [
+                            "order_id" => $baseInfo->order_id,
+                        ],
+                        $upsertWhere
+                    );
+
+                    $orderTradeDtos = $orderDto->orderTradeDtos;
+                    foreach ($orderTradeDtos as $orderTradeDto) {
+                        $upsertWhere = $orderTradeDto->getAllProperties();
+                        unset($upsertWhere["order_id"]);
+                        unset($upsertWhere["phase"]);
+                        OrderTradeData::updateOrCreate(
+                            [
+                                "order_id" => $orderTradeDto->order_id,
+                                "phase"    => $orderTradeDto->phase,
+                            ],
+                            $upsertWhere
+                        );
+                    }
+
+                    $orderProductDtos = $orderDto->orderProductDtos;
+                    foreach ($orderProductDtos as $orderProductDto) {
+                        $upsertWhere = $orderProductDto->getAllProperties();
+                        unset($upsertWhere["order_id"]);
+                        unset($upsertWhere["offer_id"]);
+                        unset($upsertWhere["spec_id"]);
+                        OrderProductData::updateOrCreate(
+                            [
+                                "order_id" => $orderProductDto->order_id,
+                                "offer_id" => $orderProductDto->offer_id,
+                                "spec_id"  => $orderProductDto->spec_id,
+                            ],
+                            $upsertWhere
+                        );
+                    }
+
+                    $orderLogisticDtos = $orderDto->orderLogisticDtos;
+                    foreach ($orderLogisticDtos as $orderLogisticDto) {
+                        $upsertWhere = $orderLogisticDto->getAllProperties();
+                        unset($upsertWhere["logistics_id"]);
+                        OrderLogisticsData::updateOrCreate(
+                            [
+                                "logistics_id" => $orderLogisticDto->logistics_id,
+                            ],
+                            $upsertWhere
+                        );
+                    }
+
+                    DB::commit();
+                } catch (Exception $ee) {
+                    DB::rollBack();
+
+                    $msg = "주문 업데이트 배치 에러 | orderId: {$orderId} | 에러: " . $ee->getMessage();
+                    debug_log($msg, "order/batchUpdate", "batchUpdate", LogLevel::ERROR);
+                }
+            }
+
+            $msg = "주문 업데이트 배치 ({$page}/{$totalPages}) 완료";
+            debug_log($msg, "order/batchUpdate", "batchUpdate");
+        }
+
+        $msg = "주문 업데이트 배치 종료";
+        debug_log($msg, "order/batchUpdate", "batchUpdate");
     }
   
     /**

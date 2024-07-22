@@ -49,6 +49,16 @@ class OrderService
    }
 
    /**
+    * @func orderBatchUpdate
+    * @description 'WApp 주문 배치 업데이트'
+    * @return void
+    */
+   public function orderBatchUpdate(): void
+   {
+      $this->orderAbstract->orderBatchUpdate();
+   }
+
+   /**
     * @func orderPayLinkCreate
     * @description 'WApp 주문 결제 링크 생성'
     * @param array $params
