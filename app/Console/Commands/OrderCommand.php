@@ -35,6 +35,13 @@ class OrderCommand extends Command
                     $this->orderService->orderUpdate($orderIds);
                 }
                 break;
+            /**
+             * WApp 주문 배치 업데이트
+             * php artisan order_command --func=orderBatchUpdate
+             */
+            case 'orderBatchUpdate':
+                $this->orderService->orderBatchUpdate();
+                break;
             default:
                 break;
         }

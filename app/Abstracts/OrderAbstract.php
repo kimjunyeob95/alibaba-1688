@@ -47,6 +47,13 @@ abstract class OrderAbstract
     abstract function orderUpdate(array $orderIds): array;
 
     /**
+    * @func orderBatchUpdate
+    * @description 'WApp 주문 배치 업데이트'
+    * @return void
+    */
+    abstract function orderBatchUpdate(): void;
+
+    /**
     * @func orderPayLinkCreate
     * @description 'WApp 주문 결제 링크 생성'
     * @param array $params
