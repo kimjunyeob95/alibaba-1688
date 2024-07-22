@@ -36,9 +36,6 @@
 
                 <form id="searchFrm">
                     <input type="hidden" name="orderChannel" value={{ $orderChannel }}>
-                    <input type="hidden" name="orderStatus" value={{ $orderStatus }}>
-                    <input type="hidden" name="deliveryStatus" value={{ $deliveryStatus }}>
-                    <input type="hidden" name="refundStatus" value={{ $refundStatus }}>
 
                     <div class="card">
                         <div class="card-header">
@@ -55,36 +52,54 @@
                                     </td>
                                 </tr>
                                 <tr class="align-middle">
-                                    <th style="width: 120px">주문 상태</th>
+                                    <th style="width: 120px">주문상태</th>
                                     <td colspan="2">
-                                        <button type="button" name="orderStatus" class="btn-status btn btn-sm {{ $orderStatus == "" ? "btn-primary" : "btn-dark" }}"
-                                        value="">전체</button>
-                                        @foreach (OrderConstant::STATUS as $statusKey => $statusValue)    
-                                            <button type="button" name="orderStatus" class="btn-status btn btn-sm {{ $orderStatus == $statusKey ? "btn-primary" : "btn-dark" }}"
-                                            value="{{ $statusKey }}">{{ $statusValue }}</button>
-                                        @endforeach
+                                        <div class="d-flex flex-wrap">
+                                            <div class="form-check form-check-inline me-2">
+                                                <input class="form-check-input" type="checkbox" id="orderStatusAll" name="orderStatus[]" value="" {{ $orderStatus == "" ? "checked" : "" }}>
+                                                <label class="form-check-label" for="orderStatusAll">전체</label>
+                                            </div>
+                                            @foreach (OrderConstant::STATUS as $statusKey => $statusValue)
+                                            <div class="form-check form-check-inline me-2">
+                                                <input class="form-check-input" type="checkbox" id="orderStatus{{ $statusKey }}" name="orderStatus[]" value="{{ $statusKey }}" {{ in_array($statusKey, explode(",", $orderStatus)) ? "checked" : "" }}>
+                                                <label class="form-check-label" for="orderStatus{{ $statusKey }}">{{ $statusValue }}</label>
+                                            </div>
+                                            @endforeach
+                                        </div>
                                     </td>
                                 </tr>
                                 <tr class="align-middle">
-                                    <th style="width: 120px">배송상태 상태</th>
+                                    <th style="width: 120px">배송상태</th>
                                     <td colspan="2">
-                                        <button type="button" name="deliveryStatus" class="btn-status btn btn-sm {{ $deliveryStatus == "" ? "btn-primary" : "btn-dark" }}"
-                                        value="">전체</button>
-                                        @foreach (OrderConstant::LOGISTICS_STATUS as $statusKey => $statusValue)    
-                                            <button type="button" name="deliveryStatus" class="btn-status btn btn-sm {{ $deliveryStatus == $statusKey ? "btn-primary" : "btn-dark" }}"
-                                            value="{{ $statusKey }}">{{ $statusValue }}</button>
-                                        @endforeach
+                                        <div class="d-flex flex-wrap">
+                                            <div class="form-check form-check-inline me-2">
+                                                <input class="form-check-input" type="checkbox" id="deliveryStatusAll" name="deliveryStatus[]" value="" {{ $deliveryStatus == "" ? "checked" : "" }}>
+                                                <label class="form-check-label" for="deliveryStatusAll">전체</label>
+                                            </div>
+                                            @foreach (OrderConstant::LOGISTICS_STATUS as $statusKey => $statusValue)
+                                            <div class="form-check form-check-inline me-2">
+                                                <input class="form-check-input" type="checkbox" id="deliveryStatus{{ $statusKey }}" name="deliveryStatus[]" value="{{ $statusKey }}" {{ in_array($statusKey, explode(",", $deliveryStatus)) ? "checked" : "" }}>
+                                                <label class="form-check-label" for="deliveryStatus{{ $statusKey }}">{{ $statusValue }}</label>
+                                            </div>
+                                            @endforeach
+                                        </div>
                                     </td>
                                 </tr>
                                 <tr class="align-middle">
-                                    <th style="width: 120px">환불 상태</th>
+                                    <th style="width: 120px">환불상태</th>
                                     <td colspan="2">
-                                        <button type="button" name="refundStatus" class="btn-status btn btn-sm {{ $refundStatus == "" ? "btn-primary" : "btn-dark" }}"
-                                        value="">전체</button>
-                                        @foreach (OrderConstant::REFUND_STATUS as $statusKey => $statusValue)    
-                                            <button type="button" name="refundStatus" class="btn-status btn btn-sm {{ $refundStatus == $statusKey ? "btn-primary" : "btn-dark" }}"
-                                            value="{{ $statusKey }}">{{ $statusValue }}</button>
-                                        @endforeach
+                                        <div class="d-flex flex-wrap">
+                                            <div class="form-check form-check-inline me-2">
+                                                <input class="form-check-input" type="checkbox" id="refundStatusAll" name="refundStatus[]" value="" {{ $refundStatus == "" ? "checked" : "" }}>
+                                                <label class="form-check-label" for="refundStatusAll">전체</label>
+                                            </div>
+                                            @foreach (OrderConstant::REFUND_STATUS as $statusKey => $statusValue)
+                                            <div class="form-check form-check-inline me-2">
+                                                <input class="form-check-input" type="checkbox" id="refundStatus{{ $statusKey }}" name="refundStatus[]" value="{{ $statusKey }}" {{ in_array($statusKey, explode(",", $refundStatus)) ? "checked" : "" }}>
+                                                <label class="form-check-label" for="refundStatus{{ $statusKey }}">{{ $statusValue }}</label>
+                                            </div>
+                                            @endforeach
+                                        </div>
                                     </td>
                                 </tr>
                                 <tr class="align-middle">
@@ -167,12 +182,10 @@
                                 <th scope="col" style="width: 1%">No</th>
                                 <th scope="col" style="width: 3%">
                                     W 주문번호<br>
-                                    (채널 주문번호)<br>
-                                    (제품ID)
+                                    (채널 주문번호)
                                 </th>
                                 <th scope="col" style="width: 8%">구매자<br>(주문 채널)</th>
-                                <th scope="col" style="width: 5%">상품 이미지</th>
-                                <th scope="col" style="width: *%">주문정보</th>
+                                <th scope="col" style="width: *%" class="text-center">주문정보</th>
                                 <th scope="col" style="width: 10%">W 금액(위안)<br>(채널 금액(원화)))</th>
                                 <th scope="col" style="width: 5%" class="text-center">주문상태</th>
                                 <th scope="col" style="width: 5%" class="text-center">환불상태</th>
@@ -196,8 +209,6 @@
                                         <small>{{ $data->order_id }}</small>
                                         <br>
                                         <small>({{ $data->channel_order_id }})</small>
-                                        <br>
-                                        <small>(<a href="https://detail.1688.com/offer/{{ $data->offer_id }}.html" target="_blank">{{ $data->offer_id }}</a>)</small>
                                     </td>
                                     <td>
                                         <small>{{ $data->buyer_name }}</small>
@@ -205,14 +216,15 @@
                                         <small>({{ $data->channel }})</small>
                                     </td>
                                     <td>
-                                        @if (!empty($data->product->main_img))
-                                            <img class="lazy-img preview-image" data-src="{{ $data->product->main_img->img_url_origin }}" width=60 height=60/>
-                                        @else
-                                            <img class="lazy-img preview-image" data-src='/assets/img/no_img.png'width=60 height=60>
-                                        @endif
-                                    </td>
-                                    <td>
-                                        <small>{{ $data->product->prd_name_kr }}</small>
+                                        <small>
+                                            @if (!empty($data->product->main_img))
+                                                <img class="lazy-img preview-image" data-src="{{ $data->product->main_img->img_url_origin }}" width=30 height=30/>
+                                            @else
+                                                <img class="lazy-img preview-image" data-src='/assets/img/no_img.png'width=30 height=30>
+                                            @endif
+                                            (<a href="https://detail.1688.com/offer/{{ $data->offer_id }}.html" target="_blank">{{ $data->offer_id }}</a>)
+                                            {{ $data->product->prd_name_kr }}
+                                        </small>
                                         <div class="mt-3"></div>
                                         @foreach ($data->w_options as $w_option)
                                             @php
@@ -220,12 +232,12 @@
                                             @endphp
                                             @if (!empty($w_option->option))
                                                 <small class="d-block mt-1">
-                                                    옵션: {{ $w_option->option->option_name_kr}} 수량: {{ $w_option->quantity }} ({{ $deliveryStatus }})
                                                     @if ($w_option->option->sku_img_url)
                                                         <img class="lazy-img preview-image" data-src="{{ $w_option->option->sku_img_url }}" width=30 height=30/>
                                                     @else
                                                         <img class="lazy-img preview-image" data-src='/assets/img/no_img.png'width=30 height=30>
                                                     @endif
+                                                    옵션: {{ $w_option->option->option_name_kr}} 수량: {{ $w_option->quantity }} ({{ $deliveryStatus }})
                                                 </small>
                                             @else
                                                 <small class="d-block mt-1">
@@ -259,7 +271,7 @@
                                     </td>
                                     <td>
                                         <div class="d-flex flex-column gap-2">
-                                            <button class="btn btn-sm btn-success btn-update text-white" orderid={{ $data->order_id }}>주문 업데이트</button>
+                                            {{-- <button class="btn btn-sm btn-success btn-update text-white" orderid={{ $data->order_id }}>주문 업데이트</button> --}}
                                             <button class="btn btn-sm btn-success btn-detail text-white" orderid={{ $data->order_id }}>주문 상세정보</button>
                                             <button class="btn btn-sm btn-danger btn-cancel text-white" orderid={{ $data->order_id }}>취소/환불</button>
                                             @if( count($data->logistics) > 0 )
