@@ -24,8 +24,8 @@ class OrderController extends Controller
         $pageSize       = $this->request->post("pageSize", 50);
         $orderChannel   = $this->request->get("orderChannel", "");
         $orderStatus    = $this->request->get("orderStatus", []);
-        $deliveryStatus = $this->request->get("deliveryStatus", "");
-        $refundStatus   = $this->request->get("refundStatus", "");
+        $deliveryStatus = $this->request->get("deliveryStatus", []);
+        $refundStatus   = $this->request->get("refundStatus", []);
         $timeCls        = $this->request->get("timeCls", "");
         $startTime      = $this->request->get("startTime", "");
         $endTime        = $this->request->get("endTime", "");
@@ -50,7 +50,6 @@ class OrderController extends Controller
             "keyword"        => $keyword,
             "sort"           => $sort,
         ];
-        // dd($orderStatus);
         $result = $this->orderService->orderList($params);
         // dd($result["data"]->items()->toArray());
         $viewParams = [
@@ -59,8 +58,8 @@ class OrderController extends Controller
             "pageSize"       => (int) $pageSize,
             "orderChannel"   => $orderChannel,
             "orderStatus"    => implode(",", $orderStatus),
-            "deliveryStatus" => $deliveryStatus,
-            "refundStatus"   => $refundStatus,
+            "deliveryStatus" => implode(",", $deliveryStatus),
+            "refundStatus"   => implode(",", $refundStatus),
             "timeCls"        => $timeCls,
             "startTime"      => $startTime,
             "endTime"        => $endTime,

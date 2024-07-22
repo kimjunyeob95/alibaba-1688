@@ -174,11 +174,20 @@ class OrderW1 extends OrderAbstract
     {
         $returnMsg = $this->returnMsg;
         try {
-            $pageSize       = (int)$params["pageSize"];
-            $orderChannel   = $params["orderChannel"];
-            $orderStatus    = $params["orderStatus"];
+            $pageSize     = (int)$params["pageSize"];
+            $orderChannel = $params["orderChannel"];
+            $orderStatus  = $params["orderStatus"];
+            $orderStatus  = array_filter($orderStatus, function($value) {
+                return !empty($value);
+            });
             $deliveryStatus = $params["deliveryStatus"];
-            $refundStatus   = $params["refundStatus"];
+            $deliveryStatus = array_filter($deliveryStatus, function($value) {
+                return !empty($value);
+            });
+            $refundStatus = $params["refundStatus"];
+            $refundStatus = array_filter($refundStatus, function($value) {
+                return !empty($value);
+            });
             $timeCls        = $params["timeCls"];
             $startTime      = $params["startTime"];
             $endTime        = $params["endTime"];
@@ -209,11 +218,11 @@ class OrderW1 extends OrderAbstract
             }
             if( !empty($deliveryStatus) ){
                 $builder->whereHas('w_options', function($query) use ($deliveryStatus) {
-                    $query->where('logistics_status', $deliveryStatus);
+                    $query->whereIn('logistics_status', $deliveryStatus);
                 });
             }
             if( !empty($refundStatus) ){
-                $builder->where("order_base_datas.refund_status", $refundStatus);
+                $builder->whereIn("order_base_datas.refund_status", $refundStatus);
             }
             if( !empty($timeCls) ){
                 if( $timeCls == "createOrder" ){

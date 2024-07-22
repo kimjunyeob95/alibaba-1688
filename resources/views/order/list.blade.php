@@ -36,8 +36,6 @@
 
                 <form id="searchFrm">
                     <input type="hidden" name="orderChannel" value={{ $orderChannel }}>
-                    <input type="hidden" name="deliveryStatus" value={{ $deliveryStatus }}>
-                    <input type="hidden" name="refundStatus" value={{ $refundStatus }}>
 
                     <div class="card">
                         <div class="card-header">
@@ -54,11 +52,11 @@
                                     </td>
                                 </tr>
                                 <tr class="align-middle">
-                                    <th style="width: 120px">주문 상태</th>
+                                    <th style="width: 120px">주문상태</th>
                                     <td colspan="2">
                                         <div class="d-flex flex-wrap">
                                             <div class="form-check form-check-inline me-2">
-                                                <input class="form-check-input" type="checkbox" id="orderStatusAll" name="orderStatus" value="" {{ $orderStatus == "" ? "checked" : "" }}>
+                                                <input class="form-check-input" type="checkbox" id="orderStatusAll" name="orderStatus[]" value="" {{ $orderStatus == "" ? "checked" : "" }}>
                                                 <label class="form-check-label" for="orderStatusAll">전체</label>
                                             </div>
                                             @foreach (OrderConstant::STATUS as $statusKey => $statusValue)
@@ -71,25 +69,37 @@
                                     </td>
                                 </tr>
                                 <tr class="align-middle">
-                                    <th style="width: 120px">배송상태 상태</th>
+                                    <th style="width: 120px">배송상태</th>
                                     <td colspan="2">
-                                        <button type="button" name="deliveryStatus" class="btn-status btn btn-sm {{ $deliveryStatus == "" ? "btn-primary" : "btn-dark" }}"
-                                        value="">전체</button>
-                                        @foreach (OrderConstant::LOGISTICS_STATUS as $statusKey => $statusValue)    
-                                            <button type="button" name="deliveryStatus" class="btn-status btn btn-sm {{ $deliveryStatus == $statusKey ? "btn-primary" : "btn-dark" }}"
-                                            value="{{ $statusKey }}">{{ $statusValue }}</button>
-                                        @endforeach
+                                        <div class="d-flex flex-wrap">
+                                            <div class="form-check form-check-inline me-2">
+                                                <input class="form-check-input" type="checkbox" id="deliveryStatusAll" name="deliveryStatus[]" value="" {{ $deliveryStatus == "" ? "checked" : "" }}>
+                                                <label class="form-check-label" for="deliveryStatusAll">전체</label>
+                                            </div>
+                                            @foreach (OrderConstant::LOGISTICS_STATUS as $statusKey => $statusValue)
+                                            <div class="form-check form-check-inline me-2">
+                                                <input class="form-check-input" type="checkbox" id="deliveryStatus{{ $statusKey }}" name="deliveryStatus[]" value="{{ $statusKey }}" {{ in_array($statusKey, explode(",", $deliveryStatus)) ? "checked" : "" }}>
+                                                <label class="form-check-label" for="deliveryStatus{{ $statusKey }}">{{ $statusValue }}</label>
+                                            </div>
+                                            @endforeach
+                                        </div>
                                     </td>
                                 </tr>
                                 <tr class="align-middle">
-                                    <th style="width: 120px">환불 상태</th>
+                                    <th style="width: 120px">환불상태</th>
                                     <td colspan="2">
-                                        <button type="button" name="refundStatus" class="btn-status btn btn-sm {{ $refundStatus == "" ? "btn-primary" : "btn-dark" }}"
-                                        value="">전체</button>
-                                        @foreach (OrderConstant::REFUND_STATUS as $statusKey => $statusValue)    
-                                            <button type="button" name="refundStatus" class="btn-status btn btn-sm {{ $refundStatus == $statusKey ? "btn-primary" : "btn-dark" }}"
-                                            value="{{ $statusKey }}">{{ $statusValue }}</button>
-                                        @endforeach
+                                        <div class="d-flex flex-wrap">
+                                            <div class="form-check form-check-inline me-2">
+                                                <input class="form-check-input" type="checkbox" id="refundStatusAll" name="refundStatus[]" value="" {{ $refundStatus == "" ? "checked" : "" }}>
+                                                <label class="form-check-label" for="refundStatusAll">전체</label>
+                                            </div>
+                                            @foreach (OrderConstant::REFUND_STATUS as $statusKey => $statusValue)
+                                            <div class="form-check form-check-inline me-2">
+                                                <input class="form-check-input" type="checkbox" id="refundStatus{{ $statusKey }}" name="refundStatus[]" value="{{ $statusKey }}" {{ in_array($statusKey, explode(",", $refundStatus)) ? "checked" : "" }}>
+                                                <label class="form-check-label" for="refundStatus{{ $statusKey }}">{{ $statusValue }}</label>
+                                            </div>
+                                            @endforeach
+                                        </div>
                                     </td>
                                 </tr>
                                 <tr class="align-middle">
