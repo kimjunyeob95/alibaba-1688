@@ -159,8 +159,9 @@
                     <table class="table table-white bg-white" style="min-width: 1920px; max-height: 600px;">
                         <thead class="table-light" style="position: sticky; top: 0; z-index: 1;">
                             <tr>
-                                <th scope="col" class="text-center" style="width: 2%">
+                                <th scope="col" class="text-center" style="width: 3%">
                                     <label class="form-check-label" for="allCheckbox">선택</label>
+                                    <br>
                                     <input class="form-check-input" type="checkbox" id="allCheckbox">
                                 </th>
                                 <th scope="col" style="width: 1%">No</th>
@@ -196,7 +197,7 @@
                                         <br>
                                         <small>({{ $data->channel_order_id }})</small>
                                         <br>
-                                        <small>({{ $data->offer_id }})</small>
+                                        <small>(<a href="https://detail.1688.com/offer/{{ $data->offer_id }}.html" target="_blank">{{ $data->offer_id }}</a>)</small>
                                     </td>
                                     <td>
                                         <small>{{ $data->buyer_name }}</small>
@@ -259,7 +260,7 @@
                                     <td>
                                         <div class="d-flex flex-column gap-2">
                                             <button class="btn btn-sm btn-success btn-update text-white" orderid={{ $data->order_id }}>주문 업데이트</button>
-                                            <button class="btn btn-sm btn-success btn-detail text-white" orderid={{ $data->order_id }}>주문 상세보기</button>
+                                            <button class="btn btn-sm btn-success btn-detail text-white" orderid={{ $data->order_id }}>주문 상세정보</button>
                                             <button class="btn btn-sm btn-danger btn-cancel text-white" orderid={{ $data->order_id }}>취소/환불</button>
                                             @if( count($data->logistics) > 0 )
                                                 <button class="btn btn-sm btn-primary btn-delivery text-white" orderid={{ $data->order_id }}>배송정보조회</button>
@@ -376,15 +377,32 @@
                 </div>
             </div>
 
+            <div class="modal fade" id="htmlModal3" tabindex="-1" role="dialog" aria-labelledby="htmlModalLabel3" aria-hidden="true">
+                <div class="modal-dialog modal-xl" role="document">
+                    <form id="modalFrm">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="htmlModalLabel3">주문 상세정보</h5>
+                            </div>
+                            <div class="modal-body">
+                                <div class="card">
+                                    <div class="card-body" style="max-height: 70vh; overflow-y: auto;">
+                                        <pre><code class="jsonDisplay hljs" style="white-space: pre-wrap; word-break: break-all;"></code></pre>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
             <div class="d-flex justify-content-center">
                 {{ $paginator->links("vendor.pagination.bootstrap-4") }}
             </div>
         </div>
-
     </div>
 <script type="text/javascript">
     $(document).ready(function() {
-
         var waitStatus  = "{{ OrderConstant::STATUS_WAITBUYERPAY }}";
         var optionValue = "{{ OptionConstant::NAME_EN }}";
         var exchangeRate = {{ $exchangeRate }};
@@ -403,6 +421,32 @@
         
         $(".btn-cancel").click(function(){
             return alert("작업 예정...");
+        });
+
+        $('.btn-detail').click(function(){
+            let orderId = $(this).attr("orderid");
+
+            $.ajax({
+                "headers"    : {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
+                "type"       : "GET",
+                "url"        : `/api/w/order/${orderId}`,
+                "data"       : {},
+                beforeSend: function () {
+                    $("#loadingOverlay").show();
+                },
+                complete: function () {
+                    $("#loadingOverlay").hide();
+                },
+                success: function (resp) {
+                    $('.jsonDisplay').text(JSON.stringify(resp.data.result, null, 2));
+                    $("#htmlModal3").modal('show');
+                },
+                error: function error(request, status, _error) {
+                    let { error } = JSON.parse(request.responseText);
+                    alert(error.message);
+                }
+            });
+
         });
 
         $('.btn-delivery').click(function(){
@@ -443,7 +487,6 @@
                     alert(error.message);
                 }
             });
-
         });
 
         $('.btn-trace-delivery').click(function(){
