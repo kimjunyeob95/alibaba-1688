@@ -176,7 +176,6 @@ class OrderW1 extends OrderAbstract
     {
         $returnMsg = $this->returnMsg;
         try {
-            $page           = (int)$params["page"];
             $pageSize       = (int)$params["pageSize"];
             $orderChannel   = $params["orderChannel"];
             $orderStatus    = $params["orderStatus"];
@@ -194,16 +193,15 @@ class OrderW1 extends OrderAbstract
                 "b.channel_order_id",
                 "b.buyer_name",
                 "b.total_channel_price",
-                "c.status as delivery_status",
-                "d.phas_amount",
+                "c.phas_amount",
             ])
             ->with([
                 "product.main_img",
-                "w_options.option"
+                "w_options.option",
+                "logistics"
             ])
             ->join("order_channel_datas as b", "order_base_datas.order_id", "=", "b.order_id")
-            ->leftJoin("order_logistics_datas as c", "order_base_datas.order_id", "=", "c.order_id")
-            ->leftJoin("order_trade_datas as d", "order_base_datas.order_id", "=", "d.order_id");
+            ->leftJoin("order_trade_datas as c", "order_base_datas.order_id", "=", "c.order_id");
 
             if( !empty($orderChannel) ){
                 $builder->where("order_base_datas.channel", $orderChannel);
@@ -212,7 +210,9 @@ class OrderW1 extends OrderAbstract
                 $builder->where("order_base_datas.status", $orderStatus);
             }
             if( !empty($deliveryStatus) ){
-                $builder->where("c.status", $deliveryStatus);
+                $builder->whereHas('w_options', function($query) use ($deliveryStatus) {
+                    $query->where('logistics_status', $deliveryStatus);
+                });
             }
             if( !empty($refundStatus) ){
                 $builder->where("order_base_datas.refund_status", $refundStatus);
@@ -220,17 +220,17 @@ class OrderW1 extends OrderAbstract
             if( !empty($timeCls) ){
                 if( $timeCls == "createOrder" ){
                     if( !empty($startTime) ) {
-                        $builder->where("order_base_datas.created_at", ">=", $startTime . "00:00:00");
+                        $builder->where("order_base_datas.created_at", ">=", $startTime . " 00:00:00");
                     }
                     if( !empty($endTime) ) {
-                        $builder->where("order_base_datas.created_at", "<=", $startTime . "23:59:59");
+                        $builder->where("order_base_datas.created_at", "<=", $endTime . " 23:59:59");
                     }
                 } else if( $timeCls == "modiOrder" ){
                     if( !empty($startTime) ) {
-                        $builder->where("order_base_datas.updated_at", ">=", $startTime . "00:00:00");
+                        $builder->where("order_base_datas.updated_at", ">=", $startTime . " 00:00:00");
                     }
                     if( !empty($endTime) ) {
-                        $builder->where("order_base_datas.updated_at", "<=", $startTime . "23:59:59");
+                        $builder->where("order_base_datas.updated_at", "<=", $endTime . " 23:59:59");
                     }
                 }
             }
@@ -659,6 +659,33 @@ class OrderW1 extends OrderAbstract
                 $returnMsg = helpers_fail_message($ee->getMessage());
             }
 
+        } catch (Exception $e) {
+            $returnMsg = helpers_fail_message($e->getMessage());
+        }
+
+        return $returnMsg;
+    }
+
+    /**
+    * @func orderLogisticsInfo
+    * @description 'W 주문 물류 조회'
+    * @param string $orderId
+    * @return array
+    */
+    public function orderLogisticsInfo(string $orderId): array
+    {
+        $returnMsg = $this->returnMsg;
+        try {
+            $endPoint = "param2/1/com.alibaba.logistics/alibaba.trade.getLogisticsTraceInfo.buyerView/";
+            $payload = [
+                'access_token' => $this->accessToken,
+                'orderId'      => $orderId,
+                'webSite'      => Constant1688::WEBSITE,
+            ];
+
+            $curlResult = curl_1688("get", $endPoint, $payload);
+            dd($curlResult);
+            $returnMsg = helpers_success_message();
         } catch (Exception $e) {
             $returnMsg = helpers_fail_message($e->getMessage());
         }

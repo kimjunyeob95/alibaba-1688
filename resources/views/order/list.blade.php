@@ -37,6 +37,7 @@
                 <form id="searchFrm">
                     <input type="hidden" name="orderChannel" value={{ $orderChannel }}>
                     <input type="hidden" name="orderStatus" value={{ $orderStatus }}>
+                    <input type="hidden" name="deliveryStatus" value={{ $deliveryStatus }}>
                     <input type="hidden" name="refundStatus" value={{ $refundStatus }}>
 
                     <div class="card">
@@ -163,16 +164,15 @@
                                     <input class="form-check-input" type="checkbox" id="allCheckbox">
                                 </th>
                                 <th scope="col" style="width: 1%">No</th>
-                                <th scope="col" style="width: 10%">W 주문번호<br>(채널 주문번호)</th>
-                                <th scope="col" style="width: 5%">구매자<br>(주문 채널)</th>
+                                <th scope="col" style="width: 3%">W 주문번호<br>(채널 주문번호)</th>
+                                <th scope="col" style="width: 8%">구매자<br>(주문 채널)</th>
                                 <th scope="col" style="width: 5%">상품 이미지</th>
-                                <th scope="col" style="width: 5%">주문정보</th>
-                                <th scope="col" style="width: 5%">W 금액<br>(채널 금액)</th>
-                                <th scope="col" style="width: 8%">주문상태</th>
-                                <th scope="col" style="width: 8%">배송상태</th>
-                                <th scope="col" style="width: 8%">환불상태</th>
-                                <th scope="col" style="width: 8%">주문 생성일<br>주문 수정일</th>
-                                <th scope="col" style="width: 6%">관리</th>
+                                <th scope="col" style="width: *%">주문정보</th>
+                                <th scope="col" style="width: 10%">W 금액(위안)<br>(채널 금액(원화)))</th>
+                                <th scope="col" style="width: 5%" class="text-center">주문상태</th>
+                                <th scope="col" style="width: 5%" class="text-center">환불상태</th>
+                                <th scope="col" style="width: 10%">주문 생성일<br>주문 수정일</th>
+                                <th scope="col" style="width: 8%">관리</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -206,47 +206,57 @@
                                     </td>
                                     <td>
                                         <small>{{ $data->product->prd_name_kr }}</small>
-                                        <div class="mt-1"></div>
+                                        <div class="mt-3"></div>
                                         @foreach ($data->w_options as $w_option)
+                                            @php
+                                                $deliveryStatus = OrderConstant::LOGISTICS_STATUS[$w_option->logistics_status]
+                                            @endphp
                                             @if (!empty($w_option->option))
-                                                <small class="d-block">
-                                                    옵션: {{ $w_option->option->option_name_kr}} 수량: {{ $w_option->quantity }}
+                                                <small class="d-block mt-1">
+                                                    옵션: {{ $w_option->option->option_name_kr}} 수량: {{ $w_option->quantity }} ({{ $deliveryStatus }})
                                                 </small>
                                             @else
-                                                <small class="d-block">
-                                                    WApp에 옵션이 없음 sku_id: {{ $w_option->sku_id }} 수량: {{ $w_option->quantity }}
+                                                <small class="d-block mt-1">
+                                                    WApp에 옵션이 없음 sku_id: {{ $w_option->sku_id }} 수량: {{ $w_option->quantity }} ({{ $deliveryStatus }})
                                                 </small>
                                             @endif
                                         @endforeach
                                     </td>
                                     <td>
-                                           {{ number_format($data->phas_amount) }}
-                                           <br>
-                                           ({{ number_format($data->totla_channel_price) }})
+                                        @if ($data->phas_amount)
+                                            {{ $data->phas_amount }}
+                                        @else
+                                            X
+                                        @endif
+                                        <br>
+                                        ({{ number_format($data->total_channel_price) }})
                                     </td>
-                                    <td>
+                                    <td class="text-center">
                                         {{ OrderConstant::STATUS[$data->status] }}
                                     </td>
-                                    <td>
-                                        @if (isset($data->delivery_status))
-                                            {{ OrderConstant::LOGISTICS_STATUS[$data->delivery_status] }}
-                                        @endif
-                                    </td>
-                                    <td>
+                                    <td class="text-center">
                                         @if (isset($data->retund_status))
                                             {{ OrderConstant::REFUND_STATUS[$data->retund_status] }}
+                                        @else
+                                            -
                                         @endif
                                     </td>
                                     <td>
-                                        @if ($data["baseObj"] && $data["channelObj"])
-                                            <div style="display: flex; flex-direction: column; gap: 5px;">
-                                                <button class="btn btn-sm btn-success btn-update text-white" orderid={{ $data->order_id }}>주문 업데이트</button>
-                                                <button class="btn btn-sm btn-danger btn-cancel text-white" orderid={{ $data->order_id }}>취소/환불</button>
-                                                @if( $data->status == OrderConstant::STATUS_WAITBUYERPAY )
-                                                    <button class="btn btn-sm btn-dark btn-pay text-white" orderid={{ $data->order_id }}>결제하기</button>
-                                                @endif
-                                            </div>
-                                        @endif
+                                        {{ $data->created_at }}
+                                        {{ $data->updated_at }}
+                                    </td>
+                                    <td>
+                                        <div class="d-flex flex-column gap-2">
+                                            <button class="btn btn-sm btn-success btn-update text-white" orderid={{ $data->order_id }}>주문 업데이트</button>
+                                            <button class="btn btn-sm btn-success btn-detail text-white" orderid={{ $data->order_id }}>주문 상세보기</button>
+                                            <button class="btn btn-sm btn-danger btn-cancel text-white" orderid={{ $data->order_id }}>취소/환불</button>
+                                            @if( count($data->logistics) > 0 )
+                                                <button class="btn btn-sm btn-primary btn-delivery text-white" orderid={{ $data->order_id }}>배송정보조회</button>
+                                            @endif
+                                            @if( $data->status == OrderConstant::STATUS_WAITBUYERPAY )
+                                                <button class="btn btn-sm btn-dark btn-pay text-white" orderid={{ $data->order_id }}>결제하기</button>
+                                            @endif
+                                        </div>
                                     </td>
                                 </tr>
                             @endforeach
@@ -291,156 +301,64 @@
                     <form id="modalFrm">
                         <div class="modal-content">
                             <div class="modal-header">
-                                <h5 class="modal-title" id="htmlModalLabel2">주문 정보 입력</h5>
+                                <h5 class="modal-title" id="htmlModalLabel2">배송정보</h5>
                             </div>
                             <div class="modal-body">
                                 <input type="hidden" name="orderId" />
         
                                 <div>
-                                    <div class="d-flex align-items-center">
-                                        <label class="fs-4">1688 주문정보</label>
-                                    </div>
                                     <div class="d-flex flex-column px-3 mt-3">
-                                        <div class="row w-100 mb-2">
-                                            <div class="col d-flex align-items-center">
-                                                <label class="d-flex align-items-center w-100 ms-2">
-                                                    <span class="fs-5 fw-bold" style="width: 150px;">주문번호</span>
-                                                    <span class="ms-4 sp-orderid"></span>
-                                                </label>
-                                            </div>
-                                            <div class="col d-flex align-items-center">
-                                                <label class="d-flex align-items-center w-100 ms-2">
-                                                    <span class="fs-5 fw-bold" style="width: 150px;">상품번호(offer_id)</span>
-                                                    <span class="ms-4 sp-offerid"></span>
-                                                </label>
-                                            </div>
-                                        </div>
-                                        <div class="mb-2 mt-1">
+                                        <div class="mb-2">
                                             <div class="col">
                                                 <label class="d-flex align-items-center w-100 ms-2">
-                                                    <span class="fs-5 fw-bold" style="width: 150px;">옵션정보</span>
+                                                    <span class="fs-5 fw-bold" style="width: 150px;">배송정보</span>
                                                 </label>
                                             </div>
                                             <div class="col mt-2">
                                                 <table class="table">
                                                     <thead class="table-light">
                                                         <tr>
-                                                            <th scope="col" style="width: 1%">No</th>
-                                                            <th scope="col" style="width: 3%">sku_id</th>
-                                                            <th scope="col" style="width: 6%">spec_id</th>
-                                                            <th scope="col" style="width: 6%">옵션명</th>
-                                                            <th scope="col" style="width: 2%">수량</th>
-                                                            <th scope="col" style="width: 3%">1688 가격(위안)</th>
-                                                            <th scope="col" style="width: 3%">채널가격(원화)</th>
+                                                            <th scope="col" style="width: 33%">물류코드</th>
+                                                            <th scope="col" style="width: 33%">배송사</th>
+                                                            <th scope="col" style="width: 33%">운송장</th>
                                                         </tr>
                                                     </thead>
-                                                    <tbody class="opt-tbody">
+                                                    <tbody class="delivery-tbody">
                                                     </tbody>
                                                 </table>
-                                                <p class="text-danger mt-2 small">* 채널가격: 채널의 판매가 입력(미입력 시, 1688의 가격(환율적용)이 입력됩니다.)</p>
                                             </div>
                                         </div>
                                     </div>
-                                    <hr>
-        
-                                    <div class="d-flex align-items-center">
-                                        <label class="fs-4">채널 주문정보</label>
-                                    </div>
-                                    <div class="d-flex flex-column px-3 mt-3">
-                                        <div class="row w-100 mb-2">
-                                            <div class="col d-flex align-items-center">
-                                                <span class="fs-5 fw-bold" style="width: 150px;">주문채널</span>
-                                                <div class="ms-3">
-                                                    @foreach (MallConstant::MALL_LIST as $key => $mall)    
-                                                        <input type="radio" id="option_{{ $mall }}" name="orderChannel" value="{{ $mall }}" @if($key == 0) checked @endif>
-                                                        <label for="option_{{ $mall }}" class="me-4 cursor-pointer">{{ MallConstant::MALL_NAME[$mall] }}</label>
-                                                    @endforeach
-                                                </div>
-                                                <span class="text-danger small ms-2">* 주문 채널을 선택하세요.</span>
-                                            </div>
-                                        </div>
-                                        <div class="row w-100 mb-2">
-                                            <div class="col d-flex align-items-center">
-                                                <span class="fs-5 fw-bold" style="width: 150px;">채널 주문번호</span>
-                                                <div class="ms-3">
-                                                    <input type="text" class="form-control reqired-inp" name="channelOrderId" value="">
-                                                </div>
-                                                <span class="text-danger small ms-2">* WApp 주문의 경우 주문 사유를 입력하세요.</span>
-                                            </div>
-                                        </div>
-                                        
-                                        <div class="row w-100 mt-2">
-                                            <div class="col d-flex align-items-center">
-                                                <span class="fs-5 fw-bold">구매자정보</span>
-                                            </div>
-                                            <div class="row mb-2">
-                                                <div class="col-md-2 d-flex align-items-center">
-                                                    <small class="fw-bold text-center" style="width: 100px;">이름</small>
-                                                </div>
-                                                <div class="col-md-4">
-                                                    <input type="text" class="form-control reqired-inp" name="buyerName" value="">
-                                                </div>
-                                                <div class="col-md-2 d-flex align-items-center">
-                                                    <small class="fw-bold text-center" style="width: 100px;">통관번호</small>
-                                                </div>
-                                                <div class="col-md-4">
-                                                    <input type="text" class="form-control reqired-inp" name="buyerClearanceNumber" value="">
-                                                </div>
-                                            </div>
-                                            <div class="row mb-2">
-                                                <div class="col-md-2 d-flex align-items-center">
-                                                    <small class="fw-bold text-center" style="width: 100px;">전화번호</small>
-                                                </div>
-                                                <div class="col-md-4">
-                                                    <input type="text" class="form-control reqired-inp" name="buyerNumber" value="">
-                                                </div>
-                                                <div class="col-md-2 d-flex align-items-center">
-                                                    <small class="fw-bold text-center" style="width: 100px;">휴대폰번호</small>
-                                                </div>
-                                                <div class="col-md-4">
-                                                    <input type="text" class="form-control reqired-inp" name="buyerPhone" value="">
-                                                </div>
-                                            </div>
-                                            <div class="row mb-2">
-                                                <div class="col-md-2 d-flex align-items-center">
-                                                    <small class="fw-bold text-center" style="width: 100px;">상세주소</small>
-                                                </div>
-                                                <div class="col-md-10">
-                                                    <input type="text" class="form-control reqired-inp" name="buyerAddress" value="">
-                                                </div>
-                                            </div>
-                                            <div class="row mb-2">
-                                                <div class="col-md-2 d-flex align-items-center">
-                                                    <small class="fw-bold text-center" style="width: 100px;">우편번호</small>
-                                                </div>
-                                                <div class="col-md-4">
-                                                    <input type="text" class="form-control reqired-inp" name="buyerZipcode" value="">
-                                                </div>
-                                                <div class="col-md-2 d-flex align-items-center">
-                                                    <small class="fw-bold text-center" style="width: 100px;">채널 배송비(원화)</small>
-                                                </div>
-                                                <div class="col-md-4">
-                                                    <input type="number" class="form-control reqired-inp" name="deliveryPrice" value=0>
-                                                </div>
-                                            </div>
-                                            <div class="row mb-2">
-                                                <div class="col-md-2 d-flex align-items-center">
-                                                    <small class="fw-bold text-center" style="width: 100px;">메모</small>
-                                                </div>
-                                                <div class="col-md-10">
-                                                    <input type="text" class="form-control reqired-inp" name="buyerMemo" value="">
-                                                </div>
-                                            </div>
-                                        </div>
 
-                                        <span class="text-danger small mt-2">* 모든 정보 입력 필수</span>
+                                    <div class="modal-footer d-flex justify-content-center">
+                                        <button type="button" class="btn btn-primary btn-trace-delivery">배송추적</button>
+                                        <button type="button" class="btn btn-secondary htmlModalClose2">닫기</button>
                                     </div>
-        
+                                    
+                                    <div class="div-trace">
+                                        <div class="d-flex flex-column px-3 mt-3">
+                                            <div class="mb-2">
+                                                <div class="col">
+                                                    <label class="d-flex align-items-center w-100 ms-2">
+                                                        <span class="fs-5 fw-bold" style="width: 150px;">추적정보</span>
+                                                    </label>
+                                                </div>
+                                                <div class="col mt-2">
+                                                    <table class="table">
+                                                        <thead class="table-light">
+                                                            <tr>
+                                                                <th scope="col" style="width: 50%">내용</th>
+                                                                <th scope="col" style="width: 50%">처리시간</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody class="trace-tbody">
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="modal-footer d-flex justify-content-center">
-                                <button type="button" class="btn btn-primary btn-order-save">저장</button>
-                                <button type="button" class="btn btn-secondary htmlModalClose2">취소</button>
                             </div>
                         </div>
                     </form>
@@ -455,6 +373,7 @@
     </div>
 <script type="text/javascript">
     $(document).ready(function() {
+
         var waitStatus  = "{{ OrderConstant::STATUS_WAITBUYERPAY }}";
         var optionValue = "{{ OptionConstant::NAME_EN }}";
         var exchangeRate = {{ $exchangeRate }};
@@ -473,6 +392,72 @@
         
         $(".btn-cancel").click(function(){
             return alert("작업 예정...");
+        });
+
+        $('.btn-delivery').click(function(){
+            let orderId = $(this).attr("orderid");
+
+            $(".delivery-tbody").html("");
+            $(".trace-tbody").html("");
+            $(".div-trace").hide();
+            $('input[name="orderId"]').val(orderId);
+
+            $.ajax({
+                "headers"    : {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
+                "type"       : "GET",
+                "url"        : `/api/w/order/wapp/${orderId}`,
+                "data"       : {},
+                beforeSend: function () {
+                    $("#loadingOverlay").show();
+                },
+                complete: function () {
+                    $("#loadingOverlay").hide();
+                },
+                success: function (resp) {
+                    let { logistics } = resp.data ?? [];
+                    logistics.map(function(ele, key) {
+                        $('.delivery-tbody').append(`
+                            <tr>
+                                <td>${ele.logistics_code}</td>
+                                <td>${ele.logistics_company_name}</td>
+                                <td>${ele.logistics_bill_no}</td>
+                            </tr>
+                        `);
+                    });
+
+                    $("#htmlModal2").modal('show');
+                },
+                error: function error(request, status, _error) {
+                    let { error } = JSON.parse(request.responseText);
+                    alert(error.message);
+                }
+            });
+
+        });
+
+        $('.btn-trace-delivery').click(function(){
+            let orderId = $('input[name="orderId"]').val();
+
+            $.ajax({
+                "headers"    : {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
+                "type"       : "GET",
+                "url"        : `/api/w/order/logistics/${orderId}`,
+                "data"       : {},
+                beforeSend: function () {
+                    // $("#loadingOverlay").show();
+                },
+                complete: function () {
+                    // $("#loadingOverlay").hide();
+                },
+                success: function (resp) {
+                    console.log(resp);
+                },
+                error: function error(request, status, _error) {
+                    let { error } = JSON.parse(request.responseText);
+                    alert(error.message);
+                }
+            });
+
         });
 
         $(".btn-order-save").click(function(){
@@ -514,64 +499,6 @@
                     });
                 }
             }
-        });
-
-        $(".btn-regist").click(function(){
-            let orderId = $(this).attr("orderid");
-            $(".opt-tbody").html("");
-            $('.reqired-inp').val("");
-
-            $.ajax({
-                "headers"    : {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
-                "type"       : "GET",
-                "url"        : `/api/w/order/${orderId}`,
-                "data"       : { },
-                beforeSend: function () {
-                    $("#loadingOverlay").show();
-                },
-                complete: function () {
-                    $("#loadingOverlay").hide();
-                },
-                success: function (resp) {
-                    $('input[name="orderId"]').val(orderId);
-
-                    let { baseInfo, productItems } = resp.data.result;
-                    let offerId = productItems[0].productID;
-                    $(".sp-orderid").text(baseInfo.idOfStr);
-                    $(".sp-offerid").text(offerId);
-
-                    productItems.map(function(ele, key) {
-                        let skuId    = ele.skuID ?? offerId;
-                        let specId   = ele.specId ?? offerId;
-                        let optValue = ele?.skuInfos ? "" : optionValue;
-                        ele?.skuInfos?.map(function(ele2, key2){
-                            if( ele?.skuInfos?.length == key2+1 ){
-                                optValue += ele2.value;
-                            } else {
-                                optValue += ele2.value + "_";
-                            }
-                        });
-
-                        let channelPrice = Math.round( ( ele.price * exchangeRate) / 10) * 10;
-                        $(".opt-tbody").append(`
-                            <tr>
-                                <td>${key+1}</td>
-                                <td><input type="number" class="form-control" name="skuIds[]" value="${skuId}" disabled></td>
-                                <td><input type="text" class="form-control" name="specIds[]" value="${specId}" disabled></td>
-                                <td>${optValue}</td>
-                                <td>${ele.quantity}</td>
-                                <td>${ele.price}</td>
-                                <td><input type="number" class="form-control" name="channelPrices[]" value="${channelPrice}"></td>
-                            </tr>
-                        `);
-                    });
-                    $("#htmlModal2").modal('show');
-                },
-                error: function error(request, status, _error) {
-                    let { error } = JSON.parse(request.responseText);
-                    alert(error.message);
-                }
-            });
         });
 
         $('#btn-pay-select').click(function(){

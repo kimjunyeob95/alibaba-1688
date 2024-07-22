@@ -80,4 +80,26 @@ class OrderService
    {
       return $this->orderAbstract->orderInfoUpdate($params);
    }
+
+   /**
+    * @func orderWappInfo
+    * @description 'WApp 주문 조회'
+    * @param string $orderId
+    * @return array
+    */
+   public function orderWappInfo(string $orderId): array
+   {
+      return $this->orderAbstract->orderWappInfo($orderId);
+   }
+
+   /**
+    * @func orderLogisticsInfo
+    * @description 'W 주문 물류 조회'
+    * @param string $orderId
+    * @return array
+    */
+   public function orderLogisticsInfo(string $orderId): array
+   {
+      return $this->orderAbstract->orderLogisticsInfo($orderId);
+   }
 }

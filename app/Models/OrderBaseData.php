@@ -22,4 +22,8 @@ class OrderBaseData extends Model
     public function w_options () {
         return $this->hasMany(OrderProductData::class, "order_id", "order_id");
     }
+
+    public function logistics () {
+        return $this->hasMany(OrderLogisticsData::class, "order_id", "order_id");
+    }
 }

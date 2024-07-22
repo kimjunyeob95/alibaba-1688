@@ -131,6 +131,10 @@ Route::name('w.')->prefix('w')->group(function () {
         Route::get('/{orderId}', [WAppOrderController::class, "orderInfo"])->name("orderInfo");
         /** 주문정보 업데이트 */
         Route::post('/info/update', [WAppOrderController::class, "orderInfoUpdate"])->name("orderInfoUpdate");
+        /** WApp 주문 조회 */
+        Route::get('/wapp/{orderId}', [WAppOrderController::class, "orderWappInfo"])->name("orderWappInfo");
+        /** W 주문 물류 조회 */
+        Route::get('/logistics/{orderId}', [WAppOrderController::class, "orderLogisticsInfo"])->name("orderLogisticsInfo");
     });
 
     /** 카테고리 */

@@ -2,6 +2,9 @@
 
 namespace App\Abstracts;
 
+use App\Models\OrderBaseData;
+use Exception;
+
 abstract class OrderAbstract
 {
     protected array $returnMsg;
@@ -69,4 +72,34 @@ abstract class OrderAbstract
     * @return array
     */
     abstract function orderInfoUpdate(array $params): array;
+
+    /**
+    * @func orderWappInfo
+    * @description 'WApp 주문 조회'
+    * @param string $orderId
+    * @return array
+    */
+    public function orderWappInfo(string $orderId): array
+    {
+        $returnMsg = $this->returnMsg;
+        try {
+            $obj = OrderBaseData::with([
+                "logistics"
+            ])->where("order_id", $orderId)->first();
+
+            $returnMsg = helpers_success_message($obj);
+        } catch (Exception $e) {
+            $returnMsg = helpers_fail_message($e->getMessage());
+        }
+
+        return $returnMsg;
+    }
+
+    /**
+    * @func orderLogisticsInfo
+    * @description 'W 주문 물류 조회'
+    * @param string $orderId
+    * @return array
+    */
+    abstract function orderLogisticsInfo(string $orderId): array;
 }
