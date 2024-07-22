@@ -82,7 +82,7 @@ class OrderService
 
    /**
     * @func orderInfoUpdate
-    * @description '주문정보 업데이트'
+    * @description '주문정보 전체 업데이트'
     * @param array $params
     * @return array
    */
