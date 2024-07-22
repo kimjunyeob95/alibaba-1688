@@ -258,7 +258,7 @@ class ProductTest extends TestCase
         $msg = "모든 상품 W1 수집 시작";
         debug_log($msg, "product/testAllProductReCollectW1", "testAllProductReCollectW1");
 
-        $today     = "2024-07-06 00:00:00";
+        $today     = "2024-07-23 00:00:00";
         $productW1 = app(ProductW1::class);
         $builder   = ProductData::select(["offer_id"]);
         $builder->where("status", "!=", ProductConstant::PRD_STATUS_EXCEPT);
@@ -269,7 +269,6 @@ class ProductTest extends TestCase
         $totalPages = ceil($totalCount / $perPage);
 
         for ($page = 1; $page <= $totalPages; $page++) {
-            if( $page <= 30 ) continue;
             
             Paginator::currentPageResolver(function () use ($page) {
                 return $page;
@@ -288,7 +287,10 @@ class ProductTest extends TestCase
                 }
             }
 
-            $msg = "모든 상품 W1 수집 ({$page}/{$totalPages}) 완료";
+            // 퍼센트 계산
+            $percent = round(($page / $totalPages) * 100);
+
+            $msg = "모든 상품 W1 수집 ({$page}/{$totalPages}) | {$percent}% 완료";
             debug_log($msg, "product/testAllProductReCollectW1", "testAllProductReCollectW1");
         }
 
