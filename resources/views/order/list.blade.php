@@ -491,6 +491,7 @@
 
         $('.btn-trace-delivery').click(function(){
             let orderId = $('input[name="orderId"]').val();
+            $('.trace-tbody').html("");
 
             $.ajax({
                 "headers"    : {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
