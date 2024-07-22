@@ -23,7 +23,7 @@ class OrderController extends Controller
         $page           = $this->request->post("page", 1);
         $pageSize       = $this->request->post("pageSize", 50);
         $orderChannel   = $this->request->get("orderChannel", "");
-        $orderStatus    = $this->request->get("orderStatus", "");
+        $orderStatus    = $this->request->get("orderStatus", []);
         $deliveryStatus = $this->request->get("deliveryStatus", "");
         $refundStatus   = $this->request->get("refundStatus", "");
         $timeCls        = $this->request->get("timeCls", "");
@@ -50,6 +50,7 @@ class OrderController extends Controller
             "keyword"        => $keyword,
             "sort"           => $sort,
         ];
+        // dd($orderStatus);
         $result = $this->orderService->orderList($params);
         // dd($result["data"]->items()->toArray());
         $viewParams = [
@@ -57,7 +58,7 @@ class OrderController extends Controller
             "offset"         => (int) $offset,
             "pageSize"       => (int) $pageSize,
             "orderChannel"   => $orderChannel,
-            "orderStatus"    => $orderStatus,
+            "orderStatus"    => implode(",", $orderStatus),
             "deliveryStatus" => $deliveryStatus,
             "refundStatus"   => $refundStatus,
             "timeCls"        => $timeCls,

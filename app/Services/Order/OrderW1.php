@@ -205,7 +205,7 @@ class OrderW1 extends OrderAbstract
                 $builder->where("order_base_datas.channel", $orderChannel);
             }
             if( !empty($orderStatus) ){
-                $builder->where("order_base_datas.status", $orderStatus);
+                $builder->whereIn("order_base_datas.status", $orderStatus);
             }
             if( !empty($deliveryStatus) ){
                 $builder->whereHas('w_options', function($query) use ($deliveryStatus) {
