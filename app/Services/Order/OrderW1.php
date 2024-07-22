@@ -431,17 +431,17 @@ class OrderW1 extends OrderAbstract
             $results   = $pagedData->items();
 
             foreach ($results as $obj) {
-                $orderId           = $obj->order_id;
-                $orderDetailResult = $this->getWOrder($orderId);
-                if( $orderDetailResult["isSuccess"] == false || 
-                    !isset($orderDetailResult["data"]["result"]["baseInfo"]) ||
-                    empty($orderDetailResult["data"]["result"]["baseInfo"])
-                ){
-                    throw new Exception(OrderErrorMessageConstant::getFitErrorMessage("W_DETAIL"));
-                }
+                DB::beginTransaction();
 
                 try {
-                    DB::beginTransaction();
+                    $orderId           = $obj->order_id;
+                    $orderDetailResult = $this->getWOrder($orderId);
+                    if( $orderDetailResult["isSuccess"] == false || 
+                        !isset($orderDetailResult["data"]["result"]["baseInfo"]) ||
+                        empty($orderDetailResult["data"]["result"]["baseInfo"])
+                    ){
+                        throw new Exception(OrderErrorMessageConstant::getFitErrorMessage("W_DETAIL"));
+                    }
 
                     $orderBaseObj = OrderBaseData::where("order_id", $orderId)->first();
                     if( $orderBaseObj == null){
