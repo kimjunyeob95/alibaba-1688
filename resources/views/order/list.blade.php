@@ -58,8 +58,19 @@
                                     <td colspan="2">
                                         <button type="button" name="orderStatus" class="btn-status btn btn-sm {{ $orderStatus == "" ? "btn-primary" : "btn-dark" }}"
                                         value="">전체</button>
-                                        @foreach (OrderConstant::STATUS_FILTER as $statusKey => $statusValue)    
+                                        @foreach (OrderConstant::STATUS as $statusKey => $statusValue)    
                                             <button type="button" name="orderStatus" class="btn-status btn btn-sm {{ $orderStatus == $statusKey ? "btn-primary" : "btn-dark" }}"
+                                            value="{{ $statusKey }}">{{ $statusValue }}</button>
+                                        @endforeach
+                                    </td>
+                                </tr>
+                                <tr class="align-middle">
+                                    <th style="width: 120px">배송상태 상태</th>
+                                    <td colspan="2">
+                                        <button type="button" name="deliveryStatus" class="btn-status btn btn-sm {{ $deliveryStatus == "" ? "btn-primary" : "btn-dark" }}"
+                                        value="">전체</button>
+                                        @foreach (OrderConstant::LOGISTICS_STATUS as $statusKey => $statusValue)    
+                                            <button type="button" name="deliveryStatus" class="btn-status btn btn-sm {{ $deliveryStatus == $statusKey ? "btn-primary" : "btn-dark" }}"
                                             value="{{ $statusKey }}">{{ $statusValue }}</button>
                                         @endforeach
                                     </td>
@@ -92,12 +103,36 @@
                                     </td>
                                 </tr>
                                 <tr class="align-middle">
+                                    <th style="width: 120px">검색</th>
+                                    <td style="width: 200px">
+                                        <select class="form-select" name="search_cls">
+                                            <option value="order_id" @if($search_cls == "order_id") selected @endif>W 주문번호</option>
+                                            <option value="channel_order_id" @if($search_cls == "channel_order_id") selected @endif>채널 주문번호</option>
+                                            <option value="offer_id" @if($search_cls == "offer_id") selected @endif>제품ID</option>
+                                        </select>
+                                    </td>
+                                    <td>
+                                        <textarea class="form-control" id="keyword" name="keyword" placeholder="동시에 검색하려면 콤마(,) 혹은 엔터로 구분하여 입력 예) 552908136418,737834654023">{!! $keyword !!}</textarea>
+                                    </td>
+                                </tr>
+                                <tr class="align-middle">
+                                    <th style="width: 120px">정렬</th>
+                                    <td colspan="2">
+                                        <select class="form-select" name="sort" style="width: 200px">
+                                            <option value="created_at|desc" @if($sort == "created_at|desc") selected @endif>주문 생성일 내림차순</option>
+                                            <option value="created_at|asc" @if($sort == "created_at|asc") selected @endif>주문 생성일 오름차순</option>
+                                            <option value="updated_at|desc" @if($sort == "updated_at|desc") selected @endif>주문 수정일 내림차순</option>
+                                            <option value="updated_at|asc" @if($sort == "updated_at|asc") selected @endif>주문 수정일 오름차순</option>
+                                        </select>
+                                    </td>
+                                </tr>
+                                <tr class="align-middle">
                                     <th style="width: 120px">노출 수</th>
                                     <td style="width: 200px">
                                         <select class="form-select" name="pageSize">
-                                            <option value=20 @if($pageSize == 20) selected @endif>20개 노출</option>
-                                            <option value=10 @if($pageSize == 10) selected @endif>10개 노출</option>
-                                            <option value=5 @if($pageSize == 5) selected @endif>5개 노출</option>
+                                            <option value=50 @if($pageSize == 50) selected @endif>50개 노출</option>
+                                            <option value=100 @if($pageSize == 100) selected @endif>100개 노출</option>
+                                            <option value=300 @if($pageSize == 300) selected @endif>300개 노출</option>
                                         </select>
                                     </td>
                                     <td>
@@ -128,23 +163,15 @@
                                     <input class="form-check-input" type="checkbox" id="allCheckbox">
                                 </th>
                                 <th scope="col" style="width: 1%">No</th>
-                                <th scope="col" style="width: 10%">주문번호<br>(주문상태)</th>
-                                <th scope="col" style="width: 5%">총 금액<br>(이벤트할인)</th>
-                                <th scope="col" style="width: 5%">상품금액<br>(배송비)</th>
-                                <th scope="col" style="width: 5%">환불상태<br>(금액)</th>
-                                <th scope="col" style="width: 5%">옵션이미지</th>
-                                <th scope="col" style="width: 8%">옵션명<br>sku_ID<br>(제품ID)</th>
-                                <th scope="col" style="width: 8%">구매수량<br>(가격)</th>
-                                <th scope="col" style="width: 5%">옵션상태</th>
-                                <th scope="col" style="width: 5%">옵션<br>환불금액</th>
+                                <th scope="col" style="width: 10%">W 주문번호<br>(채널 주문번호)</th>
+                                <th scope="col" style="width: 5%">구매자<br>(주문 채널)</th>
+                                <th scope="col" style="width: 5%">상품 이미지</th>
+                                <th scope="col" style="width: 5%">주문정보</th>
+                                <th scope="col" style="width: 5%">W 금액<br>(채널 금액)</th>
+                                <th scope="col" style="width: 8%">주문상태</th>
+                                <th scope="col" style="width: 8%">배송상태</th>
+                                <th scope="col" style="width: 8%">환불상태</th>
                                 <th scope="col" style="width: 8%">주문 생성일<br>주문 수정일</th>
-                                <th scope="col" style="width: 8%">
-                                    주문채널
-                                    <br>
-                                    채널 주문번호
-                                    <br>
-                                    주문자
-                                </th>
                                 <th scope="col" style="width: 6%">관리</th>
                             </tr>
                         </thead>
@@ -152,152 +179,71 @@
                             @foreach ($paginator->items() as $index => $data)
                                 <tr>
                                     <td class="text-center">
-                                        <input id="checkbox-{{ $data["baseInfo"]['idOfStr'] }}" class="form-check-input chk-inp" 
-                                        type="checkbox" value="{{ $data["baseInfo"]['idOfStr'] }}" orderStatus={{ $data["baseInfo"]["status"] }}>
+                                        <input id="checkbox-{{ $data->order_id }}" class="form-check-input chk-inp" 
+                                        type="checkbox" value="{{ $data->order_id }}" orderStatus={{ $data->status }}>
                                     </td>
                                     <td>
-                                        <label for="checkbox-{{ $data["baseInfo"]['idOfStr'] }}" class="cursor-pointer">
+                                        <label for="checkbox-{{ $data->order_id }}" class="cursor-pointer">
                                             {{ number_format(($paginator->total() - $offset) - $index) }}
                                         </label>
                                     </td>
                                     <td>
-                                        <small>{{ $data["baseInfo"]['idOfStr'] }}</small>
+                                        <small>{{ $data->order_id }}</small>
                                         <br>
-                                        ({{ OrderConstant::STATUS[$data["baseInfo"]["status"]] }})
+                                        <small>({{ $data->channel_order_id }})</small>
                                     </td>
                                     <td>
-                                        {{ $data["baseInfo"]["totalAmount"] }}
-                                    </td>
-                                    <td>
-                                        {{ $data["baseInfo"]["sumProductPayment"] }}
+                                        <small>{{ $data->buyer_name }}</small>
                                         <br>
-                                        ({{ $data["baseInfo"]["shippingFee"] }})
+                                        <small>({{ $data->channel }})</small>
                                     </td>
                                     <td>
-                                        @if (isset( $data["baseInfo"]["refundStatus"] ))    
-                                            {{ OrderConstant::REFUND_STATUS[$data["baseInfo"]["refundStatus"]] }}
+                                        @if (!empty($data->product->main_img))
+                                            <img class="lazy-img preview-image" data-src="{{ $data->product->main_img->img_url_origin }}" width=60 height=60/>
                                         @else
-                                            X
+                                            <img class="lazy-img preview-image" data-src='/assets/img/no_img.png'width=60 height=60>
                                         @endif
-                                        <br>
-                                        ({{ $data["baseInfo"]["refund"] }})
                                     </td>
                                     <td>
-                                        @foreach ($data["productItems"] as $prdItem)
-                                            <table style="height: 150px;">
-                                                <tr>
-                                                    <td>
-                                                        <div>
-                                                            @if (!empty($prdItem["productImgUrl"][0]))
-                                                                <img class="lazy-img preview-image" data-src="{{ $prdItem["productImgUrl"][0] }}" width=60 height=60/>
-                                                            @else
-                                                                <img class="lazy-img preview-image" data-src='/assets/img/no_img.png'width=60 height=60>
-                                                            @endif
-                                                        </div>
-                                                    </td>
-                                                </tr>
-                                            </table>
+                                        <small>{{ $data->product->prd_name_kr }}</small>
+                                        <div class="mt-1"></div>
+                                        @foreach ($data->w_options as $w_option)
+                                            @if (!empty($w_option->option))
+                                                <small class="d-block">
+                                                    옵션: {{ $w_option->option->option_name_kr}} 수량: {{ $w_option->quantity }}
+                                                </small>
+                                            @else
+                                                <small class="d-block">
+                                                    WApp에 옵션이 없음 sku_id: {{ $w_option->sku_id }} 수량: {{ $w_option->quantity }}
+                                                </small>
+                                            @endif
                                         @endforeach
                                     </td>
                                     <td>
-                                        @foreach ($data["productItems"] as $prdItem)
-                                            <table style="height: 150px;">
-                                                <tr>
-                                                    <td>
-                                                        <div>
-                                                            @if (isset($prdItem["skuInfos"]))
-                                                                @php
-                                                                    $optionValue = "";        
-                                                                @endphp
-                                                                @foreach ($prdItem["skuInfos"] as $skuInfo)
-                                                                    @php
-                                                                        $optionValue .= $skuInfo["value"] .  "_";
-                                                                    @endphp
-                                                                @endforeach
-                                                                @php
-                                                                    $optionValue = rtrim($optionValue, "_");
-                                                                @endphp
-                                                                <small>{{ $optionValue }}</small>
-                                                            @else
-                                                                <small>{{ OptionConstant::NAME_EN }}</small>
-                                                            @endif
-                                                            @if ( isset($prdItem["skuID"]) )
-                                                                <br>
-                                                                <small>{{ $prdItem["skuID"] }}</small>
-                                                            @endif
-                                                            <br>
-                                                            <small>({{ $prdItem["productID"] }})</small>
-                                                        </div>
-                                                    </td>
-                                                </tr>
-                                            </table>
-                                        @endforeach
+                                           {{ number_format($data->phas_amount) }}
+                                           <br>
+                                           ({{ number_format($data->totla_channel_price) }})
                                     </td>
                                     <td>
-                                        @foreach ($data["productItems"] as $prdItem)
-                                            <table class="w-100 d-flex align-items-center justify-content-center" style="height: 150px;">
-                                                <tr>
-                                                    <td>
-                                                        <div>
-                                                            <small>{{ $prdItem["quantity"] }}</small>
-                                                            <br>
-                                                            <small>({{ $prdItem["price"] }})</small>
-                                                        </div>
-                                                    </td>
-                                                </tr>
-                                            </table>
-                                        @endforeach
+                                        {{ OrderConstant::STATUS[$data->status] }}
                                     </td>
                                     <td>
-                                        @foreach ($data["productItems"] as $prdItem)
-                                            <table style="height: 150px;">
-                                                <tr>
-                                                    <td>
-                                                        <div>
-                                                            <small>{{ OrderConstant::STATUS[$prdItem["status"]] }}</small>
-                                                        </div>
-                                                    </td>
-                                                </tr>
-                                            </table>
-                                        @endforeach
+                                        @if (isset($data->delivery_status))
+                                            {{ OrderConstant::LOGISTICS_STATUS[$data->delivery_status] }}
+                                        @endif
                                     </td>
                                     <td>
-                                        @foreach ($data["productItems"] as $prdItem)
-                                            <table style="height: 150px;">
-                                                <tr>
-                                                    <td>
-                                                        <div>
-                                                            <small>{{ $prdItem["refund"] }}</small>
-                                                        </div>
-                                                    </td>
-                                                </tr>
-                                            </table>
-                                        @endforeach
-                                    </td>
-                                    <td>
-                                        <small>{{ formatToKST($data["baseInfo"]["createTime"]) }}</small>
-                                        <br>
-                                        <small>{{ formatToKST($data["baseInfo"]["modifyTime"]) }}</small>
-                                    </td>
-                                    <td>
-                                        @if ($data["baseObj"] && $data["channelObj"])
-                                            <small>{{ MallConstant::MALL_NAME[$data["baseObj"]->channel] }}</small>
-                                            <br>
-                                            <small>{{ $data["channelObj"]->channel_order_id }}</small>
-                                            <br>
-                                            <small>{{ $data["channelObj"]->buyer_name }}</small>
-                                        @else
-                                            <p>주문정보 없음</p>
-                                            <button class="btn btn-sm btn-primary btn-regist text-white" orderid={{ $data["baseInfo"]['idOfStr'] }}>정보 입력</button>
+                                        @if (isset($data->retund_status))
+                                            {{ OrderConstant::REFUND_STATUS[$data->retund_status] }}
                                         @endif
                                     </td>
                                     <td>
                                         @if ($data["baseObj"] && $data["channelObj"])
                                             <div style="display: flex; flex-direction: column; gap: 5px;">
-                                                <button class="btn btn-sm btn-success btn-update text-white" orderid={{ $data["baseInfo"]['idOfStr'] }}>주문 업데이트</button>
-                                                <button class="btn btn-sm btn-danger btn-cancel text-white" orderid={{ $data["baseInfo"]['idOfStr'] }}>취소/환불</button>
-                                                @if( $data["baseInfo"]["status"] == OrderConstant::STATUS_WAITBUYERPAY )
-                                                    <button class="btn btn-sm btn-dark btn-pay text-white" orderid={{ $data["baseInfo"]['idOfStr'] }}>결제하기</button>
+                                                <button class="btn btn-sm btn-success btn-update text-white" orderid={{ $data->order_id }}>주문 업데이트</button>
+                                                <button class="btn btn-sm btn-danger btn-cancel text-white" orderid={{ $data->order_id }}>취소/환불</button>
+                                                @if( $data->status == OrderConstant::STATUS_WAITBUYERPAY )
+                                                    <button class="btn btn-sm btn-dark btn-pay text-white" orderid={{ $data->order_id }}>결제하기</button>
                                                 @endif
                                             </div>
                                         @endif

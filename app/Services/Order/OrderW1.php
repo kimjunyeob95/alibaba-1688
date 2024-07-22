@@ -176,68 +176,87 @@ class OrderW1 extends OrderAbstract
     {
         $returnMsg = $this->returnMsg;
         try {
-            $page         = (int)$params["page"];
-            $pageSize     = (int)$params["pageSize"];
-            $orderStatus  = $params["orderStatus"];
-            $refundStatus = $params["refundStatus"];
-            $timeCls      = $params["timeCls"];
-            $startTime    = $params["startTime"];
-            $endTime      = $params["endTime"];
+            $page           = (int)$params["page"];
+            $pageSize       = (int)$params["pageSize"];
+            $orderChannel   = $params["orderChannel"];
+            $orderStatus    = $params["orderStatus"];
+            $deliveryStatus = $params["deliveryStatus"];
+            $refundStatus   = $params["refundStatus"];
+            $timeCls        = $params["timeCls"];
+            $startTime      = $params["startTime"];
+            $endTime        = $params["endTime"];
+            $search_cls     = $params["search_cls"];
+            $keyword        = $params["keyword"];
+            $sortArr        = explode("|", $params["sort"]);
 
-            $endPoint = "param2/1/com.alibaba.trade/alibaba.trade.getBuyerOrderList/";
-            $payload = [
-                'access_token' => $this->accessToken,
-                'page'         => $page,
-                'pageSize'     => $pageSize,
-            ];
+            $builder = OrderBaseData::select([
+                "order_base_datas.*",
+                "b.channel_order_id",
+                "b.buyer_name",
+                "b.total_channel_price",
+                "c.status as delivery_status",
+                "d.phas_amount",
+            ])
+            ->with([
+                "product.main_img",
+                "w_options.option"
+            ])
+            ->join("order_channel_datas as b", "order_base_datas.order_id", "=", "b.order_id")
+            ->leftJoin("order_logistics_datas as c", "order_base_datas.order_id", "=", "c.order_id")
+            ->leftJoin("order_trade_datas as d", "order_base_datas.order_id", "=", "d.order_id");
 
+            if( !empty($orderChannel) ){
+                $builder->where("order_base_datas.channel", $orderChannel);
+            }
             if( !empty($orderStatus) ){
-                $payload["orderStatus"] = $orderStatus;
+                $builder->where("order_base_datas.status", $orderStatus);
+            }
+            if( !empty($deliveryStatus) ){
+                $builder->where("c.status", $deliveryStatus);
             }
             if( !empty($refundStatus) ){
-                $payload["refundStatus"] = $refundStatus;
+                $builder->where("order_base_datas.refund_status", $refundStatus);
             }
             if( !empty($timeCls) ){
                 if( $timeCls == "createOrder" ){
                     if( !empty($startTime) ) {
-                        $payload["createStartTime"] = formatToCST($startTime);
+                        $builder->where("order_base_datas.created_at", ">=", $startTime . "00:00:00");
                     }
                     if( !empty($endTime) ) {
-                        $payload["createEndTime"] = formatToCST($endTime);
+                        $builder->where("order_base_datas.created_at", "<=", $startTime . "23:59:59");
                     }
                 } else if( $timeCls == "modiOrder" ){
                     if( !empty($startTime) ) {
-                        $payload["modifyStartTime"] = formatToCST($startTime);
+                        $builder->where("order_base_datas.updated_at", ">=", $startTime . "00:00:00");
                     }
                     if( !empty($endTime) ) {
-                        $payload["modifyEndTime"] = formatToCST($endTime);
+                        $builder->where("order_base_datas.updated_at", "<=", $startTime . "23:59:59");
                     }
                 }
             }
-            $curlResult = curl_1688("get", $endPoint, $payload);
-            $paginator  = new LengthAwarePaginator(collect(), 0, $page, $pageSize);
-            if( isset($curlResult["data"]["result"]) && !empty($curlResult["data"]["result"]) ){
-                $apiData      = $curlResult["data"];
-                $totalRecords = $apiData["totalRecord"];
+            if( !empty($keyword) ){
+                $keyword = preg_replace("/(\r\n|\r|\n)/", ",", trim($keyword));
+                $keyword = explode(",", $keyword);
+                // 각 배열 요소의 앞뒤 공백 제거
+                $keyword = array_map('trim', $keyword);
+                // 빈 값을 제거
+                $keyword = array_filter($keyword);
+                // 중복 제거
+                $keyword = array_unique($keyword);
 
-                foreach ($apiData["result"] as &$data) {
-                    $baseInfo = $data["baseInfo"];
-                    $orderId  = $baseInfo["idOfStr"];
-                    
-                    $data["baseObj"]    = OrderBaseData::where("order_id", $orderId)->first();
-                    $data["channelObj"] = OrderChannelData::where("order_id", $orderId)->first();
+                if( $search_cls == "order_id"){
+                    $builder->whereIn("order_base_datas." . $search_cls, $keyword);
+                } else if( $search_cls == "channel_order_id"){
+                    $builder->whereIn("b." . $search_cls, $keyword);
+                } else if( $search_cls == "offer_id" ){
+                    $builder->whereIn("order_base_datas." . $search_cls, $keyword);
                 }
-
-                $paginator = new LengthAwarePaginator(
-                    collect($apiData["result"]), // 현재 페이지의 아이템들
-                    $totalRecords, // 총 아이템 수
-                    $pageSize, // 페이지 당 아이템 수
-                    $page, // 현재 페이지
-                    ['path' => LengthAwarePaginator::resolveCurrentPath()] // 현재 URL 경로
-                );
             }
+            $builder->orderBy("order_base_datas." . $sortArr[0], $sortArr[1]);
 
-            $returnMsg = helpers_success_message($paginator);
+            $lists = $builder->paginate($pageSize)->appends($params);
+
+            $returnMsg = helpers_success_message($lists);
         } catch (Exception $e) {
             $returnMsg = helpers_fail_message($e->getMessage());
         }
@@ -356,7 +375,6 @@ class OrderW1 extends OrderAbstract
                     $orderData["channel"] = $orderBaseObj->channel;
                     $orderDto = new OrderDto();
                     $orderDto->bind($orderData);
-    
                     $baseInfo    = $orderDto->orderBaseDto;
                     $upsertWhere = $baseInfo->getAllProperties();
                     unset($upsertWhere["order_id"]);

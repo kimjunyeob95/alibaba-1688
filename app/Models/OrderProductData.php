@@ -14,4 +14,9 @@ class OrderProductData extends Model
     protected $table      = 'order_product_datas';
     protected $guarded    = [];
     protected $fillable   = [];
+
+    public function option () {
+        return $this->hasOne(ProductOptionData::class, "sku_id", "sku_id")
+                    ->whereColumn('offer_id', 'offer_id');
+    }
 }
