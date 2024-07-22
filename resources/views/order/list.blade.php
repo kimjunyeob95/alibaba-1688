@@ -133,7 +133,7 @@
                                         <select class="form-select" name="pageSize">
                                             <option value=50 @if($pageSize == 50) selected @endif>50개 노출</option>
                                             <option value=100 @if($pageSize == 100) selected @endif>100개 노출</option>
-                                            <option value=300 @if($pageSize == 300) selected @endif>300개 노출</option>
+                                            <option value=500 @if($pageSize == 500) selected @endif>500개 노출</option>
                                         </select>
                                     </td>
                                     <td>
@@ -164,7 +164,11 @@
                                     <input class="form-check-input" type="checkbox" id="allCheckbox">
                                 </th>
                                 <th scope="col" style="width: 1%">No</th>
-                                <th scope="col" style="width: 3%">W 주문번호<br>(채널 주문번호)</th>
+                                <th scope="col" style="width: 3%">
+                                    W 주문번호<br>
+                                    (채널 주문번호)<br>
+                                    (제품ID)
+                                </th>
                                 <th scope="col" style="width: 8%">구매자<br>(주문 채널)</th>
                                 <th scope="col" style="width: 5%">상품 이미지</th>
                                 <th scope="col" style="width: *%">주문정보</th>
@@ -191,6 +195,8 @@
                                         <small>{{ $data->order_id }}</small>
                                         <br>
                                         <small>({{ $data->channel_order_id }})</small>
+                                        <br>
+                                        <small>({{ $data->offer_id }})</small>
                                     </td>
                                     <td>
                                         <small>{{ $data->buyer_name }}</small>
@@ -214,6 +220,11 @@
                                             @if (!empty($w_option->option))
                                                 <small class="d-block mt-1">
                                                     옵션: {{ $w_option->option->option_name_kr}} 수량: {{ $w_option->quantity }} ({{ $deliveryStatus }})
+                                                    @if ($w_option->option->sku_img_url)
+                                                        <img class="lazy-img preview-image" data-src="{{ $w_option->option->sku_img_url }}" width=30 height=30/>
+                                                    @else
+                                                        <img class="lazy-img preview-image" data-src='/assets/img/no_img.png'width=30 height=30>
+                                                    @endif
                                                 </small>
                                             @else
                                                 <small class="d-block mt-1">
@@ -347,7 +358,7 @@
                                                     <table class="table">
                                                         <thead class="table-light">
                                                             <tr>
-                                                                <th scope="col" style="width: 50%">내용</th>
+                                                                <th scope="col" style="width: 80%">내용</th>
                                                                 <th scope="col" style="width: 50%">처리시간</th>
                                                             </tr>
                                                         </thead>
@@ -415,7 +426,7 @@
                 },
                 success: function (resp) {
                     let { logistics } = resp.data ?? [];
-                    logistics.map(function(ele, key) {
+                    logistics?.map(function(ele, key) {
                         $('.delivery-tbody').append(`
                             <tr>
                                 <td>${ele.logistics_code}</td>
@@ -444,13 +455,25 @@
                 "url"        : `/api/w/order/logistics/${orderId}`,
                 "data"       : {},
                 beforeSend: function () {
-                    // $("#loadingOverlay").show();
+                    $("#loadingOverlay").show();
                 },
                 complete: function () {
-                    // $("#loadingOverlay").hide();
+                    $("#loadingOverlay").hide();
                 },
                 success: function (resp) {
-                    console.log(resp);
+                    resp.data.map(function(ele, key) {
+                        let logisticsSteps = ele.logisticsSteps;
+                        logisticsSteps.map(function(ele2, key2) {
+                            $('.trace-tbody').append(`
+                                <tr>
+                                    <td>${ele2.remark}</td>
+                                    <td>${ele2.acceptTime}</td>
+                                </tr>
+                            `);
+                        });
+                    });
+
+                    $(".div-trace").show();
                 },
                 error: function error(request, status, _error) {
                     let { error } = JSON.parse(request.responseText);

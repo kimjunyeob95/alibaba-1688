@@ -33,7 +33,7 @@ class OrderController extends Controller
         $keyword        = $this->request->get("keyword", "");
         $sort           = $this->request->get("sort", "created_at|desc");
 
-        $pageSize = $pageSize > 300 ? 300 : $pageSize;
+        $pageSize = $pageSize > 500 ? 500 : $pageSize;
         $offset   = ($page - 1) * $pageSize;
 
         $params = [
@@ -51,7 +51,7 @@ class OrderController extends Controller
             "sort"           => $sort,
         ];
         $result = $this->orderService->orderList($params);
-        // dd($result["data"]->items()[0]->toArray());
+        // dd($result["data"]->items()->toArray());
         $viewParams = [
             "paginator"      => $result["data"],
             "offset"         => (int) $offset,

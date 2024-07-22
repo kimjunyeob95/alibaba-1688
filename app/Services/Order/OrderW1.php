@@ -684,8 +684,12 @@ class OrderW1 extends OrderAbstract
             ];
 
             $curlResult = curl_1688("get", $endPoint, $payload);
-            dd($curlResult);
-            $returnMsg = helpers_success_message();
+            
+            $result = [];
+            if( isset($curlResult["data"]["logisticsTrace"]) ){
+                $result = $curlResult["data"]["logisticsTrace"];
+            }
+            $returnMsg = helpers_success_message($result);
         } catch (Exception $e) {
             $returnMsg = helpers_fail_message($e->getMessage());
         }
