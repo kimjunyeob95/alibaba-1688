@@ -3,9 +3,12 @@
 namespace App\Abstracts;
 
 use App\Models\OrderBaseData;
+use App\Models\OrderChannelData;
+use App\Models\OrderChannelDetailData;
 use App\Models\OrderLogisticsData;
 use App\Models\OrderProductData;
 use App\Models\OrderTradeData;
+use App\Vo\Order\OrderChannelDto;
 use App\Vo\Order\OrderDto;
 use Exception;
 
@@ -70,7 +73,7 @@ abstract class OrderAbstract
 
     /**
     * @func orderInfoUpdate
-    * @description '주문정보 업데이트'
+    * @description '주문정보 전체 업데이트'
     * @param array $params
     * @return array
     */
@@ -78,7 +81,7 @@ abstract class OrderAbstract
 
     /**
     * @func upsertOrderBaseData
-    * @description '공통 주문정보 upsert'
+    * @description '주문 기본 정보 upsert'
     * @param OrderDto $orderDto
     * @return array
     */
@@ -141,7 +144,49 @@ abstract class OrderAbstract
 
             $returnMsg = helpers_success_message();
         } catch (Exception $e) {
-            $returnMsg = helpers_fail_message($e->getMessage());
+            $returnMsg = helpers_fail_message("method: upsertOrderBaseData | error: " . $e->getMessage());
+        }
+
+        return $returnMsg;
+    }
+
+    /**
+    * @func upsertOrderChannelData
+    * @description '주문 채널 정보 upsert'
+    * @param OrderChannelDto $orderChannelDto
+    * @param array $orderChannelDetailDtos
+    * @return array
+    */
+    public function upsertOrderChannelData(OrderChannelDto $orderChannelDto, array $orderChannelDetailDtos): array
+    {
+        $returnMsg = $this->returnMsg;
+
+        try {
+            $upsertWhere = $orderChannelDto->getAllProperties();
+            unset($upsertWhere["order_id"]);
+            $ocdObj = OrderChannelData::updateOrCreate(
+                [
+                    "order_id" => $orderChannelDto->order_id,
+                ],
+                $upsertWhere
+            );
+
+            foreach ($orderChannelDetailDtos as $orderChannelDetailDto) {
+                $upsertWhere = $orderChannelDetailDto->getAllProperties();
+                unset($upsertWhere["order_channel_id"]);
+                unset($upsertWhere["option_id"]);
+                OrderChannelDetailData::updateOrCreate(
+                    [
+                        "order_channel_id" => $ocdObj->id,
+                        "option_id"        => $orderChannelDetailDto->option_id
+                    ],
+                    $upsertWhere
+                );
+            }
+
+            $returnMsg = helpers_success_message();
+        } catch (Exception $e) {
+            $returnMsg = helpers_fail_message("method: upsertOrderChannelData | error: " . $e->getMessage());
         }
 
         return $returnMsg;

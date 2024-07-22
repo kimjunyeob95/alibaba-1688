@@ -6,11 +6,6 @@ use App\Abstracts\OrderAbstract;
 use App\Constants\OrderErrorMessageConstant;
 use App\Constants\ProductErrorMessageConstant;
 use App\Models\OrderBaseData;
-use App\Models\OrderChannelData;
-use App\Models\OrderChannelDetailData;
-use App\Models\OrderLogisticsData;
-use App\Models\OrderProductData;
-use App\Models\OrderTradeData;
 use App\Models\ProductOptionData;
 use App\Vo\Order\OrderChannelDetailDto;
 use App\Vo\Order\OrderChannelDto;
@@ -183,26 +178,9 @@ trait MallOrderTrait
                     $orderChannelDto = new OrderChannelDto();
                     $orderChannelDto->bind($orderChannelDtoBind);
 
-                    $upsertWhere = $orderChannelDto->getAllProperties();
-                    unset($upsertWhere["order_id"]);
-                    $ocdObj = OrderChannelData::updateOrCreate(
-                        [
-                            "order_id" => $orderChannelDto->order_id,
-                        ],
-                        $upsertWhere
-                    );
-
-                    foreach ($orderChannelDetailDtos as $orderChannelDetailDto) {
-                        $upsertWhere = $orderChannelDetailDto->getAllProperties();
-                        unset($upsertWhere["order_channel_id"]);
-                        unset($upsertWhere["option_id"]);
-                        OrderChannelDetailData::updateOrCreate(
-                            [
-                                "order_channel_id" => $ocdObj->id,
-                                "option_id"        => $orderChannelDetailDto->option_id
-                            ],
-                            $upsertWhere
-                        );
+                    $updateResult = $this->orderW1->upsertOrderChannelData($orderChannelDto, $orderChannelDetailDtos);
+                    if( $updateResult["isSuccess"] == false ){
+                        throw new Exception($updateResult["msg"]);
                     }
     
                     DB::commit();
