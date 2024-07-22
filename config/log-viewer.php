@@ -5,7 +5,7 @@ $productLog["production"] = [];
 if( env('APP_ENV', 'local') != "production" ){
     $productLog["production"] = [
         'name' => 'Production',
-        'host' => 'https://task-1688.onch3.co.kr/logs',
+        'host' => 'https://wapp.onch3.co.kr/logs',
         'auth' => [
             'token' => env('LOG_VIEWER_PRODUCTION_TOKEN', ""),
         ],
