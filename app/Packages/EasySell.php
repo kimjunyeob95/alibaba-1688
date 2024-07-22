@@ -365,6 +365,10 @@ class EasySell extends MallApiAbstract
         ->where("channel", MallConstant::MALL_EASYSELL)
         ->groupBy("offer_id", "w_type")
         ->get();
+
+        $msg = "수정 된 상품 전송 배치 시작";
+        debug_log($msg, "easysell/sendModiProduct", "sendModiProduct");
+
         foreach ($modiObjs as $modiObj) {
             $param = [
                 "type" => [$modiObj->w_type]
@@ -391,6 +395,9 @@ class EasySell extends MallApiAbstract
                 ]);
             }
         }
+
+        $msg = "수정 된 상품 전송 배치 종료";
+        debug_log($msg, "easysell/sendModiProduct", "sendModiProduct");
     }
 
     /**
