@@ -68,7 +68,11 @@ class Kernel extends ConsoleKernel
     {
         if (app()->environment('production')) {
 
-            /** WApp */
+            /**
+             * ############
+             * WApp 상품 배치
+             * ############
+             */
             $schedule->command("miss_product_re_collect --wversion=". WConstant::WAPP_W1)->cron("0 6 * * *")->description("정보부족 W1 상품 재수집")->withoutOverlapping()->runInBackground();
             // $schedule->command("miss_product_re_collect --wversion=". WConstant::WAPP_W2)->cron("0 6 * * *")->description("정보부족 W2 상품 재수집")->withoutOverlapping()->runInBackground();
 
@@ -76,7 +80,18 @@ class Kernel extends ConsoleKernel
             $schedule->command("update_forbidden_word")->cron("30 0 * * *")->description("금칙어 사전 적용(상품, 정보고시 항목값)")->withoutOverlapping()->runInBackground();
             $schedule->command("update_weight_delivery")->cron("0 1 * * *")->description("중량별 배송비 적용")->withoutOverlapping()->runInBackground();
 
-            /** 이지셀 */
+            /**
+             * ############
+             * WApp 주문 배치
+             * ############
+             */
+            $schedule->command("order_command --func=orderBatchUpdate")->cron("0,30 6-23 * * *")->description("WApp 주문 배치 업데이트")->withoutOverlapping()->runInBackground();
+
+            /**
+             * ############
+             * 이지셀 배치
+             * ############
+             */
             $schedule->command("easy_sell_command --func=sendModiProduct")->cron("*/5 * * * *")->description("이지셀 수정 된 상품 전송")->withoutOverlapping()->runInBackground();
 
             /**
