@@ -54,7 +54,7 @@ class OnchannelCommand extends Command
                 ];
 
                 $msg = "온채널 자동 상품등록 전송 시작";
-                debug_log($msg, "onchanne/autoPrdRegist", "autoPrdRegist");
+                debug_log($msg, "onchannel/autoPrdRegist", "autoPrdRegist");
 
                 $perPage    = 900;
                 $totalCount = count($builder->get());
@@ -77,7 +77,7 @@ class OnchannelCommand extends Command
                 }
 
                 $msg = "온채널 자동 상품등록 전송 종료";
-                debug_log($msg, "onchanne/autoPrdRegist", "autoPrdRegist");
+                debug_log($msg, "onchannel/autoPrdRegist", "autoPrdRegist");
                 break;
 
             /**
