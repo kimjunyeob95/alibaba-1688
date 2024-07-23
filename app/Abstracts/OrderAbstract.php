@@ -98,7 +98,10 @@ abstract class OrderAbstract
         $returnMsg = $this->returnMsg;
         try {
             $obj = OrderBaseData::with([
-                "logistics"
+                "product.main_img",
+                "logistics",
+                "channel_obj",
+                "w_options.option"
             ])->where("order_id", $orderId)->first();
 
             $returnMsg = helpers_success_message($obj);

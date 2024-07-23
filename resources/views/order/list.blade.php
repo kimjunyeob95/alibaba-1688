@@ -9,7 +9,11 @@
 
 @section('styles')
 <style>
-
+    #htmlModal3 .table th {
+        background-color: #f8f9fa;
+        color: #343a40;
+    }
+</style>
 </style>
 @endsection
 
@@ -272,7 +276,8 @@
                                     <td>
                                         <div class="d-flex flex-column gap-2">
                                             {{-- <button class="btn btn-sm btn-success btn-update text-white" orderid={{ $data->order_id }}>주문 업데이트</button> --}}
-                                            <button class="btn btn-sm btn-success btn-detail text-white" orderid={{ $data->order_id }}>주문 상세정보</button>
+                                            {{-- <button class="btn btn-sm btn-success btn-detail text-white" orderid={{ $data->order_id }}>주문 상세정보(W api)</button> --}}
+                                            <button class="btn btn-sm btn-success btn-wapp-detail text-white" orderid={{ $data->order_id }}>주문 상세정보</button>
                                             <button class="btn btn-sm btn-danger btn-cancel text-white" orderid={{ $data->order_id }}>취소/환불</button>
                                             @if( count($data->logistics) > 0 )
                                                 <button class="btn btn-sm btn-primary btn-delivery text-white" orderid={{ $data->order_id }}>배송정보조회</button>
@@ -397,12 +402,122 @@
                                 <h5 class="modal-title" id="htmlModalLabel3">주문 상세정보</h5>
                             </div>
                             <div class="modal-body">
-                                <div class="card">
-                                    <div class="card-body" style="max-height: 70vh; overflow-y: auto;">
-                                        <pre><code class="jsonDisplay hljs" style="white-space: pre-wrap; word-break: break-all;"></code></pre>
-                                    </div>
+                                <div class="text-center">
+                                    <table class="table table-bordered">
+                                        <thead>
+                                            <tr>
+                                                <th colspan=6>채널 주문 정보</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <th>주문채널</th>
+                                                <td attr="channel"></td>
+                                                <th>채널 주문번호</th>
+                                                <td attr="channel_order_id"></td>
+                                                <th>통관부호</th>
+                                                <td attr="buyer_clearance_number"></td>
+                                            </tr>
+                                            <tr>
+                                                <th>구매자</th>
+                                                <td attr="buyer_name"></td>
+                                                <th>연락처1</th>
+                                                <td attr="buyer_number"></td>
+                                                <th>연락처2</th>
+                                                <td attr="buyer_phone"></td>
+                                            </tr>
+                                            <tr>
+                                                <th>주소</th>
+                                                <td colspan=5 attr="buyer_address"></td>
+                                            </tr>
+                                            <tr>
+                                                <th>우편번호</th>
+                                                <td attr="buyer_zipcode"></td>
+                                                <th>메모</th>
+                                                <td colspan=3 attr="buyer_memo"></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+
+                                <div class="mt-3 d-flex justify-content-center">
+                                    <button type="button" class="btn btn-md btn-primary">주문 정보 수정</button>
                                 </div>
                             </div>
+
+                            <div class="modal-body">
+                                <div class="text-center">
+                                    <table class="table table-bordered">
+                                        <thead>
+                                            <tr>
+                                                <th colspan="7">WApp 주문 정보</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td rowspan="2" style="width: 200px; height:200px;" attr="main_img">
+                                                    <img class="lazy-img preview-image" src="https://cbu01.alicdn.com/img/ibank/O1CN01E4BsH71Oiy7OoAXCX_!!2209845461740-0-cib.jpg" style="width: 100%; height: 100%">
+                                                </td>
+                                                <th scope="col" style="width: 10%">W 주문번호</th>
+                                                <td attr="order_id"></td>
+                                                <th scope="col" style="width: 10%">W 결제금액</th>
+                                                <td attr="total_amount">1</td>
+                                                <th scope="col" style="width: 10%">W 환불금액</th>
+                                                <td attr="refund_payment"></td>
+                                            </tr>
+                                            <tr>
+                                                <th>상품명</th>
+                                                <td colspan="5" attr="prd_name_kr">상품명 테스트 입니다.~~~</td>
+                                            </tr>
+                                            <tr>
+                                                <th scope="col" style="width: 10%">구분</th>
+                                                <th scope="col" style="width: 10%">옵션 이미지</th>
+                                                <th scope="col" style="width: 50%" colspan="2">옵션명</th>
+                                                <th scope="col" style="width: 10%">수량</th>
+                                                <th scope="col" style="width: 10%">W 금액</th>
+                                                <th scope="col" style="width: 10%">채널 금액</th>
+                                            </tr>
+                                            <tr class="opt-tr"></tr>
+                                        </tbody>
+                                    </table>
+
+                                </div>
+                            </div>
+
+                            <div class="modal-body">
+                                <div class="text-center">
+                                    <table class="table table-bordered">
+                                        <thead>
+                                            <tr>
+                                                <th colspan="7">주문 처리 내역</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <th>배송정보(CN)</th>
+                                                <th>배송사</th>
+                                                <td>상품명 테스트 입니다.~~~</td>
+                                                <th>운송장 번호</th>
+                                                <td>상품명 테스트 입니다.~~~</td>
+                                                <td colspan="2">
+                                                    <button type="button" class="btn btn-md btn-primary">배송정보 조회</button>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <th>배송정보(KO)</th>
+                                                <th>배송사</th>
+                                                <td>상품명 테스트 입니다.~~~</td>
+                                                <th>운송장 번호</th>
+                                                <td>상품명 테스트 입니다.~~~</td>
+                                                <td colspan="2">
+                                                    <button type="button" class="btn btn-md btn-primary">배송정보 조회</button>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
                         </div>
                     </form>
                 </div>
@@ -415,9 +530,13 @@
     </div>
 <script type="text/javascript">
     $(document).ready(function() {
+
         var waitStatus  = "{{ OrderConstant::STATUS_WAITBUYERPAY }}";
         var optionValue = "{{ OptionConstant::NAME_EN }}";
         var exchangeRate = {{ $exchangeRate }};
+
+        var channels = '{!! json_encode(MallConstant::MALL_NAME) !!}';
+        channels = JSON.parse(channels);
 
         $(".btn-status").click(function(){
             let name  = $(this).attr("name");
@@ -433,6 +552,65 @@
         
         $(".btn-cancel").click(function(){
             return alert("작업 예정...");
+        });
+
+        $('.btn-wapp-detail').click(function(){
+            let orderId = $(this).attr("orderid");
+
+            $.ajax({
+                "headers"    : {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
+                "type"       : "GET",
+                "url"        : `/api/w/order/wapp/${orderId}`,
+                "data"       : {},
+                beforeSend: function () {
+                    $("#loadingOverlay").show();
+                },
+                complete: function () {
+                    $("#loadingOverlay").hide();
+                },
+                success: function (resp) {
+                    let { data } = resp;
+
+                    let { channel_obj } = data;
+                    console.log(data);
+
+                    /** 채널 주문 정보 */
+                    $("td[attr=channel]").text(channels[data.channel]);
+                    Object.keys(channel_obj).forEach(function(key) {
+                        $(`td[attr=${key}]`).text(channel_obj[key]);
+                    });
+
+                    /** WApp 주문 정보 */
+                    $("td[attr=main_img]").html(`
+                        <img class="lazy-img preview-image" src="${data.product.main_img.img_url_origin}" style="width: 100%; height: 100%">
+                    `);
+                    $("td[attr=order_id]").text(data.id_of_str);
+                    $("td[attr=total_amount]").text(data.total_amount);
+                    $("td[attr=refund_payment]").text(data.refund_payment);
+                    $("td[attr=prd_name_kr]").text(data.product.prd_name_kr);
+
+                    data.w_options?.map(function(ele, key) {
+                        let sku_img_url = ele?.option?.sku_img_url ?? "/assets/img/no_img.png";
+                        $(".opt-tr").html(`
+                            <td>${key+1}</td>
+                            <td>
+                                <img class="lazy-img preview-image" width="50" height="50" src="${sku_img_url}">
+                            </td>
+                            <td colspan="2">${ele?.option?.option_name_kr}</td>
+                            <td>${ele?.item_amount}</td>
+                            <td>${ele?.item_amount}</td>
+                            <td>${ele?.option?.option_name_kr}</td>
+                        `);
+                    });
+
+
+                    $("#htmlModal3").modal('show');
+                },
+                error: function error(request, status, _error) {
+                    let { error } = JSON.parse(request.responseText);
+                    alert(error.message);
+                }
+            });
         });
 
         $('.btn-detail').click(function(){
@@ -458,7 +636,6 @@
                     alert(error.message);
                 }
             });
-
         });
 
         $('.btn-delivery').click(function(){

@@ -26,4 +26,9 @@ class OrderBaseData extends Model
     public function logistics () {
         return $this->hasMany(OrderLogisticsData::class, "order_id", "order_id");
     }
+
+    public function channel_obj()
+    {
+        return $this->hasOne(OrderChannelData::class, "order_id", "order_id");
+    }
 }
