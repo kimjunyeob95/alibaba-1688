@@ -120,7 +120,8 @@ if (!function_exists("debug_log")) {
         // 로그 경로 생성
         $logPath = storage_path('logs/'.$dirname);
         if (!file_exists($logPath)) {
-            mkdir($logPath, 0775, true);
+            mkdir($logPath, 0777, true);
+            chmod($logPath, 0777); // 디렉토리 권한을 777로 설정
         }
 
         // 파일 이름과 경로 설정
