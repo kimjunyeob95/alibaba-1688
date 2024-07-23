@@ -455,21 +455,32 @@
                                         </thead>
                                         <tbody>
                                             <tr>
-                                                <td rowspan="2" style="width: 200px; height:200px;" attr="main_img">
+                                                <td rowspan="2" style="width: 100px; height:100px;" attr="main_img">
                                                     <img class="lazy-img preview-image" src="https://cbu01.alicdn.com/img/ibank/O1CN01E4BsH71Oiy7OoAXCX_!!2209845461740-0-cib.jpg" style="width: 100%; height: 100%">
                                                 </td>
                                                 <th scope="col" style="width: 10%">W 주문번호</th>
                                                 <td attr="order_id"></td>
                                                 <th scope="col" style="width: 10%">W 결제금액</th>
-                                                <td attr="total_amount">1</td>
+                                                <td attr="sum_product_payment">1</td>
                                                 <th scope="col" style="width: 10%">W 환불금액</th>
                                                 <td attr="refund_payment"></td>
                                             </tr>
                                             <tr>
                                                 <th>상품명</th>
-                                                <td colspan="5" attr="prd_name_kr">상품명 테스트 입니다.~~~</td>
+                                                <td>
+                                                    <div attr="prd_name_kr" style="max-width: 400px;">
+                                                    </div>
+                                                </td>
+                                                <th>W 상품금액</th>
+                                                <td attr="total_amount"></td>
+                                                <th>W 배송비</th>
+                                                <td attr="shipping_fee"></td>
                                             </tr>
                                             <tr>
+                                                <th colspan="2">채널 배송비</th>
+                                                <td attr="delivery_price" colspan="5"></td>
+                                            </tr>
+                                            <tr class="opt-tr">
                                                 <th scope="col" style="width: 10%">구분</th>
                                                 <th scope="col" style="width: 10%">옵션 이미지</th>
                                                 <th scope="col" style="width: 50%" colspan="2">옵션명</th>
@@ -477,7 +488,6 @@
                                                 <th scope="col" style="width: 10%">W 금액</th>
                                                 <th scope="col" style="width: 10%">채널 금액</th>
                                             </tr>
-                                            <tr class="opt-tr"></tr>
                                         </tbody>
                                     </table>
 
@@ -585,23 +595,62 @@
                         <img class="lazy-img preview-image" src="${data.product.main_img.img_url_origin}" style="width: 100%; height: 100%">
                     `);
                     $("td[attr=order_id]").text(data.id_of_str);
-                    $("td[attr=total_amount]").text(data.total_amount);
+                    $("td[attr=sum_product_payment]").text(data.sum_product_payment);
                     $("td[attr=refund_payment]").text(data.refund_payment);
-                    $("td[attr=prd_name_kr]").text(data.product.prd_name_kr);
+                    $("div[attr=prd_name_kr]").text(data.product.prd_name_kr);
+                    $("td[attr=total_amount]").text(data.total_amount);
+                    $("td[attr=shipping_fee]").text(data.shipping_fee);
+                    $("td[attr=delivery_price]").text(Number(data?.channel_obj?.delivery_price).toLocaleString("ko-KR"));
 
+                    let total_quantity      = 0;
+                    let total_item_amount   = 0;
+                    let total_channel_price = 0;
+
+                    let opt_html = '';
                     data.w_options?.map(function(ele, key) {
                         let sku_img_url = ele?.option?.sku_img_url ?? "/assets/img/no_img.png";
-                        $(".opt-tr").html(`
-                            <td>${key+1}</td>
-                            <td>
-                                <img class="lazy-img preview-image" width="50" height="50" src="${sku_img_url}">
-                            </td>
-                            <td colspan="2">${ele?.option?.option_name_kr}</td>
-                            <td>${ele?.item_amount}</td>
-                            <td>${ele?.item_amount}</td>
-                            <td>${ele?.option?.option_name_kr}</td>
-                        `);
+
+                        let opt_id        = ele?.option?.id;
+                        let channel_price = 0;
+
+                        $.each(data?.channel_obj?.details, function(key2, ele2) {
+                            if (ele2.option_id === opt_id) {
+                                channel_price = ele2.channel_price;
+                                return false;
+                            }
+                        });
+
+                        total_quantity      += Number(ele?.quantity);
+                        total_item_amount   += Number(ele?.item_amount);
+                        total_channel_price += Number(channel_price);
+
+                        opt_html += `
+                            <tr class="opt-tr-child">
+                                <td>${key+1}</td>
+                                <td>
+                                    <img class="lazy-img preview-image" width="50" height="50" src="${sku_img_url}">
+                                </td>
+                                <td colspan="2">
+                                    <div style="max-width: 500px;">
+                                        ${ele?.option?.option_name_kr}
+                                    </div>
+                                </td>
+                                <td>${ele?.quantity}</td>
+                                <td>${ele?.item_amount}</td>
+                                <td>${Number(channel_price).toLocaleString("ko-KR")}</td>
+                            </tr>
+                        `;
                     });
+                    opt_html += `
+                        <tr class="opt-tr-child">
+                            <th colspan=2></th>
+                            <th colspan=2>합계</th>
+                            <td>${total_quantity}</td>
+                            <td>${total_item_amount.toFixed(2)}</td>
+                            <td>${total_channel_price.toLocaleString("ko-KR")}</td>
+                        </tr>
+                    `;
+                    $(".opt-tr").after(opt_html);
 
 
                     $("#htmlModal3").modal('show');
