@@ -34,9 +34,10 @@ trait MallProductTrait
 
         try {
             $result = $this->productW1->collectProductNotLog($offerId);
-
             if( $result["isSuccess"] === true ){
                 $returnMsg = helpers_success_message();   
+            } else {
+                throw new Exception($result["msg"]);
             }
         } catch (Exception $e) {
             $returnMsg = helpers_fail_message($e->getMessage());
