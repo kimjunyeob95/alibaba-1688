@@ -370,8 +370,8 @@ class Onchannel extends MallApiAbstract
         ->groupBy("offer_id", "w_type")
         ->get();
 
-        $msg = "수정 된 상품 전송 배치 시작";
-        debug_log($msg, "onchannel/sendModiProduct", "sendModiProduct");
+        // $msg = "수정 된 상품 전송 배치 시작";
+        // debug_log($msg, "onchannel/sendModiProduct", "sendModiProduct");
 
         foreach ($modiObjs as $modiObj) {
             $result = $this->productModi([$modiObj->offer_id], $modiObj->w_type);
@@ -397,8 +397,8 @@ class Onchannel extends MallApiAbstract
             }
         }
 
-        $msg = "수정 된 상품 전송 배치 종료";
-        debug_log($msg, "onchannel/sendModiProduct", "sendModiProduct");
+        // $msg = "수정 된 상품 전송 배치 종료";
+        // debug_log($msg, "onchannel/sendModiProduct", "sendModiProduct");
     }
 
     /**
