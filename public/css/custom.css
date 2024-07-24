@@ -94,6 +94,10 @@ a:hover {text-decoration: underline; color: rgb(22, 22, 23);}
   z-index: 9999;
 }
 
+#imagePreviewModal {
+  z-index: 99999;
+}
+
 #loadingButtonContainer {
   text-align: center;
 }
