@@ -138,13 +138,13 @@ class CategoryTest extends TestCase
                         );
                     }
                 }
-
-                // 퍼센트 계산
-                $percent = round(($page / $totalPages) * 100);
-
-                $msg = "WApp<->OC 모든 카테고리 맵핑 ({$page}/{$totalPages}) | {$percent}% 완료";
-                debug_log($msg, "category/testCategoryWAppandOcAllMapping", "testCategoryWAppandOcAllMapping");
             }
+
+            // 퍼센트 계산
+            $percent = round(($page / $totalPages) * 100);
+
+            $msg = "WApp<->OC 모든 카테고리 맵핑 ({$page}/{$totalPages}) | {$percent}% 완료";
+            debug_log($msg, "category/testCategoryWAppandOcAllMapping", "testCategoryWAppandOcAllMapping");
         }
 
         $msg = "WApp<->OC 모든 카테고리 맵핑 종료";
