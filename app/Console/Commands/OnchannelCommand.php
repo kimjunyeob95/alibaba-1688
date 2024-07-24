@@ -73,7 +73,7 @@ class OnchannelCommand extends Command
                     $percent = round(($page / $totalPages) * 100);
 
                     $msg = "온채널 자동 상품등록 전송 진행중 ({$page}/{$totalPages}) | {$percent}% 완료";
-                    debug_log($msg, "onchanne/autoPrdRegist", "autoPrdRegist");
+                    debug_log($msg, "onchannel/autoPrdRegist", "autoPrdRegist");
                 }
 
                 $msg = "온채널 자동 상품등록 전송 종료";
