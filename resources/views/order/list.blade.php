@@ -441,7 +441,7 @@
                                 </div>
 
                                 <div class="mt-3 d-flex justify-content-center">
-                                    <button type="button" class="btn btn-md btn-primary">주문 정보 수정</button>
+                                    <button type="button" class="btn btn-md btn-primary btn-edit">주문 정보 수정</button>
                                 </div>
                             </div>
 
@@ -461,7 +461,7 @@
                                                 <th scope="col" style="width: 10%">W 주문번호</th>
                                                 <td attr="order_id"></td>
                                                 <th scope="col" style="width: 10%">W 결제금액</th>
-                                                <td attr="sum_product_payment">1</td>
+                                                <td attr="sum_product_payment"></td>
                                                 <th scope="col" style="width: 10%">W 환불금액</th>
                                                 <td attr="refund_payment"></td>
                                             </tr>
@@ -494,7 +494,7 @@
                                 </div>
                             </div>
 
-                            <div class="modal-body">
+                            <div class="modal-body logstics-body">
                                 <div class="text-center">
                                     <table class="table table-bordered">
                                         <thead>
@@ -506,25 +506,50 @@
                                             <tr>
                                                 <th>배송정보(CN)</th>
                                                 <th>배송사</th>
-                                                <td>상품명 테스트 입니다.~~~</td>
+                                                <td attr="logistics_company_name"></td>
                                                 <th>운송장 번호</th>
-                                                <td>상품명 테스트 입니다.~~~</td>
+                                                <td attr="logistics_bill_no"></td>
                                                 <td colspan="2">
-                                                    <button type="button" class="btn btn-md btn-primary">배송정보 조회</button>
+                                                    <button type="button" class="btn btn-md btn-primary btn-trace-delivery-cn btn">배송정보 조회</button>
                                                 </td>
                                             </tr>
-                                            <tr>
+                                            {{-- <tr>
                                                 <th>배송정보(KO)</th>
                                                 <th>배송사</th>
-                                                <td>상품명 테스트 입니다.~~~</td>
+                                                <td></td>
                                                 <th>운송장 번호</th>
-                                                <td>상품명 테스트 입니다.~~~</td>
+                                                <td></td>
                                                 <td colspan="2">
-                                                    <button type="button" class="btn btn-md btn-primary">배송정보 조회</button>
+                                                    <button type="button" class="btn btn-md btn-ko-delivery btn-primary">배송정보 조회</button>
                                                 </td>
-                                            </tr>
+                                            </tr> --}}
                                         </tbody>
                                     </table>
+
+                                    <div class="div-trace mt-4">
+                                        <div class="d-flex flex-column px-3">
+                                            <div class="mb-2">
+                                                <div class="col">
+                                                    <label class="d-flex align-items-center justify-content-center">
+                                                        <span class="fs-5 fw-bold">추적정보</span>
+                                                    </label>
+                                                </div>
+                                                <div class="col mt-2">
+                                                    <table class="table">
+                                                        <thead class="table-light">
+                                                            <tr>
+                                                                <th scope="col" style="width: 80%">내용</th>
+                                                                <th scope="col" style="width: 50%">처리시간</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody class="trace-tbody">
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
                                 </div>
                             </div>
 
@@ -567,6 +592,8 @@
         $('.btn-wapp-detail').click(function(){
             let orderId = $(this).attr("orderid");
 
+            $(".btn-trace-delivery-cn").attr("orderid", orderId);
+
             $.ajax({
                 "headers"    : {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
                 "type"       : "GET",
@@ -580,6 +607,11 @@
                 },
                 success: function (resp) {
                     let { data } = resp;
+
+                    $(".opt-tr-child").remove();
+                    $(".logstics-body").hide();
+                    $(".logstics-body .div-trace").hide();
+                    $(".logstics-body .div-trace .trace-tbody").html("");
 
                     let { channel_obj } = data;
                     console.log(data);
@@ -608,7 +640,7 @@
 
                     let opt_html = '';
                     data.w_options?.map(function(ele, key) {
-                        let sku_img_url = ele?.option?.sku_img_url ?? "/assets/img/no_img.png";
+                        let sku_img_url = ele?.option?.sku_img_url != "" ? ele?.option?.sku_img_url : "/assets/img/no_img.png";
 
                         let opt_id        = ele?.option?.id;
                         let channel_price = 0;
@@ -652,6 +684,15 @@
                     `;
                     $(".opt-tr").after(opt_html);
 
+                    /** 주문 처리 내역 */
+                    let { logistics } = data;
+                    if( logistics?.length > 0 ){
+                        let last_logistic = logistics[logistics.length - 1];
+                        $("td[attr=logistics_company_name]").text(last_logistic.logistics_company_name);
+                        $("td[attr=logistics_bill_no]").text(last_logistic.logistics_bill_no);
+
+                        $(".logstics-body").show();
+                    }
 
                     $("#htmlModal3").modal('show');
                 },
@@ -661,6 +702,54 @@
                 }
             });
         });
+
+        $('.btn-trace-delivery-cn').click(function(){
+            let orderId = $(this).attr("orderid");
+            $('.trace-tbody').html("");
+
+            $.ajax({
+                "headers"    : {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
+                "type"       : "GET",
+                "url"        : `/api/w/order/logistics/${orderId}`,
+                "data"       : {},
+                beforeSend: function () {
+                    $("#loadingOverlay").show();
+                },
+                complete: function () {
+                    $("#loadingOverlay").hide();
+                },
+                success: function (resp) {
+                    if( resp.data?.length > 0 ){
+                        $('.logstics-body .div-trace .trace-tbody').html("");
+
+                        resp.data.map(function(ele, key) {
+                            let logisticsSteps = ele.logisticsSteps;
+                            logisticsSteps.map(function(ele2, key2) {
+                                $('.logstics-body .div-trace .trace-tbody').append(`
+                                    <tr>
+                                        <td>${ele2.remark}</td>
+                                        <td>${ele2.acceptTime}</td>
+                                    </tr>
+                                `);
+                            });
+                        });
+
+                        $('.logstics-body .div-trace').show();
+                    } else {
+                        return alert("추적 데이터가 없습니다.");
+                    }
+                },
+                error: function error(request, status, _error) {
+                    let { error } = JSON.parse(request.responseText);
+                    alert(error.message);
+                }
+            });
+
+        });
+
+        $(".btn-edit").click(function(){
+            return alert("작업 예정..");
+        })
 
         $('.btn-detail').click(function(){
             let orderId = $(this).attr("orderid");
@@ -692,7 +781,7 @@
 
             $(".delivery-tbody").html("");
             $(".trace-tbody").html("");
-            $(".div-trace").hide();
+            $("#htmlModal2 .div-trace").hide();
             $('input[name="orderId"]').val(orderId);
 
             $.ajax({
@@ -743,19 +832,24 @@
                     $("#loadingOverlay").hide();
                 },
                 success: function (resp) {
-                    resp.data.map(function(ele, key) {
-                        let logisticsSteps = ele.logisticsSteps;
-                        logisticsSteps.map(function(ele2, key2) {
-                            $('.trace-tbody').append(`
-                                <tr>
-                                    <td>${ele2.remark}</td>
-                                    <td>${ele2.acceptTime}</td>
-                                </tr>
-                            `);
+                    if( resp.data?.length > 0 ){
+                        $('#htmlModal2 .div-trace .trace-tbody').html("");
+                        resp.data.map(function(ele, key) {
+                            let logisticsSteps = ele.logisticsSteps;
+                            logisticsSteps.map(function(ele2, key2) {
+                                $('.trace-tbody').append(`
+                                    <tr>
+                                        <td>${ele2.remark}</td>
+                                        <td>${ele2.acceptTime}</td>
+                                    </tr>
+                                `);
+                            });
                         });
-                    });
 
-                    $(".div-trace").show();
+                        $("#htmlModal2 .div-trace").show();
+                    } else {
+                        return alert("추적 데이터가 없습니다.");
+                    }
                 },
                 error: function error(request, status, _error) {
                     let { error } = JSON.parse(request.responseText);
