@@ -10,7 +10,7 @@ class OnchannelConstant
     public const SUPP_SEC            = 3;
     public const TRANS_INFO          = "오후5시/온채널/7일 이상 소요";
     public const SEND_CHECK          = 1;
-    public const TRANS_NM            = "대한통운";
+    public const TRANS_NM            = "CJ 대한통운";
     public const PRD_CHANNEL         = 30;
     public const PRD_CHANNEL_PRIVATE = 28;
     public const SALE_NUM            = 0;
