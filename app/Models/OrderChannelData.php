@@ -14,4 +14,9 @@ class OrderChannelData extends Model
     protected $table      = 'order_channel_datas';
     protected $guarded    = [];
     protected $fillable   = [];
+
+    public function details()
+    {
+        return $this->hasMany(OrderChannelDetailData::class, "order_channel_id", "id");
+    }
 }

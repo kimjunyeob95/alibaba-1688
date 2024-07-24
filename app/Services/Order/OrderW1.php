@@ -204,8 +204,7 @@ class OrderW1 extends OrderAbstract
             ])
             ->with([
                 "product.main_img",
-                "w_options.option",
-                "logistics"
+                "w_options.option"
             ])
             ->join("order_channel_datas as b", "order_base_datas.order_id", "=", "b.order_id")
             ->leftJoin("order_trade_datas as c", "order_base_datas.order_id", "=", "c.order_id");
