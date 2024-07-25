@@ -283,10 +283,8 @@
                                         @if ($data["baseObj"] && $data["channelObj"])
                                             <div style="display: flex; flex-direction: column; gap: 5px;">
                                                 <button class="btn btn-sm btn-success btn-update text-white" orderid={{ $data["baseInfo"]['idOfStr'] }}>주문 업데이트</button>
-                                                @if ($data->status == OrderConstant::STATUS_WAITBUYERPAY)
+                                                @if ($data["baseInfo"]["status"] == OrderConstant::STATUS_WAITBUYERPAY)
                                                     <button class="btn btn-sm btn-danger btn-cancel text-white" orderid={{ $data["baseInfo"]['idOfStr'] }}>주문취소</button>
-                                                @endif
-                                                @if( $data["baseInfo"]["status"] == OrderConstant::STATUS_WAITBUYERPAY )
                                                     <button class="btn btn-sm btn-dark btn-pay text-white" orderid={{ $data["baseInfo"]['idOfStr'] }}>결제하기</button>
                                                 @endif
                                             </div>

@@ -284,12 +284,10 @@
                                             <button class="btn btn-sm btn-success btn-wapp-detail text-white" orderid={{ $data->order_id }}>주문 상세정보</button>
                                             @if ($data->status == OrderConstant::STATUS_WAITBUYERPAY)
                                                 <button class="btn btn-sm btn-danger btn-cancel text-white" orderid={{ $data->order_id }}>주문취소</button>
+                                                <button class="btn btn-sm btn-dark btn-pay text-white" orderid={{ $data->order_id }}>결제하기</button>
                                             @endif
                                             @if( count($data->logistics) > 0 )
                                                 <button class="btn btn-sm btn-primary btn-delivery text-white" orderid={{ $data->order_id }}>배송정보조회</button>
-                                            @endif
-                                            @if( $data->status == OrderConstant::STATUS_WAITBUYERPAY )
-                                                <button class="btn btn-sm btn-dark btn-pay text-white" orderid={{ $data->order_id }}>결제하기</button>
                                             @endif
                                         </div>
                                     </td>
