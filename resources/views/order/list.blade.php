@@ -218,7 +218,7 @@
                                     <td>
                                         <small>{{ $data->buyer_name }}</small>
                                         <br>
-                                        <small>({{ $data->channel }})</small>
+                                        <small>({{ MallConstant::MALL_NAME[$data->channel] }})</small>
                                     </td>
                                     <td>
                                         @if (!empty($data->product->main_img))

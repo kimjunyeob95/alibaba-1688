@@ -19,20 +19,25 @@ class Constant1688
     public const CURRENCY_US    = "USD";
 
     /** 주문 */
-    public const FLOW                = "general";
-    public const ADDRESSID           = 4073018184;
-    public const FULLNAME            = "SELLERHUB";
-    public const MOBILE              = "15684570398";
-    public const PHONE               = "15684570398";
-    public const POSTCODE            = "264206";
-    public const CITYTEXT            = "山东省";
-    public const PROVINCETEXT        = "威海市";
-    public const AREATEXT            = "环翠区";
-    public const TOWNTEXT            = "温泉镇";
-    public const ADDRESS             = "柳林惠友路3号鸿泉服装院西";
-    public const DISTRICTCODE        = "371002";
-    public const PRESELECTPAYCHANNEL = "alipay";
-    public const WEBSITE             = "1688";
+    public const FLOW_GENERAL         = "general";
+    public const FLOW_FENXIAO         = "fenxiao";
+    public const FLOW_SALEPROXY       = "saleproxy";
+    public const FLOW_PAIRED          = "paired";
+    public const FLOW_BOUTIQUEFENXIAO = "boutiquefenxiao";
+    public const FLOW_BOUTIQUEPIFA    = "boutiquepifa";
+    public const ADDRESSID            = 4073018184;
+    public const FULLNAME             = "SELLERHUB";
+    public const MOBILE               = "15684570398";
+    public const PHONE                = "15684570398";
+    public const POSTCODE             = "264206";
+    public const CITYTEXT             = "山东省";
+    public const PROVINCETEXT         = "威海市";
+    public const AREATEXT             = "环翠区";
+    public const TOWNTEXT             = "温泉镇";
+    public const ADDRESS              = "柳林惠友路3号鸿泉服装院西";
+    public const DISTRICTCODE         = "371002";
+    public const PRESELECTPAYCHANNEL  = "alipay";
+    public const WEBSITE              = "1688";
 
     /** filter */
     public const FILTER_AIGCOFFER = "aigcOffer";
