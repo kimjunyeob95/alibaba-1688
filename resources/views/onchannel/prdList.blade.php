@@ -212,17 +212,17 @@
                                     }
 
                                     $wCateName = "";
-                                    if($data->w_category && !empty($data->w_category->cate_first)){
-                                        $wCateName .= $data->w_category->cate_first;
+                                    if($data->w_mapping && !empty($data->w_mapping->w_cate_name->cate_first)){
+                                        $wCateName .= $data->w_mapping->w_cate_name->cate_first;
                                     }
-                                    if($data->w_category && !empty($data->w_category->cate_second)){
-                                        $wCateName .= " > " . $data->w_category->cate_second;
+                                    if($data->w_mapping && !empty($data->w_mapping->w_cate_name->cate_second)){
+                                        $wCateName .= " > " . $data->w_mapping->w_cate_name->cate_second;
                                     }
-                                    if($data->w_category && !empty($data->w_category->cate_second)){
-                                        $wCateName .= " > " . $data->w_category->cate_second;
+                                    if($data->w_category && !empty($data->w_mapping->w_cate_name->cate_second)){
+                                        $wCateName .= " > " . $data->w_mapping->w_cate_name->cate_second;
                                     }
-                                    if($data->w_category && !empty($data->w_category->cate_third)){
-                                        $wCateName .= " > " . $data->w_category->cate_third;
+                                    if($data->w_category && !empty($data->w_mapping->w_cate_name->cate_third)){
+                                        $wCateName .= " > " . $data->w_mapping->w_cate_name->cate_third;
                                     }
                                 @endphp
                                 <tr>
@@ -293,7 +293,7 @@
                                         @endif
                                     </td>
                                     <td class="text-center">
-                                        @if( $data->weight_type == null )
+                                        @if( $data->weight_delivery == null )
                                             <button class="btn btn-sm btn-warning btn-weight-modi" offerid={{ $data->offer_id }} weight=0 price={{ ProductConstant::WEIGHT_STATUS_NONE_PRICE }} statusname='{{ ProductConstant::WEIGHT_STATUS[ProductConstant::WEIGHT_STATUS_NONE] }}'>
                                                 {{ ProductConstant::WEIGHT_STATUS_SHORT[ProductConstant::WEIGHT_STATUS_NONE] }}: 0
                                             </button>
@@ -302,12 +302,12 @@
                                                 {{ number_format(ProductConstant::WEIGHT_STATUS_NONE_PRICE) }}
                                             </span>
                                         @else
-                                            <button class="btn btn-sm btn-warning btn-weight-modi" offerid={{ $data->offer_id }} weight={{ $data->weight }} price={{ $data->delivery_price }} statusname='{{ ProductConstant::WEIGHT_STATUS[$data->weight_type] }}'>
-                                                {{ ProductConstant::WEIGHT_STATUS_SHORT[$data->weight_type] }}: {{ $data->weight }}
+                                            <button class="btn btn-sm btn-warning btn-weight-modi" offerid={{ $data->offer_id }} weight={{ $data->weight_delivery->weight }} price={{ $data->weight_delivery->delivery_price }} statusname='{{ ProductConstant::WEIGHT_STATUS[$data->weight_delivery->weight_type] }}'>
+                                                {{ ProductConstant::WEIGHT_STATUS_SHORT[$data->weight_delivery->weight_type] }}: {{ $data->weight_delivery->weight }}
                                             </button>
                                             <br>
                                             <span class="text-danger">
-                                                {{ number_format($data->delivery_price) }}
+                                                {{ number_format($data->weight_delivery->delivery_price) }}
                                             </span>
                                         @endif
                                     </td>
@@ -317,7 +317,7 @@
                                                 $option         = $data->options[0];
                                                 $delivery_price = ProductConstant::WEIGHT_STATUS_NONE_PRICE;
                                                 if( $data->weight_type != null ){
-                                                    $delivery_price = $data->delivery_price;
+                                                    $delivery_price = $data->weight_delivery->delivery_price;
                                                 }
                                             @endphp
                                                 {{ number_format(calcOnchannelOptionPrice($option->price_1688, $delivery_price)) }} 
@@ -326,21 +326,21 @@
                                         @endif
                                     </td>
                                     <td class="text-center">
-                                        @if($data->w_mapping != null && $data->oc_category == null)
+                                        @if($data->w_mapping != null && $data->oc_mapping == null)
                                             <button class="btn btn-sm btn-danger text-white btn-modal" cateid={{ $data->category_id }} catename="{{ $wCateName }}">카테고리 미맵핑</button>
-                                        @elseif($data->w_mapping != null && $data->oc_category != null)
+                                        @elseif($data->w_mapping != null && $data->oc_mapping != null)
                                             <small>
-                                                @if($data->oc_category->fir_cate)
-                                                    {{ $data->oc_category->fir_cate }}
+                                                @if($data->oc_mapping->oc_category->fir_cate)
+                                                    {{ $data->oc_mapping->oc_category->fir_cate }}
                                                 @endif
-                                                @if($data->oc_category->se_cate)
-                                                    > {{ $data->oc_category->se_cate }}
+                                                @if($data->oc_mapping->oc_category->se_cate)
+                                                    > {{ $data->oc_mapping->oc_category->se_cate }}
                                                 @endif
-                                                @if($data->oc_category->th_cate)
-                                                    > {{ $data->oc_category->th_cate }}
+                                                @if($data->oc_mapping->oc_category->th_cate)
+                                                    > {{ $data->oc_mapping->oc_category->th_cate }}
                                                 @endif
-                                                @if($data->oc_category->last_cate)
-                                                    > {{ $data->oc_category->last_cate }}
+                                                @if($data->oc_mapping->oc_category->last_cate)
+                                                    > {{ $data->oc_mapping->oc_category->last_cate }}
                                                 @endif
                                             </small>
                                         @endif

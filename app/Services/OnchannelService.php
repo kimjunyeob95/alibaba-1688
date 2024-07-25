@@ -52,26 +52,22 @@ class OnchannelService
         }
 
         $prdBuilder = ProductData::select([
-                "product_datas.*", "b.id as log_id", "b.regist_success", "b.message", "b.prd_code", "b.registed_at", "b.updated_at as b_updated_at",
-                "pwd.weight_type", "pwd.weight", "pwd.delivery_price", "c.mapping_code as channel_mapping_code", "d.mapping_code as w_mapping_code"
+                "product_datas.*", "b.id as log_id", "b.regist_success",
+                "b.message", "b.prd_code", "b.registed_at",
+                "b.updated_at as b_updated_at"
             ])
             ->with([
-                "main_img", "options", "w_mapping", "w_category", "oc_category",
+                "main_img",
+                "options",
+                "w_mapping.w_cate_name",
+                "oc_mapping.oc_category",
                 "img_inspect",
                 "prd_inspect",
                 "gosi_inspect",
+                "weight_delivery",
                 "onchannel.last_log"
             ])
             ->join("onchannel_product_logs as b", "product_datas.offer_id", "=", "b.offer_id")
-            ->leftJoin('product_weight_datas as pwd', function ($join) {
-                $join->on('product_datas.offer_id', '=', 'pwd.offer_id');
-            })
-            ->leftJoin('category_mappings as c', function($join) {
-                $join->on('product_datas.category_id', '=', 'c.category_id')->where('c.mapping_channel', ProductConstant::MAPPING_OC_CHANNEL);
-            })
-            ->leftJoin('category_mappings as d', function($join) {
-                $join->on('product_datas.category_id', '=', 'd.category_id')->where('d.mapping_channel', ProductConstant::MAPPING_WAPP);
-            })
             ->where("b.send_type", $send_type)
             ->orderBy("b.updated_at", "desc")
             ->orderBy("b.registed_at", "desc");
