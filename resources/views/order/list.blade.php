@@ -189,6 +189,7 @@
                                     (채널 주문번호)
                                 </th>
                                 <th scope="col" style="width: 8%">구매자<br>(주문 채널)</th>
+                                <th scope="col" style="width: 5%" class="text-center">상품이미지</th>
                                 <th scope="col" style="width: *%" class="text-center">주문정보</th>
                                 <th scope="col" style="width: 10%">W 금액(위안)<br>(채널 금액(원화)))</th>
                                 <th scope="col" style="width: 5%" class="text-center">주문상태</th>
@@ -220,13 +221,16 @@
                                         <small>({{ $data->channel }})</small>
                                     </td>
                                     <td>
+                                        @if (!empty($data->product->main_img))
+                                            <img class="lazy-img preview-image" data-src="{{ $data->product->main_img->img_url_origin }}" width=60 height=60/>
+                                        @else
+                                            <img class="lazy-img preview-image" data-src='/assets/img/no_img.png'width=60 height=60>
+                                        @endif
+                                    </td>
+                                    <td>
                                         <small>
-                                            @if (!empty($data->product->main_img))
-                                                <img class="lazy-img preview-image" data-src="{{ $data->product->main_img->img_url_origin }}" width=30 height=30/>
-                                            @else
-                                                <img class="lazy-img preview-image" data-src='/assets/img/no_img.png'width=30 height=30>
-                                            @endif
                                             (<a href="https://detail.1688.com/offer/{{ $data->offer_id }}.html" target="_blank">{{ $data->offer_id }}</a>)
+                                            <br>
                                             {{ $data->product->prd_name_kr }}
                                         </small>
                                         <div class="mt-3"></div>
@@ -455,8 +459,9 @@
                                         </thead>
                                         <tbody>
                                             <tr>
-                                                <td rowspan="2" style="width: 100px; height:100px;" attr="main_img">
-                                                    <img class="lazy-img preview-image" src="https://cbu01.alicdn.com/img/ibank/O1CN01E4BsH71Oiy7OoAXCX_!!2209845461740-0-cib.jpg" style="width: 100%; height: 100%">
+                                                <td rowspan="3" attr="main_img" style="height: 100px;">
+                                                    <div class="d-flex align-items-center justify-content-center" style="height: 100%;">
+                                                    </div>
                                                 </td>
                                                 <th scope="col" style="width: 10%">W 주문번호</th>
                                                 <td attr="order_id"></td>
@@ -466,19 +471,21 @@
                                                 <td attr="refund_payment"></td>
                                             </tr>
                                             <tr>
-                                                <th>상품명</th>
-                                                <td>
+                                                <th rowspan="2">상품명</th>
+                                                <td rowspan="2">
                                                     <div attr="prd_name_kr" style="max-width: 400px;">
                                                     </div>
                                                 </td>
-                                                <th>W 상품금액</th>
+                                                <th>W 주문금액</th>
                                                 <td attr="total_amount"></td>
                                                 <th>W 배송비</th>
                                                 <td attr="shipping_fee"></td>
                                             </tr>
                                             <tr>
-                                                <th colspan="2">채널 배송비</th>
-                                                <td attr="delivery_price" colspan="5"></td>
+                                                <th>채널 금액</th>
+                                                <td attr="total_channel_price"></td>
+                                                <th>채널 배송비</th>
+                                                <td attr="delivery_price""></td>
                                             </tr>
                                             <tr class="opt-tr">
                                                 <th scope="col" style="width: 10%">구분</th>
@@ -553,6 +560,10 @@
                                 </div>
                             </div>
 
+                            <div class="modal-footer d-flex justify-content-center">
+                                <button type="button" class="btn btn-secondary htmlModalClose3">닫기</button>
+                            </div>
+
                         </div>
                     </form>
                 </div>
@@ -623,8 +634,8 @@
                     });
 
                     /** WApp 주문 정보 */
-                    $("td[attr=main_img]").html(`
-                        <img class="lazy-img preview-image" src="${data.product.main_img.img_url_origin}" style="width: 100%; height: 100%">
+                    $("td[attr=main_img] div").html(`
+                        <img class="lazy-img preview-image" src="${data.product.main_img.img_url_origin}" style="width: 80px; height: 80px">
                     `);
                     $("td[attr=order_id]").text(data.id_of_str);
                     $("td[attr=sum_product_payment]").text(data.sum_product_payment);
@@ -632,6 +643,7 @@
                     $("div[attr=prd_name_kr]").text(data.product.prd_name_kr);
                     $("td[attr=total_amount]").text(data.total_amount);
                     $("td[attr=shipping_fee]").text(data.shipping_fee);
+                    $("td[attr=total_channel_price]").text(Number(data?.channel_obj?.total_channel_price).toLocaleString("ko-KR"));
                     $("td[attr=delivery_price]").text(Number(data?.channel_obj?.delivery_price).toLocaleString("ko-KR"));
 
                     let total_quantity      = 0;
@@ -938,6 +950,10 @@
 
         $(".htmlModalClose2").click(function(){
             $("#htmlModal2").modal('hide');
+        });
+
+        $(".htmlModalClose3").click(function(){
+            $("#htmlModal3").modal('hide');
         });
 
         $(".btn-pay-call").click(function(){
