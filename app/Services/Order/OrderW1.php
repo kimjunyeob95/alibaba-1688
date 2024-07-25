@@ -666,4 +666,77 @@ class OrderW1 extends OrderAbstract
 
         return $returnMsg;
     }
+
+    /**
+    * @func orderCancel
+    * @description 'W 주문 취소'
+    * @param string $orderId
+    * @return array
+    */
+    public function orderCancel(string $orderId): array
+    {
+        $returnMsg = $this->returnMsg;
+        try {
+            $orderBaseObj = OrderBaseData::where("order_id", $orderId)->first();
+
+            if( $orderBaseObj == null ){
+                throw new Exception(OrderErrorMessageConstant::getNotHaveErrorMessage("ORDER"));
+            }
+
+            if( $orderBaseObj->status != OrderConstant::STATUS_WAITBUYERPAY ){
+                throw new Exception(OrderErrorMessageConstant::getFitErrorMessage("STATUS_WAITBUYERPAY"));
+            }
+
+            $endPoint = "param2/1/com.alibaba.trade/alibaba.trade.cancel/";
+            $payload = [
+                'access_token' => $this->accessToken,
+                'webSite'      => Constant1688::WEBSITE,
+                'tradeID'      => (int)$orderId,
+                'cancelReason' => OrderConstant::CANCEL_REASON_BUYER_OTHER,
+            ];
+            $curlResult = curl_1688("POST", $endPoint, $payload);
+
+            try {
+                DB::beginTransaction();
+
+                $orderDetailResult = $this->getWOrder($orderId);
+                if( $orderDetailResult["isSuccess"] == false || 
+                    !isset($orderDetailResult["data"]["result"]["baseInfo"]) ||
+                    empty($orderDetailResult["data"]["result"]["baseInfo"])
+                ){
+                    throw new Exception(OrderErrorMessageConstant::getFitErrorMessage("W_DETAIL"));
+                }
+
+                $orderData = $orderDetailResult["data"]["result"];
+                $orderData["offerId"] = $orderBaseObj->offer_id;
+                $orderData["channel"] = $orderBaseObj->channel;
+                $orderDto = new OrderDto();
+                $orderDto->bind($orderData);
+
+                $updateResult = $this->upsertOrderBaseData($orderDto);
+                if( $updateResult["isSuccess"] == false ){
+                    throw new Exception($updateResult["msg"]);
+                }
+
+                DB::commit();
+            } catch (Exception $ee) {
+                DB::rollBack();
+                throw new Exception($ee->getMessage());
+            }
+
+            if( isset($curlResult["data"]["success"]) && $curlResult["data"]["success"] == true ){
+                $returnMsg = helpers_success_message([], "주문이 취소 되었습니다.");
+            } else {
+                $msg = OrderErrorMessageConstant::getFitErrorMessage("CANCEL_API");
+                if( isset($curlResult["data"]["errorMessage"]) && $curlResult["data"]["errorMessage"] ){
+                    $msg = $msg . " | w errorMessage: " . $curlResult["data"]["errorMessage"];
+                }
+                throw new Exception($msg);
+            }
+        } catch (Exception $e) {
+            $returnMsg = helpers_fail_message($e->getMessage());
+        }
+
+        return $returnMsg;
+    }
 }
