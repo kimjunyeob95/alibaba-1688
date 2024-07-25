@@ -232,4 +232,12 @@ abstract class OrderAbstract
     * @return array
     */
     abstract function orderLogisticsInfo(string $orderId): array;
+
+    /**
+    * @func orderCancel
+    * @description 'W 주문 취소'
+    * @param string $orderId
+    * @return array
+    */
+    abstract function orderCancel(string $orderId): array;
 }

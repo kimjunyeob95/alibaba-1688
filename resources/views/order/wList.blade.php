@@ -283,7 +283,9 @@
                                         @if ($data["baseObj"] && $data["channelObj"])
                                             <div style="display: flex; flex-direction: column; gap: 5px;">
                                                 <button class="btn btn-sm btn-success btn-update text-white" orderid={{ $data["baseInfo"]['idOfStr'] }}>주문 업데이트</button>
-                                                <button class="btn btn-sm btn-danger btn-cancel text-white" orderid={{ $data["baseInfo"]['idOfStr'] }}>취소/환불</button>
+                                                @if ($data->status == OrderConstant::STATUS_WAITBUYERPAY)
+                                                    <button class="btn btn-sm btn-danger btn-cancel text-white" orderid={{ $data["baseInfo"]['idOfStr'] }}>주문취소</button>
+                                                @endif
                                                 @if( $data["baseInfo"]["status"] == OrderConstant::STATUS_WAITBUYERPAY )
                                                     <button class="btn btn-sm btn-dark btn-pay text-white" orderid={{ $data["baseInfo"]['idOfStr'] }}>결제하기</button>
                                                 @endif
@@ -514,7 +516,32 @@
         });
         
         $(".btn-cancel").click(function(){
-            return alert("작업 예정...");
+            let orderId = $(this).attr("orderid");
+
+            if(confirm(`결제 대기 중인 주문만 취소가 가능합니다.\r\n주문을 취소 하시겠습니까?`)){
+                $.ajax({
+                    "headers"    : {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
+                    "type"       : "POST",
+                    "url"        : `/api/w/order/cancel/${orderId}`,
+                    "data"       : {},
+                    beforeSend: function () {
+                        $("#loadingOverlay").show();
+                    },
+                    complete: function () {
+                        $("#loadingOverlay").hide();
+                    },
+                    success: function (resp) {
+                        alert(resp.msg);
+                        location.reload();
+                    },
+                    error: function error(request, status, _error) {
+                        let { error } = JSON.parse(request.responseText);
+                        alert(error.message);
+
+                        location.reload();
+                    }
+                });
+            }
         });
 
         $(".btn-order-save").click(function(){
