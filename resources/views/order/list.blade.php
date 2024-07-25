@@ -282,12 +282,12 @@
                                             {{-- <button class="btn btn-sm btn-success btn-update text-white" orderid={{ $data->order_id }}>주문 업데이트</button> --}}
                                             {{-- <button class="btn btn-sm btn-success btn-detail text-white" orderid={{ $data->order_id }}>주문 상세정보(W api)</button> --}}
                                             <button class="btn btn-sm btn-success btn-wapp-detail text-white" orderid={{ $data->order_id }}>주문 상세정보</button>
-                                            <button class="btn btn-sm btn-danger btn-cancel text-white" orderid={{ $data->order_id }}>취소/환불</button>
+                                            @if ($data->status == OrderConstant::STATUS_WAITBUYERPAY)
+                                                <button class="btn btn-sm btn-danger btn-cancel text-white" orderid={{ $data->order_id }}>주문취소</button>
+                                                <button class="btn btn-sm btn-dark btn-pay text-white" orderid={{ $data->order_id }}>결제하기</button>
+                                            @endif
                                             @if( count($data->logistics) > 0 )
                                                 <button class="btn btn-sm btn-primary btn-delivery text-white" orderid={{ $data->order_id }}>배송정보조회</button>
-                                            @endif
-                                            @if( $data->status == OrderConstant::STATUS_WAITBUYERPAY )
-                                                <button class="btn btn-sm btn-dark btn-pay text-white" orderid={{ $data->order_id }}>결제하기</button>
                                             @endif
                                         </div>
                                     </td>
@@ -597,7 +597,32 @@
         });
         
         $(".btn-cancel").click(function(){
-            return alert("작업 예정...");
+            let orderId = $(this).attr("orderid");
+
+            if(confirm(`결제 대기 중인 주문만 취소가 가능합니다.\r\n주문을 취소 하시겠습니까?`)){
+                $.ajax({
+                    "headers"    : {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
+                    "type"       : "POST",
+                    "url"        : `/api/w/order/cancel/${orderId}`,
+                    "data"       : {},
+                    beforeSend: function () {
+                        $("#loadingOverlay").show();
+                    },
+                    complete: function () {
+                        $("#loadingOverlay").hide();
+                    },
+                    success: function (resp) {
+                        alert(resp.msg);
+                        location.reload();
+                    },
+                    error: function error(request, status, _error) {
+                        let { error } = JSON.parse(request.responseText);
+                        alert(error.message);
+
+                        location.reload();
+                    }
+                });
+            }
         });
 
         $('.btn-wapp-detail').click(function(){

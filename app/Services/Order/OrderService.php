@@ -112,4 +112,15 @@ class OrderService
    {
       return $this->orderAbstract->orderLogisticsInfo($orderId);
    }
+
+   /**
+    * @func orderCancel
+    * @description 'W 주문 취소'
+    * @param string $orderId
+    * @return array
+   */
+   public function orderCancel(string $orderId): array
+   {
+      return $this->orderAbstract->orderCancel($orderId);
+   }
 }
