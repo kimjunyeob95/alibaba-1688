@@ -116,7 +116,7 @@ class OrderW1 extends OrderAbstract
             $endPoint = "param2/1/com.alibaba.trade/alibaba.trade.createCrossOrder/";
             $payload = [
                 'access_token' => $this->accessToken,
-                'flow'         => Constant1688::FLOW,
+                'flow'         => Constant1688::FLOW_GENERAL,
                 'addressParam' => [
                     'addressId'    => Constant1688::ADDRESSID,
                     'fullName'     => Constant1688::FULLNAME,
