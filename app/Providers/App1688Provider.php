@@ -5,6 +5,8 @@ namespace App\Providers;
 use App\Packages\S3;
 use App\Services\Category\CategoryW1;
 use App\Services\GenuioService;
+use App\Services\Message\MessageW1;
+use App\Services\Message\WMessageService;
 use App\Services\Order\OrderService;
 use App\Services\Order\OrderW1;
 use App\Services\Product\ProductW1;
@@ -60,6 +62,16 @@ class App1688Provider extends ServiceProvider
             $orderAbstract = $app->make(OrderW1::class);
 
             return new OrderService($orderAbstract);
+        });
+
+        /**
+         * 메세지 의존성
+         */
+        $this->app->singleton(MessageW1::class, function ($app) {
+            return new MessageW1($app->make(OrderW1::class));
+        });
+        $this->app->singleton(WMessageService::class, function ($app) {
+            return new WMessageService($app->make(MessageW1::class));
         });
     }
 
