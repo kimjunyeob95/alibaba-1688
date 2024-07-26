@@ -11,6 +11,7 @@ use App\Http\Controllers\Api\W\WAppOrderController;
 use App\Http\Controllers\Api\W\WCollectController;
 use App\Http\Controllers\Api\W\WExceptController;
 use App\Http\Controllers\Api\W\WForbiddenWordController;
+use App\Http\Controllers\Api\W\WMessageController;
 use Illuminate\Support\Facades\Route;
 
 /**
@@ -24,8 +25,8 @@ Route::name('w.')->prefix('w')->group(function () {
         /** 1688에 카테고리 조회 endPoint를 호출 후 결과 반환 */
         Route::get('/category/{categoryId?}', [WCategoryController::class, 'getMallCategory'])->name('getMallCategory');
 
-        /** test */
-        Route::any('/test', [WCategoryController::class, 'testEndPoint'])->name('testEndPoint');
+        /** 1688에서 메세지 콜백 */
+        Route::any('/message', [WMessageController::class, 'message'])->name('message');
     });
 
     Route::middleware(["oepnApi.jwt.verify", "whiteIp"])->group(function () {
