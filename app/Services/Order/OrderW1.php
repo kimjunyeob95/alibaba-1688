@@ -282,6 +282,7 @@ class OrderW1 extends OrderAbstract
         try {
             $page         = (int)$params["page"];
             $pageSize     = (int)$params["pageSize"];
+            $orderChannel = $params["orderChannel"];
             $orderStatus  = $params["orderStatus"];
             $refundStatus = $params["refundStatus"];
             $timeCls      = $params["timeCls"];
@@ -324,12 +325,18 @@ class OrderW1 extends OrderAbstract
                 $apiData      = $curlResult["data"];
                 $totalRecords = $apiData["totalRecord"];
 
-                foreach ($apiData["result"] as &$data) {
+                foreach ($apiData["result"] as $key => &$data) {
                     $baseInfo = $data["baseInfo"];
                     $orderId  = $baseInfo["idOfStr"];
-                    
+
                     $data["baseObj"]    = OrderBaseData::where("order_id", $orderId)->first();
                     $data["channelObj"] = OrderChannelData::where("order_id", $orderId)->first();
+
+                    if( !empty($orderChannel) ){
+                        if( $data["baseObj"] == null || ($data["baseObj"]->channel != $orderChannel) ){
+                            unset($apiData["result"][$key]);
+                        }
+                    }
                 }
 
                 $paginator = new LengthAwarePaginator(
@@ -374,7 +381,7 @@ class OrderW1 extends OrderAbstract
                     DB::beginTransaction();
 
                     $orderBaseObj = OrderBaseData::where("order_id", $orderId)->first();
-                    if( $orderBaseObj == null){
+                    if( $orderBaseObj == null ){
                         throw new Exception(OrderErrorMessageConstant::getFitErrorMessage("BASE_INFO"));
                     }
 

@@ -45,7 +45,7 @@ class WAppOrderController extends Controller
             $process->setTimeout(null); // 실행 시간 제한 없음
             $process->start();
 
-            return helpers_json_response(HttpConstant::OK, helpers_success_message([], "주문 업데이트 요청 완료"));
+            return helpers_json_response(HttpConstant::OK, helpers_success_message([], "주문 업데이트 요청 완료\r\n주문 건이 많을 경우 업데이트에 시간이 소요될 수 있습니다."));
         } catch (Exception $e) {
             return helpers_json_response(HttpConstant::BAD_REQUEST, [], $e->getMessage());
         }
