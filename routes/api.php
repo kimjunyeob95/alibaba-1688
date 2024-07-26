@@ -25,7 +25,7 @@ Route::name('w.')->prefix('w')->group(function () {
         Route::get('/category/{categoryId?}', [WCategoryController::class, 'getMallCategory'])->name('getMallCategory');
 
         /** test */
-        Route::get('/test', [WCategoryController::class, 'testEndPoint'])->name('testEndPoint');
+        Route::any('/test', [WCategoryController::class, 'testEndPoint'])->name('testEndPoint');
     });
 
     Route::middleware(["oepnApi.jwt.verify", "whiteIp"])->group(function () {
