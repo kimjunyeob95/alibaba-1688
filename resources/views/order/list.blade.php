@@ -1044,6 +1044,7 @@
                 },
                 success: function (resp) {
                     alert(resp.msg);
+                    location.reload();
                 },
                 error: function error(request, status, _error) {
                     let { error } = JSON.parse(request.responseText);
