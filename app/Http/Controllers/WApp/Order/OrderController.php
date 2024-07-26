@@ -74,6 +74,7 @@ class OrderController extends Controller
     {
         $page         = $this->request->post("page", 1);
         $pageSize     = $this->request->post("pageSize", 20);
+        $orderChannel = $this->request->get("orderChannel", "");
         $orderStatus  = $this->request->get("orderStatus", "");
         $refundStatus = $this->request->get("refundStatus", "");
         $timeCls      = $this->request->get("timeCls", "");
@@ -86,6 +87,7 @@ class OrderController extends Controller
         $params = [
             "page"         => $page,
             "pageSize"     => $pageSize,
+            "orderChannel" => $orderChannel,
             "orderStatus"  => $orderStatus,
             "refundStatus" => $refundStatus,
             "timeCls"      => $timeCls,
@@ -98,6 +100,7 @@ class OrderController extends Controller
             "paginator"    => $result["data"],
             "offset"       => (int) $offset,
             "pageSize"     => (int) $pageSize,
+            "orderChannel" => $orderChannel,
             "orderStatus"  => $orderStatus,
             "refundStatus" => $refundStatus,
             "timeCls"      => $timeCls,
