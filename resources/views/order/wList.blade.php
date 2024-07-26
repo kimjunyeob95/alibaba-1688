@@ -107,7 +107,7 @@
                     <button class="btn btn-md btn-dark text-white me-2" id="btn-pay-select">결제하기</button>
                 </div>
 
-                <div class="table-responsive mt-3 overflow-auto" style="max-height: 800px; overflow-y: auto;">
+                <div class="table-responsive mt-3 overflow-auto" id="scrollTable" style="max-height: 800px; overflow-y: auto;">
                     <table class="table table-white bg-white" style="min-width: 1920px; max-height: 600px;">
                         <thead class="table-light" style="position: sticky; top: 0; z-index: 1;">
                             <tr>
@@ -500,6 +500,21 @@
         var waitStatus  = "{{ OrderConstant::STATUS_WAITBUYERPAY }}";
         var optionValue = "{{ OptionConstant::NAME_EN }}";
         var exchangeRate = {{ $exchangeRate }};
+
+        var allImgLoad       = false;
+        var $scrollableTable = $("#scrollTable");
+        $scrollableTable.on("scroll", function() {
+            if( allImgLoad == false ){
+                $(".lazy-img").each(function() {
+                    var img = $(this); // 현재 이미지 jQuery 객체
+                    if (img.data('src')) { // src 속성이 없는 경우에만 실행
+                        img.attr('src', img.data('src'));  // data-src 값을 src로 설정
+                    }
+                });
+
+                allImgLoad = true;
+            }
+        });
 
         $(".btn-status").click(function(){
             let name  = $(this).attr("name");
