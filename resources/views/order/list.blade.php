@@ -179,8 +179,8 @@
                     </div>
                 </div>
 
-                <div class="table-responsive mt-3 overflow-auto" style="max-height: 800px; overflow-y: auto;">
-                    <table class="table table-white bg-white" style="min-width: 1920px; max-height: 600px;">
+                <div class="table-responsive mt-3 overflow-auto" id="scrollTable" style="max-height: 800px; overflow-y: auto;">
+                    <table class="table table-white bg-white" style="min-width: 1920px;">
                         <thead class="table-light" style="position: sticky; top: 0; z-index: 1;">
                             <tr>
                                 <th scope="col" class="text-center" style="width: 3%">
@@ -581,10 +581,24 @@
     </div>
 <script type="text/javascript">
     $(document).ready(function() {
-
         var waitStatus  = "{{ OrderConstant::STATUS_WAITBUYERPAY }}";
         var optionValue = "{{ OptionConstant::NAME_EN }}";
         var exchangeRate = {{ $exchangeRate }};
+
+        var allImgLoad       = false;
+        var $scrollableTable = $("#scrollTable");
+        $scrollableTable.on("scroll", function() {
+            if( allImgLoad == false ){
+                $(".lazy-img").each(function() {
+                    var img = $(this);  // 현재 이미지 jQuery 객체
+                    if (img.data('src')) { // src 속성이 없는 경우에만 실행
+                        img.attr('src', img.data('src'));  // data-src 값을 src로 설정
+                    }
+                });
+
+                allImgLoad = true;
+            }
+        });
 
         var channels = '{!! json_encode(MallConstant::MALL_NAME) !!}';
         channels = JSON.parse(channels);
