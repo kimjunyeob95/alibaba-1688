@@ -3,9 +3,9 @@
 namespace App\Packages;
 
 use Kafka\Producer;
-use Kafka\ProducerConfig;
 use Kafka\Consumer;
 use Kafka\ConsumerConfig;
+use Kafka\ProducerConfig;
 
 class Kafka
 {
@@ -36,7 +36,7 @@ class Kafka
         $producer->success(function() use (&$isSuccess) {
             $isSuccess = true;
         });
-        $producer->error(function() use (&$isSuccess) {
+        $producer->error(function($errorCode) use (&$isSuccess) {
             $isSuccess = false;
         });
 
