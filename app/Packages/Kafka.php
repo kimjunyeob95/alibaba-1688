@@ -44,32 +44,18 @@ class Kafka
 
         return $isSuccess;
     }
-    public function produce2(): bool
+    public function produce2(string $topic, string $message): bool
     {
-        $topic = "test";
-        $params = [
-            "part"           => "onchannel",
-            "classification" => "order",
-            "data"           => [
-                "order_code" => "OD_" . date("YmdHis")
-            ]
-        ];
-
         $brokers = "52.79.202.81:9092,15.164.24.227:9092,3.36.246.92:9092";
         $config = ProducerConfig::getInstance();
-        $config->setMetadataRefreshIntervalMs(10000);
         $config->setMetadataBrokerList($brokers);
-        $config->setBrokerVersion('1.0.0');
-        $config->setRequiredAck(1);
-        $config->setIsAsyn(false);
-        $config->setProduceInterval(500);
-        $producer = new Producer();
+        $config->setBrokerVersion('2.0.0');
 
-        $producer = new Producer(function() use ($topic, $params) {
+        $producer = new Producer(function() use ($topic, $message) {
             return [
                 [
                     'topic' => $topic,
-                    'value' => json_encode($params),
+                    'value' => $message,
                     'key'   => null, // 라운도로빈
                 ],
             ];
