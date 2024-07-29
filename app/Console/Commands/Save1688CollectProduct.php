@@ -8,7 +8,7 @@ use Illuminate\Console\Command;
 
 class Save1688CollectProduct extends Command
 {
-    protected $signature   = 'save_1688_collect_product {--offerids=} {--type=} {--wversion=} {--collectparams=}';
+    protected $signature   = 'save_1688_collect_product {--offerids=} {--type=} {--wversion=} {--collectparams=} {--params=}';
     protected $description = '1688API 제품ID로 조회 후 DB저장';
 
     protected Service1688Product $service1688Product;
@@ -30,13 +30,11 @@ class Save1688CollectProduct extends Command
         $wversion      = $this->option('wversion') ?? WConstant::WAPP_W1;
         $collectParams = $this->option('collectparams') ?? '{}';
         $collectParams = json_decode($collectParams, JSON_UNESCAPED_UNICODE);
+        $params        = $this->option('params') ?? '{}';
+        $params        = json_decode($params, JSON_UNESCAPED_UNICODE);
 
         if( !empty($offerids) ){
-            if( $wversion == WConstant::WAPP_W1 ){
-                $this->service1688Product->collectProduct($offerids, $type, $collectParams);
-            } else if( $wversion == WConstant::WAPP_W2 ){
-                $this->service1688Product->collectProductW2($offerids, $type, $collectParams);
-            }
+            $this->service1688Product->collectProduct($offerids, $type, $collectParams, $params);
         }
     }
 }

@@ -263,7 +263,9 @@
                             nTranslateOption,
                             yCollectOption,
                             yTranslateOption
-                        } 
+                        },
+                        search_cls: $("select[name=search_cls]").val(),
+                        keyword   : $("#keyword").val(),
                     },
                     beforeSend: function () {
                     },

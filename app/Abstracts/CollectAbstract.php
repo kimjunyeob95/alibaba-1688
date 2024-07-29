@@ -3,11 +3,16 @@
 namespace App\Abstracts;
 
 use App\Constants\CategoryConstant;
+use App\Constants\CollectErrorMessageConstant;
+use App\Constants\Constant1688;
+use App\Constants\LogConstant;
 use App\Constants\MallConstant;
 use App\Constants\ProductConstant;
+use App\Models\CollectPalletLog;
 use App\Models\ProductCollectPalletData;
 use App\Models\ProductData;
 use App\Models\ProductWeightData;
+use Carbon\Carbon;
 use Exception;
 
 abstract class CollectAbstract
@@ -91,9 +96,17 @@ abstract class CollectAbstract
             $result = [
                 "validate" => false,
             ];
+            $obj = CollectPalletLog::where("pallet_id", $palletId)->first();
             $cnt = ProductCollectPalletData::where("pallet_id", $palletId)->count();
+            if( $obj == null ){
+                throw new Exception(CollectErrorMessageConstant::getNotHaveErrorMessage("COLLECTPALLETLOG"));   
+            }
 
-            if( $cnt > 0 ){
+            $completedAt     = Carbon::parse($obj->completed_at);
+            $currentTime     = Carbon::now();
+            $hoursDifference = $currentTime->diffInHours($completedAt);
+
+            if( $hoursDifference >= 24 && $obj->status == LogConstant::COLLECT_COMPLETE && $cnt > 0 ){
                 $result["validate"] = true;
             }
 
