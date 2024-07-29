@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Constants\KafkaConstant;
 use App\Constants\MallConstant;
 use App\Packages\Kafka;
+use Carbon\Carbon;
 use Tests\TestCase;
 
 class KafkaTest extends TestCase
@@ -13,12 +14,14 @@ class KafkaTest extends TestCase
     public function testKafkaProducer()
     {
         $test = [
-            "type"     => "PM001",
-            "offer_id" => 590177967435,
+            "type"       => "PM001",
+            "offer_id"   => 590177967435,
+            "created_at" => Carbon::now()->format('Y-m-d H:i:s')
         ];
         $producer = new Kafka();
         $result   = $producer->produce(KafkaConstant::WAPP, json_encode($test));
-        dd($result);
+
+        $this->assertTrue($result);
     }
 
     # php artisan test --filter testKafkaConsumer
