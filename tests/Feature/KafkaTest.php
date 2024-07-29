@@ -20,9 +20,7 @@ class KafkaTest extends TestCase
         ];
         $producer = new Kafka();
         // $result   = $producer->produce(KafkaConstant::WAPP, json_encode($test));
-        $result   = $producer->produceTest();
-
-        dd($result);
+        $result = $producer->produceTest();
         $this->assertTrue($result);
     }
 

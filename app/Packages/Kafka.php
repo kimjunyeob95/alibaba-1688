@@ -3,7 +3,6 @@
 namespace App\Packages;
 
 use Kafka\Producer;
-use Kafka\ProducerConfig;
 use Kafka\Consumer;
 use Kafka\ConsumerConfig;
 
@@ -18,7 +17,7 @@ class Kafka
 
     public function produce(string $topic, string $message): bool
     {
-        $config = ProducerConfig::getInstance();
+        $config = \Kafka\ProducerConfig::getInstance();
         $config->setMetadataBrokerList($this->brokers);
         $config->setBrokerVersion('2.0.0');
 
@@ -73,7 +72,7 @@ class Kafka
         ];
 
         $brokers = "52.79.202.81:9092,15.164.24.227:9092,3.36.246.92:9092";
-        $config = ProducerConfig::getInstance();
+        $config = \Kafka\ProducerConfig::getInstance();
         $config->setMetadataRefreshIntervalMs(10000);
         $config->setMetadataBrokerList($brokers);
         $config->setBrokerVersion('1.0.0');
@@ -81,6 +80,8 @@ class Kafka
         $config->setIsAsyn(false);
         $config->setProduceInterval(500);
         $producer = new Producer();
+
+
 
         $json_data = json_encode($params,JSON_UNESCAPED_UNICODE);
         $send_data = [
