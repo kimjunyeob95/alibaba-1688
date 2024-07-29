@@ -1167,7 +1167,9 @@ class ProductW1 extends ProductAbstract
                     "status" => LogConstant::COLLECT_RUNNING,
                 ]
             );
+            $palletCollect = true;
         }
+
         $successCnt = 0;
         $failCnt    = 0;
         foreach ($offerIds as $offerId) {
@@ -1255,7 +1257,7 @@ class ProductW1 extends ProductAbstract
             "completed_at" => Carbon::now()
         ]);
         if( $palletCollect == true ){
-            CollectPalletLog::where("id", $palletLogObj->id)->update([
+            $palletLogObj->update([
                 "status"       => LogConstant::COLLECT_COMPLETE,
                 "completed_at" => Carbon::now()
             ]);
@@ -2606,7 +2608,7 @@ class ProductW1 extends ProductAbstract
             "completed_at" => Carbon::now()
         ]);
         if( $palletCollect == true ){
-            CollectPalletLog::where("id", $palletLogObj->id)->update([
+            $palletLogObj->update([
                 "status"       => LogConstant::COLLECT_COMPLETE,
                 "completed_at" => Carbon::now()
             ]);
