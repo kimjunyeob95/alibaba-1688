@@ -24,6 +24,15 @@ class KafkaTest extends TestCase
         $this->assertTrue($result);
     }
 
+    # php artisan test --filter testKafkaProducer2
+    public function testKafkaProducer2()
+    {
+        $producer = new Kafka();
+        $result   = $producer->produce2();
+
+        $this->assertTrue($result);
+    }
+
     # php artisan test --filter testKafkaConsumer
     public function testKafkaConsumer()
     {

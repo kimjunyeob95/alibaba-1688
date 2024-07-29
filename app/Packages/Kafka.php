@@ -44,6 +44,49 @@ class Kafka
 
         return $isSuccess;
     }
+    public function produce2(): bool
+    {
+        $topic = "test";
+        $params = [
+            "part"           => "onchannel",
+            "classification" => "order",
+            "data"           => [
+                "order_code" => "OD_" . date("YmdHis")
+            ]
+        ];
+
+        $brokers = "52.79.202.81:9092,15.164.24.227:9092,3.36.246.92:9092";
+        $config = ProducerConfig::getInstance();
+        $config->setMetadataRefreshIntervalMs(10000);
+        $config->setMetadataBrokerList($brokers);
+        $config->setBrokerVersion('1.0.0');
+        $config->setRequiredAck(1);
+        $config->setIsAsyn(false);
+        $config->setProduceInterval(500);
+        $producer = new Producer();
+
+        $producer = new Producer(function() use ($topic, $params) {
+            return [
+                [
+                    'topic' => $topic,
+                    'value' => json_encode($params),
+                    'key'   => null, // 라운도로빈
+                ],
+            ];
+        });
+
+        $isSuccess = false;
+        $producer->success(function() use (&$isSuccess) {
+            $isSuccess = true;
+        });
+        $producer->error(function($errorCode) use (&$isSuccess) {
+            $isSuccess = false;
+        });
+
+        $producer->send(true);
+
+        return $isSuccess;
+    }
 
     public function consume(string $topic, string $group): void
     {
