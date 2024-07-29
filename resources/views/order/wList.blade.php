@@ -35,12 +35,24 @@
             <div class="col-12 mb-3">
 
                 <form id="searchFrm">
+                    <input type="hidden" name="orderChannel" value={{ $orderChannel }}>
                     <input type="hidden" name="orderStatus" value={{ $orderStatus }}>
                     <input type="hidden" name="refundStatus" value={{ $refundStatus }}>
 
                     <div class="card">
                         <div class="card-header">
                             <table class="table">
+                                <tr class="align-middle">
+                                    <th style="width: 120px">주문 채널</th>
+                                    <td colspan="2">
+                                        <button type="button" name="orderChannel" class="btn-status btn btn-sm {{ $orderChannel == "" ? "btn-primary" : "btn-dark" }}"
+                                        value="">전체</button>
+                                        @foreach (MallConstant::MALL_NAME as $mallKey => $mallValue)    
+                                            <button type="button" name="orderChannel" class="btn-status btn btn-sm {{ $orderChannel == $mallKey ? "btn-primary" : "btn-dark" }}"
+                                            value="{{ $mallKey }}">{{ $mallValue }}</button>
+                                        @endforeach
+                                    </td>
+                                </tr>
                                 <tr class="align-middle">
                                     <th style="width: 120px">주문 상태</th>
                                     <td colspan="2">
@@ -102,9 +114,14 @@
                     </div>
                 </form>
 
-                <div class="mt-3 d-flex justify-content-end">
-                    <button class="btn btn-md btn-success text-white me-2" id="btn-update-select">주문 업데이트</button>
-                    <button class="btn btn-md btn-dark text-white me-2" id="btn-pay-select">결제하기</button>
+                <div class="mt-3 d-flex justify-content-between">
+                    <div class="d-flex">
+                        <a class="btn btn-md btn-dark text-white me-2" href="https://www.notion.so/sellerhub/WAPP-2f34d2670b4d44c298611dd8c5439603?pvs=4" target="_blank">WApp 상태 정보 안내</a>
+                    </div>
+                    <div class="d-flex">
+                        <button class="btn btn-md btn-success text-white me-2" id="btn-update-select">주문 업데이트</button>
+                        <button class="btn btn-md btn-dark text-white me-2" id="btn-pay-select">결제하기</button>
+                    </div>
                 </div>
 
                 <div class="table-responsive mt-3 overflow-auto" id="scrollTable" style="max-height: 800px; overflow-y: auto;">
@@ -138,10 +155,16 @@
                         </thead>
                         <tbody>
                             @foreach ($paginator->items() as $index => $data)
+                                @php
+                                    $itemOrderStatus = "";
+                                    if( $data["baseObj"] && $data["channelObj"] ){
+                                        $itemOrderStatus = $data["baseInfo"]["status"];
+                                    }
+                                @endphp
                                 <tr>
                                     <td class="text-center">
                                         <input id="checkbox-{{ $data["baseInfo"]['idOfStr'] }}" class="form-check-input chk-inp" 
-                                        type="checkbox" value="{{ $data["baseInfo"]['idOfStr'] }}" orderStatus={{ $data["baseInfo"]["status"] }}>
+                                        type="checkbox" value="{{ $data["baseInfo"]['idOfStr'] }}" orderStatus={{ $itemOrderStatus }}>
                                     </td>
                                     <td>
                                         <label for="checkbox-{{ $data["baseInfo"]['idOfStr'] }}" class="cursor-pointer">
@@ -306,23 +329,23 @@
                         <div class="modal-body text-center">
                             <input type="hidden" name="orderIds[]" />
                             
-                            <h4 class="mb-4 font-weight-bold">결제 방법을 선택 하세요.</h4>
+                            <h4 class="mb-4 font-weight-bold">결제 방법</h4>
                             <div class="d-flex justify-content-center mb-4">
                                 <div class="me-4 d-flex align-items-center">
-                                    <input type="radio" id="payWay1" name="payWay" value="{{ OrderConstant::PAY_ALIPAY }}" checked>
-                                    <label for="payWay1" class="ms-2 fs-5">Alipay</label>
+                                    <input type="radio" id="payWay1" name="payWay" value="{{ OrderConstant::PAY_CROSS_BORDER }}" checked>
+                                    <label for="payWay1" class="ms-2 fs-5">Cross-border Pay</label>
                                 </div>
-                                <div class="d-flex align-items-center">
-                                    <input type="radio" id="payWay2" name="payWay" value="{{ OrderConstant::PAY_CROSS_BORDER }}">
-                                    <label for="payWay2" class="ms-2 fs-5">Cross-border Pay</label>
+                                <div class="d-flex align-items-center d-none">
+                                    <input type="radio" id="payWay2" name="payWay" value="{{ OrderConstant::PAY_ALIPAY }}">
+                                    <label for="payWay2" class="ms-2 fs-5">Alipay</label>
                                 </div>
                             </div>
                             <p class="text-danger mt-2 small">결제대기(미 결제) 주문만 결제가 진행됩니다.</p>
                             <a class="btn btn-outline-primary btn-md mt-3 fs-4 d-none btn-pay-link" target="_blank">결제하러 가기</a>
                         </div>
                         <div class="modal-footer d-flex justify-content-center">
-                            <button type="button" class="btn btn-primary btn-pay-call">결제</button>
                             <button type="button" class="btn btn-secondary htmlModalClose">취소</button>
+                            <button type="button" class="btn btn-primary btn-pay-check">결제 확인 완료</button>
                         </div>
                     </div>
                 </div>
@@ -658,6 +681,7 @@
 
         $('#btn-pay-select').click(function(){
             let orderIds = [];
+            let payWay   = $("input[name=payWay]:checked").val();
 
             $(".chk-inp:checked").each(function(index, element){
                 let orderStatus = $(this).attr("orderStatus");
@@ -670,22 +694,62 @@
                 return alert("선택 된 주문이 없거나 결제대기 상태의 주문이 없습니다.");
             }
 
-            $('input[name="orderIds[]"]').val(orderIds);
-            $("input[name=payWay]").prop("checked", false);
-            $("input[name=payWay]").eq(0).prop("checked", true);
-            $('.btn-pay-link').addClass("d-none");
-
-            $("#htmlModal").modal('show');
+            $.ajax({
+                "headers"    : {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
+                "type"       : "POST",
+                "url"        : "{{ route('w.order.orderPayLinkCreate') }}",
+                "data"       : { orderIds, payWay },
+                beforeSend: function () {
+                    $("#loadingOverlay").show();
+                    $('.btn-pay-link').addClass("d-none");
+                },
+                complete: function () {
+                    $("#loadingOverlay").hide();
+                },
+                success: function (resp) {
+                    if( resp.data.payUrl ){
+                        $('input[name="orderIds[]"]').val(orderIds);
+                        $('.btn-pay-link').attr("href", resp.data.payUrl);
+                        $('.btn-pay-link').removeClass("d-none");
+                        $("#htmlModal").modal('show');
+                    }
+                },
+                error: function error(request, status, _error) {
+                    let { error } = JSON.parse(request.responseText);
+                    alert(error.message);
+                }
+            });
         });
 
         $('.btn-pay').click(function(){
             let orderIds = $(this).attr("orderid");
-            $('input[name="orderIds[]"]').val(orderIds);
-            $("input[name=payWay]").prop("checked", false);
-            $("input[name=payWay]").eq(0).prop("checked", true);
-            $('.btn-pay-link').addClass("d-none");
+            let payWay   = $("input[name=payWay]:checked").val();
 
-            $("#htmlModal").modal('show');
+            $.ajax({
+                "headers"    : {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
+                "type"       : "POST",
+                "url"        : "{{ route('w.order.orderPayLinkCreate') }}",
+                "data"       : { orderIds: [orderIds], payWay },
+                beforeSend: function () {
+                    $("#loadingOverlay").show();
+                    $('.btn-pay-link').addClass("d-none");
+                },
+                complete: function () {
+                    $("#loadingOverlay").hide();
+                },
+                success: function (resp) {
+                    if( resp.data.payUrl ){
+                        $('input[name="orderIds[]"]').val(orderIds);
+                        $('.btn-pay-link').attr("href", resp.data.payUrl);
+                        $('.btn-pay-link').removeClass("d-none");
+                        $("#htmlModal").modal('show');
+                    }
+                },
+                error: function error(request, status, _error) {
+                    let { error } = JSON.parse(request.responseText);
+                    alert(error.message);
+                }
+            });
         });
 
         $(".htmlModalClose").click(function(){
@@ -696,35 +760,30 @@
             $("#htmlModal2").modal('hide');
         });
 
-        $(".btn-pay-call").click(function(){
+        $(".btn-pay-check").click(function(){
             let orderIds = $('input[name="orderIds[]"]').val().split(",");
             let payWay   = $("input[name=payWay]:checked").val();
 
-            if(confirm(`결제링크를 생성하시겠습니까?`)){
-                $.ajax({
-                    "headers"    : {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
-                    "type"       : "POST",
-                    "url"        : "{{ route('w.order.orderPayLinkCreate') }}",
-                    "data"       : { orderIds, payWay },
-                    beforeSend: function () {
-                        $("#loadingOverlay").show();
-                        $('.btn-pay-link').addClass("d-none");
-                    },
-                    complete: function () {
-                        $("#loadingOverlay").hide();
-                    },
-                    success: function (resp) {
-                        if( resp.data.payUrl ){
-                            $('.btn-pay-link').attr("href", resp.data.payUrl);
-                            $('.btn-pay-link').removeClass("d-none");
-                        }
-                    },
-                    error: function error(request, status, _error) {
-                        let { error } = JSON.parse(request.responseText);
-                        alert(error.message);
-                    }
-                });
-            }
+            $.ajax({
+                "headers"    : {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
+                "type"       : "POST",
+                "url"        : "{{ route('w.order.update') }}",
+                "data"       : { orderIds },
+                beforeSend: function () {
+                    $("#loadingOverlay").show();
+                },
+                complete: function () {
+                    $("#loadingOverlay").hide();
+                },
+                success: function (resp) {
+                    alert(resp.msg);
+                    location.reload();
+                },
+                error: function error(request, status, _error) {
+                    let { error } = JSON.parse(request.responseText);
+                    alert(error.message);
+                }
+            });
         });
 
         $("#btn-update-select").click(function(){
