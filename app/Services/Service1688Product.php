@@ -171,11 +171,12 @@ class Service1688Product
      * @param array $offerIds '제품ID'
      * @param string $type '요청 페이지'
      * @param array $collectParams
+     * @param array $params
      * @return void
    */
-   public function collectProduct(array $offerIds, string $type = LogConstant::COLLECT_API_KEYWORDQUERY, array $collectParams = []): void
+   public function collectProduct(array $offerIds, string $type = LogConstant::COLLECT_API_KEYWORDQUERY, array $collectParams = [], array $params = []): void
    {
-      $this->productAbstract->collectProduct($offerIds, $type, $collectParams);
+      $this->productAbstract->collectProduct($offerIds, $type, $collectParams, $params);
    }
 
    /**

@@ -10,7 +10,8 @@ class CollectErrorMessageConstant
     private static $defaultNotHaveMsg  = "Empty";
     private static $defaultFitErrorMsg = "Error";
 
-    public const ERROR_MESSAGE_PALLET = "Pallet";
+    public const ERROR_MESSAGE_PALLET           = "Pallet";
+    public const ERROR_MESSAGE_COLLECTPALLETLOG = "CollectPalletLog";
  
     public static function getErrorMessageNotDefault($constantName): string
     {

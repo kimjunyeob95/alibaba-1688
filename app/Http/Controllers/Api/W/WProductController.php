@@ -46,9 +46,16 @@ class WProductController extends Controller
 
             $offerIds      = $this->request->post("offer_ids");
             $log_type      = $this->request->post("log_type", LogConstant::COLLECT_API_OFFERID);
+            $search_cls    = $this->request->post("search_cls", "");
+            $keyword       = $this->request->post("keyword", "");
             $collectParams = json_encode($this->request->post("collectParams"), JSON_UNESCAPED_UNICODE);
+            $params = [
+                "search_cls" => $search_cls,
+                "keyword"    => $keyword,
+            ];
+            $params = json_encode($params, JSON_UNESCAPED_UNICODE);
 
-            $options = "--offerids=" . helperEscape(implode(",", $offerIds)) . " --type=" . helperEscape($log_type) . " --collectparams=" . helperEscape($collectParams);
+            $options = "--offerids=" . helperEscape(implode(",", $offerIds)) . " --type=" . helperEscape($log_type) . " --collectparams=" . helperEscape($collectParams) . " --params=" . helperEscape($params);
             $command = "nohup " . $this->phpAlias . " artisan save_1688_collect_product " . $options . " > /dev/null 2>&1 &";
             $process = Process::fromShellCommandline($command);
             $process->setWorkingDirectory(env("WORK_DIRECTORY", "/web1/1688"));

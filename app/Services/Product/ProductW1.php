@@ -23,6 +23,7 @@ use App\Constants\TransApiConstant;
 use App\Constants\WConstant;
 use App\Models\Category;
 use App\Models\CategoryMapping;
+use App\Models\CollectPalletLog;
 use App\Models\ForbiddenNoticeWordData;
 use App\Models\ForbiddenWordData;
 use App\Models\GenuioImageData;
@@ -1146,7 +1147,7 @@ class ProductW1 extends ProductAbstract
         }
     }
 
-    public function collectProduct(array $offerIds, string $type = LogConstant::COLLECT_API_KEYWORDQUERY, array $collectParams = []): void
+    public function collectProduct(array $offerIds, string $type = LogConstant::COLLECT_API_KEYWORDQUERY, array $collectParams = [], array $params = []): void
     {
         $logId = ProductCollectLog::insertGetId([
             "type"       => $type,
@@ -1156,6 +1157,17 @@ class ProductW1 extends ProductAbstract
             "version"    => WConstant::WAPP_W1,
             "created_at" => Carbon::now()
         ]);
+        $palletLogId = 0;
+        if( isset($params["keyword"]) && !empty($params["keyword"]) && isset($params["search_cls"]) && $params["search_cls"] == Constant1688::SEARCH_PRODUCTCOLLECTIONID ){
+            $palletLogId = CollectPalletLog::updateOrCreate(
+                [
+                    "pallet_id" => (int)$params["keyword"]
+                ],
+                [
+                    "status" => LogConstant::COLLECT_RUNNING,
+                ]
+            );
+        }
         $successCnt = 0;
         $failCnt    = 0;
         foreach ($offerIds as $offerId) {
@@ -1242,6 +1254,12 @@ class ProductW1 extends ProductAbstract
             "log_count"    => $successCnt + $failCnt,
             "completed_at" => Carbon::now()
         ]);
+        if( $palletLogId != 0 ){
+            CollectPalletLog::where("id", $palletLogId)->update([
+                "status"       => LogConstant::COLLECT_COMPLETE,
+                "completed_at" => Carbon::now()
+            ]);
+        }
     }
 
     public function collectProductNotLog(int $offerId): array
@@ -2537,6 +2555,7 @@ class ProductW1 extends ProductAbstract
         $page          = $params["page"];
         $pageSize      = $params["pageSize"];
         $collectParams = isset($params["collectParams"]) ? $params["collectParams"] : [];
+        $palletCollect = false;
         $payload       = [
             'access_token'    => $this->accessToken,
             'offerQueryParam' => [
@@ -2546,6 +2565,16 @@ class ProductW1 extends ProductAbstract
         ];
         if( !empty($params["search_cls"]) && !empty($params["keyword"]) ){
             $payload["offerQueryParam"][$params["search_cls"]] = $params["keyword"];
+            if( $params["search_cls"] == Constant1688::SEARCH_PRODUCTCOLLECTIONID ){
+                $palletLogId = CollectPalletLog::updateOrCreate(
+                    [
+                        "pallet_id" => (int)$params["keyword"]
+                    ],
+                    [
+                        "status" => LogConstant::COLLECT_RUNNING,
+                    ]
+                );
+            }
         }
 
         try {
@@ -2574,6 +2603,15 @@ class ProductW1 extends ProductAbstract
             "log_count"    => $log_count,
             "completed_at" => Carbon::now()
         ]);
+        if( !empty($params["search_cls"]) && !empty($params["keyword"]) ){
+            $payload["offerQueryParam"][$params["search_cls"]] = $params["keyword"];
+            if( $params["search_cls"] == Constant1688::SEARCH_PRODUCTCOLLECTIONID ){
+                CollectPalletLog::where("id", $palletLogId)->update([
+                    "status"       => LogConstant::COLLECT_COMPLETE,
+                    "completed_at" => Carbon::now()
+                ]);
+            }
+        }
 
         $msg = "======================== 실행 종료 (params_json: {$params_json}) ========================";
         // debug_log($msg, "collectProduct/keywordQueryAll", "keywordQueryAll");
