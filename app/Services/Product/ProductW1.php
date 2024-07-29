@@ -1157,9 +1157,9 @@ class ProductW1 extends ProductAbstract
             "version"    => WConstant::WAPP_W1,
             "created_at" => Carbon::now()
         ]);
-        $palletLogId = 0;
+        $palletCollect = false;
         if( isset($params["keyword"]) && !empty($params["keyword"]) && isset($params["search_cls"]) && $params["search_cls"] == Constant1688::SEARCH_PRODUCTCOLLECTIONID ){
-            $palletLogId = CollectPalletLog::updateOrCreate(
+            $palletLogObj = CollectPalletLog::updateOrCreate(
                 [
                     "pallet_id" => (int)$params["keyword"]
                 ],
@@ -1254,8 +1254,8 @@ class ProductW1 extends ProductAbstract
             "log_count"    => $successCnt + $failCnt,
             "completed_at" => Carbon::now()
         ]);
-        if( $palletLogId != 0 ){
-            CollectPalletLog::where("id", $palletLogId)->update([
+        if( $palletCollect == true ){
+            CollectPalletLog::where("id", $palletLogObj->id)->update([
                 "status"       => LogConstant::COLLECT_COMPLETE,
                 "completed_at" => Carbon::now()
             ]);
@@ -2566,7 +2566,7 @@ class ProductW1 extends ProductAbstract
         if( !empty($params["search_cls"]) && !empty($params["keyword"]) ){
             $payload["offerQueryParam"][$params["search_cls"]] = $params["keyword"];
             if( $params["search_cls"] == Constant1688::SEARCH_PRODUCTCOLLECTIONID ){
-                $palletLogId = CollectPalletLog::updateOrCreate(
+                $palletLogObj = CollectPalletLog::updateOrCreate(
                     [
                         "pallet_id" => (int)$params["keyword"]
                     ],
@@ -2574,6 +2574,8 @@ class ProductW1 extends ProductAbstract
                         "status" => LogConstant::COLLECT_RUNNING,
                     ]
                 );
+
+                $palletCollect = true;
             }
         }
 
@@ -2603,14 +2605,11 @@ class ProductW1 extends ProductAbstract
             "log_count"    => $log_count,
             "completed_at" => Carbon::now()
         ]);
-        if( !empty($params["search_cls"]) && !empty($params["keyword"]) ){
-            $payload["offerQueryParam"][$params["search_cls"]] = $params["keyword"];
-            if( $params["search_cls"] == Constant1688::SEARCH_PRODUCTCOLLECTIONID ){
-                CollectPalletLog::where("id", $palletLogId)->update([
-                    "status"       => LogConstant::COLLECT_COMPLETE,
-                    "completed_at" => Carbon::now()
-                ]);
-            }
+        if( $palletCollect == true ){
+            CollectPalletLog::where("id", $palletLogObj->id)->update([
+                "status"       => LogConstant::COLLECT_COMPLETE,
+                "completed_at" => Carbon::now()
+            ]);
         }
 
         $msg = "======================== 실행 종료 (params_json: {$params_json}) ========================";
