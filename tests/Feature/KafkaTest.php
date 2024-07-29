@@ -33,7 +33,7 @@ class KafkaTest extends TestCase
             "created_at" => Carbon::now()->format('Y-m-d H:i:s')
         ];
         $producer = new Kafka();
-        $result   = $producer->produce2("test", json_encode($test));
+        $result   = $producer->produceHardCode("test", json_encode($test));
 
         $this->assertTrue($result);
     }

@@ -44,7 +44,8 @@ class Kafka
 
         return $isSuccess;
     }
-    public function produce2(string $topic, string $message): bool
+
+    public function produceHardCode(string $topic, string $message): bool
     {
         $brokers = "52.79.202.81:9092,15.164.24.227:9092,3.36.246.92:9092";
         $config = ProducerConfig::getInstance();
