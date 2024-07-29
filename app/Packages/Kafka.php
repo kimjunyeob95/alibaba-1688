@@ -36,7 +36,7 @@ class Kafka
         $producer->success(function() use (&$isSuccess) {
             $isSuccess = true;
         });
-        $producer->error(function() use (&$isSuccess) {
+        $producer->error(function($errorCode) use (&$isSuccess) {
             $isSuccess = false;
         });
 
@@ -59,5 +59,39 @@ class Kafka
             $msg = "topic: {$topic} | part: {$part} | group: {$group} | message: " . $message['message']['value'];
             debug_log($msg, "kafka/consumer", "consumer");
         });
+    }
+
+    public function produceTest()
+    {
+        $topic = "test";
+        $params = [
+            "part" => "onchannel",
+            "classification" => "order",
+            "data" => [
+                "order_code" => "OD_" . date("YmdHis")
+            ]
+        ];
+
+        $brokers = "52.79.202.81:9092,15.164.24.227:9092,3.36.246.92:9092";
+        $config = ProducerConfig::getInstance();
+        $config->setMetadataRefreshIntervalMs(10000);
+        $config->setMetadataBrokerList($brokers);
+        $config->setBrokerVersion('1.0.0');
+        $config->setRequiredAck(1);
+        $config->setIsAsyn(false);
+        $config->setProduceInterval(500);
+        $producer = new Producer();
+
+        $json_data = json_encode($params,JSON_UNESCAPED_UNICODE);
+        $send_data = [
+            [
+                'topic' => $topic,
+                'value' => $json_data
+            ]
+        ];
+
+        $result = $producer->send($send_data);
+
+        return $result;
     }
 }
