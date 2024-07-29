@@ -45,6 +45,36 @@ class Kafka
         return $isSuccess;
     }
 
+    public function produceHardCode(string $topic, string $message): bool
+    {
+        $brokers = "52.79.202.81:9092,15.164.24.227:9092,3.36.246.92:9092";
+        $config = ProducerConfig::getInstance();
+        $config->setMetadataBrokerList($brokers);
+        $config->setBrokerVersion('2.0.0');
+
+        $producer = new Producer(function() use ($topic, $message) {
+            return [
+                [
+                    'topic' => $topic,
+                    'value' => $message,
+                    'key'   => null, // 라운도로빈
+                ],
+            ];
+        });
+
+        $isSuccess = false;
+        $producer->success(function() use (&$isSuccess) {
+            $isSuccess = true;
+        });
+        $producer->error(function($errorCode) use (&$isSuccess) {
+            $isSuccess = false;
+        });
+
+        $producer->send(true);
+
+        return $isSuccess;
+    }
+
     public function consume(string $topic, string $group): void
     {
         $config = ConsumerConfig::getInstance();

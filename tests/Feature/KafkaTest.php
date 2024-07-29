@@ -24,6 +24,20 @@ class KafkaTest extends TestCase
         $this->assertTrue($result);
     }
 
+    # php artisan test --filter testKafkaHardCodeProducer
+    public function testKafkaHardCodeProducer()
+    {
+        $test = [
+            "type"       => "PM001",
+            "offer_id"   => 590177967435,
+            "created_at" => Carbon::now()->format('Y-m-d H:i:s')
+        ];
+        $producer = new Kafka();
+        $result   = $producer->produceHardCode("test", json_encode($test));
+
+        $this->assertTrue($result);
+    }
+
     # php artisan test --filter testKafkaConsumer
     public function testKafkaConsumer()
     {
