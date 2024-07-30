@@ -490,7 +490,7 @@
                                                 <th>채널 금액</th>
                                                 <td attr="total_channel_price"></td>
                                                 <th>채널 배송비</th>
-                                                <td attr="delivery_price""></td>
+                                                <td attr="delivery_price"></td>
                                             </tr>
                                             <tr class="opt-tr">
                                                 <th scope="col" style="width: 10%">구분</th>
@@ -511,7 +511,7 @@
                                     <table class="table table-bordered">
                                         <thead>
                                             <tr>
-                                                <th colspan="7">주문 처리 내역</th>
+                                                <th colspan="7">배송정보</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -663,6 +663,8 @@
                 success: function (resp) {
                     let { data } = resp;
 
+                    $(".btn-edit").attr("orderId", orderId);
+
                     $(".opt-tr-child").remove();
                     $(".logstics-body").hide();
                     $(".logstics-body .div-trace").hide();
@@ -804,7 +806,9 @@
         });
 
         $(".btn-edit").click(function(){
-            return alert("작업 예정..");
+            let orderId = $(this).attr("orderid");
+            var newTab  = window.open(`/wapp/order/edit/${orderId}`, '_blank');
+            newTab.focus();
         })
 
         $('.btn-detail').click(function(){

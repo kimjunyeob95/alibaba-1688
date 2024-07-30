@@ -101,7 +101,8 @@ abstract class OrderAbstract
                 "product.main_img",
                 "logistics",
                 "channel_obj.details",
-                "w_options.option"
+                "w_options.option",
+                "channel_objs.details"
             ])->where("order_id", $orderId)->first();
 
             $returnMsg = helpers_success_message($obj);

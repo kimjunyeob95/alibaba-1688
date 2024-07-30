@@ -96,6 +96,8 @@ Route::prefix("wapp")->name("wapp.")->group(function(){
         Route::get("/list", [OrderController::class, "orderList"])->name("list");
         /** W 주문 리스트 */
         Route::get("/w/list", [OrderController::class, "orderWList"])->name("wList");
+        /** WApp 주문 수정 */
+        Route::get("/edit/{orderId}", [OrderController::class, "orderEdit"])->name("edit");
     });
 });
 
