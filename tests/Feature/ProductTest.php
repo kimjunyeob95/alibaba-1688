@@ -254,6 +254,8 @@ class ProductTest extends TestCase
     # php artisan test --filter testAllProductReCollectW1
     public function testAllProductReCollectW1()
     {
+        set_time_limit(0);
+        ini_set('memory_limit', -1);
 
         $msg = "모든 상품 W1 수집 시작";
         debug_log($msg, "product/testAllProductReCollectW1", "testAllProductReCollectW1");
