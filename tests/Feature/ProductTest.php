@@ -270,7 +270,7 @@ class ProductTest extends TestCase
         $totalCount = $builder->count();
         $totalPages = ceil($totalCount / $perPage);
 
-        for ($page = 94; $page <= $totalPages; $page++) {
+        for ($page = 1; $page <= $totalPages; $page++) {
 
             Paginator::currentPageResolver(function () use ($page) {
                 return $page;
