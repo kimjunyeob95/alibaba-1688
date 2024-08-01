@@ -57,6 +57,7 @@ trait CollectProductTrait
             $mainVideo             = "";
             $detailVideo           = "";
             $minOrderQuantity      = 1;
+            $batchNumber           = 0;
             $shippingTimeGuarantee = "";
 
             if( isset($detailProduct["topCategoryId"]) ){
@@ -77,6 +78,9 @@ trait CollectProductTrait
             if( isset($detailProduct["minOrderQuantity"]) ){
                 $minOrderQuantity = $detailProduct["minOrderQuantity"];
             }
+            if( isset($detailProduct["batchNumber"]) ){
+                $batchNumber = $detailProduct["batchNumber"];
+            }
             if( isset($detailProduct["productShippingInfo"]["shippingTimeGuarantee"]) ){
                 $shippingTimeGuarantee = $detailProduct["productShippingInfo"]["shippingTimeGuarantee"];
             }
@@ -90,6 +94,7 @@ trait CollectProductTrait
                 "mainVideo"             => $mainVideo,
                 "detailVideo"           => $detailVideo,
                 "minOrderQuantity"      => $minOrderQuantity,
+                "batchNumber"           => $batchNumber,
                 "shippingTimeGuarantee" => $shippingTimeGuarantee,
             ]);
 

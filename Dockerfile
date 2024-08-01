@@ -142,8 +142,8 @@ RUN if [ "$ENVIRONMENT" = "prod" ]; then \
 
 RUN php artisan key:generate
 
-COPY ./docker/configs/supervisor/laravel-scheduler.conf /etc/supervisor/conf.d/laravel-scheduler.conf
-COPY ./docker/configs/supervisor/laravel-worker.conf /etc/supervisor/conf.d/laravel-worker.conf
+# COPY ./docker/configs/supervisor/laravel-scheduler.conf /etc/supervisor/conf.d/laravel-scheduler.conf
+# COPY ./docker/configs/supervisor/laravel-worker.conf /etc/supervisor/conf.d/laravel-worker.conf
 COPY ./docker/configs/supervisor/supervisord.conf /etc/supervisor/supervisord.conf
 
 #  entry point sh 권한 부여

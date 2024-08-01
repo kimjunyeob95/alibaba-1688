@@ -13,6 +13,7 @@ class ProductAddDto extends Vo
     protected string $main_video              = "";
     protected string $detail_video            = "";
     protected int $min_order_quantity         = 1;
+    protected int $batch_number               = 0;
     protected string $shipping_time_guarantee = "";
 
     public function bind(mixed $data): void
@@ -24,6 +25,7 @@ class ProductAddDto extends Vo
         $this->main_video              = $data["mainVideo"];
         $this->detail_video            = $data["detailVideo"];
         $this->min_order_quantity      = $data["minOrderQuantity"];
+        $this->batch_number            = $data["batchNumber"];
         $this->shipping_time_guarantee = $data["shippingTimeGuarantee"];
     }
 }
