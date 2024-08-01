@@ -3,7 +3,6 @@
 namespace App\Http;
 
 use App\Http\Middleware\AdminMiddleware;
-use App\Http\Middleware\ConfigMiddleware;
 use App\Http\Middleware\WhiteListIpMiddleware;
 use Illuminate\Foundation\Http\Kernel as HttpKernel;
 
@@ -23,8 +22,7 @@ class Kernel extends HttpKernel
         \App\Http\Middleware\PreventRequestsDuringMaintenance::class,
         \Illuminate\Foundation\Http\Middleware\ValidatePostSize::class,
         \App\Http\Middleware\TrimStrings::class,
-        \Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull::class,
-        ConfigMiddleware::class,
+        \Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull::class
     ];
 
     /**
