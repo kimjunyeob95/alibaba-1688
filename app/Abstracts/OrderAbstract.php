@@ -100,7 +100,6 @@ abstract class OrderAbstract
             $obj = OrderBaseData::with([
                 "product.main_img",
                 "logistics",
-                "channel_obj.details",
                 "w_options.option",
                 "channel_objs.details"
             ])->where("order_id", $orderId)->first();
