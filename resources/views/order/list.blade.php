@@ -268,8 +268,8 @@
                                         {{ OrderConstant::STATUS[$data->status] }}
                                     </td>
                                     <td class="text-center">
-                                        @if (isset($data->retund_status))
-                                            {{ OrderConstant::REFUND_STATUS[$data->retund_status] }}
+                                        @if (isset($data->refund_status))
+                                            {{ OrderConstant::REFUND_STATUS[$data->refund_status] }}
                                         @else
                                             -
                                         @endif

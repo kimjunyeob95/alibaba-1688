@@ -98,8 +98,8 @@
                                     </td>
                                     <th>환불상태</th>
                                     <td colspan="3">
-                                        @if (isset($data->retund_status))
-                                            {{ OrderConstant::REFUND_STATUS[$data->retund_status] }}
+                                        @if (isset($data->refund_status))
+                                            {{ OrderConstant::REFUND_STATUS[$data->refund_status] }}
                                         @else
                                             -
                                         @endif
@@ -108,12 +108,13 @@
                                 <tr class="opt-tr">
                                     <th scope="col" style="width: 10%">옵션ID</th>
                                     <th scope="col" style="width: 10%">옵션 이미지</th>
-                                    <th scope="col" style="" colspan="2">옵션명</th>
+                                    <th scope="col" style="width: *%">옵션명</th>
                                     <th scope="col" style="width: 10%">구매 수량</th>
                                     <th scope="col" style="width: 10%">상품금액(W)</th>
                                     <th scope="col" style="width: 10%">상품금액(채널)</th>
                                     <th scope="col" style="width: 10%">옵션상태</th>
                                     <th scope="col" style="width: 10%">배송상태</th>
+                                    <th scope="col" style="width: 10%">환불상태</th>
                                 </tr>
                                 @php
                                     $total_quantity      = 0;
@@ -144,7 +145,7 @@
                                         <td>
                                             <img class="lazy-img preview-image" width="50" height="50" src="{{ $sku_img_url }}">
                                         </td>
-                                        <td colspan="2">
+                                        <td>
                                             <div style="max-width: 500px;">
                                                 {{ $wOption->option->option_name_kr }}
                                             </div>
@@ -154,6 +155,20 @@
                                         <td>{{ number_format($channel_price) }}</td>
                                         <td>{{ OrderConstant::STATUS[$wOption->status] }}</td>
                                         <td>{{ OrderConstant::LOGISTICS_STATUS[$wOption->logistics_status] }}</td>
+                                        <td>
+                                            @if (isset($wOption->refund_status) && !empty($wOption->refund_status) )
+                                                @php
+                                                    $lowerCase = convertCamelCase($wOption->refund_status)["lowerCase"];
+                                                @endphp
+                                                @if (isset( OrderConstant::REFUND_STATUS[$lowerCase] ) )
+                                                    {{ OrderConstant::REFUND_STATUS[$lowerCase] }}
+                                                @else
+                                                    {{ $lowerCase }}
+                                                @endif
+                                            @else
+                                                -
+                                            @endif    
+                                        </td>
                                     </tr>
                                 @endforeach
                                 <tr class="opt-tr-child">
