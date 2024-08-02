@@ -510,19 +510,20 @@ class GenuioService extends TransApiAbstract
             } else if( $getGenuioObj->send_type == GenuioConstant::IMG_Ai_TRANS ){
                 foreach ($images as $image) {
                     try {
-                        $imgId     = (int)$image["id"];
+                        $aiImgId   = (int)$image["id"];
                         $is_except = ImageConstant::IS_EXCEPT_N;
                         if( isset($image["excluded"]) && $image["excluded"] === true ) {
                             $is_except = ImageConstant::IS_EXCEPT_Y;
                         }
 
-                        $imgObj = GenuioImageData::where([
-                            "id" => $imgId
+                        $aiImgObj = GenuioImageData::where([
+                            "id" => $aiImgId
                         ])->first();
-                        if( $imgObj == null ){
+                        if( $aiImgObj == null ){
                             throw new ValueError(TransApiConstant::getNotHaveErrorMessage("AI_IMG_ID"));
                         }
 
+                        $imgId        = $aiImgObj->img_id;
                         $parentImgCnt = GenuioImageData::where("img_id", $imgId)->count();
 
                         $prdImgObj = ProductImageData::where("id", $imgId)->first();
@@ -537,7 +538,7 @@ class GenuioService extends TransApiAbstract
                             throw new ValueError(ImageErrorMessageConstant::getFitErrorMessage("EXCEPT_IMG"));
                         }
 
-                        $img_url_ai_origin = $imgObj->img_url_ai;
+                        $img_url_ai_origin = $aiImgObj->img_url_ai;
     
                         $uploadResult        = false;
                         $uploadCleanedResult = false;
@@ -550,7 +551,7 @@ class GenuioService extends TransApiAbstract
                         if (preg_match('/^(jpg|jpeg|png|gif)/i', $mime, $matches)) {
                             $mime = $matches[0];
                         }
-                        $imgName = "/genuio/ai-img/" . $dateName . "/" . $offerId . "_" . $imgId . "_" . ($parentImgCnt+1) . "_" . $prdImgObj->img_type . "." . $mime;
+                        $imgName = "/genuio/ai-img/" . $dateName . "/" . $offerId . "_" . $aiImgId . "_" . ($parentImgCnt+1) . "_" . $prdImgObj->img_type . "." . $mime;
                         if( isset($image["imgTransBase64"]) && !empty($image["imgTransBase64"]) ){
                             $imgTransBase64 = $image["imgTransBase64"];
                             $uploadResult   = $this->uploadAbstract->uploadFile($imgName, base64_decode($imgTransBase64));
@@ -578,7 +579,7 @@ class GenuioService extends TransApiAbstract
                             $img_url_ai = env("AWS_URL") . $imgName;
                             $aiImgObj   = GenuioImageData::create([
                                 "offer_id"   => $offerId,
-                                "img_id"     => $imgObj->img_id,
+                                "img_id"     => $imgId,
                                 "ai_type"    => GenuioConstant::IMG_Ai_TRANS,
                                 "is_origin"  => GenuioConstant::IS_ORIGIN_N,
                                 "img_url_ai" => $img_url_ai,
