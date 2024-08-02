@@ -280,9 +280,9 @@ class EasySell extends MallApiAbstract
                 if( $prdObj->mapping_status != ProductConstant::MAPPING_STATUS_Y ){
                     throw new Exception(MallErrorMessageConstant::getFitErrorMessage("NOT_MAPPING_CATE"));
                 }
-                // if( count($prdObj->no_except_options) == 0 ){
-                //     throw new Exception(MallErrorMessageConstant::getFitErrorMessage("OPTION"));
-                // }
+                if( count($prdObj->no_except_options) == 0 ){
+                    throw new Exception(MallErrorMessageConstant::getFitErrorMessage("OPTION"));
+                }
 
                 $paramsResult = $this->_getPrdParams($prdObj, $type, EasySellConstant::ITEM_MODI, $easyObj->itemno);
                 if( $paramsResult["isSuccess"] == true ){
