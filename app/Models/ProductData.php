@@ -73,7 +73,7 @@ class ProductData extends Model
     }
 
     public function no_except_options () {
-        return $this->hasMany(ProductOptionData::class, "offer_id", "offer_id")->where("is_except", OptionConstant::IS_EXCEPT_N)->where("status", ProductConstant::OPTION_SEC_ON_SALE_NUMBER);
+        return $this->hasMany(ProductOptionData::class, "offer_id", "offer_id")->where("is_except", OptionConstant::IS_EXCEPT_N);
     }
 
     public function extends () {

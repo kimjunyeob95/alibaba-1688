@@ -431,7 +431,7 @@ class Onchannel extends MallApiAbstract
                 }
             }
 
-            if(count($prdObj->no_except_options) < 1){
+            if(count($prdObj->no_except_options) < 1 && $mode == MallConstant::SEND_TYPE_REGIST ){
                 $errArray = [
                     "msg"        => MallErrorMessageConstant::getFitErrorMessage("OPTIONS"),
                     "error_code" => MallErrorMessageConstant::ERROR_CODE["OPTIONS"]

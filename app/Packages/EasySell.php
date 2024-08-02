@@ -10,6 +10,7 @@ use App\Constants\CategoryConstant;
 use App\Constants\EasySellConstant;
 use App\Constants\MallConstant;
 use App\Constants\MallErrorMessageConstant;
+use App\Constants\OptionConstant;
 use App\Constants\ProductConstant;
 use App\Models\CategoryMapping;
 use App\Models\ChannelCategoryRegistData;
@@ -542,7 +543,11 @@ class EasySell extends MallApiAbstract
                 }
                 $setPrice = $price['salePrice'];
 
-                $stock = $option->amount_on_sale;
+                if( $option->status == ProductConstant::OPTION_SEC_ON_SALE_NUMBER ){
+                    $stock = $option->amount_on_sale;
+                } else {
+                    $stock = 0;
+                }
 
                 //옵션구분명|옵션1^^재고^^판매가^^정가^^공급가::업체옵션번호,
                 $unitInfo .= "{$optionNm}^^{$stock}^^{$setPrice}^^{$setPrice}^^{$buyPrice}::{$option->id}";
