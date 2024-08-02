@@ -46,6 +46,7 @@ class OrderErrorMessageConstant
     public const ERROR_MESSAGE_DELIVERY_PRICE         = "delivery_price";
     public const ERROR_MESSAGE_STATUS_WAITBUYERPAY    = "주문대기";
     public const ERROR_MESSAGE_CANCEL_API             = "주문 취소 API";
+    public const ERROR_MESSAGE_CHANGE_CHANNELS        = "change_channels";
  
     public static function getErrorMessageNotDefault($constantName): string
     {

@@ -226,41 +226,41 @@
                                     <tr>
                                         <th scope="col" style="">채널 주문번호</th>
                                         <td colspan="3">
-                                            <input type="text" class="form-control" name="channel_order_id" placeholder="" value="{{ $channel_obj->channel_order_id }}">
+                                            <input type="text" class="form-control required-inp" name="channel_order_id" placeholder="" value="{{ $channel_obj->channel_order_id }}">
                                         </td>
                                         <th scope="col" style="">배송비</th>
                                         <td>
-                                            <input type="number" class="form-control" name="delivery_price" placeholder="" value="{{ (int)$channel_obj->delivery_price }}">
+                                            <input type="number" class="form-control required-inp" name="delivery_price" placeholder="" value="{{ (int)$channel_obj->delivery_price }}">
                                         </td>
                                         <th scope="col" style="">구매자</th>
                                         <td>
-                                            <input type="text" class="form-control" name="buyer_name" placeholder="" value="{{ $channel_obj->buyer_name }}">
+                                            <input type="text" class="form-control required-inp" name="buyer_name" placeholder="" value="{{ $channel_obj->buyer_name }}">
                                         </td>
                                         <th scope="col" style="">통관부호</th>
                                         <td>
-                                            <input type="text" class="form-control" name="buyer_clearance_number" placeholder="" value="{{ $channel_obj->buyer_clearance_number }}">
+                                            <input type="text" class="form-control required-inp" name="buyer_clearance_number" placeholder="" value="{{ $channel_obj->buyer_clearance_number }}">
                                         </td>
                                         <th scope="col" style="">연락처1</th>
                                         <td>
-                                            <input type="text" class="form-control" name="buyer_number" placeholder="" value="{{ $channel_obj->buyer_number }}">
+                                            <input type="text" class="form-control required-inp" name="buyer_number" placeholder="" value="{{ $channel_obj->buyer_number }}">
                                         </td>
                                         <th scope="col" style="">연락처2</th>
                                         <td>
-                                            <input type="text" class="form-control" name="buyer_phone" placeholder="" value="{{ $channel_obj->buyer_phone }}">
+                                            <input type="text" class="form-control required-inp" name="buyer_phone" placeholder="" value="{{ $channel_obj->buyer_phone }}">
                                         </td>
                                     </tr>
                                     <tr>
                                         <th scope="col" style="">우편번호</th>
                                         <td>
-                                            <input type="text" class="form-control" name="buyer_zipcode" placeholder="" value="{{ $channel_obj->buyer_zipcode }}">
+                                            <input type="text" class="form-control required-inp" name="buyer_zipcode" placeholder="" value="{{ $channel_obj->buyer_zipcode }}">
                                         </td>
                                         <th scope="col" style="">주소</th>
                                         <td colspan="5">
-                                            <input type="text" class="form-control" name="buyer_address" placeholder="" value="{{ $channel_obj->buyer_address }}">
+                                            <input type="text" class="form-control required-inp" name="buyer_address" placeholder="" value="{{ $channel_obj->buyer_address }}">
                                         </td>
                                         <th scope="col" style="">메모</th>
                                         <td colspan="5">
-                                            <input type="text" class="form-control" name="buyer_memo" placeholder="" value="{{ $channel_obj->buyer_memo }}">
+                                            <input type="text" class="form-control required-inp" name="buyer_memo" placeholder="" value="{{ $channel_obj->buyer_memo }}">
                                         </td>
                                     </tr>
                                     <tr>
@@ -272,19 +272,24 @@
                                         <th scope="col" colspan="2">채널 가격</th>
                                     </tr>
                                     @foreach ($channel_obj->details as $detail)
-                                        @foreach ($data->w_options as $key => $wOption)
+                                        @foreach ($data->w_options as $wOption)
+                                            @php
+                                                $key = 0;
+                                            @endphp
                                             @if( $detail->option_id == $wOption->option->id )
                                                 @php
                                                     $sku_img_url = "/assets/img/no_img.png";
                                                     if( isset($wOption->option->sku_img_url) && $wOption->option->sku_img_url ){
                                                         $sku_img_url = $wOption->option->sku_img_url;
                                                     }
+
+                                                    $key++;
                                                 @endphp
                                                 <tr>
                                                     <td class="text-center">
-                                                        <input class="form-check-input chk-inp" type="checkbox" channel_order_id={{ $channel_obj->channel_order_id}} value="{{ $detail->option_id }}">
+                                                        <input class="form-check-input chk-inp" type="checkbox" checked channel_order_id={{ $channel_obj->channel_order_id}} value="{{ $detail->option_id }}">
                                                     </td>
-                                                    <td>{{ $key+1 }}</td>
+                                                    <td>{{ $key }}</td>
                                                     <td><img class="lazy-img preview-image" width="50" height="50" src="{{ $sku_img_url }}"></td>
                                                     <td colspan="8">{{ $wOption->option->option_name_kr }}</td>
                                                     <td>
@@ -322,18 +327,156 @@
         options = JSON.parse(options);
         console.log(options);
 
-        $('.chk-inp').click(function(){
+        $(document).on("click", '.chk-inp', function(){
             let option_id = $(this).val();
             let checked = $(this).is(":checked");
             
             $(`.chk-inp[value=${option_id}]`).prop("checked", checked);
         });
 
+        $(".btn-save").click(function(){
+            let validate = true;
+            $(".required-inp").each(function(){
+                if($(this).val().trim() == ""){
+                    alert("빈 값없이 입력해주세요.");
+                    validate = false;
+                    $(this).focus();
+                    return false;
+                }
+            });
+
+            if( !validate ) return false;
+
+            let payload = {
+                "order_id": "{{ $data->order_id }}",
+                "change_channels": [],
+                "add_channels": []
+            };
+            let optValid = true;
+            $(".channelTable").each(function(ele){
+                if (!optValid) return false;
+
+                let channelData = {
+                    channel_order_id: $(this).attr("channel_order_id"),
+                    options: []
+                };
+
+                $(this).find('input').each(function() {
+                    if ($(this).hasClass('chk-inp') && this.checked) {
+                        let tr_row            = $(this).closest("tr");
+                        let quantityInput     = $(tr_row).find('input[name=quantity]');
+                        let channelPriceInput = $(tr_row).find('input[name=channel_price]');
+                        let quantity          = quantityInput.val();
+                        let channel_price     = channelPriceInput.val();
+
+                        if (!quantity || quantity.trim() === "") {
+                            alert("수량을 입력해주세요.");
+                            quantityInput.focus();
+                            optValid = false;
+                            return false;
+                        }
+
+                        if (!channel_price || channel_price.trim() === "") {
+                            alert("채널 가격을 입력해주세요.");
+                            channelPriceInput.focus();
+                            optValid = false;
+                            return false;
+                        }
+
+                        channelData.options.push({
+                            "opt_id"       : $(this).val(),
+                            "quantity"     : quantity,
+                            "channel_price": channel_price
+                        });
+                    } else if($(this).hasClass("required-inp")){
+                        channelData[$(this).attr('name')] = $(this).val();
+                    }
+                });
+
+                if (!optValid) {
+                    return false;
+                }
+
+                payload.change_channels.push(channelData);
+            });
+            if( !optValid ) return false;
+
+            let optValid2 = true;
+            $(".channelAddTable").each(function(ele){
+                if (!optValid2) return false;
+
+                let channelData = {
+                    channel_order_id: $(this).attr("channel_order_id"),
+                    options: []
+                };
+
+                $(this).find('input').each(function() {
+                    if ($(this).hasClass('chk-inp') && this.checked) {
+                        let tr_row            = $(this).closest("tr");
+                        let quantityInput     = $(tr_row).find('input[name=quantity]');
+                        let channelPriceInput = $(tr_row).find('input[name=channel_price]');
+                        let quantity          = quantityInput.val();
+                        let channel_price     = channelPriceInput.val();
+
+                        if (!quantity || quantity.trim() === "") {
+                            alert("수량을 입력해주세요.");
+                            quantityInput.focus();
+                            optValid2 = false;
+                            return false;
+                        }
+
+                        if (!channel_price || channel_price.trim() === "") {
+                            alert("채널 가격을 입력해주세요.");
+                            channelPriceInput.focus();
+                            optValid2 = false;
+                            return false;
+                        }
+
+                        channelData.options.push({
+                            "opt_id"       : $(this).val(),
+                            "quantity"     : quantity,
+                            "channel_price": channel_price
+                        });
+                    } else if($(this).hasClass("required-inp")){
+                        channelData[$(this).attr('name')] = $(this).val();
+                    }
+                });
+
+                if (!optValid2) {
+                    return false;
+                }
+
+                payload.add_channels.push(channelData);
+            });
+            if( !optValid2 ) return false;
+
+
+            $.ajax({
+                "headers" : {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
+                "type"    : "POST",
+                "url"     : `/api/w/order/logistics/${orderId}`,
+                "data"    : payload,
+                beforeSend: function () {
+                    // $("#loadingOverlay").show();
+                },
+                complete: function () {
+                    // $("#loadingOverlay").hide();
+                },
+                success: function (resp) {
+                    console.log(resp);
+                },
+                error: function error(request, status, _error) {
+                    let { error } = JSON.parse(request.responseText);
+                    alert(error.message);
+                }
+            });
+        });
+
         $(".btn-add").click(function(){
             let channelTableHtml = 
             `
                 <div class="text-center mt-3 channelAddTableDiv">
-                    <table class="table table-bordered channelTable">
+                    <table class="table table-bordered channelAddTable">
                         <thead>
                             <tr>
                                 <th colspan="14">
@@ -345,41 +488,41 @@
                             <tr>
                                 <th scope="col" style="">채널 주문번호</th>
                                 <td colspan="3">
-                                    <input type="text" class="form-control" name="channel_order_id" placeholder="" value="">
+                                    <input type="text" class="form-control required-inp" name="channel_order_id" placeholder="" value="">
                                 </td>
                                 <th scope="col" style="">배송비</th>
                                 <td>
-                                    <input type="number" class="form-control" name="delivery_price" placeholder="" value="">
+                                    <input type="number" class="form-control required-inp" name="delivery_price" placeholder="" value="">
                                 </td>
                                 <th scope="col" style="">구매자</th>
                                 <td>
-                                    <input type="text" class="form-control" name="buyer_name" placeholder="" value="">
+                                    <input type="text" class="form-control required-inp" name="buyer_name" placeholder="" value="">
                                 </td>
                                 <th scope="col" style="">통관부호</th>
                                 <td>
-                                    <input type="text" class="form-control" name="buyer_clearance_number" placeholder="" value="">
+                                    <input type="text" class="form-control required-inp" name="buyer_clearance_number" placeholder="" value="">
                                 </td>
                                 <th scope="col" style="">연락처1</th>
                                 <td>
-                                    <input type="text" class="form-control" name="buyer_number" placeholder="" value="">
+                                    <input type="text" class="form-control required-inp" name="buyer_number" placeholder="" value="">
                                 </td>
                                 <th scope="col" style="">연락처2</th>
                                 <td>
-                                    <input type="text" class="form-control" name="buyer_phone" placeholder="" value="">
+                                    <input type="text" class="form-control required-inp" name="buyer_phone" placeholder="" value="">
                                 </td>
                             </tr>
                             <tr>
                                 <th scope="col" style="">우편번호</th>
                                 <td>
-                                    <input type="text" class="form-control" name="buyer_zipcode" placeholder="" value="">
+                                    <input type="text" class="form-control required-inp" name="buyer_zipcode" placeholder="" value="">
                                 </td>
                                 <th scope="col" style="">주소</th>
                                 <td colspan="5">
-                                    <input type="text" class="form-control" name="buyer_address" placeholder="" value="">
+                                    <input type="text" class="form-control required-inp" name="buyer_address" placeholder="" value="">
                                 </td>
                                 <th scope="col" style="">메모</th>
                                 <td colspan="5">
-                                    <input type="text" class="form-control" name="buyer_memo" placeholder="" value="">
+                                    <input type="text" class="form-control required-inp" name="buyer_memo" placeholder="" value="">
                                 </td>
                             </tr>
                             <tr>
@@ -397,10 +540,12 @@
                 if( ele.option.sku_img_url ){
                     sku_img_url = ele.option.sku_img_url;
                 }
+                let checked = $(`.chk-inp[value=${ele.option.id}]`).is(":checked") ? "checked" : "";
+
                 channelTableHtml += `
                     <tr>
                         <td class="text-center">
-                            <input class="form-check-input chk-inp" type="checkbox" value="${ele.option.option_id}">
+                            <input class="form-check-input chk-inp" ${checked} type="checkbox" value="${ele.option.id}">
                         </td>
                         <td>${key+1}</td>
                         <td><img class="lazy-img preview-image" width="50" height="50" src="${sku_img_url}"></td>
@@ -435,7 +580,7 @@
             } else {
                 return alert("삭제할 채널 추가 주문 정보가 없습니다.");
             }
-        })
+        });
 
     })
 </script>
