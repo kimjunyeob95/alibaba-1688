@@ -27,6 +27,8 @@ class OrderProductDto extends Vo
     protected int $sku_id = 0;
     /** 제품상태 */
     protected string $status = "";
+    /** 환불상태 */
+    protected string $refund_status = "";
     /** 하위 항목 ID */
     protected int $sub_item_id = 0;
     /** 단위 */
@@ -62,6 +64,7 @@ class OrderProductDto extends Vo
         $this->refund               = $data["refund"] ?? 0.0;
         $this->sku_id               = $data["skuID"] ?? 0;
         $this->status               = $data["status"] ?? "";
+        $this->refund_status        = $data["refundStatus"] ?? "";
         $this->sub_item_id          = $data["subItemID"] ?? 0;
         $this->unit                 = $data["unit"] ?? "";
         $this->entry_discount       = $data["entryDiscount"] ?? 0.0;
