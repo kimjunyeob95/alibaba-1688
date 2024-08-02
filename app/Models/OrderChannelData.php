@@ -11,9 +11,10 @@ class OrderChannelData extends Model
     use HasFactory;
     use SoftDeletes;
 
-    protected $table      = 'order_channel_datas';
-    protected $guarded    = [];
-    protected $fillable   = [];
+    protected $table          = 'order_channel_datas';
+    protected $guarded        = [];
+    protected $fillable       = [];
+    protected $cascadeDeletes = ['order_channel_detail_datas'];
 
     public function details()
     {

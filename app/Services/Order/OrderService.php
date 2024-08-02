@@ -123,4 +123,27 @@ class OrderService
    {
       return $this->orderAbstract->orderCancel($orderId);
    }
+
+   /**
+    * @func orderInfoChannelUpdate
+    * @description 'WApp 주문 채널정보 업데이트'
+    * @param array $params
+    * @return array
+   */
+   public function orderInfoChannelUpdate(array $params): array
+   {
+      return $this->orderAbstract->orderInfoChannelUpdate($params);
+   }
+
+   /**
+    * @func orderInfoChannelDelete
+    * @description 'WApp 주문 채널정보 삭제'
+    * @param string $orderId
+    * @param string $channelOrderId
+    * @return array
+   */
+   public function orderInfoChannelDelete(string $orderId, string $channelOrderId): array
+   {
+      return $this->orderAbstract->orderInfoChannelDelete($orderId, $channelOrderId);
+   }
 }

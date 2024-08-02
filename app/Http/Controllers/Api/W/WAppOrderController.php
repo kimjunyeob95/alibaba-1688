@@ -202,38 +202,62 @@ class WAppOrderController extends Controller
                 'change_channels.*.buyer_phone'            => 'required|string',
                 'change_channels.*.buyer_zipcode'          => 'required|string',
                 'change_channels.*.channel_order_id'       => 'required|string',
-                'change_channels.*.delivery_price'         => 'required|string',
+                'change_channels.*.delivery_price'         => 'required|int',
             ], [
                 'order_id.required'                                 => OrderErrorMessageConstant::getNotHaveErrorMessage("ORDER_ID"),
                 'change_channels.required'                          => OrderErrorMessageConstant::getNotHaveErrorMessage("CHANGE_CHANNELS"),
-                'change_channels.*.buyer_address.required'          => OrderErrorMessageConstant::getNotHaveErrorMessage("BUYER_CLEARANCE_NUMBER"),
-                'change_channels.*.buyer_clearance_number.required' => OrderErrorMessageConstant::getNotHaveErrorMessage("DELIVERY_PRICE"),
+                'change_channels.*.buyer_address.required'          => OrderErrorMessageConstant::getNotHaveErrorMessage("BUYER_ADDRESS"),
+                'change_channels.*.buyer_clearance_number.required' => OrderErrorMessageConstant::getNotHaveErrorMessage("BUYER_CLEARANCE_NUMBER"),
                 'change_channels.*.buyer_memo.required'             => OrderErrorMessageConstant::getNotHaveErrorMessage("BUYER_MEMO"),
-                'change_channels.*.buyer_name.required'             => OrderErrorMessageConstant::getNotHaveErrorMessage("DELIVERY_PRICE"),
-                'change_channels.*.buyer_number.required'           => OrderErrorMessageConstant::getNotHaveErrorMessage("DELIVERY_PRICE"),
-                'change_channels.*.buyer_phone.required'            => OrderErrorMessageConstant::getNotHaveErrorMessage("DELIVERY_PRICE"),
-                'change_channels.*.buyer_zipcode.required'          => OrderErrorMessageConstant::getNotHaveErrorMessage("DELIVERY_PRICE"),
-                'change_channels.*.channel_order_id.required'       => OrderErrorMessageConstant::getNotHaveErrorMessage("DELIVERY_PRICE"),
+                'change_channels.*.buyer_name.required'             => OrderErrorMessageConstant::getNotHaveErrorMessage("BUYER_NAME"),
+                'change_channels.*.buyer_number.required'           => OrderErrorMessageConstant::getNotHaveErrorMessage("BUYER_NUMBER"),
+                'change_channels.*.buyer_phone.required'            => OrderErrorMessageConstant::getNotHaveErrorMessage("BUYER_PHONE"),
+                'change_channels.*.buyer_zipcode.required'          => OrderErrorMessageConstant::getNotHaveErrorMessage("BUYER_ZIPCODE"),
+                'change_channels.*.channel_order_id.required'       => OrderErrorMessageConstant::getNotHaveErrorMessage("CHANNEL_ORDER_ID"),
                 'change_channels.*.delivery_price.required'         => OrderErrorMessageConstant::getNotHaveErrorMessage("DELIVERY_PRICE"),
-
-                'orderId.required'              => OrderErrorMessageConstant::getNotHaveErrorMessage("ORDER_ID"),
-                'channelPrices.required'        => OrderErrorMessageConstant::getNotHaveErrorMessage("CHANNEL_PRICES"),
-                'orderChannel.required'         => OrderErrorMessageConstant::getNotHaveErrorMessage("ORDER_CHANNEL"),
-                'channelOrderId.required'       => OrderErrorMessageConstant::getNotHaveErrorMessage("CHANNEL_ORDER_ID"),
-                'deliveryPrice.required'        => OrderErrorMessageConstant::getNotHaveErrorMessage("DELIVERY_PRICE"),
-                'buyerName.required'            => OrderErrorMessageConstant::getNotHaveErrorMessage("BUYER_NAME"),
-                'buyerClearanceNumber.required' => OrderErrorMessageConstant::getNotHaveErrorMessage("BUYER_CLEARANCE_NUMBER"),
-                'buyerNumber.required'          => OrderErrorMessageConstant::getNotHaveErrorMessage("BUYER_NUMBER"),
-                'buyerPhone.required'           => OrderErrorMessageConstant::getNotHaveErrorMessage("BUYER_PHONE"),
-                'buyerAddress.required'         => OrderErrorMessageConstant::getNotHaveErrorMessage("BUYER_ADDRESS"),
-                'buyerZipcode.required'         => OrderErrorMessageConstant::getNotHaveErrorMessage("BUYER_ZIPCODE"),
-                'buyerMemo.required'            => OrderErrorMessageConstant::getNotHaveErrorMessage("BUYER_MEMO"),
             ]);
             if ($validator->fails()) {
                 throw new Exception($validator->errors()->first());
             }
 
-            $result = $this->orderService->orderInfoUpdate($this->request->all());
+            $params = [
+                "order_id"        => $this->request->post("order_id"),
+                "change_channels" => $this->request->post("change_channels"),
+                "add_channels"    => $this->request->post("add_channels", []),
+            ];
+
+            $result = $this->orderService->orderInfoChannelUpdate($params);
+            if( $result["isSuccess"] == true ){
+                return helpers_json_response(HttpConstant::OK, $result);
+            } else {
+                return helpers_json_response(HttpConstant::BAD_REQUEST, [], $result["msg"]);
+            }
+          
+
+            return helpers_json_response(HttpConstant::OK, helpers_success_message([], "주문 업데이트 요청 완료"));
+        } catch (Exception $e) {
+            return helpers_json_response(HttpConstant::BAD_REQUEST, [], $e->getMessage());
+        }
+    }
+
+    public function orderInfoChannelDelete(): JsonResponse
+    {
+        try {
+            $validator = Validator::make($this->request->all(), [
+                'order_id'         => 'required|string',
+                'channel_order_id' => 'required|string',
+            ], [
+                'order_id.required'         => OrderErrorMessageConstant::getNotHaveErrorMessage("ORDER_ID"),
+                'channel_order_id.required' => OrderErrorMessageConstant::getNotHaveErrorMessage("CHANNEL_ORDER_ID"),
+            ]);
+            if ($validator->fails()) {
+                throw new Exception($validator->errors()->first());
+            }
+
+            $orderId        = $this->request->post("order_id");
+            $channelOrderId = $this->request->post("channel_order_id");
+
+            $result = $this->orderService->orderInfoChannelDelete($orderId, $channelOrderId);
             if( $result["isSuccess"] == true ){
                 return helpers_json_response(HttpConstant::OK, $result);
             } else {

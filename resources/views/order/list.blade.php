@@ -282,7 +282,7 @@
                                         <div class="d-flex flex-column gap-2">
                                             {{-- <button class="btn btn-sm btn-success btn-update text-white" orderid={{ $data->order_id }}>주문 업데이트</button> --}}
                                             {{-- <button class="btn btn-sm btn-success btn-detail text-white" orderid={{ $data->order_id }}>주문 상세정보(W api)</button> --}}
-                                            <button class="btn btn-sm btn-success btn-wapp-detail text-white" orderid={{ $data->order_id }}>주문 상세정보</button>
+                                            <button class="btn btn-sm btn-success btn-wapp-detail text-white" orderid={{ $data->order_id }}>주문 상세/수정</button>
                                             @if ($data->status == OrderConstant::STATUS_WAITBUYERPAY)
                                                 <button class="btn btn-sm btn-danger btn-cancel text-white" orderid={{ $data->order_id }}>주문취소</button>
                                                 <button class="btn btn-sm btn-dark btn-pay text-white" orderid={{ $data->order_id }}>결제하기</button>

@@ -106,7 +106,7 @@
                                     </td>
                                 </tr>
                                 <tr class="opt-tr">
-                                    <th scope="col" style="width: 10%">구분</th>
+                                    <th scope="col" style="width: 10%">옵션ID</th>
                                     <th scope="col" style="width: 10%">옵션 이미지</th>
                                     <th scope="col" style="" colspan="2">옵션명</th>
                                     <th scope="col" style="width: 10%">구매 수량</th>
@@ -119,7 +119,7 @@
                                     $total_quantity      = 0;
                                     $total_item_amount   = 0;
                                 @endphp
-                                @foreach ($data->w_options as $key => $wOption)
+                                @foreach ($data->w_options as $wOption)
                                     @php
                                         $sku_img_url = "/assets/img/no_img.png";
                                         if( isset($wOption->option->sku_img_url) && $wOption->option->sku_img_url ){
@@ -140,7 +140,7 @@
                                         $total_item_amount += $wOption->item_amount;
                                     @endphp
                                     <tr class="opt-tr-child">
-                                        <td>{{ $key+1 }}</td>
+                                        <td>{{ $wOption->option->id }}</td>
                                         <td>
                                             <img class="lazy-img preview-image" width="50" height="50" src="{{ $sku_img_url }}">
                                         </td>
@@ -212,13 +212,37 @@
                         </table>
                     </div>
 
+                    <div class="text-center div-trace" style="display: none">
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th colspan="2">추적정보</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="trace-tr">
+                                    <th scope="col" style="width: 80%">내용</th>
+                                    <th scope="col" style="width: 50%">처리시간</th>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
                     @foreach ($data->channel_objs as $key => $channel_obj)
                         <div class="text-center mt-3 channelTableDiv">
                             <table class="table table-bordered channelTable" channel_order_id="{{ $channel_obj->channel_order_id }}">
                                 <thead>
                                     <tr>
                                         <th colspan="14">
-                                            채널 기본 주문 정보
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <div style="width: 33.33%"></div>
+                                                <div style="width: 33.33%" class="text-center">
+                                                    채널 기본 주문 정보
+                                                </div>
+                                                <div style="width: 33.33%" class="text-end">
+                                                    <button class="btn btn-danger text-white btn-channel-remove btn-md" channel_order_id="{{ $channel_obj->channel_order_id }}">채널 주문 삭제</button>
+                                                </div>
+                                            </div>
                                         </th>
                                     </tr>
                                 </thead>
@@ -265,14 +289,14 @@
                                     </tr>
                                     <tr>
                                         <th scope="col">저장여부</th>
-                                        <th scope="col">구분</th>
+                                        <th scope="col">옵션ID</th>
                                         <th scope="col">옵션 이미지</th>
                                         <th scope="col" colspan="8">옵션명</th>
                                         <th scope="col">수량</th>
                                         <th scope="col" colspan="2">채널 가격</th>
                                     </tr>
-                                    @foreach ($channel_obj->details as $detail)
-                                        @foreach ($data->w_options as $wOption)
+                                    @foreach ($data->w_options as $wOption)
+                                        @foreach ($channel_obj->details as $detail)
                                             @php
                                                 $key = 0;
                                             @endphp
@@ -289,7 +313,7 @@
                                                     <td class="text-center">
                                                         <input class="form-check-input chk-inp" type="checkbox" checked channel_order_id={{ $channel_obj->channel_order_id}} value="{{ $detail->option_id }}">
                                                     </td>
-                                                    <td>{{ $key }}</td>
+                                                    <td>{{ $detail->option_id }}</td>
                                                     <td><img class="lazy-img preview-image" width="50" height="50" src="{{ $sku_img_url }}"></td>
                                                     <td colspan="8">{{ $wOption->option->option_name_kr }}</td>
                                                     <td>
@@ -320,269 +344,344 @@
         </div>
 
     </div>
-<script type="text/javascript">
 
-    $(document).ready(function(){
-        var options = '{!! json_encode($data->w_options) !!}';
-        options = JSON.parse(options);
-        console.log(options);
+    <script type="text/javascript">
 
-        $(document).on("click", '.chk-inp', function(){
-            let option_id = $(this).val();
-            let checked = $(this).is(":checked");
-            
-            $(`.chk-inp[value=${option_id}]`).prop("checked", checked);
-        });
+        $(document).ready(function(){
 
-        $(".btn-save").click(function(){
-            let validate = true;
-            $(".required-inp").each(function(){
-                if($(this).val().trim() == ""){
-                    alert("빈 값없이 입력해주세요.");
-                    validate = false;
-                    $(this).focus();
-                    return false;
+            var options = '{!! json_encode($data->w_options) !!}';
+            options = JSON.parse(options);
+
+            var order_id = "{{ $data->order_id }}";
+
+            $(document).on("click", '.chk-inp', function(){
+                let option_id = $(this).val();
+                let checked   = $(this).is(":checked");
+                
+                $(`.chk-inp[value=${option_id}]`).prop("checked", checked);
+            });
+
+            $('.btn-trace-delivery-cn').click(function(){
+                $.ajax({
+                    "headers"    : {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
+                    "type"       : "GET",
+                    "url"        : `/api/w/order/logistics/${order_id}`,
+                    "data"       : {},
+                    beforeSend: function () {
+                        $('.trace-tr').nextAll().remove();
+                        $("#loadingOverlay").show();
+                    },
+                    complete: function () {
+                        $("#loadingOverlay").hide();
+                    },
+                    success: function (resp) {
+                        if( resp.data?.length > 0 ){
+                            resp.data.forEach(function(ele) {
+                                ele.logisticsSteps.forEach(function(step) {
+                                    $('.trace-tr').after(`
+                                        <tr>
+                                            <td>${step.remark}</td>
+                                            <td>${step.acceptTime}</td>
+                                        </tr>
+                                    `);
+                                });
+                            });
+
+                            $('.div-trace').show();
+                        } else {
+                            return alert("추적 데이터가 없습니다.");
+                        }
+                    },
+                    error: function error(request, status, _error) {
+                        let { error } = JSON.parse(request.responseText);
+                        alert(error.message);
+                    }
+                });
+            });
+
+            $(".btn-channel-remove").click(function(){
+                let channel_order_id = $(this).attr("channel_order_id");
+
+                if( confirm("해당 채널 정보를 삭제하시겠습니까?") ){
+                    $.ajax({
+                        "headers" : {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
+                        "type"    : "delete",
+                        "url"     : "{{ route('w.order.orderInfoChannelDelete') }}",
+                        "data"    : {
+                            order_id        : order_id,
+                            channel_order_id: channel_order_id
+                        },
+                        beforeSend: function () {
+                            $("#loadingOverlay").show();
+                        },
+                        complete: function () {
+                            $("#loadingOverlay").hide();
+                        },
+                        success: function (resp) {
+                            alert(resp.msg);
+                            location.reload();
+                        },
+                        error: function error(request, status, _error) {
+                            let { error } = JSON.parse(request.responseText);
+                            alert(error.message);
+                        }
+                    });
                 }
             });
 
-            if( !validate ) return false;
-
-            let payload = {
-                "order_id": "{{ $data->order_id }}",
-                "change_channels": [],
-                "add_channels": []
-            };
-            let optValid = true;
-            $(".channelTable").each(function(ele){
-                if (!optValid) return false;
-
-                let channelData = {
-                    channel_order_id: $(this).attr("channel_order_id"),
-                    options: []
-                };
-
-                $(this).find('input').each(function() {
-                    if ($(this).hasClass('chk-inp') && this.checked) {
-                        let tr_row            = $(this).closest("tr");
-                        let quantityInput     = $(tr_row).find('input[name=quantity]');
-                        let channelPriceInput = $(tr_row).find('input[name=channel_price]');
-                        let quantity          = quantityInput.val();
-                        let channel_price     = channelPriceInput.val();
-
-                        if (!quantity || quantity.trim() === "") {
-                            alert("수량을 입력해주세요.");
-                            quantityInput.focus();
-                            optValid = false;
-                            return false;
-                        }
-
-                        if (!channel_price || channel_price.trim() === "") {
-                            alert("채널 가격을 입력해주세요.");
-                            channelPriceInput.focus();
-                            optValid = false;
-                            return false;
-                        }
-
-                        channelData.options.push({
-                            "opt_id"       : $(this).val(),
-                            "quantity"     : quantity,
-                            "channel_price": channel_price
-                        });
-                    } else if($(this).hasClass("required-inp")){
-                        channelData[$(this).attr('name')] = $(this).val();
+            $(".btn-save").click(function(){
+                let validate = true;
+                $(".required-inp").each(function(){
+                    if($(this).val().trim() == ""){
+                        alert("빈 값없이 입력해주세요.");
+                        validate = false;
+                        $(this).focus();
+                        return false;
                     }
                 });
 
-                if (!optValid) {
-                    return false;
-                }
+                if( !validate ) return false;
 
-                payload.change_channels.push(channelData);
-            });
-            if( !optValid ) return false;
-
-            let optValid2 = true;
-            $(".channelAddTable").each(function(ele){
-                if (!optValid2) return false;
-
-                let channelData = {
-                    channel_order_id: $(this).attr("channel_order_id"),
-                    options: []
+                let payload = {
+                    "order_id"       : order_id,
+                    "change_channels": [],
+                    "add_channels"   : []
                 };
+                let optValid = true;
+                $(".channelTable").each(function(ele){
+                    if (!optValid) return false;
 
-                $(this).find('input').each(function() {
-                    if ($(this).hasClass('chk-inp') && this.checked) {
-                        let tr_row            = $(this).closest("tr");
-                        let quantityInput     = $(tr_row).find('input[name=quantity]');
-                        let channelPriceInput = $(tr_row).find('input[name=channel_price]');
-                        let quantity          = quantityInput.val();
-                        let channel_price     = channelPriceInput.val();
+                    let channelData = {
+                        channel_order_id: $(this).attr("channel_order_id"),
+                        options: []
+                    };
 
-                        if (!quantity || quantity.trim() === "") {
-                            alert("수량을 입력해주세요.");
-                            quantityInput.focus();
-                            optValid2 = false;
-                            return false;
+                    $(this).find('input').each(function() {
+                        if ($(this).hasClass('chk-inp') && this.checked) {
+                            let tr_row            = $(this).closest("tr");
+                            let quantityInput     = $(tr_row).find('input[name=quantity]');
+                            let channelPriceInput = $(tr_row).find('input[name=channel_price]');
+                            let quantity          = Number(quantityInput.val());
+                            let channel_price     = Number(channelPriceInput.val());
+
+                            if (quantity === "") {
+                                alert("수량을 입력해주세요.");
+                                quantityInput.focus();
+                                optValid = false;
+                                return false;
+                            }
+
+                            if ( quantity != 0 && channelPriceInput.val().trim() == "" ) {
+                                alert("채널 가격을 입력해주세요.");
+                                channelPriceInput.focus();
+                                optValid = false;
+                                return false;
+                            }
+
+                            channelData.options.push({
+                                "opt_id"       : $(this).val(),
+                                "quantity"     : quantity,
+                                "channel_price": channel_price
+                            });
+                        } else if($(this).hasClass("required-inp")){
+                            channelData[$(this).attr('name')] = $(this).val();
                         }
+                    });
 
-                        if (!channel_price || channel_price.trim() === "") {
-                            alert("채널 가격을 입력해주세요.");
-                            channelPriceInput.focus();
-                            optValid2 = false;
-                            return false;
-                        }
-
-                        channelData.options.push({
-                            "opt_id"       : $(this).val(),
-                            "quantity"     : quantity,
-                            "channel_price": channel_price
-                        });
-                    } else if($(this).hasClass("required-inp")){
-                        channelData[$(this).attr('name')] = $(this).val();
+                    if (!optValid) {
+                        return false;
                     }
+
+                    payload.change_channels.push(channelData);
                 });
+                if( !optValid ) return false;
 
-                if (!optValid2) {
-                    return false;
+                let optValid2 = true;
+                $(".channelAddTable").each(function(ele){
+                    if (!optValid2) return false;
+
+                    let channelData = {
+                        channel_order_id: $(this).attr("channel_order_id"),
+                        options: []
+                    };
+
+                    $(this).find('input').each(function() {
+                        if ($(this).hasClass('chk-inp') && this.checked) {
+                            let tr_row            = $(this).closest("tr");
+                            let quantityInput     = $(tr_row).find('input[name=quantity]');
+                            let channelPriceInput = $(tr_row).find('input[name=channel_price]');
+                            let quantity          = Number(quantityInput.val());
+                            let channel_price     = Number(channelPriceInput.val());
+
+                            if ( quantity === "" ) {
+                                alert("수량을 입력해주세요.");
+                                quantityInput.focus();
+                                optValid2 = false;
+                                return false;
+                            }
+
+                            if ( quantity != 0 && channelPriceInput.val().trim() === "" ) {
+                                alert("채널 가격을 입력해주세요.");
+                                channelPriceInput.focus();
+                                optValid2 = false;
+                                return false;
+                            }
+
+                            if( quantity != 0 ){
+                                channelData.options.push({
+                                    "opt_id"       : $(this).val(),
+                                    "quantity"     : quantity,
+                                    "channel_price": channel_price
+                                });
+                            }
+                        } else if($(this).hasClass("required-inp")){
+                            channelData[$(this).attr('name')] = $(this).val();
+                        }
+                    });
+
+                    if (!optValid2) {
+                        return false;
+                    }
+
+                    payload.add_channels.push(channelData);
+                });
+                if( !optValid2 ) return false;
+
+                if( confirm("주문을 저장하시겠습니까?") ){
+                    $.ajax({
+                        "headers" : {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
+                        "type"    : "patch",
+                        "url"     : "{{ route('w.order.orderInfoChannelUpdate') }}",
+                        "data"    : payload,
+                        beforeSend: function () {
+                            $("#loadingOverlay").show();
+                        },
+                        complete: function () {
+                            $("#loadingOverlay").hide();
+                        },
+                        success: function (resp) {
+                            alert(resp.msg);
+                            location.reload();
+                        },
+                        error: function error(request, status, _error) {
+                            let { error } = JSON.parse(request.responseText);
+                            alert(error.message);
+                        }
+                    });
                 }
-
-                payload.add_channels.push(channelData);
             });
-            if( !optValid2 ) return false;
 
-
-            $.ajax({
-                "headers" : {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
-                "type"    : "POST",
-                "url"     : `/api/w/order/logistics/${orderId}`,
-                "data"    : payload,
-                beforeSend: function () {
-                    // $("#loadingOverlay").show();
-                },
-                complete: function () {
-                    // $("#loadingOverlay").hide();
-                },
-                success: function (resp) {
-                    console.log(resp);
-                },
-                error: function error(request, status, _error) {
-                    let { error } = JSON.parse(request.responseText);
-                    alert(error.message);
-                }
-            });
-        });
-
-        $(".btn-add").click(function(){
-            let channelTableHtml = 
-            `
-                <div class="text-center mt-3 channelAddTableDiv">
-                    <table class="table table-bordered channelAddTable">
-                        <thead>
-                            <tr>
-                                <th colspan="14">
-                                    채널 추가 주문 정보
-                                </th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <th scope="col" style="">채널 주문번호</th>
-                                <td colspan="3">
-                                    <input type="text" class="form-control required-inp" name="channel_order_id" placeholder="" value="">
-                                </td>
-                                <th scope="col" style="">배송비</th>
-                                <td>
-                                    <input type="number" class="form-control required-inp" name="delivery_price" placeholder="" value="">
-                                </td>
-                                <th scope="col" style="">구매자</th>
-                                <td>
-                                    <input type="text" class="form-control required-inp" name="buyer_name" placeholder="" value="">
-                                </td>
-                                <th scope="col" style="">통관부호</th>
-                                <td>
-                                    <input type="text" class="form-control required-inp" name="buyer_clearance_number" placeholder="" value="">
-                                </td>
-                                <th scope="col" style="">연락처1</th>
-                                <td>
-                                    <input type="text" class="form-control required-inp" name="buyer_number" placeholder="" value="">
-                                </td>
-                                <th scope="col" style="">연락처2</th>
-                                <td>
-                                    <input type="text" class="form-control required-inp" name="buyer_phone" placeholder="" value="">
-                                </td>
-                            </tr>
-                            <tr>
-                                <th scope="col" style="">우편번호</th>
-                                <td>
-                                    <input type="text" class="form-control required-inp" name="buyer_zipcode" placeholder="" value="">
-                                </td>
-                                <th scope="col" style="">주소</th>
-                                <td colspan="5">
-                                    <input type="text" class="form-control required-inp" name="buyer_address" placeholder="" value="">
-                                </td>
-                                <th scope="col" style="">메모</th>
-                                <td colspan="5">
-                                    <input type="text" class="form-control required-inp" name="buyer_memo" placeholder="" value="">
-                                </td>
-                            </tr>
-                            <tr>
-                                <th scope="col">저장여부</th>
-                                <th scope="col">구분</th>
-                                <th scope="col">옵션 이미지</th>
-                                <th scope="col" colspan="8">옵션명</th>
-                                <th scope="col">수량</th>
-                                <th scope="col" colspan="2">채널 가격</th>
-                            </tr>
-            `;
-
-            options.map(function(ele, key) {
-                let sku_img_url = "/assets/img/no_img.png";
-                if( ele.option.sku_img_url ){
-                    sku_img_url = ele.option.sku_img_url;
-                }
-                let checked = $(`.chk-inp[value=${ele.option.id}]`).is(":checked") ? "checked" : "";
-
-                channelTableHtml += `
-                    <tr>
-                        <td class="text-center">
-                            <input class="form-check-input chk-inp" ${checked} type="checkbox" value="${ele.option.id}">
-                        </td>
-                        <td>${key+1}</td>
-                        <td><img class="lazy-img preview-image" width="50" height="50" src="${sku_img_url}"></td>
-                        <td colspan="8">${ele.option.option_name_kr}</td>
-                        <td>
-                            <input type="number" class="form-control" name="quantity" placeholder="" value="1">
-                        </td>
-                        <td colspan="2">
-                            <input type="number" class="form-control" name="channel_price" placeholder="" value="">
-                        </td>
-                    </tr>
+            $(".btn-add").click(function(){
+                let channelTableHtml = 
+                `
+                    <div class="text-center mt-3 channelAddTableDiv">
+                        <table class="table table-bordered channelAddTable">
+                            <thead>
+                                <tr>
+                                    <th colspan="14">
+                                        채널 추가 주문 정보
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <th scope="col" style="">채널 주문번호</th>
+                                    <td colspan="3">
+                                        <input type="text" class="form-control required-inp" name="channel_order_id" placeholder="" value="">
+                                    </td>
+                                    <th scope="col" style="">배송비</th>
+                                    <td>
+                                        <input type="number" class="form-control required-inp" name="delivery_price" placeholder="" value="">
+                                    </td>
+                                    <th scope="col" style="">구매자</th>
+                                    <td>
+                                        <input type="text" class="form-control required-inp" name="buyer_name" placeholder="" value="">
+                                    </td>
+                                    <th scope="col" style="">통관부호</th>
+                                    <td>
+                                        <input type="text" class="form-control required-inp" name="buyer_clearance_number" placeholder="" value="">
+                                    </td>
+                                    <th scope="col" style="">연락처1</th>
+                                    <td>
+                                        <input type="text" class="form-control required-inp" name="buyer_number" placeholder="" value="">
+                                    </td>
+                                    <th scope="col" style="">연락처2</th>
+                                    <td>
+                                        <input type="text" class="form-control required-inp" name="buyer_phone" placeholder="" value="">
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th scope="col" style="">우편번호</th>
+                                    <td>
+                                        <input type="text" class="form-control required-inp" name="buyer_zipcode" placeholder="" value="">
+                                    </td>
+                                    <th scope="col" style="">주소</th>
+                                    <td colspan="5">
+                                        <input type="text" class="form-control required-inp" name="buyer_address" placeholder="" value="">
+                                    </td>
+                                    <th scope="col" style="">메모</th>
+                                    <td colspan="5">
+                                        <input type="text" class="form-control required-inp" name="buyer_memo" placeholder="" value="">
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th scope="col">저장여부</th>
+                                    <th scope="col">옵션ID</th>
+                                    <th scope="col">옵션 이미지</th>
+                                    <th scope="col" colspan="8">옵션명</th>
+                                    <th scope="col">수량</th>
+                                    <th scope="col" colspan="2">채널 가격</th>
+                                </tr>
                 `;
+
+                options.map(function(ele, key) {
+                    let sku_img_url = "/assets/img/no_img.png";
+                    if( ele.option.sku_img_url ){
+                        sku_img_url = ele.option.sku_img_url;
+                    }
+                    let checked = $(`.chk-inp[value=${ele.option.id}]`).is(":checked") ? "checked" : "";
+
+                    channelTableHtml += `
+                        <tr>
+                            <td class="text-center">
+                                <input class="form-check-input chk-inp" ${checked} type="checkbox" value="${ele.option.id}">
+                            </td>
+                            <td>${ele.option.id}</td>
+                            <td><img class="lazy-img preview-image" width="50" height="50" src="${sku_img_url}"></td>
+                            <td colspan="8">${ele.option.option_name_kr}</td>
+                            <td>
+                                <input type="number" class="form-control" name="quantity" placeholder="" value="0">
+                            </td>
+                            <td colspan="2">
+                                <input type="number" class="form-control" name="channel_price" placeholder="" value="">
+                            </td>
+                        </tr>
+                    `;
+                });
+
+                channelTableHtml += 
+                `
+                        </tbody>
+                    </table>
+                </div>
+                `;
+
+                if( $('.channelAddTableDiv').length > 0 ){
+                    $(".channelAddTableDiv").last().after(channelTableHtml);
+                } else {
+                    $(".channelTableDiv").last().after(channelTableHtml);
+                }
             });
 
-            channelTableHtml += 
-            `
-                    </tbody>
-                </table>
-            </div>
-            `;
+            $('.btn-remove').click(function(){
+                if( $('.channelAddTableDiv').length > 0 ){
+                    $(".channelAddTableDiv").last().remove();
+                } else {
+                    return alert("삭제할 채널 추가 주문 정보가 없습니다.");
+                }
+            });
 
-            if( $('.channelAddTableDiv').length > 0 ){
-                $(".channelAddTableDiv").last().after(channelTableHtml);
-            } else {
-                $(".channelTableDiv").last().after(channelTableHtml);
-            }
-        });
-
-        $('.btn-remove').click(function(){
-            if( $('.channelAddTableDiv').length > 0 ){
-                $(".channelAddTableDiv").last().remove();
-            } else {
-                return alert("삭제할 채널 추가 주문 정보가 없습니다.");
-            }
-        });
-
-    })
-</script>
+        })
+    </script>
 
 @endsection
