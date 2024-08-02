@@ -98,7 +98,7 @@
                                     </td>
                                     <th>환불상태</th>
                                     <td colspan="3">
-                                        @if (isset($data->refund_status))
+                                        @if (isset($data->refund_status) && !empty($data->refund_status) )
                                             {{ OrderConstant::REFUND_STATUS[$data->refund_status] }}
                                         @else
                                             -
