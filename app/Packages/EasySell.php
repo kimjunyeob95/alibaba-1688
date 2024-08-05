@@ -532,7 +532,11 @@ class EasySell extends MallApiAbstract
                     $price    = calcEasySellSalePrice($option->price_1688, $option->md_price, $delivery_price, "static", EasySellConstant::TYPE_W);
                 }else if($type == EasySellConstant::TYPE_DROPHUB){
                     $optionNm = str_replace($replaceArr, $replacementArr ,$option->option_name_en);
-                    $price    = calcEasySellSalePrice($option->price_1688_option, $option->md_price, $delivery_price, "static", EasySellConstant::TYPE_DROPHUB);
+                    $price    = [
+                        "option_price" => $option->price_1688_option,
+                        "buyPrice"     => $option->price_1688_option,
+                        "salePrice"    => $option->price_1688_option,
+                    ];
                 }
 
                 if(!$idx){
