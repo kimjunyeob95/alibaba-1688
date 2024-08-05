@@ -46,6 +46,11 @@ class OrderErrorMessageConstant
     public const ERROR_MESSAGE_DELIVERY_PRICE         = "delivery_price";
     public const ERROR_MESSAGE_STATUS_WAITBUYERPAY    = "주문대기";
     public const ERROR_MESSAGE_CANCEL_API             = "주문 취소 API";
+    public const ERROR_MESSAGE_CHANGE_CHANNELS        = "change_channels";
+    public const ERROR_MESSAGE_ORDER_NOT_IN_OPTION_ID = "주문에 속하지 않은 옵션ID가 있습니다.";
+    public const ERROR_MESSAGE_ORDER_EQUAL_OPTION     = "주문에 속한 옵션 수량과 맞지 않습니다.";
+    public const ERROR_MESSAGE_ORDER_MIN_OPTION       = "주문에 속한 옵션 수량은 최소 1입니다.";
+    public const ERROR_MESSAGE_SAME_CHANNEL_ORDER_ID  = "중복된 채널주문번호가 있습니다.";
  
     public static function getErrorMessageNotDefault($constantName): string
     {
