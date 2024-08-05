@@ -471,6 +471,14 @@ class EasySell extends MallApiAbstract
                         $images[] = $imgObj->img_url_trans;
                     }
                 }
+
+                //배송비 설정
+                $weights   = CategoryConstant::WEIGHTS;
+                $weightObj = ProductWeightData::where("offer_id", $offerId)->first();
+                $delivery_price = ProductConstant::WEIGHT_STATUS_NONE_PRICE;
+                if( $weightObj != null ){
+                    $delivery_price = $weights[$weightObj->weight];
+                }
             }else if($type == EasySellConstant::TYPE_DROPHUB){
                 $ItemName    = $prdObj->prd_name_en;
                 $prdDesc     = $prdObj->prd_desc_en_origin;
@@ -483,6 +491,9 @@ class EasySell extends MallApiAbstract
                         $images[] = $imgObj->img_url_origin;
                     }
                 }
+
+                //드랍허브 배송비 무료
+                $delivery_price = 0;
             }
 
             if(count($images) < 1){
@@ -509,14 +520,6 @@ class EasySell extends MallApiAbstract
             $saleStatus = EasySellConstant::STATUS_STOP_SALE;
             if( $prdObj->status == ProductConstant::PRD_STATUS_PUBLISH ){
                 $saleStatus = EasySellConstant::STATUS_ON_SALE;
-            }
-
-            //배송비 설정
-            $weights   = CategoryConstant::WEIGHTS;
-            $weightObj = ProductWeightData::where("offer_id", $offerId)->first();
-            $delivery_price = ProductConstant::WEIGHT_STATUS_NONE_PRICE;
-            if( $weightObj != null ){
-                $delivery_price = $weights[$weightObj->weight];
             }
 
             //옵션 설정
