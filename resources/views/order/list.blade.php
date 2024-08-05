@@ -9,7 +9,10 @@
 
 @section('styles')
 <style>
-
+    .table th {
+        background-color: #ebedef;
+        color: #343a40;
+    }
 </style>
 @endsection
 
@@ -381,8 +384,9 @@
                                                     <table class="table">
                                                         <thead class="table-light">
                                                             <tr>
-                                                                <th scope="col" style="width: 80%">내용</th>
-                                                                <th scope="col" style="width: 50%">처리시간</th>
+                                                                <th scope="col" style="width: 10%">logisticsId</th>
+                                                                <th scope="col" style="width: 70%">내용</th>
+                                                                <th scope="col" style="width: 20%">처리시간</th>
                                                             </tr>
                                                         </thead>
                                                         <tbody class="trace-tbody">
@@ -495,11 +499,21 @@
                     if( resp.data?.length > 0 ){
                         $('.logstics-body .div-trace .trace-tbody').html("");
 
+                        let logisticsId = resp.data[0].logisticsId;
                         resp.data.map(function(ele, key) {
+                            if( logisticsId != ele.logisticsId ){
+                                $('.logstics-body .div-trace .trace-tbody').append(`
+                                    <tr style="height: 60px;" class="text-center">
+                                        <th colspan=3>
+                                        </th>
+                                    </tr>
+                                `);
+                            }
                             let logisticsSteps = ele.logisticsSteps;
                             logisticsSteps.map(function(ele2, key2) {
                                 $('.logstics-body .div-trace .trace-tbody').append(`
                                     <tr>
+                                        <td>${ele.logisticsId}</td>
                                         <td>${ele2.remark}</td>
                                         <td>${ele2.acceptTime}</td>
                                     </tr>
@@ -603,11 +617,23 @@
                 success: function (resp) {
                     if( resp.data?.length > 0 ){
                         $('#htmlModal2 .div-trace .trace-tbody').html("");
+                        let logisticsId = resp.data[0].logisticsId;
+
                         resp.data.map(function(ele, key) {
                             let logisticsSteps = ele.logisticsSteps;
+
+                            if( logisticsId != ele.logisticsId ){
+                                $('.trace-tbody').append(`
+                                    <tr style="height: 60px;" class="text-center">
+                                        <th colspan=3>
+                                        </th>
+                                    </tr>
+                                `);
+                            }
                             logisticsSteps.map(function(ele2, key2) {
                                 $('.trace-tbody').append(`
                                     <tr>
+                                        <td>${ele.logisticsId}</td>
                                         <td>${ele2.remark}</td>
                                         <td>${ele2.acceptTime}</td>
                                     </tr>
