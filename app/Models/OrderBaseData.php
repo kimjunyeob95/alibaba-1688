@@ -35,4 +35,9 @@ class OrderBaseData extends Model
     {
         return $this->hasOne(OrderChannelData::class, "order_id", "order_id");
     }
+
+    public function channel_objs()
+    {
+        return $this->hasMany(OrderChannelData::class, "order_id", "order_id");
+    }
 }

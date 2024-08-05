@@ -1113,3 +1113,20 @@ if (!function_exists("formatToCST")) {
         return $date->format('YmdHisvO');
     }
 }
+
+/** 카멜 케이스로 변환 */
+if (!function_exists("convertCamelCase")) {
+    function convertCamelCase(string $text): array
+    {
+        // 1. 카멜 케이스로 변경
+        $camelCase = lcfirst(str_replace(' ', '', ucwords(strtolower(str_replace('_', ' ', $text)))));
+        
+        // 2. 모두 소문자로 변경
+        $lowerCase = strtolower($camelCase);
+        
+        return [
+            'camelCase' => $camelCase,
+            'lowerCase' => $lowerCase
+        ];
+    }
+}

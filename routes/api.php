@@ -138,6 +138,10 @@ Route::name('w.')->prefix('w')->group(function () {
         Route::get('/logistics/{orderId}', [WAppOrderController::class, "orderLogisticsInfo"])->name("orderLogisticsInfo");
         /** W 주문 취소 */
         Route::post('/cancel/{orderId}', [WAppOrderController::class, "orderCancel"])->name("orderCancel");
+        /** WApp 주문 채널정보 업데이트 */
+        Route::patch('/info/channel/update', [WAppOrderController::class, "orderInfoChannelUpdate"])->name("orderInfoChannelUpdate");
+        /** WApp 주문 채널정보 삭제 */
+        Route::delete('/info/channel/delete', [WAppOrderController::class, "orderInfoChannelDelete"])->name("orderInfoChannelDelete");
     });
 
     /** 카테고리 */

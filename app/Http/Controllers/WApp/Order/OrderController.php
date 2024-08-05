@@ -109,4 +109,11 @@ class OrderController extends Controller
         ];
         return view("order.wList")->with($viewParams);
     }
+
+    public function orderEdit(string $orderId): View
+    {
+        $result = $this->orderService->orderWappInfo($orderId);
+        // dd($result["data"]->toArray());
+        return view("order.edit")->with($result);
+    }
 }
