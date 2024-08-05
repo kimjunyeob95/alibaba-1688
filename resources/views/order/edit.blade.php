@@ -131,16 +131,15 @@
                                         foreach ($data->channel_objs as $channel_obj) {
                                             foreach ($channel_obj->details as $detail) {
                                                 if ($detail->option_id === $wOption->option->id) {
-                                                    $channel_price += $detail->channel_price;
+                                                    $channel_price += (int)$detail->quantity * $detail->channel_price;
                                                     break;
                                                 }
                                             }
                                         }
-
                                         $total_quantity    += (int)$wOption->quantity;
                                         $total_item_amount += $wOption->item_amount;
                                     @endphp
-                                    <tr class="opt-tr-child">
+                                    <tr class="opt-tr-child" channel_price={{ $channel_price }}>
                                         <td>{{ $wOption->option->id }}</td>
                                         <td>
                                             <img class="lazy-img preview-image" width="50" height="50" src="{{ $sku_img_url }}">
