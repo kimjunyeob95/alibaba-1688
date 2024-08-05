@@ -360,7 +360,11 @@ input[name='channelCategory']{
                                     <td class="text-center">
                                         @if($data->regist_success == MallConstant::REGIST_SUCCESS)
                                             {{ $data->itemno }} <br>
-                                            <small>({{ EasySellConstant::CATEGORY_NAME[substr($data->es_fgn_mapping,0,6)] }})</small>
+                                            @if (isset(EasySellConstant::CATEGORY_NAME[substr($data->es_fgn_mapping,0,6)]))
+                                                <small>({{ EasySellConstant::CATEGORY_NAME[substr($data->es_fgn_mapping,0,6)] }})</small>
+                                            @else
+                                                <small>(카테고리 이름 없음: {{ substr($data->es_fgn_mapping,0,6) }})</small>
+                                            @endif
                                         @endif
                                     </td>
                                     <td class="text-center">

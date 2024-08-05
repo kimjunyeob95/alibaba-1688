@@ -12,7 +12,7 @@
 @section('styles')
 <style>
     .table th {
-        background-color: #f8f9fa;
+        background-color: #ebedef;
         color: #343a40;
     }
 </style>
@@ -172,11 +172,11 @@
                                     </tr>
                                 @endforeach
                                 <tr class="opt-tr-child">
-                                    <th colspan=4>합계</th>
+                                    <th colspan=3>합계</th>
                                     <td>{{ number_format($total_quantity) }}</td>
                                     <td>{{ $total_item_amount }}</td>
                                     <td>{{ number_format($total_channel_price) }}</td>
-                                    <th colspan=2></th>
+                                    <th colspan=3></th>
                                 </tr>
                             </tbody>
                         </table>
@@ -231,13 +231,14 @@
                         <table class="table table-bordered">
                             <thead>
                                 <tr>
-                                    <th colspan="2">추적정보</th>
+                                    <th colspan="3">추적정보</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr class="trace-tr">
-                                    <th scope="col" style="width: 80%">내용</th>
-                                    <th scope="col" style="width: 50%">처리시간</th>
+                                    <th scope="col" style="width: 10%">logisticsId</th>
+                                    <th scope="col" style="width: 70%">내용</th>
+                                    <th scope="col" style="width: 20%">처리시간</th>
                                 </tr>
                             </tbody>
                         </table>
@@ -391,10 +392,20 @@
                     },
                     success: function (resp) {
                         if( resp.data?.length > 0 ){
+                            let logisticsId = resp.data[0].logisticsId;
                             resp.data.forEach(function(ele) {
+                                if( logisticsId != ele.logisticsId ){
+                                    $('.trace-tr').after(`
+                                        <tr style="height: 60px;" class="text-center">
+                                            <th colspan=3>
+                                            </th>
+                                        </tr>
+                                    `);
+                                }
                                 ele.logisticsSteps.forEach(function(step) {
                                     $('.trace-tr').after(`
                                         <tr>
+                                            <td>${ele.logisticsId}</td>
                                             <td>${step.remark}</td>
                                             <td>${step.acceptTime}</td>
                                         </tr>
