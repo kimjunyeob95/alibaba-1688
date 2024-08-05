@@ -172,11 +172,11 @@
                                     </tr>
                                 @endforeach
                                 <tr class="opt-tr-child">
-                                    <th colspan=4>합계</th>
+                                    <th colspan=3>합계</th>
                                     <td>{{ number_format($total_quantity) }}</td>
                                     <td>{{ $total_item_amount }}</td>
                                     <td>{{ number_format($total_channel_price) }}</td>
-                                    <th colspan=2></th>
+                                    <th colspan=3></th>
                                 </tr>
                             </tbody>
                         </table>
