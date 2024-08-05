@@ -550,6 +550,10 @@ class EasySell extends MallApiAbstract
                 }
                 $setPrice = $price['salePrice'];
 
+                if($type == EasySellConstant::TYPE_DROPHUB){
+                    $buyPrice = $setPrice;
+                }
+
                 if( $option->status == ProductConstant::OPTION_SEC_ON_SALE_NUMBER ){
                     $stock = $option->amount_on_sale;
                 } else {

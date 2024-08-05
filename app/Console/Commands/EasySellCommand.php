@@ -32,6 +32,7 @@ class EasySellCommand extends Command
             /**
              * 상품등록 커맨드
              * php artisan easy_sell_command --func=productRegist --offerids=44798792934,562321147241 --type=W
+             * php artisan easy_sell_command --func=productRegist --offerids=681256563589 --type=DropHub
              */
             case 'productRegist':
                 $offerIds = explode(",", $this->option('offerids'));
