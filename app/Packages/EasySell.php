@@ -117,7 +117,7 @@ class EasySell extends MallApiAbstract
                         throw new Exception(MallErrorMessageConstant::getFitErrorMessage("CATEGORY_REGIST"));
                     }
 
-                    if( $prdObj->trans_status != ProductConstant::IMG_TRANS_Y ){
+                    if( ($w_type == EasySellConstant::TYPE_W) && $prdObj->trans_status != ProductConstant::IMG_TRANS_Y ){
                         throw new Exception(MallErrorMessageConstant::getFitErrorMessage("NOT_TRANS_IMG"));
                     }
                     if( $prdObj->mapping_status != ProductConstant::MAPPING_STATUS_Y ){
@@ -274,7 +274,7 @@ class EasySell extends MallApiAbstract
                     throw new Exception(MallErrorMessageConstant::getFitErrorMessage("CATEGORY_REGIST"));
                 }
 
-                if( $prdObj->trans_status != ProductConstant::IMG_TRANS_Y ){
+                if( ($type == EasySellConstant::TYPE_W) && $prdObj->trans_status != ProductConstant::IMG_TRANS_Y ){
                     throw new Exception(MallErrorMessageConstant::getFitErrorMessage("NOT_TRANS_IMG"));
                 }
                 if( $prdObj->mapping_status != ProductConstant::MAPPING_STATUS_Y ){
