@@ -537,9 +537,15 @@ class EasySell extends MallApiAbstract
                 $replacementArr = array("-","\,","-");
 
                 if($type == EasySellConstant::TYPE_W){
+                    if($idx >= 50){
+                        //이지셀 옵션수량 제한
+                        break;
+                    }
+
                     $optionNm = str_replace($replaceArr, $replacementArr ,$option->option_name_kr);
                     $price    = calcEasySellSalePrice($option->price_1688, $option->md_price, $delivery_price, "static", EasySellConstant::TYPE_W);
                 }else if($type == EasySellConstant::TYPE_DROPHUB){
+
                     $optionNm = str_replace($replaceArr, $replacementArr ,$option->option_name_en);
                     $price    = [
                         "option_price" => $option->price_1688_option,
