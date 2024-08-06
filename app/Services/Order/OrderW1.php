@@ -131,7 +131,7 @@ class OrderW1 extends OrderAbstract
                     'districtCode' => Constant1688::DISTRICTCODE,
                 ],
                 'cargoParamList'      => $cargoParamList,
-                'preSelectPayChannel' => Constant1688::PRESELECTPAYCHANNEL
+                // 'preSelectPayChannel' => Constant1688::PRESELECTPAYCHANNEL
             ];
             $result = curl_1688("post", $endPoint, $payload);
 
