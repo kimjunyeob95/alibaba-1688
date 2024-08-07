@@ -176,4 +176,19 @@ class ProductData extends Model
     {
         return $this->hasMany(ProductForbiddenData::class, "offer_id", "offer_id")->where("apply_type", ForbiddenWordConstant::KEYWORD_APPLY_ATTR_VALUE);
     }
+
+    public function add_data()
+    {
+        return $this->hasOne(ProductAddData::class, "offer_id", "offer_id");
+    }
+
+    public function sku_data()
+    {
+        return $this->hasOne(ProductSkuData::class, "offer_id", "offer_id");
+    }
+
+    public function sale_data()
+    {
+        return $this->hasOne(ProductSaleData::class, "offer_id", "offer_id");
+    }
 }

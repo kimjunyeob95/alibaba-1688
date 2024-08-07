@@ -66,6 +66,7 @@ class EasySell extends MallApiAbstract
                 $account      = EasySellConstant::USER_ID_W;
                 $modi_success = MallConstant::MODI_FAIL;
                 $modi_message = "";
+                $relation = [];
                 try{
                     switch($w_type){
                         case EasySellConstant::TYPE_W :
@@ -73,6 +74,8 @@ class EasySell extends MallApiAbstract
                             break;
                         case EasySellConstant::TYPE_DROPHUB:
                             $account = EasySellConstant::USER_ID_DROPHUB;
+
+                            $relation = ["category","add_data","en_images","notices","sku_data","options"];
                             break;
                         default :
                             throw new Exception(MallErrorMessageConstant::getNotHaveErrorMessage("TYPE"));
@@ -100,7 +103,7 @@ class EasySell extends MallApiAbstract
                         "no_except_notices",
                         "es_mapping",
                         "es_fgn_mapping"
-                    ])->where("offer_id", $offerId)->first();
+                    ] + $relation)->where("offer_id", $offerId)->first();
 
                     if( $prdObj == null ){
                         throw new Exception(MallErrorMessageConstant::getNotHaveErrorMessage("PRODUCT"));
@@ -223,7 +226,7 @@ class EasySell extends MallApiAbstract
     {
         $successIds = [];
         $failIds    = [];
-
+        $relation = [];
         foreach ($offerIds as $offerId) {
             try{
                 switch($type){
@@ -232,6 +235,7 @@ class EasySell extends MallApiAbstract
                         break;
                     case EasySellConstant::TYPE_DROPHUB:
                         $account      = EasySellConstant::USER_ID_DROPHUB;
+                        $relation = ["category","add_data","en_images","notices","sku_data","options"];
                         break;
                     default :
                         throw new Exception(MallErrorMessageConstant::getNotHaveErrorMessage("TYPE"));
@@ -257,7 +261,7 @@ class EasySell extends MallApiAbstract
                     "no_except_notices",
                     "es_mapping",
                     "es_fgn_mapping"
-                ])->where("offer_id", $offerId)->first();
+                ] + $relation)->where("offer_id", $offerId)->first();
 
                 if( $prdObj == null ){
                     throw new Exception(MallErrorMessageConstant::getNotHaveErrorMessage("PRODUCT"));
@@ -500,6 +504,20 @@ class EasySell extends MallApiAbstract
 
                 //옵션가 사용여부
                 $OptPrice = 1;
+
+
+                //WApp 전체 정보
+                $mirrorData = [
+                    "product_datas"         => ProductData::where("offer_id", $offerId)->first()->toArray(),
+                    "categories"            => $prdObj->category->toArray(),
+                    "product_add_datas"     => $prdObj->add_data->toArray(),
+                    "product_extend_datas"  => $prdObj->extends->toArray(),
+                    "product_image_datas"   => $prdObj->images->toArray() + $prdObj->en_images->toArray(),
+                    "product_notice_datas"  => $prdObj->notices->toArray(),
+                    "product_option_datas"  => $prdObj->options->toArray(),
+                    "product_sku_datas"     => $prdObj->sku_data->toArray(),
+                    "product_sale_datas"    => $prdObj->sale_data->toArray(),
+                ];
             }
 
             if(count($images) < 1){
@@ -638,6 +656,10 @@ class EasySell extends MallApiAbstract
                 "ItemApproveAuto"            => $vo->ItemApproveAuto,
                 "MinEa"                      => $vo->MinEa
             ] + $vo->ItemGoodsRequired;
+
+            if($type == EasySellConstant::TYPE_DROPHUB){
+                $apiParams += ["mirrorData" => $mirrorData];
+            }
 
             ###인코딩
             array_walk_recursive($apiParams, array($this, "_iconvArr"));
