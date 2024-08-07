@@ -16,6 +16,17 @@ class WMessageService
    }
 
    /**
+    * @func list
+    * @description '메시지 리스트'
+    * @param array $params
+    * @return array
+   */
+   public function list(array $params): array
+   {
+      return $this->wMessageAbstract->filterMessage($params);
+   }
+
+   /**
     * @func filterMessage
     * @description 'W1 메세지 종류 필터'
     * @param array $params

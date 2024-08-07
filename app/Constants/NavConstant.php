@@ -14,6 +14,8 @@ class NavConstant
     public const PRODUCT_COLLECT_SINGLE_IMG = "상품 단일 Image로 수집";
     public const PRODUCT_COLLECT_MULTI_IMG  = "상품 멀티 Image로 수집";
     public const PRODUCT_COLLECT_HISTORY    = "상품 수집 현황";
+    public const MESSAGE                    = "메세지 관리";
+    public const MESSAGE_LIST               = "메세지 리스트";
     
     public const W_APP                    = "W App";
     public const PRODUCT_MANAGE           = "상품 관리";
@@ -60,6 +62,9 @@ class NavConstant
                     self::PRODUCT_COLLECT_MULTI_IMG  => "/product/imageMultiQuery",
                     self::PRODUCT_COLLECT_HISTORY    => "/product/collectLogs",
                 ]
+            ],
+            self::MESSAGE => [
+                self::MESSAGE_LIST => "/message/list"
             ]
         ],
         self::W_APP => [

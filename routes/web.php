@@ -71,6 +71,14 @@ Route::prefix("product")->name("product.")->group(function(){
 });
 
 /**
+ * 메시지
+ */
+Route::prefix("message")->name("message.")->group(function(){
+    /** 메시지 리스트 */
+    Route::get("/list", [ProductController::class, "queryProductDetail"])->name("list");
+});
+
+/**
  * WApp
  */
 Route::prefix("wapp")->name("wapp.")->group(function(){
