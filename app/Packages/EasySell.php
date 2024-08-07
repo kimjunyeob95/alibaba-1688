@@ -532,45 +532,43 @@ class EasySell extends MallApiAbstract
             $unitInfo = $optionTitle."|";
             $idx      = 0;
             foreach($prdObj->no_except_options as $option){
-                //옵션명
-                $replaceArr     = array("|",",","/");
-                $replacementArr = array("-","\,","-");
+                if( $option->status == ProductConstant::OPTION_SEC_ON_SALE_NUMBER && $option->amount_on_sale > 0){
+                    $stock = $option->amount_on_sale;
 
-                if($type == EasySellConstant::TYPE_W){
-                    if($idx >= 50){
-                        //이지셀 옵션수량 제한
-                        break;
+                    //옵션명
+                    $replaceArr     = array("|",",","/");
+                    $replacementArr = array("-","\,","-");
+
+                    if($type == EasySellConstant::TYPE_W){
+                        if($idx >= 50){
+                            //이지셀 옵션수량 제한
+                            break;
+                        }
+
+                        $optionNm = str_replace($replaceArr, $replacementArr ,$option->option_name_kr);
+                        $price    = calcEasySellSalePrice($option->price_1688, $option->md_price, $delivery_price, "static", EasySellConstant::TYPE_W);
+                    }else if($type == EasySellConstant::TYPE_DROPHUB){
+                        $optionNm = str_replace($replaceArr, $replacementArr ,$option->option_name_en);
+                        $price    = calcEasySellSalePrice($option->price_1688, $option->md_price, $delivery_price, "static", EasySellConstant::TYPE_DROPHUB);
                     }
 
-                    $optionNm = str_replace($replaceArr, $replacementArr ,$option->option_name_kr);
-                    $price    = calcEasySellSalePrice($option->price_1688, $option->md_price, $delivery_price, "static", EasySellConstant::TYPE_W);
-                }else if($type == EasySellConstant::TYPE_DROPHUB){
-                    $optionNm = str_replace($replaceArr, $replacementArr ,$option->option_name_en);
-                    $price    = calcEasySellSalePrice($option->price_1688, $option->md_price, $delivery_price, "static", EasySellConstant::TYPE_DROPHUB);
+                    if(!$idx){
+                        $buyPrice  = $price['buyPrice']; //셀러허브 공급가
+                        $salePrice = $setPrice = $price['salePrice'];
+                    }else{
+                        $unitInfo .= ",";
+                    }
+                    $setPrice = $price['salePrice'];
+
+                    if($type == EasySellConstant::TYPE_DROPHUB){
+                        $buyPrice = $setPrice;
+                    }
+
+                    //옵션구분명|옵션1^^재고^^판매가^^정가^^공급가::업체옵션번호,
+                    $unitInfo .= "{$optionNm}^^{$stock}^^{$setPrice}^^{$setPrice}^^{$buyPrice}::{$option->id}";
+
+                    $idx++;
                 }
-
-                if(!$idx){
-                    $buyPrice  = $price['buyPrice']; //셀러허브 공급가
-                    $salePrice = $setPrice = $price['salePrice'];
-                }else{
-                    $unitInfo .= ",";
-                }
-                $setPrice = $price['salePrice'];
-
-                if($type == EasySellConstant::TYPE_DROPHUB){
-                    $buyPrice = $setPrice;
-                }
-
-                if( $option->status == ProductConstant::OPTION_SEC_ON_SALE_NUMBER ){
-                    $stock = $option->amount_on_sale;
-                } else {
-                    $stock = 0;
-                }
-
-                //옵션구분명|옵션1^^재고^^판매가^^정가^^공급가::업체옵션번호,
-                $unitInfo .= "{$optionNm}^^{$stock}^^{$setPrice}^^{$setPrice}^^{$buyPrice}::{$option->id}";
-
-                $idx++;
             }
             // debug_log($unitInfo, "easysell/{$type}", $type);
 
