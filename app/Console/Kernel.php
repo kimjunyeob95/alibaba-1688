@@ -85,7 +85,7 @@ class Kernel extends ConsoleKernel
              * WApp 주문 배치
              * ############
              */
-            $schedule->command("order_command --func=orderBatchUpdate")->cron("0,30 6-23 * * *")->description("WApp 주문 배치 업데이트")->withoutOverlapping()->runInBackground();
+            // $schedule->command("order_command --func=orderBatchUpdate")->cron("0,30 6-23 * * *")->description("WApp 주문 배치 업데이트")->withoutOverlapping()->runInBackground();
 
             /**
              * ############

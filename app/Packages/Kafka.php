@@ -9,12 +9,12 @@ use Kafka\ProducerConfig;
 
 class Kafka
 {
-    private string $brokers;
+    protected string $brokers;
     protected Producer $producer;
 
     public function __construct()
     {
-        $this->brokers = env('KAFKA_BROKERS', '115.68.48.70:9091,115.68.48.70:9092,115.68.48.70:9093');
+        $this->brokers = env('KAFKA_BROKERS', 'sellerhub-broker01:9092,sellerhub-broker02:9092,sellerhub-broker03:9092');
 
         $config = ProducerConfig::getInstance();
         $config->setMetadataBrokerList($this->brokers);
