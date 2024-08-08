@@ -10,8 +10,9 @@ class MessageErrorMessageConstant
     private static $defaultNotHaveMsg  = "Empty";
     private static $defaultFitErrorMsg = "Error";
 
-    public const ERROR_MESSAGE_ORDERID = "orderId";
-    public const ERROR_MESSAGE_TYPE    = "type";
+    public const ERROR_MESSAGE_ORDERID  = "orderId";
+    public const ERROR_MESSAGE_TYPE     = "type";
+    public const ERROR_MESSAGE_BASE_OBJ = "base obj";
 
     public static function getErrorMessageNotDefault($constantName): string
     {

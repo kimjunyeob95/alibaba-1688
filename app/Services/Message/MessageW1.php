@@ -38,6 +38,8 @@ class MessageW1 extends WMessageAbstract
     {
         $returnMsg = $this->returnMsg;
 
+        debug_log(json_encode($params, JSON_UNESCAPED_UNICODE), "1688/message", "message");
+        
         try {
             if( isset($params["message"]["type"]) && $params["message"]["type"] ){
                 $message = $params["message"];
@@ -64,6 +66,11 @@ class MessageW1 extends WMessageAbstract
                         "w_options.option",
                         "channel_objs.details"
                     ])->where("order_id", $orderId)->first();
+
+                    if( $baseObj == null ){
+                        throw new Exception(MessageErrorMessageConstant::getNotHaveErrorMessage("BASE_OBJ"));
+                    }
+
                     foreach ($baseObj->channel_objs as $channelObj) {
                         WMessageLog::create([
                             "order_id"         => $baseObj->order_id,
@@ -80,11 +87,11 @@ class MessageW1 extends WMessageAbstract
                             ];
                         }
 
-                        $products = [];
+                        $options = [];
                         foreach ($channelObj->details as $optDetail) {
                             foreach ($baseObj->w_options as $wOption) {
                                 if( $optDetail->option_id == $wOption->option->id ){
-                                    $products[] = [
+                                    $options[] = [
                                         "option_id"        => $optDetail->option_id,
                                         "status"           => $wOption->status,
                                         "logistics_status" => $wOption->logistics_status,
@@ -109,12 +116,13 @@ class MessageW1 extends WMessageAbstract
                             "channel"          => $baseObj->channel,
                             "order_id"         => $baseObj->order_id,
                             "channel_order_id" => $channelObj->channel_order_id,
-                            "order_data" => [
+                            "offer_id"         => $baseObj->offer_id,
+                            "order_data"       => [
                                 "status"        => $baseObj->status,
                                 "refund_status" => $baseObj->refund_status,
                                 "refund_info"   => $refund_info,
                             ],
-                            "products"       => $products,
+                            "options"        => $options,
                             "logistics_info" => $logisticsInfos,
                             "created_at"     => Carbon::now(),
                         ];
@@ -128,7 +136,6 @@ class MessageW1 extends WMessageAbstract
                     throw new Exception(MessageErrorMessageConstant::getNotHaveErrorMessage("TYPE"));
                 }
             }
-            debug_log(json_encode($params, JSON_UNESCAPED_UNICODE), "1688/message", "message");
         } catch (Exception $e) {
             $params["error_msg"] = $e->getMessage();
             debug_log(json_encode($params, JSON_UNESCAPED_UNICODE), "1688/message", "error-message");
