@@ -16,13 +16,35 @@ class WMessageService
    }
 
    /**
-    * @func filterMessage
-    * @description 'W1 메세지 종류 필터'
+    * @func list
+    * @description '메시지 리스트'
     * @param array $params
     * @return array
    */
-   public function filterMessage(array $params): array
+   public function list(array $params): array
    {
-      return $this->wMessageAbstract->filterMessage($params);
+      return $this->wMessageAbstract->list($params);
+   }
+
+   /**
+    * @func detail
+    * @description '메시지 상세'
+    * @param int $id
+    * @return array
+   */
+   public function detail(int $id): array
+   {
+      return $this->wMessageAbstract->detail($id);
+   }
+
+   /**
+    * @func message
+    * @description 'W1 메세지 카프카 등록'
+    * @param array $params
+    * @return array
+   */
+   public function message(array $params): array
+   {
+      return $this->wMessageAbstract->message($params);
    }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Packages\Kafka;
 use App\Packages\S3;
 use App\Services\Category\CategoryW1;
 use App\Services\GenuioService;
@@ -68,7 +69,10 @@ class App1688Provider extends ServiceProvider
          * 메세지 의존성
          */
         $this->app->singleton(MessageW1::class, function ($app) {
-            return new MessageW1($app->make(OrderW1::class));
+            return new MessageW1(
+                $app->make(OrderW1::class),
+                $app->make(Kafka::class)
+            );
         });
         $this->app->singleton(WMessageService::class, function ($app) {
             return new WMessageService($app->make(MessageW1::class));

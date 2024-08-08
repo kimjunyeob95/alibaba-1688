@@ -10,69 +10,37 @@ use Kafka\ProducerConfig;
 class Kafka
 {
     private string $brokers;
+    protected Producer $producer;
 
     public function __construct()
     {
         $this->brokers = env('KAFKA_BROKERS', '115.68.48.70:9091,115.68.48.70:9092,115.68.48.70:9093');
-    }
 
-    public function produce(string $topic, string $message): bool
-    {
         $config = ProducerConfig::getInstance();
         $config->setMetadataBrokerList($this->brokers);
+        $config->setMetadataRefreshIntervalMs(10000);
         $config->setBrokerVersion('2.0.0');
+        $config->setRequiredAck(1);
+        $config->setIsAsyn(false);
+        $config->setProduceInterval(500);
 
-        $producer = new Producer(function() use ($message, $topic) {
-            return [
-                [
-                    'topic' => $topic,
-                    'value' => $message,
-                    'key'   => null, // 라운도로빈
-                ],
-            ];
-        });
-
-        $isSuccess = false;
-        $producer->success(function() use (&$isSuccess) {
-            $isSuccess = true;
-        });
-        $producer->error(function($errorCode) use (&$isSuccess) {
-            $isSuccess = false;
-        });
-
-        $producer->send(true);
-
-        return $isSuccess;
+        $this->producer = new Producer();
     }
 
-    public function produceHardCode(string $topic, string $message): bool
+    public function sendQueue(string $topic, string $message): bool
     {
-        $brokers = "52.79.202.81:9092,15.164.24.227:9092,3.36.246.92:9092";
-        $config = ProducerConfig::getInstance();
-        $config->setMetadataBrokerList($brokers);
-        $config->setBrokerVersion('2.0.0');
+        $result = $this->producer->send([
+            [
+                'topic' => $topic,
+                'value' => $message
+            ],
+        ]);
 
-        $producer = new Producer(function() use ($topic, $message) {
-            return [
-                [
-                    'topic' => $topic,
-                    'value' => $message,
-                    'key'   => null, // 라운도로빈
-                ],
-            ];
-        });
+        if( empty($result) ){
+            return false;
+        }
 
-        $isSuccess = false;
-        $producer->success(function() use (&$isSuccess) {
-            $isSuccess = true;
-        });
-        $producer->error(function($errorCode) use (&$isSuccess) {
-            $isSuccess = false;
-        });
-
-        $producer->send(true);
-
-        return $isSuccess;
+        return true;
     }
 
     public function consume(string $topic, string $group): void
