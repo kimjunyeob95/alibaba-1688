@@ -23,9 +23,20 @@ class WMessageController extends Controller
     public function message(): JsonResponse
     {
         try {
-            $this->wMessageService->filterMessage($this->request->all());
+            $this->wMessageService->message($this->request->all());
 
             return helpers_json_response(HttpConstant::OK);
+        } catch (Exception $e) {
+            return helpers_json_response(HttpConstant::BAD_REQUEST, [], $e->getMessage());
+        }
+    }
+
+    public function detail(int $id): JsonResponse
+    {
+        try {
+            $result = $this->wMessageService->detail($id);
+
+            return helpers_json_response(HttpConstant::OK, $result);
         } catch (Exception $e) {
             return helpers_json_response(HttpConstant::BAD_REQUEST, [], $e->getMessage());
         }
