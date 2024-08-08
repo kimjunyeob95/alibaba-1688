@@ -36,10 +36,7 @@ class MessageW1 extends WMessageAbstract
     */
     public function message(array $params): array
     {
-        $returnMsg = $this->returnMsg;
-
-        debug_log(json_encode($params, JSON_UNESCAPED_UNICODE), "1688/message", "message");
-        
+        $returnMsg = $this->returnMsg;        
         try {
             if( isset($params["message"]["type"]) && $params["message"]["type"] ){
                 $message = $params["message"];
@@ -47,95 +44,99 @@ class MessageW1 extends WMessageAbstract
                 $orderId = "";
                 if( in_array($type, MessageConstant::MESSAGE_TYPE_LIST) ){
                     if( isset($message["data"]["orderId"]) && $message["data"]["orderId"] ) {
-                        $orderId = $message["data"]["orderId"];
+                        $orderId                              = (string)$message["data"]["orderId"];
+                        $params["message"]["data"]["orderId"] = $orderId;
                     } else if( isset($message["data"]["OrderLogisticsTracingModel"]["orderLogsItems"]) && count($message["data"]["OrderLogisticsTracingModel"]["orderLogsItems"]) > 0) {
-                        $orderId = $message["data"]["OrderLogisticsTracingModel"]["orderLogsItems"][0]["orderId"];
+                        $orderId = (string)$message["data"]["OrderLogisticsTracingModel"]["orderLogsItems"][0]["orderId"];
+                        foreach ($params["message"]["data"]["OrderLogisticsTracingModel"]["orderLogsItems"] as &$items) {
+                            $items["orderId"] = $orderId;
+                        }
                     }
                     
                     if( $orderId === "" ){
                         throw new Exception(MessageErrorMessageConstant::getNotHaveErrorMessage("ORDERID"));
                     }
-
-                    $result = $this->orderW1->orderUpdate([$orderId]);
-                    if( $result["isSuccess"] === false ){
-                        throw new Exception($result["msg"]);
-                    }
-
+                    
                     $baseObj = OrderBaseData::with([
                         "logistics",
                         "w_options.option",
                         "channel_objs.details"
                     ])->where("order_id", $orderId)->first();
 
-                    if( $baseObj == null ){
-                        throw new Exception(MessageErrorMessageConstant::getNotHaveErrorMessage("BASE_OBJ"));
-                    }
-
-                    foreach ($baseObj->channel_objs as $channelObj) {
-                        WMessageLog::create([
-                            "order_id"         => $baseObj->order_id,
-                            "channel_order_id" => $channelObj->channel_order_id,
-                            "code"             => MessageConstant::MESSAGE_CODE[$type],
-                            "request"          => json_encode($params, JSON_UNESCAPED_UNICODE),
-                        ]);
-
-                        $refund_info = [];
-                        if( isset($message["data"]["refundAction"]) && isset($message["data"]["operator"]) ){
-                            $refund_info = [
-                                "refund_action" => $message["data"]["refundAction"],
-                                "oprerator"     => $message["data"]["operator"],
-                            ];
+                    if( $baseObj != null ){
+                        $result = $this->orderW1->orderUpdate([$orderId]);
+                        if( $result["isSuccess"] === false ){
+                            throw new Exception($result["msg"]);
                         }
 
-                        $options = [];
-                        foreach ($channelObj->details as $optDetail) {
-                            foreach ($baseObj->w_options as $wOption) {
-                                if( $optDetail->option_id == $wOption->option->id ){
-                                    $options[] = [
-                                        "option_id"        => $optDetail->option_id,
-                                        "status"           => $wOption->status,
-                                        "logistics_status" => $wOption->logistics_status,
-                                        "refunds_stautus"  => $wOption->refund_status,
-                                    ];
+                        foreach ($baseObj->channel_objs as $channelObj) {
+                            WMessageLog::create([
+                                "order_id"         => $baseObj->order_id,
+                                "channel_order_id" => $channelObj->channel_order_id,
+                                "code"             => MessageConstant::MESSAGE_CODE[$type],
+                                "request"          => json_encode($params, JSON_UNESCAPED_UNICODE),
+                            ]);
+    
+                            $refund_info = [];
+                            if( isset($message["data"]["refundAction"]) && isset($message["data"]["operator"]) ){
+                                $refund_info = [
+                                    "refund_action" => $message["data"]["refundAction"],
+                                    "oprerator"     => $message["data"]["operator"],
+                                ];
+                            }
+    
+                            $options = [];
+                            foreach ($channelObj->details as $optDetail) {
+                                foreach ($baseObj->w_options as $wOption) {
+                                    if( $optDetail->option_id == $wOption->option->id ){
+                                        $options[] = [
+                                            "option_id"        => $optDetail->option_id,
+                                            "status"           => $wOption->status,
+                                            "logistics_status" => $wOption->logistics_status,
+                                            "refunds_stautus"  => $wOption->refund_status,
+                                        ];
+                                    }
                                 }
                             }
-                        }
-
-                        $logisticsInfos = [];
-                        foreach ($baseObj->logistics as $logistic) {
-                            $logisticsInfos[] = [
-                                "logistics_code"         => $logistic->logistics_code,
-                                "logistics_company_name" => $logistic->logistics_company_name,
-                                "logistics_bill_no"      => $logistic->logistics_bill_no,
-                                "status"                 => $logistic->status
+    
+                            $logisticsInfos = [];
+                            foreach ($baseObj->logistics as $logistic) {
+                                $logisticsInfos[] = [
+                                    "logistics_code"         => $logistic->logistics_code,
+                                    "logistics_company_name" => $logistic->logistics_company_name,
+                                    "logistics_bill_no"      => $logistic->logistics_bill_no,
+                                    "status"                 => $logistic->status
+                                ];
+                            }
+    
+                            $kafkaPayload = [
+                                "type"             => MessageConstant::MESSAGE_CODE[$type],
+                                "channel"          => $baseObj->channel,
+                                "order_id"         => $baseObj->order_id,
+                                "channel_order_id" => $channelObj->channel_order_id,
+                                "offer_id"         => $baseObj->offer_id,
+                                "order_data"       => [
+                                    "status"        => $baseObj->status,
+                                    "refund_status" => $baseObj->refund_status,
+                                    "refund_info"   => $refund_info,
+                                ],
+                                "options"        => $options,
+                                "logistics_info" => $logisticsInfos,
+                                "created_at"     => Carbon::now(),
                             ];
-                        }
-
-                        $kafkaPayload = [
-                            "type"             => MessageConstant::MESSAGE_CODE[$type],
-                            "channel"          => $baseObj->channel,
-                            "order_id"         => $baseObj->order_id,
-                            "channel_order_id" => $channelObj->channel_order_id,
-                            "offer_id"         => $baseObj->offer_id,
-                            "order_data"       => [
-                                "status"        => $baseObj->status,
-                                "refund_status" => $baseObj->refund_status,
-                                "refund_info"   => $refund_info,
-                            ],
-                            "options"        => $options,
-                            "logistics_info" => $logisticsInfos,
-                            "created_at"     => Carbon::now(),
-                        ];
-                        
-                        $isSuccess = $this->kafka->sendQueue(KafkaConstant::WAPP, json_encode($kafkaPayload, JSON_UNESCAPED_UNICODE));
-                        if( $isSuccess !== true ) {
-                            debug_log(json_encode($kafkaPayload, JSON_UNESCAPED_UNICODE), "1688/message", "kafka-error-message");
+                            
+                            $isSuccess = $this->kafka->sendQueue(KafkaConstant::WAPP, json_encode($kafkaPayload, JSON_UNESCAPED_UNICODE));
+                            if( $isSuccess !== true ) {
+                                debug_log(json_encode($kafkaPayload, JSON_UNESCAPED_UNICODE), "1688/message", "kafka-error-message");
+                            }
                         }
                     }
                 } else {
                     throw new Exception(MessageErrorMessageConstant::getNotHaveErrorMessage("TYPE"));
                 }
             }
+
+            debug_log(json_encode($params, JSON_UNESCAPED_UNICODE), "1688/message", "message");
         } catch (Exception $e) {
             $params["error_msg"] = $e->getMessage();
             debug_log(json_encode($params, JSON_UNESCAPED_UNICODE), "1688/message", "error-message");
