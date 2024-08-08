@@ -195,7 +195,6 @@
                 success: function (resp) {
                     let json = JSON.parse(resp.data.request)
                     $("#json-display").text(JSON.stringify(json, null, 2));
-                    
 
                     $("#htmlModal").modal('show');
                 },
