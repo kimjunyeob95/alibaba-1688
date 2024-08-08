@@ -25,8 +25,13 @@ Route::name('w.')->prefix('w')->group(function () {
         /** 1688에 카테고리 조회 endPoint를 호출 후 결과 반환 */
         Route::get('/category/{categoryId?}', [WCategoryController::class, 'getMallCategory'])->name('getMallCategory');
 
-        /** 1688에서 메세지 콜백 */
-        Route::any('/message', [WMessageController::class, 'message'])->name('message');
+        /** 메세지 */
+        Route::name('message.')->prefix('message')->group(function () {
+            /** 1688에서 메세지 콜백 */
+            Route::any('', [WMessageController::class, 'message'])->name('message');
+            /** 1688 메세지 상세 */
+            Route::post('/{id}', [WMessageController::class, 'detail'])->name('detail');
+        });
     });
 
     Route::middleware(["oepnApi.jwt.verify", "whiteIp"])->group(function () {

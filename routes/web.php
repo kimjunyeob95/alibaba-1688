@@ -5,6 +5,7 @@ use App\Http\Controllers\EasySellController;
 use App\Http\Controllers\ExceptController;
 use App\Http\Controllers\ForbiddenWordController;
 use App\Http\Controllers\GenuioController;
+use App\Http\Controllers\MessageController;
 use App\Http\Controllers\OnchannelController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProductW2Controller;
@@ -75,7 +76,7 @@ Route::prefix("product")->name("product.")->group(function(){
  */
 Route::prefix("message")->name("message.")->group(function(){
     /** 메시지 리스트 */
-    Route::get("/list", [ProductController::class, "queryProductDetail"])->name("list");
+    Route::get("/list", [MessageController::class, "list"])->name("list");
 });
 
 /**

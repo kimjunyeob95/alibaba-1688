@@ -40,6 +40,25 @@ class MessageConstant
     public const OT001 = "OT001";
     public const OT002 = "OT002";
 
+    public const MESSAGE_TYPE_LIST = [
+        self::ORDER_BUYER_VIEW_BUYER_MAKE,
+        self::ORDER_BUYER_VIEW_ORDER_PRICE_MODIFY,
+        self::ORDER_BUYER_VIEW_ORDER_SUCCESS,
+        self::ORDER_BUYER_VIEW_ORDER_PAY,
+        self::ORDER_BUYER_VIEW_ORDER_STEP_PAY,
+        self::ORDER_BATCH_PAY,
+        self::ORDER_BUYER_VIEW_ANNOUNCE_SENDGOODS,
+        self::ORDER_BUYER_VIEW_PART_PART_SENDGOODS,
+        self::ORDER_BUYER_VIEW_ORDER_COMFIRM_RECEIVEGOODS ,
+        self::ORDER_BUYER_VIEW_ORDER_BUYER_CLOSE,
+        self::ORDER_BUYER_VIEW_ORDER_SELLER_CLOSE,
+        self::ORDER_BUYER_VIEW_ORDER_BOPS_CLOSE,
+        self::ORDER_BUYER_VIEW_ORDER_BUYER_REFUND_IN_SALES,
+        self::ORDER_BUYER_VIEW_ORDER_REFUND_AFTER_SALES,
+        self::LOGISTICS_BUYER_VIEW_TRACE,
+        self::LOGISTICS_MAIL_NO_CHANGE,
+    ];
+
     public const MESSAGE_CODE = [
         self::ORDER_BUYER_VIEW_BUYER_MAKE                  => self::OM001,
         self::ORDER_BUYER_VIEW_ORDER_PRICE_MODIFY          => self::OM002,
