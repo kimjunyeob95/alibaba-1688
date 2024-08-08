@@ -84,7 +84,11 @@ class OrderW1 extends OrderAbstract
                 ]
             ];
             $detailResult = curl_1688("POST", $endPoint, $payload);
-            if( $detailResult["isSuccess"] != true || $detailResult["data"]["result"]["success"] != true ){
+            if( $detailResult["isSuccess"] != true || 
+                !isset($detailResult["data"]["result"]["success"]) ||
+                $detailResult["data"]["result"]["success"] != true ||
+                !isset($detailResult["data"]["result"]["result"])
+            ){
                 throw new Exception(ProductErrorMessageConstant::getFitErrorMessage("PRODUCT_SEARCH_QUERYPRODUCTDETAIL"));
             }
             $detailProduct = $detailResult["data"]["result"]["result"];
