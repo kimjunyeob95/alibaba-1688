@@ -129,14 +129,14 @@ class MessageW1 extends WMessageAbstract
                             if( $isSuccess !== true ) {
                                 debug_log(json_encode($kafkaPayload, JSON_UNESCAPED_UNICODE), "1688/message", "kafka-error-message");
                             }
+
+                            debug_log(json_encode($params, JSON_UNESCAPED_UNICODE), "1688/message", "message");
                         }
                     }
                 } else {
                     throw new Exception(MessageErrorMessageConstant::getNotHaveErrorMessage("TYPE"));
                 }
             }
-
-            debug_log(json_encode($params, JSON_UNESCAPED_UNICODE), "1688/message", "message");
         } catch (Exception $e) {
             $params["error_msg"] = $e->getMessage();
             debug_log(json_encode($params, JSON_UNESCAPED_UNICODE), "1688/message", "error-message");
