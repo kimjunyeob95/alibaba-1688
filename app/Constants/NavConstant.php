@@ -111,4 +111,20 @@ class NavConstant
             ]
         ],
     ];
+
+    public const NAV_ICON = [
+        self::PRODUCT                 => "/vendors/@coreui/icons/svg/free.svg#cil-basket",
+        self::PRODUCT_COLLECT_MANAGE  => "/vendors/@coreui/icons/svg/free.svg#cil-basket",
+        self::MESSAGE                 => "/vendors/@coreui/icons/svg/free.svg#cil-chat-bubble",
+        self::MESSAGE_LIST            => "/vendors/@coreui/icons/svg/free.svg#cil-list",
+        self::PRODUCT_MANAGE          => "/vendors/@coreui/icons/svg/free.svg#cil-basket",
+        self::ORDER_MANAGE            => "/vendors/@coreui/icons/svg/free.svg#cil-cart",
+        self::CATEGORY_MANAGE         => "/vendors/@coreui/icons/svg/free.svg#cil-list-rich",
+        self::FORBIDDEN_MANAGE        => "/vendors/@coreui/icons/svg/free.svg#cil-language",
+        self::EXCEPT_MANAGE           => "/vendors/@coreui/icons/svg/free.svg#cil-ban",
+        self::ADMIN_MANAGE            => "/vendors/@coreui/icons/svg/free.svg#cil-user",
+        self::CHANNEL_PRODUCT_MANAGE  => "/vendors/@coreui/icons/svg/free.svg#cil-usb",
+        self::CHANNEL_CATEGORY_MANAGE => "/vendors/@coreui/icons/svg/free.svg#cil-folder-open",
+        self::QUEUE_MANAGE            => "/vendors/@coreui/icons/svg/free.svg#cil-list-numbered",
+    ];
 }
