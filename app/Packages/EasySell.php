@@ -66,6 +66,7 @@ class EasySell extends MallApiAbstract
                 $account      = EasySellConstant::USER_ID_W;
                 $modi_success = MallConstant::MODI_FAIL;
                 $modi_message = "";
+                $relation = [];
                 try{
                     switch($w_type){
                         case EasySellConstant::TYPE_W :
@@ -73,6 +74,8 @@ class EasySell extends MallApiAbstract
                             break;
                         case EasySellConstant::TYPE_DROPHUB:
                             $account = EasySellConstant::USER_ID_DROPHUB;
+
+                            $relation = ["category","add_data","en_images","notices","sku_data","options"];
                             break;
                         default :
                             throw new Exception(MallErrorMessageConstant::getNotHaveErrorMessage("TYPE"));
@@ -100,7 +103,7 @@ class EasySell extends MallApiAbstract
                         "no_except_notices",
                         "es_mapping",
                         "es_fgn_mapping"
-                    ])->where("offer_id", $offerId)->first();
+                    ] + $relation)->where("offer_id", $offerId)->first();
 
                     if( $prdObj == null ){
                         throw new Exception(MallErrorMessageConstant::getNotHaveErrorMessage("PRODUCT"));
@@ -117,7 +120,7 @@ class EasySell extends MallApiAbstract
                         throw new Exception(MallErrorMessageConstant::getFitErrorMessage("CATEGORY_REGIST"));
                     }
 
-                    if( $prdObj->trans_status != ProductConstant::IMG_TRANS_Y ){
+                    if( ($w_type == EasySellConstant::TYPE_W) && $prdObj->trans_status != ProductConstant::IMG_TRANS_Y ){
                         throw new Exception(MallErrorMessageConstant::getFitErrorMessage("NOT_TRANS_IMG"));
                     }
                     if( $prdObj->mapping_status != ProductConstant::MAPPING_STATUS_Y ){
@@ -223,7 +226,7 @@ class EasySell extends MallApiAbstract
     {
         $successIds = [];
         $failIds    = [];
-
+        $relation = [];
         foreach ($offerIds as $offerId) {
             try{
                 switch($type){
@@ -232,6 +235,7 @@ class EasySell extends MallApiAbstract
                         break;
                     case EasySellConstant::TYPE_DROPHUB:
                         $account      = EasySellConstant::USER_ID_DROPHUB;
+                        $relation = ["category","add_data","en_images","notices","sku_data","options"];
                         break;
                     default :
                         throw new Exception(MallErrorMessageConstant::getNotHaveErrorMessage("TYPE"));
@@ -257,7 +261,7 @@ class EasySell extends MallApiAbstract
                     "no_except_notices",
                     "es_mapping",
                     "es_fgn_mapping"
-                ])->where("offer_id", $offerId)->first();
+                ] + $relation)->where("offer_id", $offerId)->first();
 
                 if( $prdObj == null ){
                     throw new Exception(MallErrorMessageConstant::getNotHaveErrorMessage("PRODUCT"));
@@ -274,7 +278,7 @@ class EasySell extends MallApiAbstract
                     throw new Exception(MallErrorMessageConstant::getFitErrorMessage("CATEGORY_REGIST"));
                 }
 
-                if( $prdObj->trans_status != ProductConstant::IMG_TRANS_Y ){
+                if( ($type == EasySellConstant::TYPE_W) && $prdObj->trans_status != ProductConstant::IMG_TRANS_Y ){
                     throw new Exception(MallErrorMessageConstant::getFitErrorMessage("NOT_TRANS_IMG"));
                 }
                 if( $prdObj->mapping_status != ProductConstant::MAPPING_STATUS_Y ){
@@ -471,11 +475,22 @@ class EasySell extends MallApiAbstract
                         $images[] = $imgObj->img_url_trans;
                     }
                 }
+
+                //배송비 설정
+                $weights   = CategoryConstant::WEIGHTS;
+                $weightObj = ProductWeightData::where("offer_id", $offerId)->first();
+                $delivery_price = ProductConstant::WEIGHT_STATUS_NONE_PRICE;
+                if( $weightObj != null ){
+                    $delivery_price = $weights[$weightObj->weight];
+                }
+
+                //옵션가 사용여부
+                $OptPrice = null;
             }else if($type == EasySellConstant::TYPE_DROPHUB){
                 $ItemName    = $prdObj->prd_name_en;
                 $prdDesc     = $prdObj->prd_desc_en_origin;
                 $optionTitle = "option";
-                $noticeInfo  = $prdObj->no_except_notices->pluck("attribute_value_en","attribute_name_en")->toArray();
+                $noticeInfo  = $prdObj->notices->pluck("attribute_value_en","attribute_name_en")->toArray();
 
                 $images[] = $prdObj->en_main_img->img_url_origin;
                 foreach ($prdObj->no_except_en_sub_imgs as $imgObj) {
@@ -483,6 +498,26 @@ class EasySell extends MallApiAbstract
                         $images[] = $imgObj->img_url_origin;
                     }
                 }
+
+                //드랍허브 배송비 무료
+                $delivery_price = 0;
+
+                //옵션가 사용여부
+                $OptPrice = 1;
+
+
+                //WApp 전체 정보
+                // $mirrorData = [
+                //     "product_datas"         => ProductData::where("offer_id", $offerId)->first()->toArray(),
+                //     "categories"            => $prdObj->category ? $prdObj->category->toArray(): [],
+                //     "product_add_datas"     => $prdObj->add_data ? $prdObj->add_data->toArray(): [],
+                //     "product_extend_datas"  => $prdObj->extends ? $prdObj->extends->toArray(): [],
+                //     "product_image_datas"   => ($prdObj->images ? $prdObj->images->toArray(): []) +( $prdObj->en_images ? $prdObj->en_images->toArray() : []),
+                //     "product_notice_datas"  => $prdObj->notices ? $prdObj->notices->toArray(): [],
+                //     "product_option_datas"  => $prdObj->options ? $prdObj->options->toArray(): [],
+                //     "product_sku_datas"     => $prdObj->sku_data ? $prdObj->sku_data->toArray(): [],
+                //     "product_sale_datas"    => $prdObj->sale_data ? $prdObj->sale_data->toArray(): [],
+                // ];
             }
 
             if(count($images) < 1){
@@ -511,50 +546,56 @@ class EasySell extends MallApiAbstract
                 $saleStatus = EasySellConstant::STATUS_ON_SALE;
             }
 
-            //배송비 설정
-            $weights   = CategoryConstant::WEIGHTS;
-            $weightObj = ProductWeightData::where("offer_id", $offerId)->first();
-            $delivery_price = ProductConstant::WEIGHT_STATUS_NONE_PRICE;
-            if( $weightObj != null ){
-                $delivery_price = $weights[$weightObj->weight];
-            }
-
             //옵션 설정
             $unitInfo = $optionTitle."|";
             $idx      = 0;
             foreach($prdObj->no_except_options as $option){
-                //옵션명
-                $replaceArr     = array("|",",","/");
-                $replacementArr = array("-","\,","-");
-
-                if($type == EasySellConstant::TYPE_W){
-                    $optionNm = str_replace($replaceArr, $replacementArr ,$option->option_name_kr);
-                    $price    = calcEasySellSalePrice($option->price_1688, $option->md_price, $delivery_price, "static", EasySellConstant::TYPE_W);
-                }else if($type == EasySellConstant::TYPE_DROPHUB){
-                    $optionNm = str_replace($replaceArr, $replacementArr ,$option->option_name_en);
-                    $price    = calcEasySellSalePrice($option->price_1688_option, $option->md_price, $delivery_price, "static", EasySellConstant::TYPE_DROPHUB);
-                }
-
-                if(!$idx){
-                    $buyPrice  = $price['buyPrice']; //셀러허브 공급가
-                    $salePrice = $setPrice = $price['salePrice'];
-                }else{
-                    $unitInfo .= ",";
-                }
-                $setPrice = $price['salePrice'];
-
-                if( $option->status == ProductConstant::OPTION_SEC_ON_SALE_NUMBER ){
+                if( $option->status == ProductConstant::OPTION_SEC_ON_SALE_NUMBER && $option->amount_on_sale > 0){
                     $stock = $option->amount_on_sale;
-                } else {
-                    $stock = 0;
+
+                    //옵션명
+                    $replaceArr     = array("|",",","/");
+                    $replacementArr = array("-","\,","-");
+
+                    if($type == EasySellConstant::TYPE_W){
+                        if($idx >= 50){
+                            //이지셀 옵션수량 제한
+                            break;
+                        }
+
+                        $optionNm = str_replace($replaceArr, $replacementArr ,$option->option_name_kr);
+                        $price    = calcEasySellSalePrice($option->price_1688, $option->md_price, $delivery_price, "static", EasySellConstant::TYPE_W);
+                    }else if($type == EasySellConstant::TYPE_DROPHUB){
+                        $optionNm = str_replace($replaceArr, $replacementArr ,$option->option_name_en);
+                        if(mb_strwidth($optionNm) > 50){
+                            //옵션명 50바이트 초과시 전송 제외
+                            continue;
+                        }
+                        $price    = calcEasySellSalePrice($option->price_1688, $option->md_price, $delivery_price, "static", EasySellConstant::TYPE_DROPHUB);
+                    }
+
+                    if(!$idx){
+                        $buyPrice  = $price['buyPrice']; //셀러허브 공급가
+                        $salePrice = $setPrice = $price['salePrice'];
+                    }else{
+                        $unitInfo .= ",";
+                    }
+                    $setPrice = $price['salePrice'];
+
+                    if($type == EasySellConstant::TYPE_DROPHUB){
+                        $buyPrice = $setPrice;
+                    }
+
+                    //옵션구분명|옵션1^^재고^^판매가^^정가^^공급가::업체옵션번호,
+                    $unitInfo .= "{$optionNm}^^{$stock}^^{$setPrice}^^{$setPrice}^^{$buyPrice}::{$option->id}";
+
+                    $idx++;
                 }
-
-                //옵션구분명|옵션1^^재고^^판매가^^정가^^공급가::업체옵션번호,
-                $unitInfo .= "{$optionNm}^^{$stock}^^{$setPrice}^^{$setPrice}^^{$buyPrice}::{$option->id}";
-
-                $idx++;
             }
-            debug_log($unitInfo, "easysell/{$type}", $type);
+            // debug_log($unitInfo, "easysell/{$type}", $type);
+            if($idx == 0){
+                throw new Exception("전송 가능한 옵션이 없습니다");
+            }
 
             $voParams = [
                 "ItemNo"                => $offerId,
@@ -575,7 +616,8 @@ class EasySell extends MallApiAbstract
                 "SaleStatus"            => $saleStatus,
                 "ItemMode"              => $itemMode,
                 "noticeType"            => $noticeType,
-                "MinEa"                 => $prdObj->start_quantity
+                "MinEa"                 => $prdObj->start_quantity,
+                "OptPrice"              => $OptPrice,
             ];
 
             $vo = new EasySellProductVo($type);
@@ -621,6 +663,10 @@ class EasySell extends MallApiAbstract
                 "ItemApproveAuto"            => $vo->ItemApproveAuto,
                 "MinEa"                      => $vo->MinEa
             ] + $vo->ItemGoodsRequired;
+
+            if($type == EasySellConstant::TYPE_DROPHUB){
+                // $apiParams += ["mirrorData" => $mirrorData];
+            }
 
             ###인코딩
             array_walk_recursive($apiParams, array($this, "_iconvArr"));
@@ -876,7 +922,7 @@ class EasySell extends MallApiAbstract
                 CURLOPT_RETURNTRANSFER => true,
                 CURLOPT_ENCODING => "",
                 CURLOPT_MAXREDIRS => 10,
-                CURLOPT_TIMEOUT => 30,
+                CURLOPT_TIMEOUT => 60,
                 CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
                 CURLOPT_CUSTOMREQUEST => "POST",
                 CURLOPT_POSTFIELDS => $params,
@@ -885,6 +931,9 @@ class EasySell extends MallApiAbstract
             ));
 
             $response = curl_exec($curl);
+            if($response == false ){
+                debug_log(print_r($params,true), "easysell/error", "error");
+            }
             curl_close($curl);
 
             $response = str_replace('euc-kr', 'utf-8', $response);
