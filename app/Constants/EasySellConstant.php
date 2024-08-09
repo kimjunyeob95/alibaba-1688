@@ -73,6 +73,13 @@ class EasySellConstant
         "066013" => self::W_ACCOUNT_RADIO,
         "066014" => self::W_ACCOUNT_USED_LUXURY,
         "066015" => self::W_ACCOUNT_USED_GOODS,
+
+        "055008" => self::W_ACCOUNT_FASHION,
+        "055005" => self::W_ACCOUNT_FASHION,
+        "055005" => self::W_ACCOUNT_FASHION,
+        "055002" => self::W_ACCOUNT_FASHION,
+        "055002" => self::W_ACCOUNT_FASHION,
+        "055002" => self::W_ACCOUNT_FASHION,
     ];
 
     public const CATEGORY_NAME = [
@@ -91,6 +98,13 @@ class EasySellConstant
         "066013" => "W_무전기",
         "066014" => "W_중고명품",
         "066015" => "W_중고상품",
+
+        "055008" => "W_패션의류",
+        "055005" => "W_패션의류",
+        "055005" => "W_패션의류",
+        "055002" => "W_패션의류",
+        "055002" => "W_패션의류",
+        "055002" => "W_패션의류",
     ];
 
     //이지셀 정보고시 매핑
@@ -175,6 +189,25 @@ class EasySellConstant
         ],
         "066015" => [
             "g18"
+        ],
+
+        "055008" => [
+            "g0",
+        ],
+        "055005" => [
+            "g0",
+        ],
+        "055005" => [
+            "g0",
+        ],
+        "055002" => [
+            "g0",
+        ],
+        "055002" => [
+            "g0",
+        ],
+        "055002" => [
+            "g0",
         ]
     ];
 
