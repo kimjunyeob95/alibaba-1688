@@ -25,11 +25,13 @@ abstract class WMessageAbstract
         $returnMsg = $this->returnMsg;
 
         try {
-            $page       = $params["page"];
-            $pageSize   = $params["pageSize"];
-            $search_cls = $params["search_cls"];
-            $keyword    = $params["keyword"];
-            $code       = $params["code"];
+            $page         = $params["page"];
+            $pageSize     = $params["pageSize"];
+            $search_cls   = $params["search_cls"];
+            $keyword      = $params["keyword"];
+            $code         = $params["code"];
+            $channel      = $params["channel"];
+            $pubSubIsSend = $params["pubSubIsSend"];
 
             $code = array_filter($code, function($value) {
                 return !empty($value);
@@ -41,6 +43,14 @@ abstract class WMessageAbstract
 
             if( !empty($code) ){
                 $builder->whereIn("code", $code);
+            }
+            if( !empty($channel) ){
+                $builder->whereHas('order_base_obj', function($query) use ($channel) {
+                    $query->where('channel', $channel);
+                });
+            }
+            if( !empty($pubSubIsSend) ){
+                $builder->where("pub_sub_is_send", $pubSubIsSend);
             }
 
             if( !empty($keyword) ){
@@ -56,6 +66,8 @@ abstract class WMessageAbstract
                 if( $search_cls == "order_id"){
                     $builder->whereIn($search_cls, $keyword);
                 } else if( $search_cls == "channel_order_id"){
+                    $builder->whereIn($search_cls, $keyword);
+                } else if( $search_cls == "code"){
                     $builder->whereIn($search_cls, $keyword);
                 }
             }
