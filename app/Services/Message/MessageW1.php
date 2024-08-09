@@ -76,25 +76,24 @@ class MessageW1 extends WMessageAbstract
                         "_aop_signature" => $params["_aop_signature"],
                     ];
 
-                    $baseObj = OrderBaseData::with([
-                        "logistics",
-                        "w_options.option",
-                        "channel_objs.details"
-                    ])->where("order_id", $orderId)->first();
-
-                    if( $baseObj != null ){
-                        $result = $this->orderW1->orderUpdate([$orderId]);
-                        
-                        if( isset($result["data"]["failList"]) && !empty($result["data"]["failList"]) ){
+                    $baseExists = OrderBaseData::where("order_id", $orderId)->exists();
+                    if( $baseExists === true ){
+                        $updateResult = $this->orderW1->orderUpdate([$orderId]);
+                        if( isset($updateResult["data"]["failList"]) && !empty($updateResult["data"]["failList"]) ){
                             $errArray = [
-                                "msg"     => $result["data"]["failList"][0]["msg"],
+                                "msg"     => $updateResult["data"]["failList"][0]["msg"],
                                 "message" => $message
                             ];
                             throw new ArrayValueError($errArray);
                         }
 
-                        foreach ($baseObj->channel_objs as $channelObj) {
+                        $baseObj = OrderBaseData::with([
+                            "logistics",
+                            "w_options.option",
+                            "channel_objs.details"
+                        ])->where("order_id", $orderId)->first();
 
+                        foreach ($baseObj->channel_objs as $channelObj) {
                             WMessageLog::create([
                                 "order_id"         => $baseObj->order_id,
                                 "channel_order_id" => $channelObj->channel_order_id,
@@ -154,7 +153,7 @@ class MessageW1 extends WMessageAbstract
                             if( $isSuccess !== true ) {
                                 debug_log(json_encode($kafkaPayload, JSON_UNESCAPED_UNICODE), "1688/message", "kafka-error-message");
                             }
-
+    
                             debug_log(json_encode($logParams, JSON_UNESCAPED_UNICODE), "1688/message", "success-message");
                         }
                     }
