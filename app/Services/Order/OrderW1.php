@@ -117,10 +117,36 @@ class OrderW1 extends OrderAbstract
                 ];
             }
 
+            $endPoint = "param2/1/com.alibaba.trade/alibaba.createOrder.preview/";
+            $payload = [
+                'access_token' => $this->accessToken,
+                'addressParam' => [
+                    'addressId'    => Constant1688::ADDRESSID,
+                    'fullName'     => Constant1688::FULLNAME,
+                    'mobile'       => Constant1688::MOBILE,
+                    'phone'        => Constant1688::PHONE,
+                    'postCode'     => Constant1688::POSTCODE,
+                    'cityText'     => Constant1688::CITYTEXT,
+                    'provinceText' => Constant1688::PROVINCETEXT,
+                    'areaText'     => Constant1688::AREATEXT,
+                    'townText'     => Constant1688::TOWNTEXT,
+                    'address'      => Constant1688::ADDRESS,
+                    'districtCode' => Constant1688::DISTRICTCODE,
+                ],
+                'cargoParamList' => $cargoParamList,
+            ];
+            $previewResult = curl_1688("POST", $endPoint, $payload);
+            
+            if( !isset($previewResult["data"]["orderPreviewResuslt"][0]["flowFlag"]) || empty($previewResult["data"]["orderPreviewResuslt"][0]["flowFlag"]) ){
+                throw new Exception(OrderErrorMessageConstant::getFitErrorMessage("FLOW"));
+            }
+
+            $flow = $previewResult["data"]["orderPreviewResuslt"][0]["flowFlag"];
+
             $endPoint = "param2/1/com.alibaba.trade/alibaba.trade.createCrossOrder/";
             $payload = [
                 'access_token' => $this->accessToken,
-                'flow'         => Constant1688::FLOW_GENERAL,
+                'flow'         => $flow,
                 'addressParam' => [
                     'addressId'    => Constant1688::ADDRESSID,
                     'fullName'     => Constant1688::FULLNAME,
@@ -135,8 +161,9 @@ class OrderW1 extends OrderAbstract
                     'districtCode' => Constant1688::DISTRICTCODE,
                 ],
                 'cargoParamList'      => $cargoParamList,
-                // 'preSelectPayChannel' => Constant1688::PRESELECTPAYCHANNEL
+                'preSelectPayChannel' => Constant1688::PRESELECTPAYCHANNEL
             ];
+            
             $result = curl_1688("post", $endPoint, $payload);
 
             if( $result["isSuccess"] === true &&
