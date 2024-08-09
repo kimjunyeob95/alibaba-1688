@@ -71,6 +71,11 @@ class MessageW1 extends WMessageAbstract
                         throw new ArrayValueError($errArray);
                     }
                     
+                    $logParams = [
+                        "message"        => $message,
+                        "_aop_signature" => $params["_aop_signature"],
+                    ];
+
                     $baseObj = OrderBaseData::with([
                         "logistics",
                         "w_options.option",
@@ -89,11 +94,12 @@ class MessageW1 extends WMessageAbstract
                         }
 
                         foreach ($baseObj->channel_objs as $channelObj) {
+
                             WMessageLog::create([
                                 "order_id"         => $baseObj->order_id,
                                 "channel_order_id" => $channelObj->channel_order_id,
                                 "code"             => MessageConstant::MESSAGE_CODE[$type],
-                                "request"          => json_encode($params, JSON_UNESCAPED_UNICODE),
+                                "request"          => json_encode($logParams, JSON_UNESCAPED_UNICODE),
                             ]);
     
                             $refund_info = [];
@@ -149,8 +155,7 @@ class MessageW1 extends WMessageAbstract
                                 debug_log(json_encode($kafkaPayload, JSON_UNESCAPED_UNICODE), "1688/message", "kafka-error-message");
                             }
 
-                            $params["message"] = $message;
-                            debug_log(json_encode($params, JSON_UNESCAPED_UNICODE), "1688/message", "success-message");
+                            debug_log(json_encode($logParams, JSON_UNESCAPED_UNICODE), "1688/message", "success-message");
                         }
                     }
                 } else {
