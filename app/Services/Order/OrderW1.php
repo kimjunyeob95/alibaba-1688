@@ -397,9 +397,11 @@ class OrderW1 extends OrderAbstract
     */
     public function orderUpdate(array $orderIds): array
     {
-        $returnMsg = $this->returnMsg;
-        try {
-            foreach ($orderIds as $orderId) {
+        $returnMsg   = $this->returnMsg;
+        $successList = [];
+        $failList    = [];
+        foreach ($orderIds as $orderId) {
+            try {
                 $orderDetailResult = $this->getWOrder($orderId);
                 if( $orderDetailResult["isSuccess"] == false || 
                     !isset($orderDetailResult["data"]["result"]["baseInfo"]) ||
@@ -428,16 +430,20 @@ class OrderW1 extends OrderAbstract
                     }
     
                     DB::commit();
+                    $successList[] = $orderId;
                 } catch (Exception $ee) {
                     DB::rollBack();
+                    throw new Exception($ee->getMessage());
                 }
+            } catch (Exception $e) {
+                $failList[] = [
+                    "order_id" => $orderId,
+                    "msg"    => $e->getMessage(),
+                ];
             }
-
-            $returnMsg = helpers_success_message();
-        } catch (Exception $e) {
-            $returnMsg = helpers_fail_message($e->getMessage());
         }
 
+        $returnMsg = helpers_success_message(["successList" => $successList, "failList" => $failList]);
         return $returnMsg;
     }
 
