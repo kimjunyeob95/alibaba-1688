@@ -70,7 +70,7 @@
                                     </td>
                                 </tr>
                                 <tr class="align-middle">
-                                    <th style="width: 150px">Pub/Sub 등록여부</th>
+                                    <th style="width: 150px">Pub/Sub 전송여부</th>
                                     <td colspan="2">
                                         <button type="button" name="pub_sub_is_send" class="btn-status btn btn-sm {{ $pubSubIsSend == "" ? "btn-primary" : "btn-dark" }}"
                                         value="">전체</button>
@@ -128,8 +128,8 @@
                                 <th scope="col" style="width: 15%" class="text-center">채널주문번호</th>
                                 <th scope="col" style="width: 10%" class="text-center">생성 시간</th>
                                 <th scope="col" style="width: 6%" class="text-center">메세지 전문</th>
-                                <th scope="col" style="width: 6%" class="text-center">Pub/Sub<br>전송 전문</th>
-                                <th scope="col" style="width: 5%" class="text-center">Pub/Sub<br>등록여부</th>
+                                <th scope="col" style="width: 6%" class="text-center">Pub/Sub<br>전송전문</th>
+                                <th scope="col" style="width: 5%" class="text-center">Pub/Sub<br>전송여부</th>
                             </tr>
                         </thead>
                         <tbody>

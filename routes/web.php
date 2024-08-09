@@ -25,6 +25,7 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get("/", [ProductController::class, "queryProductDetail"])->name("/");
+Route::get("/svg", function() { return view('svg'); })->name("svgView");
 
 
 /**

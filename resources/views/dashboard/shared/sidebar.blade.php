@@ -17,6 +17,13 @@
                 </svg> Dashboard
             </a>
         </li>
+        <li class="nav-item">
+            <a class="nav-link" target="_blank" href="https://www.notion.so/sellerhub/WApp-1688-Project-486f687e8485477994794335ddb5d1f3">
+                <svg class="nav-icon">
+                    <use xlink:href="/vendors/@coreui/icons/svg/free.svg#cil-link"></use>
+                </svg> WApp 노션
+            </a>
+        </li>
 
         @foreach (NavConstant::NAV_LIST as $depth1Name => $depth1)
             @if (!in_array($depth1Name, $excludedNav))
@@ -26,7 +33,11 @@
                         <li class="nav-group">
                             <a class="nav-link nav-group-toggle" href="javascript:;">
                                 <svg class="nav-icon">
-                                    <use xlink:href="/vendors/@coreui/icons/svg/free.svg#cil-3d"></use>
+                                    @if (isset(NavConstant::NAV_ICON[$depth2Name]))
+                                        <use xlink:href="{{ NavConstant::NAV_ICON[$depth2Name] }}"></use>
+                                    @else
+                                        <use xlink:href="/vendors/@coreui/icons/svg/free.svg#cil-3d"></use>
+                                    @endif
                                 </svg>
                                 {{ $depth2Name }}
                             </a>
@@ -37,7 +48,11 @@
                                             <li class="nav-group">
                                                 <a class="nav-link nav-group-toggle" href="javascript:;">
                                                     <svg class="nav-icon">
-                                                        <use xlink:href="/vendors/@coreui/icons/svg/free.svg#cil-3d"></use>
+                                                        @if (isset(NavConstant::NAV_ICON[$depth3Name]))
+                                                            <use xlink:href="{{ NavConstant::NAV_ICON[$depth3Name] }}"></use>
+                                                        @else
+                                                            <use testt="{{ $depth3Name}}" xlink:href="/vendors/@coreui/icons/svg/free.svg#cil-3d"></use>
+                                                        @endif
                                                     </svg>
                                                     {{ $depth3Name }}
                                                 </a>
@@ -75,7 +90,7 @@
         <li class="nav-group">
             <a class="nav-link nav-group-toggle" href="javascript:;">
                 <svg class="nav-icon">
-                    <use xlink:href="/vendors/@coreui/icons/svg/free.svg#cil-3d"></use>
+                    <use xlink:href="/vendors/@coreui/icons/svg/free.svg#cil-link"></use>
                 </svg>
                 Swagger List
             </a>
