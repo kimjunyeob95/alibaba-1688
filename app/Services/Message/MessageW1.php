@@ -7,6 +7,7 @@ use App\Abstracts\WMessageAbstract;
 use App\Constants\KafkaConstant;
 use App\Constants\MessageConstant;
 use App\Constants\MessageErrorMessageConstant;
+use App\Exceptions\ArrayValueError;
 use App\Models\OrderBaseData;
 use App\Models\WMessageLog;
 use App\Packages\Kafka;
@@ -36,25 +37,38 @@ class MessageW1 extends WMessageAbstract
     */
     public function message(array $params): array
     {
-        $returnMsg = $this->returnMsg;        
+        $returnMsg = $this->returnMsg;
         try {
-            if( isset($params["message"]["type"]) && $params["message"]["type"] ){
-                $message = $params["message"];
+            if( isset($params["message"]) && !empty($params["message"]) && isset($params["_aop_signature"]) && !empty($params["_aop_signature"]) ){
+                $message = json_decode($params["message"], JSON_UNESCAPED_UNICODE);
+
+                if( !isset($message["type"]) ){
+                    $errArray = [
+                        "msg"     => MessageErrorMessageConstant::getNotHaveErrorMessage("TYPE"),
+                        "message" => $message
+                    ];
+                    throw new ArrayValueError($errArray);
+                }
+
                 $type    = $message["type"];
                 $orderId = "";
                 if( in_array($type, MessageConstant::MESSAGE_TYPE_LIST) ){
                     if( isset($message["data"]["orderId"]) && $message["data"]["orderId"] ) {
-                        $orderId                              = (string)$message["data"]["orderId"];
-                        $params["message"]["data"]["orderId"] = $orderId;
+                        $orderId                    = (string)$message["data"]["orderId"];
+                        $message["data"]["orderId"] = $orderId;
                     } else if( isset($message["data"]["OrderLogisticsTracingModel"]["orderLogsItems"]) && count($message["data"]["OrderLogisticsTracingModel"]["orderLogsItems"]) > 0) {
                         $orderId = (string)$message["data"]["OrderLogisticsTracingModel"]["orderLogsItems"][0]["orderId"];
-                        foreach ($params["message"]["data"]["OrderLogisticsTracingModel"]["orderLogsItems"] as &$items) {
+                        foreach ($message["data"]["OrderLogisticsTracingModel"]["orderLogsItems"] as &$items) {
                             $items["orderId"] = $orderId;
                         }
                     }
                     
                     if( $orderId === "" ){
-                        throw new Exception(MessageErrorMessageConstant::getNotHaveErrorMessage("ORDERID"));
+                        $errArray = [
+                            "msg"     => MessageErrorMessageConstant::getNotHaveErrorMessage("ORDERID"),
+                            "message" => $message
+                        ];
+                        throw new ArrayValueError($errArray);
                     }
                     
                     $baseObj = OrderBaseData::with([
@@ -65,8 +79,13 @@ class MessageW1 extends WMessageAbstract
 
                     if( $baseObj != null ){
                         $result = $this->orderW1->orderUpdate([$orderId]);
-                        if( $result["isSuccess"] === false ){
-                            throw new Exception($result["msg"]);
+                        
+                        if( isset($result["data"]["failList"]) && !empty($result["data"]["failList"]) ){
+                            $errArray = [
+                                "msg"     => $result["data"]["failList"][0]["msg"],
+                                "message" => $message
+                            ];
+                            throw new ArrayValueError($errArray);
                         }
 
                         foreach ($baseObj->channel_objs as $channelObj) {
@@ -130,16 +149,25 @@ class MessageW1 extends WMessageAbstract
                                 debug_log(json_encode($kafkaPayload, JSON_UNESCAPED_UNICODE), "1688/message", "kafka-error-message");
                             }
 
-                            debug_log(json_encode($params, JSON_UNESCAPED_UNICODE), "1688/message", "message");
+                            $params["message"] = $message;
+                            debug_log(json_encode($params, JSON_UNESCAPED_UNICODE), "1688/message", "success-message");
                         }
                     }
                 } else {
-                    throw new Exception(MessageErrorMessageConstant::getNotHaveErrorMessage("TYPE"));
+                    $errArray = [
+                        "msg"     => MessageErrorMessageConstant::getNotHaveErrorMessage("TYPE"),
+                        "message" => $message
+                    ];
+                    throw new ArrayValueError($errArray);
                 }
             }
-        } catch (Exception $e) {
-            $params["error_msg"] = $e->getMessage();
+        } catch (ArrayValueError $e) {
+            $errorArray          = $e->getErrorArray();
+            $params["message"]   = $errorArray["message"];
+            $params["error_msg"] = $errorArray["msg"];
             debug_log(json_encode($params, JSON_UNESCAPED_UNICODE), "1688/message", "error-message");
+        } catch (Exception $e) {
+            debug_log($e->getMessage(), "1688/message", "error-message");
         }
 
         /** 200으로 반환 안할 시 1688에서 재전송함 */
