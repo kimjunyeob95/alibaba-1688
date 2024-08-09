@@ -96,5 +96,12 @@ class MessageConstant
         self::OT001 => "배송 상태의 변경",
         self::OT002 => "배송 정보의 변경",
     ];
+
+    public const PUB_SUB_SEND_Y = "Y";
+    public const PUB_SUB_SEND_N = "N";
+    public const PUB_SUB_SEND = [
+        self::PUB_SUB_SEND_Y => "전송성공",
+        self::PUB_SUB_SEND_N => "전송실패",
+    ];
     
 }
