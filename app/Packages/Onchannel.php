@@ -7,6 +7,7 @@ use App\Abstracts\OrderAbstract;
 use App\Abstracts\ProductAbstract;
 use App\Abstracts\TransApiAbstract;
 use App\Constants\CategoryConstant;
+use App\Constants\ForbiddenWordConstant;
 use App\Constants\ImageConstant;
 use App\Constants\MallConstant;
 use App\Constants\MallErrorMessageConstant;
@@ -20,6 +21,7 @@ use App\Models\OnchannelProductDetailLog;
 use App\Models\OnchannelProductLog;
 use App\Models\OnchCategoryExcelDataCopy2;
 use App\Models\ProductData;
+use App\Models\ProductForbiddenData;
 use App\Models\ProductModiData;
 use App\Models\ProductWeightData;
 use Carbon\Carbon;
@@ -89,7 +91,7 @@ class Onchannel extends MallApiAbstract
                             "extends",
                             "images",
                             "no_except_options",
-                            "no_except_notices",
+                            "notices",
                             "w_mapping",
                             "oc_mapping",
                         ])->where("offer_id", $offerId)->first();
@@ -268,7 +270,7 @@ class Onchannel extends MallApiAbstract
                         "extends",
                         "images",
                         "no_except_options",
-                        "no_except_notices",
+                        "notices",
                         "w_mapping",
                         "oc_mapping",
                         "oc_public_log",
@@ -510,12 +512,34 @@ class Onchannel extends MallApiAbstract
                 $prd_desc = $prdObj->prd_desc_kr;
             }
 
-            $noticeInfo   = $prdObj->no_except_notices->pluck("attribute_value_kr","attribute_name_kr")->toArray();
-            $notice_desc  = getNoticeInfoTable($noticeInfo);
-            $prd_desc    .= $notice_desc;
+            $noticeInfos        = $prdObj->notices->pluck("attribute_value_kr", "attribute_name_kr")->toArray();
+            $noticeNameArr      = $prdObj->forbidden_notice_names;
+            $noticeValueArr     = $prdObj->forbidden_notice_values;
+            $updatedNoticeInfos = [];
 
-            $prd_desc = "<div style='text-align: center !important'>" . $prd_desc . "</div>";
+            foreach ($noticeInfos as $noticeName => $noticeValue) {
+                $updatedNoticeName = $noticeName;
+                $updatedNoticeValue = $noticeValue;
+                // 금지어 이름 원본 교체
+                foreach ($noticeNameArr as $forbiddenName) {
+                    if ($forbiddenName->origin_text === $noticeName) {
+                        $updatedNoticeName = $forbiddenName->trans_text;
+                        break;
+                    }
+                }
+                // 금지어 값 원본 교체
+                foreach ($noticeValueArr as $forbiddenValue) {
+                    if ($forbiddenValue->origin_text === $noticeValue) {
+                        $updatedNoticeValue = $forbiddenValue->trans_text;
+                        break;
+                    }
+                }
+                $updatedNoticeInfos[$updatedNoticeName] = $updatedNoticeValue;
+            }
+            $notice_desc = getNoticeInfoTable($updatedNoticeInfos);
+            $prd_desc   .= $notice_desc;
 
+            $prd_desc   = "<div style='text-align: center !important'>" . $prd_desc . "</div>";
             $prdImgDesc = "<div><div style='width: 830px; margin:20px auto;'>
             <h5 style='text-align: center; padding: 0px; font-size: 20px; text-align: center; color: #000;font-weight: 900; margin-bottom: 40px;'>상품 이미지</h5>
             <ul style='display: flex; flex-wrap: wrap; justify-content: center;'>";
@@ -561,11 +585,20 @@ class Onchannel extends MallApiAbstract
                 $delivery_price = $weights[$weightObj->weight];
             }
 
+            $productName  = $prdObj->prd_name_kr;
+            $forbiddenObj = ProductForbiddenData::where([
+                "offer_id"   => $prdObj->offer_id,
+                "apply_type" => ForbiddenWordConstant::KEYWORD_APPLY_TITLE
+            ])->first();
+            if( $forbiddenObj != null && !empty($forbiddenObj->origin_text) ){
+                $productName = $forbiddenObj->origin_text;
+            }
+
             $payload = [
                 "nat_sec"         => OnchannelConstant::NAT_SEC,
                 "supp_sec"        => OnchannelConstant::SUPP_SEC,
                 "jejo_code"       => $prdObj->offer_id,
-                "product_nm"      => $prdObj->prd_name_kr,
+                "product_nm"      => $productName,
                 "prd_char1"       => $prdObj->minor_not_sale,
                 "trans_info"      => OnchannelConstant::TRANS_INFO,
                 "send_check"      => OnchannelConstant::SEND_CHECK,
@@ -578,7 +611,7 @@ class Onchannel extends MallApiAbstract
                 "etc_comment"     => OnchannelConstant::ETC_COMMENT,
                 "return_comment"  => $prdObj->return_comment,
                 "sec_tax"         => OnchannelConstant::SEC_TAX,
-                "subject"         => $prdObj->prd_name_kr,
+                "subject"         => $productName,
                 "contents"        => $prd_desc,
                 "img_url"         => $img_url,
                 "img_nm_550"      => $img_nm_550,
