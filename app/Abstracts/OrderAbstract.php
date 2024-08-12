@@ -129,7 +129,7 @@ abstract class OrderAbstract
             $baseInfo    = $orderDto->orderBaseDto;
             $upsertWhere = $baseInfo->getAllProperties();
             unset($upsertWhere["order_id"]);
-            OrderBaseData::updateOrCreate(
+            OrderBaseData::lockForUpdate()->updateOrCreate(
                 [
                     "order_id" => $baseInfo->order_id,
                 ],
@@ -141,7 +141,7 @@ abstract class OrderAbstract
                 $upsertWhere = $orderTradeDto->getAllProperties();
                 unset($upsertWhere["order_id"]);
                 unset($upsertWhere["phase"]);
-                OrderTradeData::updateOrCreate(
+                OrderTradeData::lockForUpdate()->updateOrCreate(
                     [
                         "order_id" => $orderTradeDto->order_id,
                         "phase"    => $orderTradeDto->phase,
@@ -156,7 +156,7 @@ abstract class OrderAbstract
                 unset($upsertWhere["order_id"]);
                 unset($upsertWhere["offer_id"]);
                 unset($upsertWhere["spec_id"]);
-                OrderProductData::updateOrCreate(
+                OrderProductData::lockForUpdate()->updateOrCreate(
                     [
                         "order_id" => $orderProductDto->order_id,
                         "offer_id" => $orderProductDto->offer_id,
@@ -171,7 +171,7 @@ abstract class OrderAbstract
                 $upsertWhere = $orderLogisticDto->getAllProperties();
                 unset($upsertWhere["order_id"]);
                 unset($upsertWhere["logistics_id"]);
-                OrderLogisticsData::updateOrCreate(
+                OrderLogisticsData::lockForUpdate()->updateOrCreate(
                     [
                         "order_id"     => $orderLogisticDto->order_id,
                         "logistics_id" => $orderLogisticDto->logistics_id,
@@ -203,7 +203,7 @@ abstract class OrderAbstract
             $upsertWhere = $orderChannelDto->getAllProperties();
             unset($upsertWhere["order_id"]);
             unset($upsertWhere["channel_order_id"]);
-            $ocdObj = OrderChannelData::updateOrCreate(
+            $ocdObj = OrderChannelData::lockForUpdate()->updateOrCreate(
                 [
                     "order_id"         => $orderChannelDto->order_id,
                     "channel_order_id" => $orderChannelDto->channel_order_id,
@@ -215,7 +215,7 @@ abstract class OrderAbstract
                 $upsertWhere = $orderChannelDetailDto->getAllProperties();
                 unset($upsertWhere["order_channel_id"]);
                 unset($upsertWhere["option_id"]);
-                OrderChannelDetailData::updateOrCreate(
+                OrderChannelDetailData::lockForUpdate()->updateOrCreate(
                     [
                         "order_channel_id" => $ocdObj->id,
                         "option_id"        => $orderChannelDetailDto->option_id
