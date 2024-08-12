@@ -169,9 +169,11 @@ abstract class OrderAbstract
             $orderLogisticDtos = $orderDto->orderLogisticDtos;
             foreach ($orderLogisticDtos as $orderLogisticDto) {
                 $upsertWhere = $orderLogisticDto->getAllProperties();
+                unset($upsertWhere["order_id"]);
                 unset($upsertWhere["logistics_id"]);
                 OrderLogisticsData::updateOrCreate(
                     [
+                        "order_id"     => $orderLogisticDto->order_id,
                         "logistics_id" => $orderLogisticDto->logistics_id,
                     ],
                     $upsertWhere
