@@ -82,7 +82,7 @@ class OnchannelCommand extends Command
 
             /**
              * 상품등록 커맨드
-             * php artisan onchannel_command --func=productRegist --offerids=771916492405 --sendtype=30
+             * php artisan onchannel_command --func=productRegist --offerids=768911995965 --sendtype=30
              */
             case 'productRegist':
                 $offerIds     = explode(",", $this->option('offerids'));
