@@ -136,7 +136,7 @@ class OrderW1 extends OrderAbstract
                 'cargoParamList' => $cargoParamList,
             ];
             $previewResult = curl_1688("POST", $endPoint, $payload);
-            
+
             if( !isset($previewResult["data"]["orderPreviewResuslt"][0]["flowFlag"]) || empty($previewResult["data"]["orderPreviewResuslt"][0]["flowFlag"]) ){
                 throw new Exception(OrderErrorMessageConstant::getFitErrorMessage("FLOW"));
             }
