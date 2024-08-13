@@ -63,9 +63,11 @@
                                         </div>
                                     </td>
                                     <th scope="col" style="width: 10%">W 주문번호</th>
-                                    <td attr="order_id" colspan="2">{{ $data->order_id }}</td>
+                                    <td attr="order_id">{{ $data->order_id }}</td>
+                                    <th scope="col" style="width: 10%">제품ID</th>
+                                    <td attr="offer_id">{{ $data->offer_id }}</td>
                                     <th scope="col" style="width: 10%">상품명</th>
-                                    <td colspan="4">
+                                    <td colspan="3">
                                         {{ $data->product->prd_name_kr }}
                                         <div attr="prd_name_kr" style="max-width: 500px;">
                                         </div>
