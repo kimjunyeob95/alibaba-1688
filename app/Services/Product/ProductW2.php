@@ -3180,7 +3180,7 @@ class ProductW2 extends ProductAbstract
         return $returnMsg;
     }
 
-    public function weightSave(array $offerIds, int $weight): array
+    public function weightSave(array $offerIds, float $weight): array
     {
         $returnMsg = $this->returnMsg;
 

@@ -12,9 +12,9 @@ use App\Models\Category;
 use App\Models\CategoryMapping;
 use App\Models\CategoryTree;
 use App\Models\CategoryWeightData;
-use App\Models\ChannelCategoryRegistData;
 use App\Models\ProductData;
 use App\Models\WCategory;
+use App\Models\WeightData;
 use Exception;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\File;
@@ -777,8 +777,7 @@ class CategoryW1 extends CategoryAbstract
             $qryBuilder = CategoryTree::from("category_trees as a")
             ->select([
                 "a.*",
-                "c.weight",
-                "c.delivery_price",
+                "c.weight"
             ])
             ->leftJoin("category_mappings as b", function($join) {
                 $join->on("a.category_id", "=", "b.category_id")
@@ -1152,19 +1151,19 @@ class CategoryW1 extends CategoryAbstract
                     $cate_name .= " > " . $cateObj->cate_third;
                 }
 
-                $weight         = 0;
-                $delivery_price = CategoryConstant::WEIGHTS[$weight];
-
+                $weight = "0.0";
                 if( $cateObj->weight_category ){
-                    $weight         = $cateObj->weight_category->weight;
-                    $delivery_price = CategoryConstant::WEIGHTS[$weight];
+                    $weight = $cateObj->weight_category->weight;
                 }
 
-                $cateResult[]   = [
-                    "category_id"    => $cateObj->category_id,
-                    "cate_name"      => $cate_name,
-                    "weight"         => $weight,
-                    "delivery_price" => $delivery_price,
+                $getWeightDelivery = getWeightDelivery($weight);
+
+                $cateResult[] = [
+                    "category_id"        => $cateObj->category_id,
+                    "cate_name"          => $cate_name,
+                    "weight"             => $getWeightDelivery["weight"],
+                    "shipping_price"     => $getWeightDelivery["shipping_price"],
+                    "air_shipping_price" => $getWeightDelivery["air_shipping_price"],
                 ];
             }
 
@@ -1258,7 +1257,7 @@ class CategoryW1 extends CategoryAbstract
         dd("실행 종료");
     }
 
-    public function weightSave(array $categoryIds, int $weight): array
+    public function weightSave(array $categoryIds, float $weight): array
     {
         $returnMsg = $this->returnMsg;
         
@@ -1268,17 +1267,10 @@ class CategoryW1 extends CategoryAbstract
             }
 
             foreach ($categoryIds as $categoryId) {
-                try {
-                    $deliveryPrice = CategoryConstant::WEIGHTS[$weight];
-                } catch (Exception $e) {
-                    $weight        = 0;
-                    $deliveryPrice = CategoryConstant::WEIGHTS[$weight];
-                }
-
+                $getWeightDelivery = getWeightDelivery($weight);
 
                 $upsertWhere = [
-                    "weight"         => $weight,
-                    "delivery_price" => $deliveryPrice,
+                    "weight" => $getWeightDelivery["weight"],
                 ];
                 CategoryWeightData::updateOrCreate(
                     ["category_id" => $categoryId],

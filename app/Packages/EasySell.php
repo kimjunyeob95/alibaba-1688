@@ -477,11 +477,11 @@ class EasySell extends MallApiAbstract
                 }
 
                 //배송비 설정
-                $weights   = CategoryConstant::WEIGHTS;
-                $weightObj = ProductWeightData::where("offer_id", $offerId)->first();
+                $weightObj      = ProductWeightData::where("offer_id", $offerId)->first();
                 $delivery_price = ProductConstant::WEIGHT_STATUS_NONE_PRICE;
                 if( $weightObj != null ){
-                    $delivery_price = $weights[$weightObj->weight];
+                    $getWeightDelivery = getWeightDelivery($weightObj->weight);
+                    $delivery_price    = $getWeightDelivery["shipping_price"];
                 }
 
                 //옵션가 사용여부

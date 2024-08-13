@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Constants\CategoryConstant;
 use App\Constants\ProductConstant;
 use App\Http\Controllers\Controller;
 use App\Services\Service1688Category;
@@ -81,6 +80,7 @@ class CategoryController extends Controller
             "cate_third"    => $cate_third
         ];
         $result = $this->service1688Category->weightList($params);
+
         $viewParams = [
             "weight_status"  => $weight_status,
             "keyword"        => $keyword,

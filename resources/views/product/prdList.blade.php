@@ -488,7 +488,7 @@
                                     <td class="text-center">
                                         {{-- 기준: 중량 --}}
                                         @if( $data->weight_type == null )
-                                            <button class="btn btn-sm btn-warning btn-weight-modi" offerid={{ $data->offer_id }} weight=0 price={{ ProductConstant::WEIGHT_STATUS_NONE_PRICE }} statusname='{{ ProductConstant::WEIGHT_STATUS[ProductConstant::WEIGHT_STATUS_NONE] }}'>
+                                            <button class="btn btn-sm btn-warning btn-weight-modi" offerid={{ $data->offer_id }} weight=0 shipping_price={{ ProductConstant::WEIGHT_STATUS_NONE_PRICE }} air_shipping_price={{ ProductConstant::WEIGHT_STATUS_NONE_PRICE }} statusname='{{ ProductConstant::WEIGHT_STATUS[ProductConstant::WEIGHT_STATUS_NONE] }}'>
                                                 {{ ProductConstant::WEIGHT_STATUS_SHORT[ProductConstant::WEIGHT_STATUS_NONE] }}: 0
                                             </button>
                                             <br>
@@ -496,12 +496,12 @@
                                                 {{ number_format(ProductConstant::WEIGHT_STATUS_NONE_PRICE) }}
                                             </span>
                                         @else
-                                            <button class="btn btn-sm btn-warning btn-weight-modi" offerid={{ $data->offer_id }} weight={{ $data->weight }} price={{ $data->delivery_price }} statusname='{{ ProductConstant::WEIGHT_STATUS[$data->weight_type] }}'>
-                                                {{ ProductConstant::WEIGHT_STATUS_SHORT[$data->weight_type] }}: {{ $data->weight }}
+                                            <button class="btn btn-sm btn-warning btn-weight-modi" offerid={{ $data->offer_id }} weight={{ getWeightDelivery($data->weight)["weight"] }} shipping_price={{ getWeightDelivery($data->weight)["shipping_price"]}} air_shipping_price={{ getWeightDelivery($data->weight)["air_shipping_price"]}} statusname='{{ ProductConstant::WEIGHT_STATUS[$data->weight_type] }}'>
+                                                {{ ProductConstant::WEIGHT_STATUS_SHORT[$data->weight_type] }}: {{ getWeightDelivery($data->weight)["shipping_price"] }}
                                             </button>
                                             <br>
                                             <span class="text-danger">
-                                                {{ number_format($data->delivery_price) }}
+                                                {{ number_format(getWeightDelivery($data->weight)["shipping_price"]) }}
                                             </span>
                                         @endif
                                     </td>
@@ -509,13 +509,9 @@
                                         {{-- 일반 판매자가 --}}
                                         @if (count($data->options) > 0)
                                             @php
-                                                $option         = $data->options[0];
-                                                $delivery_price = ProductConstant::WEIGHT_STATUS_NONE_PRICE;
-                                                if( $data->weight_type != null ){
-                                                    $delivery_price = $data->delivery_price;
-                                                }
+                                                $option = $data->options[0];
                                             @endphp
-                                                {{ number_format(calcWSalePrice($option->price_1688, $delivery_price)) }}
+                                                {{ number_format(calcWSalePrice($option->price_1688, getWeightDelivery($data->weight)["shipping_price"])) }}
                                         @else
                                             <p class="text-danger">옵션없음</p>
                                         @endif
@@ -524,15 +520,11 @@
                                         {{-- MD 판매자가 --}}
                                         @if (count($data->options) > 0)
                                             @php
-                                                $option         = $data->options[0];
-                                                $delivery_price = ProductConstant::WEIGHT_STATUS_NONE_PRICE;
-                                                if( $data->weight_type != null ){
-                                                    $delivery_price = $data->delivery_price;
-                                                }
+                                                $option = $data->options[0];
                                             @endphp
                                             @if ($option->md_price)
                                                 @php
-                                                    $salePrice = calcWSalePrice($option->price_1688);
+                                                    $salePrice = calcWSalePrice($option->price_1688, getWeightDelivery($data->weight)["shipping_price"]);
                                                     $saleHigh  = compareWSalePrice($salePrice, $option->md_price);
                                                 @endphp
                                                 @if ($saleHigh === true)
@@ -541,7 +533,7 @@
                                                     <button class="btn btn-sm btn-danger btn-md-modi" offerid={{ $data->offer_id }} saleprice={{ $salePrice }} mdprice={{ $option->md_price }}>{{ number_format($option->md_price) }}</button>
                                                 @endif
                                             @else
-                                                <button class="btn btn-sm btn-warning btn-md-modi" offerid={{ $data->offer_id }} saleprice={{ calcWSalePrice($option->price_1688, $delivery_price) }} mdprice=0>MD 가격 설정</button>
+                                                <button class="btn btn-sm btn-warning btn-md-modi" offerid={{ $data->offer_id }} saleprice={{ calcWSalePrice($option->price_1688, getWeightDelivery($data->weight)["shipping_price"]) }} mdprice=0>MD 가격 설정</button>
                                             @endif
                                         @else
                                             <p class="text-danger">옵션없음</p>
@@ -551,13 +543,9 @@
                                         {{-- 온채널 공급가 --}}
                                         @if (count($data->options) > 0)
                                             @php
-                                                $option         = $data->options[0];
-                                                $delivery_price = ProductConstant::WEIGHT_STATUS_NONE_PRICE;
-                                                if( $data->weight_type != null ){
-                                                    $delivery_price = $data->delivery_price;
-                                                }
+                                                $option = $data->options[0];
                                             @endphp
-                                            {{ number_format(calcOnchannelOptionPrice($option->price_1688, $delivery_price)) }}
+                                            {{ number_format(calcOnchannelOptionPrice($option->price_1688, getWeightDelivery($data->weight)["shipping_price"])) }}
                                         @else
                                             <p class="text-danger">옵션없음</p>
                                         @endif
@@ -921,10 +909,20 @@
                             <div class="d-flex justify-content-evenly px-3 mt-3">
                                 <div class="row w-100">
                                     <div class="col-2">
-                                        <label class="fs-7">배송비(원)</label>
+                                        <label class="fs-7">해운배송비(원)</label>
                                     </div>
                                     <div class="col">
-                                        <input type="text" class="form-control" name="delivery_price" placeholder="" value="" disabled>
+                                        <input type="text" class="form-control" name="shipping_price" placeholder="" value="" disabled>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="d-flex justify-content-evenly px-3 mt-3">
+                                <div class="row w-100">
+                                    <div class="col-2">
+                                        <label class="fs-7">항공배송비(원)</label>
+                                    </div>
+                                    <div class="col">
+                                        <input type="text" class="form-control" name="air_shipping_price" placeholder="" value="" disabled>
                                     </div>
                                 </div>
                             </div>
@@ -1074,7 +1072,7 @@
 <script type="text/javascript">
 
     $(document).ready(function(){
-        var weightList = '{!! json_encode(CategoryConstant::WEIGHTS) !!}';
+        var weightList = '{!! json_encode(getCacheWeightDatas()) !!}';
         weightList = JSON.parse(weightList);
 
         var sai_tool_doamin = "{{ env('GENUIO_TOOL_DOMAIN', 'https://dev-sai.genu.io') }}";
@@ -1305,34 +1303,50 @@
         });
 
         $('.btn-weight-modi').click(function(){
-            let offerIds   = [$(this).attr("offerid")];
-            let statusname = $(this).attr("statusname");
-            let weight     = $(this).attr("weight");
-            let price      = Number($(this).attr("price")).toLocaleString('ko-KR');
+            let offerIds           = [$(this).attr("offerid")];
+            let statusname         = $(this).attr("statusname");
+            let weight             = $(this).attr("weight");
+            let shipping_price     = Number($(this).attr("shipping_price")).toLocaleString('ko-KR');
+            let air_shipping_price = Number($(this).attr("air_shipping_price")).toLocaleString('ko-KR');
 
-            $(".weight-list").html(`적용 기준: ${statusname} / 중량: ${weight}(kg) / 배송비: ${price}(원)`);
+            $(".weight-list").html(`적용 기준: ${statusname} / 중량: ${weight}(kg) / 해운배송비: ${shipping_price}(원) / 항공배송비: ${air_shipping_price}(원)`);
             $('input[name="offerIds[]"]').val(offerIds);
             $('input[name=weight]').val(weight);
-            $('input[name=delivery_price]').val(price);
+            $('input[name=shipping_price]').val(shipping_price);
+            $('input[name=air_shipping_price]').val(air_shipping_price);
 
             $("#htmlModal5").modal('show');
         });
 
         $('input[name=weight]').on('input', function(e) {
+            const $this = $(this);
             const keyCode = e.originalEvent.inputType;
+            
+            // 백스페이스 또는 Delete 키 처리
             if (keyCode === 'deleteContentBackward' || keyCode === 'deleteContentForward') {
-                return; // 백스페이스 또는 Delete 키가 눌렸을 경우 input 이벤트 무시
+                return; // 이벤트 처리 중단
             }
 
-            const value = $(this).val();
-            let weightValue = weightList[value];
-            if( weightValue == undefined ){
-                weightValue = weightList[0];
-                $('input[name=weight]').val(0);
-                alert("정의되지 않은 중량입니다.");
-            }
-            weightValue = weightValue.toLocaleString('ko-KR');
-            $('input[name=delivery_price]').val(weightValue);
+            // 이전 타이머 취소
+            if (this.timer) clearTimeout(this.timer);
+
+            // 1초 후에 실행될 타이머 설정
+            this.timer = setTimeout(function() {
+                const value = $this.val();
+                let weightValue = weightList[value];
+
+                if (weightValue == undefined) {
+                    weightValue = {
+                        shipping_price: WEIGHT_STATUS_NONE_PRICE,
+                        air_shipping_price: WEIGHT_STATUS_NONE_PRICE,
+                    }
+                    $this.val(0);
+                    alert("정의되지 않은 중량입니다.");
+                }
+
+                $('input[name=shipping_price]').val(weightValue.shipping_price.toLocaleString('ko-KR'));
+                $('input[name=air_shipping_price]').val(weightValue.air_shipping_price.toLocaleString('ko-KR'));
+            }, 1000);
         });
 
         $(".htmlModalClose5").click(function(){
