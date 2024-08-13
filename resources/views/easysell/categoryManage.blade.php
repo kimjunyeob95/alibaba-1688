@@ -44,8 +44,9 @@ input[name='channelCategory']{
                         <span>Home</span>
                     </a>
                 </li>
-                <li class="breadcrumb-item">이지셀</li>
-                <li class="breadcrumb-item active" aria-current="page">카테고리 관리</li>
+                <li class="breadcrumb-item">채널 관리</li>
+                <li class="breadcrumb-item">카테고리 관리</li>
+                <li class="breadcrumb-item active" aria-current="page">이지셀 카테고리 맵핑</li>
             </ol>
         </nav>
 
