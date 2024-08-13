@@ -2149,7 +2149,7 @@ class ProductW1 extends ProductAbstract
                 $width                   = 0;
                 $length                  = 0;
                 $height                  = 0;
-                $weight                  = 0;
+                $weight                  = 0.0;
                 $pkg_size_source         = "";
 
                 if( isset($productSaleInfo["amountOnSale"]) ){
@@ -2317,7 +2317,7 @@ class ProductW1 extends ProductAbstract
                                     $height = $skuShippingDetail["height"];
                                 }
                                 if( isset($skuShippingDetail["weight"]) ) {
-                                    $weight = (int)ceil($skuShippingDetail["weight"]);
+                                    $weight = (float)$skuShippingDetail["weight"];
                                 }
                                 if( isset($skuShippingDetail["pkgSizeSource"]) ) {
                                     $pkg_size_source = $skuShippingDetail["pkgSizeSource"];
@@ -2335,7 +2335,7 @@ class ProductW1 extends ProductAbstract
                             $height = $productShippingInfo["height"];
                         }
                         if( isset($productShippingInfo["weight"]) ) {
-                            $weight = (int)ceil($productShippingInfo["weight"]);
+                            $weight = (float)$productShippingInfo["weight"];
                         }
                         if( isset($productShippingInfo["pkgSizeSource"]) ) {
                             $pkg_size_source = $productShippingInfo["pkgSizeSource"];

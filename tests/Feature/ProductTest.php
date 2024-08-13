@@ -198,44 +198,6 @@ class ProductTest extends TestCase
         dd($uploadResult);
     }
 
-    /** 상품 배송비 적용 */
-    # php artisan test --filter testWeightDelivery
-    public function testWeightDelivery()
-    {
-        $prdObjs = ProductOptionData::select('offer_id', DB::raw('MAX(weight) as max_weight'))
-        ->where("weight", ">=", 100)
-        ->groupBy("offer_id")->get();
-
-        $weights = CategoryConstant::WEIGHTS;
-        foreach ($prdObjs as $prdObj) {
-            $offerId = $prdObj->offer_id;
-            $weight  = $prdObj->max_weight;
-            $weight  = (int)ceil($weight);
-
-            $delivery_price = ProductConstant::WEIGHT_STATUS_NONE_PRICE;
-
-            if( $weight >= 100 ){
-                $weight = (int)ceil($weight / 1000);
-                ProductOptionData::where("offer_id", $offerId)->update(["weight"=>$weight]);
-            }
-            try {
-                $delivery_price = $weights[$weight];
-            } catch (Exception $e) {
-                dd($e->getMessage());
-            }
-            
-            ProductWeightData::updateOrCreate([
-                "offer_id" => $offerId,
-            ],[
-                "weight_type"    => ProductConstant::WEIGHT_STATUS_PRODUCT,
-                "weight"         => $weight,
-                "delivery_price" => $delivery_price,
-            ]);
-        }
-
-        dd("끝");
-    }
-
     /** 중량 여부로 판매 상태 업데이트 */
     # php artisan test --filter testupWeightStatus
     public function testupWeightStatus()
