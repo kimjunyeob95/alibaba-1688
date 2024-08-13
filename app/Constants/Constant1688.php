@@ -50,4 +50,6 @@ class Constant1688
     public const RANK_TYPE_HOT              = "hot";
     public const HOT_KEYWORD_TYPE           = "cate";
     public const SEARCH_PRODUCTCOLLECTIONID = "productCollectionId";
+    public const USEREDENVELOPE_Y           = "Y";
+    public const USEREDENVELOPE_N           = "N";
 }
