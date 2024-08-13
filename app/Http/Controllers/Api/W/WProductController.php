@@ -629,7 +629,7 @@ class WProductController extends Controller
         try {
             $validator = Validator::make($this->request->all(), [
                 'offerIds' => 'required|array',
-                'weight'   => 'required|int',
+                'weight'   => 'required|numeric',
             ], [
                 'offerIds.required' => ProductErrorMessageConstant::getNotHaveErrorMessage("OFFER_IDS"),
                 'weight.required'   => ProductErrorMessageConstant::getNotHaveErrorMessage("WEIGHT"),

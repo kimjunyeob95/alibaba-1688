@@ -497,7 +497,7 @@
                                             </span>
                                         @else
                                             <button class="btn btn-sm btn-warning btn-weight-modi" offerid={{ $data->offer_id }} weight={{ getWeightDelivery($data->weight)["weight"] }} shipping_price={{ getWeightDelivery($data->weight)["shipping_price"]}} air_shipping_price={{ getWeightDelivery($data->weight)["air_shipping_price"]}} statusname='{{ ProductConstant::WEIGHT_STATUS[$data->weight_type] }}'>
-                                                {{ ProductConstant::WEIGHT_STATUS_SHORT[$data->weight_type] }}: {{ getWeightDelivery($data->weight)["shipping_price"] }}
+                                                {{ ProductConstant::WEIGHT_STATUS_SHORT[$data->weight_type] }}: {{ getWeightDelivery($data->weight)["weight"] }}
                                             </button>
                                             <br>
                                             <span class="text-danger">
