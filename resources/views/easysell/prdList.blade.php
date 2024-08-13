@@ -51,7 +51,7 @@ input[name='channelCategory']{
                 </li>
                 <li class="breadcrumb-item">채널 관리</li>
                 <li class="breadcrumb-item">상품 전송 현황</li>
-                <li class="breadcrumb-item active" aria-current="page">이지셀:{{ $send_type }} 상품현황</li>
+                <li class="breadcrumb-item active" aria-current="page">{{ MallConstant::SEND_CHANNEL_LIST[$send_type] }}</li>
             </ol>
         </nav>
 

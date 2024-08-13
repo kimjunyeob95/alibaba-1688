@@ -23,7 +23,7 @@
                         <span>Home</span>
                     </a>
                 </li>
-                <li class="breadcrumb-item">W App</li>
+                <li class="breadcrumb-item">채널 관리</li>
                 <li class="breadcrumb-item">카테고리 관리</li>
                 <li class="breadcrumb-item active" aria-current="page">전송 카테고리 관리</li>
             </ol>
