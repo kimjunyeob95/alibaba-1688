@@ -3,6 +3,7 @@
 namespace App\Traits;
 
 use App\Abstracts\OrderAbstract;
+use App\Constants\OptionConstant;
 use App\Constants\OrderErrorMessageConstant;
 use App\Constants\ProductErrorMessageConstant;
 use App\Models\OrderBaseData;
@@ -108,7 +109,11 @@ trait MallOrderTrait
                     throw new Exception(ProductErrorMessageConstant::getFitErrorMessage("OPTION_QUANTITY"));
                 }
 
-                $option["specId"] = $optObj->spec_id;
+                $option["specId"]       = $optObj->spec_id;
+                $option["singleOption"] = false;
+                if( $optObj->option_name_kr == OptionConstant::NAME_KO && $optObj->option_name_en == OptionConstant::NAME_EN ){
+                    $option["singleOption"] = true;
+                }
 
                 $totalQuantity     += $quantity;
                 $totalPrice         = $totalPrice + ( $optObj->price_1688_option * $quantity );

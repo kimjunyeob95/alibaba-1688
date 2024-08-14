@@ -112,7 +112,7 @@ class OrderW1 extends OrderAbstract
             foreach ($params["optionParamList"] as $option) {
                 $cargoParamList[] = [
                     "offerId"  => $offerId,
-                    "specId"   => $option["specId"],
+                    "specId"   => ($option["singleOption"] === true) ? "" : $option["specId"],
                     "quantity" => $option["quantity"],
                 ];
             }
