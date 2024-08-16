@@ -259,7 +259,7 @@
         var weightList = '{!! json_encode(getCacheWeightDatas()) !!}';
         weightList = JSON.parse(weightList);
 
-        const WEIGHT_STATUS_NONE_PRICE = '{{ ProductConstant::WEIGHT_STATUS_NONE_PRICE }}';
+        const WEIGHT_STATUS_NONE_PRICE = Number('{{ ProductConstant::WEIGHT_STATUS_NONE_PRICE }}');
 
         $(".btn-status").click(function(){
             let name = $(this).attr("name");
@@ -281,15 +281,19 @@
 
             // 1초 후에 실행될 타이머 설정
             this.timer = setTimeout(function() {
-                const value = $this.val();
-                let weightValue = weightList[value];
+                let weight      = parseFloat($this.val()).toFixed(1);
+                let weightValue = weightList[weight];
 
                 if (weightValue == undefined) {
                     weightValue = {
                         shipping_price: WEIGHT_STATUS_NONE_PRICE,
                         air_shipping_price: WEIGHT_STATUS_NONE_PRICE,
                     }
-                    $this.val(0);
+
+                    var keys       = Object.keys(weightList);
+                    var lastWeight = keys[keys.length - 1];
+
+                    $this.val(lastWeight);
                     alert("정의되지 않은 중량입니다.");
                 }
 

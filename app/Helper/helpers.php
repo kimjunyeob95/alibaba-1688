@@ -1173,7 +1173,7 @@ if (!function_exists("getCacheWeightDatas")) {
 
         if ($weights === null) {
             $weights = Cache::remember('weight_data', now()->addMinutes(60), function () {
-                return WeightData::select(['weight', 'shipping_price', 'air_shipping_price'])->get()->keyBy('weight')->map(function ($item) {
+                return WeightData::select(['weight', 'shipping_price', 'air_shipping_price'])->orderBy("weight", "asc")->get()->keyBy('weight')->map(function ($item) {
                     return $item->makeHidden('weight');
                 })->toArray();
             });

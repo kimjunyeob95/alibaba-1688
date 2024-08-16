@@ -177,7 +177,7 @@ class ProductConstant
     public const WEIGHT_STATUS_PRODUCT    = "product";
     public const WEIGHT_STATUS_CATEGORY   = "category";
     public const WEIGHT_STATUS_NONE       = "none";
-    public const WEIGHT_STATUS_NONE_PRICE = 12000;
+    public const WEIGHT_STATUS_NONE_PRICE = 152900;
 
     public const WEIGHT_STATUS = [
         self::WEIGHT_STATUS_PRODUCT  => "상품 배송비",
