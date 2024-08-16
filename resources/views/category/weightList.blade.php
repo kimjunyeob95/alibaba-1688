@@ -258,7 +258,7 @@
 
         var weightList = '{!! json_encode(getCacheWeightDatas()) !!}';
         weightList = JSON.parse(weightList);
-
+        
         const WEIGHT_STATUS_NONE_PRICE = Number('{{ ProductConstant::WEIGHT_STATUS_NONE_PRICE }}');
 
         $(".btn-status").click(function(){

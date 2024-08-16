@@ -1187,6 +1187,6 @@ if (!function_exists("getCacheWeightDatas")) {
 if (!function_exists("removeCacheWeightDatas")) {
     function removeCacheWeightDatas(): void
     {
-        Cache::flush('weight_data');
+        Cache::forget('weight_data');
     }
 }
