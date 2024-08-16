@@ -1182,3 +1182,11 @@ if (!function_exists("getCacheWeightDatas")) {
         return $weights;
     }
 }
+
+/** 중량별 배송비 캐싱 데이터 삭제 */
+if (!function_exists("removeCacheWeightDatas")) {
+    function removeCacheWeightDatas(): void
+    {
+        Cache::flush('weight_data');
+    }
+}
