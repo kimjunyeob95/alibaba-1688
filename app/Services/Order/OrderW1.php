@@ -91,29 +91,54 @@ class OrderW1 extends OrderAbstract
             ){
                 throw new Exception(ProductErrorMessageConstant::getFitErrorMessage("PRODUCT_SEARCH_QUERYPRODUCTDETAIL"));
             }
-            $detailProduct = $detailResult["data"]["result"]["result"];
-            $startQuantity = $detailProduct["productSaleInfo"]["priceRangeList"][0]["startQuantity"];
+            $detailProduct    = $detailResult["data"]["result"]["result"];
+            $minOrderQuantity = 1;
+            $batchNumber      = 1;
 
-            if( $prdObj->start_quantity != $startQuantity ){
-                ProductData::where("offer_id", $offerId)->update([
-                    "start_quantity" => $startQuantity
-                ]);
+            if( isset($detailProduct["minOrderQuantity"]) ){
+                $minOrderQuantity = $detailProduct["minOrderQuantity"];
+            } else if( isset($detailProduct["productSaleInfo"]["priceRangeList"][0]["startQuantity"]) ){
+                $minOrderQuantity = $detailProduct["productSaleInfo"]["priceRangeList"][0]["startQuantity"];
+            } else {
+                throw new Exception(ProductErrorMessageConstant::getFitErrorMessage("MINORDERQUANTITY"));
             }
 
-            if( $startQuantity > $totalQuantity ){
+            if( isset($detailProduct["batchNumber"]) ){
+                $batchNumber = $detailProduct["batchNumber"];
+            }
+
+            if( $prdObj->start_quantity != $minOrderQuantity ){
+                ProductData::where("offer_id", $offerId)->update([
+                    "start_quantity" => $minOrderQuantity
+                ]);
+                saveModiProduct($offerId);
+            }
+
+            if( $minOrderQuantity > $totalQuantity ){
                 $errArray = [
-                    "msg"            => OrderErrorMessageConstant::getFitErrorMessage("START_QUANTITY") . " 최소 구매 수량: {$startQuantity} | 요청 수량: {$totalQuantity}",
-                    "start_quantity" => $startQuantity
+                    "msg"            => OrderErrorMessageConstant::getFitErrorMessage("START_QUANTITY") . " 최소 구매 수량: {$minOrderQuantity} | 요청 수량: {$totalQuantity}",
+                    "start_quantity" => $minOrderQuantity
                 ];
                 throw new ArrayValueError($errArray);
             }
 
             $cargoParamList = [];
             foreach ($params["optionParamList"] as $option) {
+                $quantity = $option["quantity"];
+
+                if ( ($quantity % $batchNumber) !== 0 ) {
+                    /** batchNumber단위로 주문이 되어야함 */
+                    $errArray = [
+                        "msg"          => "option_id: " . $option["option_id"] . " | Error: 옵션 수량이 batch_number 단위로 지정해야 발주가 가능합니다.",
+                        "batch_number" => $batchNumber
+                    ];
+                    throw new ArrayValueError($errArray);
+                }
+
                 $cargoParamList[] = [
                     "offerId"  => $offerId,
                     "specId"   => ($option["singleOption"] === true) ? "" : $option["specId"],
-                    "quantity" => $option["quantity"],
+                    "quantity" => $quantity,
                 ];
             }
 
@@ -136,7 +161,6 @@ class OrderW1 extends OrderAbstract
                 'cargoParamList' => $cargoParamList,
             ];
             $previewResult = curl_1688("POST", $endPoint, $payload);
-
             if( !isset($previewResult["data"]["orderPreviewResuslt"][0]["flowFlag"]) || empty($previewResult["data"]["orderPreviewResuslt"][0]["flowFlag"]) ){
                 throw new Exception(OrderErrorMessageConstant::getFitErrorMessage("FLOW"));
             }

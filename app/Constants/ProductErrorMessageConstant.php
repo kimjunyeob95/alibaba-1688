@@ -68,6 +68,7 @@ class ProductErrorMessageConstant
     public const ERROR_MESSAGE_IMG_URL                                 = "img_url";
     public const ERROR_MESSAGE_PRODUCT_SEARCH_OFFERRECOMMEND           = "product.search.offerRecommend";
     public const ERROR_MESSAGE_PRODUCT_RELATED_RECOMMEND               = "product.related.recommend";
+    public const ERROR_MESSAGE_MINORDERQUANTITY                        = "minOrderQuantity";
  
     public static function getErrorMessageNotDefault($constantName): string
     {
