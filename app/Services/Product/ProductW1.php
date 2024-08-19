@@ -1885,7 +1885,14 @@ class ProductW1 extends ProductAbstract
             $inspect_status = $prdObj->inspect_status;
         }
 
-        $startQuantity = $detailProduct["productSaleInfo"]["priceRangeList"][0]["startQuantity"];
+        $startQuantity = 1;
+        if( isset($detailProduct["minOrderQuantity"]) ){
+            $startQuantity = $detailProduct["minOrderQuantity"];
+        } else if( isset($detailProduct["productSaleInfo"]["priceRangeList"][0]["startQuantity"]) ){
+            $startQuantity = $detailProduct["productSaleInfo"]["priceRangeList"][0]["startQuantity"];
+        } else {
+            throw new Exception(ProductErrorMessageConstant::getFitErrorMessage("STARTQUANTITY"));
+        }
 
         $subjectTrans = $detailProduct["subjectTrans"];
 
