@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\ProductOptionData;
 use App\Packages\S3;
 use Exception;
 use Tests\TestCase;
@@ -81,4 +82,45 @@ class MethodTest extends TestCase
         $this->assertCount(2, $results);
     }
 
+    # php artisan test --filter testGetOptionData
+    public function testGetOptionData()
+    {
+        $filePath = public_path('app/get_option.txt');
+        if (File::exists($filePath)) {
+            // 로그 경로 생성
+            $logPath      = storage_path('logs/product');
+            $saveFilePath = $logPath . "testGetOptionData.txt";
+            if (!file_exists($logPath)) {
+                mkdir($logPath, 0777, true);
+                chmod($logPath, 0777); // 디렉토리 권한을 777로 설정
+            }
+
+            $lines = File::lines($filePath);
+            foreach ($lines as $line) {
+                $lineArr = explode('{}', $line);
+
+                $offerId = $lineArr[0];
+                $optName = $lineArr[1];
+
+                $obj = ProductOptionData::where("offer_id", $offerId)->where(function($qry) use ($optName) {
+                    $qry->where("option_name", "like", "%" . $optName . "%")
+                    ->orWhere("option_name_kr", "like", "%" . $optName . "%")
+                    ->orWhere("option_name_en", "like", "%" . $optName . "%");
+                })->where("sku_img_url", "!=", "")->first();
+
+                if( $obj != null ){
+
+                    $logContent = "=IMAGE(\"". $obj->sku_img_url . "\", 4, 200, 200)\n";
+                    File::append($saveFilePath, $logContent);
+                } else {
+                    $logContent = "\n";
+                    File::append($saveFilePath, $logContent);
+                }
+            }
+        } else {
+            throw new Exception("파일이 존재하지 않습니다.");
+        }
+
+        dd("끝");
+    }
 }
