@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\ProductImageData;
 use App\Models\ProductOptionData;
 use App\Packages\S3;
 use Exception;
@@ -109,11 +110,20 @@ class MethodTest extends TestCase
                 })->where("sku_img_url", "!=", "")->first();
 
                 if( $obj != null ){
-
                     $logContent = "=IMAGE(\"". $obj->sku_img_url . "\", 4, 200, 200)\n";
                     File::append($saveFilePath, $logContent);
                 } else {
-                    $logContent = "\n";
+                    $prdObj = ProductImageData::where([
+                        "offer_id" => $offerId,
+                        "img_type" => "main",
+                    ])->first();
+                    
+                    if( $prdObj != null ){
+                        $logContent = "=IMAGE(\"". $prdObj->img_url_origin . "\", 4, 200, 200)\n";
+                    } else {
+                        $logContent = "\n";
+                    }
+
                     File::append($saveFilePath, $logContent);
                 }
             }
