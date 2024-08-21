@@ -103,14 +103,14 @@ class OrderBaseDto extends Vo
         $this->all_delivered_time    = $data["allDeliveredTime"] ?? null;
         $this->pay_time              = $data["payTime"] ?? null;
         $this->discount              = $data["discount"] ?? 0.0;
+        $this->sum_product_payment   = $data["sumProductPayment"] ?? 0.0;
         $this->modify_time           = $data["modifyTime"] ?? null;
         $this->close_reason          = $data["closeReason"] ?? "";
         $this->complete_time         = $data["completeTime"] ?? null;
         $this->close_operate_type    = $data["closeOperateType"] ?? "";
+        $this->total_amount          = $data["totalAmount"] ?? 0.0;
         $this->seller_id             = $data["sellerID"] ?? "";
         $this->shipping_fee          = $data["shippingFee"] ?? 0.0;
-        $this->total_amount          = $data["sumProductPayment"] + $this->shipping_fee;
-        $this->sum_product_payment   = $data["totalAmount"];
         $this->refund                = $data["refund"] ?? 0.0;
         $this->refund_payment        = $data["refundPayment"] ?? 0.0;
         $this->refund_status         = $data["refundStatus"] ?? 0.0;
