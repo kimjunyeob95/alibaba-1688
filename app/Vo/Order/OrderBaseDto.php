@@ -110,7 +110,7 @@ class OrderBaseDto extends Vo
         $this->seller_id             = $data["sellerID"] ?? "";
         $this->shipping_fee          = $data["shippingFee"] ?? 0.0;
         $this->total_amount          = $data["sumProductPayment"] + $this->shipping_fee;
-        $this->sum_product_payment   = $this->total_amount;
+        $this->sum_product_payment   = $data["totalAmount"];
         $this->refund                = $data["refund"] ?? 0.0;
         $this->refund_payment        = $data["refundPayment"] ?? 0.0;
         $this->refund_status         = $data["refundStatus"] ?? 0.0;
