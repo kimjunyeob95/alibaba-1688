@@ -75,11 +75,11 @@
                                 </tr>
                                 <tr>
                                     <th scope="col" style="width: 10%">주문금액(W)</th>
-                                    <td attr="total_amount">{{ $data->total_amount }}</td>
+                                    <td attr="sum_product_payment">{{ $data->sum_product_payment + $data->shipping_fee }}</td>
                                     <th scope="col" style="width: 10%">결제금액(W)</th>
-                                    <td attr="sum_product_payment">{{ $data->sum_product_payment }}</td>
+                                    <td attr="total_amount">{{ $data->total_amount }}</td>
                                     <th scope="col" style="width: 10%">환불금액(W)</th>
-                                    <td attr="refund_payment">{{ $data->refund_payment }}</td>
+                                    <td attr="refund">{{ $data->refund }}</td>
                                     <th scope="col" style="width: 10%">배송비(W)</th>
                                     <td attr="total_channel_price">{{ $data->shipping_fee }}</td>
                                 </tr>
