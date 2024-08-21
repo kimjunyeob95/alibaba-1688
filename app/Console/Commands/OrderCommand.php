@@ -27,7 +27,7 @@ class OrderCommand extends Command
         switch ($func) {
             /**
              * W -> WApp 주문 업데이트
-             * php artisan order_command --func=orderUpdate
+             * php artisan order_command --func=orderUpdate --orderids=2262601849864135493
              */
             case 'orderUpdate':
                 $orderIds = explode(",", $this->option('orderids'));
