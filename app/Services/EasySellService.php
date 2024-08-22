@@ -51,7 +51,7 @@ class EasySellService
 
         $prdBuilder = ProductData::select([
                 "product_datas.*", "product_datas.offer_id","product_datas.prd_name_kr","epl.id as log_id","epl.itemno","epl.regist_success","epl.regist_message","product_datas.category_id",
-                "epl.registed_at","pwd.weight_type", "pwd.weight", "pwd.delivery_price",
+                "epl.registed_at","pwd.weight_type", "pwd.weight",
                 "c.mapping_code as es_mapping", "d.mapping_code as es_fgn_mapping"
             ])
             ->with(["img_inspect","prd_inspect","gosi_inspect","es_category","main_img", "en_main_img", "options","w_mapping", "w_mapping.w_cate_name", "w_mapping.w_cate_name", "easysell.last_log"])
