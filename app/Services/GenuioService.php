@@ -10,6 +10,7 @@ use App\Constants\ImageConstant;
 use App\Constants\ImageErrorMessageConstant;
 use App\Constants\MallConstant;
 use App\Constants\OnchannelConstant;
+use App\Constants\ProductErrorMessageConstant;
 use App\Constants\TransApiConstant;
 use App\Constants\WConstant;
 use App\Models\ApiUser;
@@ -228,6 +229,10 @@ class GenuioService extends TransApiAbstract
                 "options",
                 "notices",
             ])->where("offer_id", $offerId)->first();
+
+            if( $prdObj == null ){
+                throw new Exception(ProductErrorMessageConstant::getNotHaveErrorMessage("PRODUCT"));
+            }
 
             $payload = [
                 "jobId"  => $nextId,
