@@ -70,6 +70,11 @@ class MessageW1 extends WMessageAbstract
                         ];
                         throw new ArrayValueError($errArray);
                     }
+
+                    $statusChanged = "";
+                    if( isset($message["data"]["OrderLogisticsTracingModel"]["statusChanged"]) && $message["data"]["OrderLogisticsTracingModel"]["statusChanged"] ) {
+                        $statusChanged = $message["data"]["OrderLogisticsTracingModel"]["statusChanged"];
+                    }
                     
                     $logParams = [
                         "message"        => $message,
@@ -122,7 +127,8 @@ class MessageW1 extends WMessageAbstract
                                     "logistics_code"         => $logistic->logistics_code,
                                     "logistics_company_name" => $logistic->logistics_company_name,
                                     "logistics_bill_no"      => $logistic->logistics_bill_no,
-                                    "status"                 => $logistic->status
+                                    "status"                 => $logistic->status,
+                                    "status_changed"         => $statusChanged,
                                 ];
                             }
     
