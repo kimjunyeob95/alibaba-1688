@@ -174,7 +174,11 @@
                                     <td>
                                         <small>{{ $data["baseInfo"]['idOfStr'] }}</small>
                                         <br>
-                                        ({{ OrderConstant::STATUS[$data["baseInfo"]["status"]] }})
+                                        @if (isset(OrderConstant::STATUS[$data["baseInfo"]["status"]]))
+                                            ({{ OrderConstant::STATUS[$data["baseInfo"]["status"]] }})
+                                        @else
+                                            {{ $data["baseInfo"]["status"] }}
+                                        @endif
                                     </td>
                                     <td>
                                         {{ $data["baseInfo"]["totalAmount"] }}
@@ -265,7 +269,13 @@
                                                 <tr>
                                                     <td>
                                                         <div>
-                                                            <small>{{ OrderConstant::STATUS[$prdItem["status"]] }}</small>
+                                                            <small>
+                                                                @if (isset(OrderConstant::STATUS[$prdItem["status"]]))
+                                                                    {{ OrderConstant::STATUS[$prdItem["status"]] }}
+                                                                @else
+                                                                    {{ $prdItem["status"] }}
+                                                                @endif
+                                                            </small>
                                                         </div>
                                                     </td>
                                                 </tr>
