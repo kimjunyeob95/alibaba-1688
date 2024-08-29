@@ -61,6 +61,11 @@ class MessageW1 extends WMessageAbstract
                         foreach ($message["data"]["OrderLogisticsTracingModel"]["orderLogsItems"] as &$items) {
                             $items["orderId"] = $orderId;
                         }
+                    } else if( isset($message["data"]["MailNoChangeModel"]["orderLogsItems"]) && count($message["data"]["MailNoChangeModel"]["orderLogsItems"]) > 0) {
+                        $orderId = (string)$message["data"]["MailNoChangeModel"]["orderLogsItems"][0]["orderId"];
+                        foreach ($message["data"]["MailNoChangeModel"]["orderLogsItems"] as &$items) {
+                            $items["orderId"] = $orderId;
+                        }
                     }
                     
                     if( $orderId === "" ){
