@@ -96,7 +96,11 @@
                                 <tr>
                                     <th>주문상태</th>
                                     <td colspan="3">
-                                        {{ OrderConstant::STATUS[$data->status] }}
+                                        @if (isset(OrderConstant::STATUS[$data->status]))
+                                            {{ OrderConstant::STATUS[$data->status] }}
+                                        @else
+                                            {{ $data->status }}
+                                        @endif
                                     </td>
                                     <th>환불상태</th>
                                     <td colspan="3">

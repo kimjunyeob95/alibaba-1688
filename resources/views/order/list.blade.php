@@ -268,7 +268,11 @@
                                         ({{ number_format($data->total_channel_price) }})
                                     </td>
                                     <td class="text-center">
-                                        {{ OrderConstant::STATUS[$data->status] }}
+                                        @if (isset(OrderConstant::STATUS[$data->status]))
+                                            {{ OrderConstant::STATUS[$data->status] }}
+                                        @else
+                                            {{ $data->status }}
+                                        @endif
                                     </td>
                                     <td class="text-center">
                                         @if (isset($data->refund_status) && !empty($data->refund_status) )
