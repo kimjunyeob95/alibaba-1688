@@ -10,7 +10,6 @@ use App\Constants\CategoryConstant;
 use App\Constants\EasySellConstant;
 use App\Constants\MallConstant;
 use App\Constants\MallErrorMessageConstant;
-use App\Constants\OptionConstant;
 use App\Constants\ProductConstant;
 use App\Models\CategoryMapping;
 use App\Models\ChannelCategoryRegistData;
@@ -191,7 +190,7 @@ class EasySell extends MallApiAbstract
                     ];
                 }
 
-                if ( $easyObj == null ){
+                if ( $easyObj == null && in_array($w_type, [EasySellConstant::TYPE_W, EasySellConstant::TYPE_DROPHUB]) ){
                     $selLog = EasysellProductLog::updateOrCreate([
                         "offer_id" => $offerId,
                         "w_type"   => $w_type
@@ -444,6 +443,10 @@ class EasySell extends MallApiAbstract
         $return = helpers_fail_message();
 
         try{
+            if( env('APP_ENV', 'local') !== "production" ){
+                throw new Exception("운영환경에서만 이용가능합니다.");
+            }
+
             $offerId = $prdObj->offer_id;
 
             //카테고리 매핑
