@@ -204,15 +204,15 @@ abstract class MallApiAbstract
     {
         $returnMsg = $this->returnMsg;
         try {
-            $result = $this->productWappRegistTrait($offerId);
+            // $result = $this->productWappRegistTrait($offerId);
 
-            if( $result["isSuccess"] != true ){
-                $errArray = [
-                    "msg"        => $result["msg"],
-                    "error_code" => MallErrorMessageConstant::ERROR_CODE["WAPP"]
-                ];
-                throw new ArrayValueError($errArray);
-            }
+            // if( $result["isSuccess"] != true ){
+            //     $errArray = [
+            //         "msg"        => $result["msg"],
+            //         "error_code" => MallErrorMessageConstant::ERROR_CODE["WAPP"]
+            //     ];
+            //     throw new ArrayValueError($errArray);
+            // }
 
             if( $this->channel == MallConstant::MALL_ONCHANNEL ){
                 $channelParams = [
@@ -232,6 +232,27 @@ abstract class MallApiAbstract
                 if( !empty($regResult["data"]["success"][0]) ){
                     $returnMsg = helpers_success_message($regResult["data"]["success"][0]);
                 }
+            } else if( $this->channel == MallConstant::MALL_EASYSELL ){
+                $channelParams = [
+                    "type" => [$params["channel_type"]]
+                ];
+                $regResult = $this->productRegist([$offerId], $channelParams);
+                if( !empty($regResult["data"]["fail"]) ){
+                    $errArray = [
+                        "msg"        => $regResult["data"]["fail"][0]["msg"],
+                        "error_code" => MallErrorMessageConstant::ERROR_CODE["ES_API"]
+                    ];
+                    throw new ArrayValueError($errArray);
+                }
+                if( !empty($regResult["data"]["success"][0]) ){
+                    $returnMsg = helpers_success_message($regResult["data"]["success"][0]);
+                }
+            } else {
+                $errArray = [
+                    "msg"        => MallErrorMessageConstant::getNotHaveErrorMessage("CHANNEL"),
+                    "error_code" => MallErrorMessageConstant::ERROR_CODE["WAPP"]
+                ];
+                throw new ArrayValueError($errArray);
             }
         } catch (ArrayValueError $e) {
             $errorArray = $e->getErrorArray();
