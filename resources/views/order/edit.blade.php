@@ -158,7 +158,13 @@
                                         <td>{{ $wOption->quantity }}</td>
                                         <td>{{ $wOption->item_amount }}</td>
                                         <td>{{ number_format($channel_price) }}</td>
-                                        <td>{{ OrderConstant::STATUS[$wOption->status] }}</td>
+                                        <td>
+                                            @if (isset(OrderConstant::STATUS[$wOption->status]))
+                                                {{ OrderConstant::STATUS[$wOption->status] }}
+                                            @else
+                                                {{ $wOption->status }}
+                                            @endif
+                                        </td>
                                         <td>{{ OrderConstant::LOGISTICS_STATUS[$wOption->logistics_status] }}</td>
                                         <td>
                                             @if (isset($wOption->refund_status) && !empty($wOption->refund_status) )
