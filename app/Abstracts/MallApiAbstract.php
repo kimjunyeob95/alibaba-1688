@@ -204,15 +204,15 @@ abstract class MallApiAbstract
     {
         $returnMsg = $this->returnMsg;
         try {
-            // $result = $this->productWappRegistTrait($offerId);
+            $result = $this->productWappRegistTrait($offerId);
 
-            // if( $result["isSuccess"] != true ){
-            //     $errArray = [
-            //         "msg"        => $result["msg"],
-            //         "error_code" => MallErrorMessageConstant::ERROR_CODE["WAPP"]
-            //     ];
-            //     throw new ArrayValueError($errArray);
-            // }
+            if( $result["isSuccess"] != true ){
+                $errArray = [
+                    "msg"        => $result["msg"],
+                    "error_code" => MallErrorMessageConstant::ERROR_CODE["WAPP"]
+                ];
+                throw new ArrayValueError($errArray);
+            }
 
             if( $this->channel == MallConstant::MALL_ONCHANNEL ){
                 $channelParams = [
