@@ -52,6 +52,7 @@ class MallErrorMessageConstant
     public const ERROR_MESSAGE_SUB_IMAGE          = "서브 이미지";
     public const ERROR_MESSAGE_SUB_EN_IMAGE       = "서브 영문 이미지";
     public const ERROR_MESSAGE_CATEGORY_REGIST    = "채널 카테고리 전송 등록";
+    public const ERROR_MESSAGE_CHANNEL            = "channel";
 
     public const ERROR_CODE = [
         "PRODUCT"           => "EP1001",
@@ -63,6 +64,7 @@ class MallErrorMessageConstant
         "PRD_DESC_KR"       => "ET2002",
         "TRANS_IMG"         => "ET2003",
         "OC_API"            => "ES3001",
+        "ES_API"            => "ES3002",
         "WAPP"              => "WAppError",
     ];
 
