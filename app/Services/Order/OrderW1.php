@@ -601,6 +601,8 @@ class OrderW1 extends OrderAbstract
             $buyerAddress         = trim($params["buyerAddress"]);
             $buyerZipcode         = trim($params["buyerZipcode"]);
             $buyerMemo            = trim($params["buyerMemo"]);
+            $clearanceType        = OrderConstant::CLEARANCE_SA_TYPE;
+            $shippingType         = OrderConstant::SHIPPING_OF_TYPE;
 
             $orderDetailResult = $this->getWOrder($orderId);
             if( $orderDetailResult["isSuccess"] == false || 
@@ -669,6 +671,8 @@ class OrderW1 extends OrderAbstract
                 $orderChannelDtoBind = [
                     "orderId"              => $orderId,
                     "channelOrderId"       => $channelOrderId,
+                    "clearanceType"        => $clearanceType,
+                    "shippingType"         => $shippingType,
                     "totalQuantity"        => $totalQuantity,
                     "totalPrice"           => $totalPrice,
                     "deliveryPrice"        => $deliveryPrice,

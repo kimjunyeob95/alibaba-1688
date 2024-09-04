@@ -11,6 +11,7 @@
                     "회원"
                 ],
                 "summary": "토큰 생성",
+                "operationId": "b9cd38534cf336928b1ffa6efc7827b5",
                 "parameters": [
                     {
                         "name": "channel",
@@ -74,6 +75,7 @@
                 ],
                 "summary": "W 모든 카테고리",
                 "description": "W 모든 카테고리 endPoint",
+                "operationId": "757fd3ccda8f3eee53c7c9750d8b3c5d",
                 "parameters": [
                     {
                         "name": "parent_cate_id",
@@ -142,6 +144,7 @@
                 ],
                 "summary": "W 최상위 카테고리 계층별 조회",
                 "description": "W 최상위 카테고리 계층별 조회 endPoint",
+                "operationId": "470ffe80792b77902dc2a7001d415e1d",
                 "parameters": [
                     {
                         "name": "categoryId",
@@ -210,6 +213,7 @@
                 ],
                 "summary": "W 채널별 카테고리 맵핑",
                 "description": "W 채널별 카테고리 맵핑 조회 endPoint",
+                "operationId": "b30414eddbbae4e7653c792e0f025be8",
                 "parameters": [
                     {
                         "name": "channel",
@@ -278,6 +282,7 @@
                 ],
                 "summary": "W 카테고리별 인기상품 조회",
                 "description": "W 카테고리별 인기상품 조회 endPoint",
+                "operationId": "b9df86f6cdcdd96869f2195ea7ecf7fb",
                 "parameters": [
                     {
                         "name": "categoryId",
@@ -366,6 +371,7 @@
                 ],
                 "summary": "W 카테고리별 인기검색어 조회",
                 "description": "W 카테고리별 인기검색어 조회 endPoint",
+                "operationId": "55272e4ee1241ab6fe7dc56499a214e4",
                 "parameters": [
                     {
                         "name": "categoryId",
@@ -444,6 +450,7 @@
                 ],
                 "summary": "상품 조회",
                 "description": "W 상품 조회 endPoint",
+                "operationId": "1da6c9dfde1dbdceaf2babad4a2f2d95",
                 "parameters": [
                     {
                         "name": "page",
@@ -552,6 +559,7 @@
                 ],
                 "summary": "WApp 상품 상세",
                 "description": "WApp 상품 상세 endPoint",
+                "operationId": "01dd57d9e2d9b0c7243f54ae4fd88ea3",
                 "parameters": [
                     {
                         "name": "offerId",
@@ -620,6 +628,7 @@
                 ],
                 "summary": "WApp 상품 생성 후 채널 전송",
                 "description": "WApp 상품 생성 후 채널 전송 endPoint",
+                "operationId": "20e80bb5c4d96b74ebd4efeb14cf5ea2",
                 "parameters": [
                     {
                         "name": "channel",
@@ -706,6 +715,7 @@
                 ],
                 "summary": "W 상품 키워드 조회",
                 "description": "W 상품 키워드 조회 endPoint",
+                "operationId": "839267a6dca296d12e57260814a7934a",
                 "parameters": [
                     {
                         "name": "keyword",
@@ -814,6 +824,7 @@
                 ],
                 "summary": "W 상품 상세 조회",
                 "description": "W 상품 상세 조회 endPoint",
+                "operationId": "fab530d2cf3ecee16f683671595cda31",
                 "parameters": [
                     {
                         "name": "offerId",
@@ -892,6 +903,7 @@
                 ],
                 "summary": "W 상품 이미지 ID 생성",
                 "description": "W 상품 이미지 ID 생성 endPoint",
+                "operationId": "b15af92235cd540a1ce48a065fcdca62",
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -958,6 +970,7 @@
                 ],
                 "summary": "W 상품 이미지URL로 이미지 ID 생성",
                 "description": "W 상품 이미지URL로 이미지 ID 생성 endPoint",
+                "operationId": "56c18ccfb497834c424c64551784c10f",
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -1024,6 +1037,7 @@
                 ],
                 "summary": "W 상품 이미지 조회",
                 "description": "W 상품 이미지 조회 endPoint",
+                "operationId": "f5ce7f6d3352899675fa1665868ead43",
                 "parameters": [
                     {
                         "name": "img_id",
@@ -1132,6 +1146,7 @@
                 ],
                 "summary": "W 인기상품 조회",
                 "description": "W 인기상품 조회 endPoint",
+                "operationId": "a445d98b6b4cdde93f126dc168e907e0",
                 "parameters": [
                     {
                         "name": "begin_page",
@@ -1220,6 +1235,7 @@
                 ],
                 "summary": "W 연관 상품 조회",
                 "description": "W 연관 상품 조회 endPoint",
+                "operationId": "3fafb6afccc77d4c12bef11217dfd0e0",
                 "parameters": [
                     {
                         "name": "offerId",
@@ -1318,6 +1334,7 @@
                 ],
                 "summary": "주문 조회",
                 "description": "주어진 orderId에 해당하는 주문의 상세 정보를 조회합니다.",
+                "operationId": "6bb12ee013d74f06b4d131ed66bfae84",
                 "parameters": [
                     {
                         "name": "channel",
@@ -1394,6 +1411,7 @@
                 ],
                 "summary": "주문 생성",
                 "description": "주문 생성 endPoint",
+                "operationId": "71adfa69f6495f0d5b0d23eac681fb50",
                 "parameters": [
                     {
                         "name": "channel",
@@ -1471,6 +1489,7 @@
                 ],
                 "summary": "이미지 번역 요청 queue 등록",
                 "description": "이미지 번역 요청 queue 등록 endPoint",
+                "operationId": "5d2996d6263234e5628d548a9370b6c7",
                 "parameters": [
                     {
                         "name": "channel",
@@ -1548,6 +1567,7 @@
                 ],
                 "summary": "이미지 S3 업로드",
                 "description": "이미지 S3 업로드 endPoint",
+                "operationId": "3bef2716a072a27b793c9fd0743c0446",
                 "parameters": [
                     {
                         "name": "channel",
@@ -1625,6 +1645,7 @@
                 ],
                 "summary": "WApp 팔레트 수집 조회",
                 "description": "WApp 팔레트 수집 조회 endPoint",
+                "operationId": "272d85830427e05a987f6c6470663d60",
                 "parameters": [
                     {
                         "name": "pallet_id",
@@ -1713,6 +1734,7 @@
                 ],
                 "summary": "WApp 팔레트 수집 여부 조회",
                 "description": "WApp 팔레트 수집 여부 조회 endPoint",
+                "operationId": "c9af9e5a2b951e2900817bb78fd8c3c8",
                 "parameters": [
                     {
                         "name": "pallet_id",
@@ -1781,6 +1803,7 @@
                 ],
                 "summary": "WApp 환율 조회",
                 "description": "WApp 환율 조회 endPoint",
+                "operationId": "f293239e8ae19f05e6d93722ff408b3c",
                 "parameters": [
                     {
                         "name": "date",
@@ -2236,6 +2259,16 @@
                         "type": "integer",
                         "example": 730855260845
                     },
+                    "clearance_type": {
+                        "description": "통관유형 SA: 개인통관, PA: 사업자통관(사업자 명의), IA: 사업자통관(온채널 또는 셀러허브 명의)",
+                        "type": "string",
+                        "example": "SA"
+                    },
+                    "shipping_type": {
+                        "description": "운송방식 OF: 해운, AD: 항공",
+                        "type": "string",
+                        "example": "OF"
+                    },
                     "channel_order_id": {
                         "description": "채널 주문 번호",
                         "type": "string",
@@ -2257,7 +2290,8 @@
                                 },
                                 "price": {
                                     "description": "채널에 등록 된 제품 가격(WAPP에서 전송한 가격: 원화)",
-                                    "type": "float"
+                                    "type": "number",
+                                    "format": "float"
                                 },
                                 "quantity": {
                                     "description": "구매 수량",

@@ -4,6 +4,7 @@ namespace App\Traits;
 
 use App\Abstracts\OrderAbstract;
 use App\Constants\OptionConstant;
+use App\Constants\OrderConstant;
 use App\Constants\OrderErrorMessageConstant;
 use App\Constants\ProductErrorMessageConstant;
 use App\Models\OrderBaseData;
@@ -89,6 +90,14 @@ trait MallOrderTrait
             $totalQuantity        = 0;
             $totalPrice           = 0.0;
             $totalChannelPrice    = 0.0;
+            $clearanceType        = OrderConstant::CLEARANCE_SA_TYPE;
+            $shippingType         = OrderConstant::SHIPPING_OF_TYPE;
+            if( isset($params["clearance_type"]) && isset(OrderConstant::CLEARANCE_TYPE[$params["clearance_type"]]) ){
+                $clearanceType = $params["clearance_type"];
+            }
+            if( isset($params["shipping_type"]) && isset(OrderConstant::SHIPPING_TYPE[$params["shipping_type"]]) ){
+                $shippingType = $params["shipping_type"];
+            }
 
             $orderChannelDetailDtos = [];
 
@@ -168,6 +177,8 @@ trait MallOrderTrait
                     $orderChannelDtoBind = [
                         "orderId"              => $orderId,
                         "channelOrderId"       => $channelOrderId,
+                        "clearanceType"        => $clearanceType,
+                        "shippingType"         => $shippingType,
                         "totalQuantity"        => $totalQuantity,
                         "totalPrice"           => $totalPrice,
                         "totalChannelPrice"    => $totalChannelPrice,
