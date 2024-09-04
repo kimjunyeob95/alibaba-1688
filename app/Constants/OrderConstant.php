@@ -240,6 +240,4 @@ class OrderConstant
         self::SHIPPING_OF_TYPE => "해운",
         self::SHIPPING_AD_TYPE => "항공",
     ];
-
-
 }
