@@ -593,6 +593,8 @@ class OrderW1 extends OrderAbstract
             $channelPrices        = $params["channelPrices"];
             $orderChannel         = trim($params["orderChannel"]);
             $channelOrderId       = trim($params["channelOrderId"]);
+            $clearanceType        = trim($params["clearanceType"]);
+            $shippingType         = trim($params["shippingType"]);
             $deliveryPrice        = (float)$params["deliveryPrice"];
             $buyerName            = trim($params["buyerName"]);
             $buyerClearanceNumber = trim($params["buyerClearanceNumber"]);
@@ -601,8 +603,6 @@ class OrderW1 extends OrderAbstract
             $buyerAddress         = trim($params["buyerAddress"]);
             $buyerZipcode         = trim($params["buyerZipcode"]);
             $buyerMemo            = trim($params["buyerMemo"]);
-            $clearanceType        = OrderConstant::CLEARANCE_SA_TYPE;
-            $shippingType         = OrderConstant::SHIPPING_OF_TYPE;
 
             $orderDetailResult = $this->getWOrder($orderId);
             if( $orderDetailResult["isSuccess"] == false || 
