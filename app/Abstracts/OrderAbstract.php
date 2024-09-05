@@ -2,6 +2,7 @@
 
 namespace App\Abstracts;
 
+use App\Constants\OrderConstant;
 use App\Constants\OrderErrorMessageConstant;
 use App\Models\OrderBaseData;
 use App\Models\OrderChannelData;
@@ -355,6 +356,8 @@ abstract class OrderAbstract
                         $orderChannelDtoBind = [
                             "orderId"              => $orderId,
                             "channelOrderId"       => $changeChannel["channel_order_id"],
+                            "clearanceType"        => $changeChannel["clearance_type"],
+                            "shippingType"         => $changeChannel["shipping_type"],
                             "totalQuantity"        => $totalQuantity,
                             "totalPrice"           => $totalPrice,
                             "deliveryPrice"        => $changeChannel["delivery_price"],
@@ -382,6 +385,8 @@ abstract class OrderAbstract
                         $orderChannelDtoBind = [
                             "orderId"              => $orderId,
                             "channelOrderId"       => $changeChannel["channel_order_id"],
+                            "clearanceType"        => $changeChannel["clearance_type"],
+                            "shippingType"         => $changeChannel["shipping_type"],
                             "totalQuantity"        => $orderChannelObj->total_quantity,
                             "totalPrice"           => $orderChannelObj->total_price,
                             "deliveryPrice"        => $orderChannelObj->delivery_price,
@@ -434,6 +439,8 @@ abstract class OrderAbstract
                         $orderChannelDtoBind = [
                             "orderId"              => $orderId,
                             "channelOrderId"       => $addChannel["channel_order_id"],
+                            "clearanceType"        => $addChannel["clearance_type"],
+                            "shippingType"         => $addChannel["shipping_type"],
                             "totalQuantity"        => $totalQuantity,
                             "totalPrice"           => $totalPrice,
                             "deliveryPrice"        => $addChannel["delivery_price"],

@@ -52,6 +52,8 @@ class OrderErrorMessageConstant
     public const ERROR_MESSAGE_ORDER_MIN_OPTION       = "주문에 속한 옵션 수량은 최소 1입니다.";
     public const ERROR_MESSAGE_SAME_CHANNEL_ORDER_ID  = "중복된 채널주문번호가 있습니다.";
     public const ERROR_MESSAGE_FLOW                   = "flow";
+    public const ERROR_MESSAGE_CLEARANCE_TYPE         = "clearance_type";
+    public const ERROR_MESSAGE_SHIPPING_TYPE          = "shipping_type";
  
     public static function getErrorMessageNotDefault($constantName): string
     {
