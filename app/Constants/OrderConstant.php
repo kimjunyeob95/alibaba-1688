@@ -225,4 +225,19 @@ class OrderConstant
     public const PAY_ALIPAY       = "alipay";
     public const PAY_CROSS_BORDER = "crossBorder";
 
+    /** 기타.. */
+    public const CLEARANCE_SA_TYPE = "SA";
+    public const CLEARANCE_PA_TYPE = "PA";
+    public const CLEARANCE_IA_TYPE = "IA";
+    public const CLEARANCE_TYPE    = [
+        self::CLEARANCE_SA_TYPE => "개인통관",
+        self::CLEARANCE_PA_TYPE => "사업자 통관(사업자 명의)",
+        self::CLEARANCE_IA_TYPE => "사업자 통관(온채널 또는 셀러허브 명의)",
+    ];
+    public const SHIPPING_OF_TYPE = "OF";
+    public const SHIPPING_AD_TYPE = "AD";
+    public const SHIPPING_TYPE    = [
+        self::SHIPPING_OF_TYPE => "해운",
+        self::SHIPPING_AD_TYPE => "항공",
+    ];
 }

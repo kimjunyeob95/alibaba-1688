@@ -450,6 +450,28 @@
                                             </div>
                                             <div class="row mb-2">
                                                 <div class="col-md-2 d-flex align-items-center">
+                                                    <small class="fw-bold text-center" style="width: 100px;">통관유형</small>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <select class="form-select required-inp" name="clearanceType">
+                                                        @foreach (OrderConstant::CLEARANCE_TYPE as $key => $clearance_type)
+                                                            <option value="{{ $key }}">{{ $clearance_type }}</option>
+                                                        @endforeach
+                                                    </select>
+                                                </div>
+                                                <div class="col-md-2 d-flex align-items-center">
+                                                    <small class="fw-bold text-center" style="width: 100px;">운송방법</small>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <select class="form-select required-inp" name="shippingType">
+                                                        @foreach (OrderConstant::SHIPPING_TYPE as $key => $shipping_type)
+                                                            <option value="{{ $key }}" >{{ $shipping_type }}</option>
+                                                        @endforeach
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="row mb-2">
+                                                <div class="col-md-2 d-flex align-items-center">
                                                     <small class="fw-bold text-center" style="width: 100px;">이름</small>
                                                 </div>
                                                 <div class="col-md-4">

@@ -593,6 +593,8 @@ class OrderW1 extends OrderAbstract
             $channelPrices        = $params["channelPrices"];
             $orderChannel         = trim($params["orderChannel"]);
             $channelOrderId       = trim($params["channelOrderId"]);
+            $clearanceType        = trim($params["clearanceType"]);
+            $shippingType         = trim($params["shippingType"]);
             $deliveryPrice        = (float)$params["deliveryPrice"];
             $buyerName            = trim($params["buyerName"]);
             $buyerClearanceNumber = trim($params["buyerClearanceNumber"]);
@@ -669,6 +671,8 @@ class OrderW1 extends OrderAbstract
                 $orderChannelDtoBind = [
                     "orderId"              => $orderId,
                     "channelOrderId"       => $channelOrderId,
+                    "clearanceType"        => $clearanceType,
+                    "shippingType"         => $shippingType,
                     "totalQuantity"        => $totalQuantity,
                     "totalPrice"           => $totalPrice,
                     "deliveryPrice"        => $deliveryPrice,
