@@ -31,7 +31,7 @@ namespace App\Annotations\v1\W\cOrder;
  *         property="shipping_type",
  *         type="string",
  *         example="OF",
- *         description="운송방식 OF: 해운, AD: 항공"
+ *         description="운송방식 OF: 해운, AF: 항공"
  *     ),
  *     @OA\Property(
  *         property="channel_order_id",
