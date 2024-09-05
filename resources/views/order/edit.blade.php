@@ -668,7 +668,7 @@
                                     <td>
                                         <select class="form-select required-inp" name="shipping_type">
                                             <option value="OF" selected="">해운</option>
-                                            <option value="AD">항공</option>
+                                            <option value="AF">항공</option>
                                         </select>
                                     </td>
                                 </tr>
