@@ -18,6 +18,12 @@ use Illuminate\Support\Facades\Route;
  * W API List
  */
 Route::name('w.')->prefix('w')->group(function () {
+    /** taobao */
+    Route::name('taobao.')->prefix('taobao')->group(function () {
+        /** taobao에서 콜백 */
+        Route::any('/callback', [WMessageController::class, 'taobaoCallback'])->name('taobaoCallback');
+    });
+
     /** 1688 */
     Route::name('1688.')->prefix('1688')->group(function () {
         /** 1688에 상품ID 조회 endPoint를 호출 후 결과 반환 */

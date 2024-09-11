@@ -113,4 +113,26 @@ abstract class WMessageAbstract
     * @return array
     */
     abstract function message(array $params): array;
+
+    /**
+    * @func taobaoCallback
+    * @description '타오바오 콜백'
+    * @param array $params
+    * @return array
+    */
+    public function taobaoCallback(array $params): array
+    {
+        $returnMsg = $this->returnMsg;
+
+        try {
+            
+            debug_log(json_encode($params, JSON_UNESCAPED_UNICODE), "taobao/callback", "message");
+
+            $returnMsg = helpers_success_message();
+        } catch (Exception $e) {
+            $returnMsg = helpers_fail_message($e->getMessage());
+        }
+
+        return $returnMsg;
+    }
 }
