@@ -47,4 +47,15 @@ class WMessageService
    {
       return $this->wMessageAbstract->message($params);
    }
+
+   /**
+    * @func taobaoCallback
+    * @description '타오바오 콜백'
+    * @param array $params
+    * @return array
+   */
+  public function taobaoCallback(array $params): array
+  {
+     return $this->wMessageAbstract->taobaoCallback($params);
+  }
 }

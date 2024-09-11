@@ -41,4 +41,15 @@ class WMessageController extends Controller
             return helpers_json_response(HttpConstant::BAD_REQUEST, [], $e->getMessage());
         }
     }
+
+    public function taobaoCallback(): JsonResponse
+    {
+        try {
+            $this->wMessageService->taobaoCallback($this->request->all());
+
+            return helpers_json_response(HttpConstant::OK);
+        } catch (Exception $e) {
+            return helpers_json_response(HttpConstant::BAD_REQUEST, [], $e->getMessage());
+        }
+    }
 }
