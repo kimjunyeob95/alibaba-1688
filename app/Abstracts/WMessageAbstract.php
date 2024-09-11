@@ -125,8 +125,9 @@ abstract class WMessageAbstract
         $returnMsg = $this->returnMsg;
 
         try {
-            
-            debug_log(json_encode($params, JSON_UNESCAPED_UNICODE), "taobao/callback", "message");
+            if( !empty($params) ){
+                debug_log(json_encode($params, JSON_UNESCAPED_UNICODE), "taobao/callback", "message");
+            }
 
             $returnMsg = helpers_success_message();
         } catch (Exception $e) {
