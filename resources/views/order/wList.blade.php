@@ -174,7 +174,11 @@
                                     <td>
                                         <small>{{ $data["baseInfo"]['idOfStr'] }}</small>
                                         <br>
-                                        ({{ OrderConstant::STATUS[$data["baseInfo"]["status"]] }})
+                                        @if (isset(OrderConstant::STATUS[$data["baseInfo"]["status"]]))
+                                            ({{ OrderConstant::STATUS[$data["baseInfo"]["status"]] }})
+                                        @else
+                                            {{ $data["baseInfo"]["status"] }}
+                                        @endif
                                     </td>
                                     <td>
                                         {{ $data["baseInfo"]["totalAmount"] }}
@@ -265,7 +269,13 @@
                                                 <tr>
                                                     <td>
                                                         <div>
-                                                            <small>{{ OrderConstant::STATUS[$prdItem["status"]] }}</small>
+                                                            <small>
+                                                                @if (isset(OrderConstant::STATUS[$prdItem["status"]]))
+                                                                    {{ OrderConstant::STATUS[$prdItem["status"]] }}
+                                                                @else
+                                                                    {{ $prdItem["status"] }}
+                                                                @endif
+                                                            </small>
                                                         </div>
                                                     </td>
                                                 </tr>
@@ -437,6 +447,28 @@
                                         <div class="row w-100 mt-2">
                                             <div class="col d-flex align-items-center">
                                                 <span class="fs-5 fw-bold">구매자정보</span>
+                                            </div>
+                                            <div class="row mb-2">
+                                                <div class="col-md-2 d-flex align-items-center">
+                                                    <small class="fw-bold text-center" style="width: 100px;">통관유형</small>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <select class="form-select required-inp" name="clearanceType">
+                                                        @foreach (OrderConstant::CLEARANCE_TYPE as $key => $clearance_type)
+                                                            <option value="{{ $key }}">{{ $clearance_type }}</option>
+                                                        @endforeach
+                                                    </select>
+                                                </div>
+                                                <div class="col-md-2 d-flex align-items-center">
+                                                    <small class="fw-bold text-center" style="width: 100px;">운송방법</small>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <select class="form-select required-inp" name="shippingType">
+                                                        @foreach (OrderConstant::SHIPPING_TYPE as $key => $shipping_type)
+                                                            <option value="{{ $key }}" >{{ $shipping_type }}</option>
+                                                        @endforeach
+                                                    </select>
+                                                </div>
                                             </div>
                                             <div class="row mb-2">
                                                 <div class="col-md-2 d-flex align-items-center">

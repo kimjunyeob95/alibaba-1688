@@ -60,7 +60,8 @@ trait QueueTrait
                                 throw new Exception(GenuioErrorMessageConstant::getFitErrorMessage("QUEUE_REMOVE_ERROR"));
                             }
                         } else {
-                            throw new Exception(GenuioErrorMessageConstant::getFitErrorMessage("INTERNALJOBID"));
+                            GenuioQueueData::where("id", $geObj->id)->delete();
+                            // throw new Exception(GenuioErrorMessageConstant::getFitErrorMessage("INTERNALJOBID"));
                         }
                     } else {
                         throw new Exception(GenuioErrorMessageConstant::getFitErrorMessage("QUEUE"));

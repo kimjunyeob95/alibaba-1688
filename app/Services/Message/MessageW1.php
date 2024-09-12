@@ -61,6 +61,11 @@ class MessageW1 extends WMessageAbstract
                         foreach ($message["data"]["OrderLogisticsTracingModel"]["orderLogsItems"] as &$items) {
                             $items["orderId"] = $orderId;
                         }
+                    } else if( isset($message["data"]["MailNoChangeModel"]["orderLogsItems"]) && count($message["data"]["MailNoChangeModel"]["orderLogsItems"]) > 0) {
+                        $orderId = (string)$message["data"]["MailNoChangeModel"]["orderLogsItems"][0]["orderId"];
+                        foreach ($message["data"]["MailNoChangeModel"]["orderLogsItems"] as &$items) {
+                            $items["orderId"] = $orderId;
+                        }
                     }
                     
                     if( $orderId === "" ){
@@ -69,6 +74,11 @@ class MessageW1 extends WMessageAbstract
                             "message" => $message
                         ];
                         throw new ArrayValueError($errArray);
+                    }
+
+                    $statusChanged = "";
+                    if( isset($message["data"]["OrderLogisticsTracingModel"]["statusChanged"]) && $message["data"]["OrderLogisticsTracingModel"]["statusChanged"] ) {
+                        $statusChanged = $message["data"]["OrderLogisticsTracingModel"]["statusChanged"];
                     }
                     
                     $logParams = [
@@ -122,7 +132,8 @@ class MessageW1 extends WMessageAbstract
                                     "logistics_code"         => $logistic->logistics_code,
                                     "logistics_company_name" => $logistic->logistics_company_name,
                                     "logistics_bill_no"      => $logistic->logistics_bill_no,
-                                    "status"                 => $logistic->status
+                                    "status"                 => $logistic->status,
+                                    "status_changed"         => $statusChanged,
                                 ];
                             }
     
@@ -143,20 +154,20 @@ class MessageW1 extends WMessageAbstract
                             ];
                             
                             $pubSubSend = MessageConstant::PUB_SUB_SEND_Y;
-                            $isSuccess  = $this->kafka->sendQueue(KafkaConstant::WAPP, json_encode($kafkaPayload, JSON_UNESCAPED_UNICODE));
-                            if( $isSuccess !== true ) {
-                                debug_log(json_encode($kafkaPayload, JSON_UNESCAPED_UNICODE), "1688/message", "kafka-error-message");
-                                $pubSubSend = MessageConstant::PUB_SUB_SEND_N;
-                            }
+                            // $isSuccess  = $this->kafka->sendQueue(KafkaConstant::WAPP, json_encode($kafkaPayload, JSON_UNESCAPED_UNICODE));
+                            // if( $isSuccess !== true ) {
+                            //     debug_log(json_encode($kafkaPayload, JSON_UNESCAPED_UNICODE), "1688/message", "kafka-error-message");
+                            //     $pubSubSend = MessageConstant::PUB_SUB_SEND_N;
+                            // }
 
-                            WMessageLog::create([
-                                "order_id"         => $baseObj->order_id,
-                                "channel_order_id" => $channelObj->channel_order_id,
-                                "code"             => MessageConstant::MESSAGE_CODE[$type],
-                                "request"          => json_encode($logParams, JSON_UNESCAPED_UNICODE),
-                                "pub_sub_msg"      => json_encode($kafkaPayload, JSON_UNESCAPED_UNICODE),
-                                "pub_sub_is_send"  => $pubSubSend,
-                            ]);
+                            // WMessageLog::create([
+                            //     "order_id"         => $baseObj->order_id,
+                            //     "channel_order_id" => $channelObj->channel_order_id,
+                            //     "code"             => MessageConstant::MESSAGE_CODE[$type],
+                            //     "request"          => json_encode($logParams, JSON_UNESCAPED_UNICODE),
+                            //     "pub_sub_msg"      => json_encode($kafkaPayload, JSON_UNESCAPED_UNICODE),
+                            //     "pub_sub_is_send"  => $pubSubSend,
+                            // ]);
                             debug_log(json_encode($logParams, JSON_UNESCAPED_UNICODE), "1688/message", "success-message");
                         }
                     }

@@ -75,11 +75,11 @@
                                 </tr>
                                 <tr>
                                     <th scope="col" style="width: 10%">주문금액(W)</th>
-                                    <td attr="total_amount">{{ $data->total_amount }}</td>
+                                    <td attr="sum_product_payment">{{ $data->sum_product_payment + $data->shipping_fee }}</td>
                                     <th scope="col" style="width: 10%">결제금액(W)</th>
-                                    <td attr="sum_product_payment">{{ $data->sum_product_payment }}</td>
+                                    <td attr="total_amount">{{ $data->total_amount }}</td>
                                     <th scope="col" style="width: 10%">환불금액(W)</th>
-                                    <td attr="refund_payment">{{ $data->refund_payment }}</td>
+                                    <td attr="refund">{{ $data->refund }}</td>
                                     <th scope="col" style="width: 10%">배송비(W)</th>
                                     <td attr="total_channel_price">{{ $data->shipping_fee }}</td>
                                 </tr>
@@ -96,7 +96,11 @@
                                 <tr>
                                     <th>주문상태</th>
                                     <td colspan="3">
-                                        {{ OrderConstant::STATUS[$data->status] }}
+                                        @if (isset(OrderConstant::STATUS[$data->status]))
+                                            {{ OrderConstant::STATUS[$data->status] }}
+                                        @else
+                                            {{ $data->status }}
+                                        @endif
                                     </td>
                                     <th>환불상태</th>
                                     <td colspan="3">
@@ -154,7 +158,13 @@
                                         <td>{{ $wOption->quantity }}</td>
                                         <td>{{ $wOption->item_amount }}</td>
                                         <td>{{ number_format($channel_price) }}</td>
-                                        <td>{{ OrderConstant::STATUS[$wOption->status] }}</td>
+                                        <td>
+                                            @if (isset(OrderConstant::STATUS[$wOption->status]))
+                                                {{ OrderConstant::STATUS[$wOption->status] }}
+                                            @else
+                                                {{ $wOption->status }}
+                                            @endif
+                                        </td>
                                         <td>{{ OrderConstant::LOGISTICS_STATUS[$wOption->logistics_status] }}</td>
                                         <td>
                                             @if (isset($wOption->refund_status) && !empty($wOption->refund_status) )
@@ -281,6 +291,24 @@
                                         <td>
                                             <input type="text" class="form-control required-inp" name="buyer_clearance_number" placeholder="" value="{{ $channel_obj->buyer_clearance_number }}">
                                         </td>
+                                        <th scope="col" style="">통관유형</th>
+                                        <td>
+                                            <select class="form-select required-inp" name="clearance_type">
+                                                @foreach (OrderConstant::CLEARANCE_TYPE as $key => $clearance_type)
+                                                    <option value="{{ $key }}" @if($channel_obj->clearance_type == $key) selected @endif>{{ $clearance_type }}</option>
+                                                @endforeach
+                                            </select>
+                                        </td>
+                                        <th scope="col" style="">운송방법</th>
+                                        <td>
+                                            <select class="form-select required-inp" name="shipping_type">
+                                                @foreach (OrderConstant::SHIPPING_TYPE as $key => $shipping_type)
+                                                    <option value="{{ $key }}" @if($channel_obj->shipping_type == $key) selected @endif>{{ $shipping_type }}</option>
+                                                @endforeach
+                                            </select>
+                                        </td>
+                                    </tr>
+                                    <tr>
                                         <th scope="col" style="">연락처1</th>
                                         <td>
                                             <input type="text" class="form-control required-inp" name="buyer_number" placeholder="" value="{{ $channel_obj->buyer_number }}">
@@ -289,18 +317,18 @@
                                         <td>
                                             <input type="text" class="form-control required-inp" name="buyer_phone" placeholder="" value="{{ $channel_obj->buyer_phone }}">
                                         </td>
-                                    </tr>
-                                    <tr>
                                         <th scope="col" style="">우편번호</th>
                                         <td>
                                             <input type="text" class="form-control required-inp" name="buyer_zipcode" placeholder="" value="{{ $channel_obj->buyer_zipcode }}">
                                         </td>
                                         <th scope="col" style="">주소</th>
-                                        <td colspan="5">
+                                        <td colspan="7">
                                             <input type="text" class="form-control required-inp" name="buyer_address" placeholder="" value="{{ $channel_obj->buyer_address }}">
                                         </td>
+                                    </tr>
+                                    <tr>
                                         <th scope="col" style="">메모</th>
-                                        <td colspan="5">
+                                        <td colspan="13">
                                             <input type="text" class="form-control required-inp" name="buyer_memo" placeholder="" value="{{ $channel_obj->buyer_memo }}">
                                         </td>
                                     </tr>
@@ -483,7 +511,7 @@
                         options: []
                     };
 
-                    $(this).find('input').each(function() {
+                    $(this).find('input, select').each(function() {
                         if ($(this).hasClass('chk-inp') && this.checked) {
                             let tr_row            = $(this).closest("tr");
                             let quantityInput     = $(tr_row).find('input[name=quantity]');
@@ -532,7 +560,7 @@
                         options: []
                     };
 
-                    $(this).find('input').each(function() {
+                    $(this).find('input, select').each(function() {
                         if ($(this).hasClass('chk-inp') && this.checked) {
                             let tr_row            = $(this).closest("tr");
                             let quantityInput     = $(tr_row).find('input[name=quantity]');
@@ -628,6 +656,23 @@
                                     <td>
                                         <input type="text" class="form-control required-inp" name="buyer_clearance_number" placeholder="" value="">
                                     </td>
+                                    <th scope="col" style="">통관유형</th>
+                                    <td>
+                                        <select class="form-select required-inp" name="clearance_type">
+                                            <option value="SA" selected="">개인통관</option>
+                                            <option value="PA">사업자 통관(사업자 명의)</option>
+                                            <option value="IA">사업자 통관(온채널 또는 셀러허브 명의)</option>
+                                        </select>
+                                    </td>
+                                    <th scope="col" style="">운송방법</th>
+                                    <td>
+                                        <select class="form-select required-inp" name="shipping_type">
+                                            <option value="OF" selected="">해운</option>
+                                            <option value="AF">항공</option>
+                                        </select>
+                                    </td>
+                                </tr>
+                                <tr>
                                     <th scope="col" style="">연락처1</th>
                                     <td>
                                         <input type="text" class="form-control required-inp" name="buyer_number" placeholder="" value="">
@@ -636,18 +681,18 @@
                                     <td>
                                         <input type="text" class="form-control required-inp" name="buyer_phone" placeholder="" value="">
                                     </td>
-                                </tr>
-                                <tr>
                                     <th scope="col" style="">우편번호</th>
                                     <td>
                                         <input type="text" class="form-control required-inp" name="buyer_zipcode" placeholder="" value="">
                                     </td>
                                     <th scope="col" style="">주소</th>
-                                    <td colspan="5">
+                                    <td colspan="7">
                                         <input type="text" class="form-control required-inp" name="buyer_address" placeholder="" value="">
                                     </td>
+                                </tr>
+                                <tr>
                                     <th scope="col" style="">메모</th>
-                                    <td colspan="5">
+                                    <td colspan="13">
                                         <input type="text" class="form-control required-inp" name="buyer_memo" placeholder="" value="">
                                     </td>
                                 </tr>

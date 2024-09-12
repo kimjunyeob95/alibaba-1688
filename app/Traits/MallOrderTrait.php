@@ -3,6 +3,8 @@
 namespace App\Traits;
 
 use App\Abstracts\OrderAbstract;
+use App\Constants\OptionConstant;
+use App\Constants\OrderConstant;
 use App\Constants\OrderErrorMessageConstant;
 use App\Constants\ProductErrorMessageConstant;
 use App\Models\OrderBaseData;
@@ -88,6 +90,14 @@ trait MallOrderTrait
             $totalQuantity        = 0;
             $totalPrice           = 0.0;
             $totalChannelPrice    = 0.0;
+            $clearanceType        = OrderConstant::CLEARANCE_SA_TYPE;
+            $shippingType         = OrderConstant::SHIPPING_OF_TYPE;
+            if( isset($params["clearance_type"]) && isset(OrderConstant::CLEARANCE_TYPE[$params["clearance_type"]]) ){
+                $clearanceType = $params["clearance_type"];
+            }
+            if( isset($params["shipping_type"]) && isset(OrderConstant::SHIPPING_TYPE[$params["shipping_type"]]) ){
+                $shippingType = $params["shipping_type"];
+            }
 
             $orderChannelDetailDtos = [];
 
@@ -108,7 +118,11 @@ trait MallOrderTrait
                     throw new Exception(ProductErrorMessageConstant::getFitErrorMessage("OPTION_QUANTITY"));
                 }
 
-                $option["specId"] = $optObj->spec_id;
+                $option["specId"]       = $optObj->spec_id;
+                $option["singleOption"] = false;
+                if( $optObj->option_name_kr == OptionConstant::NAME_KO && $optObj->option_name_en == OptionConstant::NAME_EN ){
+                    $option["singleOption"] = true;
+                }
 
                 $totalQuantity     += $quantity;
                 $totalPrice         = $totalPrice + ( $optObj->price_1688_option * $quantity );
@@ -163,6 +177,8 @@ trait MallOrderTrait
                     $orderChannelDtoBind = [
                         "orderId"              => $orderId,
                         "channelOrderId"       => $channelOrderId,
+                        "clearanceType"        => $clearanceType,
+                        "shippingType"         => $shippingType,
                         "totalQuantity"        => $totalQuantity,
                         "totalPrice"           => $totalPrice,
                         "totalChannelPrice"    => $totalChannelPrice,

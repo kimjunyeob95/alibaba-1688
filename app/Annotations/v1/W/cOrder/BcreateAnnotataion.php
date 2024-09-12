@@ -22,6 +22,18 @@ namespace App\Annotations\v1\W\cOrder;
  *         description="제품 ID"
  *     ),
  *     @OA\Property(
+ *         property="clearance_type",
+ *         type="string",
+ *         example="SA",
+ *         description="통관유형 SA: 개인통관, PA: 사업자통관(사업자 명의), IA: 사업자통관(온채널 또는 셀러허브 명의)"
+ *     ),
+ *     @OA\Property(
+ *         property="shipping_type",
+ *         type="string",
+ *         example="OF",
+ *         description="운송방식 OF: 해운, AF: 항공"
+ *     ),
+ *     @OA\Property(
  *         property="channel_order_id",
  *         type="string",
  *         example="test2016179999",

@@ -12,7 +12,7 @@ namespace App\Annotations\v1\W\bProduct;
  *         property="channel_type",
  *         type="string",
  *         example="30",
- *         description="채널별 상품 전송 타입"
+ *         description="채널별 상품 전송 타입 30: OC 일반상품, 28: OC 사입상품, W: ES 셀러허브, DropHub: ES 1688 Official"
  *     )
  * )
  * 

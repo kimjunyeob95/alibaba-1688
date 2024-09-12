@@ -9,6 +9,7 @@ use App\Models\OrderTradeData;
 use App\Vo\Order\OrderDto;
 use Exception;
 use Illuminate\Support\Facades\File;
+use Illuminate\Pagination\Paginator;
 use Tests\TestCase;
 
 class OrderTest extends TestCase
@@ -196,6 +197,84 @@ class OrderTest extends TestCase
             $msg = "======================== 에러 발생 ========================\r\n";
             $msg .= $e->getMessage();
             dd($msg);
+        }
+    }
+
+    /** 예상 운임비 추출 */
+    # php artisan test --filter testOrderFreight
+    public function testOrderFreight()
+    {
+        set_time_limit(0);
+        ini_set('memory_limit', -1);
+
+        $builder     = OrderBaseData::with(["w_options"]);
+        $endPoint    = "param2/1/com.alibaba.fenxiao.crossborder/product.freight.estimate/";
+        $accessToken = env("1688_ACCESS_TOKEN");
+
+        $filePath = storage_path('logs/order/freight.txt');
+
+        // 디렉토리가 존재하지 않으면 생성
+        $directory = dirname($filePath);
+        if (!File::isDirectory($directory)) {
+            File::makeDirectory($directory, 0755, true);
+        }
+
+        $perPage    = 900;
+        $totalCount = $builder->count();
+        $totalPages = ceil($totalCount / $perPage);
+
+        for ($page = 1; $page <= $totalPages; $page++) {
+
+            Paginator::currentPageResolver(function () use ($page) {
+                return $page;
+            });
+            
+            // paginate 메소드는 새 Paginator 인스턴스를 반환합니다.
+            $pagedData = $builder->paginate($perPage);
+            $results   = $pagedData->items();
+
+            foreach ($results as $obj) {
+                $orderId     = $obj->order_id;
+                $offerId     = $obj->offer_id;
+                $shippingFee = $obj->shipping_fee;
+
+                $totalNum              = 0;
+                $logisticsSkuNumModels = [];
+
+                foreach ($obj->w_options as $w_option) {
+                    $totalNum += $w_option->quantity;
+
+                    $logisticsSkuNumModels[] = [
+                        'skuId'  => $w_option->sku_id,
+                        'number' => $w_option->quantity,
+                    ];
+                }
+
+                $payload = [
+                    'access_token'                 => $accessToken,
+                    'productFreightQueryParamsNew' => [
+                        'offerId'               => $offerId,
+                        'toProvinceCode'        => 37,
+                        'toCityCode'            => 3710,
+                        'toCountryCode'         => "CN",
+                        'totalNum'              => $totalNum,
+                        'logisticsSkuNumModels' => $logisticsSkuNumModels
+                    ]
+                ];
+                $apiResult = curl_1688("POST", $endPoint, $payload);
+
+                $freight = 0;
+                if( isset($apiResult["data"]["result"]["result"]["freight"]) ){
+                    $freight = $apiResult["data"]["result"]["result"]["freight"];
+                } else {
+                    $freight = "freight 조회에러";
+                }
+
+                $logTxt = "{$orderId},{$offerId},{$totalNum},{$shippingFee},{$freight}";
+
+                // 파일에 텍스트 추가
+                File::append($filePath, $logTxt . PHP_EOL);
+            }
         }
     }
 }
