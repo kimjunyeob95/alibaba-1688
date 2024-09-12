@@ -63,8 +63,8 @@ class MethodTest extends TestCase
         foreach($lines as $line){
             $data               = explode(',', $line);
             $weight             = $data[0];
-            $shipping_price     = $data[1];
-            $air_shipping_price = $data[2];
+            $shipping_price     = $data[2];
+            $air_shipping_price = $data[1];
 
             WeightData::updateOrCreate([
                 "weight" => $weight,
