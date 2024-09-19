@@ -37,7 +37,6 @@ class UpdateWeightDelivery extends Command
         $builder    = ProductOptionData::select('offer_id', DB::raw('MAX(weight) as max_weight'))->groupBy("offer_id");
         $totalCount = $builder->get()->count();
         $totalPages = ceil($totalCount / $perPage);
-        $weights    = CategoryConstant::WEIGHTS;
 
         try {
             for ($page = 1; $page <= $totalPages; $page++) {
@@ -50,48 +49,43 @@ class UpdateWeightDelivery extends Command
                 $results   = $pagedData->items();
     
                 foreach ($results as $obj) {
-                    $errorFlag = false;
-                    $offerId   = $obj->offer_id;
-                    $weight    = $obj->max_weight;
-                    $weight    = (int)ceil($weight);
-        
-                    $delivery_price = ProductConstant::WEIGHT_STATUS_NONE_PRICE;
-                    $weight_type    = ProductConstant::WEIGHT_STATUS_NONE;
-    
-                    if( $weight > 0 && $weight <= 100 ){
+                    $errorFlag         = false;
+                    $offerId           = $obj->offer_id;
+                    $maxWeight         = $obj->max_weight;
+                    $getWeightDelivery = getWeightDelivery($maxWeight);
+                    $weight            = $getWeightDelivery["weight"];
+                    $weight_type       = ProductConstant::WEIGHT_STATUS_NONE;
+
+                    $maxWeight = (int)ceil($maxWeight);
+                    
+                    if( $maxWeight > 0 && $maxWeight <= 100 ){
                         // 1. 상품 배송비
-                        $delivery_price = $weights[$weight];
-                        $weight_type    = ProductConstant::WEIGHT_STATUS_PRODUCT;
-                    } else if( $weight == 0 ) {
+                        $weight_type = ProductConstant::WEIGHT_STATUS_PRODUCT;
+                    } else if( $maxWeight == 0 ) {
                         $cateWeightObj = ProductData::select(["b.*"])->join("category_weight_datas as b", "product_datas.category_id", "=", "b.category_id")
                         ->where("offer_id", $offerId)->first();
     
                         if( $cateWeightObj != null ){
                             // 2. 표준 배송비
-                            $weight         = (int)$cateWeightObj->weight;
-                            $delivery_price = $weights[$weight];
-                            $weight_type    = ProductConstant::WEIGHT_STATUS_CATEGORY;
+                            $weight      = (int)$cateWeightObj->weight;
+                            $weight_type = ProductConstant::WEIGHT_STATUS_CATEGORY;
                         } else if( $cateWeightObj == null ){
                             // 3. 대표 배송비
-                            $delivery_price = ProductConstant::WEIGHT_STATUS_NONE_PRICE;
-                            $weight_type    = ProductConstant::WEIGHT_STATUS_NONE;
+                            $weight_type = ProductConstant::WEIGHT_STATUS_NONE;
                         }
                     } else {
                         $errorFlag = true;
                         ProductData::where("offer_id", $offerId)->update([
                             "status" => ProductConstant::PRD_STATUS_EXCEPT
                         ]);
-                        // $msg       = "offerId: {$offerId} | weight: {$weight} 중량 100 초과 ";
-                        // debug_log($msg, "cron/UpdateWeightDelivery", "UpdateWeightDelivery", LogLevel::ERROR);
                     }
     
                     if( $errorFlag === false ){
                         ProductWeightData::updateOrCreate([
                             "offer_id" => $offerId,
                         ],[
-                            "weight_type"    => $weight_type,
-                            "weight"         => $weight,
-                            "delivery_price" => $delivery_price,
+                            "weight_type" => $weight_type,
+                            "weight"      => $weight,
                         ]);
                     }
                 }

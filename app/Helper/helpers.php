@@ -21,10 +21,12 @@ use App\Models\ProductInspectData;
 use App\Models\ProductModiData;
 use App\Models\ProductOptionData;
 use App\Models\ProductWeightData;
+use App\Models\WeightData;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
@@ -992,33 +994,32 @@ if (!function_exists("upWeightStatus")) {
                     "status" => ProductConstant::PRD_STATUS_EXCEPT
                 ]);
             } else {
-                $weight        = (int)$obj->max_weight;
-                $deliveryPrice = ProductConstant::WEIGHT_STATUS_NONE_PRICE;
-                $weightType    = ProductConstant::WEIGHT_STATUS_NONE;
+                $maxWeight         = $obj->max_weight;
+                $getWeightDelivery = getWeightDelivery($maxWeight);
+                $weight            = $getWeightDelivery["weight"];
 
-                if( $weight > 0 ){
-                    $deliveryPrice = CategoryConstant::WEIGHTS[$weight];
-                    $weightType    = ProductConstant::WEIGHT_STATUS_PRODUCT;
+                $maxWeight = (int)ceil($maxWeight);
+                $weightType = ProductConstant::WEIGHT_STATUS_NONE;
+
+                if( $maxWeight > 0 ){
+                    $weightType = ProductConstant::WEIGHT_STATUS_PRODUCT;
                 } else {
                     $prdObj = ProductData::where("offer_id", $offerId)->first();
                     if( $prdObj != null ){
                         $cateObj = CategoryWeightData::where("category_id", $prdObj->category_id)->first();
                         if( $cateObj != null ){
-                            $weight        = $cateObj->weight;
-                            $deliveryPrice = CategoryConstant::WEIGHTS[$weight];
-                            $weightType    = ProductConstant::WEIGHT_STATUS_CATEGORY;
+                            $weightType = ProductConstant::WEIGHT_STATUS_CATEGORY;
                         }
                     }
                 }
 
                 ProductWeightData::updateOrCreate(
                     [
-                        "offer_id"   => $offerId,
+                        "offer_id" => $offerId,
                     ],
                     [
-                        "weight"         => $weight,
-                        "weight_type"    => $weightType,
-                        "delivery_price" => $deliveryPrice
+                        "weight"      => $weight,
+                        "weight_type" => $weightType,
                     ]
                 );
             }
@@ -1134,5 +1135,58 @@ if (!function_exists("convertCamelCase")) {
             'camelCase' => $camelCase,
             'lowerCase' => $lowerCase
         ];
+    }
+}
+
+/** 중량별 배송비 추출 */
+if (!function_exists("getWeightDelivery")) {
+    function getWeightDelivery(?float $weight = 0.0): array
+    {
+        $result = [
+            "weight"             => $weight,
+            "shipping_price"     => ProductConstant::WEIGHT_STATUS_NONE_PRICE,
+            "air_shipping_price" => ProductConstant::WEIGHT_STATUS_NONE_PRICE,
+        ];
+
+        $weights = getCacheWeightDatas();
+
+        // 주어진 무게를 0.5 단위로 올림
+        $roundedWeight = number_format(ceil($weight * 2) / 2, 1);
+
+        // 올림된 무게에 해당하는 배송 정보를 찾음
+        if (isset($weights[$roundedWeight])) {
+            $result = [
+                "weight"             => $roundedWeight,
+                "shipping_price"     => $weights[$roundedWeight]["shipping_price"],
+                "air_shipping_price" => $weights[$roundedWeight]["air_shipping_price"],
+            ];
+        }
+        return $result;
+    }
+}
+
+/** 중량별 배송비 캐싱 데이터 가져오기 */
+if (!function_exists("getCacheWeightDatas")) {
+    function getCacheWeightDatas(): array
+    {
+        $weights = Cache::get('weight_data');
+
+        if ($weights === null) {
+            $weights = Cache::remember('weight_data', now()->addMinutes(60), function () {
+                return WeightData::select(['weight', 'shipping_price', 'air_shipping_price'])->orderBy("weight", "asc")->get()->keyBy('weight')->map(function ($item) {
+                    return $item->makeHidden('weight');
+                })->toArray();
+            });
+        }
+
+        return $weights;
+    }
+}
+
+/** 중량별 배송비 캐싱 데이터 삭제 */
+if (!function_exists("removeCacheWeightDatas")) {
+    function removeCacheWeightDatas(): void
+    {
+        Cache::forget('weight_data');
     }
 }

@@ -163,10 +163,10 @@ abstract class CategoryAbstract
      * @func weightSave
      * @description '카테고리 중량 저장'
      * @param array $categoryIds '카테고리 ID'
-     * @param int $weight '표준 중량'
+     * @param float $weight '표준 중량'
      * @return array
     */
-    abstract function weightSave(array $categoryIds, int $weight): array;
+    abstract function weightSave(array $categoryIds, float $weight): array;
 
     /**
      * @func weightRemove

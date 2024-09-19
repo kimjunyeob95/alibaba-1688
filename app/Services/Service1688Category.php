@@ -210,10 +210,10 @@ class Service1688Category
      * @func weightSave
      * @description '카테고리 중량 저장'
      * @param array $categoryIds '카테고리 ID'
-     * @param int $weight '표준 중량'
+     * @param float $weight '표준 중량'
      * @return array
    */
-   public function weightSave(array $categoryIds, int $weight): array
+   public function weightSave(array $categoryIds, float $weight): array
    {
       return $this->categoryAbstract->weightSave($categoryIds, $weight);
    }

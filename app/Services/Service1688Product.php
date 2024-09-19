@@ -444,10 +444,10 @@ class Service1688Product
      * @func weightSave
      * @description '상품 중량 저장'
      * @param array $offerIds '제품 ID'
-     * @param int $weight '표준 중량'
+     * @param float $weight '표준 중량'
      * @return array
    */
-   public function weightSave(array $offerIds, int $weight): array
+   public function weightSave(array $offerIds, float $weight): array
    {
       return $this->productAbstract->weightSave($offerIds, $weight);
    }

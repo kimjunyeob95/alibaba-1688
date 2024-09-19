@@ -26,3 +26,10 @@ php artisan down --render="errors::dev"
 
 # laravel 서비스로 전환
 php artisan up
+
+# laravel 모든 캐시 삭제
+php artisan cache:clear
+
+# laravel 컨텍스트 내 php 코드 실행 후 특정 캐시 삭제
+php artisan tinker
+Cache::forget('weight_data');
