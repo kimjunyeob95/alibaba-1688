@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\WeightData;
 use App\Models\ProductImageData;
 use App\Models\ProductOptionData;
 use App\Packages\S3;
@@ -48,6 +49,32 @@ class MethodTest extends TestCase
         $img_url_trans = env("AWS_URL") . $imgName;
 
         dd($uploadResult, $img_url_trans);
+    }
+
+    # php artisan test --filter testUpsertWeight
+    public function testUpsertWeight()
+    {
+        $filePath = public_path('app/weight_datas.txt');
+        if (!File::exists($filePath)) {
+            throw new Exception("파일이 존재하지 않습니다.");
+        }
+
+        $lines = File::lines($filePath);
+        foreach($lines as $line){
+            $data               = explode(',', $line);
+            $weight             = $data[0];
+            $shipping_price     = $data[2];
+            $air_shipping_price = $data[1];
+
+            WeightData::updateOrCreate([
+                "weight" => $weight,
+            ],[
+                "shipping_price"     => $shipping_price,
+                "air_shipping_price" => $air_shipping_price
+            ]);
+        }
+
+        dd("끝");
     }
 
     # php artisan test --filter testImgUpload
