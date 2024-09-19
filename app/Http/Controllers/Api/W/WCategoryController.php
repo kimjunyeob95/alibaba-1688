@@ -189,7 +189,7 @@ class WCategoryController extends Controller
         try {
             $validator = Validator::make($this->request->all(), [
                 'category_ids' => 'required|string',
-                'weight'       => 'required|int',
+                'weight'       => 'required|numeric',
             ], [
                 'category_ids.required' => CategoryErrorMessageConstant::getNotHaveErrorMessage("CATEGORYID"),
                 'weight.required'       => CategoryErrorMessageConstant::getNotHaveErrorMessage("WEIGHT"),

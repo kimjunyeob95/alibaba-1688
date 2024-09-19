@@ -474,8 +474,6 @@ class Onchannel extends MallApiAbstract
                 }
             }
 
-            $weights = CategoryConstant::WEIGHTS;
-
             $prdState = OnchannelConstant::STATUS_ON_SALE_NUMBER;
             if( $prdObj->status != ProductConstant::PRD_STATUS_PUBLISH ){
                 $prdState = OnchannelConstant::STATUS_OUT_OF_STOCK_NUMBER;
@@ -582,7 +580,8 @@ class Onchannel extends MallApiAbstract
             $weightObj      = ProductWeightData::where("offer_id", $prdObj->offer_id)->first();
 
             if( $weightObj != null ){
-                $delivery_price = $weights[$weightObj->weight];
+                $getWeightDelivery = getWeightDelivery($weightObj->weight);
+                $delivery_price    = $getWeightDelivery["shipping_price"];
             }
 
             $productName  = $prdObj->prd_name_kr;

@@ -58,14 +58,12 @@ abstract class CollectAbstract
             $totalPage    = $lists->lastPage();
             $objs         = $lists->items();
 
-            $weights = CategoryConstant::WEIGHTS;
             foreach ($objs as $obj) {
-                $deliveryPrice = ProductConstant::WEIGHT_STATUS_NONE_PRICE;
-                $weightObj     = ProductWeightData::where("offer_id", $obj->offer_id)->first();
+                $weightObj = ProductWeightData::where("offer_id", $obj->offer_id)->first();
                 foreach ($obj->no_except_options as &$opt) {
                     if( $weightObj != null ){
-                        $deliveryPrice = $weights[$weightObj->weight];
-                        $ocPrice              = ocPrice($opt->price_1688_option, $deliveryPrice);
+                        $getWeightDelivery    = getWeightDelivery($weightObj->weight);
+                        $ocPrice              = ocPrice($opt->price_1688_option, $getWeightDelivery["shipping_price"]);
                         $opt->option_price    = $ocPrice["option_price"];
                         $opt->onch_price      = $ocPrice["onch_price"];
                         $opt->cus_price       = $ocPrice["cus_price"];

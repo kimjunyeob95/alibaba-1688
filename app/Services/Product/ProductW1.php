@@ -169,7 +169,7 @@ class ProductW1 extends ProductAbstract
         $prdBuilder->leftJoin('product_weight_datas as pwd', function ($join) {
             $join->on('product_datas.offer_id', '=', 'pwd.offer_id');
         });
-        $prdBuilder->addSelect("pwd.weight_type", "pwd.weight", "pwd.delivery_price");
+        $prdBuilder->addSelect("pwd.weight_type", "pwd.weight");
 
         if( !empty($keyword) ){
             if( $search_cls == "offer_id"){
@@ -2156,7 +2156,7 @@ class ProductW1 extends ProductAbstract
                 $width                   = 0;
                 $length                  = 0;
                 $height                  = 0;
-                $weight                  = 0;
+                $weight                  = 0.0;
                 $pkg_size_source         = "";
 
                 if( isset($productSaleInfo["amountOnSale"]) ){
@@ -2324,7 +2324,7 @@ class ProductW1 extends ProductAbstract
                                     $height = $skuShippingDetail["height"];
                                 }
                                 if( isset($skuShippingDetail["weight"]) ) {
-                                    $weight = (int)ceil($skuShippingDetail["weight"]);
+                                    $weight = (float)$skuShippingDetail["weight"];
                                 }
                                 if( isset($skuShippingDetail["pkgSizeSource"]) ) {
                                     $pkg_size_source = $skuShippingDetail["pkgSizeSource"];
@@ -2342,7 +2342,7 @@ class ProductW1 extends ProductAbstract
                             $height = $productShippingInfo["height"];
                         }
                         if( isset($productShippingInfo["weight"]) ) {
-                            $weight = (int)ceil($productShippingInfo["weight"]);
+                            $weight = (float)$productShippingInfo["weight"];
                         }
                         if( isset($productShippingInfo["pkgSizeSource"]) ) {
                             $pkg_size_source = $productShippingInfo["pkgSizeSource"];
@@ -3722,37 +3722,30 @@ class ProductW1 extends ProductAbstract
         return $returnMsg;
     }
 
-    public function weightSave(array $offerIds, int $weight): array
+    public function weightSave(array $offerIds, float $weight): array
     {
         $returnMsg = $this->returnMsg;
 
         try {
-
             if( empty($offerIds) ) {
                 throw new Exception(ProductErrorMessageConstant::getNotHaveErrorMessage("OFFER_IDS"));
             }
 
+            $getWeightDelivery = getWeightDelivery($weight);
+
             foreach ($offerIds as $offerId) {
-                try {
-                    $deliveryPrice = CategoryConstant::WEIGHTS[$weight];
-                } catch (Exception $e) {
-                    $weight        = 0;
-                    $deliveryPrice = CategoryConstant::WEIGHTS[$weight];
-                }
 
                 $prdObj = ProductWeightData::where("offer_id", $offerId)->first();
 
                 if( $prdObj != null ){
                     ProductWeightData::where("offer_id", $offerId)->update([
-                        'weight'         => $weight,
-                        'delivery_price' => $deliveryPrice,
+                        'weight' => $getWeightDelivery["weight"],
                     ]);
                 } else {
                     ProductWeightData::create([
-                        'offer_id'       => $offerId,
-                        'weight_type'    => ProductConstant::WEIGHT_STATUS_NONE,
-                        'weight'         => $weight,
-                        'delivery_price' => $deliveryPrice,
+                        'offer_id'    => $offerId,
+                        'weight_type' => ProductConstant::WEIGHT_STATUS_NONE,
+                        'weight'      => $getWeightDelivery["weight"],
                     ]);
                 }
             }

@@ -129,7 +129,8 @@
                                 <th scope="col">WApp 맵핑 카테고리</th>
                                 <th scope="col" style="width: 100px">맵핑여부</th>
                                 <th scope="col" style="width: 100px">표준 중량(kg)</th>
-                                <th scope="col" style="width: 100px">배송비(원)</th>
+                                <th scope="col" style="width: 100px">해운배송비(원)</th>
+                                <th scope="col" style="width: 100px">항공배송비(원)</th>
                                 <th style="width: 100px" class="text-center">관리</th> 
                             </tr>
                         </thead>
@@ -188,10 +189,17 @@
                                         @endif
                                     </td>
                                     <td>
-                                        @if ($data->weight_category == null)
-                                            {{ number_format(CategoryConstant::WEIGHTS[0]) }}
+                                        @if ($data->weight_category->weight == null)
+                                            {{ number_format(ProductConstant::WEIGHT_STATUS_NONE_PRICE) }}
                                         @else
-                                            {{ number_format(CategoryConstant::WEIGHTS[$data->weight_category->weight]) }}
+                                            {{ number_format(getWeightDelivery($data->weight_category->weight)["shipping_price"]) }}
+                                        @endif
+                                    </td>
+                                    <td>
+                                        @if ($data->weight_category->weight == null)
+                                            {{ number_format(ProductConstant::WEIGHT_STATUS_NONE_PRICE) }}
+                                        @else
+                                            {{ number_format(getWeightDelivery($data->weight_category->weight)["air_shipping_price"]) }}
                                         @endif
                                     </td>
                                     <td class="text-center">

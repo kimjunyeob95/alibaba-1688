@@ -127,7 +127,8 @@
                                 <th scope="col" style="width: 200px">W 2차 분류</th>
                                 <th scope="col" style="width: 200px">W 3차 분류</th>
                                 <th scope="col" style="width: 100px">표준 중량(kg)</th>
-                                <th scope="col" style="width: 100px">배송비(원)</th>
+                                <th scope="col" style="width: 100px">해운배송비(원)</th>
+                                <th scope="col" style="width: 100px">항공배송비(원)</th>
                                 <th style="width: 100px" class="text-center">설정하기</th> 
                             </tr>
                         </thead>
@@ -163,7 +164,14 @@
                                         @if ($data->weight == null)
                                             {{ number_format(ProductConstant::WEIGHT_STATUS_NONE_PRICE) }}
                                         @else
-                                            {{ number_format(CategoryConstant::WEIGHTS[$data->weight]) }}
+                                            {{ number_format(getWeightDelivery($data->weight)["shipping_price"]) }}
+                                        @endif
+                                    </td>
+                                    <td>
+                                        @if ($data->weight == null)
+                                            {{ number_format(ProductConstant::WEIGHT_STATUS_NONE_PRICE) }}
+                                        @else
+                                            {{ number_format(getWeightDelivery($data->weight)["air_shipping_price"]) }}
                                         @endif
                                     </td>
                                     <td class="text-center">
@@ -215,10 +223,20 @@
                                 <div class="d-flex justify-content-evenly px-3 mt-3">
                                     <div class="row w-100">
                                         <div class="col-2">
-                                            <label class="fs-7">배송비(원)</label>
+                                            <label class="fs-7">해운배송비(원)</label>
                                         </div>
                                         <div class="col">
-                                            <input type="text" class="form-control" name="delivery_price" placeholder="" value="" disabled>
+                                            <input type="text" class="form-control" name="shipping_price" placeholder="" value="" disabled>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="d-flex justify-content-evenly px-3 mt-3">
+                                    <div class="row w-100">
+                                        <div class="col-2">
+                                            <label class="fs-7">항공배송비(원)</label>
+                                        </div>
+                                        <div class="col">
+                                            <input type="text" class="form-control" name="air_shipping_price" placeholder="" value="" disabled>
                                         </div>
                                     </div>
                                 </div>
@@ -238,10 +256,10 @@
 
     $(document).ready(function(){
 
-        var weightList = '{!! json_encode(CategoryConstant::WEIGHTS) !!}';
+        var weightList = '{!! json_encode(getCacheWeightDatas()) !!}';
         weightList = JSON.parse(weightList);
-
-        const WEIGHT_STATUS_NONE_PRICE = '{{ ProductConstant::WEIGHT_STATUS_NONE_PRICE }}';
+        
+        const WEIGHT_STATUS_NONE_PRICE = Number('{{ ProductConstant::WEIGHT_STATUS_NONE_PRICE }}');
 
         $(".btn-status").click(function(){
             let name = $(this).attr("name");
@@ -250,20 +268,38 @@
         });
 
         $('input[name=weight]').on('input', function(e) {
+            const $this = $(this);
             const keyCode = e.originalEvent.inputType;
+            
+            // 백스페이스 또는 Delete 키 처리
             if (keyCode === 'deleteContentBackward' || keyCode === 'deleteContentForward') {
-                return; // 백스페이스 또는 Delete 키가 눌렸을 경우 input 이벤트 무시
+                return; // 이벤트 처리 중단
             }
 
-            const value = $(this).val();
-            let weightValue = weightList[value];
-            if( weightValue == undefined ){
-                weightValue = weightList[0];
-                $('input[name=weight]').val(0);
-                alert("정의되지 않은 중량입니다.");
-            }
-            weightValue = weightValue.toLocaleString('ko-KR');
-            $('input[name=delivery_price]').val(weightValue);
+            // 이전 타이머 취소
+            if (this.timer) clearTimeout(this.timer);
+
+            // 1초 후에 실행될 타이머 설정
+            this.timer = setTimeout(function() {
+                let weight      = parseFloat($this.val()).toFixed(1);
+                let weightValue = weightList[weight];
+
+                if (weightValue == undefined) {
+                    weightValue = {
+                        shipping_price: WEIGHT_STATUS_NONE_PRICE,
+                        air_shipping_price: WEIGHT_STATUS_NONE_PRICE,
+                    }
+
+                    var keys       = Object.keys(weightList);
+                    var lastWeight = keys[keys.length - 1];
+
+                    $this.val(lastWeight);
+                    alert("정의되지 않은 중량입니다.");
+                }
+
+                $('input[name=shipping_price]').val(weightValue.shipping_price.toLocaleString('ko-KR'));
+                $('input[name=air_shipping_price]').val(weightValue.air_shipping_price.toLocaleString('ko-KR'));
+            }, 1000);
         });
 
         $("#btn-select").click(function(){
@@ -296,7 +332,7 @@
                     let category_ids = [];
                     resp.data.cateResult.map(function(obj){
                         category_ids.push(obj.category_id);
-                        $(`.cate-1688-list`).append(`<p>- ${obj.cate_name} / 중량: ${obj.weight.toLocaleString('ko-KR')}(kg) / 배송비: ${obj.delivery_price.toLocaleString('ko-KR')}(원)</p>`)
+                        $(`.cate-1688-list`).append(`<p>- ${obj.cate_name} / 중량: ${obj.weight.toLocaleString('ko-KR')}(kg) / 해운배송비: ${obj.shipping_price.toLocaleString('ko-KR')}(원) / 항공배송비: ${obj.air_shipping_price.toLocaleString('ko-KR')}(원)</p>`)
                     });
                     $('input[name="chkCateIds[]"]').val(category_ids);
                     $("#htmlModal").modal('show');
@@ -438,10 +474,11 @@
                     let category_ids = [];
                     resp.data.cateResult.map(function(obj){
                         category_ids.push(obj.category_id);
-                        $(`.cate-1688-list`).append(`<p>- ${obj.cate_name} / 중량: ${obj.weight.toLocaleString('ko-KR')}(kg) / 배송비: ${obj.delivery_price.toLocaleString('ko-KR')}(원)</p>`)
+                        $(`.cate-1688-list`).append(`<p>- ${obj.cate_name} / 중량: ${obj.weight.toLocaleString('ko-KR')}(kg) / 해운배송비: ${obj.shipping_price.toLocaleString('ko-KR')}(원) / 항공배송비: ${obj.air_shipping_price.toLocaleString('ko-KR')}(원)</p>`)
                         if( obj.weight != 0 ){
                             $('input[name=weight]').val(obj.weight);
-                            $('input[name=delivery_price]').val(weightList[obj.weight].toLocaleString('ko-KR'));
+                            $('input[name=shipping_price]').val(weightList[obj.weight].shipping_price.toLocaleString('ko-KR'));
+                            $('input[name=air_shipping_price]').val(weightList[obj.weight].air_shipping_price.toLocaleString('ko-KR'));
                         }
                     });
                     $('input[name="chkCateIds[]"]').val(category_ids);
