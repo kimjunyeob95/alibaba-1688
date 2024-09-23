@@ -7,7 +7,6 @@ use Tests\TestCase;
 
 class BonaeraTest extends TestCase
 {
-
     # php artisan test --filter testCreateWarehouse
     /** 입고신청 */
     public function testCreateWarehouse()
@@ -20,7 +19,7 @@ class BonaeraTest extends TestCase
         $payload  = [
             "userId"    => BonaeraConstant::USER_ID,
             "orderMemo" => "요청사항 test",
-            "imtemList" => [
+            "itemList" => [
                 [
                     "productShno"    => "444",
                     "productNameEng" => "아이스 실크 여성의 반팔 셔츠 여름 새로운 짧은 배 슬림",
@@ -44,7 +43,50 @@ class BonaeraTest extends TestCase
             ]
         ];
         $result = helpers_curl("POST", $endPoint, $header, $payload);
-        dd($result);
-        
+        dd(json_encode($payload, JSON_UNESCAPED_UNICODE), $result);
+    }
+
+    # php artisan test --filter testCreateShipping
+    /** 출고신청 */
+    public function testCreateShipping()
+    {
+        $endPoint = "https://bonaera.com/elpisapi/application_api.php";
+        $header   = [
+            'userKey: ' . env("BONAERA_TOKEN" , "3dI7uzN1dERvCBM1wt9wp1CglC7hcBB0jFkLZAFjZDC7SP56TIfwcJhfpTbLCIjg"),
+            'Content-Type: application/json'
+        ];
+        $payload  = [
+            "userId"  => BonaeraConstant::USER_ID,
+            "ctrNum"  => 2,
+            "RecInfo" => [
+                [
+                    "receiverName"  => "홍길동",
+                    "zipCode"       => "123456",
+                    "addr1"         => "서울특별시 강남역",
+                    "addr2"         => "201호",
+                    "receiverPhone" => "01025466499",
+                    "personalNum"   => "test01",
+                    "shipMemo"      => "문 앞에 놓아주세요."
+                ]
+            ],
+            "itemList" => [
+                [
+                    "stockitemCode" => "IT240920000102",
+                    "orderNumber"   => "2294987916953135493",
+                    "productCount"  => 1,
+                    "siteUrl"       => "https://trade.1688.com/order/offer_snapshot.htm?order_entry_id=2294987916954135493",
+                    "localFee"      => 3.5
+                ],
+                [
+                   "stockitemCode" => "IT240920000103",
+                   "orderNumber"   => "2294987916953135493",
+                   "productCount"  => 1,
+                   "siteUrl"       => "https://trade.1688.com/order/offer_snapshot.htm?order_entry_id=2294987916955135493",
+                   "localFee"      => 3.5
+                ]
+            ]
+        ];
+        $result = helpers_curl("POST", $endPoint, $header, $payload);
+        dd(json_encode($payload, JSON_UNESCAPED_UNICODE), $result);
     }
 }
