@@ -159,7 +159,19 @@ class BonaeraTest extends TestCase
                 "itemList" => $itemList
             ];
 
-            $result = helpers_curl("POST", $endPoint, $header, $payload);
+            // $result = helpers_curl("POST", $endPoint, $header, $payload);
+
+            $result = [
+                "code"    => "1",
+                "message" => "신청완료",
+                "groupNo" => "GR240925000133",
+                "orderNo" => "SH240925000134",
+                "invoice" => "2222",
+            ];
+
+            if( isset($result["groupNo"]) && isset($result["orderNo"]) && isset($result["invoice"]) ){
+                
+            }
             dd(json_encode($payload, JSON_UNESCAPED_UNICODE), $result);
         }
     }
