@@ -3,6 +3,16 @@
 namespace Tests\Feature;
 
 use App\Constants\BonaeraConstant;
+use App\Models\BonaeraInBaseData;
+use App\Models\BonaeraInProductData;
+use App\Models\OrderBaseData;
+use App\Models\OrderChannelData;
+use App\Models\OrderChannelDetailData;
+use App\Models\OrderLogisticsData;
+use App\Models\OrderProductData;
+use App\Models\ProductData;
+use App\Models\ProductImageData;
+use App\Models\ProductOptionData;
 use Tests\TestCase;
 
 class BonaeraTest extends TestCase
@@ -16,33 +26,85 @@ class BonaeraTest extends TestCase
             'userKey: ' . env("BONAERA_TOKEN" , "3dI7uzN1dERvCBM1wt9wp1CglC7hcBB0jFkLZAFjZDC7SP56TIfwcJhfpTbLCIjg"),
             'Content-Type: application/json'
         ];
+
+        $order_id           = "2237938826932135493";
+        $orderObj           = OrderBaseData::where("order_id", $order_id)->first();
+        $offer_id           = $orderObj->offer_id;
+        $orderPrdObjs       = OrderProductData::where("order_id", $order_id)->get();
+        $imgObj             = ProductImageData::where("offer_id", $offer_id)->where("img_type", "main")->where("lang", "kr")->first();
+        $logicObjs          = OrderLogisticsData::where("order_id", $order_id)->groupBy("logistics_bill_no")->get();
+        $logistics_bill_nos = $logicObjs->pluck('logistics_bill_no')->filter()->implode(',');
+        $prdObj             = ProductData::where("offer_id", $offer_id)->first();
+        
+        $itemList = [];
+        $optList  = [];
+        
+        foreach ($orderPrdObjs as $orderPrdObj) {
+            $sku_id      = $orderPrdObj->sku_id;
+            $optObj      = ProductOptionData::where("offer_id", $offer_id)->where("sku_id", $sku_id)->first();
+            $sku_img_url = $optObj->sku_img_url;
+            $productShno = "444";
+
+            $itemList[]  = [
+                "productShno"    => $productShno,
+                "productNameEng" => $prdObj->prd_name_kr,
+                "trackingNumber" => $logistics_bill_nos,
+                "productMoney"   => $orderPrdObj->price,
+                "productCount"   => $orderPrdObj->quantity,
+                "imgUrl"         => !empty($sku_img_url) ? $sku_img_url : $imgObj->img_url_origin,
+                "option1"        => $optObj->option_name_kr,
+                "option2"        => $optObj->id,
+            ];
+
+            $optList[] = [
+                "option_id"            => $optObj->id,
+                "quantity"             => $orderPrdObj->quantity,
+                "product_snapshot_url" => $orderPrdObj->product_snapshot_url,
+                "hs_code"              => $productShno
+            ];
+        }
         $payload  = [
             "userId"    => BonaeraConstant::USER_ID,
             "orderMemo" => "요청사항 test",
-            "itemList" => [
-                [
-                    "productShno"    => "444",
-                    "productNameEng" => "아이스 실크 여성의 반팔 셔츠 여름 새로운 짧은 배 슬림",
-                    "trackingNumber" => "434138687156253",
-                    "productMoney"   => "48.92",
-                    "productCount"   => "1",
-                    "imgUrl"         => "https://cbu01.alicdn.com/img/ibank/O1CN01o8437h1aSjR5hMFy4_!!2216622853329-0-cib.jpg",
-                    "option1"        => "❤❣❣❤콩 녹색❤❣❣_❤❣❣❤2XL (추천 65kg-72.5kg )❤❣❣",
-                    "option2"        => "5368408",
-                ],
-                [
-                    "productShno"    => "444",
-                    "productNameEng" => "아이스 실크 여성의 반팔 셔츠 여름 새로운 짧은 배 슬림",
-                    "trackingNumber" => "434138687156253",
-                    "productMoney"   => "48.92",
-                    "productCount"   => "1",
-                    "imgUrl"         => "https://cbu01.alicdn.com/img/ibank/O1CN01o8437h1aSjR5hMFy4_!!2216622853329-0-cib.jpg",
-                    "option1"        => "❤❣❣❤거위 핑크❤❣❣_❤❣❣❤2XL (추천 65kg-72.5kg )❤❣❣",
-                    "option2"        => "5368413",
-                ]
-            ]
+            "itemList"  => $itemList
         ];
+
         $result = helpers_curl("POST", $endPoint, $header, $payload);
+
+        if( isset($result["stockNo"]) && isset($result["item"]) && !empty($result["item"]) ){
+            $stockNo = $result["stockNo"];
+
+            BonaeraInBaseData::create([
+                "stock_no" => $stockNo,
+                "order_id" => $order_id,
+                "offer_id" => $offer_id
+            ]);
+
+            foreach ($result["item"] as $key => $item) {
+                $itCode = $item["itCode"];
+                $opt    = $optList[$key];
+
+                BonaeraInProductData::create([
+                    "order_id"             => $order_id,
+                    "option_id"            => $opt["option_id"],
+                    "quantity"             => $opt["quantity"],
+                    "product_snapshot_url" => $opt["product_snapshot_url"],
+                    "stock_no"             => $stockNo,
+                    "hs_code"              => $opt["hs_code"],
+                    "it_Code"              => $itCode,
+                    "status"               => BonaeraConstant::WAREHOUSE_STATUS_PENDING,
+                    "in_img_url"           => "",
+                    "received_qty"         => 0,
+                    "discarded_qty"        => 0,
+                    "refunded_qty"         => 0,
+                    "shipped_qty"          => 0,
+                    "lack_status"          => BonaeraConstant::LACK_STATUS_N,
+                    "stock_qty"            => 0,
+                    "memo"                 => "",
+                ]);
+            }
+        }
+
         dd(json_encode($payload, JSON_UNESCAPED_UNICODE), $result);
     }
 
@@ -55,38 +117,50 @@ class BonaeraTest extends TestCase
             'userKey: ' . env("BONAERA_TOKEN" , "3dI7uzN1dERvCBM1wt9wp1CglC7hcBB0jFkLZAFjZDC7SP56TIfwcJhfpTbLCIjg"),
             'Content-Type: application/json'
         ];
-        $payload  = [
-            "userId"  => BonaeraConstant::USER_ID,
-            "ctrNum"  => 2,
-            "RecInfo" => [
-                [
-                    "receiverName"  => "홍길동",
-                    "zipCode"       => "123456",
-                    "addr1"         => "서울특별시 강남역",
-                    "addr2"         => "201호",
-                    "receiverPhone" => "01025466499",
-                    "personalNum"   => "test01",
-                    "shipMemo"      => "문 앞에 놓아주세요."
-                ]
-            ],
-            "itemList" => [
-                [
-                    "stockitemCode" => "IT240920000102",
-                    "orderNumber"   => "2294987916953135493",
-                    "productCount"  => 1,
-                    "siteUrl"       => "https://trade.1688.com/order/offer_snapshot.htm?order_entry_id=2294987916954135493",
-                    "localFee"      => 3.5
+
+        $order_id = "2237938826932135493";
+        
+        $orderBaseObj     = OrderBaseData::where("order_id", $order_id)->first();
+        $orderChannelObjs = OrderChannelData::where("order_id", $order_id)->get();
+        $inPrdObjs        = BonaeraInProductData::where("order_id", $order_id)->get();
+        
+        foreach ($orderChannelObjs as $orderChannelObj) {
+            $itemList = [];
+
+            foreach ($inPrdObjs as $inPrdObj) {
+                $orderChannnelDetailObj = OrderChannelDetailData::where([
+                    "order_channel_id" => $orderChannelObj->id,
+                    "option_id"        => $inPrdObj->option_id,
+                ])->first();
+
+                $itemList[] = [
+                    "stockitemCode" => $inPrdObj->it_code,
+                    "orderNumber"   => $orderChannelObj->channel_order_id,
+                    "productCount"  => $orderChannnelDetailObj->quantity,
+                    "siteUrl"       => $inPrdObj->product_snapshot_url,
+                    "localFee"      => $orderBaseObj->shipping_fee
+                ];
+            }
+
+            $payload  = [
+                "userId"  => BonaeraConstant::USER_ID,
+                "ctrNum"  => 2,
+                "RecInfo" => [
+                    [
+                        "receiverName"  => "홍길동",
+                        "zipCode"       => "123456",
+                        "addr1"         => "서울특별시 강남역",
+                        "addr2"         => "201호",
+                        "receiverPhone" => "01025466499",
+                        "personalNum"   => "test01",
+                        "shipMemo"      => "문 앞에 놓아주세요."
+                    ]
                 ],
-                [
-                   "stockitemCode" => "IT240920000103",
-                   "orderNumber"   => "2294987916953135493",
-                   "productCount"  => 1,
-                   "siteUrl"       => "https://trade.1688.com/order/offer_snapshot.htm?order_entry_id=2294987916955135493",
-                   "localFee"      => 3.5
-                ]
-            ]
-        ];
-        $result = helpers_curl("POST", $endPoint, $header, $payload);
-        dd(json_encode($payload, JSON_UNESCAPED_UNICODE), $result);
+                "itemList" => $itemList
+            ];
+
+            $result = helpers_curl("POST", $endPoint, $header, $payload);
+            dd(json_encode($payload, JSON_UNESCAPED_UNICODE), $result);
+        }
     }
 }
