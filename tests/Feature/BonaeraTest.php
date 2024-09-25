@@ -5,6 +5,8 @@ namespace Tests\Feature;
 use App\Constants\BonaeraConstant;
 use App\Models\BonaeraInBaseData;
 use App\Models\BonaeraInProductData;
+use App\Models\BonaeraOutBaseData;
+use App\Models\BonaeraOutProductData;
 use App\Models\OrderBaseData;
 use App\Models\OrderChannelData;
 use App\Models\OrderChannelDetailData;
@@ -118,27 +120,42 @@ class BonaeraTest extends TestCase
             'Content-Type: application/json'
         ];
 
-        $order_id = "2237938826932135493";
+        $orderId = "2237938826932135493";
         
-        $orderBaseObj     = OrderBaseData::where("order_id", $order_id)->first();
-        $orderChannelObjs = OrderChannelData::where("order_id", $order_id)->get();
-        $inPrdObjs        = BonaeraInProductData::where("order_id", $order_id)->get();
+        $orderBaseObj     = OrderBaseData::where("order_id", $orderId)->first();
+        $orderChannelObjs = OrderChannelData::where("order_id", $orderId)->get();
+        $inBaseObj        = BonaeraInBaseData::where("order_id", $orderId)->first();
+        $inPrdObjs        = BonaeraInProductData::where("order_id", $orderId)->get();
         
         foreach ($orderChannelObjs as $orderChannelObj) {
             $itemList = [];
+            $optList  = [];
+
+            $orderId        = $orderChannelObj->order_id;
+            $channelOrderId = $orderChannelObj->channel_order_id;
+            $stockNo        = $inBaseObj->stock_no;
 
             foreach ($inPrdObjs as $inPrdObj) {
+                $itCode = $inPrdObj->it_code;
+
                 $orderChannnelDetailObj = OrderChannelDetailData::where([
                     "order_channel_id" => $orderChannelObj->id,
                     "option_id"        => $inPrdObj->option_id,
                 ])->first();
 
+                $quantity = $orderChannnelDetailObj->quantity;
+
                 $itemList[] = [
-                    "stockitemCode" => $inPrdObj->it_code,
-                    "orderNumber"   => $orderChannelObj->channel_order_id,
+                    "stockitemCode" => $itCode,
+                    "orderNumber"   => $channelOrderId,
                     "productCount"  => $orderChannnelDetailObj->quantity,
                     "siteUrl"       => $inPrdObj->product_snapshot_url,
                     "localFee"      => $orderBaseObj->shipping_fee
+                ];
+                $optList[] = [
+                    "option_id" => $inPrdObj->option_id,
+                    "it_code"   => $itCode,
+                    "quantity"  => $quantity,
                 ];
             }
 
@@ -159,18 +176,37 @@ class BonaeraTest extends TestCase
                 "itemList" => $itemList
             ];
 
-            // $result = helpers_curl("POST", $endPoint, $header, $payload);
-
-            $result = [
-                "code"    => "1",
-                "message" => "신청완료",
-                "groupNo" => "GR240925000133",
-                "orderNo" => "SH240925000134",
-                "invoice" => "2222",
-            ];
+            $result = helpers_curl("POST", $endPoint, $header, $payload);
+            // $result = [
+            //     "code"    => "1",
+            //     "message" => "신청완료",
+            //     "groupNo" => "GR240925000133",
+            //     "orderNo" => "SH240925000134",
+            //     "invoice" => "2222",
+            // ];
 
             if( isset($result["groupNo"]) && isset($result["orderNo"]) && isset($result["invoice"]) ){
-                
+                BonaeraOutBaseData::create([
+                    "sh_no"            => $result["orderNo"],
+                    "stock_no"         => $stockNo,
+                    "order_id"         => $orderId,
+                    "channel_order_id" => $channelOrderId,
+                    "out_ordered_at"   => null,
+                    "out_completed_at" => null,
+                ]);
+
+                foreach ($optList as $opt) {
+                    BonaeraOutProductData::create([
+                        "sh_no"            => $result["orderNo"],
+                        "channel_order_id" => $channelOrderId,
+                        "option_id"        => $opt["option_id"],
+                        "it_code"          => $opt["it_code"],
+                        "quantity"          => $opt["quantity"],
+                        "status"           => BonaeraConstant::SHIPPING_STATUS_PENDING,
+                        "shipped_qty"      => 0,
+                        "group_no"         => $result["groupNo"],
+                    ]);
+                }
             }
             dd(json_encode($payload, JSON_UNESCAPED_UNICODE), $result);
         }

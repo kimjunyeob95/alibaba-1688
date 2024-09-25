@@ -24,4 +24,16 @@ class BonaeraConstant
         self::LACK_STATUS_Y => "재고있음",
         self::LACK_STATUS_N => "재고소진",
     ];
+
+    /** 출고상태 */
+    public const SHIPPING_STATUS_PENDING    = "PENDING";
+    public const SHIPPING_STATUS_INSTRUCTED = "INSTRUCTED";
+    public const SHIPPING_STATUS_SHIPPED    = "SHIPPED";
+    public const SHIPPING_STATUS_HOLP       = "HOLP";
+    public const SHIPPING_STATUS            = [
+        self::SHIPPING_STATUS_PENDING    => "출고대기",
+        self::SHIPPING_STATUS_INSTRUCTED => "출고지시",
+        self::SHIPPING_STATUS_SHIPPED    => "출고완료",
+        self::SHIPPING_STATUS_HOLP       => "출고보류",
+    ];
 }
