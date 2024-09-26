@@ -1955,8 +1955,8 @@
                 "tags": [
                     "WMS"
                 ],
-                "summary": "관세율 조회 조회",
-                "description": "관세율 조회 조회",
+                "summary": "관세율 조회",
+                "description": "관세율 조회",
                 "parameters": [
                     {
                         "name": "channel",

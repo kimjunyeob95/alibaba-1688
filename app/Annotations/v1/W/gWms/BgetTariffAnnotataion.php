@@ -26,8 +26,8 @@ namespace App\Annotations\v1\W\gWms;
  *             example="0712391030"
  *         )
  *     ),
- *     summary="관세율 조회 조회",
- *     description="관세율 조회 조회",
+ *     summary="관세율 조회",
+ *     description="관세율 조회",
  *     tags={"WMS"},
  *     security={{"BearerAuth": {}}},
  *     @OA\Response(
