@@ -9,7 +9,7 @@
 
 @section('styles')
 <style>
-    .table th {
+    .div-trace .table th {
         background-color: #ebedef;
         color: #343a40;
     }

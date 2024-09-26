@@ -89,3 +89,24 @@ function dataURLtoFile(dataUrl, fileName) {
 
     return new File([u8arr], fileName, {type:mime});
 }
+
+/**
+ * 날짜 문자열을 지정된 형식으로 변환합니다.
+ * @param {string} dateString - 'YYYYMMDD' 형식의 날짜 문자열
+ * @param {string} [format='yyyy-mm-dd'] - 원하는 출력 형식
+ * @returns {string} 변환된 날짜 문자열
+ */
+function formatDate(dateString, format = "yyyy-mm-dd") {
+    if (!dateString || dateString.length !== 8) return '';
+
+    const year   = dateString.substring(0, 4);
+    const month  = dateString.substring(4, 6);
+    const day    = dateString.substring(6, 8);
+
+    let result = format;
+        result = result.replace('yyyy', year);
+        result = result.replace('mm', month);
+        result = result.replace('dd', day);
+
+    return result;
+}

@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\MallController;
 use App\Http\Controllers\Api\W\ExchangeRateController;
 use App\Http\Controllers\Api\W\W2ProductController;
 use App\Http\Controllers\Api\W\WAppOrderController;
+use App\Http\Controllers\Api\W\WAppWmsController;
 use App\Http\Controllers\Api\W\WCollectController;
 use App\Http\Controllers\Api\W\WExceptController;
 use App\Http\Controllers\Api\W\WForbiddenWordController;
@@ -173,6 +174,12 @@ Route::name('w.')->prefix('w')->group(function () {
         Route::post('/weight/remove', [WCategoryController::class, 'weightRemove'])->name('weightRemove');
         /** 채널별 전송 카테고리 수정 */
         Route::post('/send/mall/update', [WCategoryController::class, 'sendMallUpdate'])->name('sendMallUpdate');
+    });
+
+    /** WMS */
+    Route::prefix("wms")->name("wms.")->group(function(){
+        /** 관세율 조회 */
+        Route::get("/tariff/{hsCode}", [WAppWmsController::class, "getTarffi"])->name("getTarffi");
     });
 
     Route::name('forbiddenWord.')->prefix('forbiddenWord')->group(function () {
