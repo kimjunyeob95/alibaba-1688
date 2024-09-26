@@ -20,7 +20,6 @@ class WmsW1 extends WmsAbstract
         $returnMsg = $this->returnMsg;
 
         try {
-            $page       = $params["page"];
             $pageSize   = $params["pageSize"];
             $search_cls = $params["search_cls"];
             $keyword    = $params["keyword"];
@@ -47,7 +46,7 @@ class WmsW1 extends WmsAbstract
                 }
             }
 
-            $builder->orderBy($sortArr[0], $sortArr[1]);
+            $builder->orderByRaw("CASE WHEN {$sortArr[0]} = '' OR {$sortArr[0]} IS NULL THEN 1 ELSE 0 END, {$sortArr[0]} {$sortArr[1]}");
 
             $lists = $builder->paginate($pageSize)->appends($params);
 
