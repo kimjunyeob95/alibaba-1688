@@ -30,7 +30,8 @@ class WmsW1 extends WmsAbstract
 
             if( !empty($keyword) ){
                 if( $search_cls == WmsConstant::HSCODE_SEARCH_TYPE_KO ){
-                    $builder->where("ko_name", "like", "%" . $keyword . "%");
+                    $builder->where("ko_name", "like", "%" . $keyword . "%")
+                    ->orWhere("property_code_name", "like", "%" . $keyword . "%");
                 } else if( $search_cls == WmsConstant::HSCODE_SEARCH_TYPE_EN ){
                     $builder->where("en_name", "like", "%" . $keyword . "%");
                 } else if( $search_cls == WmsConstant::HSCODE_SEARCH_TYPE_HSCODE ){
@@ -48,7 +49,7 @@ class WmsW1 extends WmsAbstract
 
             $builder->orderBy($sortArr[0], $sortArr[1]);
 
-            $lists = $builder->paginate($pageSize, ['*'], 'page', $page);
+            $lists = $builder->paginate($pageSize)->appends($params);
 
             $returnMsg = helpers_success_message($lists);
         } catch (Exception $e) {

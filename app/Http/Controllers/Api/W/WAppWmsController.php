@@ -44,7 +44,7 @@ class WAppWmsController extends Controller
             $pageSize   = $pageSize > 500 ? 500 : $pageSize;
             $search_cls = $this->request->get("search_cls", WmsConstant::HSCODE_SEARCH_TYPE_KO);
             $keyword    = $this->request->get("keyword", "");
-            $sort       = $this->request->get("sort", "created_at|desc");
+            $sort       = $this->request->get("sort", "property_code_name|desc");
 
             $params = [
                 "page"       => $page,

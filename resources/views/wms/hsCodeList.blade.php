@@ -71,7 +71,7 @@
                         <thead class="table-light">
                             <tr>
                                 <th scope="col" style="width: 1%">No</th>
-                                <th scope="col" style="width: 5%">성질통합 분류 코드</th>
+                                <th scope="col" style="width: 5%">성질통합 분류코드명</th>
                                 <th scope="col" style="width: 5%">HS code</th>
                                 <th scope="col" style="width: 10%">한글 품목명</th>
                                 <th scope="col" style="width: 10%">영문 품목명</th>
@@ -87,7 +87,7 @@
                                         <small>{{ number_format(($paginator->total() - $offset) - $index) }}</small>
                                     </td>
                                     <td>
-                                        <small>{{ $data->property_code }}</small>
+                                        <small>{{ $data->property_code_name }}</small>
                                     </td>
                                     <td>
                                         <small>{{ $data->hs_code }}</small>
