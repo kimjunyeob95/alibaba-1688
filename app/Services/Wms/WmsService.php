@@ -27,6 +27,17 @@ class WmsService
    }
 
    /**
+    * @func apiHsCodeList
+    * @description 'HS code 라스트'
+    * @param array $params
+    * @return array
+    */
+    public function apiHsCodeList(array $params): array
+    {
+       return $this->wmsAbstract->apiHsCodeList($params);
+    }
+
+   /**
     * @func getTariff
     * @description '관세율조회'
     * @param string $hsCode

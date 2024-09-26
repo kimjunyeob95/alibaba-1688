@@ -22,6 +22,33 @@ abstract class WmsAbstract
     abstract function hsCodeList(array $params): array;
 
     /**
+    * @func apiHsCodeList
+    * @description 'HS code 라스트'
+    * @param array $params
+    * @return array
+    */
+    public function apiHsCodeList(array $params): array
+    {
+        $result    = $this->hsCodeList($params);
+        $paginator = $result["data"];
+        $datas     = [];
+        foreach ($paginator as $prdObj) {
+           $datas[] = $prdObj;
+        }
+  
+        $lastPage  = $paginator->lastPage();
+        $page      = $paginator->currentPage();
+        $pageSize  = $paginator->perPage();
+  
+        return [
+           "result"   => $datas,
+           "lastPage" => $lastPage,
+           "page"     => $page,
+           "pageSize" => (int)$pageSize,
+        ];
+    }
+
+    /**
     * @func getTariff
     * @description '관세율조회'
     * @param string $hsCode

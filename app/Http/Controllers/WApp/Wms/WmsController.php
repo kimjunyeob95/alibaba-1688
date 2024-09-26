@@ -21,11 +21,12 @@ class WmsController extends Controller
 
     public function hsCodeList(): View
     {
-        $page           = $this->request->post("page", 1);
-        $pageSize       = $this->request->post("pageSize", 50);
-        $search_cls     = $this->request->get("search_cls", WmsConstant::HSCODE_SEARCH_TYPE_KO);
-        $keyword        = $this->request->get("keyword", "");
-        $sort           = $this->request->get("sort", "created_at|desc");
+        $page       = $this->request->get("page", 1);
+        $pageSize   = $this->request->get("pageSize", 50);
+        $pageSize   = $pageSize > 500 ? 500 : $pageSize;
+        $search_cls = $this->request->get("search_cls", WmsConstant::HSCODE_SEARCH_TYPE_KO);
+        $keyword    = $this->request->get("keyword", "");
+        $sort       = $this->request->get("sort", "created_at|desc");
 
         $pageSize = $pageSize > 500 ? 500 : $pageSize;
         $offset   = ($page - 1) * $pageSize;

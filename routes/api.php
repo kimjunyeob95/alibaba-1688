@@ -179,7 +179,7 @@ Route::name('w.')->prefix('w')->group(function () {
     /** WMS */
     Route::prefix("wms")->name("wms.")->group(function(){
         /** 관세율 조회 */
-        Route::get("/tariff/{hsCode}", [WAppWmsController::class, "getTarffi"])->name("getTarffi");
+        Route::get("/tariff/{hsCode}", [WAppWmsController::class, "getTariff"])->name("getTariff");
     });
 
     Route::name('forbiddenWord.')->prefix('forbiddenWord')->group(function () {
@@ -271,6 +271,14 @@ Route::name('mall.')->prefix('mall')->group(function () {
 
             /** 이미지 S3 upload */
             Route::post('/img/upload', [MallController::class, "imgUpload"])->name("imgUpload");
+
+            /** WMS */
+            Route::prefix("wms")->name("wms.")->group(function(){
+                /** HS code 리스트 조회 */
+                Route::get("/hscode", [WAppWmsController::class, "apiHsCodeList"])->name("apiHsCodeList");
+                /** 관세율 조회 */
+                Route::get("/tariff/{hsCode}", [WAppWmsController::class, "apiTarffi"])->name("apiTarffi");
+            });
 
             /** Genuio */
             Route::name('genuio.')->prefix('genuio')->group(function () {
