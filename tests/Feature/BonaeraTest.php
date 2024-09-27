@@ -176,14 +176,14 @@ class BonaeraTest extends TestCase
                 "itemList" => $itemList
             ];
 
-            $result = helpers_curl("POST", $endPoint, $header, $payload);
-            // $result = [
-            //     "code"    => "1",
-            //     "message" => "신청완료",
-            //     "groupNo" => "GR240925000133",
-            //     "orderNo" => "SH240925000134",
-            //     "invoice" => "2222",
-            // ];
+            // $result = helpers_curl("POST", $endPoint, $header, $payload);
+            $result = [
+                "code"    => "1",
+                "message" => "신청완료",
+                "groupNo" => "GR240925000133",
+                "orderNo" => "SH240925000134",
+                "invoice" => "2222",
+            ];
 
             if( isset($result["groupNo"]) && isset($result["orderNo"]) && isset($result["invoice"]) ){
                 BonaeraOutBaseData::create([
@@ -191,6 +191,7 @@ class BonaeraTest extends TestCase
                     "stock_no"         => $stockNo,
                     "order_id"         => $orderId,
                     "channel_order_id" => $channelOrderId,
+                    "group_no"         => $result["groupNo"],
                     "out_ordered_at"   => null,
                     "out_completed_at" => null,
                 ]);
@@ -201,10 +202,8 @@ class BonaeraTest extends TestCase
                         "channel_order_id" => $channelOrderId,
                         "option_id"        => $opt["option_id"],
                         "it_code"          => $opt["it_code"],
-                        "quantity"          => $opt["quantity"],
-                        "status"           => BonaeraConstant::SHIPPING_STATUS_PENDING,
+                        "quantity"         => $opt["quantity"],
                         "shipped_qty"      => 0,
-                        "group_no"         => $result["groupNo"],
                     ]);
                 }
             }
