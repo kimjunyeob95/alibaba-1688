@@ -35,6 +35,9 @@ class NavConstant
     public const ADMIN_MANAGE             = "관리자 관리";
     public const ADMIN_REGIST             = "관리자 등록";
 
+    public const WMS               = "WMS";
+    public const WMS_HSCODE_MANAGE = "HS code 관리";
+
     public const CHANNEL_MANAGE            = "채널 관리";
     public const CHANNEL_PRODUCT_MANAGE    = "상품 전송 현황";
     public const EASYSELL_W                = "이지셀: 더블유";
@@ -90,6 +93,9 @@ class NavConstant
             self::ADMIN_MANAGE => [
                 self::ADMIN_REGIST => "/wapp/admin/regist"
             ]
+        ],
+        self::WMS => [
+            self::WMS_HSCODE_MANAGE => "/wapp/wms/hscode",
         ],
         self::CHANNEL_MANAGE => [
             self::CHANNEL_PRODUCT_MANAGE => [

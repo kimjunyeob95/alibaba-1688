@@ -10,11 +10,13 @@ use App\Services\Message\MessageW1;
 use App\Services\Message\WMessageService;
 use App\Services\Order\OrderService;
 use App\Services\Order\OrderW1;
+use App\Services\Wms\WmsW1;
 use App\Services\Product\ProductW1;
 use App\Services\Product\ProductW2;
 use App\Services\Service1688Category;
 use Illuminate\Support\ServiceProvider;
 use App\Services\Service1688Product;
+use App\Services\Wms\WmsService;
 
 class App1688Provider extends ServiceProvider
 {
@@ -63,6 +65,15 @@ class App1688Provider extends ServiceProvider
             $orderAbstract = $app->make(OrderW1::class);
 
             return new OrderService($orderAbstract);
+        });
+
+        /**
+         * WMS 의존성
+         */
+        $this->app->bind(WmsService::class, function ($app) {
+            $wmsAbstract = $app->make(WmsW1::class);
+
+            return new WmsService($wmsAbstract);
         });
 
         /**

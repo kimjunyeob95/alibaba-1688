@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\MallController;
 use App\Http\Controllers\Api\W\ExchangeRateController;
 use App\Http\Controllers\Api\W\W2ProductController;
 use App\Http\Controllers\Api\W\WAppOrderController;
+use App\Http\Controllers\Api\W\WAppWmsController;
 use App\Http\Controllers\Api\W\WCollectController;
 use App\Http\Controllers\Api\W\WExceptController;
 use App\Http\Controllers\Api\W\WForbiddenWordController;
@@ -175,6 +176,12 @@ Route::name('w.')->prefix('w')->group(function () {
         Route::post('/send/mall/update', [WCategoryController::class, 'sendMallUpdate'])->name('sendMallUpdate');
     });
 
+    /** WMS */
+    Route::prefix("wms")->name("wms.")->group(function(){
+        /** 관세율 조회 */
+        Route::get("/tariff/{hsCode}", [WAppWmsController::class, "getTariff"])->name("getTariff");
+    });
+
     Route::name('forbiddenWord.')->prefix('forbiddenWord')->group(function () {
         /** 상품정보 키워드 조회 */
         Route::get('/{id}', [WForbiddenWordController::class, 'get'])->name('get');
@@ -264,6 +271,14 @@ Route::name('mall.')->prefix('mall')->group(function () {
 
             /** 이미지 S3 upload */
             Route::post('/img/upload', [MallController::class, "imgUpload"])->name("imgUpload");
+
+            /** WMS */
+            Route::prefix("wms")->name("wms.")->group(function(){
+                /** HS code 리스트 조회 */
+                Route::get("/hscode", [WAppWmsController::class, "apiHsCodeList"])->name("apiHsCodeList");
+                /** 관세율 조회 */
+                Route::get("/tariff/{hsCode}", [WAppWmsController::class, "apiTarffi"])->name("apiTarffi");
+            });
 
             /** Genuio */
             Route::name('genuio.')->prefix('genuio')->group(function () {

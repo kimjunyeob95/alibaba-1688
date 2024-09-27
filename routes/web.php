@@ -11,6 +11,7 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProductW2Controller;
 use App\Http\Controllers\WApp\Admin\AdminController;
 use App\Http\Controllers\WApp\Order\OrderController;
+use App\Http\Controllers\WApp\Wms\WmsController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -108,6 +109,14 @@ Route::prefix("wapp")->name("wapp.")->group(function(){
         Route::get("/w/list", [OrderController::class, "orderWList"])->name("wList");
         /** WApp 주문 수정 */
         Route::get("/edit/{orderId}", [OrderController::class, "orderEdit"])->name("edit");
+    });
+
+    /**
+     * WMS
+     */
+    Route::prefix("wms")->name("wms.")->group(function(){
+        /** HS code 라스트 */
+        Route::get("/hscode", [WmsController::class, "hsCodeList"])->name("hsCodeList");
     });
 });
 

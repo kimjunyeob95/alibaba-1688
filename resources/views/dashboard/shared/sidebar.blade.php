@@ -30,57 +30,74 @@
                 <li class="nav-title">{{ $depth1Name }}</li>
                 @foreach ($depth1 as $depth2Name => $depth2)
                     @if (!in_array($depth2Name, $excludedNav))
-                        <li class="nav-group">
-                            <a class="nav-link nav-group-toggle" href="javascript:;">
-                                <svg class="nav-icon">
-                                    @if (isset(NavConstant::NAV_ICON[$depth2Name]))
-                                        <use xlink:href="{{ NavConstant::NAV_ICON[$depth2Name] }}"></use>
-                                    @else
-                                        <use xlink:href="/vendors/@coreui/icons/svg/free.svg#cil-3d"></use>
-                                    @endif
-                                </svg>
-                                {{ $depth2Name }}
-                            </a>
-                            <ul class="nav-group-items">
-                                @foreach ($depth2 as $depth3Name => $depth3)
-                                    @if(!in_array($depth3Name, $excludedNav))
-                                        @if (is_array($depth3))
-                                            <li class="nav-group">
-                                                <a class="nav-link nav-group-toggle" href="javascript:;">
-                                                    <svg class="nav-icon">
-                                                        @if (isset(NavConstant::NAV_ICON[$depth3Name]))
-                                                            <use xlink:href="{{ NavConstant::NAV_ICON[$depth3Name] }}"></use>
-                                                        @else
-                                                            <use testt="{{ $depth3Name}}" xlink:href="/vendors/@coreui/icons/svg/free.svg#cil-3d"></use>
-                                                        @endif
-                                                    </svg>
-                                                    {{ $depth3Name }}
-                                                </a>
-                                                <ul class="nav-group-items">
-                                                    @foreach ($depth3 as $depth4Name => $depth4)
-                                                        @if (!in_array($depth4Name, $excludedNav))
-                                                            <li class="nav-item">
-                                                                <a class="nav-link" href="{{ $depth4 }}">
-                                                                    {{ $depth4Name }}
-                                                                </a>
-                                                            </li>
-                                                        @endif
-                                                    @endforeach
-                                                </ul>
-                                            </li>
+                        @if (is_array($depth2))
+                            <li class="nav-group">
+                                <a class="nav-link nav-group-toggle" href="javascript:;">
+                                    <svg class="nav-icon">
+                                        @if (isset(NavConstant::NAV_ICON[$depth2Name]))
+                                            <use xlink:href="{{ NavConstant::NAV_ICON[$depth2Name] }}"></use>
                                         @else
-                                            @if (!in_array($depth3Name, $excludedNav))
-                                                <li class="nav-item">
-                                                    <a class="nav-link" href="{{ $depth3 }}">
+                                            <use xlink:href="/vendors/@coreui/icons/svg/free.svg#cil-3d"></use>
+                                        @endif
+                                    </svg>
+                                    {{ $depth2Name }}
+                                </a>
+                                <ul class="nav-group-items">
+                                    @foreach ($depth2 as $depth3Name => $depth3)
+                                        @if(!in_array($depth3Name, $excludedNav))
+                                            @if (is_array($depth3))
+                                                <li class="nav-group">
+                                                    <a class="nav-link nav-group-toggle" href="javascript:;">
+                                                        <svg class="nav-icon">
+                                                            @if (isset(NavConstant::NAV_ICON[$depth3Name]))
+                                                                <use xlink:href="{{ NavConstant::NAV_ICON[$depth3Name] }}"></use>
+                                                            @else
+                                                                <use testt="{{ $depth3Name}}" xlink:href="/vendors/@coreui/icons/svg/free.svg#cil-3d"></use>
+                                                            @endif
+                                                        </svg>
                                                         {{ $depth3Name }}
                                                     </a>
+                                                    <ul class="nav-group-items">
+                                                        @foreach ($depth3 as $depth4Name => $depth4)
+                                                            @if (!in_array($depth4Name, $excludedNav))
+                                                                <li class="nav-item">
+                                                                    <a class="nav-link" href="{{ $depth4 }}">
+                                                                        {{ $depth4Name }}
+                                                                    </a>
+                                                                </li>
+                                                            @endif
+                                                        @endforeach
+                                                    </ul>
                                                 </li>
+                                            @else
+                                                @if (!in_array($depth3Name, $excludedNav))
+                                                    <li class="nav-item">
+                                                        <a class="nav-link" href="{{ $depth3 }}">
+                                                            {{ $depth3Name }}
+                                                        </a>
+                                                    </li>
+                                                @endif
                                             @endif
                                         @endif
-                                    @endif
-                                @endforeach
-                            </ul>
-                        </li>
+                                    @endforeach
+                                </ul>
+                            </li>
+                        @else
+                            @if (!in_array($depth2Name, $excludedNav))
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{{ $depth2 }}">
+                                        <svg class="nav-icon">
+                                            @if (isset(NavConstant::NAV_ICON[$depth2Name]))
+                                                <use xlink:href="{{ NavConstant::NAV_ICON[$depth2Name] }}"></use>
+                                            @else
+                                                <use xlink:href="/vendors/@coreui/icons/svg/free.svg#cil-3d"></use>
+                                            @endif
+                                        </svg>
+                                        {{ $depth2Name }}
+                                    </a>
+                                </li>
+                            @endif
+                        @endif
                     @endif
                 @endforeach
             @endif
