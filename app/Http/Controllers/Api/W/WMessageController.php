@@ -3,11 +3,14 @@
 namespace App\Http\Controllers\Api\W;
 
 use App\Constants\HttpConstant;
+use App\Constants\QueueConstant;
 use App\Http\Controllers\Controller;
+use App\Jobs\WmessageJob;
 use App\Services\Message\WMessageService;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Queue;
 
 class WMessageController extends Controller
 {
@@ -23,7 +26,7 @@ class WMessageController extends Controller
     public function message(): JsonResponse
     {
         try {
-            $this->wMessageService->message($this->request->all());
+            Queue::push(new WmessageJob($this->request->all()));
 
             return helpers_json_response(HttpConstant::OK);
         } catch (Exception $e) {
