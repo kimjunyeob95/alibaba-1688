@@ -6,7 +6,9 @@ use App\Constants\BonaeraConstant;
 use App\Models\BonaeraInBaseData;
 use App\Models\BonaeraInProductData;
 use App\Models\BonaeraOutBaseData;
+use App\Models\BonaeraOutDeliveryData;
 use App\Models\BonaeraOutProductData;
+use App\Models\BonaeraOutWeightData;
 use App\Models\OrderBaseData;
 use App\Models\OrderChannelData;
 use App\Models\OrderChannelDetailData;
@@ -206,8 +208,75 @@ class BonaeraTest extends TestCase
                         "shipped_qty"      => 0,
                     ]);
                 }
+
+                $this->testCreateDelivery($result["groupNo"]);
             }
+            
             dd(json_encode($payload, JSON_UNESCAPED_UNICODE), $result);
+        }
+    }
+
+    # php artisan test --filter testCreateDelivery
+    /** 신청서 조회 */
+    public function testCreateDelivery(string $groupNo)
+    {
+        $endPoint = "https://bonaera.com/elpisapi/applicationList_api.php";
+        $header   = [
+            'userKey: ' . env("BONAERA_TOKEN" , "3dI7uzN1dERvCBM1wt9wp1CglC7hcBB0jFkLZAFjZDC7SP56TIfwcJhfpTbLCIjg"),
+            'Content-Type: application/json'
+        ];
+        $payload  = [
+            "userId"  => BonaeraConstant::USER_ID,
+            "grCode"  => $groupNo,
+        ];
+
+        $result = helpers_curl("GET", $endPoint, $header, $payload);
+        
+        if( isset($result["data"]["grCode"]) && isset($result["data"]["ReciverInfo"][0]) ){
+            $res         = $result["data"];
+            $reciverInfo = $res["ReciverInfo"][0];
+            BonaeraOutDeliveryData::create([
+                "gr_code"        => $res["grCode"],
+                "invoice"        => $res["invoice"] ?? "",
+                "state"          => $res["state"],
+                "outday"         => $res["outday"] ?? null,
+                "receiver_name"  => $reciverInfo["receiverName"],
+                "zip_code"       => $reciverInfo["zipCode"],
+                "addr1"          => $reciverInfo["addr1"],
+                "addr2"          => $reciverInfo["addr2"],
+                "receiver_phone" => $reciverInfo["receiverPhone"],
+                "personal_type"  => $reciverInfo["personalType"],
+                "personal_num"   => $reciverInfo["personalNum"],
+                "unipass_result" => $reciverInfo["unipassResult"],
+                "unipass_reason" => $reciverInfo["unipassReason"],
+                "ship_memo"      => $reciverInfo["shipMemo"],
+            ]);
+
+            if( isset($result["data"]["weightList"]) ){
+                foreach ($result["data"]["weightList"] as $weight) {
+                    BonaeraOutWeightData::create([
+                        "gr_code"          => $res["grCode"],
+                        "box_cnt"          => $weight["boxCnt"] ?? 0,
+                        "real_weight"      => $weight["realWeight"] ?? 0,
+                        "width"            => $weight["width"] ?? 0,
+                        "length"           => $weight["length"] ?? 0,
+                        "height"           => $weight["height"] ?? 0,
+                        "weight"           => $weight["weight"] ?? 0,
+                        "ship_money"       => $weight["shipMoney"] ?? 0,
+                        "weight_fee"       => $weight["weightFee"] ?? 0,
+                        "volume_fee"       => $weight["volumeFee"] ?? 0,
+                        "svc_money1"       => $weight["svcMoney1"] ?? 0,
+                        "svc_money2"       => $weight["svcMoney2"] ?? 0,
+                        "plus_money"       => $weight["plusMoney"] ?? 0,
+                        "plus_money_memo"  => $weight["plusMoneyMemo"] ?? "",
+                        "minus_money"      => $weight["minusMoney"] ?? 0,
+                        "minus_money_memo" => $weight["minusMoneyMemo"] ?? "",
+                        "commission"       => $weight["commission"] ?? 0,
+                        "islands"          => $weight["islands"] ?? 0,
+                        "total_money"      => $weight["totalMoney"] ?? 0,
+                    ]);
+                }
+            }
         }
     }
 }
