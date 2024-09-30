@@ -74,38 +74,65 @@ class BonaeraTest extends TestCase
         ];
 
         $result = helpers_curl("POST", $endPoint, $header, $payload);
+        // $result = [
+        //     "code" => "1",
+        //     "message" => "재고신청완료",
+        //     "stockNo" => "ST240930000146",
+        //     "item" => [
+        //       0 => [
+        //         "itCode" => "IT240930000147"
+        //       ],
+        //       1 => [
+        //         "itCode" => "IT240930000148"
+        //       ],
+        //       2 => [
+        //         "itCode" => "IT240930000149"
+        //       ],
+        //       3 => [
+        //         "itCode" => "IT240930000150"
+        //       ]
+        //     ]
+        // ];
 
         if( isset($result["stockNo"]) && isset($result["item"]) && !empty($result["item"]) ){
             $stockNo = $result["stockNo"];
 
-            BonaeraInBaseData::create([
-                "stock_no" => $stockNo,
-                "order_id" => $order_id,
-                "offer_id" => $offer_id
-            ]);
+            BonaeraInBaseData::updateOrCreate(
+                [
+                    "stock_no" => $stockNo,
+                ],
+                [
+                    "order_id" => $order_id,
+                    "offer_id" => $offer_id
+                ]
+            );
 
             foreach ($result["item"] as $key => $item) {
                 $itCode = $item["itCode"];
                 $opt    = $optList[$key];
 
-                BonaeraInProductData::create([
-                    "order_id"             => $order_id,
-                    "option_id"            => $opt["option_id"],
-                    "quantity"             => $opt["quantity"],
-                    "product_snapshot_url" => $opt["product_snapshot_url"],
-                    "stock_no"             => $stockNo,
-                    "hs_code"              => $opt["hs_code"],
-                    "it_Code"              => $itCode,
-                    "status"               => BonaeraConstant::WAREHOUSE_STATUS_PENDING,
-                    "in_img_url"           => "",
-                    "received_qty"         => 0,
-                    "discarded_qty"        => 0,
-                    "refunded_qty"         => 0,
-                    "shipped_qty"          => 0,
-                    "lack_status"          => BonaeraConstant::LACK_STATUS_N,
-                    "stock_qty"            => 0,
-                    "memo"                 => "",
-                ]);
+                BonaeraInProductData::updateOrCreate(
+                    [
+                        "stock_no"  => $stockNo,
+                        "order_id"  => $order_id,
+                        "option_id" => $opt["option_id"],
+                    ],
+                    [
+                        "quantity"             => $opt["quantity"],
+                        "product_snapshot_url" => $opt["product_snapshot_url"],
+                        "hs_code"              => $opt["hs_code"],
+                        "it_Code"              => $itCode,
+                        "status"               => BonaeraConstant::WAREHOUSE_STATUS_PENDING,
+                        "in_img_url"           => "",
+                        "received_qty"         => 0,
+                        "discarded_qty"        => 0,
+                        "refunded_qty"         => 0,
+                        "shipped_qty"          => 0,
+                        "lack_status"          => BonaeraConstant::LACK_STATUS_N,
+                        "stock_qty"            => 0,
+                        "memo"                 => "",
+                    ]
+                );
             }
         }
 
@@ -182,34 +209,43 @@ class BonaeraTest extends TestCase
             $result = [
                 "code"    => "1",
                 "message" => "신청완료",
-                "groupNo" => "GR240925000133",
-                "orderNo" => "SH240925000134",
+                "groupNo" => "GR240930000151",
+                "orderNo" => "SH240930000152",
                 "invoice" => "2222",
             ];
 
             if( isset($result["groupNo"]) && isset($result["orderNo"]) && isset($result["invoice"]) ){
-                BonaeraOutBaseData::create([
-                    "sh_no"            => $result["orderNo"],
-                    "stock_no"         => $stockNo,
-                    "order_id"         => $orderId,
-                    "channel_order_id" => $channelOrderId,
-                    "group_no"         => $result["groupNo"],
-                    "out_ordered_at"   => null,
-                    "out_completed_at" => null,
-                ]);
+
+                $outBaseObj = BonaeraOutBaseData::updateOrCreate(
+                    [
+                        "sh_no" => $result["orderNo"],
+                    ],
+                    [
+                        "stock_no"         => $stockNo,
+                        "order_id"         => $orderId,
+                        "channel_order_id" => $channelOrderId,
+                        "group_no"         => $result["groupNo"],
+                        "out_ordered_at"   => null,
+                        "out_completed_at" => null,
+                    ]
+                );
 
                 foreach ($optList as $opt) {
-                    BonaeraOutProductData::create([
-                        "sh_no"            => $result["orderNo"],
-                        "channel_order_id" => $channelOrderId,
-                        "option_id"        => $opt["option_id"],
-                        "it_code"          => $opt["it_code"],
-                        "quantity"         => $opt["quantity"],
-                        "shipped_qty"      => 0,
-                    ]);
+                    BonaeraOutProductData::updateOrCreate(
+                        [
+                            "sh_no" => $result["orderNo"],
+                        ],
+                        [
+                            "channel_order_id" => $channelOrderId,
+                            "option_id"        => $opt["option_id"],
+                            "it_code"          => $opt["it_code"],
+                            "quantity"         => $opt["quantity"],
+                            "shipped_qty"      => 0,
+                        ]
+                    );
                 }
 
-                $this->testCreateDelivery($result["groupNo"]);
+                $this->testCreateDelivery($outBaseObj);
             }
             
             dd(json_encode($payload, JSON_UNESCAPED_UNICODE), $result);
@@ -218,7 +254,7 @@ class BonaeraTest extends TestCase
 
     # php artisan test --filter testCreateDelivery
     /** 신청서 조회 */
-    public function testCreateDelivery(string $groupNo)
+    public function testCreateDelivery(BonaeraOutBaseData $outBaseObj)
     {
         $endPoint = "https://bonaera.com/elpisapi/applicationList_api.php";
         $header   = [
@@ -227,7 +263,7 @@ class BonaeraTest extends TestCase
         ];
         $payload  = [
             "userId"  => BonaeraConstant::USER_ID,
-            "grCode"  => $groupNo,
+            "grCode"  => $outBaseObj->group_no,
         ];
 
         $result = helpers_curl("GET", $endPoint, $header, $payload);
@@ -235,46 +271,55 @@ class BonaeraTest extends TestCase
         if( isset($result["data"]["grCode"]) && isset($result["data"]["ReciverInfo"][0]) ){
             $res         = $result["data"];
             $reciverInfo = $res["ReciverInfo"][0];
-            BonaeraOutDeliveryData::create([
-                "gr_code"        => $res["grCode"],
-                "invoice"        => $res["invoice"] ?? "",
-                "state"          => $res["state"],
-                "outday"         => $res["outday"] ?? null,
-                "receiver_name"  => $reciverInfo["receiverName"],
-                "zip_code"       => $reciverInfo["zipCode"],
-                "addr1"          => $reciverInfo["addr1"],
-                "addr2"          => $reciverInfo["addr2"],
-                "receiver_phone" => $reciverInfo["receiverPhone"],
-                "personal_type"  => $reciverInfo["personalType"],
-                "personal_num"   => $reciverInfo["personalNum"],
-                "unipass_result" => $reciverInfo["unipassResult"],
-                "unipass_reason" => $reciverInfo["unipassReason"],
-                "ship_memo"      => $reciverInfo["shipMemo"],
-            ]);
+
+            BonaeraOutDeliveryData::updateOrCreate(
+                [
+                    "out_base_id" => $outBaseObj->id,
+                ],
+                [
+                    "invoice"        => $res["invoice"] ?? "",
+                    "state"          => $res["state"],
+                    "outday"         => $res["outday"] ?? null,
+                    "receiver_name"  => $reciverInfo["receiverName"],
+                    "zip_code"       => $reciverInfo["zipCode"],
+                    "addr1"          => $reciverInfo["addr1"],
+                    "addr2"          => $reciverInfo["addr2"],
+                    "receiver_phone" => $reciverInfo["receiverPhone"],
+                    "personal_type"  => $reciverInfo["personalType"],
+                    "personal_num"   => $reciverInfo["personalNum"],
+                    "unipass_result" => $reciverInfo["unipassResult"],
+                    "unipass_reason" => $reciverInfo["unipassReason"],
+                    "ship_memo"      => $reciverInfo["shipMemo"],
+                ]
+            );
 
             if( isset($result["data"]["weightList"]) ){
                 foreach ($result["data"]["weightList"] as $weight) {
-                    BonaeraOutWeightData::create([
-                        "gr_code"          => $res["grCode"],
-                        "box_cnt"          => $weight["boxCnt"] ?? 0,
-                        "real_weight"      => $weight["realWeight"] ?? 0,
-                        "width"            => $weight["width"] ?? 0,
-                        "length"           => $weight["length"] ?? 0,
-                        "height"           => $weight["height"] ?? 0,
-                        "weight"           => $weight["weight"] ?? 0,
-                        "ship_money"       => $weight["shipMoney"] ?? 0,
-                        "weight_fee"       => $weight["weightFee"] ?? 0,
-                        "volume_fee"       => $weight["volumeFee"] ?? 0,
-                        "svc_money1"       => $weight["svcMoney1"] ?? 0,
-                        "svc_money2"       => $weight["svcMoney2"] ?? 0,
-                        "plus_money"       => $weight["plusMoney"] ?? 0,
-                        "plus_money_memo"  => $weight["plusMoneyMemo"] ?? "",
-                        "minus_money"      => $weight["minusMoney"] ?? 0,
-                        "minus_money_memo" => $weight["minusMoneyMemo"] ?? "",
-                        "commission"       => $weight["commission"] ?? 0,
-                        "islands"          => $weight["islands"] ?? 0,
-                        "total_money"      => $weight["totalMoney"] ?? 0,
-                    ]);
+                    BonaeraOutWeightData::updateOrCreate(
+                        [
+                            "out_base_id" => $outBaseObj->id,
+                        ],
+                        [
+                            "box_cnt"          => $weight["boxCnt"] ?? 0,
+                            "real_weight"      => $weight["realWeight"] ?? 0,
+                            "width"            => $weight["width"] ?? 0,
+                            "length"           => $weight["length"] ?? 0,
+                            "height"           => $weight["height"] ?? 0,
+                            "weight"           => $weight["weight"] ?? 0,
+                            "ship_money"       => $weight["shipMoney"] ?? 0,
+                            "weight_fee"       => $weight["weightFee"] ?? 0,
+                            "volume_fee"       => $weight["volumeFee"] ?? 0,
+                            "svc_money1"       => $weight["svcMoney1"] ?? 0,
+                            "svc_money2"       => $weight["svcMoney2"] ?? 0,
+                            "plus_money"       => $weight["plusMoney"] ?? 0,
+                            "plus_money_memo"  => $weight["plusMoneyMemo"] ?? "",
+                            "minus_money"      => $weight["minusMoney"] ?? 0,
+                            "minus_money_memo" => $weight["minusMoneyMemo"] ?? "",
+                            "commission"       => $weight["commission"] ?? 0,
+                            "islands"          => $weight["islands"] ?? 0,
+                            "total_money"      => $weight["totalMoney"] ?? 0,
+                        ]
+                    );
                 }
             }
         }

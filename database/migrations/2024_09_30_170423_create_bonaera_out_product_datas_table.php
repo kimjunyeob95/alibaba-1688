@@ -26,6 +26,7 @@ return new class extends Migration
             $table->timestamps();
             $table->softDeletes();
 
+            $table->foreign('sh_no')->references('sh_no')->on('bonaera_out_base_datas')->onDelete('cascade');
             $table->foreign('channel_order_id')->references('channel_order_id')->on('order_channel_datas')->onDelete('cascade');
             $table->foreign('option_id')->references('id')->on('product_option_datas')->onDelete('cascade');
 

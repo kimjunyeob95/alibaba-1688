@@ -16,7 +16,7 @@ return new class extends Migration
     {
         Schema::create('bonaera_out_base_datas', function (Blueprint $table) {
             $table->id();
-            $table->string('sh_no', 20)->nullable(false)->comment('출고 신청 번호');
+            $table->string('sh_no', 20)->unique()->nullable(false)->comment('출고 신청 번호');
             $table->string('stock_no', 20)->nullable(false)->comment('입고번호');
             $table->string('order_id', 25)->nullable(false)->comment('주문번호');
             $table->string('channel_order_id', 25)->nullable(false)->comment('채널 주문번호');
