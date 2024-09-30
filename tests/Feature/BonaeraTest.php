@@ -100,9 +100,9 @@ class BonaeraTest extends TestCase
             BonaeraInBaseData::updateOrCreate(
                 [
                     "stock_no" => $stockNo,
+                    "order_id" => $order_id,
                 ],
                 [
-                    "order_id" => $order_id,
                     "offer_id" => $offer_id
                 ]
             );
@@ -123,7 +123,6 @@ class BonaeraTest extends TestCase
                         "hs_code"              => $opt["hs_code"],
                         "it_Code"              => $itCode,
                         "status"               => BonaeraConstant::WAREHOUSE_STATUS_PENDING,
-                        "in_img_url"           => "",
                         "received_qty"         => 0,
                         "discarded_qty"        => 0,
                         "refunded_qty"         => 0,
@@ -323,5 +322,24 @@ class BonaeraTest extends TestCase
                 }
             }
         }
+    }
+
+    # php artisan test --filter testGetStockList
+    /** 재고현황 조회 */
+    public function testGetStockList()
+    {
+        $endPoint = "https://bonaera.com/elpisapi/stockList_api.php";
+        $header   = [
+            'userKey: ' . env("BONAERA_TOKEN" , "3dI7uzN1dERvCBM1wt9wp1CglC7hcBB0jFkLZAFjZDC7SP56TIfwcJhfpTbLCIjg"),
+            'Content-Type: application/json'
+        ];
+        $payload  = [
+            "userId"  => BonaeraConstant::USER_ID,
+            "stCode" => "ST240930000146",
+        ];
+
+        $result = helpers_curl("GET", $endPoint, $header, $payload);
+        
+       dd($result);
     }
 }

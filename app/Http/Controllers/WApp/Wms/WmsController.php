@@ -48,4 +48,52 @@ class WmsController extends Controller
         ];
         return view("wms.hsCodeList")->with($viewParams);
     }
+
+    public function inList(): View
+    {
+        $page       = $this->request->get("page", 1);
+        $pageSize   = $this->request->get("pageSize", 50);
+        $pageSize   = $pageSize > 500 ? 500 : $pageSize;
+        $status     = $this->request->get("status", "");
+        $timeCls    = $this->request->get("time_cls", "");
+        $startTime  = $this->request->get("start_time", "");
+        $endTime    = $this->request->get("end_time", "");
+        $search_cls = $this->request->get("search_cls", WmsConstant::HSCODE_SEARCH_TYPE_KO);
+        $keyword    = $this->request->get("keyword", "");
+        $sort       = $this->request->get("sort", "created_at|desc");
+
+        $pageSize = $pageSize > 500 ? 500 : $pageSize;
+        $offset   = ($page - 1) * $pageSize;
+
+        $params = [
+            "page"       => $page,
+            "pageSize"   => $pageSize,
+            "status"     => $status,
+            "timeCls"    => $timeCls,
+            "startTime"  => $startTime,
+            "endTime"    => $endTime,
+            "search_cls" => $search_cls,
+            "keyword"    => $keyword,
+            "sort"       => $sort,
+        ];
+        $result     = $this->wmsService->inList($params);
+        $viewParams = [
+            "status"     => $status,
+            "timeCls"    => $timeCls,
+            "startTime"  => $startTime,
+            "endTime"    => $endTime,
+            "search_cls" => $search_cls,
+            "keyword"    => $keyword,
+            "paginator"  => $result["data"],
+            "offset"     => (int) $offset,
+            "pageSize"   => (int) $pageSize,
+        ];
+        return view("wms.inList")->with($viewParams);
+    }
+
+    public function inDetail(string $stockNo): View
+    {
+        $result = $this->wmsService->inDetail($stockNo);
+        return view("wms.inDetail")->with($result);
+    }
 }

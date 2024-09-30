@@ -57,6 +57,17 @@ class BonaeraConstant
         self::GROUP_STATUS_305_PEKI => self::GROUP_STATUS_305 . "에서 폐기",
         self::GROUP_STATUS_306_PEKI => self::GROUP_STATUS_306 . "에서 폐기",
         self::GROUP_STATUS_307_PEKI => self::GROUP_STATUS_307 . "에서 폐기",
-
     ];
+
+    /** 사진 번호 */
+    public const IMG_NUMBER_1  = 1;
+    public const IMG_NUMBER_2  = 2;
+    public const IMG_NUMBER_3  = 3;
+    public const IMG_NUMBER_4  = 4;
+    public const IMG_NUMBER_5  = 5;
+    public const IMG_NUMBER_6  = 6;
+    public const IMG_NUMBER_7  = 7;
+    public const IMG_NUMBER_8  = 8;
+    public const IMG_NUMBER_9  = 9;
+    public const IMG_NUMBER_10 = 10;
 }

@@ -117,6 +117,10 @@ Route::prefix("wapp")->name("wapp.")->group(function(){
     Route::prefix("wms")->name("wms.")->group(function(){
         /** HS code 라스트 */
         Route::get("/hscode", [WmsController::class, "hsCodeList"])->name("hsCodeList");
+        /** 입고관리 */
+        Route::get("/in", [WmsController::class, "inList"])->name("inList");
+        /** 입고관리 상세 */
+        Route::get("/in/{stockNo}", [WmsController::class, "inDetail"])->name("inDetail");
     });
 });
 

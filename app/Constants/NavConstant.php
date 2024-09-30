@@ -37,6 +37,8 @@ class NavConstant
 
     public const WMS               = "WMS";
     public const WMS_HSCODE_MANAGE = "HS code 관리";
+    public const WMS_IN_MANAGE     = "입고관리";
+    public const WMS_OUT_MANAGE    = "출고관리";
 
     public const CHANNEL_MANAGE            = "채널 관리";
     public const CHANNEL_PRODUCT_MANAGE    = "상품 전송 현황";
@@ -96,6 +98,8 @@ class NavConstant
         ],
         self::WMS => [
             self::WMS_HSCODE_MANAGE => "/wapp/wms/hscode",
+            self::WMS_IN_MANAGE     => "/wapp/wms/in",
+            // self::WMS_OUT_MANAGE    => "/wapp/wms/hscode",
         ],
         self::CHANNEL_MANAGE => [
             self::CHANNEL_PRODUCT_MANAGE => [
@@ -132,5 +136,7 @@ class NavConstant
         self::CHANNEL_PRODUCT_MANAGE  => "/vendors/@coreui/icons/svg/free.svg#cil-usb",
         self::CHANNEL_CATEGORY_MANAGE => "/vendors/@coreui/icons/svg/free.svg#cil-folder-open",
         self::QUEUE_MANAGE            => "/vendors/@coreui/icons/svg/free.svg#cil-list-numbered",
+        self::WMS_IN_MANAGE           => "/vendors/@coreui/icons/svg/free.svg#cil-media-step-backward",
+        self::WMS_OUT_MANAGE          => "/vendors/@coreui/icons/svg/free.svg#cil-media-step-forward",
     ];
 }

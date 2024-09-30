@@ -2,14 +2,18 @@
 
 namespace App\Abstracts;
 
+use App\Packages\Bonaera;
+
 abstract class WmsAbstract
 {
     protected array $returnMsg;
     protected string $unipass_token;
+    protected Bonaera $bonaera;
 
-    public function __construct()
+    public function __construct(Bonaera $bonaera)
     {
         $this->returnMsg     = helpers_fail_message();
+        $this->bonaera       = $bonaera;
         $this->unipass_token = env("UNIPASS_TOKEN", "g230z224g099q163r080k040u0");
     }
 
@@ -20,6 +24,14 @@ abstract class WmsAbstract
     * @return array
     */
     abstract function hsCodeList(array $params): array;
+
+    /**
+    * @func inList
+    * @description '입고관리 라스트'
+    * @param array $params
+    * @return array
+    */
+    abstract function inList(array $params): array;
 
     /**
     * @func apiHsCodeList
@@ -55,4 +67,20 @@ abstract class WmsAbstract
     * @return array
     */
     abstract function getTariff(string $hsCode): array;
+
+    /**
+    * @func bonaeraInUpdate
+    * @description '입고정보 업데이트'
+    * @param int $id
+    * @return void
+    */
+    abstract function bonaeraInUpdate(int $id): void;
+
+    /**
+    * @func inDetail
+    * @description '입고정보 상세'
+    * @param string $stockNo
+    * @return array
+    */
+    abstract function inDetail(string $stockNo): array;
 }
