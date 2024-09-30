@@ -124,7 +124,7 @@
                                         <td>{{ number_format($in_option->received_qty) }}</td>
                                         <td>{{ number_format($in_option->discarded_qty) }}</td>
                                         <td>{{ number_format($in_option->shipped_qty) }}</td>
-                                        <td>{{ $in_option->lack_status }}</td>
+                                        <td>{{ number_format($in_option->received_qty - ($in_option->discarded_qty + $in_option->shipped_qty)) }}</td>
                                     </tr>
                                 @endforeach
                             </tbody>
