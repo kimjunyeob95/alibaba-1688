@@ -1,11 +1,21 @@
 @php
     use App\Constants\WmsConstant;
     use App\Constants\BonaeraConstant;
-    use App\Models\ProductOptionData;
+    use App\Constants\OrderConstant;
+    use App\Models\BonaeraOutBaseData;
 @endphp
 @extends('dashboard.base')
 
 @section('styles')
+<style>
+    .has-child td{
+        border-bottom: none !important;
+    }
+
+    tr:not(.has-child) {
+        border-bottom-width: 1px !important;
+    }
+</style>
 @endsection
 
 @section('scripts')
@@ -21,7 +31,7 @@
                     </a>
                 </li>
                 <li class="breadcrumb-item">WMS</li>
-                <li class="breadcrumb-item active" aria-current="page">입고 관리</li>
+                <li class="breadcrumb-item active" aria-current="page">출고 관리</li>
             </ol>
         </nav>
 
@@ -35,22 +45,50 @@
                         <div class="card-header">
                             <table class="table">
                                 <tr class="align-middle">
-                                    <th style="width: 120px">입고 상태</th>
+                                    <th style="width: 120px">출고 상태</th>
                                     <td colspan="2">
-                                        <button type="button" name="status" class="btn-status btn btn-sm {{ $status == "" ? "btn-primary" : "btn-dark" }}"
-                                        value="">전체</button>
-                                        @foreach (BonaeraConstant::WAREHOUSE_STATUS as $key => $value)    
-                                            <button type="button" name="status" class="btn-status btn btn-sm {{ $status == $key ? "btn-primary" : "btn-dark" }}"
-                                            value="{{ $key }}">{{ $value }}</button>
-                                        @endforeach
+                                        <div class="d-flex flex-wrap m-n1">
+                                            <button type="button" name="status" class="btn-status btn btn-sm m-1 {{ $status == '' ? 'btn-primary' : 'btn-dark' }}"
+                                                value="">전체</button>
+                                            @foreach (BonaeraConstant::OUT_PUBLIC_STATUS as $key => $value)    
+                                                <button type="button" name="status" class="btn-status btn btn-sm m-1 {{ $status == $key ? 'btn-primary' : 'btn-dark' }}"
+                                                    value="{{ $key }}">{{ $value }}</button>
+                                            @endforeach
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr class="align-middle">
+                                    <th style="width: 120px">타입</th>
+                                    <td colspan="2">
+                                        <div class="d-flex flex-wrap m-n1">
+                                            <button type="button" name="clearance_type" class="btn-status btn btn-sm m-1 {{ $clearanceType == '' ? 'btn-primary' : 'btn-dark' }}"
+                                                value="">전체</button>
+                                            @foreach (OrderConstant::CLEARANCE_TYPE as $key => $value)    
+                                                <button type="button" name="clearance_type" class="btn-status btn btn-sm m-1 {{ $clearanceType == $key ? 'btn-primary' : 'btn-dark' }}"
+                                                    value="{{ $key }}">{{ $value }}</button>
+                                            @endforeach
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr class="align-middle">
+                                    <th style="width: 120px">운송방법</th>
+                                    <td colspan="2">
+                                        <div class="d-flex flex-wrap m-n1">
+                                            <button type="button" name="shipping_type" class="btn-status btn btn-sm m-1 {{ $shippingType == '' ? 'btn-primary' : 'btn-dark' }}"
+                                                value="">전체</button>
+                                            @foreach (OrderConstant::SHIPPING_TYPE as $key => $value)    
+                                                <button type="button" name="shipping_type" class="btn-status btn btn-sm m-1 {{ $shippingType == $key ? 'btn-primary' : 'btn-dark' }}"
+                                                    value="{{ $key }}">{{ $value }}</button>
+                                            @endforeach
+                                        </div>
                                     </td>
                                 </tr>
                                 <tr class="align-middle">
                                     <th style="width: 120px">기간</th>
                                     <td style="width: 200px">
                                         <select class="form-select" name="timeCls">
-                                            <option value="create" @if($timeCls == "create") selected @endif>입고 신청일</option>
-                                            <option value="complete" @if($timeCls == "complete") selected @endif>입고 완료일</option>
+                                            <option value="order" @if($timeCls == "order") selected @endif>출고 지시일</option>
+                                            <option value="complete" @if($timeCls == "complete") selected @endif>출고 완료일</option>
                                         </select>
                                     </td>
                                     <td>
@@ -65,7 +103,7 @@
                                     <th style="width: 120px">검색</th>
                                     <td style="width: 200px">
                                         <select class="form-select" name="search_cls">
-                                            @foreach (WmsConstant::IN_SEARCH_TYPE as $key => $search)
+                                            @foreach (WmsConstant::OUT_SEARCH_TYPE as $key => $search)
                                                 <option value="{{ $key }}" @if($search_cls == $key) selected @endif>{{ $search }}</option>
                                             @endforeach
                                         </select>
@@ -99,7 +137,7 @@
 
                 <div class="mt-3 d-flex justify-content-end">
                     <div class="d-flex">
-                        <button class="btn btn-md btn-dark text-white me-2" id="btn-select">입고정보 업데이트</button>
+                        <button class="btn btn-md btn-dark text-white me-2" id="btn-select">출고정보 업데이트</button>
                     </div>
                 </div>
 
@@ -113,47 +151,66 @@
                                     <input class="form-check-input" type="checkbox" id="allCheckbox">
                                 </th>
                                 <th scope="col" style="width: 1%">No</th>
+                                <th scope="col" style="width: 5%">출고상태</th>
                                 <th scope="col" style="width: 5%">
-                                    입고번호<br>
-                                    (W 주문번호)
+                                    배송번호<br>
+                                    (출고 주문번호)
                                 </th>
-                                <th scope="col" style="width: 5%">채널 주문번호</th>
-                                <th scope="col" style="width: 20%">입고정보</th>
-                                <th scope="col" style="width: 5%">배송정보</th>
+                                <th scope="col" style="width: 5%">
+                                    W 주문번호<br>
+                                    채널 주문번호
+                                </th>
+                                <th scope="col" style="width: 20%">출고정보</th>
+                                <th scope="col" style="width: 5%">수령인</th>
+                                <th scope="col" style="width: 5%">운송정보</th>
                                 <th scope="col" style="width: 8%">
-                                    입고 신청일<br>
-                                    입고 완료일
+                                    출고 지시일<br>
+                                    출고 완료일
                                 </th>
                                 <th scope="col" style="width: 5%">관리</th>
                             </tr>
                         </thead>
                         <tbody>
                             @foreach ($paginator->items() as $index => $data)
-                                <tr>
-                                    <td class="text-center">
+                                @php
+                                    $rowSpan        = 1;
+                                    $subTrClassName = "";
+                                    if( count($data->otherObjs) > 0 ){
+                                        $rowSpan = count($data->otherObjs) + 1;
+                                        $subTrClassName = "has-child";
+                                    }
+                                    // dd($data->otherObjs->toArray());
+                                @endphp
+                                <tr class="{{ $subTrClassName }}">
+                                    <td class="text-center" rowspan={{ $rowSpan }}>
                                         <input id="checkbox-{{ $data->id }}" class="form-check-input chk-inp" 
                                         type="checkbox" value="{{ $data->id }}">
                                     </td>
-                                    <td>
+                                    <td rowspan={{ $rowSpan }}>
                                         <small>{{ number_format(($paginator->total() - $offset) - $index) }}</small>
                                     </td>
-                                    <td>
-                                        <small>{{ $data->stock_no }}</small>
-                                        <br>
-                                        <small>({{ $data->order_id }})</small>
+                                    <td rowspan={{ $rowSpan }}>
+                                        <small>{{ BonaeraConstant::GROUP_STATUS[$data->state] }}</small>
                                     </td>
                                     <td>
-                                        <small>{{ $data->channel_order_id }}</small>
+                                        <small>({{ $data->group_no }})</small>
+                                        <br>
+                                        <small>({{ $data->sh_no }})</small>
+                                    </td>
+                                    <td>
+                                        <small>{{ $data->order_id }}</small>
+                                        <br>
+                                        <small>({{ $data->channel_order_id }})</small>
                                     </td>
                                     <td>
                                         <small>
-                                            (<a href="https://detail.1688.com/offer/{{ $data->offer_id }}.html" target="_blank">{{ $data->offer_id }}</a>)
-                                            {{ $data->product->prd_name_kr }}
+                                            (<a href="https://detail.1688.com/offer/{{ $data->order->offer_id }}.html" target="_blank">{{ $data->order->offer_id }}</a>)
+                                            {{ $data->order->product->prd_name_kr }}
                                         </small>
                                         <div class="mt-3"></div>
-                                        @foreach ($data->in_options as $in_option)
+                                        @foreach ($data->out_options as $out_option)
                                             @php
-                                                $w_option = ProductOptionData::where("id", $in_option->option_id)->first();
+                                                $w_option = $out_option->w_option;
                                             @endphp
                                             @if (!empty($w_option))
                                                 <small class="d-block mt-1">
@@ -163,49 +220,100 @@
                                                         <img class="lazy-img preview-image" data-src='/assets/img/no_img.png'width=30 height=30>
                                                     @endif
                                                     옵션: {{ $w_option->option_name_kr}},
-                                                    @if ( $in_option->status == BonaeraConstant::WAREHOUSE_STATUS_PENDING )
-                                                        상태: <span class="bg-dark rounded text-white px-2 py-1 fs-6">{{ BonaeraConstant::WAREHOUSE_STATUS[$in_option->status] }}</span>,
-                                                    @elseif ( $in_option->status == BonaeraConstant::WAREHOUSE_STATUS_RECEIVED )
-                                                        상태: <span class="bg-success rounded text-white px-2 py-1 fs-6">{{ BonaeraConstant::WAREHOUSE_STATUS[$in_option->status] }}</span>,
-                                                    @elseif ( $in_option->status == BonaeraConstant::WAREHOUSE_STATUS_DISPOSED )
-                                                        상태:<span class="bg-danger rounded text-white px-2 py-1 fs-6">{{ BonaeraConstant::WAREHOUSE_STATUS[$in_option->status] }}</span>,
-                                                    @endif
-                                                    입고: {{ $in_option->quantity }}, 재고: {{ $in_option->lack_status }}
+                                                    신청수량: {{ number_format($out_option->quantity) }},
+                                                    출고수량: {{ number_format($out_option->shipped_qty) }}
                                                 </small>
                                             @else
                                                 <small class="d-block mt-1">
-                                                    WApp에 옵션이 없음 option_id: {{ $in_option->option_id }}
+                                                    WApp에 옵션이 없음 option_id: {{ $out_option->option_id }}
                                                 </small>
                                             @endif
                                         @endforeach
                                     </td>
-                                    <td>
-                                        @if(!empty($data->logistics_last))
-                                            <small>
-                                                {{ $data->logistics_last->logistics_bill_no }}
-                                                <br>
-                                                {{ $data->logistics_last->logistics_company_name }}
-                                            </small>
-                                            <button class="btn btn-sm btn-primary btn-delivery text-white" orderid={{ $data->order_id }}>배송정보조회</button>
+                                    <td rowspan={{ $rowSpan }}>
+                                        {{ $data->receiver_name }}
+                                        <br>
+                                        @if (!empty($data->unipass_reason))   
+                                            <small class="text-danger">{{ $data->unipass_reason }}</small>
                                         @else
-                                            배송정보없음
+                                            <small>{{ $data->personal_num }}</small>
                                         @endif
+                                        <br>
+                                        ({{ OrderConstant::CLEARANCE_TYPE[$data->clearance_type]}})
                                     </td>
-                                    <td>
+                                    <td rowspan={{ $rowSpan }}>
                                         <small>
-                                            {{ $data->created_at }}
-                                            <br>
-                                            {{ $data->completed_at }}
+                                            @if (empty($data->invoice))
+                                                운송장없음
+                                            @else
+                                                {{ $data->invoice }}
+                                            @endif
+                                        </small>
+                                        <br>
+                                        <small>
+                                            ({{ OrderConstant::SHIPPING_TYPE[$data->shipping_type]}})
                                         </small>
                                     </td>
-                                    <td>
+                                    <td rowspan={{ $rowSpan }}>
+                                        <small>
+                                            {{ $data->out_ordered_at }}
+                                        </small>
+                                        <br>
+                                        <small>
+                                            {{ $data->out_completed_at }}
+                                        </small>
+                                    </td>
+                                    <td rowspan={{ $rowSpan }}>
                                         <div class="d-flex flex-column gap-2">
-                                            <button class="btn btn-sm btn-dark btn-update text-white" data-id={{ $data->id }}>입고정보<br>업데이트</button>
+                                            <button class="btn btn-sm btn-dark btn-update text-white" data-id={{ $data->id }}>출고정보<br>업데이트</button>
+                                            <button class="btn btn-sm btn-primary btn-out-detail text-white" data-stockno={{ $data->stock_no }}>출고상세</button>
                                             <button class="btn btn-sm btn-primary btn-in-detail text-white" data-stockno={{ $data->stock_no }}>입고상세</button>
                                             <button class="btn btn-sm btn-success btn-wapp-detail text-white" orderid={{ $data->order_id }}>주문 상세</button>
                                         </div>
                                     </td>
                                 </tr>
+                                @foreach ($data->otherObjs as $otherObj)
+                                    <tr>
+                                        <td>
+                                            <small>({{ $otherObj->group_no }})</small>
+                                            <br>
+                                            <small>({{ $otherObj->sh_no }})</small>
+                                        </td>
+                                        <td>
+                                            <small>{{ $otherObj->order_id }}</small>
+                                            <br>
+                                            <small>({{ $otherObj->channel_order_id }})</small>
+                                        </td>
+                                        <td>
+                                            <small>
+                                                (<a href="https://detail.1688.com/offer/{{ $otherObj->order->offer_id }}.html" target="_blank">{{ $otherObj->order->offer_id }}</a>)
+                                                {{ $otherObj->order->product->prd_name_kr }}
+                                            </small>
+                                            <div class="mt-3"></div>
+                                            @foreach ($otherObj->out_options as $out_option)
+                                                @php
+                                                    $w_option = $out_option->w_option;
+                                                @endphp
+                                                @if (!empty($w_option))
+                                                    <small class="d-block mt-1">
+                                                        @if ($w_option->sku_img_url)
+                                                            <img class="lazy-img preview-image" data-src="{{ $w_option->sku_img_url }}" width=30 height=30/>
+                                                        @else
+                                                            <img class="lazy-img preview-image" data-src='/assets/img/no_img.png'width=30 height=30>
+                                                        @endif
+                                                        옵션: {{ $w_option->option_name_kr}},
+                                                        신청수량: {{ number_format($out_option->quantity) }},
+                                                        출고수량: {{ number_format($out_option->shipped_qty) }}
+                                                    </small>
+                                                @else
+                                                    <small class="d-block mt-1">
+                                                        WApp에 옵션이 없음 option_id: {{ $out_option->option_id }}
+                                                    </small>
+                                                @endif
+                                            @endforeach
+                                        </td>
+                                    </tr>
+                                @endforeach
                             @endforeach
                         </tbody>
                     </table>

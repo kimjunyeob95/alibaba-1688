@@ -80,4 +80,15 @@ class WmsService
    {
       return $this->wmsAbstract->inDetail($stockNo);
    }
+
+   /**
+    * @func outList
+    * @description '출고관리 라스트'
+    * @param array $params
+    * @return array
+    */
+   public function outList(array $params): array
+   {
+      return $this->wmsAbstract->outList($params);
+   }
 }

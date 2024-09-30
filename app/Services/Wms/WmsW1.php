@@ -3,11 +3,13 @@
 namespace App\Services\Wms;
 
 use App\Abstracts\WmsAbstract;
+use App\Constants\BonaeraConstant;
 use App\Constants\BonaeraErrorMessageConstant;
 use App\Constants\WmsConstant;
 use App\Models\BonaeraInBaseData;
 use App\Models\BonaeraInProductData;
 use App\Models\BonaeraInProductImgData;
+use App\Models\BonaeraOutBaseData;
 use App\Models\HsCodeData;
 use App\Packages\Bonaera;
 use Carbon\Carbon;
@@ -265,6 +267,110 @@ class WmsW1 extends WmsAbstract
             $returnMsg = helpers_fail_message($e->getMessage());
         }
 
+        return $returnMsg;
+    }
+
+    public function outList(array $params): array
+    {
+        $returnMsg = $this->returnMsg;
+
+        try {
+            $pageSize      = $params["pageSize"];
+            $status        = $params["status"];
+            $clearanceType = $params["clearanceType"];
+            $shippingType  = $params["shippingType"];
+            $timeCls       = $params["timeCls"];
+            $startTime     = $params["startTime"];
+            $endTime       = $params["endTime"];
+            $search_cls    = $params["search_cls"];
+            $keyword       = $params["keyword"];
+            $sortArr       = explode("|", $params["sort"]);
+
+            $builder = BonaeraOutBaseData::select([
+                "bonaera_out_base_datas.*",
+                "bodd.state",
+                "bodd.invoice",
+                "bodd.receiver_name",
+                "bodd.personal_num",
+                "bodd.unipass_reason",
+                "ocd.clearance_type",
+                "ocd.shipping_type",
+            ])
+            ->with(["order.product", "logistics_last", "out_options.w_option"])
+            ->leftJoin("bonaera_out_delivery_datas as bodd", "bonaera_out_base_datas.id", "=", "bodd.out_base_id")
+            ->leftJoin("order_channel_datas as ocd", "bonaera_out_base_datas.order_id", "=", "ocd.order_id")
+            ->groupBy("bonaera_out_base_datas.group_no");
+
+            if( !empty($status) ){
+                if( $status == BonaeraConstant::GROUP_STATUS_300 ){
+                    $builder->whereIn("bodd.status", BonaeraConstant::OUT_PEKI_STATUS);
+                } else {
+                    $builder->where("bodd.status", $status);
+                }
+            }
+            if( !empty($clearanceType) ){
+                $builder->where("ocd.clearance_type", $clearanceType);
+            }
+            if( !empty($shippingType) ){
+                $builder->where("ocd.shipping_type", $shippingType);
+            }
+            if( !empty($timeCls) ){
+                if( $timeCls == "order" ){
+                    if( !empty($startTime) ) {
+                        $builder->where("bonaera_out_base_datas.out_ordered_at", ">=", $startTime . " 00:00:00");
+                    }
+                    if( !empty($endTime) ) {
+                        $builder->where("bonaera_out_base_datas.out_ordered_at", "<=", $endTime . " 23:59:59");
+                    }
+                } else if( $timeCls == "complete" ){
+                    if( !empty($startTime) ) {
+                        $builder->where("bonaera_out_base_datas.out_completed_at", ">=", $startTime . " 00:00:00");
+                    }
+                    if( !empty($endTime) ) {
+                        $builder->where("bonaera_out_base_datas.out_completed_at", "<=", $endTime . " 23:59:59");
+                    }
+                }
+            }
+            if( !empty($keyword) ){
+                $keyword = preg_replace("/(\r\n|\r|\n)/", ",", trim($keyword));
+                $keyword = explode(",", $keyword);
+                // 각 배열 요소의 앞뒤 공백 제거
+                $keyword = array_map('trim', $keyword);
+                // 빈 값을 제거
+                $keyword = array_filter($keyword);
+                // 중복 제거
+                $keyword = array_unique($keyword);
+
+                if( $search_cls == WmsConstant::OUT_SEARCH_TYPE_SH_NO ){
+                    $builder->whereIn("bonaera_out_base_datas.sh_no", $keyword);
+                } else if( $search_cls == WmsConstant::OUT_SEARCH_TYPE_GROUP_NO ){
+                    $builder->whereIn("bonaera_out_base_datas.group_no", $keyword);
+                } else if( $search_cls == WmsConstant::OUT_SEARCH_TYPE_CHANNEL_ORDER_ID ){
+                    $builder->whereIn("ocd.channel_order_id", $keyword);
+                }
+            }
+
+            $builder->orderBy("bonaera_out_base_datas." . $sortArr[0], $sortArr[1]);
+
+            $lists = $builder->paginate($pageSize)->appends($params);
+
+            foreach ($lists as &$data) {
+                $otherObjs = BonaeraOutBaseData::select([
+                    "bonaera_out_base_datas.*",
+                ])
+                ->with(["order.product", "out_options.w_option"])
+                ->where("bonaera_out_base_datas.group_no", $data->group_no)
+                ->where("bonaera_out_base_datas.id", "!=", $data->id)
+                ->get();
+                
+                $data["otherObjs"] = $otherObjs;
+            }
+
+            $returnMsg = helpers_success_message($lists);
+        } catch (Exception $e) {
+            $returnMsg = helpers_fail_message($e->getMessage());
+        }
+        // dd($returnMsg["data"]->toArray()["data"]);
         return $returnMsg;
     }
 }

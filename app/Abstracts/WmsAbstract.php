@@ -83,4 +83,12 @@ abstract class WmsAbstract
     * @return array
     */
     abstract function inDetail(string $stockNo): array;
+
+    /**
+    * @func outList
+    * @description '출고관리 라스트'
+    * @param array $params
+    * @return array
+    */
+    abstract function outList(array $params): array;
 }

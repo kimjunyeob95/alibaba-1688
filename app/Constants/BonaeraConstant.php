@@ -50,13 +50,33 @@ class BonaeraConstant
         self::GROUP_STATUS_306      => "출고준비",
         self::GROUP_STATUS_307      => "출고완료",
         self::GROUP_STATUS_300      => "폐기",
-        self::GROUP_STATUS_301_PEKI => self::GROUP_STATUS_301 . "에서 폐기",
-        self::GROUP_STATUS_302_PEKI => self::GROUP_STATUS_302 . "에서 폐기",
-        self::GROUP_STATUS_303_PEKI => self::GROUP_STATUS_303 . "에서 폐기",
-        self::GROUP_STATUS_304_PEKI => self::GROUP_STATUS_304 . "에서 폐기",
-        self::GROUP_STATUS_305_PEKI => self::GROUP_STATUS_305 . "에서 폐기",
-        self::GROUP_STATUS_306_PEKI => self::GROUP_STATUS_306 . "에서 폐기",
-        self::GROUP_STATUS_307_PEKI => self::GROUP_STATUS_307 . "에서 폐기",
+        self::GROUP_STATUS_301_PEKI => "폐기<br>(입고대기)",
+        self::GROUP_STATUS_302_PEKI => "폐기<br>(입고완료)",
+        self::GROUP_STATUS_303_PEKI => "폐기<br>(무게측정)",
+        self::GROUP_STATUS_304_PEKI => "폐기<br>(결제대기)",
+        self::GROUP_STATUS_305_PEKI => "폐기<br>(결제확인중)",
+        self::GROUP_STATUS_306_PEKI => "폐기<br>(출고준비)",
+        self::GROUP_STATUS_307_PEKI => "폐기<br>(출고완료)",
+    ];
+    public const OUT_PUBLIC_STATUS = [
+        self::GROUP_STATUS_301 => self::GROUP_STATUS[self::GROUP_STATUS_301],
+        self::GROUP_STATUS_302 => self::GROUP_STATUS[self::GROUP_STATUS_302],
+        self::GROUP_STATUS_303 => self::GROUP_STATUS[self::GROUP_STATUS_303],
+        self::GROUP_STATUS_304 => self::GROUP_STATUS[self::GROUP_STATUS_304],
+        self::GROUP_STATUS_305 => self::GROUP_STATUS[self::GROUP_STATUS_305],
+        self::GROUP_STATUS_306 => self::GROUP_STATUS[self::GROUP_STATUS_306],
+        self::GROUP_STATUS_307 => self::GROUP_STATUS[self::GROUP_STATUS_307],
+        self::GROUP_STATUS_300 => self::GROUP_STATUS[self::GROUP_STATUS_300],
+    ];
+    public const OUT_PEKI_STATUS = [
+        self::GROUP_STATUS_300,
+        self::GROUP_STATUS_301_PEKI,
+        self::GROUP_STATUS_302_PEKI,
+        self::GROUP_STATUS_303_PEKI,
+        self::GROUP_STATUS_304_PEKI,
+        self::GROUP_STATUS_305_PEKI,
+        self::GROUP_STATUS_306_PEKI,
+        self::GROUP_STATUS_307_PEKI,
     ];
 
     /** 사진 번호 */

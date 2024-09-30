@@ -14,4 +14,8 @@ class BonaeraOutProductData extends Model
     protected $table      = 'bonaera_out_product_datas';
     protected $guarded    = [];
     protected $fillable   = [];
+
+    public function w_option () {
+        return $this->hasOne(ProductOptionData::class, "id", "option_id");
+    }
 }

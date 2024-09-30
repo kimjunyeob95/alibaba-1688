@@ -121,6 +121,8 @@ Route::prefix("wapp")->name("wapp.")->group(function(){
         Route::get("/in", [WmsController::class, "inList"])->name("inList");
         /** 입고관리 상세 */
         Route::get("/in/{stockNo}", [WmsController::class, "inDetail"])->name("inDetail");
+        /** 출고관리 */
+        Route::get("/out", [WmsController::class, "outList"])->name("outList");
     });
 });
 

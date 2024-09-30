@@ -99,7 +99,7 @@ class NavConstant
         self::WMS => [
             self::WMS_HSCODE_MANAGE => "/wapp/wms/hscode",
             self::WMS_IN_MANAGE     => "/wapp/wms/in",
-            // self::WMS_OUT_MANAGE    => "/wapp/wms/hscode",
+            self::WMS_OUT_MANAGE    => "/wapp/wms/out",
         ],
         self::CHANNEL_MANAGE => [
             self::CHANNEL_PRODUCT_MANAGE => [
