@@ -182,6 +182,8 @@ Route::name('w.')->prefix('w')->group(function () {
         Route::get("/tariff/{hsCode}", [WAppWmsController::class, "getTariff"])->name("getTariff");
         /** 입고정보 업데이트 */
         Route::post("/bonaeraIn/update", [WAppWmsController::class, "bonaeraInUpdate"])->name("bonaeraInUpdate");
+        /** 출고정보 업데이트 */
+        Route::post("/bonaeraOut/update", [WAppWmsController::class, "bonaeraOutUpdate"])->name("bonaeraOutUpdate");
     });
 
     Route::name('forbiddenWord.')->prefix('forbiddenWord')->group(function () {

@@ -54,4 +54,28 @@ class Bonaera
         return $returnMsg;
     }
 
+    /** 신처소 조회 */
+    public function getApplicationList(string $groupNo): array
+    {
+        $returnMsg = $this->returnMsg;
+        
+        $endPoint = $this->domain . '/elpisapi/applicationList_api.php';
+        $payload  = [
+            "userId" => $this->userId,
+            "grCode" => $groupNo,
+        ];
+
+        try {
+            $result = helpers_curl("GET", $endPoint, $this->header, $payload);
+            if( !isset($result["message"]) || $result["message"] != "success" || !isset($result["data"]["ReciverInfo"][0]) ) {
+                throw new Exception("applicationList_api 통신");
+            }
+
+            $returnMsg = helpers_success_message($result);
+        } catch (Exception $e) {
+            $returnMsg = helpers_fail_message($e->getMessage());
+        }
+
+        return $returnMsg;
+    }
 }

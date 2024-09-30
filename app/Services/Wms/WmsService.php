@@ -71,6 +71,17 @@ class WmsService
    }
 
    /**
+    * @func bonaeraOutUpdate
+    * @description '출고정보 업데이트'
+    * @param int $id
+    * @return void
+    */
+   public function bonaeraOutUpdate(int $id): void
+   {
+      $this->wmsAbstract->bonaeraOutUpdate($id);
+   }
+
+   /**
     * @func inDetail
     * @description '입고정보 상세'
     * @param string $stockNo

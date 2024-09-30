@@ -37,6 +37,18 @@ class WmsCommand extends Command
                     }
                 }
                 break;
+            /**
+             * 출고정보 업데이트
+             * php artisan wms_command --func=bonaeraOutUpdate --ids=1
+             */
+            case 'bonaeraOutUpdate':
+                $ids = explode(",", $this->option('ids'));
+                if (!empty($ids)) {
+                    foreach ($ids as $id) {
+                        $this->wmsService->bonaeraOutUpdate($id);
+                    }
+                }
+                break;
             default:
                 break;
         }

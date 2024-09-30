@@ -320,76 +320,6 @@
                 </div>
             </div>
 
-            <div class="modal fade" id="htmlModal2" tabindex="-1" role="dialog" aria-labelledby="htmlModalLabel2" aria-hidden="true">
-                <div class="modal-dialog modal-xl" role="document">
-                    <form id="modalFrm">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title" id="htmlModalLabel2">배송정보</h5>
-                            </div>
-                            <div class="modal-body">
-                                <input type="hidden" name="orderId" />
-        
-                                <div>
-                                    <div class="d-flex flex-column px-3 mt-3">
-                                        <div class="mb-2">
-                                            <div class="col">
-                                                <label class="d-flex align-items-center w-100 ms-2">
-                                                    <span class="fs-5 fw-bold" style="width: 150px;">배송정보</span>
-                                                </label>
-                                            </div>
-                                            <div class="col mt-2">
-                                                <table class="table">
-                                                    <thead class="table-light">
-                                                        <tr>
-                                                            <th scope="col" style="width: 33%">물류코드</th>
-                                                            <th scope="col" style="width: 33%">배송사</th>
-                                                            <th scope="col" style="width: 33%">운송장</th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody class="delivery-tbody">
-                                                    </tbody>
-                                                </table>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="modal-footer d-flex justify-content-center">
-                                        <button type="button" class="btn btn-primary btn-trace-delivery">배송추적</button>
-                                        <button type="button" class="btn btn-secondary htmlModalClose2">닫기</button>
-                                    </div>
-                                    
-                                    <div class="div-trace">
-                                        <div class="d-flex flex-column px-3 mt-3">
-                                            <div class="mb-2">
-                                                <div class="col">
-                                                    <label class="d-flex align-items-center w-100 ms-2">
-                                                        <span class="fs-5 fw-bold" style="width: 150px;">추적정보</span>
-                                                    </label>
-                                                </div>
-                                                <div class="col mt-2">
-                                                    <table class="table">
-                                                        <thead class="table-light">
-                                                            <tr>
-                                                                <th scope="col" style="width: 10%">logisticsId</th>
-                                                                <th scope="col" style="width: 70%">내용</th>
-                                                                <th scope="col" style="width: 20%">처리시간</th>
-                                                            </tr>
-                                                        </thead>
-                                                        <tbody class="trace-tbody">
-                                                        </tbody>
-                                                    </table>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-            </div>
-
             <div class="d-flex justify-content-center">
                 {{ $paginator->links("vendor.pagination.bootstrap-4") }}
             </div>
@@ -530,7 +460,7 @@
                 $.ajax({
                     "headers" : {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
                     "type"    : "POST",
-                    "url"     : "{{ route('w.wms.bonaeraInUpdate') }}",
+                    "url"     : "{{ route('w.wms.bonaeraOutUpdate') }}",
                     "data"    : { ids: ids },
                     beforeSend: function () {},
                     complete  : function(xhr, status) {

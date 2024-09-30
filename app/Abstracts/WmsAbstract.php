@@ -77,6 +77,14 @@ abstract class WmsAbstract
     abstract function bonaeraInUpdate(int $id): void;
 
     /**
+    * @func bonaeraOutUpdate
+    * @description '출고정보 업데이트'
+    * @param int $id
+    * @return void
+    */
+    abstract function bonaeraOutUpdate(int $id): void;
+
+    /**
     * @func inDetail
     * @description '입고정보 상세'
     * @param string $stockNo
