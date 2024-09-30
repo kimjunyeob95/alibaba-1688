@@ -23,7 +23,7 @@ return new class extends Migration
             $table->string('product_snapshot_url')->nullable(false)->comment('제품 스냅샷 URL');
             $table->string('hs_code', 10)->nullable(false)->comment('HS 코드');
             $table->string('it_code', 20)->nullable(false)->comment('재고번호');
-            $table->string('status', 20)->nullable(false)->comment('입고상태');
+            $table->string('status', 20)->default("1001")->nullable(false)->comment('입고상태');
             $table->text('in_img_url')->nullable(false)->comment('입고 이미지');
             $table->integer('received_qty')->default(0)->nullable(false)->comment('입고수량');
             $table->integer('discarded_qty')->default(0)->nullable(false)->comment('폐기수량');
@@ -36,6 +36,7 @@ return new class extends Migration
             $table->timestamps();
             $table->softDeletes();
 
+            $table->foreign('stock_no')->references('stock_no')->on('bonaera_in_base_datas')->onDelete('cascade');
             $table->foreign('order_id')->references('order_id')->on('order_base_datas')->onDelete('cascade');
             $table->foreign('option_id')->references('id')->on('product_option_datas')->onDelete('cascade');
 
