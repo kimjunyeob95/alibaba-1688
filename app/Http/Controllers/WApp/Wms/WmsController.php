@@ -144,4 +144,11 @@ class WmsController extends Controller
         ];
         return view("wms.outList")->with($viewParams);
     }
+
+    public function outDetail(string $groupNo): View
+    {
+        $result = $this->wmsService->outDetail($groupNo);
+        // dd($result["data"]->toArray());
+        return view("wms.outDetail")->with($result);
+    }
 }

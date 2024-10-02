@@ -99,4 +99,12 @@ abstract class WmsAbstract
     * @return array
     */
     abstract function outList(array $params): array;
+
+    /**
+    * @func outDetail
+    * @description '출고정보 상세'
+    * @param string $groupNo
+    * @return array
+    */
+    abstract function outDetail(string $groupNo): array;
 }

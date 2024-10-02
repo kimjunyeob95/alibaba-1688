@@ -232,12 +232,12 @@ class BonaeraTest extends TestCase
                 foreach ($optList as $opt) {
                     BonaeraOutProductData::updateOrCreate(
                         [
-                            "sh_no" => $result["orderNo"],
+                            "sh_no"     => $result["orderNo"],
+                            "option_id" => $opt["option_id"],
+                            "it_code"   => $opt["it_code"],
                         ],
                         [
                             "channel_order_id" => $channelOrderId,
-                            "option_id"        => $opt["option_id"],
-                            "it_code"          => $opt["it_code"],
                             "quantity"         => $opt["quantity"],
                             "shipped_qty"      => 0,
                         ]
@@ -267,13 +267,14 @@ class BonaeraTest extends TestCase
 
         $result = helpers_curl("GET", $endPoint, $header, $payload);
         
+        $groupNo = $outBaseObj->group_no;
         if( isset($result["data"]["grCode"]) && isset($result["data"]["ReciverInfo"][0]) ){
             $res         = $result["data"];
             $reciverInfo = $res["ReciverInfo"][0];
 
             BonaeraOutDeliveryData::updateOrCreate(
                 [
-                    "out_base_id" => $outBaseObj->id,
+                    "group_no" => $groupNo,
                 ],
                 [
                     "invoice"        => $res["invoice"] ?? "",
@@ -292,34 +293,33 @@ class BonaeraTest extends TestCase
                 ]
             );
 
-            if( isset($result["data"]["weightList"]) ){
-                foreach ($result["data"]["weightList"] as $weight) {
-                    BonaeraOutWeightData::updateOrCreate(
-                        [
-                            "out_base_id" => $outBaseObj->id,
-                        ],
-                        [
-                            "box_cnt"          => $weight["boxCnt"] ?? 0,
-                            "real_weight"      => $weight["realWeight"] ?? 0,
-                            "width"            => $weight["width"] ?? 0,
-                            "length"           => $weight["length"] ?? 0,
-                            "height"           => $weight["height"] ?? 0,
-                            "weight"           => $weight["weight"] ?? 0,
-                            "ship_money"       => $weight["shipMoney"] ?? 0,
-                            "weight_fee"       => $weight["weightFee"] ?? 0,
-                            "volume_fee"       => $weight["volumeFee"] ?? 0,
-                            "svc_money1"       => $weight["svcMoney1"] ?? 0,
-                            "svc_money2"       => $weight["svcMoney2"] ?? 0,
-                            "plus_money"       => $weight["plusMoney"] ?? 0,
-                            "plus_money_memo"  => $weight["plusMoneyMemo"] ?? "",
-                            "minus_money"      => $weight["minusMoney"] ?? 0,
-                            "minus_money_memo" => $weight["minusMoneyMemo"] ?? "",
-                            "commission"       => $weight["commission"] ?? 0,
-                            "islands"          => $weight["islands"] ?? 0,
-                            "total_money"      => $weight["totalMoney"] ?? 0,
-                        ]
-                    );
-                }
+            if( isset($res["weightList"][0]) ){
+                $weight = $res["weightList"][0];
+                BonaeraOutWeightData::updateOrCreate(
+                    [
+                        "group_no" => $groupNo,
+                    ],
+                    [
+                        "box_cnt"          => $weight["boxCnt"] ?? 0,
+                        "real_weight"      => $weight["realWeight"] ?? 0,
+                        "width"            => $weight["width"] ?? 0,
+                        "length"           => $weight["length"] ?? 0,
+                        "height"           => $weight["height"] ?? 0,
+                        "weight"           => $weight["weight"] ?? 0,
+                        "ship_money"       => $weight["shipMoney"] ?? 0,
+                        "weight_fee"       => $weight["weightFee"] ?? 0,
+                        "volume_fee"       => $weight["volumeFee"] ?? 0,
+                        "svc_money1"       => $weight["svcMoney1"] ?? 0,
+                        "svc_money2"       => $weight["svcMoney2"] ?? 0,
+                        "plus_money"       => $weight["plusMoney"] ?? 0,
+                        "plus_money_memo"  => $weight["plusMoneyMemo"] ?? "",
+                        "minus_money"      => $weight["minusMoney"] ?? 0,
+                        "minus_money_memo" => $weight["minusMoneyMemo"] ?? "",
+                        "commission"       => $weight["commission"] ?? 0,
+                        "islands"          => $weight["islands"] ?? 0,
+                        "total_money"      => $weight["totalMoney"] ?? 0,
+                    ]
+                );
             }
         }
     }

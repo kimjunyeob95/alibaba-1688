@@ -30,4 +30,12 @@ class BonaeraOutBaseData extends Model
     public function out_options () {
         return $this->hasMany(BonaeraOutProductData::class, "sh_no", "sh_no");
     }
+
+    public function out_delivery () {
+        return $this->hasOne(BonaeraOutDeliveryData::class, "group_no", "group_no");
+    }
+
+    public function out_weight () {
+        return $this->hasOne(BonaeraOutWeightData::class, "group_no", "group_no");
+    }
 }

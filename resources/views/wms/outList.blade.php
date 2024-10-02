@@ -40,6 +40,8 @@
 
                 <form id="searchFrm">
                     <input type="hidden" name="status" value={{ $status }}>
+                    <input type="hidden" name="clearance_type" value={{ $clearanceType }}>
+                    <input type="hidden" name="shipping_type" value={{ $shippingType }}>
 
                     <div class="card">
                         <div class="card-header">
@@ -86,16 +88,16 @@
                                 <tr class="align-middle">
                                     <th style="width: 120px">기간</th>
                                     <td style="width: 200px">
-                                        <select class="form-select" name="timeCls">
+                                        <select class="form-select" name="time_cls">
                                             <option value="order" @if($timeCls == "order") selected @endif>출고 지시일</option>
                                             <option value="complete" @if($timeCls == "complete") selected @endif>출고 완료일</option>
                                         </select>
                                     </td>
                                     <td>
                                         <div class="input-group" style="width: 600px;">
-                                            <input type="text" class="form-control calendar" autocomplete="off" name="startTime" placeholder="시작일" value="{{ $startTime }}">
+                                            <input type="text" class="form-control calendar" autocomplete="off" name="start_time" placeholder="시작일" value="{{ $startTime }}">
                                             <span class="input-group-text">~</span>
-                                            <input type="text" class="form-control calendar" autocomplete="off" name="endTime" placeholder="종료일" value="{{ $endTime }}">
+                                            <input type="text" class="form-control calendar" autocomplete="off" name="end_time" placeholder="종료일" value="{{ $endTime }}">
                                         </div>
                                     </td>
                                 </tr>
@@ -179,7 +181,6 @@
                                         $rowSpan = count($data->otherObjs) + 1;
                                         $subTrClassName = "has-child";
                                     }
-                                    // dd($data->otherObjs->toArray());
                                 @endphp
                                 <tr class="{{ $subTrClassName }}">
                                     <td class="text-center" rowspan={{ $rowSpan }}>
@@ -196,6 +197,8 @@
                                         <small>({{ $data->group_no }})</small>
                                         <br>
                                         <small>({{ $data->sh_no }})</small>
+                                        <br>
+                                        <button class="btn btn-sm btn-primary btn-in-detail text-white" data-stockno={{ $data->stock_no }}>입고상세</button>
                                     </td>
                                     <td>
                                         <small>{{ $data->order_id }}</small>
@@ -266,8 +269,7 @@
                                     <td rowspan={{ $rowSpan }}>
                                         <div class="d-flex flex-column gap-2">
                                             <button class="btn btn-sm btn-dark btn-update text-white" data-id={{ $data->id }}>출고정보<br>업데이트</button>
-                                            <button class="btn btn-sm btn-primary btn-out-detail text-white" data-stockno={{ $data->stock_no }}>출고상세</button>
-                                            <button class="btn btn-sm btn-primary btn-in-detail text-white" data-stockno={{ $data->stock_no }}>입고상세</button>
+                                            <button class="btn btn-sm btn-primary btn-out-detail text-white" data-groupno={{ $data->group_no }}>출고상세</button>
                                             <button class="btn btn-sm btn-success btn-wapp-detail text-white" orderid={{ $data->order_id }}>주문 상세</button>
                                         </div>
                                     </td>
@@ -278,6 +280,8 @@
                                             <small>({{ $otherObj->group_no }})</small>
                                             <br>
                                             <small>({{ $otherObj->sh_no }})</small>
+                                            <br>
+                                            <button class="btn btn-sm btn-primary btn-in-detail text-white" data-stockno={{ $otherObj->stock_no }}>입고상세</button>
                                         </td>
                                         <td>
                                             <small>{{ $otherObj->order_id }}</small>
@@ -455,7 +459,7 @@
                 return alert("선택 된 정보가 없습니다.");
             }
 
-            if(confirm(`${ids.length}건의 입고정보를 업데이트 하시겠습니까?`)){
+            if(confirm(`${ids.length}건의 출고정보를 업데이트 하시겠습니까?`)){
                 $("#loadingOverlay").show();
                 $.ajax({
                     "headers" : {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
@@ -478,20 +482,26 @@
         });
 
         $(".btn-in-detail").click(function(){
-            let stockno     = $(this).data("stockno");
-            var newTab = window.open(`/wapp/wms/in/${stockno}`, '_blank');
+            let stockno = $(this).data("stockno");
+            var newTab  = window.open(`/wapp/wms/in/${stockno}`, '_blank');
+            newTab.focus(); 
+        })
+
+        $(".btn-out-detail").click(function(){
+            let groupno = $(this).data("groupno");
+            var newTab  = window.open(`/wapp/wms/out/${groupno}`, '_blank');
             newTab.focus(); 
         })
 
         $(".btn-update").click(function(){
             let ids = [$(this).data("id")];
 
-            if(confirm(`입고정보를 업데이트 하시겠습니까?`)){
+            if(confirm(`출고정보를 업데이트 하시겠습니까?`)){
                 $("#loadingOverlay").show();
                 $.ajax({
                     "headers" : {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
                     "type"    : "POST",
-                    "url"     : "{{ route('w.wms.bonaeraInUpdate') }}",
+                    "url"     : "{{ route('w.wms.bonaeraOutUpdate') }}",
                     "data"    : { ids: ids },
                     beforeSend: function () {},
                     complete  : function(xhr, status) {

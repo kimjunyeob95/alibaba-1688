@@ -102,4 +102,15 @@ class WmsService
    {
       return $this->wmsAbstract->outList($params);
    }
+
+   /**
+    * @func outDetail
+    * @description '출고정보 상세'
+    * @param string $groupNo
+    * @return array
+    */
+   public function outDetail(string $groupNo): array
+   {
+      return $this->wmsAbstract->outDetail($groupNo);
+   }
 }

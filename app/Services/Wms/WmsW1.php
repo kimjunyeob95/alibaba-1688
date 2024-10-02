@@ -299,7 +299,7 @@ class WmsW1 extends WmsAbstract
                 "ocd.shipping_type",
             ])
             ->with(["order.product", "logistics_last", "out_options.w_option"])
-            ->leftJoin("bonaera_out_delivery_datas as bodd", "bonaera_out_base_datas.id", "=", "bodd.out_base_id")
+            ->leftJoin("bonaera_out_delivery_datas as bodd", "bonaera_out_base_datas.group_no", "=", "bodd.group_no")
             ->leftJoin("order_channel_datas as ocd", "bonaera_out_base_datas.order_id", "=", "ocd.order_id")
             ->groupBy("bonaera_out_base_datas.group_no");
 
@@ -384,67 +384,62 @@ class WmsW1 extends WmsAbstract
                 throw new Exception(BonaeraErrorMessageConstant::getNotHaveErrorMessage("BONAERA_BASE_DATA"));
             }
 
-            $res = $this->bonaera->getApplicationList($baseObj->group_no);
+            $groupNo = $baseObj->group_no;
+            $res     = $this->bonaera->getApplicationList($groupNo);
 
             if( $res["isSuccess"] === true && isset($res["data"]["data"]["grCode"]) && isset($res["data"]["data"]["ReciverInfo"][0]) ) {
                 $res         = $res["data"]["data"];
                 $reciverInfo = $res["ReciverInfo"][0];
 
-                $baseObjs = BonaeraOutBaseData::where([
-                    "group_no" => $baseObj->group_no
-                ])->get();
+                BonaeraOutDeliveryData::updateOrCreate(
+                    [
+                        "group_no" => $groupNo,
+                    ],
+                    [
+                        "invoice"        => $res["invoice"] ?? "",
+                        "state"          => $res["state"],
+                        "outday"         => $res["outday"] ?? null,
+                        "receiver_name"  => $reciverInfo["receiverName"],
+                        "zip_code"       => $reciverInfo["zipCode"],
+                        "addr1"          => $reciverInfo["addr1"],
+                        "addr2"          => $reciverInfo["addr2"],
+                        "receiver_phone" => $reciverInfo["receiverPhone"],
+                        "personal_type"  => $reciverInfo["personalType"],
+                        "personal_num"   => $reciverInfo["personalNum"],
+                        "unipass_result" => $reciverInfo["unipassResult"],
+                        "unipass_reason" => $reciverInfo["unipassReason"],
+                        "ship_memo"      => $reciverInfo["shipMemo"],
+                    ]
+                );
 
-                foreach ($baseObjs as $baseObj) {
-                    BonaeraOutDeliveryData::updateOrCreate(
+                if( isset($res["weightList"][0]) ){
+                    $weight = $res["weightList"][0];
+
+                    BonaeraOutWeightData::updateOrCreate(
                         [
-                            "out_base_id" => $baseObj->id,
+                            "group_no" => $groupNo,
                         ],
                         [
-                            "invoice"        => $res["invoice"] ?? "",
-                            "state"          => $res["state"],
-                            "outday"         => $res["outday"] ?? null,
-                            "receiver_name"  => $reciverInfo["receiverName"],
-                            "zip_code"       => $reciverInfo["zipCode"],
-                            "addr1"          => $reciverInfo["addr1"],
-                            "addr2"          => $reciverInfo["addr2"],
-                            "receiver_phone" => $reciverInfo["receiverPhone"],
-                            "personal_type"  => $reciverInfo["personalType"],
-                            "personal_num"   => $reciverInfo["personalNum"],
-                            "unipass_result" => $reciverInfo["unipassResult"],
-                            "unipass_reason" => $reciverInfo["unipassReason"],
-                            "ship_memo"      => $reciverInfo["shipMemo"],
+                            "box_cnt"          => $weight["boxCnt"] ?? 0,
+                            "real_weight"      => $weight["realWeight"] ?? 0,
+                            "width"            => $weight["width"] ?? 0,
+                            "length"           => $weight["length"] ?? 0,
+                            "height"           => $weight["height"] ?? 0,
+                            "weight"           => $weight["weight"] ?? 0,
+                            "ship_money"       => $weight["shipMoney"] ?? 0,
+                            "weight_fee"       => $weight["weightFee"] ?? 0,
+                            "volume_fee"       => $weight["volumeFee"] ?? 0,
+                            "svc_money1"       => $weight["svcMoney1"] ?? 0,
+                            "svc_money2"       => $weight["svcMoney2"] ?? 0,
+                            "plus_money"       => $weight["plusMoney"] ?? 0,
+                            "plus_money_memo"  => $weight["plusMoneyMemo"] ?? "",
+                            "minus_money"      => $weight["minusMoney"] ?? 0,
+                            "minus_money_memo" => $weight["minusMoneyMemo"] ?? "",
+                            "commission"       => $weight["commission"] ?? 0,
+                            "islands"          => $weight["islands"] ?? 0,
+                            "total_money"      => $weight["totalMoney"] ?? 0,
                         ]
                     );
-                }
-
-                if( isset($res["weightList"]) ){
-                    foreach ($res["weightList"] as $weight) {
-                        BonaeraOutWeightData::updateOrCreate(
-                            [
-                                "out_base_id" => $baseObj->id,
-                            ],
-                            [
-                                "box_cnt"          => $weight["boxCnt"] ?? 0,
-                                "real_weight"      => $weight["realWeight"] ?? 0,
-                                "width"            => $weight["width"] ?? 0,
-                                "length"           => $weight["length"] ?? 0,
-                                "height"           => $weight["height"] ?? 0,
-                                "weight"           => $weight["weight"] ?? 0,
-                                "ship_money"       => $weight["shipMoney"] ?? 0,
-                                "weight_fee"       => $weight["weightFee"] ?? 0,
-                                "volume_fee"       => $weight["volumeFee"] ?? 0,
-                                "svc_money1"       => $weight["svcMoney1"] ?? 0,
-                                "svc_money2"       => $weight["svcMoney2"] ?? 0,
-                                "plus_money"       => $weight["plusMoney"] ?? 0,
-                                "plus_money_memo"  => $weight["plusMoneyMemo"] ?? "",
-                                "minus_money"      => $weight["minusMoney"] ?? 0,
-                                "minus_money_memo" => $weight["minusMoneyMemo"] ?? "",
-                                "commission"       => $weight["commission"] ?? 0,
-                                "islands"          => $weight["islands"] ?? 0,
-                                "total_money"      => $weight["totalMoney"] ?? 0,
-                            ]
-                        );
-                    }
                 }
             }
 
@@ -452,5 +447,40 @@ class WmsW1 extends WmsAbstract
             $msg = "error: " . $e->getMessage();
             debug_log($msg, "boneara/bonaeraUpdate", "bonaeraOutUpdate");
         }
+    }
+
+    public function outDetail(string $groupNo): array
+    {
+        $returnMsg = $this->returnMsg;
+
+        try {
+            $res = BonaeraOutBaseData::with([
+                "order.product",
+                "order.channel_obj",
+                "out_options.w_option",
+                "logistics_last",
+                "out_delivery",
+                "out_weight",
+            ])
+            ->where("group_no", $groupNo)->first();
+
+            if( $res !== null ){
+                $otherObjs = BonaeraOutBaseData::select([
+                    "bonaera_out_base_datas.*",
+                ])
+                ->with(["order.product", "out_options.w_option"])
+                ->where("bonaera_out_base_datas.group_no", $res->group_no)
+                ->where("bonaera_out_base_datas.id", "!=", $res->id)
+                ->get();
+                
+                $res["otherObjs"] = $otherObjs;
+            }
+
+            $returnMsg = helpers_success_message($res);
+        } catch (Exception $e) {
+            $returnMsg = helpers_fail_message($e->getMessage());
+        }
+
+        return $returnMsg;
     }
 }

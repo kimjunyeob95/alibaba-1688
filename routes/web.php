@@ -123,6 +123,8 @@ Route::prefix("wapp")->name("wapp.")->group(function(){
         Route::get("/in/{stockNo}", [WmsController::class, "inDetail"])->name("inDetail");
         /** 출고관리 */
         Route::get("/out", [WmsController::class, "outList"])->name("outList");
+        /** 출고관리 상세 */
+        Route::get("/out/{groupNo}", [WmsController::class, "outDetail"])->name("outDetail");
     });
 });
 
