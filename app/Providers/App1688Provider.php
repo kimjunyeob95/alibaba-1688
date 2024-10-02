@@ -82,7 +82,8 @@ class App1688Provider extends ServiceProvider
         $this->app->singleton(MessageW1::class, function ($app) {
             return new MessageW1(
                 $app->make(OrderW1::class),
-                $app->make(Kafka::class)
+                $app->make(Kafka::class),
+                $app->make(Bonaera::class)
             );
         });
         $this->app->singleton(WMessageService::class, function ($app) {

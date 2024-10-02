@@ -10,7 +10,9 @@ class BonaeraErrorMessageConstant
     private static $defaultNotHaveMsg  = "Empty";
     private static $defaultFitErrorMsg = "Error";
 
-    public const ERROR_MESSAGE_BONAERA_BASE_DATA = "bonaera_base_data";
+    public const ERROR_MESSAGE_BONAERA_BASE_DATA  = "bonaera_base_data";
+    public const ERROR_MESSAGE_LOGISTICS_BILL_NO  = "logisticsBillNo";
+    public const ERROR_MESSAGE_LOGISTICS_ITEMLIST = "itemList";
  
     public static function getErrorMessageNotDefault($constantName): string
     {
