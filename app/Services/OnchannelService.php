@@ -54,6 +54,7 @@ class OnchannelService
         $prdBuilder = ProductData::select([
                 "product_datas.*", "b.id as log_id", "b.regist_success",
                 "b.message", "b.prd_code", "b.registed_at",
+                "pwd.weight_type", "pwd.weight",
                 "b.updated_at as b_updated_at"
             ])
             ->with([
@@ -64,10 +65,12 @@ class OnchannelService
                 "img_inspect",
                 "prd_inspect",
                 "gosi_inspect",
-                "weight_delivery",
                 "onchannel.last_log"
             ])
             ->join("onchannel_product_logs as b", "product_datas.offer_id", "=", "b.offer_id")
+            ->leftJoin('product_weight_datas as pwd', function ($join) {
+                $join->on('product_datas.offer_id', '=', 'pwd.offer_id');
+            })
             ->where("b.send_type", $send_type)
             ->orderBy("b.updated_at", "desc")
             ->orderBy("b.registed_at", "desc");
