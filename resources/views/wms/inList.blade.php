@@ -48,16 +48,16 @@
                                 <tr class="align-middle">
                                     <th style="width: 120px">기간</th>
                                     <td style="width: 200px">
-                                        <select class="form-select" name="timeCls">
+                                        <select class="form-select" name="time_cls">
                                             <option value="create" @if($timeCls == "create") selected @endif>입고 신청일</option>
                                             <option value="complete" @if($timeCls == "complete") selected @endif>입고 완료일</option>
                                         </select>
                                     </td>
                                     <td>
                                         <div class="input-group" style="width: 600px;">
-                                            <input type="text" class="form-control calendar" autocomplete="off" name="startTime" placeholder="시작일" value="{{ $startTime }}">
+                                            <input type="text" class="form-control calendar" autocomplete="off" name="start_time" placeholder="시작일" value="{{ $startTime }}">
                                             <span class="input-group-text">~</span>
-                                            <input type="text" class="form-control calendar" autocomplete="off" name="endTime" placeholder="종료일" value="{{ $endTime }}">
+                                            <input type="text" class="form-control calendar" autocomplete="off" name="end_time" placeholder="종료일" value="{{ $endTime }}">
                                         </div>
                                     </td>
                                 </tr>
