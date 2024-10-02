@@ -299,7 +299,7 @@ input[name='channelCategory']{
                                                 $option = $data->options[0];
 
                                                 //배송비 설정
-                                                $$delivery_price = getWeightDelivery($data->weight)["shipping_price"];
+                                                $delivery_price = getWeightDelivery($data->weight)["shipping_price"];
 
                                                 if($send_type == EasySellConstant::TYPE_W){
                                                     $price = calcEasySellSalePrice($option->price_1688, $option->md_price, $delivery_price, "static", EasySellConstant::TYPE_W);
@@ -324,12 +324,12 @@ input[name='channelCategory']{
                                                 {{ number_format(ProductConstant::WEIGHT_STATUS_NONE_PRICE) }}
                                             </span>
                                         @else
-                                            <button class="btn btn-sm btn-warning btn-weight-modi" offerid={{ $data->offer_id }} weight={{ $data->weight }} price={{ $data->delivery_price }} statusname='{{ ProductConstant::WEIGHT_STATUS[$data->weight_type] }}'>
-                                                {{ ProductConstant::WEIGHT_STATUS_SHORT[$data->weight_type] }}: {{ $data->weight }}
+                                            <button class="btn btn-sm btn-warning btn-weight-modi" offerid={{ $data->offer_id }} weight={{ $data->weight }} price={{ $delivery_price }} statusname='{{ ProductConstant::WEIGHT_STATUS[$data->weight_type] }}'>
+                                                {{ ProductConstant::WEIGHT_STATUS_SHORT[$data->weight_type] }}: {{ getWeightDelivery($data->weight)["weight"] }}
                                             </button>
                                             <br>
                                             <span class="text-danger">
-                                                {{ number_format($data->delivery_price) }}
+                                                {{ number_format($delivery_price) }}
                                             </span>
                                         @endif
                                     </td>

@@ -1075,6 +1075,8 @@
         var weightList = '{!! json_encode(getCacheWeightDatas()) !!}';
         weightList = JSON.parse(weightList);
 
+        const WEIGHT_STATUS_NONE_PRICE = {{ ProductConstant::WEIGHT_STATUS_NONE_PRICE }};
+
         var sai_tool_doamin = "{{ env('GENUIO_TOOL_DOMAIN', 'https://dev-sai.genu.io') }}";
 
         $(".AItoolBtn").click(function(){
@@ -1332,7 +1334,18 @@
 
             // 1초 후에 실행될 타이머 설정
             this.timer = setTimeout(function() {
-                const value = $this.val();
+                let value = $this.val();
+
+                if (!isNaN(value)) {
+                    value = Number(value);
+                    if (Number.isInteger(value)) {
+                        value = value.toFixed(1);
+                    } else {
+                        value = value.toFixed(1);
+                    }
+                    $this.val(value);
+                }
+
                 let weightValue = weightList[value];
 
                 if (weightValue == undefined) {

@@ -285,6 +285,9 @@
                                         @if (count($data->options) > 0)
                                             @php
                                                 $option = $data->options[0];
+
+                                                //배송비 설정
+                                                $delivery_price = getWeightDelivery($data->weight)["shipping_price"];
                                             @endphp
                                                 {{ $option->price_1688 }}(위안)<br>
                                                 {{ number_format(wOptionPrice($option->price_1688)) }}(원)
@@ -293,7 +296,7 @@
                                         @endif
                                     </td>
                                     <td class="text-center">
-                                        @if( $data->weight_delivery == null )
+                                        @if( $data->weight_type == null )
                                             <button class="btn btn-sm btn-warning btn-weight-modi" offerid={{ $data->offer_id }} weight=0 price={{ ProductConstant::WEIGHT_STATUS_NONE_PRICE }} statusname='{{ ProductConstant::WEIGHT_STATUS[ProductConstant::WEIGHT_STATUS_NONE] }}'>
                                                 {{ ProductConstant::WEIGHT_STATUS_SHORT[ProductConstant::WEIGHT_STATUS_NONE] }}: 0
                                             </button>
@@ -302,25 +305,18 @@
                                                 {{ number_format(ProductConstant::WEIGHT_STATUS_NONE_PRICE) }}
                                             </span>
                                         @else
-                                            <button class="btn btn-sm btn-warning btn-weight-modi" offerid={{ $data->offer_id }} weight={{ $data->weight_delivery->weight }} price={{ $data->weight_delivery->delivery_price }} statusname='{{ ProductConstant::WEIGHT_STATUS[$data->weight_delivery->weight_type] }}'>
-                                                {{ ProductConstant::WEIGHT_STATUS_SHORT[$data->weight_delivery->weight_type] }}: {{ $data->weight_delivery->weight }}
+                                            <button class="btn btn-sm btn-warning btn-weight-modi" offerid={{ $data->offer_id }} weight={{ $data->weight }} price={{ $delivery_price }} statusname='{{ ProductConstant::WEIGHT_STATUS[$data->weight_type] }}'>
+                                                {{ ProductConstant::WEIGHT_STATUS_SHORT[$data->weight_type] }}: {{ getWeightDelivery($data->weight)["weight"] }}
                                             </button>
                                             <br>
                                             <span class="text-danger">
-                                                {{ number_format($data->weight_delivery->delivery_price) }}
+                                                {{ number_format($delivery_price) }}
                                             </span>
                                         @endif
                                     </td>
                                     <td class="text-center">
                                         @if (count($data->options) > 0)
-                                            @php
-                                                $option         = $data->options[0];
-                                                $delivery_price = ProductConstant::WEIGHT_STATUS_NONE_PRICE;
-                                                if( $data->weight_type != null ){
-                                                    $delivery_price = $data->weight_delivery->delivery_price;
-                                                }
-                                            @endphp
-                                                {{ number_format(calcOnchannelOptionPrice($option->price_1688, $delivery_price)) }} 
+                                            {{ number_format(calcOnchannelOptionPrice($option->price_1688, $delivery_price)) }} 
                                         @else
                                             <p class="text-danger">옵션없음</p>
                                         @endif
