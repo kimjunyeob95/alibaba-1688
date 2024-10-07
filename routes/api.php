@@ -180,6 +180,10 @@ Route::name('w.')->prefix('w')->group(function () {
     Route::prefix("wms")->name("wms.")->group(function(){
         /** 관세율 조회 */
         Route::get("/tariff/{hsCode}", [WAppWmsController::class, "getTariff"])->name("getTariff");
+        /** 입고정보 업데이트 */
+        Route::post("/bonaeraIn/update", [WAppWmsController::class, "bonaeraInUpdate"])->name("bonaeraInUpdate");
+        /** 출고정보 업데이트 */
+        Route::post("/bonaeraOut/update", [WAppWmsController::class, "bonaeraOutUpdate"])->name("bonaeraOutUpdate");
     });
 
     Route::name('forbiddenWord.')->prefix('forbiddenWord')->group(function () {

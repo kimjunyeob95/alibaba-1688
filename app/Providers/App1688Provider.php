@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use App\Abstracts\WmsAbstract;
+use App\Packages\Bonaera;
 use App\Packages\Kafka;
 use App\Packages\S3;
 use App\Services\Category\CategoryW1;
@@ -70,10 +72,8 @@ class App1688Provider extends ServiceProvider
         /**
          * WMS 의존성
          */
-        $this->app->bind(WmsService::class, function ($app) {
-            $wmsAbstract = $app->make(WmsW1::class);
-
-            return new WmsService($wmsAbstract);
+        $this->app->bind(WmsAbstract::class, function ($app) {
+            return new WmsW1($app->make(Bonaera::class));
         });
 
         /**
@@ -82,7 +82,8 @@ class App1688Provider extends ServiceProvider
         $this->app->singleton(MessageW1::class, function ($app) {
             return new MessageW1(
                 $app->make(OrderW1::class),
-                $app->make(Kafka::class)
+                $app->make(Kafka::class),
+                $app->make(Bonaera::class)
             );
         });
         $this->app->singleton(WMessageService::class, function ($app) {

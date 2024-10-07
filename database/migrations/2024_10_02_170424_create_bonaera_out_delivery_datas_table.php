@@ -16,7 +16,7 @@ return new class extends Migration
     {
         Schema::create('bonaera_out_delivery_datas', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('out_base_id')->nullable(false)->comment('bonaera_out_base_datas id');
+            $table->string('group_no', 20)->unique()->nullable(false)->comment('배송번호');
             $table->string('invoice', 20)->nullable(false)->comment('운송장번호');
             $table->string('state', 10)->default("301")->nullable(false)->comment('그룹신청서 상태');
             $table->date('outday')->nullable(true)->comment('출고일');
@@ -34,9 +34,7 @@ return new class extends Migration
             $table->timestamps();
             $table->softDeletes();
 
-            $table->foreign('out_base_id')->references('id')->on('bonaera_out_base_datas')->onDelete('cascade');
-
-            $table->index('out_base_id');
+            $table->index('group_no');
             $table->index('invoice');
             $table->index('state');
             $table->index('receiver_name');
