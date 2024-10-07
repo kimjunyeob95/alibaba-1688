@@ -77,6 +77,15 @@ abstract class WmsAbstract
     abstract function getTariff(string $hsCode): array;
 
     /**
+    * @func bonaeraInFailHscodeUpdate
+    * @description '입고실패 HS code 적용'
+    * @param array $ids
+    * @param string $hsCode
+    * @return array
+    */
+    abstract function bonaeraInFailHscodeUpdate(array $ids, string $hsCode): array;
+
+    /**
     * @func bonaeraInCreate
     * @description '입고신청'
     * @param int $id

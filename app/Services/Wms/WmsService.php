@@ -71,6 +71,18 @@ class WmsService
    }
 
    /**
+    * @func bonaeraInFailHscodeUpdate
+    * @description '입고실패 HS code 적용'
+    * @param array $ids
+    * @param string $hsCode
+    * @return array
+    */
+   public function bonaeraInFailHscodeUpdate(array $ids, string $hsCode): array
+   {
+      return $this->wmsAbstract->bonaeraInFailHscodeUpdate($ids, $hsCode);
+   }
+
+   /**
     * @func bonaeraInCreate
     * @description '입고신청'
     * @param int $id

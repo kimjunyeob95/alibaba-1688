@@ -387,8 +387,7 @@
             let ids = [$(this).data("id")];
             $('input[name="select_ids[]"]').val(ids);
 
-            $("#htmlModal").modal('show');
-            hsCodeListLoad(1);
+            hsCodeListLoad(1, true);
         })
 
         $('.btn-delivery').click(function(){
@@ -544,11 +543,38 @@
             }
         });
 
-        $('.btn-hs-search').click(function(){
-            hsCodeListLoad();
+        $(document).on("click", ".btn-apply", function(){
+            let ids    = $('input[name="select_ids[]"]').val().split(",");
+            let hsCode = $(this).data("code");
+
+            if(confirm(`해당 HS code로 적용하시겠습니까?`)){
+                $("#loadingOverlay").show();
+                $.ajax({
+                    "headers" : {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
+                    "type"    : "POST",
+                    "url"     : "{{ route('w.wms.bonaeraInFailHscodeUpdate') }}",
+                    "data"    : { ids: ids, hs_code: hsCode},
+                    beforeSend: function () {},
+                    complete  : function(xhr, status) {
+                        $("#loadingOverlay").hide();
+                    },
+                    success : function (resp) {
+                        alert(resp.msg);
+                        location.reload();
+                    },
+                    error: function (request) {
+                        let { error } = JSON.parse(request.responseText);
+                        alert(error.message);
+                    }
+                });
+            }
         });
 
-        function hsCodeListLoad(page = 1) {
+        $('.btn-hs-search').click(function(){
+            hsCodeListLoad(1);
+        });
+
+        function hsCodeListLoad(page = 1, modalShow = false) {
             let search_cls = $('select[name="hs_code_search_cls"]').val();
             let keyword    = $('input[name="hs_code_keyword"]').val();
             let page_size  = $('select[name="hs_page_size"]').val();
@@ -590,6 +616,10 @@
                     $('input[name="hs_page"]').val(currentPage);
                     $('input[name="hs_last_page"]').val(lastPage);
                     updatePagination(currentPage, page_size, lastPage);
+
+                    if( modalShow === true ){
+                        $("#htmlModal").modal('show');
+                    }
                 },
                 error: function error(request, status, _error) {
                     let { error } = JSON.parse(request.responseText);
@@ -607,7 +637,7 @@
                                 <button class="page-link prev-page" ${currentPage === 1 ? 'disabled' : ''}>이전</button>
                             </li>
                             <li class="page-item">
-                                <span class="page-link px-3">${currentPage} / ${lastPage}</span>
+                                <span class="page-link px-3 disabled">${currentPage} / ${lastPage}</span>
                             </li>
                             <li class="page-item ${currentPage === lastPage ? 'disabled' : ''}">
                                 <button class="page-link next-page" ${currentPage === lastPage ? 'disabled' : ''}>다음</button>

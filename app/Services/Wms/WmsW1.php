@@ -263,6 +263,23 @@ class WmsW1 extends WmsAbstract
         return $returnMsg;
     }
 
+    public function bonaeraInFailHscodeUpdate(array $ids, string $hsCode): array
+    {
+        $returnMsg = helpers_fail_message();
+
+        try {
+            BonaeraInFailData::whereIn("id", $ids)->update([
+                "hs_code" => $hsCode
+            ]);
+
+            $returnMsg = helpers_success_message();
+        } catch (Exception $e) {
+            $returnMsg = helpers_fail_message($e->getMessage());
+        }
+
+        return $returnMsg;
+    }
+
     public function bonaeraInCreate(int $id): void
     {
         try {

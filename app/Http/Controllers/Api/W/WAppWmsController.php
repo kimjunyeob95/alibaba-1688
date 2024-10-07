@@ -92,6 +92,34 @@ class WAppWmsController extends Controller
         }
     }
 
+    public function bonaeraInFailHscodeUpdate(): JsonResponse
+    {
+        try {
+            $validator = Validator::make($this->request->all(), [
+                'ids'     => 'required|array',
+                'hs_code' => 'required|string',
+            ], [
+                'ids.required'     => WmsErrorMessageConstant::getNotHaveErrorMessage("IDS"),
+                'hs_code.required' => WmsErrorMessageConstant::getNotHaveErrorMessage("HS_CODE"),
+            ]);
+            if ($validator->fails()) {
+                throw new Exception($validator->errors()->first());
+            }
+
+            $ids    = $this->request->post("ids");
+            $hsCode = $this->request->post("hs_code");
+            $result = $this->wmsService->bonaeraInFailHscodeUpdate($ids, $hsCode);
+
+            if( $result["isSuccess"] == true ){
+                return helpers_json_response(HttpConstant::OK, $result);
+            } else {
+                return helpers_json_response(HttpConstant::BAD_REQUEST, [], $result["msg"]);
+            }
+        } catch (Exception $e) {
+            return helpers_json_response(HttpConstant::BAD_REQUEST, [], $e->getMessage());
+        }
+    }
+
     public function bonaeraInUpdate(): JsonResponse
     {
         try {

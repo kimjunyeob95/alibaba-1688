@@ -14,6 +14,8 @@ class WmsErrorMessageConstant
     public const ERROR_MESSAGE_PAGE_SIZE  = "page_size";
     public const ERROR_MESSAGE_SEARCH_CLS = "search_cls";
     public const ERROR_MESSAGE_KEYWORD    = "keyword";
+    public const ERROR_MESSAGE_IDS        = "ids";
+    public const ERROR_MESSAGE_HS_CODE    = "hs_code";
  
     public static function getErrorMessageNotDefault($constantName): string
     {
