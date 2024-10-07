@@ -8,6 +8,7 @@ use App\Constants\ImageConstant;
 use App\Constants\OrderErrorMessageConstant;
 use App\Constants\ProductConstant;
 use App\Models\BonaeraInBaseData;
+use App\Models\BonaeraInFailData;
 use App\Models\BonaeraInProductData;
 use App\Models\OrderBaseData;
 use App\Models\OrderChannelData;
@@ -38,10 +39,8 @@ class Bonaera
     }
 
     /** 입고신청 */
-    public function createStockApi(string $orderId): array
+    public function createStockApi(string $orderId): void
     {
-        $returnMsg = $this->returnMsg;
-        
         $endPoint = $this->domain . '/elpisapi/stock_api.php';
     
         try {
@@ -153,26 +152,36 @@ class Bonaera
                                 );
                             }
 
+                            BonaeraInFailData::where("order_id", $orderId)->forceDelete();
+                            
                             DB::commit();
                         } catch (Exception $dbError) {
                             DB::rollBack();
                             throw new Exception($dbError->getMessage());   
                         }
+                    } else {
+                        $msg = "보내라 입고신청 API 에러";
+                        if( isset($result["message"]) ){
+                            $msg = $result["message"];
+                        }
 
-                        $returnMsg = helpers_success_message($result);
+                        BonaeraInFailData::updateOrCreate(
+                            [
+                                "order_id" => $orderId,
+                            ],
+                            [
+                                "msg" => $msg
+                            ]
+                        );
                     }
                 } else {
                     throw new Exception(BonaeraErrorMessageConstant::getNotHaveErrorMessage("ITEMLIST"));
-                    
                 }
             }
         } catch (Exception $e) {
-            $returnMsg = helpers_fail_message($e->getMessage());
-            $erroMsg   = "error: " . $e->getMessage();
+            $erroMsg = "error: " . $e->getMessage();
             debug_log($erroMsg, "boneara/createStockApi", "createStockApi");
         }
-
-        return $returnMsg;
     }
 
     /** 재고현황 조회 */

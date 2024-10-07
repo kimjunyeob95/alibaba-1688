@@ -38,15 +38,26 @@ class WmsService
    }
 
    /**
+    * @func inFailList
+    * @description '입고 실패 리스트'
+    * @param array $params
+    * @return array
+    */
+   public function inFailList(array $params): array
+   {
+      return $this->wmsAbstract->inFailList($params);
+   }
+
+   /**
     * @func apiHsCodeList
     * @description 'HS code 라스트'
     * @param array $params
     * @return array
     */
-    public function apiHsCodeList(array $params): array
-    {
-       return $this->wmsAbstract->apiHsCodeList($params);
-    }
+   public function apiHsCodeList(array $params): array
+   {
+      return $this->wmsAbstract->apiHsCodeList($params);
+   }
 
    /**
     * @func getTariff
@@ -57,6 +68,17 @@ class WmsService
    public function getTariff(string $hsCode): array
    {
       return $this->wmsAbstract->getTariff($hsCode);
+   }
+
+   /**
+    * @func bonaeraInCreate
+    * @description '입고신청'
+    * @param int $id
+    * @return void
+    */
+   public function bonaeraInCreate(int $id): void
+   {
+      $this->wmsAbstract->bonaeraInCreate($id);
    }
 
    /**

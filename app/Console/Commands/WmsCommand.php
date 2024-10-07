@@ -26,6 +26,18 @@ class WmsCommand extends Command
         $this->wmsService = new WmsService(app(WmsW1::class));
         switch ($func) {
             /**
+             * 입고신청
+             * php artisan wms_command --func=bonaeraInCreate --ids=1
+             */
+            case 'bonaeraInCreate':
+                $ids = explode(",", $this->option('ids'));
+                if (!empty($ids)) {
+                    foreach ($ids as $id) {
+                        $this->wmsService->bonaeraInCreate($id);
+                    }
+                }
+                break;
+            /**
              * 입고정보 업데이트
              * php artisan wms_command --func=bonaeraInUpdate --ids=1
              */

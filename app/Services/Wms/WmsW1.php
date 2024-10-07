@@ -7,6 +7,7 @@ use App\Constants\BonaeraConstant;
 use App\Constants\BonaeraErrorMessageConstant;
 use App\Constants\WmsConstant;
 use App\Models\BonaeraInBaseData;
+use App\Models\BonaeraInFailData;
 use App\Models\BonaeraInProductData;
 use App\Models\BonaeraInProductImgData;
 use App\Models\BonaeraOutBaseData;
@@ -30,6 +31,7 @@ class WmsW1 extends WmsAbstract
         $returnMsg = $this->returnMsg;
 
         try {
+            $page   = $params["page"];
             $pageSize   = $params["pageSize"];
             $search_cls = $params["search_cls"];
             $keyword    = $params["keyword"];
@@ -58,7 +60,7 @@ class WmsW1 extends WmsAbstract
 
             $builder->orderByRaw("CASE WHEN {$sortArr[0]} = '' OR {$sortArr[0]} IS NULL THEN 1 ELSE 0 END, {$sortArr[0]} {$sortArr[1]}");
 
-            $lists = $builder->paginate($pageSize)->appends($params);
+            $lists = $builder->paginate($pageSize, ['*'], 'page', $page)->appends($params);
 
             $returnMsg = helpers_success_message($lists);
         } catch (Exception $e) {
@@ -142,6 +144,80 @@ class WmsW1 extends WmsAbstract
         return $returnMsg;
     }
 
+    public function inFailList(array $params): array
+    {
+        $returnMsg = $this->returnMsg;
+
+        try {
+            $pageSize   = $params["pageSize"];
+            $timeCls    = $params["timeCls"];
+            $startTime  = $params["startTime"];
+            $endTime    = $params["endTime"];
+            $search_cls = $params["search_cls"];
+            $keyword    = $params["keyword"];
+            $sortArr    = explode("|", $params["sort"]);
+
+            $builder = BonaeraInFailData::select([
+                "bonaera_in_fail_datas.*",
+                "ocd.buyer_name",
+                "obd.channel",
+                "ocd.channel_order_id"
+            ])
+            ->with(["order.product", "logistics_last", "w_options.option"])
+            ->leftJoin("order_base_datas as obd", "bonaera_in_fail_datas.order_id", "=", "obd.order_id")
+            ->leftJoin("order_channel_datas as ocd", "bonaera_in_fail_datas.order_id", "=", "ocd.order_id");
+
+            if( !empty($status) ){
+                $builder->where("bipd.status", $status);
+            }
+            if( !empty($timeCls) ){
+                if( $timeCls == "create" ){
+                    if( !empty($startTime) ) {
+                        $builder->where("bonaera_in_fail_datas.created_at", ">=", $startTime . " 00:00:00");
+                    }
+                    if( !empty($endTime) ) {
+                        $builder->where("bonaera_in_fail_datas.created_at", "<=", $endTime . " 23:59:59");
+                    }
+                } else if( $timeCls == "modi" ){
+                    if( !empty($startTime) ) {
+                        $builder->where("bonaera_in_fail_datas.updated_at", ">=", $startTime . " 00:00:00");
+                    }
+                    if( !empty($endTime) ) {
+                        $builder->where("bonaera_in_fail_datas.updated_at", "<=", $endTime . " 23:59:59");
+                    }
+                }
+            }
+            if( !empty($keyword) ){
+                $keyword = preg_replace("/(\r\n|\r|\n)/", ",", trim($keyword));
+                $keyword = explode(",", $keyword);
+                // 각 배열 요소의 앞뒤 공백 제거
+                $keyword = array_map('trim', $keyword);
+                // 빈 값을 제거
+                $keyword = array_filter($keyword);
+                // 중복 제거
+                $keyword = array_unique($keyword);
+
+                if( $search_cls == WmsConstant::IN_FAIL_SEARCH_TYPE_ORDER_ID ){
+                    $builder->whereIn("bonaera_in_fail_datas.order_id", $keyword);
+                } else if( $search_cls == WmsConstant::IN_FAIL_SEARCH_TYPE_CHANNEL_ORDER_ID ){
+                    $builder->whereIn("ocd.channel_order_id", $keyword);
+                } else if( $search_cls == WmsConstant::IN_FAIL_SEARCH_TYPE_OFFER_ID ){
+                    $builder->whereIn("obd.offer_id", $keyword);
+                }
+            }
+
+            $builder->orderBy("bonaera_in_fail_datas." . $sortArr[0], $sortArr[1]);
+
+            $lists = $builder->paginate($pageSize)->appends($params);
+
+            $returnMsg = helpers_success_message($lists);
+        } catch (Exception $e) {
+            $returnMsg = helpers_fail_message($e->getMessage());
+        }
+
+        return $returnMsg;
+    }
+
     public function getTariff(string $hsCode): array
     {
         $returnMsg = $this->returnMsg;
@@ -185,6 +261,21 @@ class WmsW1 extends WmsAbstract
         }
 
         return $returnMsg;
+    }
+
+    public function bonaeraInCreate(int $id): void
+    {
+        try {
+            $inFailObj = BonaeraInFailData::where("id", $id)->first();
+            if( $inFailObj == null ){
+                throw new Exception(BonaeraErrorMessageConstant::getNotHaveErrorMessage("BONAERA_IN_FAIL_DATA"));
+            }
+
+            $this->bonaera->createStockApi($inFailObj->order_id);
+        } catch (Exception $e) {
+            $msg = "error: " . $e->getMessage();
+            debug_log($msg, "boneara/bonaeraInCreate", "bonaeraInCreate");
+        }
     }
 
     public function bonaeraInUpdate(int $id): void

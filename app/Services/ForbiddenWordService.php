@@ -61,7 +61,7 @@ class ForbiddenWordService
             });
         }
 
-        $lists = $builder->paginate($pageSize)->appends($params);
+        $lists = $builder->)->appends($params);
 
         return $lists;
     }

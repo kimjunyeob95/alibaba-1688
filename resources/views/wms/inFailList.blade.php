@@ -1,11 +1,30 @@
 @php
     use App\Constants\WmsConstant;
+    use App\Constants\MallConstant;
     use App\Constants\BonaeraConstant;
     use App\Models\ProductOptionData;
 @endphp
 @extends('dashboard.base')
 
 @section('styles')
+<style>
+.modal-table tbody {
+    display: block;
+    max-height: 350px;
+    overflow-y: auto;
+}
+
+.modal-table thead,
+.modal-table tbody tr {
+    display: table;
+    width: 100%;
+}
+
+.modal-table thead tr td,
+.modal-table tbody tr td{
+    width: 20%;
+}
+</style>
 @endsection
 
 @section('scripts')
@@ -22,7 +41,7 @@
                 </li>
                 <li class="breadcrumb-item">WMS</li>
                 <li class="breadcrumb-item">입고관리</li>
-                <li class="breadcrumb-item active" aria-current="page">입고 리스트</li>
+                <li class="breadcrumb-item active" aria-current="page">입고 통신 실패 리스트</li>
             </ol>
         </nav>
 
@@ -30,28 +49,15 @@
             <div class="col-12 mb-3">
 
                 <form id="searchFrm">
-                    <input type="hidden" name="status" value={{ $status }}>
-
                     <div class="card">
                         <div class="card-header">
                             <table class="table">
                                 <tr class="align-middle">
-                                    <th style="width: 120px">입고 상태</th>
-                                    <td colspan="2">
-                                        <button type="button" name="status" class="btn-status btn btn-sm {{ $status == "" ? "btn-primary" : "btn-dark" }}"
-                                        value="">전체</button>
-                                        @foreach (BonaeraConstant::WAREHOUSE_STATUS as $key => $value)    
-                                            <button type="button" name="status" class="btn-status btn btn-sm {{ $status == $key ? "btn-primary" : "btn-dark" }}"
-                                            value="{{ $key }}">{{ $value }}</button>
-                                        @endforeach
-                                    </td>
-                                </tr>
-                                <tr class="align-middle">
                                     <th style="width: 120px">기간</th>
                                     <td style="width: 200px">
                                         <select class="form-select" name="time_cls">
-                                            <option value="create" @if($timeCls == "create") selected @endif>입고 신청일</option>
-                                            <option value="complete" @if($timeCls == "complete") selected @endif>입고 완료일</option>
+                                            <option value="create" @if($timeCls == "create") selected @endif>주문 생성일</option>
+                                            <option value="modi" @if($timeCls == "modi") selected @endif>주문 수정일</option>
                                         </select>
                                     </td>
                                     <td>
@@ -66,7 +72,7 @@
                                     <th style="width: 120px">검색</th>
                                     <td style="width: 200px">
                                         <select class="form-select" name="search_cls">
-                                            @foreach (WmsConstant::IN_SEARCH_TYPE as $key => $search)
+                                            @foreach (WmsConstant::IN_FAIL_SEARCH_TYPE as $key => $search)
                                                 <option value="{{ $key }}" @if($search_cls == $key) selected @endif>{{ $search }}</option>
                                             @endforeach
                                         </select>
@@ -100,7 +106,7 @@
 
                 <div class="mt-3 d-flex justify-content-end">
                     <div class="d-flex">
-                        <button class="btn btn-md btn-dark text-white me-2" id="btn-select">입고정보 업데이트</button>
+                        <button class="btn btn-md btn-dark text-white me-2" id="btn-select">입고신청</button>
                     </div>
                 </div>
 
@@ -114,18 +120,19 @@
                                     <input class="form-check-input" type="checkbox" id="allCheckbox">
                                 </th>
                                 <th scope="col" style="width: 1%">No</th>
-                                <th scope="col" style="width: 5%">
-                                    입고번호<br>
-                                    (W 주문번호)
+                                <th scope="col" style="width: 10%">
+                                    W 주문번호<br>
+                                    (채널 주문번호)
                                 </th>
-                                <th scope="col" style="width: 5%">채널 주문번호</th>
-                                <th scope="col" style="width: 20%">입고정보</th>
-                                <th scope="col" style="width: 5%">배송정보</th>
-                                <th scope="col" style="width: 8%">
-                                    입고 신청일<br>
-                                    입고 완료일
+                                <th scope="col" style="width: 10%">
+                                    구매자<br>
+                                    (주문 채널)
                                 </th>
-                                <th scope="col" style="width: 5%">관리</th>
+                                <th scope="col" style="width: 20%">주문정보</th>
+                                <th scope="col" style="width: 10%">HS code</th>
+                                <th scope="col" style="width: 10%">배송정보</th>
+                                <th scope="col" style="width: 20%">실패 사유</th>
+                                <th scope="col" style="width: 10%">관리</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -139,46 +146,38 @@
                                         <small>{{ number_format(($paginator->total() - $offset) - $index) }}</small>
                                     </td>
                                     <td>
-                                        <small>{{ $data->stock_no }}</small>
+                                        <small>{{ $data->order_id }}</small>
                                         <br>
-                                        <small>({{ $data->order_id }})</small>
+                                        <small>({{ $data->channel_order_id }})</small>
                                     </td>
                                     <td>
-                                        <small>{{ $data->channel_order_id }}</small>
+                                        <small>{{ $data->buyer_name }}</small>
+                                        <br>
+                                        <small>({{ MallConstant::MALL_NAME[$data->channel] }})</small>
                                     </td>
                                     <td>
                                         <small>
-                                            (<a href="https://detail.1688.com/offer/{{ $data->offer_id }}.html" target="_blank">{{ $data->offer_id }}</a>)
-                                            {{ $data->product->prd_name_kr }}
+                                            (<a href="https://detail.1688.com/offer/{{ $data->order->offer_id }}.html" target="_blank">{{ $data->order->offer_id }}</a>)
+                                            {{ $data->order->product->prd_name_kr }}
                                         </small>
                                         <div class="mt-3"></div>
-                                        @foreach ($data->in_options as $in_option)
-                                            @php
-                                                $w_option = ProductOptionData::where("id", $in_option->option_id)->first();
-                                            @endphp
-                                            @if (!empty($w_option))
-                                                <small class="d-block mt-1">
-                                                    @if ($w_option->sku_img_url)
-                                                        <img class="lazy-img preview-image" data-src="{{ $w_option->sku_img_url }}" width=30 height=30/>
-                                                    @else
-                                                        <img class="lazy-img preview-image" data-src='/assets/img/no_img.png'width=30 height=30>
-                                                    @endif
-                                                    옵션: {{ $w_option->option_name_kr}},
-                                                    @if ( $in_option->status == BonaeraConstant::WAREHOUSE_STATUS_PENDING )
-                                                        상태: <span class="bg-dark rounded text-white px-2 py-1 fs-6">{{ BonaeraConstant::WAREHOUSE_STATUS[$in_option->status] }}</span>,
-                                                    @elseif ( $in_option->status == BonaeraConstant::WAREHOUSE_STATUS_RECEIVED )
-                                                        상태: <span class="bg-success rounded text-white px-2 py-1 fs-6">{{ BonaeraConstant::WAREHOUSE_STATUS[$in_option->status] }}</span>,
-                                                    @elseif ( $in_option->status == BonaeraConstant::WAREHOUSE_STATUS_DISPOSED )
-                                                        상태:<span class="bg-danger rounded text-white px-2 py-1 fs-6">{{ BonaeraConstant::WAREHOUSE_STATUS[$in_option->status] }}</span>,
-                                                    @endif
-                                                    입고: {{ $in_option->quantity }}, 재고: {{ $in_option->lack_status }}
-                                                </small>
-                                            @else
-                                                <small class="d-block mt-1">
-                                                    WApp에 옵션이 없음 option_id: {{ $in_option->option_id }}
-                                                </small>
-                                            @endif
+                                        @foreach ($data->w_options as $w_option)
+                                            <small class="d-block mt-1">
+                                                @if ($w_option->option->sku_img_url)
+                                                    <img class="lazy-img preview-image" data-src="{{ $w_option->option->sku_img_url }}" width=30 height=30/>
+                                                @else
+                                                    <img class="lazy-img preview-image" data-src='/assets/img/no_img.png'width=30 height=30>
+                                                @endif
+                                                옵션: {{ $w_option->option->option_name_kr}}
+                                            </small>
                                         @endforeach
+                                    </td>
+                                    <td>
+                                        @if( empty($data->hs_code) )
+                                            <button class="btn btn-sm btn-success btn-code text-white" data-id={{ $data->id }}>HS code 등록</button>
+                                        @else
+                                            {{ $data->hs_code }}
+                                        @endif
                                     </td>
                                     <td>
                                         @if(!empty($data->logistics_last))
@@ -193,23 +192,99 @@
                                         @endif
                                     </td>
                                     <td>
-                                        <small>
-                                            {{ $data->created_at }}
-                                            <br>
-                                            {{ $data->completed_at }}
-                                        </small>
+                                        <small class="text-danger">{{ $data->msg }}</small>
                                     </td>
                                     <td>
                                         <div class="d-flex flex-column gap-2">
-                                            <button class="btn btn-sm btn-dark btn-update text-white" data-id={{ $data->id }}>입고정보<br>업데이트</button>
-                                            <button class="btn btn-sm btn-primary btn-in-detail text-white" data-stockno={{ $data->stock_no }}>입고상세</button>
                                             <button class="btn btn-sm btn-success btn-wapp-detail text-white" orderid={{ $data->order_id }}>주문 상세</button>
+                                            <button class="btn btn-sm btn-dark btn-regist text-white" data-id={{ $data->id }}>입고신청</button>
                                         </div>
                                     </td>
                                 </tr>
                             @endforeach
                         </tbody>
                     </table>
+                </div>
+            </div>
+
+            <div class="modal fade" id="htmlModal" tabindex="-1" role="dialog" aria-labelledby="htmlModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-xl" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="htmlModalLabel">HS code 설정</h5>
+                        </div>
+                        <div class="modal-body">
+                            <input type="hidden" name="select_ids[]" />
+                            <input type="hidden" name="hs_page" value=1 />
+                            <input type="hidden" name="hs_last_page" value=1 />
+    
+                            <div>
+                                <div class="d-flex justify-content-evenly px-3">
+                                    <div class="row w-100">
+                                        <div class="col-2">
+                                            <label class="fs-7">검색</label>
+                                        </div>
+                                        <div class="col-2">
+                                            <select class="form-select" name="hs_code_search_cls">
+                                                @foreach (WmsConstant::HSCODE_SEARCH_TYPE as $key => $search)
+                                                    <option value="{{ $key }}" @if($search_cls == $key) selected @endif>{{ $search }}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                        <div class="col">
+                                            <input type="text" class="form-control" name="hs_code_keyword" placeholder="검색어를 입력하세요." value="">
+                                        </div>
+                                    </div>
+                                </div>
+                                <hr>
+
+                                <div class="d-flex justify-content-evenly px-3">
+                                    <div class="row w-100">
+                                        <div class="col-2">
+                                            <label class="fs-7">노출수</label>
+                                        </div>
+                                        <div class="col-2">
+                                            <select class="form-select" name="hs_page_size">
+                                                <option value="50">50개 노출</option>
+                                                <option value="100">100개 노출</option>
+                                                <option value="500">500개 노출</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                <hr>
+    
+                                <div class="text-left">
+                                    <button type="button" class="btn btn-primary btn-hs-search">검색</button>
+                                </div>
+                                <hr>
+    
+                                <table class="table table-white bg-white modal-table">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th scope="col" >성질통합 분류코드명</th>
+                                            <th scope="col" >HS code</th>
+                                            <th scope="col" >한글 품목명</th>
+                                            <th scope="col" >영문 품목명</th>
+                                            <th scope="col" >관리</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="hs-code modal-footer d-block">
+                            <div class="row align-items-center">
+                                <div class="col-12 col-sm-8 offset-sm-2 mb-3 mb-sm-0">
+                                    <div id="paginationContainer" class="d-flex justify-content-center"></div>
+                                </div>
+                                <div class="col-12 col-sm-2 text-sm-end">
+                                    <button type="button" class="btn btn-dark htmlModalClose">닫기</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -290,20 +365,9 @@
     </div>
 <script type="text/javascript">
     $(document).ready(function() {
+
         $("#form-submit").click(function(){
             $("#searchFrm").submit();
-        });
-
-        $(".btn-status").click(function(){
-            let name  = $(this).attr("name");
-            let value = $(this).val();
-
-            $(`input[name=${name}]`).val(value);
-            $("#searchFrm").submit();
-        });
-
-        $(".htmlModalClose2").click(function(){
-            $("#htmlModal2").modal('hide');
         });
 
         $('.btn-wapp-detail').click(function(){
@@ -311,6 +375,21 @@
             var newTab  = window.open(`/wapp/order/edit/${orderId}`, '_blank');
             newTab.focus(); 
         });
+
+        $(".htmlModalClose").click(function(){
+            $("#htmlModal").modal('hide');
+        });
+        $(".htmlModalClose2").click(function(){
+            $("#htmlModal2").modal('hide');
+        });
+
+        $(".btn-code").click(function(){
+            let ids = [$(this).data("id")];
+            $('input[name="select_ids[]"]').val(ids);
+
+            $("#htmlModal").modal('show');
+            hsCodeListLoad(1);
+        })
 
         $('.btn-delivery').click(function(){
             let orderId = $(this).attr("orderid");
@@ -440,13 +519,7 @@
             }
         });
 
-        $(".btn-in-detail").click(function(){
-            let stockno     = $(this).data("stockno");
-            var newTab = window.open(`/wapp/wms/in/${stockno}`, '_blank');
-            newTab.focus(); 
-        })
-
-        $(".btn-update").click(function(){
+        $(".btn-regist").click(function(){
             let ids = [$(this).data("id")];
 
             if(confirm(`입고정보를 업데이트 하시겠습니까?`)){
@@ -468,6 +541,108 @@
                         alert(error.message);
                     }
                 });
+            }
+        });
+
+        $('.btn-hs-search').click(function(){
+            hsCodeListLoad();
+        });
+
+        function hsCodeListLoad(page = 1) {
+            let search_cls = $('select[name="hs_code_search_cls"]').val();
+            let keyword    = $('input[name="hs_code_keyword"]').val();
+            let page_size  = $('select[name="hs_page_size"]').val();
+            
+            $.ajax({
+                "headers"    : {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
+                "type"       : "GET",
+                "url"        : `/api/w/wms/hscode`,
+                "data"       : {
+                    "begin_page": page,
+                    "search_cls": search_cls,
+                    "keyword"   : keyword,
+                    "page_size" : page_size,
+                },
+                beforeSend: function () {
+                    $('.modal-table tbody').html("");
+                    $("#loadingOverlay").show();
+                },
+                complete: function () {
+                    $("#loadingOverlay").hide();
+                },
+                success: function (resp) {
+                    let objs        = resp.result ?? [];
+                    let lastPage    = resp.last_page;
+                    let currentPage = resp.page;
+
+                    objs?.map(function(ele, key) {
+                        $('.modal-table tbody').append(`
+                            <tr>
+                                <td>${ele.property_code_name}</td>
+                                <td>${ele.hs_code}</td>
+                                <td>${ele.ko_name}</td>
+                                <td>${ele.en_name}</td>
+                                <td class="text-center"><button class="btn btn-primary btn-apply text-white" data-code="${ele.hs_code}">적용</button></td>
+                            </tr>
+                        `);
+                    });
+
+                    $('input[name="hs_page"]').val(currentPage);
+                    $('input[name="hs_last_page"]').val(lastPage);
+                    updatePagination(currentPage, page_size, lastPage);
+                },
+                error: function error(request, status, _error) {
+                    let { error } = JSON.parse(request.responseText);
+                    alert(error.message);
+                }
+            });
+        }
+
+        function createPagination(currentPage, pageSize, lastPage) {
+            let paginationHtml = `
+                <div class="d-flex justify-content-center align-items-center hs-pagination">
+                    <nav aria-label="Page navigation">
+                        <ul class="pagination justify-content-center align-items-center mb-0">
+                            <li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
+                                <button class="page-link prev-page" ${currentPage === 1 ? 'disabled' : ''}>이전</button>
+                            </li>
+                            <li class="page-item">
+                                <span class="page-link px-3">${currentPage} / ${lastPage}</span>
+                            </li>
+                            <li class="page-item ${currentPage === lastPage ? 'disabled' : ''}">
+                                <button class="page-link next-page" ${currentPage === lastPage ? 'disabled' : ''}>다음</button>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
+
+            `;
+
+            return paginationHtml;
+        }
+
+        function updatePagination(currentPage, pageSize, lastPage) {
+            // 기존 페이지네이션 제거
+            $('.hs-pagination').remove();
+
+            // 새 페이지네이션 추가
+            $('.modal-footer.hs-code').prepend(createPagination(currentPage, pageSize, lastPage));
+        }
+
+        // 이벤트 핸들러 추가
+        $(document).on('click', '.prev-page', function() {
+            let currentPage = Number($('input[name="hs_page"]').val());
+            if (currentPage > 1) {
+                hsCodeListLoad(currentPage - 1);
+            }
+        });
+
+        $(document).on('click', '.next-page', function() {
+            let currentPage = Number($('input[name="hs_page"]').val());
+            let lastPage    = Number($('input[name="hs_last_page"]').val());
+
+            if (currentPage < lastPage) {
+                hsCodeListLoad(currentPage + 1);
             }
         });
     });

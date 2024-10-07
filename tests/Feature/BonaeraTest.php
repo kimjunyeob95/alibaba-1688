@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Constants\BonaeraConstant;
 use App\Models\BonaeraInBaseData;
+use App\Models\BonaeraInFailData;
 use App\Models\BonaeraInProductData;
 use App\Models\BonaeraOutBaseData;
 use App\Models\BonaeraOutDeliveryData;
@@ -93,6 +94,10 @@ class BonaeraTest extends TestCase
         //       ]
         //     ]
         // ];
+        // $result = [
+        //     "code" => "2",
+        //     "message" => "필수값 itemList[0] trackingNumber 누락되었습니다."
+        // ];
 
         if( isset($result["stockNo"]) && isset($result["item"]) && !empty($result["item"]) ){
             $stockNo = $result["stockNo"];
@@ -133,6 +138,20 @@ class BonaeraTest extends TestCase
                     ]
                 );
             }
+        } else {
+            $msg = "보내라 입고신청 API 에러";
+            if( isset($result["message"]) ){
+                $msg = $result["message"];
+            }
+
+            BonaeraInFailData::updateOrCreate(
+                [
+                    "order_id" => $order_id,
+                ],
+                [
+                    "msg" => $msg
+                ]
+            );
         }
 
         dd(json_encode($payload, JSON_UNESCAPED_UNICODE), $result);
