@@ -131,7 +131,10 @@
                                 <th scope="col" style="width: 20%">주문정보</th>
                                 <th scope="col" style="width: 10%">HS code</th>
                                 <th scope="col" style="width: 10%">배송정보</th>
-                                <th scope="col" style="width: 20%">실패 사유</th>
+                                <th scope="col" style="width: 20%">
+                                    실패 사유<br>
+                                    처리 시간
+                                </th>
                                 <th scope="col" style="width: 10%">관리</th>
                             </tr>
                         </thead>
@@ -176,7 +179,7 @@
                                         @if( empty($data->hs_code) )
                                             <button class="btn btn-sm btn-success btn-code text-white" data-id={{ $data->id }}>HS code 등록</button>
                                         @else
-                                            {{ $data->hs_code }}
+                                            <span class="btn text-white bg-success">{{ $data->hs_code }}</span>
                                         @endif
                                     </td>
                                     <td>
@@ -193,6 +196,8 @@
                                     </td>
                                     <td>
                                         <small class="text-danger">{{ $data->msg }}</small>
+                                        <br>
+                                        <small>{{ $data->updated_at }}</small>
                                     </td>
                                     <td>
                                         <div class="d-flex flex-column gap-2">
@@ -521,12 +526,12 @@
         $(".btn-regist").click(function(){
             let ids = [$(this).data("id")];
 
-            if(confirm(`입고정보를 업데이트 하시겠습니까?`)){
+            if(confirm(`입고신청 하시겠습니까?`)){
                 $("#loadingOverlay").show();
                 $.ajax({
                     "headers" : {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
                     "type"    : "POST",
-                    "url"     : "{{ route('w.wms.bonaeraInUpdate') }}",
+                    "url"     : "{{ route('w.wms.bonaeraInFailCreate') }}",
                     "data"    : { ids: ids },
                     beforeSend: function () {},
                     complete  : function(xhr, status) {
@@ -534,6 +539,7 @@
                     },
                     success : function (resp) {
                         alert(resp.msg);
+                        location.reload();
                     },
                     error: function (request) {
                         let { error } = JSON.parse(request.responseText);
