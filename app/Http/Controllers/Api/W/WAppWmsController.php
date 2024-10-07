@@ -10,6 +10,7 @@ use App\Services\Wms\WmsService;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Symfony\Component\Process\Process;
 use Illuminate\Support\Facades\Validator;
 
 class WAppWmsController extends Controller
@@ -20,9 +21,9 @@ class WAppWmsController extends Controller
 
     function __construct(Request $request, WmsService $wmsService)
     {
-        $this->request      = $request;
+        $this->request    = $request;
         $this->wmsService = $wmsService;
-        $this->phpAlias     = env("PHP_ALIAS", "php80");
+        $this->phpAlias   = env("PHP_ALIAS", "php80");
     }
 
     public function apiHsCodeList(): JsonResponse
@@ -86,6 +87,58 @@ class WAppWmsController extends Controller
             } else {
                 return helpers_json_response(HttpConstant::BAD_REQUEST, [], $result["msg"]);
             }
+        } catch (Exception $e) {
+            return helpers_json_response(HttpConstant::BAD_REQUEST, [], $e->getMessage());
+        }
+    }
+
+    public function bonaeraInUpdate(): JsonResponse
+    {
+        try {
+            $validator = Validator::make($this->request->all(), [
+                'ids' => 'required|array',
+            ], [
+                'ids.required' => 'ids를 입력하세요.',
+            ]);
+            if ($validator->fails()) {
+                throw new Exception($validator->errors()->first());
+            }
+
+            $ids = $this->request->post("ids");
+            $options  = "--func=bonaeraInUpdate --ids=" . helperEscape(implode(",", $ids));
+            $command  = "nohup " . $this->phpAlias . " artisan wms_command " . $options . " > /dev/null 2>&1 &";
+            $process  = Process::fromShellCommandline($command);
+            $process->setWorkingDirectory(env("WORK_DIRECTORY", "/web1/1688"));
+            $process->setTimeout(null); // 실행 시간 제한 없음
+            $process->start();
+
+            return helpers_json_response(HttpConstant::OK, helpers_success_message([], "입고정보 업데이트 요청 완료\r\n처리 건이 많을 경우 업데이트에 시간이 소요될 수 있습니다."));
+        } catch (Exception $e) {
+            return helpers_json_response(HttpConstant::BAD_REQUEST, [], $e->getMessage());
+        }
+    }
+
+    public function bonaeraOutUpdate(): JsonResponse
+    {
+        try {
+            $validator = Validator::make($this->request->all(), [
+                'ids' => 'required|array',
+            ], [
+                'ids.required' => 'ids를 입력하세요.',
+            ]);
+            if ($validator->fails()) {
+                throw new Exception($validator->errors()->first());
+            }
+
+            $ids = $this->request->post("ids");
+            $options  = "--func=bonaeraOutUpdate --ids=" . helperEscape(implode(",", $ids));
+            $command  = "nohup " . $this->phpAlias . " artisan wms_command " . $options . " > /dev/null 2>&1 &";
+            $process  = Process::fromShellCommandline($command);
+            $process->setWorkingDirectory(env("WORK_DIRECTORY", "/web1/1688"));
+            $process->setTimeout(null); // 실행 시간 제한 없음
+            $process->start();
+
+            return helpers_json_response(HttpConstant::OK, helpers_success_message([], "출고정보 업데이트 요청 완료\r\n처리 건이 많을 경우 업데이트에 시간이 소요될 수 있습니다."));
         } catch (Exception $e) {
             return helpers_json_response(HttpConstant::BAD_REQUEST, [], $e->getMessage());
         }

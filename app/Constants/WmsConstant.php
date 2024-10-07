@@ -15,4 +15,24 @@ class WmsConstant
         self::HSCODE_SEARCH_TYPE_EN     => "영문명",
         self::HSCODE_SEARCH_TYPE_HSCODE => "HS code",
     ];
+
+    /** 입고관리 검색종류 */
+    public const IN_SEARCH_TYPE_STOCK_NO         = "stock_no";
+    public const IN_SEARCH_TYPE_ORDER_ID         = "order_id";
+    public const IN_SEARCH_TYPE_CHANNEL_ORDER_ID = "channel_order_id";
+    public const IN_SEARCH_TYPE                  = [
+        self::IN_SEARCH_TYPE_STOCK_NO         => "입고번호",
+        self::IN_SEARCH_TYPE_ORDER_ID         => "W 주문번호",
+        self::IN_SEARCH_TYPE_CHANNEL_ORDER_ID => "채널 주문번호",
+    ];
+
+    /** 출고관리 검색종류 */
+    public const OUT_SEARCH_TYPE_GROUP_NO         = "group_no";
+    public const OUT_SEARCH_TYPE_SH_NO            = "sh_no";
+    public const OUT_SEARCH_TYPE_CHANNEL_ORDER_ID = "channel_order_id";
+    public const OUT_SEARCH_TYPE                  = [
+        self::OUT_SEARCH_TYPE_GROUP_NO         => "배송번호",
+        self::OUT_SEARCH_TYPE_SH_NO            => "출고번호",
+        self::OUT_SEARCH_TYPE_CHANNEL_ORDER_ID => "채널 주문번호",
+    ];
 }

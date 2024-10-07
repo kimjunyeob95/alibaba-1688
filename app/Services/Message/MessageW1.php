@@ -4,12 +4,14 @@ namespace App\Services\Message;
 
 use App\Abstracts\OrderAbstract;
 use App\Abstracts\WMessageAbstract;
+use App\Abstracts\WmsAbstract;
 use App\Constants\KafkaConstant;
 use App\Constants\MessageConstant;
 use App\Constants\MessageErrorMessageConstant;
 use App\Exceptions\ArrayValueError;
 use App\Models\OrderBaseData;
 use App\Models\WMessageLog;
+use App\Packages\Bonaera;
 use App\Packages\Kafka;
 use Carbon\Carbon;
 use Exception;
@@ -18,15 +20,18 @@ class MessageW1 extends WMessageAbstract
 {
     private OrderAbstract $orderW1;
     private Kafka $kafka;
+    private Bonaera $bonaera;
 
     public function __construct(
         OrderAbstract $orderW1,
-        Kafka $kafka
+        Kafka $kafka,
+        Bonaera $bonaera,
     )
     {
         parent::__construct();
         $this->orderW1 = $orderW1;
         $this->kafka   = $kafka;
+        $this->bonaera = $bonaera;
     }
 
     /**
@@ -38,6 +43,7 @@ class MessageW1 extends WMessageAbstract
     public function message(array $params): array
     {
         $returnMsg = $this->returnMsg;
+
         try {
             if( isset($params["message"]) && !empty($params["message"]) && isset($params["_aop_signature"]) && !empty($params["_aop_signature"]) ){
                 $message = json_decode($params["message"], JSON_UNESCAPED_UNICODE);
@@ -169,6 +175,15 @@ class MessageW1 extends WMessageAbstract
                             //     "pub_sub_is_send"  => $pubSubSend,
                             // ]);
                             debug_log(json_encode($logParams, JSON_UNESCAPED_UNICODE), "1688/message", "success-message");
+
+
+                            $messageCode = MessageConstant::MESSAGE_CODE[$type];
+                            if( in_array($messageCode, [MessageConstant::OS001, MessageConstant::OS002]) ){
+                                /** 입고정보 전송 */
+                                $this->bonaera->createStockApi($orderId);
+                            } else if( in_array($messageCode, [MessageConstant::OT001]) ){
+
+                            }
                         }
                     }
                 } else {

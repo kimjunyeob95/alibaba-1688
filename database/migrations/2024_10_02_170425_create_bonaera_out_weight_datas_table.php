@@ -17,7 +17,7 @@ return new class extends Migration
         Schema::create('bonaera_out_weight_datas', function (Blueprint $table) {
             $table->id();
 
-            $table->unsignedBigInteger('out_base_id')->nullable(false)->comment('bonaera_out_base_datas id');
+            $table->string('group_no', 20)->unique()->nullable(false)->comment('배송번호');
             $table->integer('box_cnt')->nullable(false)->comment('박스수');
             $table->float('real_weight')->nullable(false)->comment('실무게(kg)');
             $table->float('width')->nullable(false)->comment('가로(cm)');
@@ -40,9 +40,7 @@ return new class extends Migration
             $table->timestamps();
             $table->softDeletes();
 
-            $table->foreign('out_base_id')->references('id')->on('bonaera_out_base_datas')->onDelete('cascade');
-
-            $table->index('out_base_id');
+            $table->index('group_no');
         });
 
         DB::statement('ALTER TABLE bonaera_out_weight_datas COMMENT "보내라 출고 무게정보 테이블"');

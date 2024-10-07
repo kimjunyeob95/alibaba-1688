@@ -24,7 +24,6 @@ return new class extends Migration
             $table->string('hs_code', 10)->nullable(false)->comment('HS 코드');
             $table->string('it_code', 20)->nullable(false)->comment('재고번호');
             $table->string('status', 20)->default("1001")->nullable(false)->comment('입고상태');
-            $table->text('in_img_url')->nullable(false)->comment('입고 이미지');
             $table->integer('received_qty')->default(0)->nullable(false)->comment('입고수량');
             $table->integer('discarded_qty')->default(0)->nullable(false)->comment('폐기수량');
             $table->integer('refunded_qty')->default(0)->nullable(false)->comment('환불수량');
@@ -32,6 +31,7 @@ return new class extends Migration
             $table->enum('lack_status', ["Y", "N"])->default("N")->nullable(false)->comment('재고상태 Y: 재고O, N: 재고X');
             $table->integer('stock_qty')->default(0)->nullable(false)->comment('재고수량');
             $table->text('memo')->nullable(false)->comment('메모');
+            $table->timestamp('in_comming_at')->nullable()->comment('입고일');
 
             $table->timestamps();
             $table->softDeletes();
