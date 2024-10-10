@@ -49,7 +49,7 @@ class Bonaera
             if( $inBaseObj === null ){
                 $orderObj = OrderBaseData::where("order_id", $orderId)->first();
                 if( $orderObj == null ){
-                    throw new Exception(OrderErrorMessageConstant::getNotHaveErrorMessage("ORDER"));   
+                    throw new Exception(OrderErrorMessageConstant::getNotHaveErrorMessage("ORDER"));
                 }
                 $orderChannelObj = OrderChannelData::where("order_id", $orderId)->first();
                 if( $orderChannelObj == null ){
@@ -74,6 +74,14 @@ class Bonaera
                 $itemList    = [];
                 $optList     = [];
                 $productShno = "444";
+
+                $inFailObj = BonaeraInFailData::where("order_id", $orderId)->first();
+                if( $inFailObj !== null ){
+                    if( empty($inFailObj->hs_code ) ){
+                        throw new Exception(BonaeraErrorMessageConstant::getNotHaveErrorMessage("HS_CODE"));
+                    }
+                    $productShno = $inFailObj->hs_code;
+                }
                 
                 foreach ($orderPrdObjs as $orderPrdObj) {
                     $skuId  = $orderPrdObj->sku_id;
@@ -164,23 +172,25 @@ class Bonaera
                         if( isset($result["message"]) ){
                             $msg = $result["message"];
                         }
-
-                        BonaeraInFailData::updateOrCreate(
-                            [
-                                "order_id" => $orderId,
-                            ],
-                            [
-                                "msg" => $msg
-                            ]
-                        );
+                        throw new Exception($msg);
                     }
                 } else {
                     throw new Exception(BonaeraErrorMessageConstant::getNotHaveErrorMessage("ITEMLIST"));
                 }
+            } else {
+                throw new Exception(OrderErrorMessageConstant::getHaveErrorMessage("BASE_INFO"));
             }
         } catch (Exception $e) {
             $erroMsg = "error: " . $e->getMessage();
-            debug_log($erroMsg, "boneara/createStockApi", "createStockApi");
+            BonaeraInFailData::updateOrCreate(
+                [
+                    "order_id" => $orderId,
+                ],
+                [
+                    "msg" => $erroMsg
+                ]
+            );
+            debug_log($erroMsg . " | order_id: " . $orderId, "boneara/createStockApi", "createStockApi");
         }
     }
 

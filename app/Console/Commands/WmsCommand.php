@@ -27,13 +27,13 @@ class WmsCommand extends Command
         switch ($func) {
             /**
              * 입고신청
-             * php artisan wms_command --func=bonaeraInCreate --ids=1
+             * php artisan wms_command --func=bonaeraInFailCreate --ids=1
              */
-            case 'bonaeraInCreate':
+            case 'bonaeraInFailCreate':
                 $ids = explode(",", $this->option('ids'));
                 if (!empty($ids)) {
                     foreach ($ids as $id) {
-                        $this->wmsService->bonaeraInCreate($id);
+                        $this->wmsService->bonaeraInFailCreate($id);
                     }
                 }
                 break;

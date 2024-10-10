@@ -101,7 +101,7 @@ class WmsController extends Controller
         $endTime    = $this->request->get("end_time", "");
         $search_cls = $this->request->get("search_cls", WmsConstant::IN_SEARCH_TYPE_ORDER_ID);
         $keyword    = $this->request->get("keyword", "");
-        $sort       = $this->request->get("sort", "updated_at|desc");
+        $sort       = $this->request->get("sort", "created_at|desc");
 
         $pageSize = $pageSize > 500 ? 500 : $pageSize;
         $offset   = ($page - 1) * $pageSize;
@@ -122,6 +122,7 @@ class WmsController extends Controller
             "startTime"  => $startTime,
             "endTime"    => $endTime,
             "search_cls" => $search_cls,
+            "sort"       => $sort,
             "keyword"    => $keyword,
             "paginator"  => $result["data"],
             "offset"     => (int) $offset,

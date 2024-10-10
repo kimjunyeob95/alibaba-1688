@@ -206,7 +206,7 @@ class WmsW1 extends WmsAbstract
                 }
             }
 
-            $builder->orderBy("bonaera_in_fail_datas." . $sortArr[0], $sortArr[1]);
+            $builder->orderBy("obd." . $sortArr[0], $sortArr[1]);
 
             $lists = $builder->paginate($pageSize)->appends($params);
 
@@ -263,6 +263,26 @@ class WmsW1 extends WmsAbstract
         return $returnMsg;
     }
 
+    public function bonaeraInHscodeUpdate(array $ids, string $hsCode): array
+    {
+        $returnMsg = helpers_fail_message();
+
+        try {
+            $inBaseObjs = BonaeraInBaseData::whereIn("id", $ids)->get();
+            foreach ($inBaseObjs as $inBaseObj) {
+                BonaeraInProductData::where("stock_no", $inBaseObj->stock_no)->update([
+                    "hs_code" => $hsCode
+                ]);
+            }
+
+            $returnMsg = helpers_success_message();
+        } catch (Exception $e) {
+            $returnMsg = helpers_fail_message($e->getMessage());
+        }
+
+        return $returnMsg;
+    }
+
     public function bonaeraInFailHscodeUpdate(array $ids, string $hsCode): array
     {
         $returnMsg = helpers_fail_message();
@@ -280,18 +300,18 @@ class WmsW1 extends WmsAbstract
         return $returnMsg;
     }
 
-    public function bonaeraInCreate(int $id): void
+    public function bonaeraInFailCreate(int $id): void
     {
         try {
             $inFailObj = BonaeraInFailData::where("id", $id)->first();
-            if( $inFailObj == null ){
+            if( $inFailObj === null ){
                 throw new Exception(BonaeraErrorMessageConstant::getNotHaveErrorMessage("BONAERA_IN_FAIL_DATA"));
             }
 
             $this->bonaera->createStockApi($inFailObj->order_id);
         } catch (Exception $e) {
-            $msg = "error: " . $e->getMessage();
-            debug_log($msg, "boneara/bonaeraInCreate", "bonaeraInCreate");
+            $msg = "error: " . $e->getMessage(). " | id: " . $id;
+            debug_log($msg, "boneara/bonaeraInFailCreate", "bonaeraInFailCreate");
         }
     }
 

@@ -82,6 +82,19 @@
                                     </td>
                                 </tr>
                                 <tr class="align-middle">
+                                    <th style="width: 120px">정렬</th>
+                                    <td style="width: 200px">
+                                        <select class="form-select" name="sort">
+                                            <option value="created_at|desc" @if($sort == "created_at|desc") selected @endif>주문 생성일 내림차순</option>
+                                            <option value="created_at|asc" @if($sort == "created_at|asc") selected @endif>주문 생성일 오름차순</option>
+                                            <option value="updated_at|desc" @if($sort == "updated_at|desc") selected @endif>주문 수정일 내림차순</option>
+                                            <option value="updated_at|asc" @if($sort == "updated_at|asc") selected @endif>주문 수정일 오름차순</option>
+                                        </select>
+                                    </td>
+                                    <td colspan="">
+                                    </td>
+                                </tr>
+                                <tr class="align-middle">
                                     <th style="width: 120px">노출 수</th>
                                     <td style="width: 200px">
                                         <select class="form-select" name="pageSize">
@@ -501,19 +514,21 @@
                 return alert("선택 된 정보가 없습니다.");
             }
 
-            if(confirm(`${ids.length}건의 입고정보를 업데이트 하시겠습니까?`)){
-                $("#loadingOverlay").show();
+            if(confirm(`${ids.length}건을 입고신청 하시겠습니까?`)){
                 $.ajax({
                     "headers" : {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
                     "type"    : "POST",
-                    "url"     : "{{ route('w.wms.bonaeraInUpdate') }}",
+                    "url"     : "{{ route('w.wms.bonaeraInFailCreate') }}",
                     "data"    : { ids: ids },
-                    beforeSend: function () {},
+                    beforeSend: function () {
+                        $("#loadingOverlay").show();
+                    },
                     complete  : function(xhr, status) {
                         $("#loadingOverlay").hide();
                     },
                     success : function (resp) {
                         alert(resp.msg);
+                        location.reload();
                     },
                     error: function (request) {
                         let { error } = JSON.parse(request.responseText);
@@ -527,13 +542,14 @@
             let ids = [$(this).data("id")];
 
             if(confirm(`입고신청 하시겠습니까?`)){
-                $("#loadingOverlay").show();
                 $.ajax({
                     "headers" : {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
                     "type"    : "POST",
                     "url"     : "{{ route('w.wms.bonaeraInFailCreate') }}",
                     "data"    : { ids: ids },
-                    beforeSend: function () {},
+                    beforeSend: function () {
+                        $("#loadingOverlay").show();
+                    },
                     complete  : function(xhr, status) {
                         $("#loadingOverlay").hide();
                     },

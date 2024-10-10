@@ -6,6 +6,24 @@
 @extends('dashboard.base')
 
 @section('styles')
+<style>
+.modal-table tbody {
+    display: block;
+    max-height: 350px;
+    overflow-y: auto;
+}
+
+.modal-table thead,
+.modal-table tbody tr {
+    display: table;
+    width: 100%;
+}
+
+.modal-table thead tr td,
+.modal-table tbody tr td{
+    width: 20%;
+}
+</style>
 @endsection
 
 @section('scripts')
@@ -120,6 +138,7 @@
                                 </th>
                                 <th scope="col" style="width: 5%">채널 주문번호</th>
                                 <th scope="col" style="width: 20%">입고정보</th>
+                                <th scope="col" style="width: 5%">HS code</th>
                                 <th scope="col" style="width: 5%">배송정보</th>
                                 <th scope="col" style="width: 8%">
                                     입고 신청일<br>
@@ -165,11 +184,11 @@
                                                     @endif
                                                     옵션: {{ $w_option->option_name_kr}},
                                                     @if ( $in_option->status == BonaeraConstant::WAREHOUSE_STATUS_PENDING )
-                                                        상태: <span class="bg-dark rounded text-white px-2 py-1 fs-6">{{ BonaeraConstant::WAREHOUSE_STATUS[$in_option->status] }}</span>,
+                                                        상태: <span class="bg-dark rounded text-white px-1 py-0 fs-7 small">{{ BonaeraConstant::WAREHOUSE_STATUS[$in_option->status] }}</span>,
                                                     @elseif ( $in_option->status == BonaeraConstant::WAREHOUSE_STATUS_RECEIVED )
-                                                        상태: <span class="bg-success rounded text-white px-2 py-1 fs-6">{{ BonaeraConstant::WAREHOUSE_STATUS[$in_option->status] }}</span>,
+                                                        상태: <span class="bg-success rounded text-white px-1 py-0 fs-7 small">{{ BonaeraConstant::WAREHOUSE_STATUS[$in_option->status] }}</span>,
                                                     @elseif ( $in_option->status == BonaeraConstant::WAREHOUSE_STATUS_DISPOSED )
-                                                        상태:<span class="bg-danger rounded text-white px-2 py-1 fs-6">{{ BonaeraConstant::WAREHOUSE_STATUS[$in_option->status] }}</span>,
+                                                        상태: <span class="bg-danger rounded text-white px-1 py-0 fs-7 small">{{ BonaeraConstant::WAREHOUSE_STATUS[$in_option->status] }}</span>,
                                                     @endif
                                                     입고: {{ $in_option->quantity }}, 재고: {{ $in_option->lack_status }}
                                                 </small>
@@ -179,6 +198,13 @@
                                                 </small>
                                             @endif
                                         @endforeach
+                                    </td>
+                                    <td>
+                                        @if( empty($data->in_options) )
+                                            <button class="btn btn-sm btn-success btn-code text-white" data-id={{ $data->id }}>HS code 등록</button>
+                                        @else
+                                            <button class="btn btn-sm btn-success btn-code text-white" data-id={{ $data->id }}>{{ $data->in_options[0]->hs_code }}</span>
+                                        @endif
                                     </td>
                                     <td>
                                         @if(!empty($data->logistics_last))
@@ -210,6 +236,87 @@
                             @endforeach
                         </tbody>
                     </table>
+                </div>
+            </div>
+
+            <div class="modal fade" id="htmlModal" tabindex="-1" role="dialog" aria-labelledby="htmlModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-xl" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="htmlModalLabel">HS code 설정</h5>
+                        </div>
+                        <div class="modal-body">
+                            <input type="hidden" name="select_ids[]" />
+                            <input type="hidden" name="hs_page" value=1 />
+                            <input type="hidden" name="hs_last_page" value=1 />
+    
+                            <div>
+                                <div class="d-flex justify-content-evenly px-3">
+                                    <div class="row w-100">
+                                        <div class="col-2">
+                                            <label class="fs-7">검색</label>
+                                        </div>
+                                        <div class="col-2">
+                                            <select class="form-select" name="hs_code_search_cls">
+                                                @foreach (WmsConstant::HSCODE_SEARCH_TYPE as $key => $search)
+                                                    <option value="{{ $key }}" @if($search_cls == $key) selected @endif>{{ $search }}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                        <div class="col">
+                                            <input type="text" class="form-control" name="hs_code_keyword" placeholder="검색어를 입력하세요." value="">
+                                        </div>
+                                    </div>
+                                </div>
+                                <hr>
+
+                                <div class="d-flex justify-content-evenly px-3">
+                                    <div class="row w-100">
+                                        <div class="col-2">
+                                            <label class="fs-7">노출수</label>
+                                        </div>
+                                        <div class="col-2">
+                                            <select class="form-select" name="hs_page_size">
+                                                <option value="50">50개 노출</option>
+                                                <option value="100">100개 노출</option>
+                                                <option value="500">500개 노출</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                <hr>
+    
+                                <div class="text-left">
+                                    <button type="button" class="btn btn-primary btn-hs-search">검색</button>
+                                </div>
+                                <hr>
+    
+                                <table class="table table-white bg-white modal-table">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th scope="col" >성질통합 분류코드명</th>
+                                            <th scope="col" >HS code</th>
+                                            <th scope="col" >한글 품목명</th>
+                                            <th scope="col" >영문 품목명</th>
+                                            <th scope="col" >관리</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="hs-code modal-footer d-block">
+                            <div class="row align-items-center">
+                                <div class="col-12 col-sm-8 offset-sm-2 mb-3 mb-sm-0">
+                                    <div id="paginationContainer" class="d-flex justify-content-center"></div>
+                                </div>
+                                <div class="col-12 col-sm-2 text-sm-end">
+                                    <button type="button" class="btn btn-dark htmlModalClose">닫기</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -302,6 +409,9 @@
             $("#searchFrm").submit();
         });
 
+        $(".htmlModalClose").click(function(){
+            $("#htmlModal").modal('hide');
+        });
         $(".htmlModalClose2").click(function(){
             $("#htmlModal2").modal('hide');
         });
@@ -468,6 +578,147 @@
                         alert(error.message);
                     }
                 });
+            }
+        });
+
+        $(".btn-code").click(function(){
+            let ids = [$(this).data("id")];
+            $('input[name="select_ids[]"]').val(ids);
+
+            hsCodeListLoad(1, true);
+        });
+
+        $('.btn-hs-search').click(function(){
+            hsCodeListLoad(1);
+        });
+
+        $(document).on("click", ".btn-apply", function(){
+            let ids    = $('input[name="select_ids[]"]').val().split(",");
+            let hsCode = $(this).data("code");
+
+            if(confirm(`해당 HS code로 적용하시겠습니까?`)){
+                $.ajax({
+                    "headers" : {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
+                    "type"    : "POST",
+                    "url"     : "{{ route('w.wms.bonaeraInHscodeUpdate') }}",
+                    "data"    : { ids: ids, hs_code: hsCode },
+                    beforeSend: function () {
+                        $("#loadingOverlay").show();
+                    },
+                    complete  : function(xhr, status) {
+                        $("#loadingOverlay").hide();
+                    },
+                    success : function (resp) {
+                        alert(resp.msg);
+                        location.reload();
+                    },
+                    error: function (request) {
+                        let { error } = JSON.parse(request.responseText);
+                        alert(error.message);
+                    }
+                });
+            }
+        });
+
+        function hsCodeListLoad(page = 1, modalShow = false) {
+            let search_cls = $('select[name="hs_code_search_cls"]').val();
+            let keyword    = $('input[name="hs_code_keyword"]').val();
+            let page_size  = $('select[name="hs_page_size"]').val();
+            
+            $.ajax({
+                "headers"    : {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
+                "type"       : "GET",
+                "url"        : `/api/w/wms/hscode`,
+                "data"       : {
+                    "begin_page": page,
+                    "search_cls": search_cls,
+                    "keyword"   : keyword,
+                    "page_size" : page_size,
+                },
+                beforeSend: function () {
+                    $('.modal-table tbody').html("");
+                    $("#loadingOverlay").show();
+                },
+                complete: function () {
+                    $("#loadingOverlay").hide();
+                },
+                success: function (resp) {
+                    let objs        = resp.result ?? [];
+                    let lastPage    = resp.last_page;
+                    let currentPage = resp.page;
+
+                    objs?.map(function(ele, key) {
+                        $('.modal-table tbody').append(`
+                            <tr>
+                                <td>${ele.property_code_name}</td>
+                                <td>${ele.hs_code}</td>
+                                <td>${ele.ko_name}</td>
+                                <td>${ele.en_name}</td>
+                                <td class="text-center"><button class="btn btn-primary btn-apply text-white" data-code="${ele.hs_code}">적용</button></td>
+                            </tr>
+                        `);
+                    });
+
+                    $('input[name="hs_page"]').val(currentPage);
+                    $('input[name="hs_last_page"]').val(lastPage);
+                    updatePagination(currentPage, page_size, lastPage);
+
+                    if( modalShow === true ){
+                        $("#htmlModal").modal('show');
+                    }
+                },
+                error: function error(request, status, _error) {
+                    let { error } = JSON.parse(request.responseText);
+                    alert(error.message);
+                }
+            });
+        }
+
+        function createPagination(currentPage, pageSize, lastPage) {
+            let paginationHtml = `
+                <div class="d-flex justify-content-center align-items-center hs-pagination">
+                    <nav aria-label="Page navigation">
+                        <ul class="pagination justify-content-center align-items-center mb-0">
+                            <li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
+                                <button class="page-link prev-page" ${currentPage === 1 ? 'disabled' : ''}>이전</button>
+                            </li>
+                            <li class="page-item">
+                                <span class="page-link px-3 disabled">${currentPage} / ${lastPage}</span>
+                            </li>
+                            <li class="page-item ${currentPage === lastPage ? 'disabled' : ''}">
+                                <button class="page-link next-page" ${currentPage === lastPage ? 'disabled' : ''}>다음</button>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
+
+            `;
+
+            return paginationHtml;
+        }
+
+        function updatePagination(currentPage, pageSize, lastPage) {
+            // 기존 페이지네이션 제거
+            $('.hs-pagination').remove();
+
+            // 새 페이지네이션 추가
+            $('.modal-footer.hs-code').prepend(createPagination(currentPage, pageSize, lastPage));
+        }
+
+        // 이벤트 핸들러 추가
+        $(document).on('click', '.prev-page', function() {
+            let currentPage = Number($('input[name="hs_page"]').val());
+            if (currentPage > 1) {
+                hsCodeListLoad(currentPage - 1);
+            }
+        });
+
+        $(document).on('click', '.next-page', function() {
+            let currentPage = Number($('input[name="hs_page"]').val());
+            let lastPage    = Number($('input[name="hs_last_page"]').val());
+
+            if (currentPage < lastPage) {
+                hsCodeListLoad(currentPage + 1);
             }
         });
     });
