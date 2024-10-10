@@ -10,6 +10,7 @@ use App\Models\BonaeraOutBaseData;
 use App\Models\BonaeraOutDeliveryData;
 use App\Models\BonaeraOutProductData;
 use App\Models\BonaeraOutWeightData;
+use App\Models\HsCodeData;
 use App\Models\OrderBaseData;
 use App\Models\OrderChannelData;
 use App\Models\OrderChannelDetailData;
@@ -18,6 +19,8 @@ use App\Models\OrderProductData;
 use App\Models\ProductData;
 use App\Models\ProductImageData;
 use App\Models\ProductOptionData;
+use Exception;
+use Illuminate\Support\Facades\File;
 use Tests\TestCase;
 
 class BonaeraTest extends TestCase
@@ -360,5 +363,32 @@ class BonaeraTest extends TestCase
         $result = helpers_curl("GET", $endPoint, $header, $payload);
         
        dd($result);
+    }
+
+    # php artisan test --filter testMappingHsCode
+    public function testMappingHsCode()
+    {
+        $filePath = public_path('app/hs_code_mapping.txt');
+        if (!File::exists($filePath)) {
+            throw new Exception("파일이 존재하지 않습니다.");
+        }
+
+        $lines = File::lines($filePath);
+        foreach($lines as $key => $line){
+            if( $key == 0 ) continue;
+
+            $data    = explode(',', $line);
+            $hs_code = $data[0];
+            $sh_no   = $data[1];
+            
+
+            HsCodeData::updateOrCreate([
+                "hs_code" => $hs_code,
+            ],[
+                'sh_no'   => $sh_no,
+            ]);
+        }
+
+        dd("끝");
     }
 }

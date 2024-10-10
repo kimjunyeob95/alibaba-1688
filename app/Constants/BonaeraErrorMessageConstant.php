@@ -15,6 +15,7 @@ class BonaeraErrorMessageConstant
     public const ERROR_MESSAGE_LOGISTICS_BILL_NO    = "logisticsBillNo";
     public const ERROR_MESSAGE_LOGISTICS_ITEMLIST   = "itemList";
     public const ERROR_MESSAGE_HS_CODE              = "hs_code";
+    public const ERROR_MESSAGE_PRODUCTSHNO          = "품목번호";
  
     public static function getErrorMessageNotDefault($constantName): string
     {

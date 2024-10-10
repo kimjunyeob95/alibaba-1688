@@ -10,6 +10,7 @@ use App\Constants\ProductConstant;
 use App\Models\BonaeraInBaseData;
 use App\Models\BonaeraInFailData;
 use App\Models\BonaeraInProductData;
+use App\Models\HsCodeData;
 use App\Models\OrderBaseData;
 use App\Models\OrderChannelData;
 use App\Models\OrderLogisticsData;
@@ -73,14 +74,20 @@ class Bonaera
                 
                 $itemList    = [];
                 $optList     = [];
-                $productShno = "444";
+                $productShno = "";
 
                 $inFailObj = BonaeraInFailData::where("order_id", $orderId)->first();
                 if( $inFailObj !== null ){
                     if( empty($inFailObj->hs_code ) ){
                         throw new Exception(BonaeraErrorMessageConstant::getNotHaveErrorMessage("HS_CODE"));
                     }
-                    $productShno = $inFailObj->hs_code;
+
+                    $hsCodeObj   = HsCodeData::where("hs_code", $inFailObj->hs_code)->first();
+                    $productShno = $hsCodeObj->sh_no ?? "";
+                }
+
+                if( empty($productShno) ){
+                    throw new Exception(BonaeraErrorMessageConstant::getNotHaveErrorMessage("PRODUCTSHNO"));
                 }
                 
                 foreach ($orderPrdObjs as $orderPrdObj) {
@@ -177,20 +184,22 @@ class Bonaera
                 } else {
                     throw new Exception(BonaeraErrorMessageConstant::getNotHaveErrorMessage("ITEMLIST"));
                 }
-            } else {
-                throw new Exception(OrderErrorMessageConstant::getHaveErrorMessage("BASE_INFO"));
             }
         } catch (Exception $e) {
-            $erroMsg = "error: " . $e->getMessage();
-            BonaeraInFailData::updateOrCreate(
-                [
+            $errorMsg = $e->getMessage();
+
+            if( BonaeraInFailData::where("order_id", $orderId)->exists() ){
+                BonaeraInFailData::where("order_id", $orderId)->update([
+                    "msg" => $errorMsg
+                ]);
+            } else {
+                BonaeraInFailData::create([
                     "order_id" => $orderId,
-                ],
-                [
-                    "msg" => $erroMsg
-                ]
-            );
-            debug_log($erroMsg . " | order_id: " . $orderId, "boneara/createStockApi", "createStockApi");
+                    "hs_code"  => "",
+                    "msg"      => $errorMsg
+                ]);
+            }
+            debug_log($errorMsg . " | order_id: " . $orderId, "boneara/createStockApi", "createStockApi");
         }
     }
 
