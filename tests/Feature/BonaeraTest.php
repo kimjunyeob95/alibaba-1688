@@ -375,13 +375,10 @@ class BonaeraTest extends TestCase
 
         $lines = File::lines($filePath);
         foreach($lines as $key => $line){
-            if( $key == 0 ) continue;
-
             $data    = explode(',', $line);
             $hs_code = $data[0];
             $sh_no   = $data[1];
             
-
             HsCodeData::updateOrCreate([
                 "hs_code" => $hs_code,
             ],[
