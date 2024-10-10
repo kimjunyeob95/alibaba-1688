@@ -31,7 +31,7 @@ class WmsW1 extends WmsAbstract
         $returnMsg = $this->returnMsg;
 
         try {
-            $page   = $params["page"];
+            $page       = $params["page"];
             $pageSize   = $params["pageSize"];
             $search_cls = $params["search_cls"];
             $keyword    = $params["keyword"];
@@ -45,7 +45,7 @@ class WmsW1 extends WmsAbstract
                     ->orWhere("property_code_name", "like", "%" . $keyword . "%");
                 } else if( $search_cls == WmsConstant::HSCODE_SEARCH_TYPE_EN ){
                     $builder->where("en_name", "like", "%" . $keyword . "%");
-                } else if( $search_cls == WmsConstant::HSCODE_SEARCH_TYPE_HSCODE ){
+                } else if( $search_cls == WmsConstant::HSCODE_SEARCH_TYPE_HSCODE || $search_cls == WmsConstant::HSCODE_SEARCH_TYPE_SH_NO ){
                     $keyword = preg_replace("/(\r\n|\r|\n)/", ",", trim($keyword));
                     $keyword = explode(",", $keyword);
                     // 각 배열 요소의 앞뒤 공백 제거
@@ -54,7 +54,12 @@ class WmsW1 extends WmsAbstract
                     $keyword = array_filter($keyword);
                     // 중복 제거
                     $keyword = array_unique($keyword);
-                    $builder->whereIn("hs_code", $keyword);
+
+                    if( $search_cls == WmsConstant::HSCODE_SEARCH_TYPE_HSCODE ){
+                        $builder->whereIn("hs_code", $keyword);
+                    } else if( $search_cls == WmsConstant::HSCODE_SEARCH_TYPE_SH_NO ){
+                        $builder->whereIn("sh_no", $keyword);
+                    }
                 }
             }
 
