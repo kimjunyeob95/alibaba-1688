@@ -1,5 +1,6 @@
 @php
     use App\Constants\WmsConstant;
+    use App\Constants\MallConstant;
     use App\Constants\BonaeraConstant;
     use App\Models\ProductOptionData;
 @endphp
@@ -40,7 +41,7 @@
                 </li>
                 <li class="breadcrumb-item">WMS</li>
                 <li class="breadcrumb-item">입고관리</li>
-                <li class="breadcrumb-item active" aria-current="page">입고 리스트</li>
+                <li class="breadcrumb-item active" aria-current="page">입고 통신 실패 리스트</li>
             </ol>
         </nav>
 
@@ -48,28 +49,15 @@
             <div class="col-12 mb-3">
 
                 <form id="searchFrm">
-                    <input type="hidden" name="status" value={{ $status }}>
-
                     <div class="card">
                         <div class="card-header">
                             <table class="table">
                                 <tr class="align-middle">
-                                    <th style="width: 120px">입고 상태</th>
-                                    <td colspan="2">
-                                        <button type="button" name="status" class="btn-status btn btn-sm {{ $status == "" ? "btn-primary" : "btn-dark" }}"
-                                        value="">전체</button>
-                                        @foreach (BonaeraConstant::WAREHOUSE_STATUS as $key => $value)    
-                                            <button type="button" name="status" class="btn-status btn btn-sm {{ $status == $key ? "btn-primary" : "btn-dark" }}"
-                                            value="{{ $key }}">{{ $value }}</button>
-                                        @endforeach
-                                    </td>
-                                </tr>
-                                <tr class="align-middle">
                                     <th style="width: 120px">기간</th>
                                     <td style="width: 200px">
                                         <select class="form-select" name="time_cls">
-                                            <option value="create" @if($timeCls == "create") selected @endif>입고 신청일</option>
-                                            <option value="complete" @if($timeCls == "complete") selected @endif>입고 완료일</option>
+                                            <option value="create" @if($timeCls == "create") selected @endif>주문 생성일</option>
+                                            <option value="modi" @if($timeCls == "modi") selected @endif>주문 수정일</option>
                                         </select>
                                     </td>
                                     <td>
@@ -84,13 +72,26 @@
                                     <th style="width: 120px">검색</th>
                                     <td style="width: 200px">
                                         <select class="form-select" name="search_cls">
-                                            @foreach (WmsConstant::IN_SEARCH_TYPE as $key => $search)
+                                            @foreach (WmsConstant::IN_FAIL_SEARCH_TYPE as $key => $search)
                                                 <option value="{{ $key }}" @if($search_cls == $key) selected @endif>{{ $search }}</option>
                                             @endforeach
                                         </select>
                                     </td>
                                     <td>
                                         <textarea class="form-control" id="keyword" name="keyword" placeholder="검색어를 입력해주세요. 다중 검색 시 ,(콤마)로 구분 지어주세요.">{!! $keyword !!}</textarea>
+                                    </td>
+                                </tr>
+                                <tr class="align-middle">
+                                    <th style="width: 120px">정렬</th>
+                                    <td style="width: 200px">
+                                        <select class="form-select" name="sort">
+                                            <option value="created_at|desc" @if($sort == "created_at|desc") selected @endif>주문 생성일 내림차순</option>
+                                            <option value="created_at|asc" @if($sort == "created_at|asc") selected @endif>주문 생성일 오름차순</option>
+                                            <option value="updated_at|desc" @if($sort == "updated_at|desc") selected @endif>주문 수정일 내림차순</option>
+                                            <option value="updated_at|asc" @if($sort == "updated_at|asc") selected @endif>주문 수정일 오름차순</option>
+                                        </select>
+                                    </td>
+                                    <td colspan="">
                                     </td>
                                 </tr>
                                 <tr class="align-middle">
@@ -118,7 +119,7 @@
 
                 <div class="mt-3 d-flex justify-content-end">
                     <div class="d-flex">
-                        <button class="btn btn-md btn-dark text-white me-2" id="btn-select">입고정보 업데이트</button>
+                        <button class="btn btn-md btn-dark text-white me-2" id="btn-select">입고신청</button>
                     </div>
                 </div>
 
@@ -132,19 +133,22 @@
                                     <input class="form-check-input" type="checkbox" id="allCheckbox">
                                 </th>
                                 <th scope="col" style="width: 1%">No</th>
-                                <th scope="col" style="width: 5%">
-                                    입고번호<br>
-                                    (W 주문번호)
+                                <th scope="col" style="width: 10%">
+                                    W 주문번호<br>
+                                    (채널 주문번호)
                                 </th>
-                                <th scope="col" style="width: 5%">채널 주문번호</th>
-                                <th scope="col" style="width: 20%">입고정보</th>
-                                <th scope="col" style="width: 5%">HS code</th>
-                                <th scope="col" style="width: 5%">배송정보</th>
-                                <th scope="col" style="width: 8%">
-                                    입고 신청일<br>
-                                    입고 완료일
+                                <th scope="col" style="width: 10%">
+                                    구매자<br>
+                                    (주문 채널)
                                 </th>
-                                <th scope="col" style="width: 5%">관리</th>
+                                <th scope="col" style="width: 20%">주문정보</th>
+                                <th scope="col" style="width: 10%">HS code</th>
+                                <th scope="col" style="width: 10%">배송정보</th>
+                                <th scope="col" style="width: 20%">
+                                    실패 사유<br>
+                                    처리 시간
+                                </th>
+                                <th scope="col" style="width: 10%">관리</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -158,52 +162,37 @@
                                         <small>{{ number_format(($paginator->total() - $offset) - $index) }}</small>
                                     </td>
                                     <td>
-                                        <small>{{ $data->stock_no }}</small>
+                                        <small>{{ $data->order_id }}</small>
                                         <br>
-                                        <small>({{ $data->order_id }})</small>
+                                        <small>({{ $data->channel_order_id }})</small>
                                     </td>
                                     <td>
-                                        <small>{{ $data->channel_order_id }}</small>
+                                        <small>{{ $data->buyer_name }}</small>
+                                        <br>
+                                        <small>({{ MallConstant::MALL_NAME[$data->channel] }})</small>
                                     </td>
                                     <td>
                                         <small>
-                                            (<a href="https://detail.1688.com/offer/{{ $data->offer_id }}.html" target="_blank">{{ $data->offer_id }}</a>)
-                                            {{ $data->product->prd_name_kr }}
+                                            (<a href="https://detail.1688.com/offer/{{ $data->order->offer_id }}.html" target="_blank">{{ $data->order->offer_id }}</a>)
+                                            {{ $data->order->product->prd_name_kr }}
                                         </small>
                                         <div class="mt-3"></div>
-                                        @foreach ($data->in_options as $in_option)
-                                            @php
-                                                $w_option = ProductOptionData::where("id", $in_option->option_id)->first();
-                                            @endphp
-                                            @if (!empty($w_option))
-                                                <small class="d-block mt-1">
-                                                    @if ($w_option->sku_img_url)
-                                                        <img class="lazy-img preview-image" data-src="{{ $w_option->sku_img_url }}" width=30 height=30/>
-                                                    @else
-                                                        <img class="lazy-img preview-image" data-src='/assets/img/no_img.png'width=30 height=30>
-                                                    @endif
-                                                    옵션: {{ $w_option->option_name_kr}},
-                                                    @if ( $in_option->status == BonaeraConstant::WAREHOUSE_STATUS_PENDING )
-                                                        상태: <span class="bg-dark rounded text-white px-1 py-0 fs-7 small">{{ BonaeraConstant::WAREHOUSE_STATUS[$in_option->status] }}</span>,
-                                                    @elseif ( $in_option->status == BonaeraConstant::WAREHOUSE_STATUS_RECEIVED )
-                                                        상태: <span class="bg-success rounded text-white px-1 py-0 fs-7 small">{{ BonaeraConstant::WAREHOUSE_STATUS[$in_option->status] }}</span>,
-                                                    @elseif ( $in_option->status == BonaeraConstant::WAREHOUSE_STATUS_DISPOSED )
-                                                        상태: <span class="bg-danger rounded text-white px-1 py-0 fs-7 small">{{ BonaeraConstant::WAREHOUSE_STATUS[$in_option->status] }}</span>,
-                                                    @endif
-                                                    입고: {{ $in_option->quantity }}, 재고: {{ $in_option->lack_status }}
-                                                </small>
-                                            @else
-                                                <small class="d-block mt-1">
-                                                    WApp에 옵션이 없음 option_id: {{ $in_option->option_id }}
-                                                </small>
-                                            @endif
+                                        @foreach ($data->w_options as $w_option)
+                                            <small class="d-block mt-1">
+                                                @if ($w_option->option->sku_img_url)
+                                                    <img class="lazy-img preview-image" data-src="{{ $w_option->option->sku_img_url }}" width=30 height=30/>
+                                                @else
+                                                    <img class="lazy-img preview-image" data-src='/assets/img/no_img.png'width=30 height=30>
+                                                @endif
+                                                옵션: {{ $w_option->option->option_name_kr}}
+                                            </small>
                                         @endforeach
                                     </td>
                                     <td>
-                                        @if( empty($data->in_options) )
+                                        @if( empty($data->hs_code) )
                                             <button class="btn btn-sm btn-success btn-code text-white" data-id={{ $data->id }}>HS code 등록</button>
                                         @else
-                                            <button class="btn btn-sm btn-success btn-code text-white" data-id={{ $data->id }}>{{ $data->in_options[0]->hs_code }}</span>
+                                            <span class="btn text-white bg-success">{{ $data->hs_code }}</span>
                                         @endif
                                     </td>
                                     <td>
@@ -219,17 +208,14 @@
                                         @endif
                                     </td>
                                     <td>
-                                        <small>
-                                            {{ $data->created_at }}
-                                            <br>
-                                            {{ $data->completed_at }}
-                                        </small>
+                                        <small class="text-danger">{{ $data->msg }}</small>
+                                        <br>
+                                        <small>{{ $data->updated_at }}</small>
                                     </td>
                                     <td>
                                         <div class="d-flex flex-column gap-2">
-                                            <button class="btn btn-sm btn-dark btn-update text-white" data-id={{ $data->id }}>입고정보<br>업데이트</button>
-                                            <button class="btn btn-sm btn-primary btn-in-detail text-white" data-stockno={{ $data->stock_no }}>입고상세</button>
                                             <button class="btn btn-sm btn-success btn-wapp-detail text-white" orderid={{ $data->order_id }}>주문 상세</button>
+                                            <button class="btn btn-sm btn-dark btn-regist text-white" data-id={{ $data->id }}>입고신청</button>
                                         </div>
                                     </td>
                                 </tr>
@@ -397,16 +383,15 @@
     </div>
 <script type="text/javascript">
     $(document).ready(function() {
+
         $("#form-submit").click(function(){
             $("#searchFrm").submit();
         });
 
-        $(".btn-status").click(function(){
-            let name  = $(this).attr("name");
-            let value = $(this).val();
-
-            $(`input[name=${name}]`).val(value);
-            $("#searchFrm").submit();
+        $('.btn-wapp-detail').click(function(){
+            let orderId = $(this).attr("orderid");
+            var newTab  = window.open(`/wapp/order/edit/${orderId}`, '_blank');
+            newTab.focus(); 
         });
 
         $(".htmlModalClose").click(function(){
@@ -416,11 +401,12 @@
             $("#htmlModal2").modal('hide');
         });
 
-        $('.btn-wapp-detail').click(function(){
-            let orderId = $(this).attr("orderid");
-            var newTab  = window.open(`/wapp/order/edit/${orderId}`, '_blank');
-            newTab.focus(); 
-        });
+        $(".btn-code").click(function(){
+            let ids = [$(this).data("id")];
+            $('input[name="select_ids[]"]').val(ids);
+
+            hsCodeListLoad(1, true);
+        })
 
         $('.btn-delivery').click(function(){
             let orderId = $(this).attr("orderid");
@@ -528,80 +514,12 @@
                 return alert("선택 된 정보가 없습니다.");
             }
 
-            if(confirm(`${ids.length}건의 입고정보를 업데이트 하시겠습니까?`)){
-                $("#loadingOverlay").show();
+            if(confirm(`${ids.length}건을 입고신청 하시겠습니까?`)){
                 $.ajax({
                     "headers" : {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
                     "type"    : "POST",
-                    "url"     : "{{ route('w.wms.bonaeraInUpdate') }}",
+                    "url"     : "{{ route('w.wms.bonaeraInFailCreate') }}",
                     "data"    : { ids: ids },
-                    beforeSend: function () {},
-                    complete  : function(xhr, status) {
-                        $("#loadingOverlay").hide();
-                    },
-                    success : function (resp) {
-                        alert(resp.msg);
-                    },
-                    error: function (request) {
-                        let { error } = JSON.parse(request.responseText);
-                        alert(error.message);
-                    }
-                });
-            }
-        });
-
-        $(".btn-in-detail").click(function(){
-            let stockno     = $(this).data("stockno");
-            var newTab = window.open(`/wapp/wms/in/${stockno}`, '_blank');
-            newTab.focus(); 
-        })
-
-        $(".btn-update").click(function(){
-            let ids = [$(this).data("id")];
-
-            if(confirm(`입고정보를 업데이트 하시겠습니까?`)){
-                $("#loadingOverlay").show();
-                $.ajax({
-                    "headers" : {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
-                    "type"    : "POST",
-                    "url"     : "{{ route('w.wms.bonaeraInUpdate') }}",
-                    "data"    : { ids: ids },
-                    beforeSend: function () {},
-                    complete  : function(xhr, status) {
-                        $("#loadingOverlay").hide();
-                    },
-                    success : function (resp) {
-                        alert(resp.msg);
-                    },
-                    error: function (request) {
-                        let { error } = JSON.parse(request.responseText);
-                        alert(error.message);
-                    }
-                });
-            }
-        });
-
-        $(".btn-code").click(function(){
-            let ids = [$(this).data("id")];
-            $('input[name="select_ids[]"]').val(ids);
-
-            hsCodeListLoad(1, true);
-        });
-
-        $('.btn-hs-search').click(function(){
-            hsCodeListLoad(1);
-        });
-
-        $(document).on("click", ".btn-apply", function(){
-            let ids    = $('input[name="select_ids[]"]').val().split(",");
-            let hsCode = $(this).data("code");
-
-            if(confirm(`해당 HS code로 적용하시겠습니까?`)){
-                $.ajax({
-                    "headers" : {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
-                    "type"    : "POST",
-                    "url"     : "{{ route('w.wms.bonaeraInHscodeUpdate') }}",
-                    "data"    : { ids: ids, hs_code: hsCode },
                     beforeSend: function () {
                         $("#loadingOverlay").show();
                     },
@@ -618,6 +536,64 @@
                     }
                 });
             }
+        });
+
+        $(".btn-regist").click(function(){
+            let ids = [$(this).data("id")];
+
+            if(confirm(`입고신청 하시겠습니까?`)){
+                $.ajax({
+                    "headers" : {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
+                    "type"    : "POST",
+                    "url"     : "{{ route('w.wms.bonaeraInFailCreate') }}",
+                    "data"    : { ids: ids },
+                    beforeSend: function () {
+                        $("#loadingOverlay").show();
+                    },
+                    complete  : function(xhr, status) {
+                        $("#loadingOverlay").hide();
+                    },
+                    success : function (resp) {
+                        alert(resp.msg);
+                        location.reload();
+                    },
+                    error: function (request) {
+                        let { error } = JSON.parse(request.responseText);
+                        alert(error.message);
+                    }
+                });
+            }
+        });
+
+        $(document).on("click", ".btn-apply", function(){
+            let ids    = $('input[name="select_ids[]"]').val().split(",");
+            let hsCode = $(this).data("code");
+
+            if(confirm(`해당 HS code로 적용하시겠습니까?`)){
+                $("#loadingOverlay").show();
+                $.ajax({
+                    "headers" : {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
+                    "type"    : "POST",
+                    "url"     : "{{ route('w.wms.bonaeraInFailHscodeUpdate') }}",
+                    "data"    : { ids: ids, hs_code: hsCode},
+                    beforeSend: function () {},
+                    complete  : function(xhr, status) {
+                        $("#loadingOverlay").hide();
+                    },
+                    success : function (resp) {
+                        alert(resp.msg);
+                        location.reload();
+                    },
+                    error: function (request) {
+                        let { error } = JSON.parse(request.responseText);
+                        alert(error.message);
+                    }
+                });
+            }
+        });
+
+        $('.btn-hs-search').click(function(){
+            hsCodeListLoad(1);
         });
 
         function hsCodeListLoad(page = 1, modalShow = false) {

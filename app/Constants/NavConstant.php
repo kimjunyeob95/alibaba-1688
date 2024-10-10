@@ -35,10 +35,12 @@ class NavConstant
     public const ADMIN_MANAGE             = "관리자 관리";
     public const ADMIN_REGIST             = "관리자 등록";
 
-    public const WMS               = "WMS";
-    public const WMS_HSCODE_MANAGE = "HS code 관리";
-    public const WMS_IN_MANAGE     = "입고관리";
-    public const WMS_OUT_MANAGE    = "출고관리";
+    public const WMS                     = "WMS";
+    public const WMS_HSCODE_MANAGE       = "HS code 관리";
+    public const WMS_IN_MANAGE           = "입고관리";
+    public const WMS_IN_MANAGE_LIST      = "입고 리스트";
+    public const WMS_IN_MANAGE_FAIL_LIST = "입고 통신 실패 리스트";
+    public const WMS_OUT_MANAGE          = "출고관리";
 
     public const CHANNEL_MANAGE            = "채널 관리";
     public const CHANNEL_PRODUCT_MANAGE    = "상품 전송 현황";
@@ -98,7 +100,10 @@ class NavConstant
         ],
         self::WMS => [
             self::WMS_HSCODE_MANAGE => "/wapp/wms/hscode",
-            self::WMS_IN_MANAGE     => "/wapp/wms/in",
+            self::WMS_IN_MANAGE     => [
+                self::WMS_IN_MANAGE_LIST      => "/wapp/wms/in",
+                self::WMS_IN_MANAGE_FAIL_LIST => "/wapp/wms/in/fail",
+            ],
             self::WMS_OUT_MANAGE    => "/wapp/wms/out",
         ],
         self::CHANNEL_MANAGE => [

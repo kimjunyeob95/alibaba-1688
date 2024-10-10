@@ -58,7 +58,7 @@ class WmsController extends Controller
         $timeCls    = $this->request->get("time_cls", "");
         $startTime  = $this->request->get("start_time", "");
         $endTime    = $this->request->get("end_time", "");
-        $search_cls = $this->request->get("search_cls", WmsConstant::HSCODE_SEARCH_TYPE_KO);
+        $search_cls = $this->request->get("search_cls", WmsConstant::IN_SEARCH_TYPE_STOCK_NO);
         $keyword    = $this->request->get("keyword", "");
         $sort       = $this->request->get("sort", "created_at|desc");
 
@@ -89,6 +89,46 @@ class WmsController extends Controller
             "pageSize"   => (int) $pageSize,
         ];
         return view("wms.inList")->with($viewParams);
+    }
+
+    public function inFailList(): View
+    {
+        $page       = $this->request->get("page", 1);
+        $pageSize   = $this->request->get("pageSize", 50);
+        $pageSize   = $pageSize > 500 ? 500 : $pageSize;
+        $timeCls    = $this->request->get("time_cls", "");
+        $startTime  = $this->request->get("start_time", "");
+        $endTime    = $this->request->get("end_time", "");
+        $search_cls = $this->request->get("search_cls", WmsConstant::IN_SEARCH_TYPE_ORDER_ID);
+        $keyword    = $this->request->get("keyword", "");
+        $sort       = $this->request->get("sort", "created_at|desc");
+
+        $pageSize = $pageSize > 500 ? 500 : $pageSize;
+        $offset   = ($page - 1) * $pageSize;
+
+        $params = [
+            "page"       => $page,
+            "pageSize"   => $pageSize,
+            "timeCls"    => $timeCls,
+            "startTime"  => $startTime,
+            "endTime"    => $endTime,
+            "search_cls" => $search_cls,
+            "keyword"    => $keyword,
+            "sort"       => $sort,
+        ];
+        $result     = $this->wmsService->inFailList($params);
+        $viewParams = [
+            "timeCls"    => $timeCls,
+            "startTime"  => $startTime,
+            "endTime"    => $endTime,
+            "search_cls" => $search_cls,
+            "sort"       => $sort,
+            "keyword"    => $keyword,
+            "paginator"  => $result["data"],
+            "offset"     => (int) $offset,
+            "pageSize"   => (int) $pageSize,
+        ];
+        return view("wms.inFailList")->with($viewParams);
     }
 
     public function inDetail(string $stockNo): View

@@ -5,7 +5,7 @@ namespace App\Constants;
 
 class BonaeraConstant
 {
-    public const USER_ID = "korea";
+    public const USER_ID = "sellerhub";
 
     /** 입고상태 */
     public const WAREHOUSE_STATUS_PENDING  = "1001";

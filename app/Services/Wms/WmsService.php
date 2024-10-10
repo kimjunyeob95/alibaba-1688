@@ -38,15 +38,26 @@ class WmsService
    }
 
    /**
+    * @func inFailList
+    * @description '입고 실패 리스트'
+    * @param array $params
+    * @return array
+    */
+   public function inFailList(array $params): array
+   {
+      return $this->wmsAbstract->inFailList($params);
+   }
+
+   /**
     * @func apiHsCodeList
     * @description 'HS code 라스트'
     * @param array $params
     * @return array
     */
-    public function apiHsCodeList(array $params): array
-    {
-       return $this->wmsAbstract->apiHsCodeList($params);
-    }
+   public function apiHsCodeList(array $params): array
+   {
+      return $this->wmsAbstract->apiHsCodeList($params);
+   }
 
    /**
     * @func getTariff
@@ -57,6 +68,41 @@ class WmsService
    public function getTariff(string $hsCode): array
    {
       return $this->wmsAbstract->getTariff($hsCode);
+   }
+
+   /**
+    * @func bonaeraInHscodeUpdate
+    * @description '입고성공 HS code 적용'
+    * @param array $ids
+    * @param string $hsCode
+    * @return array
+    */
+   public function bonaeraInHscodeUpdate(array $ids, string $hsCode): array
+   {
+      return $this->wmsAbstract->bonaeraInHscodeUpdate($ids, $hsCode);
+   }
+
+   /**
+    * @func bonaeraInFailHscodeUpdate
+    * @description '입고실패 HS code 적용'
+    * @param array $ids
+    * @param string $hsCode
+    * @return array
+    */
+   public function bonaeraInFailHscodeUpdate(array $ids, string $hsCode): array
+   {
+      return $this->wmsAbstract->bonaeraInFailHscodeUpdate($ids, $hsCode);
+   }
+
+   /**
+    * @func bonaeraInFailCreate
+    * @description '입고실패 데이터 입고신청'
+    * @param int $id
+    * @return void
+    */
+   public function bonaeraInFailCreate(int $id): void
+   {
+      $this->wmsAbstract->bonaeraInFailCreate($id);
    }
 
    /**

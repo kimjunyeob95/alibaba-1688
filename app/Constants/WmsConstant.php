@@ -26,6 +26,16 @@ class WmsConstant
         self::IN_SEARCH_TYPE_CHANNEL_ORDER_ID => "채널 주문번호",
     ];
 
+    /** 입고 요청 실패 검색종류 */
+    public const IN_FAIL_SEARCH_TYPE_ORDER_ID         = "order_id";
+    public const IN_FAIL_SEARCH_TYPE_CHANNEL_ORDER_ID = "channel_order_id";
+    public const IN_FAIL_SEARCH_TYPE_OFFER_ID         = "offer_id";
+    public const IN_FAIL_SEARCH_TYPE                  = [
+        self::IN_FAIL_SEARCH_TYPE_ORDER_ID         => "W 주문번호",
+        self::IN_FAIL_SEARCH_TYPE_CHANNEL_ORDER_ID => "채널 주문번호",
+        self::IN_FAIL_SEARCH_TYPE_OFFER_ID         => "제품ID",
+    ];
+
     /** 출고관리 검색종류 */
     public const OUT_SEARCH_TYPE_GROUP_NO         = "group_no";
     public const OUT_SEARCH_TYPE_SH_NO            = "sh_no";
