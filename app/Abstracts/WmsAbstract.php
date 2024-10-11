@@ -111,6 +111,14 @@ abstract class WmsAbstract
     abstract function bonaeraInUpdate(int $id): void;
 
     /**
+    * @func bonaeraOutCreate
+    * @description '출고신청'
+    * @param int $id
+    * @return void
+    */
+    abstract function bonaeraOutCreate(int $id): void;
+
+    /**
     * @func bonaeraOutUpdate
     * @description '출고정보 업데이트'
     * @param int $id
@@ -125,6 +133,14 @@ abstract class WmsAbstract
     * @return array
     */
     abstract function inDetail(string $stockNo): array;
+
+    /**
+    * @func outSignList
+    * @description '출고 신청관리'
+    * @param array $params
+    * @return array
+    */
+    abstract function outSignList(array $params): array;
 
     /**
     * @func outList

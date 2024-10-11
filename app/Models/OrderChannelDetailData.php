@@ -19,4 +19,9 @@ class OrderChannelDetailData extends Model
     {
         return $this->belongsTo(OrderChannelData::class, 'id', 'order_channel_id');
     }
+
+    public function option()
+    {
+        return $this->hasOne(ProductOptionData::class, 'id', 'option_id');
+    }
 }

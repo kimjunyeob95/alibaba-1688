@@ -5,6 +5,7 @@ namespace App\Services\Wms;
 use App\Abstracts\WmsAbstract;
 use App\Constants\BonaeraConstant;
 use App\Constants\BonaeraErrorMessageConstant;
+use App\Constants\OrderErrorMessageConstant;
 use App\Constants\WmsConstant;
 use App\Models\BonaeraInBaseData;
 use App\Models\BonaeraInFailData;
@@ -14,6 +15,7 @@ use App\Models\BonaeraOutBaseData;
 use App\Models\BonaeraOutDeliveryData;
 use App\Models\BonaeraOutWeightData;
 use App\Models\HsCodeData;
+use App\Models\OrderChannelData;
 use App\Packages\Bonaera;
 use Carbon\Carbon;
 use Exception;
@@ -325,7 +327,7 @@ class WmsW1 extends WmsAbstract
         try {
             $inBaseObj = BonaeraInBaseData::where("id", $id)->first();
             if( $inBaseObj == null ){
-                throw new Exception(BonaeraErrorMessageConstant::getNotHaveErrorMessage("BONAERA_BASE_DATA"));
+                throw new Exception(BonaeraErrorMessageConstant::getNotHaveErrorMessage("BONAERA_IN_BASE_DATA"));
             }
 
             $res = $this->bonaera->getStockList($inBaseObj->stock_no);
@@ -402,6 +404,95 @@ class WmsW1 extends WmsAbstract
             $returnMsg = helpers_fail_message($e->getMessage());
         }
 
+        return $returnMsg;
+    }
+
+    public function outSignList(array $params): array
+    {
+        $returnMsg = $this->returnMsg;
+
+        try {
+            $pageSize   = $params["pageSize"];
+            $status     = $params["status"];
+            $timeCls    = $params["timeCls"];
+            $startTime  = $params["startTime"];
+            $endTime    = $params["endTime"];
+            $search_cls = $params["search_cls"];
+            $keyword    = $params["keyword"];
+            $sortArr    = explode("|", $params["sort"]);
+
+            $builder = OrderChannelData::select([
+                "order_channel_datas.*",
+                "obd.channel",
+                "bobd.sh_no",
+                "bobd.group_no",
+                "bobd.created_at as out_created_at",
+                "bofd.updated_at as fail_updated_at",
+                "bofd.msg",
+            ])
+            ->with(["details.option", "boneara_in_base.in_options", "order.product"])
+            ->join("order_base_datas as obd", "order_channel_datas.order_id", "=", "obd.order_id")
+            ->leftJoin("bonaera_out_base_datas as bobd", "order_channel_datas.order_id", "=", "bobd.order_id")
+            ->leftJoin("bonaera_out_fail_datas as bofd", "order_channel_datas.order_id", "=", "bofd.order_id")
+            ->orderBy("order_channel_datas." . $sortArr[0], $sortArr[1]);
+
+            if( !empty($status) ){
+                if( $status == WmsConstant::OUT_SIGN_STATUS_SUCCESS ){
+                    $builder->whereNotNull("bobd.sh_no");
+                } else if( $status == WmsConstant::OUT_SIGN_STATUS_FAIL ){
+                    $builder->whereNull("bobd.sh_no")
+                    ->whereNotNull("bofd.msg");
+                } else if( $status == WmsConstant::OUT_SIGN_STATUS_WAIT ){
+                    $builder->whereNull("bobd.sh_no")
+                    ->whereNull("bofd.msg");
+                }
+            }
+            if( !empty($timeCls) ){
+                if( $timeCls == "create" ){
+                    if( !empty($startTime) ) {
+                        $builder->where("order_channel_datas.created_at", ">=", $startTime . " 00:00:00");
+                    }
+                    if( !empty($endTime) ) {
+                        $builder->where("order_channel_datas.created_at", "<=", $endTime . " 23:59:59");
+                    }
+                } else if( $timeCls == "modi" ){
+                    if( !empty($startTime) ) {
+                        $builder->where("order_channel_datas.updated_at", ">=", $startTime . " 00:00:00");
+                    }
+                    if( !empty($endTime) ) {
+                        $builder->where("order_channel_datas.updated_at", "<=", $endTime . " 23:59:59");
+                    }
+                }
+            }
+            if( !empty($keyword) ){
+                $keyword = preg_replace("/(\r\n|\r|\n)/", ",", trim($keyword));
+                $keyword = explode(",", $keyword);
+                // 각 배열 요소의 앞뒤 공백 제거
+                $keyword = array_map('trim', $keyword);
+                // 빈 값을 제거
+                $keyword = array_filter($keyword);
+                // 중복 제거
+                $keyword = array_unique($keyword);
+
+                if( $search_cls == WmsConstant::OUT_SIGN_SEARCH_TYPE_ORDER_ID ){
+                    $builder->whereIn("order_channel_datas.order_id", $keyword);
+                } else if( $search_cls == WmsConstant::OUT_SIGN_SEARCH_TYPE_CHANNEL_ORDER_ID ){
+                    $builder->whereIn("order_channel_datas.channel_order_id", $keyword);
+                } else if( $search_cls == WmsConstant::OUT_SIGN_SEARCH_TYPE_STOCK_NO ){
+                    $builder->whereIn("bobd.stock_no", $keyword);
+                } else if( $search_cls == WmsConstant::OUT_SIGN_SEARCH_TYPE_SH_NO ){
+                    $builder->whereIn("bobd.sh_no", $keyword);
+                } else if( $search_cls == WmsConstant::OUT_SIGN_SEARCH_TYPE_GROUP_NO ){
+                    $builder->whereIn("bobd.group_no", $keyword);
+                }
+            }
+
+            $lists     = $builder->paginate($pageSize)->appends($params);
+            // dd($lists->toArray());
+            $returnMsg = helpers_success_message($lists);
+        } catch (Exception $e) {
+            $returnMsg = helpers_fail_message($e->getMessage());
+        }
         return $returnMsg;
     }
 
@@ -509,12 +600,27 @@ class WmsW1 extends WmsAbstract
         return $returnMsg;
     }
 
+    public function bonaeraOutCreate(int $id): void
+    {
+        try {
+            $channelObj = OrderChannelData::where("id", $id)->first();
+            if( $channelObj === null ){
+                throw new Exception(OrderErrorMessageConstant::getNotHaveErrorMessage("ORDER_CHANNEL"));
+            }
+
+            $this->bonaera->createApplicationApi($channelObj->order_id);
+        } catch (Exception $e) {
+            $msg = "error: " . $e->getMessage();
+            debug_log($msg, "boneara/bonaeraOutCreate", "bonaeraOutCreate");
+        }
+    }
+
     public function bonaeraOutUpdate(int $id): void
     {
         try {
             $baseObj = BonaeraOutBaseData::where("id", $id)->first();
             if( $baseObj == null ){
-                throw new Exception(BonaeraErrorMessageConstant::getNotHaveErrorMessage("BONAERA_BASE_DATA"));
+                throw new Exception(BonaeraErrorMessageConstant::getNotHaveErrorMessage("BONAERA_IN_BASE_DATA"));
             }
 
             $groupNo = $baseObj->group_no;
