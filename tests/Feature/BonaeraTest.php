@@ -4,11 +4,13 @@ namespace Tests\Feature;
 
 use App\Constants\BonaeraConstant;
 use App\Models\BonaeraInBaseData;
+use App\Models\BonaeraInFailData;
 use App\Models\BonaeraInProductData;
 use App\Models\BonaeraOutBaseData;
 use App\Models\BonaeraOutDeliveryData;
 use App\Models\BonaeraOutProductData;
 use App\Models\BonaeraOutWeightData;
+use App\Models\HsCodeData;
 use App\Models\OrderBaseData;
 use App\Models\OrderChannelData;
 use App\Models\OrderChannelDetailData;
@@ -17,6 +19,8 @@ use App\Models\OrderProductData;
 use App\Models\ProductData;
 use App\Models\ProductImageData;
 use App\Models\ProductOptionData;
+use Exception;
+use Illuminate\Support\Facades\File;
 use Tests\TestCase;
 
 class BonaeraTest extends TestCase
@@ -93,6 +97,10 @@ class BonaeraTest extends TestCase
         //       ]
         //     ]
         // ];
+        // $result = [
+        //     "code" => "2",
+        //     "message" => "필수값 itemList[0] trackingNumber 누락되었습니다."
+        // ];
 
         if( isset($result["stockNo"]) && isset($result["item"]) && !empty($result["item"]) ){
             $stockNo = $result["stockNo"];
@@ -133,6 +141,20 @@ class BonaeraTest extends TestCase
                     ]
                 );
             }
+        } else {
+            $msg = "보내라 입고신청 API 에러";
+            if( isset($result["message"]) ){
+                $msg = $result["message"];
+            }
+
+            BonaeraInFailData::updateOrCreate(
+                [
+                    "order_id" => $order_id,
+                ],
+                [
+                    "msg" => $msg
+                ]
+            );
         }
 
         dd(json_encode($payload, JSON_UNESCAPED_UNICODE), $result);
@@ -341,5 +363,29 @@ class BonaeraTest extends TestCase
         $result = helpers_curl("GET", $endPoint, $header, $payload);
         
        dd($result);
+    }
+
+    # php artisan test --filter testMappingHsCode
+    public function testMappingHsCode()
+    {
+        $filePath = public_path('app/hs_code_mapping.txt');
+        if (!File::exists($filePath)) {
+            throw new Exception("파일이 존재하지 않습니다.");
+        }
+
+        $lines = File::lines($filePath);
+        foreach($lines as $key => $line){
+            $data    = explode(',', $line);
+            $hs_code = $data[0];
+            $sh_no   = $data[1];
+            
+            HsCodeData::updateOrCreate([
+                "hs_code" => $hs_code,
+            ],[
+                'sh_no'   => $sh_no,
+            ]);
+        }
+
+        dd("끝");
     }
 }

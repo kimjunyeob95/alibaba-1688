@@ -92,6 +92,88 @@ class WAppWmsController extends Controller
         }
     }
 
+    public function bonaeraInHscodeUpdate(): JsonResponse
+    {
+        try {
+            $validator = Validator::make($this->request->all(), [
+                'ids'     => 'required|array',
+                'hs_code' => 'required|string',
+            ], [
+                'ids.required'     => WmsErrorMessageConstant::getNotHaveErrorMessage("IDS"),
+                'hs_code.required' => WmsErrorMessageConstant::getNotHaveErrorMessage("HS_CODE"),
+            ]);
+            if ($validator->fails()) {
+                throw new Exception($validator->errors()->first());
+            }
+
+            $ids    = $this->request->post("ids");
+            $hsCode = $this->request->post("hs_code");
+            $result = $this->wmsService->bonaeraInHscodeUpdate($ids, $hsCode);
+
+            if( $result["isSuccess"] == true ){
+                return helpers_json_response(HttpConstant::OK, $result);
+            } else {
+                return helpers_json_response(HttpConstant::BAD_REQUEST, [], $result["msg"]);
+            }
+        } catch (Exception $e) {
+            return helpers_json_response(HttpConstant::BAD_REQUEST, [], $e->getMessage());
+        }
+    }
+
+    public function bonaeraInFailHscodeUpdate(): JsonResponse
+    {
+        try {
+            $validator = Validator::make($this->request->all(), [
+                'ids'     => 'required|array',
+                'hs_code' => 'required|string',
+            ], [
+                'ids.required'     => WmsErrorMessageConstant::getNotHaveErrorMessage("IDS"),
+                'hs_code.required' => WmsErrorMessageConstant::getNotHaveErrorMessage("HS_CODE"),
+            ]);
+            if ($validator->fails()) {
+                throw new Exception($validator->errors()->first());
+            }
+
+            $ids    = $this->request->post("ids");
+            $hsCode = $this->request->post("hs_code");
+            $result = $this->wmsService->bonaeraInFailHscodeUpdate($ids, $hsCode);
+
+            if( $result["isSuccess"] == true ){
+                return helpers_json_response(HttpConstant::OK, $result);
+            } else {
+                return helpers_json_response(HttpConstant::BAD_REQUEST, [], $result["msg"]);
+            }
+        } catch (Exception $e) {
+            return helpers_json_response(HttpConstant::BAD_REQUEST, [], $e->getMessage());
+        }
+    }
+
+    public function bonaeraInFailCreate(): JsonResponse
+    {
+        try {
+            $validator = Validator::make($this->request->all(), [
+                'ids' => 'required|array',
+            ], [
+                'ids.required' => 'ids를 입력하세요.',
+            ]);
+            if ($validator->fails()) {
+                throw new Exception($validator->errors()->first());
+            }
+
+            $ids = $this->request->post("ids");
+            $options  = "--func=bonaeraInFailCreate --ids=" . helperEscape(implode(",", $ids));
+            $command  = "nohup " . $this->phpAlias . " artisan wms_command " . $options . " > /dev/null 2>&1 &";
+            $process  = Process::fromShellCommandline($command);
+            $process->setWorkingDirectory(env("WORK_DIRECTORY", "/web1/1688"));
+            $process->setTimeout(null); // 실행 시간 제한 없음
+            $process->start();
+
+            return helpers_json_response(HttpConstant::OK, helpers_success_message([], "입고신청 요청 완료\r\n처리 건이 많을 경우 업데이트에 시간이 소요될 수 있습니다."));
+        } catch (Exception $e) {
+            return helpers_json_response(HttpConstant::BAD_REQUEST, [], $e->getMessage());
+        }
+    }
+
     public function bonaeraInUpdate(): JsonResponse
     {
         try {

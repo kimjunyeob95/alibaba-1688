@@ -8,7 +8,9 @@ use App\Constants\ImageConstant;
 use App\Constants\OrderErrorMessageConstant;
 use App\Constants\ProductConstant;
 use App\Models\BonaeraInBaseData;
+use App\Models\BonaeraInFailData;
 use App\Models\BonaeraInProductData;
+use App\Models\HsCodeData;
 use App\Models\OrderBaseData;
 use App\Models\OrderChannelData;
 use App\Models\OrderLogisticsData;
@@ -38,10 +40,8 @@ class Bonaera
     }
 
     /** 입고신청 */
-    public function createStockApi(string $orderId): array
+    public function createStockApi(string $orderId): void
     {
-        $returnMsg = $this->returnMsg;
-        
         $endPoint = $this->domain . '/elpisapi/stock_api.php';
     
         try {
@@ -50,7 +50,7 @@ class Bonaera
             if( $inBaseObj === null ){
                 $orderObj = OrderBaseData::where("order_id", $orderId)->first();
                 if( $orderObj == null ){
-                    throw new Exception(OrderErrorMessageConstant::getNotHaveErrorMessage("ORDER"));   
+                    throw new Exception(OrderErrorMessageConstant::getNotHaveErrorMessage("ORDER"));
                 }
                 $orderChannelObj = OrderChannelData::where("order_id", $orderId)->first();
                 if( $orderChannelObj == null ){
@@ -74,7 +74,21 @@ class Bonaera
                 
                 $itemList    = [];
                 $optList     = [];
-                $productShno = "444";
+                $productShno = "";
+
+                $inFailObj = BonaeraInFailData::where("order_id", $orderId)->first();
+                if( $inFailObj !== null ){
+                    if( empty($inFailObj->hs_code ) ){
+                        throw new Exception(BonaeraErrorMessageConstant::getNotHaveErrorMessage("HS_CODE"));
+                    }
+
+                    $hsCodeObj   = HsCodeData::where("hs_code", $inFailObj->hs_code)->first();
+                    $productShno = $hsCodeObj->sh_no ?? "";
+                }
+
+                if( empty($productShno) ){
+                    throw new Exception(BonaeraErrorMessageConstant::getNotHaveErrorMessage("PRODUCTSHNO"));
+                }
                 
                 foreach ($orderPrdObjs as $orderPrdObj) {
                     $skuId  = $orderPrdObj->sku_id;
@@ -153,26 +167,40 @@ class Bonaera
                                 );
                             }
 
+                            BonaeraInFailData::where("order_id", $orderId)->forceDelete();
+                            
                             DB::commit();
                         } catch (Exception $dbError) {
                             DB::rollBack();
                             throw new Exception($dbError->getMessage());   
                         }
-
-                        $returnMsg = helpers_success_message($result);
+                    } else {
+                        $msg = "보내라 입고신청 API 에러";
+                        if( isset($result["message"]) ){
+                            $msg = $result["message"];
+                        }
+                        throw new Exception($msg);
                     }
                 } else {
                     throw new Exception(BonaeraErrorMessageConstant::getNotHaveErrorMessage("ITEMLIST"));
-                    
                 }
             }
         } catch (Exception $e) {
-            $returnMsg = helpers_fail_message($e->getMessage());
-            $erroMsg   = "error: " . $e->getMessage();
-            debug_log($erroMsg, "boneara/createStockApi", "createStockApi");
-        }
+            $errorMsg = $e->getMessage();
 
-        return $returnMsg;
+            if( BonaeraInFailData::where("order_id", $orderId)->exists() ){
+                BonaeraInFailData::where("order_id", $orderId)->update([
+                    "msg" => $errorMsg
+                ]);
+            } else {
+                BonaeraInFailData::create([
+                    "order_id" => $orderId,
+                    "hs_code"  => "",
+                    "msg"      => $errorMsg
+                ]);
+            }
+            debug_log($errorMsg . " | order_id: " . $orderId, "boneara/createStockApi", "createStockApi");
+        }
     }
 
     /** 재고현황 조회 */

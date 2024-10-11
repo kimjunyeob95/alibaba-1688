@@ -34,6 +34,14 @@ abstract class WmsAbstract
     abstract function inList(array $params): array;
 
     /**
+    * @func inFailList
+    * @description '입고 실패 리스트'
+    * @param array $params
+    * @return array
+    */
+    abstract function inFailList(array $params): array;
+
+    /**
     * @func apiHsCodeList
     * @description 'HS code 라스트'
     * @param array $params
@@ -53,10 +61,10 @@ abstract class WmsAbstract
         $pageSize  = $paginator->perPage();
   
         return [
-           "result"   => $datas,
-           "lastPage" => $lastPage,
-           "page"     => $page,
-           "pageSize" => (int)$pageSize,
+           "result"    => $datas,
+           "last_page" => $lastPage,
+           "page"      => $page,
+           "page_size" => (int)$pageSize,
         ];
     }
 
@@ -67,6 +75,32 @@ abstract class WmsAbstract
     * @return array
     */
     abstract function getTariff(string $hsCode): array;
+
+    /**
+    * @func bonaeraInHscodeUpdate
+    * @description '입고성공 HS code 적용'
+    * @param array $ids
+    * @param string $hsCode
+    * @return array
+    */
+    abstract function bonaeraInHscodeUpdate(array $ids, string $hsCode): array;
+
+    /**
+    * @func bonaeraInFailHscodeUpdate
+    * @description '입고실패 HS code 적용'
+    * @param array $ids
+    * @param string $hsCode
+    * @return array
+    */
+    abstract function bonaeraInFailHscodeUpdate(array $ids, string $hsCode): array;
+
+    /**
+    * @func bonaeraInFailCreate
+    * @description '입고실패 데이터 입고신청'
+    * @param int $id
+    * @return void
+    */
+    abstract function bonaeraInFailCreate(int $id): void;
 
     /**
     * @func bonaeraInUpdate
