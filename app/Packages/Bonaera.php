@@ -10,9 +10,13 @@ use App\Constants\ProductConstant;
 use App\Models\BonaeraInBaseData;
 use App\Models\BonaeraInFailData;
 use App\Models\BonaeraInProductData;
+use App\Models\BonaeraOutBaseData;
+use App\Models\BonaeraOutFailData;
+use App\Models\BonaeraOutProductData;
 use App\Models\HsCodeData;
 use App\Models\OrderBaseData;
 use App\Models\OrderChannelData;
+use App\Models\OrderChannelDetailData;
 use App\Models\OrderLogisticsData;
 use App\Models\OrderProductData;
 use App\Models\ProductData;
@@ -232,7 +236,165 @@ class Bonaera
         return $returnMsg;
     }
 
-    /** 신청소 조회 */
+    /** 출고신청 */
+    public function createApplicationApi(string $orderId): void
+    {
+        $endPoint = $this->domain . '/elpisapi/application_api.php';
+    
+        try {
+            $orderBaseObj     = OrderBaseData::where("order_id", $orderId)->first();
+            $orderChannelObjs = OrderChannelData::where("order_id", $orderId)->get();
+            $inBaseObj        = BonaeraInBaseData::where("order_id", $orderId)->first();
+            $outBaseObj       = BonaeraOutBaseData::where("order_id", $orderId)->first();
+            $inPrdObjs        = BonaeraInProductData::where("order_id", $orderId)->get();
+
+            if( $orderBaseObj === null ){
+                throw new Exception(OrderErrorMessageConstant::getNotHaveErrorMessage("ORDERBASE"));
+            }
+            if( $inBaseObj === null ){
+                throw new Exception(BonaeraErrorMessageConstant::getNotHaveErrorMessage("BONAERA_IN_BASE_DATA"));
+            }
+            if( count($orderChannelObjs) < 1 ){
+                throw new Exception(BonaeraErrorMessageConstant::getNotHaveErrorMessage("ORDERCHANNELOBJS"));
+            }
+            if( count($inPrdObjs) < 1 ){
+                throw new Exception(BonaeraErrorMessageConstant::getNotHaveErrorMessage("BONAERA_IN_PRODUCT_DATA"));
+            }
+            $inStatus = true;
+            foreach ($inPrdObjs as $inPrdObj) {
+                if( $inPrdObj->status !== BonaeraConstant::WAREHOUSE_STATUS_RECEIVED ){
+                    $inStatus = false;
+                    break;
+                }
+            }
+            if( $inStatus !== true ){
+                throw new Exception(BonaeraErrorMessageConstant::getFitErrorMessage("ALL_OPTION_NOT_READY"));
+            }
+
+            if( $outBaseObj === null ){
+                foreach ($orderChannelObjs as $orderChannelObj) {
+                    $itemList = [];
+                    $optList  = [];
+        
+                    $orderId        = $orderChannelObj->order_id;
+                    $channelOrderId = $orderChannelObj->channel_order_id;
+                    $stockNo        = $inBaseObj->stock_no;
+        
+                    foreach ($inPrdObjs as $inPrdObj) {
+                        $itCode = $inPrdObj->it_code;
+        
+                        $orderChannnelDetailObj = OrderChannelDetailData::where([
+                            "order_channel_id" => $orderChannelObj->id,
+                            "option_id"        => $inPrdObj->option_id,
+                        ])->first();
+        
+                        $quantity = $orderChannnelDetailObj->quantity;
+        
+                        $itemList[] = [
+                            "stockitemCode" => $itCode,
+                            "orderNumber"   => $channelOrderId,
+                            "productCount"  => $orderChannnelDetailObj->quantity,
+                            "siteUrl"       => $inPrdObj->product_snapshot_url,
+                            "localFee"      => $orderBaseObj->shipping_fee
+                        ];
+                        $optList[] = [
+                            "option_id" => $inPrdObj->option_id,
+                            "it_code"   => $itCode,
+                            "quantity"  => $quantity,
+                        ];
+                    }
+
+                    if( empty($itemList) ){
+                        throw new Exception(BonaeraErrorMessageConstant::getNotHaveErrorMessage("ITEMLIST"));
+                    }
+                    if( empty($optList) ){
+                        throw new Exception(BonaeraErrorMessageConstant::getNotHaveErrorMessage("OPTLIST"));
+                    }
+        
+                    $payload  = [
+                        "userId"  => BonaeraConstant::USER_ID,
+                        "ctrNum"  => 2,
+                        "RecInfo" => [
+                            [
+                                "receiverName"  => $orderChannelObj->buyer_name,
+                                "zipCode"       => $orderChannelObj->buyer_zipcode,
+                                "addr1"         => $orderChannelObj->buyer_address,
+                                "addr2"         => "",
+                                "receiverPhone" => $orderChannelObj->buyer_name,
+                                "personalNum"   => $orderChannelObj->buyer_clearance_number,
+                                "shipMemo"      => $orderChannelObj->buyer_memo,
+                            ]
+                        ],
+                        "itemList" => $itemList
+                    ];
+        
+                    $result = helpers_curl("POST", $endPoint, $this->header, $payload);
+
+                    if( isset($result["groupNo"]) && isset($result["orderNo"]) && isset($result["invoice"]) ){
+                        $groupNo = $result["groupNo"];
+
+                        try {
+                            DB::beginTransaction();
+
+                            $outBaseObj = BonaeraOutBaseData::updateOrCreate(
+                                [
+                                    "sh_no" => $result["orderNo"],
+                                ],
+                                [
+                                    "stock_no"         => $stockNo,
+                                    "order_id"         => $orderId,
+                                    "channel_order_id" => $channelOrderId,
+                                    "group_no"         => $groupNo,
+                                    "out_ordered_at"   => null,
+                                    "out_completed_at" => null,
+                                ]
+                            );
+            
+                            foreach ($optList as $opt) {
+                                BonaeraOutProductData::updateOrCreate(
+                                    [
+                                        "sh_no"     => $result["orderNo"],
+                                        "option_id" => $opt["option_id"],
+                                        "it_code"   => $opt["it_code"],
+                                    ],
+                                    [
+                                        "channel_order_id" => $channelOrderId,
+                                        "quantity"         => $opt["quantity"],
+                                        "shipped_qty"      => 0,
+                                    ]
+                                );
+                            }
+                            DB::commit();
+                        } catch (Exception $dbError) {
+                            DB::rollBack();
+                            throw new Exception($dbError->getMessage());   
+                        }
+                    } else {
+                        $msg = "보내라 출고신청 API 에러";
+                        if( isset($result["message"]) ){
+                            $msg = $result["message"];
+                        }
+                        throw new Exception($msg);
+                    }
+                }
+                
+            }
+        } catch (Exception $e) {
+            $errorMsg = $e->getMessage();
+
+            BonaeraOutFailData::updateOrCreate(
+                [
+                    "order_id" => $orderId,
+                ],
+                [
+                    "msg" => $errorMsg
+                ]
+            );
+            debug_log($errorMsg . " | order_id: " . $orderId, "boneara/createApplicationApi", "createApplicationApi");
+        }
+    }
+
+    /** 신청서 조회 */
     public function getApplicationList(string $groupNo): array
     {
         $returnMsg = $this->returnMsg;

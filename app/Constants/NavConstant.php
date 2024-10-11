@@ -41,6 +41,8 @@ class NavConstant
     public const WMS_IN_MANAGE_LIST      = "입고 리스트";
     public const WMS_IN_MANAGE_FAIL_LIST = "입고 통신 실패 리스트";
     public const WMS_OUT_MANAGE          = "출고관리";
+    public const WMS_OUT_SIGN_LIST       = "출고 신청 관리";
+    public const WMS_OUT_MANAGE_LIST     = "출고 리스트";
 
     public const CHANNEL_MANAGE            = "채널 관리";
     public const CHANNEL_PRODUCT_MANAGE    = "상품 전송 현황";
@@ -104,7 +106,10 @@ class NavConstant
                 self::WMS_IN_MANAGE_LIST      => "/wapp/wms/in",
                 self::WMS_IN_MANAGE_FAIL_LIST => "/wapp/wms/in/fail",
             ],
-            self::WMS_OUT_MANAGE    => "/wapp/wms/out",
+            self::WMS_OUT_MANAGE     => [
+                self::WMS_OUT_SIGN_LIST   => "/wapp/wms/out/sign",
+                self::WMS_OUT_MANAGE_LIST => "/wapp/wms/out",
+            ],
         ],
         self::CHANNEL_MANAGE => [
             self::CHANNEL_PRODUCT_MANAGE => [

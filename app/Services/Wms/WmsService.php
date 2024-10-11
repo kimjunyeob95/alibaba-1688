@@ -117,6 +117,17 @@ class WmsService
    }
 
    /**
+    * @func bonaeraOutCreate
+    * @description '출고신청'
+    * @param int $id
+    * @return void
+    */
+   public function bonaeraOutCreate(int $id): void
+   {
+      $this->wmsAbstract->bonaeraOutCreate($id);
+   }
+
+   /**
     * @func bonaeraOutUpdate
     * @description '출고정보 업데이트'
     * @param int $id
@@ -136,6 +147,17 @@ class WmsService
    public function inDetail(string $stockNo): array
    {
       return $this->wmsAbstract->inDetail($stockNo);
+   }
+
+   /**
+    * @func outSignList
+    * @description '출고 신청관리'
+    * @param array $params
+    * @return array
+    */
+   public function outSignList(array $params): array
+   {
+      return $this->wmsAbstract->outSignList($params);
    }
 
    /**

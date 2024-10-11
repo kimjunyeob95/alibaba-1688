@@ -17,6 +17,7 @@ return new class extends Migration
         Schema::create('hs_code_datas', function (Blueprint $table) {
             $table->id();
             $table->string('hs_code', 20)->unique()->nullable(false)->comment('HS부호');
+            $table->string('sh_no', 20)->nullable(false)->comment('품목번호');
             $table->date("apply_start_date")->comment("적용시작일자");
             $table->date("apply_end_date")->comment("적용종료일자");
             $table->string('ko_name')->nullable(false)->comment('한글품목명');
@@ -40,6 +41,7 @@ return new class extends Migration
             $table->softDeletes();
 
             $table->index('hs_code');
+            $table->index('sh_no');
             $table->index('unit_code');
             $table->index('weight_code');
             $table->index('export_code');
