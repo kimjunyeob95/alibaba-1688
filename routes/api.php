@@ -190,6 +190,8 @@ Route::name('w.')->prefix('w')->group(function () {
         Route::post("/bonaeraInFail/create", [WAppWmsController::class, "bonaeraInFailCreate"])->name("bonaeraInFailCreate");
         /** 입고정보 업데이트 */
         Route::post("/bonaeraIn/update", [WAppWmsController::class, "bonaeraInUpdate"])->name("bonaeraInUpdate");
+        /** 출고 신청 */
+        Route::post("/bonaeraOut/create", [WAppWmsController::class, "bonaeraOutCreate"])->name("bonaeraOutCreate");
         /** 출고정보 업데이트 */
         Route::post("/bonaeraOut/update", [WAppWmsController::class, "bonaeraOutUpdate"])->name("bonaeraOutUpdate");
     });

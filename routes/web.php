@@ -123,7 +123,9 @@ Route::prefix("wapp")->name("wapp.")->group(function(){
         Route::get("/in/fail", [WmsController::class, "inFailList"])->name("inFailList");
         /** 입고관리 상세 */
         Route::get("/in/{stockNo}", [WmsController::class, "inDetail"])->name("inDetail");
-        /** 출고관리 */
+        /** 출고 신청관리 */
+        Route::get("/out/sign", [WmsController::class, "outSignList"])->name("outSignList");
+        /** 출고 리스트 */
         Route::get("/out", [WmsController::class, "outList"])->name("outList");
         /** 출고관리 상세 */
         Route::get("/out/{groupNo}", [WmsController::class, "outDetail"])->name("outDetail");
