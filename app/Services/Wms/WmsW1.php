@@ -529,9 +529,9 @@ class WmsW1 extends WmsAbstract
 
             if( !empty($status) ){
                 if( $status == BonaeraConstant::GROUP_STATUS_300 ){
-                    $builder->whereIn("bodd.status", BonaeraConstant::OUT_PEKI_STATUS);
+                    $builder->whereIn("bodd.state", BonaeraConstant::OUT_PEKI_STATUS);
                 } else {
-                    $builder->where("bodd.status", $status);
+                    $builder->where("bodd.state", $status);
                 }
             }
             if( !empty($clearanceType) ){
@@ -596,7 +596,7 @@ class WmsW1 extends WmsAbstract
         } catch (Exception $e) {
             $returnMsg = helpers_fail_message($e->getMessage());
         }
-        // dd($returnMsg["data"]->toArray()["data"]);
+
         return $returnMsg;
     }
 

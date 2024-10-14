@@ -2,7 +2,9 @@
 
 namespace Tests\Feature;
 
+use App\Constants\Constant1688;
 use App\Models\OrderBaseData;
+use App\Models\OrderChannelData;
 use App\Models\OrderLogisticsData;
 use App\Models\OrderProductData;
 use App\Models\OrderTradeData;
@@ -80,6 +82,48 @@ class OrderTest extends TestCase
         ];
         $returnMsg = curl_1688("post", $endPoint, $payload);
         dd($returnMsg);
+    }
+
+    # 주문 미리보기
+    # php artisan test --filter testW1OrderPreviewCreate
+    public function testW1OrderPreviewCreate()
+    {
+        $orderId        = "2324260202467135493";
+        $channelObj     = OrderChannelData::with(["details.option"])->where("order_id", $orderId)->first();
+        $cargoParamList = [];
+
+        if( !empty($channelObj->details) ){
+            foreach ($channelObj->details as $detail) {
+                if( !empty($detail->option) ){
+                    $cargoParamList[] = [
+                        "offerId"  => $detail->option->offer_id,
+                        "specId"   => $detail->option->spec_id,
+                        "quantity" => $detail->quantity,
+                    ];
+                }
+            }
+        }
+
+        $endPoint = "param2/1/com.alibaba.trade/alibaba.createOrder.preview/";
+        $payload = [
+            'access_token' => env("1688_ACCESS_TOKEN"),
+            'addressParam' => [
+                'addressId'    => Constant1688::ADDRESSID,
+                'fullName'     => Constant1688::FULLNAME,
+                'mobile'       => Constant1688::MOBILE,
+                'phone'        => Constant1688::PHONE,
+                'postCode'     => Constant1688::POSTCODE,
+                'cityText'     => Constant1688::CITYTEXT,
+                'provinceText' => Constant1688::PROVINCETEXT,
+                'areaText'     => Constant1688::AREATEXT,
+                'townText'     => Constant1688::TOWNTEXT,
+                'address'      => Constant1688::ADDRESS,
+                'districtCode' => Constant1688::DISTRICTCODE,
+            ],
+            'cargoParamList' => $cargoParamList,
+        ];
+        $returnMsg = curl_1688("post", $endPoint, $payload);
+        dd(json_encode($returnMsg["data"], JSON_UNESCAPED_UNICODE));
     }
 
     # 결제
