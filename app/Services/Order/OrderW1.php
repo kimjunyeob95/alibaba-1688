@@ -162,7 +162,7 @@ class OrderW1 extends OrderAbstract
             ];
             $previewResult = curl_1688("POST", $endPoint, $payload);
             
-            if( !isset($previewResult["data"]) ){
+            if( !isset($previewResult["data"]["orderPreviewResuslt"]) ){
                 throw new Exception(OrderErrorMessageConstant::getFitErrorMessage("ORDER_PREVIEW"));
             }
 

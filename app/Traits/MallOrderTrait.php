@@ -114,7 +114,13 @@ trait MallOrderTrait
                 "optionParamList" => $optionParamList
             ];
 
-            $returnMsg = $this->orderW1->createWOrder($payload, $totalQuantity, true);
+            $result = $this->orderW1->createWOrder($payload, $totalQuantity, true);
+
+            if( $result["isSuccess"] !== true ){
+                throw new Exception($result["msg"]);
+            }
+
+            $returnMsg = helpers_success_message($result["data"]);
         } catch (Exception $e) {
             $returnMsg = helpers_fail_message($e->getMessage());
         }
