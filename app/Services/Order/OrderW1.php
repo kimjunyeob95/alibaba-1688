@@ -64,7 +64,7 @@ class OrderW1 extends OrderAbstract
         return $returnMsg;
     }
 
-    public function createWOrder(array $params, int $totalQuantity): array
+    public function createWOrder(array $params, int $totalQuantity, bool $isPreview = false): array
     {
         $returnMsg = $this->returnMsg;
 
@@ -161,54 +161,66 @@ class OrderW1 extends OrderAbstract
                 'cargoParamList' => $cargoParamList,
             ];
             $previewResult = curl_1688("POST", $endPoint, $payload);
-            if( !isset($previewResult["data"]["orderPreviewResuslt"][0]["flowFlag"]) || empty($previewResult["data"]["orderPreviewResuslt"][0]["flowFlag"]) ){
-                throw new Exception(OrderErrorMessageConstant::getFitErrorMessage("FLOW"));
-            }
-
-            $flow = $previewResult["data"]["orderPreviewResuslt"][0]["flowFlag"];
-
-            $endPoint = "param2/1/com.alibaba.trade/alibaba.trade.createCrossOrder/";
-            $payload = [
-                'access_token' => $this->accessToken,
-                'flow'         => $flow,
-                'addressParam' => [
-                    'addressId'    => Constant1688::ADDRESSID,
-                    'fullName'     => Constant1688::FULLNAME,
-                    'mobile'       => Constant1688::MOBILE,
-                    'phone'        => Constant1688::PHONE,
-                    'postCode'     => Constant1688::POSTCODE,
-                    'cityText'     => Constant1688::CITYTEXT,
-                    'provinceText' => Constant1688::PROVINCETEXT,
-                    'areaText'     => Constant1688::AREATEXT,
-                    'townText'     => Constant1688::TOWNTEXT,
-                    'address'      => Constant1688::ADDRESS,
-                    'districtCode' => Constant1688::DISTRICTCODE,
-                ],
-                'cargoParamList'      => $cargoParamList,
-                'preSelectPayChannel' => Constant1688::PRESELECTPAYCHANNEL,
-                'useRedEnvelope'      => Constant1688::USEREDENVELOPE_N
-            ];
             
-            $result = curl_1688("post", $endPoint, $payload);
-
-            if( $result["isSuccess"] === true &&
-                isset($result["data"]) &&
-                $result["data"]["success"] === true &&
-                isset($result["data"]["result"]["orderId"])
-            ){
-                $returnMsg = helpers_success_message($result["data"]["result"]);
-            } else {
-                $errorMsg = $this->returnMsg["msg"];
-                if( isset($result["data"]["message"]) ){
-                    $errorMsg = $result["data"]["message"];
-                } else if( isset($result["data"]["code"]) ){
-                    $errorMsg = $result["data"]["code"];
-                }
-
-                $returnMsg = helpers_fail_message($errorMsg);
-
-                debug_log(json_encode($result, JSON_UNESCAPED_UNICODE), "createWOrder", "createWOrder");
+            if( !isset($previewResult["data"]) ){
+                throw new Exception(OrderErrorMessageConstant::getFitErrorMessage("ORDER_PREVIEW"));
             }
+
+            if( $isPreview === true ){
+                /** 주문 미리보기 시 바로 리턴 */
+                $returnMsg = helpers_success_message($previewResult["data"]);
+            } else {
+                /** 주문 생성 */
+                if( !isset($previewResult["data"]["orderPreviewResuslt"][0]["flowFlag"]) || empty($previewResult["data"]["orderPreviewResuslt"][0]["flowFlag"]) ){
+                    throw new Exception(OrderErrorMessageConstant::getFitErrorMessage("FLOW"));
+                }
+                
+                $flow = $previewResult["data"]["orderPreviewResuslt"][0]["flowFlag"];
+    
+                $endPoint = "param2/1/com.alibaba.trade/alibaba.trade.createCrossOrder/";
+                $payload = [
+                    'access_token' => $this->accessToken,
+                    'flow'         => $flow,
+                    'addressParam' => [
+                        'addressId'    => Constant1688::ADDRESSID,
+                        'fullName'     => Constant1688::FULLNAME,
+                        'mobile'       => Constant1688::MOBILE,
+                        'phone'        => Constant1688::PHONE,
+                        'postCode'     => Constant1688::POSTCODE,
+                        'cityText'     => Constant1688::CITYTEXT,
+                        'provinceText' => Constant1688::PROVINCETEXT,
+                        'areaText'     => Constant1688::AREATEXT,
+                        'townText'     => Constant1688::TOWNTEXT,
+                        'address'      => Constant1688::ADDRESS,
+                        'districtCode' => Constant1688::DISTRICTCODE,
+                    ],
+                    'cargoParamList'      => $cargoParamList,
+                    'preSelectPayChannel' => Constant1688::PRESELECTPAYCHANNEL,
+                    'useRedEnvelope'      => Constant1688::USEREDENVELOPE_N
+                ];
+                
+                $result = curl_1688("post", $endPoint, $payload);
+    
+                if( $result["isSuccess"] === true &&
+                    isset($result["data"]) &&
+                    $result["data"]["success"] === true &&
+                    isset($result["data"]["result"]["orderId"])
+                ){
+                    $returnMsg = helpers_success_message($result["data"]["result"]);
+                } else {
+                    $errorMsg = $this->returnMsg["msg"];
+                    if( isset($result["data"]["message"]) ){
+                        $errorMsg = $result["data"]["message"];
+                    } else if( isset($result["data"]["code"]) ){
+                        $errorMsg = $result["data"]["code"];
+                    }
+    
+                    $returnMsg = helpers_fail_message($errorMsg);
+    
+                    debug_log(json_encode($result, JSON_UNESCAPED_UNICODE), "createWOrder", "createWOrder");
+                }
+            }
+
         }  catch (ArrayValueError $e) {
             $errorArray = $e->getErrorArray();
 

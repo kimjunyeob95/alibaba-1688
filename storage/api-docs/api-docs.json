@@ -1464,6 +1464,83 @@
                 ]
             }
         },
+        "/api/mall/{channel}/order/preview": {
+            "post": {
+                "tags": [
+                    "주문"
+                ],
+                "summary": "주문 미리보기",
+                "description": "주문 미리보기 endPoint",
+                "parameters": [
+                    {
+                        "name": "channel",
+                        "in": "path",
+                        "description": "채널 ID",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/OrderPreviewSchema"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SuccessResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Authorization Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/401ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/400ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/500ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            }
+        },
         "/api/mall/{channel}/genuio/img/trans/request": {
             "post": {
                 "tags": [
@@ -2559,6 +2636,51 @@
                             }
                         },
                         "type": "object"
+                    }
+                },
+                "type": "object"
+            },
+            "OrderPreviewSchema": {
+                "required": [
+                    "offer_id",
+                    "option_param_list"
+                ],
+                "properties": {
+                    "offer_id": {
+                        "description": "제품 ID",
+                        "type": "integer",
+                        "example": 730855260845
+                    },
+                    "option_param_list": {
+                        "description": "주문 미리보기 제품 정보",
+                        "type": "array",
+                        "items": {
+                            "required": [
+                                "option_id",
+                                "quantity"
+                            ],
+                            "properties": {
+                                "option_id": {
+                                    "description": "옵션 ID",
+                                    "type": "integer"
+                                },
+                                "quantity": {
+                                    "description": "구매 수량",
+                                    "type": "integer"
+                                }
+                            },
+                            "type": "object"
+                        },
+                        "example": [
+                            {
+                                "option_id": 3479928,
+                                "quantity": 1
+                            },
+                            {
+                                "option_id": 3479929,
+                                "quantity": 2
+                            }
+                        ]
                     }
                 },
                 "type": "object"

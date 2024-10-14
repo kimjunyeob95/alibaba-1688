@@ -280,6 +280,8 @@ Route::name('mall.')->prefix('mall')->group(function () {
         Route::middleware(["oepnApi.jwt.verify", "whiteIp"])->group(function () {
             /** 주문 조회 */
             Route::get('/order/{orderId}', [MallController::class, "orderInfo"])->name("orderInfo");
+            /** 주문 미리보기 */
+            Route::post('/order/preview', [MallController::class, "orderPreview"])->name("orderPreview");
             /** 주문 생성 */
             Route::post('/order/create', [MallController::class, "orderCreate"])->name("orderCreate");
 
