@@ -320,7 +320,7 @@ class Bonaera
                                 "zipCode"       => $orderChannelObj->buyer_zipcode,
                                 "addr1"         => $orderChannelObj->buyer_address,
                                 "addr2"         => "",
-                                "receiverPhone" => $orderChannelObj->buyer_name,
+                                "receiverPhone" => $orderChannelObj->buyer_number,
                                 "personalNum"   => $orderChannelObj->buyer_clearance_number,
                                 "shipMemo"      => $orderChannelObj->buyer_memo,
                             ]
