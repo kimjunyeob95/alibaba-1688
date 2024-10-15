@@ -191,7 +191,11 @@
                                         <small>{{ number_format(($paginator->total() - $offset) - $index) }}</small>
                                     </td>
                                     <td rowspan={{ $rowSpan }}>
-                                        <small>{{ BonaeraConstant::GROUP_STATUS[$data->state] }}</small>
+                                        @if ($data->state)
+                                            <small>{{ BonaeraConstant::GROUP_STATUS[$data->state] }}</small>
+                                        @else
+                                            <small>출고상태X</small>
+                                        @endif
                                     </td>
                                     <td>
                                         <small>({{ $data->group_no }})</small>

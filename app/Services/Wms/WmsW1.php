@@ -608,7 +608,14 @@ class WmsW1 extends WmsAbstract
                 throw new Exception(OrderErrorMessageConstant::getNotHaveErrorMessage("ORDER_CHANNEL"));
             }
 
+            /** 출고신청 */
             $this->bonaera->createApplicationApi($channelObj->order_id);
+
+            /** 출고신청 업데이트 */
+            $outBaseObj = BonaeraOutBaseData::where("order_id", $channelObj->order_id)->first();
+            if( $outBaseObj !== null ){
+                $this->bonaeraOutUpdate($outBaseObj->id);
+            }
         } catch (Exception $e) {
             $msg = "error: " . $e->getMessage();
             debug_log($msg, "boneara/bonaeraOutCreate", "bonaeraOutCreate");
