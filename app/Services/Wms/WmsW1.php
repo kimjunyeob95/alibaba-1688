@@ -414,6 +414,7 @@ class WmsW1 extends WmsAbstract
         try {
             $pageSize   = $params["pageSize"];
             $status     = $params["status"];
+            $inStatus   = $params["inStatus"];
             $timeCls    = $params["timeCls"];
             $startTime  = $params["startTime"];
             $endTime    = $params["endTime"];
@@ -433,8 +434,12 @@ class WmsW1 extends WmsAbstract
             ->with(["details.option", "boneara_in_base.in_options", "order.product"])
             ->join("order_base_datas as obd", "order_channel_datas.order_id", "=", "obd.order_id")
             ->leftJoin("bonaera_out_base_datas as bobd", "order_channel_datas.order_id", "=", "bobd.order_id")
+            ->join("bonaera_in_product_datas as bipd", "order_channel_datas.order_id", "=", "bipd.order_id")
             ->leftJoin("bonaera_out_fail_datas as bofd", "order_channel_datas.order_id", "=", "bofd.order_id")
+            ->groupBy("order_channel_datas.order_id")
             ->orderBy("order_channel_datas." . $sortArr[0], $sortArr[1]);
+
+            $builder->where("bipd.status", BonaeraConstant::WAREHOUSE_STATUS_RECEIVED);
 
             if( !empty($status) ){
                 if( $status == WmsConstant::OUT_SIGN_STATUS_SUCCESS ){
@@ -446,6 +451,9 @@ class WmsW1 extends WmsAbstract
                     $builder->whereNull("bobd.sh_no")
                     ->whereNull("bofd.msg");
                 }
+            }
+            if( !empty($status) ){
+                $builder->where("bipd.status", $status);
             }
             if( !empty($timeCls) ){
                 if( $timeCls == "create" ){
