@@ -139,43 +139,46 @@ class WmsController extends Controller
 
     public function outSignList(): View
     {
-        $page          = $this->request->get("page", 1);
-        $pageSize      = $this->request->get("pageSize", 50);
-        $pageSize      = $pageSize > 500 ? 500 : $pageSize;
-        $status        = $this->request->get("status", "");
-        $timeCls       = $this->request->get("time_cls", "order");
-        $startTime     = $this->request->get("start_time", "");
-        $endTime       = $this->request->get("end_time", "");
-        $search_cls    = $this->request->get("search_cls", WmsConstant::OUT_SIGN_SEARCH_TYPE_ORDER_ID);
-        $keyword       = $this->request->get("keyword", "");
-        $sort          = $this->request->get("sort", "created_at|desc");
+        $page       = $this->request->get("page", 1);
+        $pageSize   = $this->request->get("pageSize", 50);
+        $pageSize   = $pageSize > 500 ? 500 : $pageSize;
+        $status     = $this->request->get("status", "");
+        $inStatus   = $this->request->get("in_status", "");
+        $timeCls    = $this->request->get("time_cls", "order");
+        $startTime  = $this->request->get("start_time", "");
+        $endTime    = $this->request->get("end_time", "");
+        $search_cls = $this->request->get("search_cls", WmsConstant::OUT_SIGN_SEARCH_TYPE_ORDER_ID);
+        $keyword    = $this->request->get("keyword", "");
+        $sort       = $this->request->get("sort", "created_at|desc");
 
         $pageSize = $pageSize > 500 ? 500 : $pageSize;
         $offset   = ($page - 1) * $pageSize;
 
         $params = [
-            "page"          => $page,
-            "pageSize"      => $pageSize,
-            "status"        => $status,
-            "timeCls"       => $timeCls,
-            "startTime"     => $startTime,
-            "endTime"       => $endTime,
-            "search_cls"    => $search_cls,
-            "keyword"       => $keyword,
-            "sort"          => $sort,
+            "page"       => $page,
+            "pageSize"   => $pageSize,
+            "status"     => $status,
+            "inStatus"   => $inStatus,
+            "timeCls"    => $timeCls,
+            "startTime"  => $startTime,
+            "endTime"    => $endTime,
+            "search_cls" => $search_cls,
+            "keyword"    => $keyword,
+            "sort"       => $sort,
         ];
         $result     = $this->wmsService->outSignList($params);
         $viewParams = [
-            "status"        => $status,
-            "timeCls"       => $timeCls,
-            "startTime"     => $startTime,
-            "endTime"       => $endTime,
-            "search_cls"    => $search_cls,
-            "keyword"       => $keyword,
-            "sort"          => $sort,
-            "paginator"     => $result["data"],
-            "offset"        => (int) $offset,
-            "pageSize"      => (int) $pageSize,
+            "status"     => $status,
+            "inStatus"   => $inStatus,
+            "timeCls"    => $timeCls,
+            "startTime"  => $startTime,
+            "endTime"    => $endTime,
+            "search_cls" => $search_cls,
+            "keyword"    => $keyword,
+            "sort"       => $sort,
+            "paginator"  => $result["data"],
+            "offset"     => (int) $offset,
+            "pageSize"   => (int) $pageSize,
         ];
         return view("wms.outSignList")->with($viewParams);
     }
