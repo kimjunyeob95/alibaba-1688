@@ -32,6 +32,7 @@
 
                 <form id="searchFrm">
                     <input type="hidden" name="status" value={{ $status }}>
+                    <input type="hidden" name="in_status" value={{ $inStatus }}>
 
                     <div class="card">
                         <div class="card-header">
@@ -47,6 +48,17 @@
                                                     value="{{ $key }}">{{ $value }}</button>
                                             @endforeach
                                         </div>
+                                    </td>
+                                </tr>
+                                <tr class="align-middle">
+                                    <th style="width: 120px">입고 상태</th>
+                                    <td colspan="2">
+                                        <button type="button" name="in_status" class="btn-status btn btn-sm {{ $inStatus == "" ? "btn-primary" : "btn-dark" }}"
+                                        value="">전체</button>
+                                        @foreach (BonaeraConstant::WAREHOUSE_STATUS as $key => $value)    
+                                            <button type="button" name="in_status" class="btn-status btn btn-sm {{ $inStatus == $key ? "btn-primary" : "btn-dark" }}"
+                                            value="{{ $key }}">{{ $value }}</button>
+                                        @endforeach
                                     </td>
                                 </tr>
                                 <tr class="align-middle">
