@@ -296,6 +296,7 @@
                                         <tr>
                                             <th scope="col" >성질통합 분류코드명</th>
                                             <th scope="col" >HS code</th>
+                                            <th scope="col" >품목번호</th>
                                             <th scope="col" >한글 품목명</th>
                                             <th scope="col" >영문 품목명</th>
                                             <th scope="col" >관리</th>
@@ -652,6 +653,7 @@
                             <tr>
                                 <td>${ele.property_code_name}</td>
                                 <td>${ele.hs_code}</td>
+                                <td>${ele.sh_no}</td>
                                 <td>${ele.ko_name}</td>
                                 <td>${ele.en_name}</td>
                                 <td class="text-center"><button class="btn btn-primary btn-apply text-white" data-code="${ele.hs_code}">적용</button></td>
