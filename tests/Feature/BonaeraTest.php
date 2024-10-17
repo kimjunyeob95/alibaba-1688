@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Constants\BonaeraConstant;
+use App\Models\BonaeraInProductData;
 use App\Models\BonaeraOutBaseData;
 use App\Models\BonaeraOutDeliveryData;
 use App\Models\BonaeraOutWeightData;
@@ -147,6 +148,26 @@ class BonaeraTest extends TestCase
             ]);
         }
 
+        dd("끝");
+    }
+
+    # php artisan test --filter testBoanearaEtcMethod
+    public function testBoanearaEtcMethod()
+    {
+        $objs = BonaeraInProductData::get();
+        foreach ($objs as $obj) {
+            $code  = $obj->hs_code;
+            $hsObj = HsCodeData::where(function($qry) use($code) {
+                $qry->where("hs_code", $code)
+                ->orWhere("sh_no", $code);
+            })->first();
+
+            if( $hsObj != null ){
+                $obj->update([
+                    "hs_code" => $hsObj->hs_code
+                ]);
+            }
+        }
         dd("끝");
     }
 }
