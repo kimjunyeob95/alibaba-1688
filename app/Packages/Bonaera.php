@@ -93,6 +93,11 @@ class Bonaera
                 if( empty($productShno) ){
                     throw new Exception(BonaeraErrorMessageConstant::getNotHaveErrorMessage("PRODUCTSHNO"));
                 }
+
+                $hsCodeObj = HsCodeData::where("sh_no", $productShno)->first();
+                if( $hsCodeObj === null ){
+                    throw new Exception(BonaeraErrorMessageConstant::getNotHaveErrorMessage("HS_CODE"));
+                }
                 
                 foreach ($orderPrdObjs as $orderPrdObj) {
                     $skuId  = $orderPrdObj->sku_id;
@@ -115,7 +120,7 @@ class Bonaera
                             "option_id"            => $optObj->id,
                             "quantity"             => $orderPrdObj->quantity,
                             "product_snapshot_url" => $orderPrdObj->product_snapshot_url,
-                            "hs_code"              => $productShno
+                            "hs_code"              => $hsCodeObj->hs_code
                         ];
                     }
                 }
@@ -320,7 +325,7 @@ class Bonaera
                                 "zipCode"       => $orderChannelObj->buyer_zipcode,
                                 "addr1"         => $orderChannelObj->buyer_address,
                                 "addr2"         => "",
-                                "receiverPhone" => $orderChannelObj->buyer_name,
+                                "receiverPhone" => $orderChannelObj->buyer_number,
                                 "personalNum"   => $orderChannelObj->buyer_clearance_number,
                                 "shipMemo"      => $orderChannelObj->buyer_memo,
                             ]

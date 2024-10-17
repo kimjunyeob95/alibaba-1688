@@ -414,6 +414,7 @@ class WmsW1 extends WmsAbstract
         try {
             $pageSize   = $params["pageSize"];
             $status     = $params["status"];
+            $inStatus   = $params["inStatus"];
             $timeCls    = $params["timeCls"];
             $startTime  = $params["startTime"];
             $endTime    = $params["endTime"];
@@ -433,7 +434,10 @@ class WmsW1 extends WmsAbstract
             ->with(["details.option", "boneara_in_base.in_options", "order.product"])
             ->join("order_base_datas as obd", "order_channel_datas.order_id", "=", "obd.order_id")
             ->leftJoin("bonaera_out_base_datas as bobd", "order_channel_datas.order_id", "=", "bobd.order_id")
+            ->leftJoin("bonaera_in_base_datas as bibd", "order_channel_datas.order_id", "=", "bibd.order_id")
+            ->join("bonaera_in_product_datas as bipd", "order_channel_datas.order_id", "=", "bipd.order_id")
             ->leftJoin("bonaera_out_fail_datas as bofd", "order_channel_datas.order_id", "=", "bofd.order_id")
+            ->groupBy("order_channel_datas.order_id")
             ->orderBy("order_channel_datas." . $sortArr[0], $sortArr[1]);
 
             if( !empty($status) ){
@@ -446,6 +450,9 @@ class WmsW1 extends WmsAbstract
                     $builder->whereNull("bobd.sh_no")
                     ->whereNull("bofd.msg");
                 }
+            }
+            if( !empty($inStatus) ){
+                $builder->where("bipd.status", $inStatus);
             }
             if( !empty($timeCls) ){
                 if( $timeCls == "create" ){
@@ -479,7 +486,10 @@ class WmsW1 extends WmsAbstract
                 } else if( $search_cls == WmsConstant::OUT_SIGN_SEARCH_TYPE_CHANNEL_ORDER_ID ){
                     $builder->whereIn("order_channel_datas.channel_order_id", $keyword);
                 } else if( $search_cls == WmsConstant::OUT_SIGN_SEARCH_TYPE_STOCK_NO ){
-                    $builder->whereIn("bobd.stock_no", $keyword);
+                    $builder->where(function($qry) use($keyword) {
+                        $qry->whereIn("bobd.stock_no", $keyword)
+                        ->orWhereIn("bibd.stock_no", $keyword);
+                    });
                 } else if( $search_cls == WmsConstant::OUT_SIGN_SEARCH_TYPE_SH_NO ){
                     $builder->whereIn("bobd.sh_no", $keyword);
                 } else if( $search_cls == WmsConstant::OUT_SIGN_SEARCH_TYPE_GROUP_NO ){
@@ -488,8 +498,8 @@ class WmsW1 extends WmsAbstract
             }
 
             $lists     = $builder->paginate($pageSize)->appends($params);
-            // dd($lists->toArray());
             $returnMsg = helpers_success_message($lists);
+            // dd($lists->toArray());
         } catch (Exception $e) {
             $returnMsg = helpers_fail_message($e->getMessage());
         }
@@ -608,7 +618,14 @@ class WmsW1 extends WmsAbstract
                 throw new Exception(OrderErrorMessageConstant::getNotHaveErrorMessage("ORDER_CHANNEL"));
             }
 
+            /** 출고신청 */
             $this->bonaera->createApplicationApi($channelObj->order_id);
+
+            /** 출고신청 업데이트 */
+            $outBaseObj = BonaeraOutBaseData::where("order_id", $channelObj->order_id)->first();
+            if( $outBaseObj !== null ){
+                $this->bonaeraOutUpdate($outBaseObj->id);
+            }
         } catch (Exception $e) {
             $msg = "error: " . $e->getMessage();
             debug_log($msg, "boneara/bonaeraOutCreate", "bonaeraOutCreate");
