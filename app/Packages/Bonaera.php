@@ -423,4 +423,29 @@ class Bonaera
 
         return $returnMsg;
     }
+
+    /** 상품정보조회(신청번호기준) 조회 */
+    public function getOrderApplicationList(string $stockCode): array
+    {
+        $returnMsg = $this->returnMsg;
+        
+        $endPoint = $this->domain . '/elpisapi/orderApplicationList_api.php';
+        $payload  = [
+            "userId" => $this->userId,
+            "orCode" => $stockCode,
+        ];
+
+        try {
+            $result = helpers_curl("GET", $endPoint, $this->header, $payload);
+            if( !isset($result["message"]) || $result["message"] != "success" || !isset($result["data"]) ) {
+                throw new Exception("orderApplicationList_api 통신");
+            }
+
+            $returnMsg = helpers_success_message($result["data"]);
+        } catch (Exception $e) {
+            $returnMsg = helpers_fail_message($e->getMessage());
+        }
+
+        return $returnMsg;
+    }
 }

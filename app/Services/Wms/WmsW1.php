@@ -8,11 +8,13 @@ use App\Constants\BonaeraErrorMessageConstant;
 use App\Constants\OrderErrorMessageConstant;
 use App\Constants\WmsConstant;
 use App\Models\BonaeraInBaseData;
+use App\Models\BonaeraInExtraData;
 use App\Models\BonaeraInFailData;
 use App\Models\BonaeraInProductData;
 use App\Models\BonaeraInProductImgData;
 use App\Models\BonaeraOutBaseData;
 use App\Models\BonaeraOutDeliveryData;
+use App\Models\BonaeraOutExtraData;
 use App\Models\BonaeraOutWeightData;
 use App\Models\HsCodeData;
 use App\Models\OrderChannelData;
@@ -330,8 +332,10 @@ class WmsW1 extends WmsAbstract
                 throw new Exception(BonaeraErrorMessageConstant::getNotHaveErrorMessage("BONAERA_IN_BASE_DATA"));
             }
 
+            /** 재고현황 조회 */
             $res = $this->bonaera->getStockList($inBaseObj->stock_no);
-
+            /** 상품정보조회(신청번호기준) 조회 */
+            $res2 = $this->bonaera->getOrderApplicationList($inBaseObj->stock_no);
             if( $res["isSuccess"] === true && isset($res["data"]["appCode"]) && isset($res["data"]["appitemList"]) ) {
                 $stockCode       = $res["data"]["appCode"];
                 $lastCompletedAt = null;
@@ -380,6 +384,21 @@ class WmsW1 extends WmsAbstract
                     ]);
                 }
             }
+            if( isset($res2["data"]) && isset($res2["ExtraSvcOrder"]) ){
+                foreach ($res2["ExtraSvcOrder"] as $extra) {
+                    BonaeraInExtraData::updateOrCreate(
+                        [
+                            "stock_no"   => $inBaseObj->stock_no,
+                            "extra_name" => $extra["ExtraName"],
+                        ],
+                        [
+                            "extra_money" => $extra["ExtraMoney"],
+                            "extra_cnt"   => $extra["ExtraCnt"],
+                        ]
+                    );   
+                }
+            }
+
 
         } catch (Exception $e) {
             $msg = "error: " . $e->getMessage();
@@ -667,6 +686,21 @@ class WmsW1 extends WmsAbstract
                         "ship_memo"      => $reciverInfo["shipMemo"],
                     ]
                 );
+
+                if( isset($res["ExtraSvcShip"]) ){
+                    foreach ($res["ExtraSvcShip"] as $extra) {
+                        BonaeraOutExtraData::updateOrCreate(
+                            [
+                                "group_no"   => $groupNo,
+                                "extra_name" => $extra["ExtraName"],
+                            ],
+                            [
+                                "extra_money" => $extra["ExtraMoney"],
+                                "extra_cnt"   => $extra["ExtraCnt"],
+                            ]
+                        );                        
+                    }
+                }
 
                 if( isset($res["weightList"][0]) ){
                     $weight = $res["weightList"][0];
