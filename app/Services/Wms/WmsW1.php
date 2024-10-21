@@ -8,11 +8,14 @@ use App\Constants\BonaeraErrorMessageConstant;
 use App\Constants\OrderErrorMessageConstant;
 use App\Constants\WmsConstant;
 use App\Models\BonaeraInBaseData;
+use App\Models\BonaeraInExtraData;
 use App\Models\BonaeraInFailData;
 use App\Models\BonaeraInProductData;
 use App\Models\BonaeraInProductImgData;
 use App\Models\BonaeraOutBaseData;
 use App\Models\BonaeraOutDeliveryData;
+use App\Models\BonaeraOutDeliveryExtraData;
+use App\Models\BonaeraOutExtraData;
 use App\Models\BonaeraOutWeightData;
 use App\Models\HsCodeData;
 use App\Models\OrderChannelData;
@@ -330,6 +333,7 @@ class WmsW1 extends WmsAbstract
                 throw new Exception(BonaeraErrorMessageConstant::getNotHaveErrorMessage("BONAERA_IN_BASE_DATA"));
             }
 
+            /** 재고현황 조회 */
             $res = $this->bonaera->getStockList($inBaseObj->stock_no);
 
             if( $res["isSuccess"] === true && isset($res["data"]["appCode"]) && isset($res["data"]["appitemList"]) ) {
@@ -380,7 +384,6 @@ class WmsW1 extends WmsAbstract
                     ]);
                 }
             }
-
         } catch (Exception $e) {
             $msg = "error: " . $e->getMessage();
             debug_log($msg, "boneara/bonaeraUpdate", "bonaeraInUpdate");
@@ -641,8 +644,9 @@ class WmsW1 extends WmsAbstract
             }
 
             $groupNo = $baseObj->group_no;
-            $res     = $this->bonaera->getApplicationList($groupNo);
 
+            /** 신청서 조회 */
+            $res = $this->bonaera->getApplicationList($groupNo);
             if( $res["isSuccess"] === true && isset($res["data"]["data"]["grCode"]) && isset($res["data"]["data"]["ReciverInfo"][0]) ) {
                 $res         = $res["data"]["data"];
                 $reciverInfo = $res["ReciverInfo"][0];
@@ -667,6 +671,21 @@ class WmsW1 extends WmsAbstract
                         "ship_memo"      => $reciverInfo["shipMemo"],
                     ]
                 );
+
+                if( isset($res["ExtraSvcShip"]) ){
+                    foreach ($res["ExtraSvcShip"] as $extra) {
+                        BonaeraOutDeliveryExtraData::updateOrCreate(
+                            [
+                                "group_no"   => $groupNo,
+                                "extra_name" => $extra["ExtraName"],
+                            ],
+                            [
+                                "extra_money" => $extra["ExtraMoney"],
+                                "extra_cnt"   => $extra["ExtraCnt"],
+                            ]
+                        );                        
+                    }
+                }
 
                 if( isset($res["weightList"][0]) ){
                     $weight = $res["weightList"][0];
@@ -699,6 +718,27 @@ class WmsW1 extends WmsAbstract
                 }
             }
 
+            $baseObjs = BonaeraOutBaseData::where("group_no", $groupNo)->get();
+            foreach ($baseObjs as $outObj) {
+                $shNo = $outObj->sh_no;
+
+                /** 상품정보조회(출고신청번호기준) 조회 */
+                $orderRes = $this->bonaera->getOrderApplicationList($shNo);
+                if( isset($orderRes["data"]["ExtraSvcOrder"]) ){
+                    foreach ($orderRes["data"]["ExtraSvcOrder"] as $extra) {
+                        BonaeraOutExtraData::updateOrCreate(
+                            [
+                                "sh_no"      => $shNo,
+                                "extra_name" => $extra["ExtraName"],
+                            ],
+                            [
+                                "extra_money" => $extra["ExtraMoney"],
+                                "extra_cnt"   => $extra["ExtraCnt"],
+                            ]
+                        );  
+                    }
+                }
+            }
         } catch (Exception $e) {
             $msg = "error: " . $e->getMessage();
             debug_log($msg, "boneara/bonaeraUpdate", "bonaeraOutUpdate");
