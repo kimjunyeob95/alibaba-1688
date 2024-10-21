@@ -55,6 +55,7 @@ class OrderErrorMessageConstant
     public const ERROR_MESSAGE_CLEARANCE_TYPE         = "clearance_type";
     public const ERROR_MESSAGE_SHIPPING_TYPE          = "shipping_type";
     public const ERROR_MESSAGE_ORDERBASE              = "orderBase";
+    public const ERROR_MESSAGE_ORDER_PREVIEW          = "order preview";
  
     public static function getErrorMessageNotDefault($constantName): string
     {

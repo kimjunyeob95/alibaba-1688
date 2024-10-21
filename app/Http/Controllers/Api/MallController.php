@@ -114,6 +114,34 @@ class MallController extends Controller
         }
     }
 
+    public function orderPreview(): JsonResponse
+    {
+        try {
+            $validator = Validator::make($this->request->all(), [
+                'offer_id'                      => 'required|int',
+                'option_param_list'             => 'required|array',
+                'option_param_list.*.option_id' => 'required|int',
+                'option_param_list.*.quantity'  => 'required|int',
+            ], [
+                'offer_id.required'                      => OrderErrorMessageConstant::getNotHaveErrorMessage("OFFER_ID"),
+                'option_param_list.required'             => OrderErrorMessageConstant::getNotHaveErrorMessage("OPTIONPARAMLIST"),
+                'option_param_list.*.option_id.required' => OrderErrorMessageConstant::getNotHaveErrorMessage("OPTION_ID"),
+                'option_param_list.*.quantity.required'  => OrderErrorMessageConstant::getNotHaveErrorMessage("QUANTITY"),
+            ]);
+            if ($validator->fails()) {
+                throw new Exception($validator->errors()->first());
+            }
+            $result = $this->mallApiService->orderPreview($this->request->all());
+            if( $result["isSuccess"] == true ){
+                return helpers_json_response(HttpConstant::OK, $result);
+            } else {
+                return helpers_json_response(HttpConstant::BAD_REQUEST, $result["data"], $result["msg"]);
+            }
+        } catch (Exception $e) {
+            return helpers_json_response(HttpConstant::BAD_REQUEST, [], $e->getMessage());
+        }
+    }
+
     public function orderCreate(): JsonResponse
     {
         try {

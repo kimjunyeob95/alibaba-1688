@@ -66,6 +66,69 @@ trait MallOrderTrait
     }
 
     /**
+     * @func orderPreview
+     * @description '주문 미리보기'
+     * @param array $params
+     * @return array
+    */
+    public function orderPreview(array $params): array
+    {
+        $returnMsg = $this->returnMsg;
+
+        try {
+            $offerId           = $params["offer_id"];
+            $optionParamList   = $params["option_param_list"];
+            $totalQuantity     = 0;
+
+            foreach ($optionParamList as &$option) {
+                $optionId = $option["option_id"];
+                $quantity = $option["quantity"];
+
+                $optObj = ProductOptionData::where([
+                    "id"       => $optionId,
+                    "offer_id" => $offerId,
+                ])->first();
+                if( $optObj == null ){
+                    throw new Exception(ProductErrorMessageConstant::getNotHaveErrorMessage("OPTION"));
+                }
+
+                if( $quantity < 1 ){
+                    throw new Exception(ProductErrorMessageConstant::getFitErrorMessage("OPTION_QUANTITY"));
+                }
+
+                $option["specId"]       = $optObj->spec_id;
+                $option["singleOption"] = false;
+                if( $optObj->option_name_kr == OptionConstant::NAME_KO && $optObj->option_name_en == OptionConstant::NAME_EN ){
+                    $option["singleOption"] = true;
+                }
+
+                $totalQuantity += $quantity;
+            }
+
+            if( $totalQuantity < 1 ){
+                throw new Exception(OrderErrorMessageConstant::getFitErrorMessage("TOTAL_QUANTITY"));
+            }
+
+            $payload = [
+                "offerId"         => $offerId,
+                "optionParamList" => $optionParamList
+            ];
+
+            $result = $this->orderW1->createWOrder($payload, $totalQuantity, true);
+
+            if( $result["isSuccess"] !== true ){
+                throw new Exception($result["msg"]);
+            }
+
+            $returnMsg = helpers_success_message($result["data"]);
+        } catch (Exception $e) {
+            $returnMsg = helpers_fail_message($e->getMessage());
+        }
+
+        return $returnMsg;
+    }
+
+    /**
      * @func orderCreate
      * @description '주문 생성'
      * @param array $params
@@ -149,7 +212,7 @@ trait MallOrderTrait
                 "offerId"         => $offerId,
                 "optionParamList" => $optionParamList
             ];
-            $result = $this->orderW1->createWOrder($payload, $totalQuantity);
+            $result = $this->orderW1->createWOrder($payload, $totalQuantity, false);
             if( $result["isSuccess"] === true && isset($result["data"]["orderId"]) ){
                 $orderId           = $result["data"]["orderId"];
                 $orderDetailResult = $this->orderW1->getWOrder($orderId);

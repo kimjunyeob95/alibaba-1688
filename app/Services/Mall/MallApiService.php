@@ -104,6 +104,17 @@ class MallApiService
     }
 
     /**
+     * @func orderPreview
+     * @description '주문 미리보기'
+     * @param array $params
+     * @return array
+    */
+    public function orderPreview(array $params): array
+    {
+        return $this->mallApiAbstract->orderPreview($params);
+    }
+
+    /**
      * @func orderCreate
      * @description '주문 생성'
      * @param array $params
