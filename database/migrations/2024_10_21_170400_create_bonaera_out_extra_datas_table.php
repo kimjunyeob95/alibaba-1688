@@ -14,20 +14,20 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('bonaera_in_extra_datas', function (Blueprint $table) {
+        Schema::create('bonaera_out_extra_datas', function (Blueprint $table) {
             $table->id();
-            $table->string('stock_no', 20)->nullable(false)->comment('입고번호');
+            $table->string('sh_no', 20)->nullable(false)->comment('출고 신청 번호');
             $table->string('extra_name')->nullable(false)->comment('이름');
             $table->decimal('extra_money', 8, 2)->nullable(false)->default(0)->comment('가격(KRW)');
-            $table->integer('extra_cnt')->nullable(false)->comment('갯수');
+            $table->integer('extra_cnt')->nullable(false)->comment('개수');
 
             $table->timestamps();
             $table->softDeletes();
 
-            $table->foreign('stock_no')->references('stock_no')->on('bonaera_in_base_datas')->onDelete('cascade');
+            $table->foreign('sh_no')->references('sh_no')->on('bonaera_out_base_datas')->onDelete('cascade');
         });
 
-        DB::statement('ALTER TABLE bonaera_in_extra_datas COMMENT "보내라 입고 부가서비스 정보 테이블"');
+        DB::statement('ALTER TABLE bonaera_out_extra_datas COMMENT "보내라 출고 기본 부가서비스 정보 테이블"');
     }
 
     /**
@@ -37,6 +37,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('bonaera_in_extra_datas');
+        Schema::dropIfExists('bonaera_out_extra_datas');
     }
 };

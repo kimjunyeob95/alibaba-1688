@@ -14,6 +14,7 @@ use App\Models\BonaeraInProductData;
 use App\Models\BonaeraInProductImgData;
 use App\Models\BonaeraOutBaseData;
 use App\Models\BonaeraOutDeliveryData;
+use App\Models\BonaeraOutDeliveryExtraData;
 use App\Models\BonaeraOutExtraData;
 use App\Models\BonaeraOutWeightData;
 use App\Models\HsCodeData;
@@ -334,8 +335,7 @@ class WmsW1 extends WmsAbstract
 
             /** 재고현황 조회 */
             $res = $this->bonaera->getStockList($inBaseObj->stock_no);
-            /** 상품정보조회(신청번호기준) 조회 */
-            $res2 = $this->bonaera->getOrderApplicationList($inBaseObj->stock_no);
+
             if( $res["isSuccess"] === true && isset($res["data"]["appCode"]) && isset($res["data"]["appitemList"]) ) {
                 $stockCode       = $res["data"]["appCode"];
                 $lastCompletedAt = null;
@@ -384,22 +384,6 @@ class WmsW1 extends WmsAbstract
                     ]);
                 }
             }
-            if( isset($res2["data"]) && isset($res2["ExtraSvcOrder"]) ){
-                foreach ($res2["ExtraSvcOrder"] as $extra) {
-                    BonaeraInExtraData::updateOrCreate(
-                        [
-                            "stock_no"   => $inBaseObj->stock_no,
-                            "extra_name" => $extra["ExtraName"],
-                        ],
-                        [
-                            "extra_money" => $extra["ExtraMoney"],
-                            "extra_cnt"   => $extra["ExtraCnt"],
-                        ]
-                    );   
-                }
-            }
-
-
         } catch (Exception $e) {
             $msg = "error: " . $e->getMessage();
             debug_log($msg, "boneara/bonaeraUpdate", "bonaeraInUpdate");
@@ -660,7 +644,12 @@ class WmsW1 extends WmsAbstract
             }
 
             $groupNo = $baseObj->group_no;
-            $res     = $this->bonaera->getApplicationList($groupNo);
+            $shNo    = $baseObj->sh_no;
+
+            /** 신청서 조회 */
+            $res = $this->bonaera->getApplicationList($groupNo);
+            /** 상품정보조회(출고신청번호기준) 조회 */
+            $orderRes = $this->bonaera->getOrderApplicationList($shNo);
 
             if( $res["isSuccess"] === true && isset($res["data"]["data"]["grCode"]) && isset($res["data"]["data"]["ReciverInfo"][0]) ) {
                 $res         = $res["data"]["data"];
@@ -689,7 +678,7 @@ class WmsW1 extends WmsAbstract
 
                 if( isset($res["ExtraSvcShip"]) ){
                     foreach ($res["ExtraSvcShip"] as $extra) {
-                        BonaeraOutExtraData::updateOrCreate(
+                        BonaeraOutDeliveryExtraData::updateOrCreate(
                             [
                                 "group_no"   => $groupNo,
                                 "extra_name" => $extra["ExtraName"],
@@ -730,6 +719,20 @@ class WmsW1 extends WmsAbstract
                             "total_money"      => $weight["totalMoney"] ?? 0,
                         ]
                     );
+                }
+            }
+            if( isset($orderRes["data"]["ExtraSvcOrder"]) ){
+                foreach ($orderRes["data"]["ExtraSvcOrder"] as $extra) {
+                    BonaeraOutExtraData::updateOrCreate(
+                        [
+                            "sh_no"      => $shNo,
+                            "extra_name" => $extra["ExtraName"],
+                        ],
+                        [
+                            "extra_money" => $extra["ExtraMoney"],
+                            "extra_cnt"   => $extra["ExtraCnt"],
+                        ]
+                    );  
                 }
             }
 
