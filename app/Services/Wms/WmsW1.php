@@ -644,13 +644,9 @@ class WmsW1 extends WmsAbstract
             }
 
             $groupNo = $baseObj->group_no;
-            $shNo    = $baseObj->sh_no;
 
             /** 신청서 조회 */
             $res = $this->bonaera->getApplicationList($groupNo);
-            /** 상품정보조회(출고신청번호기준) 조회 */
-            $orderRes = $this->bonaera->getOrderApplicationList($shNo);
-
             if( $res["isSuccess"] === true && isset($res["data"]["data"]["grCode"]) && isset($res["data"]["data"]["ReciverInfo"][0]) ) {
                 $res         = $res["data"]["data"];
                 $reciverInfo = $res["ReciverInfo"][0];
@@ -721,21 +717,28 @@ class WmsW1 extends WmsAbstract
                     );
                 }
             }
-            if( isset($orderRes["data"]["ExtraSvcOrder"]) ){
-                foreach ($orderRes["data"]["ExtraSvcOrder"] as $extra) {
-                    BonaeraOutExtraData::updateOrCreate(
-                        [
-                            "sh_no"      => $shNo,
-                            "extra_name" => $extra["ExtraName"],
-                        ],
-                        [
-                            "extra_money" => $extra["ExtraMoney"],
-                            "extra_cnt"   => $extra["ExtraCnt"],
-                        ]
-                    );  
+
+            $baseObjs = BonaeraOutBaseData::where("group_no", $groupNo)->get();
+            foreach ($baseObjs as $outObj) {
+                $shNo = $outObj->sh_no;
+
+                /** 상품정보조회(출고신청번호기준) 조회 */
+                $orderRes = $this->bonaera->getOrderApplicationList($shNo);
+                if( isset($orderRes["data"]["ExtraSvcOrder"]) ){
+                    foreach ($orderRes["data"]["ExtraSvcOrder"] as $extra) {
+                        BonaeraOutExtraData::updateOrCreate(
+                            [
+                                "sh_no"      => $shNo,
+                                "extra_name" => $extra["ExtraName"],
+                            ],
+                            [
+                                "extra_money" => $extra["ExtraMoney"],
+                                "extra_cnt"   => $extra["ExtraCnt"],
+                            ]
+                        );  
+                    }
                 }
             }
-
         } catch (Exception $e) {
             $msg = "error: " . $e->getMessage();
             debug_log($msg, "boneara/bonaeraUpdate", "bonaeraOutUpdate");
