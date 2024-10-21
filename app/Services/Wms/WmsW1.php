@@ -594,7 +594,7 @@ class WmsW1 extends WmsAbstract
                 $otherObjs = BonaeraOutBaseData::select([
                     "bonaera_out_base_datas.*",
                 ])
-                ->with(["order.product", "out_options.w_option", "out_weight"])
+                ->with(["order.product", "out_options.w_option"])
                 ->where("bonaera_out_base_datas.group_no", $data->group_no)
                 ->where("bonaera_out_base_datas.id", "!=", $data->id)
                 ->get();
