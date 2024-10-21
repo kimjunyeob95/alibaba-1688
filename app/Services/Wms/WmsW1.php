@@ -535,7 +535,7 @@ class WmsW1 extends WmsAbstract
                 "ocd.clearance_type",
                 "ocd.shipping_type",
             ])
-            ->with(["order.product", "logistics_last", "out_options.w_option"])
+            ->with(["order.product", "logistics_last", "out_options.w_option", "out_weight"])
             ->leftJoin("bonaera_out_delivery_datas as bodd", "bonaera_out_base_datas.group_no", "=", "bodd.group_no")
             ->leftJoin("order_channel_datas as ocd", "bonaera_out_base_datas.order_id", "=", "ocd.order_id")
             ->groupBy("bonaera_out_base_datas.group_no");
@@ -604,7 +604,7 @@ class WmsW1 extends WmsAbstract
                 
                 $data["otherObjs"] = $otherObjs;
             }
-
+            // dd($lists->toArray());
             $returnMsg = helpers_success_message($lists);
         } catch (Exception $e) {
             $returnMsg = helpers_fail_message($e->getMessage());

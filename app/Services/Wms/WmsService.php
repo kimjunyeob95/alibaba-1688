@@ -162,7 +162,7 @@ class WmsService
 
    /**
     * @func outList
-    * @description '출고관리 라스트'
+    * @description '출고 라스트'
     * @param array $params
     * @return array
     */
