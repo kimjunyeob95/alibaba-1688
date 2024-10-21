@@ -166,6 +166,7 @@
                                 <th scope="col" style="width: 20%">출고정보</th>
                                 <th scope="col" style="width: 5%">수령인</th>
                                 <th scope="col" style="width: 5%">운송정보</th>
+                                <th scope="col" style="width: 5%">배송금액</th>
                                 <th scope="col" style="width: 8%">
                                     출고 지시일<br>
                                     출고 완료일
@@ -260,6 +261,15 @@
                                         <br>
                                         <small>
                                             ({{ OrderConstant::SHIPPING_TYPE[$data->shipping_type]}})
+                                        </small>
+                                    </td>
+                                    <td rowspan={{ $rowSpan }}>
+                                        <small>
+                                            @if ($data->out_weight)
+                                                {{ number_format($data->out_weight->total_money) }}
+                                            @else
+                                                0                                                
+                                            @endif
                                         </small>
                                     </td>
                                     <td rowspan={{ $rowSpan }}>
