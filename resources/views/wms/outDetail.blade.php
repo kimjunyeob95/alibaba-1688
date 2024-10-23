@@ -240,7 +240,17 @@
                                     <th scope="col">수수료(원)</th>
                                     <td>{{ $data->out_weight->commission }}</td>
                                     <th scope="col">총 배송금액(원)</th>
-                                    <td>{{ $data->out_weight->total_money }}</td>
+                                    <td>
+                                        {{ $data->out_weight->total_money }}
+                                        <br>
+                                        @if ($data->out_weight && $data->out_delivery && $data->out_delivery->state === BonaeraConstant::GROUP_STATUS_304)
+                                            <button class="btn btn-sm btn-danger btn-pay text-white" data-id={{ $data->id }}>결제하기</button>
+                                            @if ($data->pay_fail_log)
+                                                <br>
+                                                <small class="text-danger">통신실패사유: {{ $data->pay_fail_log->message }}</small>
+                                            @endif
+                                        @endif
+                                    </td>
                                 </tr>
                             </tbody>
                         </table>
@@ -266,6 +276,31 @@
                     "headers" : {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
                     "type"    : "POST",
                     "url"     : "{{ route('w.wms.bonaeraOutUpdate') }}",
+                    "data"    : { ids: ids },
+                    beforeSend: function () {},
+                    complete  : function(xhr, status) {
+                        $("#loadingOverlay").hide();
+                    },
+                    success : function (resp) {
+                        alert(resp.msg);
+                    },
+                    error: function (request) {
+                        let { error } = JSON.parse(request.responseText);
+                        alert(error.message);
+                    }
+                });
+            }
+        });
+
+        $(".btn-pay").click(function(){
+            let ids = [$(this).data("id")];
+
+            if(confirm(`배송급액을 결제하시겠습니까?`)){
+                $("#loadingOverlay").show();
+                $.ajax({
+                    "headers" : {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
+                    "type"    : "POST",
+                    "url"     : "{{ route('w.wms.bonaeraOutPay') }}",
                     "data"    : { ids: ids },
                     beforeSend: function () {},
                     complete  : function(xhr, status) {

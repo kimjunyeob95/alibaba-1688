@@ -10,17 +10,19 @@ class BonaeraErrorMessageConstant
     private static $defaultNotHaveMsg  = "Empty";
     private static $defaultFitErrorMsg = "Error";
 
-    public const ERROR_MESSAGE_BONAERA_IN_BASE_DATA    = "bonaera_in_base_data";
-    public const ERROR_MESSAGE_BONAERA_IN_PRODUCT_DATA = "bonaera_in_product_data";
-    public const ERROR_MESSAGE_BONAERA_IN_FAIL_DATA    = "bonaera_in_fail_data";
-    public const ERROR_MESSAGE_LOGISTICS_BILL_NO       = "logisticsBillNo";
-    public const ERROR_MESSAGE_LOGISTICS_ITEMLIST      = "logistics itemList";
-    public const ERROR_MESSAGE_HS_CODE                 = "hs_code";
-    public const ERROR_MESSAGE_PRODUCTSHNO             = "품목번호";
-    public const ERROR_MESSAGE_ITEMLIST                = "itemList";
-    public const ERROR_MESSAGE_OPTLIST                 = "optList";
-    public const ERROR_MESSAGE_ORDERCHANNELOBJS        = "orderChannelObjs";
-    public const ERROR_MESSAGE_ALL_OPTION_NOT_READY    = "모든 옵션이 입고완료 상태가 아닙니다.";
+    public const ERROR_MESSAGE_BONAERA_IN_BASE_DATA      = "bonaera_in_base_data";
+    public const ERROR_MESSAGE_BONAERA_IN_PRODUCT_DATA   = "bonaera_in_product_data";
+    public const ERROR_MESSAGE_BONAERA_IN_FAIL_DATA      = "bonaera_in_fail_data";
+    public const ERROR_MESSAGE_BONAERA_OUT_BASE_DATA     = "bonaera_out_base_data";
+    public const ERROR_MESSAGE_BONAERA_OUT_DELIVERY_DATA = "bonaera_out_delivery_data";
+    public const ERROR_MESSAGE_LOGISTICS_BILL_NO         = "logisticsBillNo";
+    public const ERROR_MESSAGE_LOGISTICS_ITEMLIST        = "logistics itemList";
+    public const ERROR_MESSAGE_HS_CODE                   = "hs_code";
+    public const ERROR_MESSAGE_PRODUCTSHNO               = "품목번호";
+    public const ERROR_MESSAGE_ITEMLIST                  = "itemList";
+    public const ERROR_MESSAGE_OPTLIST                   = "optList";
+    public const ERROR_MESSAGE_ORDERCHANNELOBJS          = "orderChannelObjs";
+    public const ERROR_MESSAGE_ALL_OPTION_NOT_READY      = "모든 옵션이 입고완료 상태가 아닙니다.";
  
     public static function getErrorMessageNotDefault($constantName): string
     {

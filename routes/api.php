@@ -194,6 +194,8 @@ Route::name('w.')->prefix('w')->group(function () {
         Route::post("/bonaeraOut/create", [WAppWmsController::class, "bonaeraOutCreate"])->name("bonaeraOutCreate");
         /** 출고정보 업데이트 */
         Route::post("/bonaeraOut/update", [WAppWmsController::class, "bonaeraOutUpdate"])->name("bonaeraOutUpdate");
+        /** 출고 배송비 결제 */
+        Route::post("/bonaeraOut/pay", [WAppWmsController::class, "bonaeraOutPay"])->name("bonaeraOutPay");
     });
 
     Route::name('forbiddenWord.')->prefix('forbiddenWord')->group(function () {
