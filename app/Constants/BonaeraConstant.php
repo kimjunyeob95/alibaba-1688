@@ -90,4 +90,8 @@ class BonaeraConstant
     public const IMG_NUMBER_8  = 8;
     public const IMG_NUMBER_9  = 9;
     public const IMG_NUMBER_10 = 10;
+
+    /** 배송비 결제 */
+    public const DELIVERY_PAY_Y = "Y";
+    public const DELIVERY_PAY_N = "N";
 }

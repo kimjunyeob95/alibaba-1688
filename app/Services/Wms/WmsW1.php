@@ -15,6 +15,7 @@ use App\Models\BonaeraInProductImgData;
 use App\Models\BonaeraOutBaseData;
 use App\Models\BonaeraOutDeliveryData;
 use App\Models\BonaeraOutDeliveryExtraData;
+use App\Models\BonaeraOutDeliveryPayLogData;
 use App\Models\BonaeraOutExtraData;
 use App\Models\BonaeraOutWeightData;
 use App\Models\HsCodeData;
@@ -535,7 +536,7 @@ class WmsW1 extends WmsAbstract
                 "ocd.clearance_type",
                 "ocd.shipping_type",
             ])
-            ->with(["order.product", "logistics_last", "out_options.w_option", "out_weight"])
+            ->with(["order.product", "logistics_last", "out_options.w_option", "out_weight", "pay_fail_log"])
             ->leftJoin("bonaera_out_delivery_datas as bodd", "bonaera_out_base_datas.group_no", "=", "bodd.group_no")
             ->leftJoin("order_channel_datas as ocd", "bonaera_out_base_datas.order_id", "=", "ocd.order_id")
             ->groupBy("bonaera_out_base_datas.group_no");
@@ -640,7 +641,7 @@ class WmsW1 extends WmsAbstract
         try {
             $baseObj = BonaeraOutBaseData::where("id", $id)->first();
             if( $baseObj == null ){
-                throw new Exception(BonaeraErrorMessageConstant::getNotHaveErrorMessage("BONAERA_IN_BASE_DATA"));
+                throw new Exception(BonaeraErrorMessageConstant::getNotHaveErrorMessage("BONAERA_OUT_BASE_DATA"));
             }
 
             $groupNo = $baseObj->group_no;
@@ -745,6 +746,55 @@ class WmsW1 extends WmsAbstract
         }
     }
 
+    public function bonaeraOutPay(int $id): void
+    {
+        try {
+            $baseObj = BonaeraOutBaseData::with([
+                "out_delivery"
+            ])->where("id", $id)->first();
+            if( $baseObj == null ){
+                throw new Exception(BonaeraErrorMessageConstant::getNotHaveErrorMessage("BONAERA_OUT_BASE_DATA"));
+            }
+
+            if( $baseObj->out_delivery == null ){
+                throw new Exception(BonaeraErrorMessageConstant::getNotHaveErrorMessage("BONAERA_OUT_DELIVERY_DATA"));
+            }
+
+            $groupNo = $baseObj->group_no;
+            $payObj  = BonaeraOutDeliveryPayLogData::where([
+                "group_no" => $groupNo,
+                "success"  => BonaeraConstant::DELIVERY_PAY_Y
+            ])->first();
+
+            if( $baseObj->out_delivery->state === BonaeraConstant::GROUP_STATUS_304 && $payObj === null ){
+                $res = $this->bonaera->getPayment($groupNo);
+                if( $res["isSuccess"] === true && isset($res["data"]["groupNo"]) && $res["data"]["groupNo"] ) {
+                    BonaeraOutDeliveryPayLogData::where([
+                        "group_no" => $groupNo,
+                    ])->update([
+                        "success" => BonaeraConstant::DELIVERY_PAY_Y,
+                        "message" => $res["data"]["message"]
+                    ]);
+
+                    $this->bonaeraOutUpdate($id);
+                } else {
+                    BonaeraOutDeliveryPayLogData::updateOrCreate(
+                        [
+                            "group_no" => $groupNo,
+                            "success"  => BonaeraConstant::DELIVERY_PAY_N,
+                        ],
+                        [
+                            "message" => $res["msg"]
+                        ]
+                    );
+                }
+            }
+        } catch (Exception $e) {
+            $msg = "error: " . $e->getMessage();
+            debug_log($msg, "boneara/bonaeraOutPay", "bonaeraOutPay");
+        }
+    }
+
     public function outDetail(string $groupNo): array
     {
         $returnMsg = $this->returnMsg;
@@ -757,6 +807,7 @@ class WmsW1 extends WmsAbstract
                 "logistics_last",
                 "out_delivery",
                 "out_weight",
+                "pay_fail_log"
             ])
             ->where("group_no", $groupNo)->first();
 

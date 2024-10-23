@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Constants\BonaeraConstant;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -37,5 +38,9 @@ class BonaeraOutBaseData extends Model
 
     public function out_weight () {
         return $this->hasOne(BonaeraOutWeightData::class, "group_no", "group_no");
+    }
+
+    public function pay_fail_log () {
+        return $this->hasOne(BonaeraOutDeliveryPayLogData::class, "group_no", "group_no")->where("success", BonaeraConstant::DELIVERY_PAY_N);
     }
 }

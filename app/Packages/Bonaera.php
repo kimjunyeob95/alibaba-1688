@@ -448,4 +448,33 @@ class Bonaera
 
         return $returnMsg;
     }
+
+    /** 배송비 결제 */
+    public function getPayment(string $groupNo): array
+    {
+        $returnMsg = $this->returnMsg;
+        
+        $endPoint = $this->domain . '/elpisapi/payment_api.php';
+        $payload  = [
+            "userId"  => $this->userId,
+            "groupNo" => $groupNo,
+        ];
+
+        try {
+            $result = helpers_curl("POST", $endPoint, $this->header, $payload);
+            if( !isset($result["groupNo"]) || empty($result["groupNo"]) ) {
+                $errorMsg = "payment_api 통신";
+                if( isset($result["message"]) && $result["message"] ){
+                    $errorMsg = $result["message"];
+                }
+                throw new Exception($errorMsg);
+            }
+
+            $returnMsg = helpers_success_message($result);
+        } catch (Exception $e) {
+            $returnMsg = helpers_fail_message($e->getMessage());
+        }
+
+        return $returnMsg;
+    }
 }
