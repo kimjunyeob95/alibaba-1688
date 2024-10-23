@@ -543,7 +543,7 @@
         $(".btn-pay").click(function(){
             let ids = [$(this).data("id")];
 
-            if(confirm(`배송급액을 결제하시겠습니까?`)){
+            if(confirm(`배송비 금액을 결제하시겠습니까?`)){
                 $("#loadingOverlay").show();
                 $.ajax({
                     "headers" : {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
