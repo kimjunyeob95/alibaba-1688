@@ -73,6 +73,18 @@ class WmsCommand extends Command
                     }
                 }
                 break;
+            /**
+             * 출고 배송비 결제
+             * php artisan wms_command --func=bonaeraOutPay --ids=1
+             */
+            case 'bonaeraOutPay':
+                $ids = explode(",", $this->option('ids'));
+                if (!empty($ids)) {
+                    foreach ($ids as $id) {
+                        $this->wmsService->bonaeraOutPay($id);
+                    }
+                }
+                break;
             default:
                 break;
         }

@@ -139,6 +139,17 @@ class WmsService
    }
 
    /**
+    * @func bonaeraOutPay
+    * @description '출고 배송비 결제'
+    * @param int $id
+    * @return void
+    */
+   public function bonaeraOutPay(int $id): void
+   {
+      $this->wmsAbstract->bonaeraOutPay($id);
+   }
+
+   /**
     * @func inDetail
     * @description '입고정보 상세'
     * @param string $stockNo
