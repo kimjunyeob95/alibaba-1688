@@ -674,7 +674,7 @@ class WmsW1 extends WmsAbstract
 
                 if( isset($res["ExtraSvcShip"]) ){
                     foreach ($res["ExtraSvcShip"] as $extra) {
-                        if( $extra["ExtraName"] ){
+                        if( !empty($extra["ExtraName"]) ){
                             BonaeraOutDeliveryExtraData::updateOrCreate(
                                 [
                                     "group_no"   => $groupNo,
@@ -728,7 +728,7 @@ class WmsW1 extends WmsAbstract
                 $orderRes = $this->bonaera->getOrderApplicationList($shNo);
                 if( isset($orderRes["data"]["ExtraSvcOrder"]) ){
                     foreach ($orderRes["data"]["ExtraSvcOrder"] as $extraOrder) {
-                        if( $extraOrder["ExtraName"] ){
+                        if( !empty($extraOrder["ExtraName"]) ){
                             BonaeraOutExtraData::updateOrCreate(
                                 [
                                     "sh_no"      => $shNo,
