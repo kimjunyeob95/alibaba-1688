@@ -725,15 +725,15 @@ class WmsW1 extends WmsAbstract
                 /** 상품정보조회(출고신청번호기준) 조회 */
                 $orderRes = $this->bonaera->getOrderApplicationList($shNo);
                 if( isset($orderRes["data"]["ExtraSvcOrder"]) ){
-                    foreach ($orderRes["data"]["ExtraSvcOrder"] as $extra) {
+                    foreach ($orderRes["data"]["ExtraSvcOrder"] as $extraOrder) {
                         BonaeraOutExtraData::updateOrCreate(
                             [
                                 "sh_no"      => $shNo,
-                                "extra_name" => $extra["ExtraName"],
+                                "extra_name" => $extraOrder["ExtraName"],
                             ],
                             [
-                                "extra_money" => $extra["ExtraMoney"],
-                                "extra_cnt"   => $extra["ExtraCnt"],
+                                "extra_money" => $extraOrder["ExtraMoney"],
+                                "extra_cnt"   => $extraOrder["ExtraCnt"],
                             ]
                         );  
                     }
@@ -768,21 +768,23 @@ class WmsW1 extends WmsAbstract
             if( $baseObj->out_delivery->state === BonaeraConstant::GROUP_STATUS_304 && $payObj === null ){
                 $res = $this->bonaera->getPayment($groupNo);
                 if( $res["isSuccess"] === true && isset($res["data"]["groupNo"]) && $res["data"]["groupNo"] ) {
-                    BonaeraOutDeliveryPayLogData::where([
-                        "group_no" => $groupNo,
-                    ])->update([
-                        "success" => BonaeraConstant::DELIVERY_PAY_Y,
-                        "message" => $res["data"]["message"]
-                    ]);
-
+                    BonaeraOutDeliveryPayLogData::updateOrCreate(
+                        [
+                            "group_no" => $groupNo,
+                        ],
+                        [
+                            "success" => BonaeraConstant::DELIVERY_PAY_Y,
+                            "message" => $res["data"]["message"]
+                        ]
+                    );
                     $this->bonaeraOutUpdate($id);
                 } else {
                     BonaeraOutDeliveryPayLogData::updateOrCreate(
                         [
                             "group_no" => $groupNo,
-                            "success"  => BonaeraConstant::DELIVERY_PAY_N,
                         ],
                         [
+                            "success" => BonaeraConstant::DELIVERY_PAY_N,
                             "message" => $res["msg"]
                         ]
                     );
