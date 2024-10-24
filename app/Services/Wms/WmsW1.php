@@ -674,16 +674,18 @@ class WmsW1 extends WmsAbstract
 
                 if( isset($res["ExtraSvcShip"]) ){
                     foreach ($res["ExtraSvcShip"] as $extra) {
-                        BonaeraOutDeliveryExtraData::updateOrCreate(
-                            [
-                                "group_no"   => $groupNo,
-                                "extra_name" => $extra["ExtraName"],
-                            ],
-                            [
-                                "extra_money" => $extra["ExtraMoney"],
-                                "extra_cnt"   => $extra["ExtraCnt"],
-                            ]
-                        );                        
+                        if( $extra["ExtraName"] ){
+                            BonaeraOutDeliveryExtraData::updateOrCreate(
+                                [
+                                    "group_no"   => $groupNo,
+                                    "extra_name" => $extra["ExtraName"],
+                                ],
+                                [
+                                    "extra_money" => $extra["ExtraMoney"],
+                                    "extra_cnt"   => $extra["ExtraCnt"],
+                                ]
+                            );
+                        }
                     }
                 }
 
@@ -726,16 +728,18 @@ class WmsW1 extends WmsAbstract
                 $orderRes = $this->bonaera->getOrderApplicationList($shNo);
                 if( isset($orderRes["data"]["ExtraSvcOrder"]) ){
                     foreach ($orderRes["data"]["ExtraSvcOrder"] as $extraOrder) {
-                        BonaeraOutExtraData::updateOrCreate(
-                            [
-                                "sh_no"      => $shNo,
-                                "extra_name" => $extraOrder["ExtraName"],
-                            ],
-                            [
-                                "extra_money" => $extraOrder["ExtraMoney"],
-                                "extra_cnt"   => $extraOrder["ExtraCnt"],
-                            ]
-                        );  
+                        if( $extraOrder["ExtraName"] ){
+                            BonaeraOutExtraData::updateOrCreate(
+                                [
+                                    "sh_no"      => $shNo,
+                                    "extra_name" => $extraOrder["ExtraName"],
+                                ],
+                                [
+                                    "extra_money" => $extraOrder["ExtraMoney"],
+                                    "extra_cnt"   => $extraOrder["ExtraCnt"],
+                                ]
+                            );  
+                        }
                     }
                 }
             }
