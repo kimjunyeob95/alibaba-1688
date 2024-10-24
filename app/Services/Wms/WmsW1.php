@@ -8,7 +8,6 @@ use App\Constants\BonaeraErrorMessageConstant;
 use App\Constants\OrderErrorMessageConstant;
 use App\Constants\WmsConstant;
 use App\Models\BonaeraInBaseData;
-use App\Models\BonaeraInExtraData;
 use App\Models\BonaeraInFailData;
 use App\Models\BonaeraInProductData;
 use App\Models\BonaeraInProductImgData;

@@ -160,4 +160,11 @@ class MethodTest extends TestCase
 
         dd("끝");
     }
+
+    # php artisan test --filter testDebugLog
+    public function testDebugLog()
+    {
+        $msg = "test Log";
+        debug_log($msg, "testLog", "testLog");
+    }
 }
