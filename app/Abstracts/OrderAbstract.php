@@ -205,13 +205,30 @@ abstract class OrderAbstract
             $upsertWhere = $orderChannelDto->getAllProperties();
             unset($upsertWhere["order_id"]);
             unset($upsertWhere["channel_order_id"]);
-            $ocdObj = OrderChannelData::lockForUpdate()->updateOrCreate(
-                [
+            unset($upsertWhere["origin_channel_order_id"]);
+
+            $originChannelOrderId = $orderChannelDto->origin_channel_order_id;
+            if( !empty($originChannelOrderId) ) {
+                OrderChannelData::lockForUpdate()->where([
+                    "order_id"         => $orderChannelDto->order_id,
+                    "channel_order_id" => $originChannelOrderId,
+                ])->update([
+                    "channel_order_id" => $orderChannelDto->channel_order_id,
+                ] + $upsertWhere);
+
+                $ocdObj = OrderChannelData::where([
                     "order_id"         => $orderChannelDto->order_id,
                     "channel_order_id" => $orderChannelDto->channel_order_id,
-                ],
-                $upsertWhere
-            );
+                ])->first();
+            } else {
+                $ocdObj = OrderChannelData::lockForUpdate()->updateOrCreate(
+                    [
+                        "order_id"         => $orderChannelDto->order_id,
+                        "channel_order_id" => $orderChannelDto->channel_order_id,
+                    ],
+                    $upsertWhere
+                );
+            }
 
             foreach ($orderChannelDetailDtos as $orderChannelDetailDto) {
                 $upsertWhere = $orderChannelDetailDto->getAllProperties();
@@ -332,6 +349,12 @@ abstract class OrderAbstract
                 foreach ($changeChannels as $changeChannel) {
                     $orderChannelDetailDtos = [];
 
+                    $channelObj = OrderChannelData::where("channel_order_id", $changeChannel["channel_order_id"])
+                    ->where("order_id", "!=", $orderId)->first();
+                    if( $channelObj !== null ){
+                        throw new Exception(OrderErrorMessageConstant::getHaveErrorMessage("CHANNEL_ORDER_ID"));
+                    }
+
                     if( isset($changeChannel["options"]) && !empty($changeChannel["options"]) ){
                         $totalQuantity     = 0;
                         $totalPrice        = 0;
@@ -356,6 +379,7 @@ abstract class OrderAbstract
                         }
                         $orderChannelDtoBind = [
                             "orderId"              => $orderId,
+                            "originChannelOrderId" => $changeChannel["origin_channel_order_id"],
                             "channelOrderId"       => $changeChannel["channel_order_id"],
                             "clearanceType"        => $changeChannel["clearance_type"],
                             "shippingType"         => $changeChannel["shipping_type"],
@@ -385,6 +409,7 @@ abstract class OrderAbstract
 
                         $orderChannelDtoBind = [
                             "orderId"              => $orderId,
+                            "originChannelOrderId" => $changeChannel["origin_channel_order_id"],
                             "channelOrderId"       => $changeChannel["channel_order_id"],
                             "clearanceType"        => $changeChannel["clearance_type"],
                             "shippingType"         => $changeChannel["shipping_type"],
@@ -412,6 +437,12 @@ abstract class OrderAbstract
                 /** 2. 추가 주문 update */
                 foreach ($addChannels as $addChannel) {
                     $orderChannelDetailDtos = [];
+
+                    $channelObj = OrderChannelData::where("channel_order_id", $addChannel["channel_order_id"])
+                    ->where("order_id", "!=", $orderId)->first();
+                    if( $channelObj !== null ){
+                        throw new Exception(OrderErrorMessageConstant::getHaveErrorMessage("CHANNEL_ORDER_ID"));
+                    }
 
                     if( isset($addChannel["options"]) && !empty($addChannel["options"]) ){
                         $totalQuantity     = 0;

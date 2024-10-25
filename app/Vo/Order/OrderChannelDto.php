@@ -8,6 +8,8 @@ class OrderChannelDto extends Vo
 {
     /** 주문ID */
     protected string $order_id = "";
+    /** 원본 채널 주문ID */
+    protected string $origin_channel_order_id = "";
     /** 채널 주문ID */
     protected string $channel_order_id = "";
     /** 통관유형 */
@@ -39,20 +41,21 @@ class OrderChannelDto extends Vo
 
     public function bind(mixed $data): void
     {
-        $this->order_id               = $data["orderId"];
-        $this->channel_order_id       = $data["channelOrderId"];
-        $this->clearance_type         = $data["clearanceType"];
-        $this->shipping_type          = $data["shippingType"];
-        $this->total_quantity         = $data["totalQuantity"];
-        $this->total_price            = $data["totalPrice"];
-        $this->total_channel_price    = $data["totalChannelPrice"];
-        $this->delivery_price         = $data["deliveryPrice"];
-        $this->buyer_name             = $data["buyerName"];
-        $this->buyer_clearance_number = $data["buyerClearanceNumber"];
-        $this->buyer_number           = $data["buyerNumber"];
-        $this->buyer_phone            = $data["buyerPhone"];
-        $this->buyer_zipcode          = $data["buyerZipcode"];
-        $this->buyer_address          = $data["buyerAddress"];
-        $this->buyer_memo             = $data["buyerMemo"];
+        $this->order_id                = $data["orderId"];
+        $this->origin_channel_order_id = !empty($data["originChannelOrderId"]) ? $data["originChannelOrderId"] : "";
+        $this->channel_order_id        = $data["channelOrderId"];
+        $this->clearance_type          = $data["clearanceType"];
+        $this->shipping_type           = $data["shippingType"];
+        $this->total_quantity          = $data["totalQuantity"];
+        $this->total_price             = $data["totalPrice"];
+        $this->total_channel_price     = $data["totalChannelPrice"];
+        $this->delivery_price          = $data["deliveryPrice"];
+        $this->buyer_name              = $data["buyerName"];
+        $this->buyer_clearance_number  = $data["buyerClearanceNumber"];
+        $this->buyer_number            = $data["buyerNumber"];
+        $this->buyer_phone             = $data["buyerPhone"];
+        $this->buyer_zipcode           = $data["buyerZipcode"];
+        $this->buyer_address           = $data["buyerAddress"];
+        $this->buyer_memo              = $data["buyerMemo"];
     }
 }

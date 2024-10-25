@@ -8,6 +8,7 @@ use App\Constants\OrderConstant;
 use App\Constants\OrderErrorMessageConstant;
 use App\Constants\ProductErrorMessageConstant;
 use App\Models\OrderBaseData;
+use App\Models\OrderChannelData;
 use App\Models\ProductOptionData;
 use App\Vo\Order\OrderChannelDetailDto;
 use App\Vo\Order\OrderChannelDto;
@@ -160,6 +161,11 @@ trait MallOrderTrait
             }
             if( isset($params["shipping_type"]) && isset(OrderConstant::SHIPPING_TYPE[$params["shipping_type"]]) ){
                 $shippingType = $params["shipping_type"];
+            }
+
+            $channelObj = OrderChannelData::where("channel_order_id", $channelOrderId)->first();
+            if( $channelObj !== null ){
+                throw new Exception(OrderErrorMessageConstant::getHaveErrorMessage("CHANNEL_ORDER_ID"));
             }
 
             $orderChannelDetailDtos = [];
