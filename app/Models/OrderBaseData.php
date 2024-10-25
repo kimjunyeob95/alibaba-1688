@@ -27,6 +27,10 @@ class OrderBaseData extends Model
         return $this->hasMany(OrderLogisticsData::class, "order_id", "order_id");
     }
 
+    public function logistics_first () {
+        return $this->hasOne(OrderLogisticsData::class, "order_id", "order_id")->orderBy("id", "asc");
+    }
+
     public function logistics_last () {
         return $this->hasOne(OrderLogisticsData::class, "order_id", "order_id")->orderBy("delivered_time", "desc");
     }
@@ -39,5 +43,9 @@ class OrderBaseData extends Model
     public function channel_objs()
     {
         return $this->hasMany(OrderChannelData::class, "order_id", "order_id");
+    }
+
+    public function trade_first () {
+        return $this->hasOne(OrderTradeData::class, "order_id", "order_id")->orderBy("id", "asc");
     }
 }
