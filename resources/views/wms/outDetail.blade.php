@@ -49,8 +49,8 @@
                                     <td>{{ $data->group_no }}</td>
                                     <th scope="col" style="width: 10%">운송방법</th>
                                     <td>
-                                        @if ($data->out_weight)
-                                            {{ BonaeraConstant::CTR_NUM[$data->out_weight->ctr_num] }}
+                                        @if ($data->out_delivery)
+                                            {{ BonaeraConstant::CTR_NUM[$data->out_delivery->ctr_num] }}
                                         @endif
                                     </td>
                                 </tr>
