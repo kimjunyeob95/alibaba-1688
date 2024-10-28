@@ -20,6 +20,8 @@ use App\Models\BonaeraOutWeightData;
 use App\Models\HsCodeData;
 use App\Models\OrderChannelData;
 use App\Packages\Bonaera;
+use App\Vo\Bonaera\BonaeraOutDeliveryDataDto;
+use App\Vo\Bonaera\BonaeraOutWeightDataDto;
 use Carbon\Carbon;
 use Exception;
 use SimpleXMLElement;
@@ -651,25 +653,32 @@ class WmsW1 extends WmsAbstract
                 $res         = $res["data"]["data"];
                 $reciverInfo = $res["ReciverInfo"][0];
 
+                $bonaeraOutDeliveryDataDtoBind = [
+                    "groupNo"       => $groupNo,
+                    "invoice"       => $res["invoice"] ?? "",
+                    "ctrNum"        => $res["ctrNum"] ?? BonaeraConstant::CTR_NUM_2,
+                    "state"         => $res["state"],
+                    "outday"        => $res["outday"] ?? null,
+                    "receiverName"  => $reciverInfo["receiverName"],
+                    "zipCode"       => $reciverInfo["zipCode"],
+                    "addr1"         => $reciverInfo["addr1"],
+                    "addr2"         => $reciverInfo["addr2"],
+                    "receiverPhone" => $reciverInfo["receiverPhone"],
+                    "personalType"  => $reciverInfo["personalType"],
+                    "personalNum"   => $reciverInfo["personalNum"],
+                    "unipassResult" => $reciverInfo["unipassResult"],
+                    "unipassReason" => $reciverInfo["unipassReason"],
+                    "shipMemo"      => $reciverInfo["shipMemo"],
+                ];
+                $bonaeraOutDeliveryDataDto = new BonaeraOutDeliveryDataDto();
+                $bonaeraOutDeliveryDataDto->bind($bonaeraOutDeliveryDataDtoBind);
+
+                $upsertWhere = $bonaeraOutDeliveryDataDto->getAllProperties();
+                unset($upsertWhere["group_no"]);
+
                 BonaeraOutDeliveryData::updateOrCreate(
-                    [
-                        "group_no" => $groupNo,
-                    ],
-                    [
-                        "invoice"        => $res["invoice"] ?? "",
-                        "state"          => $res["state"],
-                        "outday"         => $res["outday"] ?? null,
-                        "receiver_name"  => $reciverInfo["receiverName"],
-                        "zip_code"       => $reciverInfo["zipCode"],
-                        "addr1"          => $reciverInfo["addr1"],
-                        "addr2"          => $reciverInfo["addr2"],
-                        "receiver_phone" => $reciverInfo["receiverPhone"],
-                        "personal_type"  => $reciverInfo["personalType"],
-                        "personal_num"   => $reciverInfo["personalNum"],
-                        "unipass_result" => $reciverInfo["unipassResult"],
-                        "unipass_reason" => $reciverInfo["unipassReason"],
-                        "ship_memo"      => $reciverInfo["shipMemo"],
-                    ]
+                    ["group_no" => $groupNo],
+                    $upsertWhere
                 );
 
                 if( isset($res["ExtraSvcShip"]) ){
@@ -692,30 +701,37 @@ class WmsW1 extends WmsAbstract
                 if( isset($res["weightList"][0]) ){
                     $weight = $res["weightList"][0];
 
+                    $bonaeraOutWeightDataDtoBind = [
+                        "groupNo"        => $groupNo,
+                        "boxCnt"         => $weight["boxCnt"] ?? 0,
+                        "realWeight"     => $weight["realWeight"] ?? 0,
+                        "width"          => $weight["width"] ?? 0,
+                        "length"         => $weight["length"] ?? 0,
+                        "height"         => $weight["height"] ?? 0,
+                        "weight"         => $weight["weight"] ?? 0,
+                        "shipMoney"      => $weight["shipMoney"] ?? 0,
+                        "weightFee"      => $weight["weightFee"] ?? 0,
+                        "volumeFee"      => $weight["volumeFee"] ?? 0,
+                        "svcMoney1"      => $weight["svcMoney1"] ?? 0,
+                        "svcMoney2"      => $weight["svcMoney2"] ?? 0,
+                        "plusMoney"      => $weight["plusMoney"] ?? 0,
+                        "plusMoneyMemo"  => $weight["plusMoneyMemo"] ?? "",
+                        "minusMoney"     => $weight["minusMoney"] ?? 0,
+                        "minusMoneyMemo" => $weight["minusMoneyMemo"] ?? "",
+                        "commission"     => $weight["commission"] ?? 0,
+                        "islands"        => $weight["islands"] ?? 0,
+                        "totalMoney"     => $weight["totalMoney"] ?? 0,
+
+                    ];
+                    $bonaeraOutWeightDataDto = new BonaeraOutWeightDataDto();
+                    $bonaeraOutWeightDataDto->bind($bonaeraOutWeightDataDtoBind);
+
+                    $upsertWhere = $bonaeraOutWeightDataDto->getAllProperties();
+                    unset($upsertWhere["group_no"]);
+
                     BonaeraOutWeightData::updateOrCreate(
-                        [
-                            "group_no" => $groupNo,
-                        ],
-                        [
-                            "box_cnt"          => $weight["boxCnt"] ?? 0,
-                            "real_weight"      => $weight["realWeight"] ?? 0,
-                            "width"            => $weight["width"] ?? 0,
-                            "length"           => $weight["length"] ?? 0,
-                            "height"           => $weight["height"] ?? 0,
-                            "weight"           => $weight["weight"] ?? 0,
-                            "ship_money"       => $weight["shipMoney"] ?? 0,
-                            "weight_fee"       => $weight["weightFee"] ?? 0,
-                            "volume_fee"       => $weight["volumeFee"] ?? 0,
-                            "svc_money1"       => $weight["svcMoney1"] ?? 0,
-                            "svc_money2"       => $weight["svcMoney2"] ?? 0,
-                            "plus_money"       => $weight["plusMoney"] ?? 0,
-                            "plus_money_memo"  => $weight["plusMoneyMemo"] ?? "",
-                            "minus_money"      => $weight["minusMoney"] ?? 0,
-                            "minus_money_memo" => $weight["minusMoneyMemo"] ?? "",
-                            "commission"       => $weight["commission"] ?? 0,
-                            "islands"          => $weight["islands"] ?? 0,
-                            "total_money"      => $weight["totalMoney"] ?? 0,
-                        ]
+                        ["group_no" => $groupNo],
+                        $upsertWhere
                     );
                 }
             }

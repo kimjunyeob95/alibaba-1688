@@ -3,8 +3,6 @@
 namespace App\Vo\EasySell;
 
 use App\Constants\EasySellConstant;
-use App\Constants\GosiConstants;
-use App\Constants\WConstant;
 use App\Vo\Vo;
 
 class EasySellProductVo extends Vo
