@@ -135,8 +135,8 @@
                                                 </small>
                                             @endif
                                         </td>
-                                        <td>{{ $out_option->quantity }}</td>
-                                        <td>{{ $data->out_delivery->state === BonaeraConstant::GROUP_STATUS_307 ? $out_option->quantity : 0 }}</td>
+                                        <td>{{ number_format($out_option->quantity) }}</td>
+                                        <td>{{ $data->out_delivery->state === BonaeraConstant::GROUP_STATUS_307 ? number_format($out_option->quantity) : 0 }}</td>
                                     </tr>
                                 @endforeach
                             </tbody>
@@ -202,7 +202,7 @@
                             <tbody>
                                 <tr>
                                     <th scope="col" style="width: 15%">박스수</th>
-                                    <td>{{ $data->out_weight->box_cnt }}</td>
+                                    <td>{{ number_format($data->out_weight->box_cnt) }}</td>
                                     <th scope="col" style="width: 15%">실무게(kg)</th>
                                     <td>{{ $data->out_weight->real_weight }}</td>
                                 </tr>
@@ -210,38 +210,38 @@
                                     <th scope="col">크기(cm)</th>
                                     <td>{{ $data->out_weight->width }} x {{ $data->out_weight->length }} x {{ $data->out_weight->height }}</td>
                                     <th scope="col">부피할증료</th>
-                                    <td>{{ $data->out_weight->volume_fee }}</td>
+                                    <td>{{ number_format($data->out_weight->volume_fee) }}</td>
                                 </tr>
                                 <tr>
                                     <th scope="col">적용무게(kg)</th>
                                     <td>{{ $data->out_weight->weight }}</td>
                                     <th scope="col">무게할증료</th>
-                                    <td>{{ $data->out_weight->weight_fee }}</td>
+                                    <td>{{ number_format($data->out_weight->weight_fee) }}</td>
                                 </tr>
                                 <tr>
                                     <th scope="col">부가서비스:입고(원)</th>
-                                    <td>{{ $data->out_weight->svc_money1 }}</td>
+                                    <td>{{ number_format($data->out_weight->svc_money1) }}</td>
                                     <th scope="col">부가서비스:출고(원)</th>
-                                    <td>{{ $data->out_weight->svc_money2 }}</td>
+                                    <td>{{ number_format($data->out_weight->svc_money2) }}</td>
                                 </tr>
                                 <tr>
                                     <th scope="col">추가 요금(원) / 메모</th>
-                                    <td>{{ $data->out_weight->plus_money }} / {{ $data->out_weight->plus_money_memo }}</td>
+                                    <td>{{ number_format($data->out_weight->plus_money) }} / {{ $data->out_weight->plus_money_memo }}</td>
                                     <th scope="col">추가 할인(원) / 메모</th>
-                                    <td>{{ $data->out_weight->minus_money }} / {{ $data->out_weight->minus_money_memo }}</td>
+                                    <td>{{ number_format($data->out_weight->minus_money) }} / {{ $data->out_weight->minus_money_memo }}</td>
                                 </tr>
                                 <tr>
                                     <th scope="col">기본배송비(원)</th>
-                                    <td>{{ $data->out_weight->ship_money }}</td>
+                                    <td>{{ number_format($data->out_weight->ship_money) }}</td>
                                     <th scope="col">도서산간(원)</th>
-                                    <td>{{ $data->out_weight->islands }}</td>
+                                    <td>{{ number_format($data->out_weight->islands) }}</td>
                                 </tr>
                                 <tr>
                                     <th scope="col">수수료(원)</th>
-                                    <td>{{ $data->out_weight->commission }}</td>
+                                    <td>{{ number_format($data->out_weight->commission) }}</td>
                                     <th scope="col">총 배송금액(원)</th>
                                     <td>
-                                        {{ $data->out_weight->total_money }}
+                                        {{ number_format($data->out_weight->total_money) }}
                                         <br>
                                         @if ($data->out_weight && $data->out_delivery && $data->out_delivery->state === BonaeraConstant::GROUP_STATUS_304)
                                             <button class="btn btn-sm btn-danger btn-pay text-white" data-id={{ $data->id }}>결제하기</button>

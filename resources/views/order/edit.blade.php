@@ -255,128 +255,130 @@
                         </table>
                     </div>
 
-                    @foreach ($data->channel_objs as $key => $channel_obj)
-                        <div class="text-center mt-3 channelTableDiv">
-                            <table class="table table-bordered channelTable" channel_order_id="{{ $channel_obj->channel_order_id }}">
-                                <thead>
-                                    <tr>
-                                        <th colspan="14">
-                                            <div class="d-flex justify-content-between align-items-center">
-                                                <div style="width: 33.33%"></div>
-                                                <div style="width: 33.33%" class="text-center">
-                                                    채널 기본 주문 정보
+                    <div class="channelTableDiv">
+                        @foreach ($data->channel_objs as $key => $channel_obj)
+                            <div class="text-center mt-3">
+                                <table class="table table-bordered channelTable" channel_order_id="{{ $channel_obj->channel_order_id }}">
+                                    <thead>
+                                        <tr>
+                                            <th colspan="14">
+                                                <div class="d-flex justify-content-between align-items-center">
+                                                    <div style="width: 33.33%"></div>
+                                                    <div style="width: 33.33%" class="text-center">
+                                                        채널 기본 주문 정보
+                                                    </div>
+                                                    <div style="width: 33.33%" class="text-end">
+                                                        <button class="btn btn-danger text-white btn-channel-remove btn-md" channel_order_id="{{ $channel_obj->channel_order_id }}">채널 주문 삭제</button>
+                                                    </div>
                                                 </div>
-                                                <div style="width: 33.33%" class="text-end">
-                                                    <button class="btn btn-danger text-white btn-channel-remove btn-md" channel_order_id="{{ $channel_obj->channel_order_id }}">채널 주문 삭제</button>
-                                                </div>
-                                            </div>
-                                        </th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <th scope="col" style="">채널 주문번호</th>
-                                        <td colspan="3">
-                                            <input type="text" class="form-control required-inp" name="channel_order_id" placeholder="" value="{{ $channel_obj->channel_order_id }}">
-                                        </td>
-                                        <th scope="col" style="">배송비</th>
-                                        <td>
-                                            <input type="number" class="form-control required-inp" name="delivery_price" placeholder="" value="{{ (int)$channel_obj->delivery_price }}">
-                                        </td>
-                                        <th scope="col" style="">구매자</th>
-                                        <td>
-                                            <input type="text" class="form-control required-inp" name="buyer_name" placeholder="" value="{{ $channel_obj->buyer_name }}">
-                                        </td>
-                                        <th scope="col" style="">통관부호</th>
-                                        <td>
-                                            <input type="text" class="form-control required-inp" name="buyer_clearance_number" placeholder="" value="{{ $channel_obj->buyer_clearance_number }}">
-                                        </td>
-                                        <th scope="col" style="">통관유형</th>
-                                        <td>
-                                            <select class="form-select required-inp" name="clearance_type">
-                                                @foreach (OrderConstant::CLEARANCE_TYPE as $key => $clearance_type)
-                                                    <option value="{{ $key }}" @if($channel_obj->clearance_type == $key) selected @endif>{{ $clearance_type }}</option>
-                                                @endforeach
-                                            </select>
-                                        </td>
-                                        <th scope="col" style="">운송방법</th>
-                                        <td>
-                                            <select class="form-select required-inp" name="shipping_type">
-                                                @foreach (OrderConstant::SHIPPING_TYPE as $key => $shipping_type)
-                                                    <option value="{{ $key }}" @if($channel_obj->shipping_type == $key) selected @endif>{{ $shipping_type }}</option>
-                                                @endforeach
-                                            </select>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <th scope="col" style="">연락처1</th>
-                                        <td>
-                                            <input type="text" class="form-control required-inp" name="buyer_number" placeholder="" value="{{ $channel_obj->buyer_number }}">
-                                        </td>
-                                        <th scope="col" style="">연락처2</th>
-                                        <td>
-                                            <input type="text" class="form-control required-inp" name="buyer_phone" placeholder="" value="{{ $channel_obj->buyer_phone }}">
-                                        </td>
-                                        <th scope="col" style="">우편번호</th>
-                                        <td>
-                                            <input type="text" class="form-control required-inp" name="buyer_zipcode" placeholder="" value="{{ $channel_obj->buyer_zipcode }}">
-                                        </td>
-                                        <th scope="col" style="">주소</th>
-                                        <td colspan="7">
-                                            <input type="text" class="form-control required-inp" name="buyer_address" placeholder="" value="{{ $channel_obj->buyer_address }}">
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <th scope="col" style="">메모</th>
-                                        <td colspan="13">
-                                            <input type="text" class="form-control required-inp" name="buyer_memo" placeholder="" value="{{ $channel_obj->buyer_memo }}">
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <th scope="col">저장여부</th>
-                                        <th scope="col">옵션ID</th>
-                                        <th scope="col">옵션 이미지</th>
-                                        <th scope="col" colspan="8">옵션명</th>
-                                        <th scope="col">수량</th>
-                                        <th scope="col" colspan="2">채널 가격</th>
-                                    </tr>
-                                    @foreach ($data->w_options as $wOption)
-                                        @foreach ($channel_obj->details as $detail)
-                                            @php
-                                                $key = 0;
-                                            @endphp
-                                            @if( $detail->option_id == $wOption->option->id )
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <th scope="col" style="">채널 주문번호</th>
+                                            <td colspan="3">
+                                                <input type="text" class="form-control required-inp" name="channel_order_id" placeholder="" value="{{ $channel_obj->channel_order_id }}">
+                                            </td>
+                                            <th scope="col" style="">배송비</th>
+                                            <td>
+                                                <input type="number" class="form-control required-inp" name="delivery_price" placeholder="" value="{{ (int)$channel_obj->delivery_price }}">
+                                            </td>
+                                            <th scope="col" style="">구매자</th>
+                                            <td>
+                                                <input type="text" class="form-control required-inp" name="buyer_name" placeholder="" value="{{ $channel_obj->buyer_name }}">
+                                            </td>
+                                            <th scope="col" style="">통관부호</th>
+                                            <td>
+                                                <input type="text" class="form-control required-inp" name="buyer_clearance_number" placeholder="" value="{{ $channel_obj->buyer_clearance_number }}">
+                                            </td>
+                                            <th scope="col" style="">통관유형</th>
+                                            <td>
+                                                <select class="form-select required-inp" name="clearance_type">
+                                                    @foreach (OrderConstant::CLEARANCE_TYPE as $key => $clearance_type)
+                                                        <option value="{{ $key }}" @if($channel_obj->clearance_type == $key) selected @endif>{{ $clearance_type }}</option>
+                                                    @endforeach
+                                                </select>
+                                            </td>
+                                            <th scope="col" style="">운송방법</th>
+                                            <td>
+                                                <select class="form-select required-inp" name="shipping_type">
+                                                    @foreach (OrderConstant::SHIPPING_TYPE as $key => $shipping_type)
+                                                        <option value="{{ $key }}" @if($channel_obj->shipping_type == $key) selected @endif>{{ $shipping_type }}</option>
+                                                    @endforeach
+                                                </select>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="col" style="">연락처1</th>
+                                            <td>
+                                                <input type="text" class="form-control required-inp" name="buyer_number" placeholder="" value="{{ $channel_obj->buyer_number }}">
+                                            </td>
+                                            <th scope="col" style="">연락처2</th>
+                                            <td>
+                                                <input type="text" class="form-control required-inp" name="buyer_phone" placeholder="" value="{{ $channel_obj->buyer_phone }}">
+                                            </td>
+                                            <th scope="col" style="">우편번호</th>
+                                            <td>
+                                                <input type="text" class="form-control required-inp" name="buyer_zipcode" placeholder="" value="{{ $channel_obj->buyer_zipcode }}">
+                                            </td>
+                                            <th scope="col" style="">주소</th>
+                                            <td colspan="7">
+                                                <input type="text" class="form-control required-inp" name="buyer_address" placeholder="" value="{{ $channel_obj->buyer_address }}">
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="col" style="">메모</th>
+                                            <td colspan="13">
+                                                <input type="text" class="form-control required-inp" name="buyer_memo" placeholder="" value="{{ $channel_obj->buyer_memo }}">
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="col">저장여부</th>
+                                            <th scope="col">옵션ID</th>
+                                            <th scope="col">옵션 이미지</th>
+                                            <th scope="col" colspan="8">옵션명</th>
+                                            <th scope="col">수량</th>
+                                            <th scope="col" colspan="2">채널 가격</th>
+                                        </tr>
+                                        @foreach ($data->w_options as $wOption)
+                                            @foreach ($channel_obj->details as $detail)
                                                 @php
-                                                    $sku_img_url = "/assets/img/no_img.png";
-                                                    if( isset($wOption->option->sku_img_url) && $wOption->option->sku_img_url ){
-                                                        $sku_img_url = $wOption->option->sku_img_url;
-                                                    }
-
-                                                    $key++;
+                                                    $key = 0;
                                                 @endphp
-                                                <tr>
-                                                    <td class="text-center">
-                                                        <input class="form-check-input chk-inp" type="checkbox" checked channel_order_id={{ $channel_obj->channel_order_id}} value="{{ $detail->option_id }}">
-                                                    </td>
-                                                    <td>{{ $detail->option_id }}</td>
-                                                    <td><img class="lazy-img preview-image" width="50" height="50" src="{{ $sku_img_url }}"></td>
-                                                    <td colspan="8">{{ $wOption->option->option_name_kr }}</td>
-                                                    <td>
-                                                        <input type="number" class="form-control" name="quantity" placeholder="" value="{{ $detail->quantity }}">
-                                                    </td>
-                                                    <td colspan="2">
-                                                        <input type="number" class="form-control" name="channel_price" placeholder="" value="{{ (int)$detail->channel_price }}">
-                                                    </td>
-                                                </tr>
-                                            @endif
+                                                @if( $detail->option_id == $wOption->option->id )
+                                                    @php
+                                                        $sku_img_url = "/assets/img/no_img.png";
+                                                        if( isset($wOption->option->sku_img_url) && $wOption->option->sku_img_url ){
+                                                            $sku_img_url = $wOption->option->sku_img_url;
+                                                        }
+
+                                                        $key++;
+                                                    @endphp
+                                                    <tr>
+                                                        <td class="text-center">
+                                                            <input class="form-check-input chk-inp" type="checkbox" checked channel_order_id={{ $channel_obj->channel_order_id}} value="{{ $detail->option_id }}">
+                                                        </td>
+                                                        <td>{{ $detail->option_id }}</td>
+                                                        <td><img class="lazy-img preview-image" width="50" height="50" src="{{ $sku_img_url }}"></td>
+                                                        <td colspan="8">{{ $wOption->option->option_name_kr }}</td>
+                                                        <td>
+                                                            <input type="number" class="form-control" name="quantity" placeholder="" value="{{ $detail->quantity }}">
+                                                        </td>
+                                                        <td colspan="2">
+                                                            <input type="number" class="form-control" name="channel_price" placeholder="" value="{{ (int)$detail->channel_price }}">
+                                                        </td>
+                                                    </tr>
+                                                @endif
+                                            @endforeach
                                         @endforeach
-                                    @endforeach
 
 
-                                </tbody>
-                            </table>
-                        </div>
-                    @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+                        @endforeach
+                    </div>
                     
                     <div class="mt-3 d-flex justify-content-center">
                         <button type="button" class="btn btn-success mx-2 btn-add text-white">주문 정보 추가</button>
@@ -507,8 +509,8 @@
                     if (!optValid) return false;
 
                     let channelData = {
-                        channel_order_id: $(this).attr("channel_order_id"),
-                        options: []
+                        origin_channel_order_id: $(this).attr("channel_order_id"),
+                        options                : []
                     };
 
                     $(this).find('input, select').each(function() {
@@ -549,6 +551,7 @@
 
                     payload.change_channels.push(channelData);
                 });
+
                 if( !optValid ) return false;
 
                 let optValid2 = true;
@@ -609,7 +612,7 @@
                         "url"     : "{{ route('w.order.orderInfoChannelUpdate') }}",
                         "data"    : payload,
                         beforeSend: function () {
-                            $("#loadingOverlay").show();
+                            // $("#loadingOverlay").show();
                         },
                         complete: function () {
                             $("#loadingOverlay").hide();
@@ -741,7 +744,7 @@
                 if( $('.channelAddTableDiv').length > 0 ){
                     $(".channelAddTableDiv").last().after(channelTableHtml);
                 } else {
-                    $(".channelTableDiv").last().after(channelTableHtml);
+                    $(".channelTableDiv").after(channelTableHtml);
                 }
             });
 

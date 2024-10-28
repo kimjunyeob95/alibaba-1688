@@ -8,7 +8,9 @@ use App\Models\OrderChannelData;
 use App\Models\OrderLogisticsData;
 use App\Models\OrderProductData;
 use App\Models\OrderTradeData;
+use App\Services\Order\OrderW1;
 use App\Vo\Order\OrderDto;
+use Carbon\Carbon;
 use Exception;
 use Illuminate\Support\Facades\File;
 use Illuminate\Pagination\Paginator;
@@ -320,5 +322,82 @@ class OrderTest extends TestCase
                 File::append($filePath, $logTxt . PHP_EOL);
             }
         }
+    }
+
+    /** 중국 내륙 배송 시간 확인 */
+    # php artisan test --filter testOrderChinaDeliveryData
+    public function testOrderChinaDeliveryData()
+    {
+        $channelOrderIds = ["2229509460489135493", "2229584196685135493", "2251001028937135493", "2248748654445135493", "2248216824073135493", "2250917762092135493", "2251949162878135493", "2251947542517135493"];
+        $orderW1         = app(OrderW1::class);
+
+        $filePath = storage_path('logs/order/chinaDelivery.txt');
+
+        // 디렉토리가 존재하지 않으면 생성
+        $directory = dirname($filePath);
+        if (!File::isDirectory($directory)) {
+            File::makeDirectory($directory, 0755, true);
+        }
+
+        foreach ($channelOrderIds as $channelOrderId) {
+
+            $channelObj = OrderChannelData::with([
+                "order.logistics_first", "order.trade_first"
+            ])->where("order_id", $channelOrderId)->first();
+
+            try {
+                if( $channelObj->order->logistics_first == null ){
+                    throw new Exception("물류 정보 없음");
+                }
+                if( $channelObj->order->trade_first == null ){
+                    throw new Exception("거래 정보 없음");
+                }
+
+                $result         = $orderW1->orderLogisticsInfo($channelObj->order_id);
+                $logisticsFirst = $channelObj->order->logistics_first;
+                $tradeFirst     = $channelObj->order->trade_first;
+                
+                $firstTime = "";
+                $lastTime  = "";
+                /** 전체 소요 시간 */
+                $allTimeDiffInHours = "";
+                /** 전체 배송 시간 */
+                $allDeliveryTimeDiffInHours = "";
+                /** 내륙 배송 시간 */
+                $chinaDeliveryTimeDiffInHours = "";
+    
+                $logTxt = "{$channelOrderId}|{$channelObj->order_id}|{$logisticsFirst->logistics_company_name}|{$logisticsFirst->logistics_code}|{$logisticsFirst->logistics_bill_no}|{$tradeFirst->pay_time}|{$logisticsFirst->gmt_modified}";
+    
+                if( isset($result["data"][0]["logisticsSteps"]) && !empty($result["data"][0]["logisticsSteps"]) ){
+                    $firstTime = $result["data"][0]["logisticsSteps"][0];
+                    $lastTime  = $result["data"][0]["logisticsSteps"][count($result["data"][0]["logisticsSteps"])-1];
+    
+                    $logTxt .= "|{$firstTime['acceptTime']}|{$lastTime['acceptTime']}";
+    
+                    $acceptTime = Carbon::parse($lastTime['acceptTime']);
+    
+                    $payTime            = Carbon::parse($tradeFirst->pay_time);
+                    $allTimeDiffInHours = round($payTime->floatDiffInHours($acceptTime), 1);
+    
+                    $gmtModified                = Carbon::parse($logisticsFirst->gmt_modified);
+                    $allDeliveryTimeDiffInHours = round($gmtModified->floatDiffInHours($acceptTime), 1);
+    
+                    $firstAcceptTime              = Carbon::parse($firstTime['acceptTime']);
+                    $acceptTime                   = Carbon::parse($lastTime['acceptTime']);
+                    $chinaDeliveryTimeDiffInHours = round($firstAcceptTime->floatDiffInHours($acceptTime), 1);
+    
+                    $logTxt .= "|{$allTimeDiffInHours}|{$allDeliveryTimeDiffInHours}|{$chinaDeliveryTimeDiffInHours}";
+                } else {
+                    $logTxt .= "|error: 물류 조회 API";
+                }
+            } catch (Exception $e) {
+                $logTxt = "{$channelOrderId}|error: {$e->getMessage()}";
+            }
+
+            // 파일에 텍스트 추가
+            File::append($filePath, $logTxt . PHP_EOL);
+        }
+
+        dd("끝");
     }
 }
