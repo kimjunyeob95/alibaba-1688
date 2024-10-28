@@ -14,7 +14,7 @@ return new class extends Migration
     public function up()
     {
         Schema::table('bonaera_out_delivery_datas', function (Blueprint $table) {
-            $table->enum('ctr_num', ["1", "2"])->default("1")->nullable(false)->after('invoice')->comment('운송방법 1: 항공, 2: 해운');
+            $table->enum('ctr_num', ["1", "2"])->default("2")->nullable(false)->after('invoice')->comment('운송방법 1: 항공, 2: 해운');
         });
     }
 
