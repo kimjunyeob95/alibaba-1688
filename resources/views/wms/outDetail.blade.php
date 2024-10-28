@@ -48,7 +48,11 @@
                                     <th scope="col" style="width: 10%">배송번호</th>
                                     <td>{{ $data->group_no }}</td>
                                     <th scope="col" style="width: 10%">운송방법</th>
-                                    <td>{{ OrderConstant::SHIPPING_TYPE[$data->order->channel_obj->shipping_type] }}</td>
+                                    <td>
+                                        @if ($data->out_weight)
+                                            {{ BonaeraConstant::CTR_NUM[$data->out_weight->ctr_num] }}
+                                        @endif
+                                    </td>
                                 </tr>
                                 <tr>
                                     <th scope="col" style="width: 10%">수령인</th>
