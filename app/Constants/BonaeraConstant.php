@@ -94,4 +94,12 @@ class BonaeraConstant
     /** 배송비 결제 */
     public const DELIVERY_PAY_Y = "Y";
     public const DELIVERY_PAY_N = "N";
+
+    /** 운송방법 */
+    public const CTR_NUM_1 = "1";
+    public const CTR_NUM_2 = "2";
+    public const CTR_NUM   = [
+        self::CTR_NUM_1 => "항공",
+        self::CTR_NUM_2 => "해운",
+    ];
 }
