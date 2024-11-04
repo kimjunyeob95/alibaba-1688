@@ -387,7 +387,7 @@ class WmsW1 extends WmsAbstract
                 }
             }
         } catch (Exception $e) {
-            $msg = "error: " . $e->getMessage();
+            $msg = "error: " . $e->getMessage() . " | id: {$id}";
             debug_log($msg, "boneara/bonaeraUpdate", "bonaeraInUpdate");
         }
     }
@@ -632,7 +632,7 @@ class WmsW1 extends WmsAbstract
                 $this->bonaeraOutUpdate($outBaseObj->id);
             }
         } catch (Exception $e) {
-            $msg = "error: " . $e->getMessage();
+            $msg = "error: " . $e->getMessage() . " | id: {$id}";
             debug_log($msg, "boneara/bonaeraOutCreate", "bonaeraOutCreate");
         }
     }
@@ -760,7 +760,7 @@ class WmsW1 extends WmsAbstract
                 }
             }
         } catch (Exception $e) {
-            $msg = "error: " . $e->getMessage();
+            $msg = "error: " . $e->getMessage() . " | id: {$id}";
             debug_log($msg, "boneara/bonaeraUpdate", "bonaeraOutUpdate");
         }
     }
@@ -811,7 +811,7 @@ class WmsW1 extends WmsAbstract
                 }
             }
         } catch (Exception $e) {
-            $msg = "error: " . $e->getMessage();
+            $msg = "error: " . $e->getMessage() . " | id: {$id}";
             debug_log($msg, "boneara/bonaeraOutPay", "bonaeraOutPay");
         }
     }
