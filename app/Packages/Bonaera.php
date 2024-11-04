@@ -37,10 +37,10 @@ class Bonaera
         $this->returnMsg = helpers_fail_message();
         $this->domain    = "https://bonaera.com";
         $this->header    = [
-            'userKey: ' . env("BONAERA_TOKEN" , "3dI7uzN1dERvCBM1wt9wp1CglC7hcBB0jFkLZAFjZDC7SP56TIfwcJhfpTbLCIjg"),
+            'userKey: ' . env("BONAERA_TOKEN" , "DdBGRBW3IAJo6a53gviV3e9dr3645SSOe4oRzEOerlvt6tJeqn1qxJG1MFxTKqDG"),
             'Content-Type: application/json'
         ];
-        $this->userId = BonaeraConstant::USER_ID;
+        $this->userId = env("BONAERA_USER_ID" , "sellerhub");
     }
 
     /** 입고신청 */
@@ -127,7 +127,7 @@ class Bonaera
 
                 if( !empty($itemList) ){
                     $payload  = [
-                        "userId"    => BonaeraConstant::USER_ID,
+                        "userId"    => $this->userId,
                         "orderMemo" => $orderChannelObj->buyer_memo,
                         "itemList"  => $itemList
                     ];
@@ -317,7 +317,7 @@ class Bonaera
                     }
         
                     $payload  = [
-                        "userId"  => BonaeraConstant::USER_ID,
+                        "userId"  => $this->userId,
                         "ctrNum"  => 2,
                         "RecInfo" => [
                             [

@@ -45,7 +45,7 @@ class BonaeraTest extends TestCase
             'Content-Type: application/json'
         ];
         $payload  = [
-            "userId"  => BonaeraConstant::USER_ID,
+            "userId"  => env("BONAERA_USER_ID" , "sellerhub"),
             "grCode"  => $outBaseObj->group_no,
         ];
 
@@ -118,7 +118,7 @@ class BonaeraTest extends TestCase
             'Content-Type: application/json'
         ];
         $payload  = [
-            "userId"  => BonaeraConstant::USER_ID,
+            "userId"  => env("BONAERA_USER_ID" , "sellerhub"),
             "stCode" => "ST240930000146",
         ];
 
