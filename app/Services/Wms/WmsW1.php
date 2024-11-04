@@ -100,7 +100,7 @@ class WmsW1 extends WmsAbstract
                 "bonaera_in_base_datas.*",
                 "ocd.channel_order_id"
             ])
-            ->with(["product", "logistics_last", "in_options"])
+            ->with(["product", "logistics_last", "in_options.w_option"])
             ->leftJoin("bonaera_in_product_datas as bipd", "bonaera_in_base_datas.stock_no", "=", "bipd.stock_no")
             ->leftJoin("order_channel_datas as ocd", "bonaera_in_base_datas.order_id", "=", "ocd.order_id")
             ->groupBy("bonaera_in_base_datas.stock_no");
