@@ -2,6 +2,7 @@
 
 namespace App\Console;
 
+use App\Console\Commands\BonaeraCommand;
 use App\Console\Commands\EasySellCommand;
 use App\Console\Commands\ExchangeRateCommand;
 use App\Console\Commands\GenuioCommand;
@@ -23,6 +24,7 @@ use App\Console\Commands\TestCommands;
 use App\Console\Commands\UpdateAttribute;
 use App\Console\Commands\UpdateForbiddenWord;
 use App\Console\Commands\UpdateWeightDelivery;
+use App\Console\Commands\WmsCommand;
 use App\Constants\WConstant;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
@@ -62,6 +64,8 @@ class Kernel extends ConsoleKernel
         ExchangeRateCommand::class,
         /** 주문 */
         OrderCommand::class,
+        /** WMS */
+        WmsCommand::class,
     ];
 
     protected function schedule(Schedule $schedule)
@@ -82,10 +86,26 @@ class Kernel extends ConsoleKernel
 
             /**
              * ############
+             * WMS 배치
+             * ############
+            */
+            $schedule->command("wms_command --func=batchInUpdate")->cron("0 8-20 * * *")->description("보내라 입고정보 업데이트")->withoutOverlapping()->runInBackground();
+            $schedule->command("wms_command --func=batchOutUpdate")->cron("0 8-20 * * *")->description("보내라 출고정보 업데이트")->withoutOverlapping()->runInBackground();
+
+            /**
+             * ############
              * WApp 주문 배치
              * ############
              */
             // $schedule->command("order_command --func=orderBatchUpdate")->cron("0,30 6-23 * * *")->description("WApp 주문 배치 업데이트")->withoutOverlapping()->runInBackground();
+
+            /**
+             * ############
+             * WAPP 기타 배치
+             * ############
+             */
+            /** 환율 기록 */
+            $schedule->command("save_exchange_rate")->cron("0 11 * * *")->description("환율 수집")->withoutOverlapping()->runInBackground();
 
             /**
              * ############
@@ -105,9 +125,6 @@ class Kernel extends ConsoleKernel
             $schedule->command("onchannel_command --func=sendModiProduct")->cron("*/5 * * * *")->description("온채널 수정 된 상품 전송")->withoutOverlapping()->runInBackground();
 
             // $schedule->command("test --filter testAllProductReCollectW1")->description("모든 상품 W1 재수집")->withoutOverlapping()->runInBackground();
-
-            /** 환율 기록 */
-            $schedule->command("save_exchange_rate")->cron("0 11 * * *")->description("환율 수집")->withoutOverlapping()->runInBackground();
         }
     }
 
