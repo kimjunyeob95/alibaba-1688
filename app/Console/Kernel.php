@@ -2,7 +2,6 @@
 
 namespace App\Console;
 
-use App\Console\Commands\BonaeraCommand;
 use App\Console\Commands\EasySellCommand;
 use App\Console\Commands\ExchangeRateCommand;
 use App\Console\Commands\GenuioCommand;
