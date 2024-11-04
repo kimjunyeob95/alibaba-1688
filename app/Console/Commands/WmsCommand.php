@@ -1,9 +1,12 @@
 <?php
 namespace App\Console\Commands;
 
+use App\Models\BonaeraInBaseData;
+use App\Models\BonaeraOutBaseData;
 use App\Services\Wms\WmsService;
 use App\Services\Wms\WmsW1;
 use Illuminate\Console\Command;
+use Illuminate\Pagination\Paginator;
 
 class WmsCommand extends Command
 {
@@ -15,6 +18,7 @@ class WmsCommand extends Command
     public function __construct()
     {
         parent::__construct();
+        $this->wmsService = new WmsService(app(WmsW1::class));
     }
 
     public function handle()
@@ -23,7 +27,6 @@ class WmsCommand extends Command
 
         if( !$func ) return null;
 
-        $this->wmsService = new WmsService(app(WmsW1::class));
         switch ($func) {
             /**
              * 입고신청
@@ -82,6 +85,52 @@ class WmsCommand extends Command
                 if (!empty($ids)) {
                     foreach ($ids as $id) {
                         $this->wmsService->bonaeraOutPay($id);
+                    }
+                }
+                break;
+            /**
+             * 입고정보 배치 업데이트
+             * php artisan wms_command --func=batchInUpdate
+             */
+            case 'batchInUpdate':
+                $builder    = BonaeraInBaseData::select(["id"]);
+                $perPage    = 900;
+                $totalCount = count($builder->get());
+                $totalPages = ceil($totalCount / $perPage);
+
+                for ($page = 1; $page <= $totalPages; $page++) {
+                    Paginator::currentPageResolver(function () use ($page) {
+                        return $page;
+                    });
+                    
+                    // paginate 메소드는 새 Paginator 인스턴스를 반환합니다.
+                    $pagedData = $builder->paginate($perPage);
+                    $results   = $pagedData->pluck('id')->toArray();
+                    foreach ($results as $id) {
+                        $this->wmsService->bonaeraInUpdate($id);
+                    }
+                }
+                break;
+            /**
+             * 출고정보 배치 업데이트
+             * php artisan wms_command --func=batchOutUpdate
+             */
+            case 'batchOutUpdate':
+                $builder    = BonaeraOutBaseData::select(["id"]);
+                $perPage    = 900;
+                $totalCount = count($builder->get());
+                $totalPages = ceil($totalCount / $perPage);
+
+                for ($page = 1; $page <= $totalPages; $page++) {
+                    Paginator::currentPageResolver(function () use ($page) {
+                        return $page;
+                    });
+                    
+                    // paginate 메소드는 새 Paginator 인스턴스를 반환합니다.
+                    $pagedData = $builder->paginate($perPage);
+                    $results   = $pagedData->pluck('id')->toArray();
+                    foreach ($results as $id) {
+                        $this->wmsService->bonaeraOutUpdate($id);
                     }
                 }
                 break;

@@ -173,7 +173,7 @@
                                         <div class="mt-3"></div>
                                         @foreach ($data->in_options as $in_option)
                                             @php
-                                                $w_option = ProductOptionData::where("id", $in_option->option_id)->first();
+                                                $w_option = $in_option->w_option;
                                             @endphp
                                             @if (!empty($w_option))
                                                 <small class="d-block mt-1">

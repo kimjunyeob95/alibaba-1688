@@ -18,4 +18,8 @@ class BonaeraInProductData extends Model
     public function imgs () {
         return $this->hasMany(BonaeraInProductImgData::class, "product_id", "id");
     }
+
+    public function w_option () {
+        return $this->hasOne(ProductOptionData::class, "id", "option_id");
+    }
 }
