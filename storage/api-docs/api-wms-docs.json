@@ -1,0 +1,328 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "Wms API",
+        "version": "1.0"
+    },
+    "paths": {
+        "/api/w/wms/request/bonaera/in/update": {
+            "post": {
+                "tags": [
+                    "입고"
+                ],
+                "summary": "입고 관련 정보의 변경",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/InUpdateSchema"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SuccessResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/400ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/500ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/w/wms/request/bonaera/out/update": {
+            "post": {
+                "tags": [
+                    "출고"
+                ],
+                "summary": "출고 관련 정보의 변경",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/OutUpdateSchema"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SuccessResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/400ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/500ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "SuccessResponse": {
+                "properties": {
+                    "status": {
+                        "type": "integer",
+                        "example": 200
+                    },
+                    "meta": {
+                        "properties": {
+                            "timestamp": {
+                                "type": "string",
+                                "example": "2023-12-19 17:45:50"
+                            },
+                            "api_type": {
+                                "type": "string",
+                                "example": "mall"
+                            }
+                        },
+                        "type": "object"
+                    },
+                    "data": {
+                        "type": "object"
+                    }
+                },
+                "type": "object"
+            },
+            "400ErrorResponse": {
+                "properties": {
+                    "status": {
+                        "type": "integer",
+                        "example": 400
+                    },
+                    "meta": {
+                        "properties": {
+                            "timestamp": {
+                                "type": "string",
+                                "example": "2023-12-19 17:45:50"
+                            },
+                            "api_type": {
+                                "type": "string",
+                                "example": "mall"
+                            }
+                        },
+                        "type": "object"
+                    },
+                    "error": {
+                        "properties": {
+                            "code": {
+                                "type": "integer",
+                                "example": 400
+                            },
+                            "message": {
+                                "type": "string",
+                                "example": "비밀번호를 다시 확인해주세요."
+                            }
+                        },
+                        "type": "object"
+                    }
+                },
+                "type": "object"
+            },
+            "401ErrorResponse": {
+                "properties": {
+                    "status": {
+                        "type": "integer",
+                        "example": 401
+                    },
+                    "meta": {
+                        "properties": {
+                            "timestamp": {
+                                "type": "string",
+                                "example": "2023-12-19 17:45:50"
+                            },
+                            "api_type": {
+                                "type": "string",
+                                "example": "mall"
+                            }
+                        },
+                        "type": "object"
+                    },
+                    "error": {
+                        "properties": {
+                            "code": {
+                                "type": "integer",
+                                "example": 401
+                            },
+                            "message": {
+                                "type": "string",
+                                "example": "토큰을 전달해주세요."
+                            }
+                        },
+                        "type": "object"
+                    }
+                },
+                "type": "object"
+            },
+            "404ErrorResponse": {
+                "properties": {
+                    "status": {
+                        "type": "integer",
+                        "example": 404
+                    },
+                    "meta": {
+                        "properties": {
+                            "timestamp": {
+                                "type": "string",
+                                "example": "2023-12-19 17:45:50"
+                            },
+                            "api_type": {
+                                "type": "string",
+                                "example": "mall"
+                            }
+                        },
+                        "type": "object"
+                    },
+                    "error": {
+                        "properties": {
+                            "code": {
+                                "type": "integer",
+                                "example": 404
+                            },
+                            "message": {
+                                "type": "string",
+                                "example": "잘못된 접근입니다."
+                            }
+                        },
+                        "type": "object"
+                    }
+                },
+                "type": "object"
+            },
+            "500ErrorResponse": {
+                "properties": {
+                    "status": {
+                        "type": "integer",
+                        "example": 500
+                    },
+                    "meta": {
+                        "properties": {
+                            "timestamp": {
+                                "type": "string",
+                                "example": "2023-12-19 17:45:50"
+                            },
+                            "api_type": {
+                                "type": "string",
+                                "example": "mall"
+                            }
+                        },
+                        "type": "object"
+                    },
+                    "error": {
+                        "properties": {
+                            "code": {
+                                "type": "integer",
+                                "example": 500
+                            },
+                            "message": {
+                                "type": "string",
+                                "example": "Too many requests"
+                            }
+                        },
+                        "type": "object"
+                    }
+                },
+                "type": "object"
+            },
+            "InUpdateSchema": {
+                "required": [
+                    "type",
+                    "stock_no"
+                ],
+                "properties": {
+                    "type": {
+                        "description": "코드 타입",
+                        "type": "string",
+                        "example": "IT001"
+                    },
+                    "stock_no": {
+                        "description": "재고번호",
+                        "type": "string",
+                        "example": "ST241014000198"
+                    }
+                },
+                "type": "object"
+            },
+            "OutUpdateSchema": {
+                "required": [
+                    "type",
+                    "group_no",
+                    "sh_nos"
+                ],
+                "properties": {
+                    "type": {
+                        "description": "코드 타입",
+                        "type": "string",
+                        "example": "SH001"
+                    },
+                    "group_no": {
+                        "description": "그룹번호",
+                        "type": "string",
+                        "example": "GR241015000381"
+                    },
+                    "sh_nos": {
+                        "description": "신청서 번호",
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "example": [
+                            "SH241015000381",
+                            "SH241015000382"
+                        ]
+                    }
+                },
+                "type": "object"
+            }
+        }
+    }
+}

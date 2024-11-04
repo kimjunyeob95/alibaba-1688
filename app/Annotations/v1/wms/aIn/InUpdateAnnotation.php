@@ -5,10 +5,10 @@ namespace App\Annotations\v1\wms\aIn;
 /**
  * 
  * @OA\Schema(
- *     schema="inUpdateSchema",
+ *     schema="InUpdateSchema",
  *     required={"type", "stock_no"},
- *     @OA\Property(property="type", type="string", example="IT001"),
- *     @OA\Property(property="stock_no", type="string", example="ST241014000198"),
+ *     @OA\Property(property="type", type="string", example="IT001", description="코드 타입"),
+ *     @OA\Property(property="stock_no", type="string", example="ST241014000198", description="재고번호"),
  * )
  *
  * @OA\Post(
@@ -17,7 +17,7 @@ namespace App\Annotations\v1\wms\aIn;
  *     tags={"입고"},
  *     @OA\RequestBody(
  *         required=true,
- *         @OA\JsonContent(ref="#/components/schemas/inUpdateSchema")
+ *         @OA\JsonContent(ref="#/components/schemas/InUpdateSchema")
  *     ),
  *     @OA\Response(
  *         response=200,
