@@ -6,16 +6,16 @@ use App\Vo\Vo;
 
 class BonaeraRequestQueueDto extends Vo
 {
-    protected string $type      = "";
-    protected string $stockCode = "";
-    protected string $groupCode = "";
-    protected array $outCodes   = [];
+    protected string $type    = "";
+    protected string $stockNo = "";
+    protected string $groupNo = "";
+    protected array $shNos    = [];
     
     public function bind(mixed $data): void
     {
-        $this->type      = $data["type"];
-        $this->stockCode = $data["stock_code"] ?? "";
-        $this->groupCode = $data["group_code"] ?? "";
-        $this->outCodes  = $data["out_codes"] ?? [];
+        $this->type    = $data["type"];
+        $this->stockNo = $data["stockNo"] ?? "";
+        $this->groupNo = $data["groupNo"] ?? "";
+        $this->shNos   = $data["shNos"] ?? [];
     }
 }

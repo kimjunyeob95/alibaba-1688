@@ -6,7 +6,7 @@ use App\Constants\BonaeraErrorMessageConstant;
 use App\Constants\HttpConstant;
 use Illuminate\Foundation\Http\FormRequest; 
 
-class BonaeraInUpdateRequest extends FormRequest
+class BonaeraOutUpdateRequest extends FormRequest
 {
     public function authorize()
     {
@@ -17,15 +17,17 @@ class BonaeraInUpdateRequest extends FormRequest
     {
         return [
             'type.required'     => BonaeraErrorMessageConstant::getNotHaveErrorMessage("TYPE"),
-            'stock_no.required' => BonaeraErrorMessageConstant::getNotHaveErrorMessage("STOCK_NO"),
+            'group_no.required' => BonaeraErrorMessageConstant::getNotHaveErrorMessage("GROUP_NO"),
+            'sh_nos.required'   => BonaeraErrorMessageConstant::getNotHaveErrorMessage("SH_NOS"),
         ];
     }
 
     public function rules()
     {
         return [
-            'type'     => ['required', 'string', new BonaeraInTypeRule],
-            'stock_no' => 'required|string',
+            'type'     => ['required', 'string', new BonaeraOutTypeRule],
+            'group_no' => 'required|string',
+            'sh_nos'   => 'required|array',
         ];
     }
 
