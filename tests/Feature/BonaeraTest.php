@@ -8,6 +8,7 @@ use App\Models\BonaeraOutBaseData;
 use App\Models\BonaeraOutDeliveryData;
 use App\Models\BonaeraOutWeightData;
 use App\Models\HsCodeData;
+use App\Models\OrderBaseData;
 use App\Packages\Bonaera;
 use Exception;
 use Illuminate\Support\Facades\File;
@@ -23,6 +24,25 @@ class BonaeraTest extends TestCase
         $orderId = "2237938826932135493";
 
         $bonaera->createStockApi($orderId);
+    }
+
+    # php artisan test --filter testCustomCreateWarehouse
+    /** 특정 조건 입고신청 */
+    public function testCustomCreateWarehouse()
+    {
+        $bonaera = new Bonaera();
+        
+        $objs = OrderBaseData::join("order_logistics_datas as a", "order_base_datas.order_id", "=", "a.order_id")
+        ->where("order_base_datas.created_at", ">=", "2024-11-01")
+        ->where("a.logistics_code", "!=", "")
+        ->groupBy("order_base_datas.order_id")
+        ->get();
+
+        foreach ($objs as $obj) {
+            $bonaera->createStockApi($obj->order_id);
+        }
+
+        dd("끝");
     }
 
     # php artisan test --filter testCreateShipping
