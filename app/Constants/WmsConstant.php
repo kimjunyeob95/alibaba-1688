@@ -71,4 +71,28 @@ class WmsConstant
         self::OUT_SEARCH_TYPE_SH_NO            => "출고번호",
         self::OUT_SEARCH_TYPE_CHANNEL_ORDER_ID => "채널 주문번호",
     ];
+
+    /** 출고관리 검색종류 */
+    public const WMS_CODE_TYPE_IT001 = "IT001";
+    public const WMS_CODE_TYPE_IT002 = "IT002";
+    public const WMS_CODE_TYPE_SH001 = "SH001";
+    public const WMS_CODE_TYPE_SH002 = "SH002";
+    public const WMS_CODE_TYPE_GR001 = "GR001";
+    public const WMS_CODE_TYPE_GR002 = "GR002";
+    public const WMS_CODE_TYPE       = [
+        self::WMS_CODE_TYPE_IT001 => "입고 상태의 변경",
+        self::WMS_CODE_TYPE_IT002 => "입고 정보 변경",
+        self::WMS_CODE_TYPE_SH001 => "출고 상태의 변경",
+        self::WMS_CODE_TYPE_SH002 => "출고 정보의 변경",
+        self::WMS_CODE_TYPE_GR001 => "배송 상태의 변경",
+        self::WMS_CODE_TYPE_GR002 => "배송 정보의 변경",
+    ];
+    public const WMS_CODE_TYPE_LIST = [
+        self::WMS_CODE_TYPE_IT001,
+        self::WMS_CODE_TYPE_IT002,
+        self::WMS_CODE_TYPE_SH001,
+        self::WMS_CODE_TYPE_SH002,
+        self::WMS_CODE_TYPE_GR001,
+        self::WMS_CODE_TYPE_GR002,
+    ];
 }

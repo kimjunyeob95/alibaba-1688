@@ -91,6 +91,50 @@ return [
                 'exclude' => [],
             ]
         ],
+        'wms.v1' => [
+            'api' => [
+                'title' => 'Wms API',
+            ],
+            'routes' => [
+                /*
+                 * Route for accessing api documentation interface
+                */
+                'api' => 'api/wms/swagger',
+                'docs' => 'api/wms/swagger',
+                'oauth2_callback' => 'api/wms/callback'
+            ],
+            'paths' => [
+                /*
+                 * Edit to include full URL in ui for assets
+                */
+                'use_absolute_path' => env('L5_SWAGGER_USE_ABSOLUTE_PATH', true),
+
+                /*
+                 * File name of the generated json documentation file
+                */
+                'docs_json' => 'api-wms-docs.json',
+
+                /*
+                 * File name of the generated YAML documentation file
+                */
+                'docs_yaml' => 'api-wms-docs.yaml',
+
+                /*
+                * Set this to `json` or `yaml` to determine which documentation file to use in UI
+                */
+                'format_to_use_for_docs' => env('L5_FORMAT_TO_USE_FOR_DOCS', 'json'),
+
+                /*
+                 * Absolute paths to directory containing the swagger annotations are stored.
+                */
+                'annotations' => [
+                    base_path('app/Annotations/v1/wms'),
+                ],
+            ],
+            'scanOptions' => [
+                'exclude' => [],
+            ]
+        ],
     ],
     'defaults' => [
         'routes' => [

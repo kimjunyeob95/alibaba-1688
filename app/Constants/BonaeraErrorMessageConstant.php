@@ -23,6 +23,8 @@ class BonaeraErrorMessageConstant
     public const ERROR_MESSAGE_OPTLIST                   = "optList";
     public const ERROR_MESSAGE_ORDERCHANNELOBJS          = "orderChannelObjs";
     public const ERROR_MESSAGE_ALL_OPTION_NOT_READY      = "모든 옵션이 입고완료 상태가 아닙니다.";
+    public const ERROR_MESSAGE_TYPE                      = "type";
+    public const ERROR_MESSAGE_STOCK_CODE                = "stock_code";
  
     public static function getErrorMessageNotDefault($constantName): string
     {
