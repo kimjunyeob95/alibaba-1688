@@ -41,13 +41,13 @@ class OrderTradeDto extends Vo
         $this->pay_status      = $data["payStatus"] ?? "";
         $this->phas_amount     = $data["phasAmount"] ?? 0.0;
 
-        $this->__changeUTCTime();
+        $this->__changeKrUTCTime();
     }
 
-    public function __changeUTCTime()
+    public function __changeKrUTCTime()
     {
         if ($this->pay_time) {
-            $this->pay_time = Carbon::createFromFormat('YmdHisvO', $this->pay_time);
+            $this->pay_time = Carbon::createFromFormat('YmdHisvO', $this->pay_time)->setTimezone(config('app.timezone'));
         }
     }
 }

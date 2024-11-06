@@ -45,19 +45,19 @@ class OrderLogisticDto extends Vo
         $this->logistics_bill_no      = $data["logisticsBillNo"] ?? "";
         $this->sub_item_ids           = $data["subItemIds"] ?? "";
 
-        $this->__changeUTCTime();
+        $this->__changeKrUTCTime();
     }
 
-    public function __changeUTCTime()
+    public function __changeKrUTCTime()
     {
         if ($this->delivered_time) {
-            $this->delivered_time = Carbon::createFromFormat('YmdHisvO', $this->delivered_time);
+            $this->delivered_time = Carbon::createFromFormat('YmdHisvO', $this->delivered_time)->setTimezone(config('app.timezone'));
         }
         if ($this->gmt_modified) {
-            $this->gmt_modified = Carbon::createFromFormat('YmdHisvO', $this->gmt_modified);
+            $this->gmt_modified = Carbon::createFromFormat('YmdHisvO', $this->gmt_modified)->setTimezone(config('app.timezone'));
         }
         if ($this->gmt_create) {
-            $this->gmt_create = Carbon::createFromFormat('YmdHisvO', $this->gmt_create);
+            $this->gmt_create = Carbon::createFromFormat('YmdHisvO', $this->gmt_create)->setTimezone(config('app.timezone'));
         }
     }
 }
