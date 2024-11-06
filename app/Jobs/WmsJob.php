@@ -36,6 +36,8 @@ class WmsJob implements ShouldQueue
                 break;
             case WmsConstant::WMS_CODE_TYPE_SH001:
             case WmsConstant::WMS_CODE_TYPE_SH002:
+            case WmsConstant::WMS_CODE_TYPE_GR001:
+            case WmsConstant::WMS_CODE_TYPE_GR002:
                 $objs = BonaeraOutBaseData::where("group_no", $this->bonaeraRequestQueueDto->groupNo)->get();
                 foreach ($objs as $obj) {
                     $wmsService->bonaeraOutUpdate($obj->id);
@@ -45,7 +47,14 @@ class WmsJob implements ShouldQueue
                 break;
         }
 
-        $payload = $this->bonaeraRequestQueueDto->getAllProperties();
+        $getAllProperties = $this->bonaeraRequestQueueDto->getAllProperties();
+        $payload          = [];
+        foreach ($getAllProperties as $key => $property) {
+            if( !empty($property) ){
+                $payload[$key] = $property;
+            }
+        }
+
         debug_log(json_encode($payload, JSON_UNESCAPED_UNICODE), "boneara/request", "bonaeraRequest");
     }
 }

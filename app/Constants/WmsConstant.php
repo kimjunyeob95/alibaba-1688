@@ -4,7 +4,7 @@ namespace App\Constants;
 
 class WmsConstant
 {
-    public const USER_ID = "korea";
+    public const COMPANY_BONAERA = "bonaera";
 
     /** hscode 검색종류 */
     public const HSCODE_SEARCH_TYPE_KO     = "ko";

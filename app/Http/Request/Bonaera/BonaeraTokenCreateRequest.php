@@ -2,14 +2,12 @@
 
 namespace App\Http\Request\Bonaera;
 
-use App\Constants\BonaeraErrorMessageConstant;
 use App\Constants\HttpConstant;
 use Illuminate\Foundation\Http\FormRequest; 
 
-class BonaeraInUpdateRequest extends FormRequest
+class BonaeraTokenCreateRequest extends FormRequest
 {
-    public string $type;
-    public string $stockNo;
+    public string $userId;
 
     public function authorize()
     {
@@ -19,16 +17,14 @@ class BonaeraInUpdateRequest extends FormRequest
     public function messages()
     {
         return [
-            'type.required'     => BonaeraErrorMessageConstant::getNotHaveErrorMessage("TYPE"),
-            'stock_no.required' => BonaeraErrorMessageConstant::getNotHaveErrorMessage("STOCK_NO"),
+            'user_id.required' => '아이디를 입력하세요.',
         ];
     }
 
     public function rules()
     {
         return [
-            'type'     => ['required', 'string', new BonaeraInTypeRule],
-            'stock_no' => 'required|string',
+            'user_id' => 'required|string',
         ];
     }
 
@@ -39,12 +35,11 @@ class BonaeraInUpdateRequest extends FormRequest
         );
     }
 
-    /**
+     /**
      * 유효성 검사 후 속성 설정
      */
     protected function passedValidation()
     {
-        $this->type    = $this->input('type');
-        $this->stockNo = $this->input('stock_no');
+        $this->userId = $this->input('user_id');
     }
 }

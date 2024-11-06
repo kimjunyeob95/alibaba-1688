@@ -124,7 +124,7 @@
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="/api/wms/swagger" target="_blank">
-                        Wms Swagger
+                        WMS Swagger
                     </a>
                 </li>
             </ul>

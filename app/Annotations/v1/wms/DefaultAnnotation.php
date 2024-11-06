@@ -6,8 +6,15 @@ namespace App\Annotations\v1\wms;
  *
  *
  * @OA\Info(
- *  title="Wms API",
+ *  title="WMS API",
  *  version="1.0",
+ * )
+ * 
+ * @OA\SecurityScheme(
+ *      securityScheme="BearerAuth",
+ *      type="http",
+ *      scheme="bearer",
+ *      bearerFormat="JWT"
  * )
  *
  * @OA\Schema(

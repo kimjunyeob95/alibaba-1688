@@ -6,10 +6,11 @@ use App\Constants\BonaeraErrorMessageConstant;
 use App\Constants\HttpConstant;
 use Illuminate\Foundation\Http\FormRequest; 
 
-class BonaeraInUpdateRequest extends FormRequest
+class BonaeraDeliveryUpdateRequest extends FormRequest
 {
     public string $type;
-    public string $stockNo;
+    public string $groupNo;
+    public array $shNos;
 
     public function authorize()
     {
@@ -20,15 +21,17 @@ class BonaeraInUpdateRequest extends FormRequest
     {
         return [
             'type.required'     => BonaeraErrorMessageConstant::getNotHaveErrorMessage("TYPE"),
-            'stock_no.required' => BonaeraErrorMessageConstant::getNotHaveErrorMessage("STOCK_NO"),
+            'group_no.required' => BonaeraErrorMessageConstant::getNotHaveErrorMessage("GROUP_NO"),
+            'sh_nos.required'   => BonaeraErrorMessageConstant::getNotHaveErrorMessage("SH_NOS"),
         ];
     }
 
     public function rules()
     {
         return [
-            'type'     => ['required', 'string', new BonaeraInTypeRule],
-            'stock_no' => 'required|string',
+            'type'     => ['required', 'string', new BonaeraDeliveryTypeRule],
+            'group_no' => 'required|string',
+            'sh_nos'   => 'required|array',
         ];
     }
 
@@ -45,6 +48,7 @@ class BonaeraInUpdateRequest extends FormRequest
     protected function passedValidation()
     {
         $this->type    = $this->input('type');
-        $this->stockNo = $this->input('stock_no');
+        $this->groupNo = $this->input('group_no');
+        $this->shNos   = $this->input('sh_nos');
     }
 }

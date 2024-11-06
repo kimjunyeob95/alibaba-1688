@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Annotations\v1\wms\bOut;
+namespace App\Annotations\v1\wms\cOut;
 
 /**
  * 
  * @OA\Schema(
  *     schema="OutUpdateSchema",
  *     required={"type", "group_no", "sh_nos"},
- *     @OA\Property(property="type", type="string", example="SH001", description="코드 타입"),
+ *     @OA\Property(property="type", type="string", example="SH001", description="코드 타입 SH001: 출고 상태의 변경, SH002: 출고 정보의 변경"),
  *     @OA\Property(property="group_no", type="string", example="GR241015000381", description="그룹번호"),
  *     @OA\Property(
  *         property="sh_nos",
@@ -22,6 +22,7 @@ namespace App\Annotations\v1\wms\bOut;
  *     path="/api/w/wms/request/bonaera/out/update",
  *     summary="출고 관련 정보의 변경",
  *     tags={"출고"},
+ *     security={{"BearerAuth": {}}},
  *     @OA\RequestBody(
  *         required=true,
  *         @OA\JsonContent(ref="#/components/schemas/OutUpdateSchema")

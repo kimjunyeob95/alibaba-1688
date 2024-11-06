@@ -8,6 +8,10 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class BonaeraOutUpdateRequest extends FormRequest
 {
+    public string $type;
+    public string $groupNo;
+    public array $shNos;
+    
     public function authorize()
     {
         return true;
@@ -36,5 +40,15 @@ class BonaeraOutUpdateRequest extends FormRequest
         throw new \Illuminate\Validation\ValidationException($validator, 
             helpers_json_response(HttpConstant::BAD_REQUEST, [], $validator->errors()->first())
         );
+    }
+
+    /**
+     * 유효성 검사 후 속성 설정
+     */
+    protected function passedValidation()
+    {
+        $this->type    = $this->input('type');
+        $this->groupNo = $this->input('group_no');
+        $this->shNos   = $this->input('sh_nos');
     }
 }

@@ -1,10 +1,60 @@
 {
     "openapi": "3.0.0",
     "info": {
-        "title": "Wms API",
+        "title": "WMS API",
         "version": "1.0"
     },
     "paths": {
+        "/api/w/wms/token/create": {
+            "post": {
+                "tags": [
+                    "회원"
+                ],
+                "summary": "토큰 생성",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/TokenCreateSchema"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SuccessTokenResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/400ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/500ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/w/wms/request/bonaera/in/update": {
             "post": {
                 "tags": [
@@ -52,7 +102,12 @@
                             }
                         }
                     }
-                }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
             }
         },
         "/api/w/wms/request/bonaera/out/update": {
@@ -102,7 +157,67 @@
                             }
                         }
                     }
-                }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/w/wms/request/bonaera/delivery/update": {
+            "post": {
+                "tags": [
+                    "배송"
+                ],
+                "summary": "배송 관련 정보의 변경",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/DeliveryUpdateSchema"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SuccessResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/400ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/500ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
             }
         }
     },
@@ -273,6 +388,57 @@
                 },
                 "type": "object"
             },
+            "TokenCreateSchema": {
+                "required": [
+                    "user_id"
+                ],
+                "properties": {
+                    "user_id": {
+                        "type": "string",
+                        "example": "bonaera"
+                    }
+                },
+                "type": "object"
+            },
+            "SuccessTokenResponse": {
+                "properties": {
+                    "status": {
+                        "type": "integer",
+                        "example": 200
+                    },
+                    "meta": {
+                        "properties": {
+                            "timestamp": {
+                                "type": "string",
+                                "example": "2023-12-19 17:45:50"
+                            },
+                            "api_type": {
+                                "type": "string",
+                                "example": "mall"
+                            }
+                        },
+                        "type": "object"
+                    },
+                    "msg": {
+                        "type": "string",
+                        "example": "정상 처리 되었습니다."
+                    },
+                    "data": {
+                        "properties": {
+                            "token": {
+                                "type": "string",
+                                "example": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9..."
+                            },
+                            "expiresAt": {
+                                "type": "string",
+                                "example": "2023-12-19 18:45:50"
+                            }
+                        },
+                        "type": "object"
+                    }
+                },
+                "type": "object"
+            },
             "InUpdateSchema": {
                 "required": [
                     "type",
@@ -280,7 +446,7 @@
                 ],
                 "properties": {
                     "type": {
-                        "description": "코드 타입",
+                        "description": "코드 타입 IT001: 입고 상태의 변경, IT002: 입고 정보 변경",
                         "type": "string",
                         "example": "IT001"
                     },
@@ -300,7 +466,7 @@
                 ],
                 "properties": {
                     "type": {
-                        "description": "코드 타입",
+                        "description": "코드 타입 SH001: 출고 상태의 변경, SH002: 출고 정보의 변경",
                         "type": "string",
                         "example": "SH001"
                     },
@@ -310,7 +476,7 @@
                         "example": "GR241015000381"
                     },
                     "sh_nos": {
-                        "description": "신청서 번호",
+                        "description": "신청서 번호 리스트",
                         "type": "array",
                         "items": {
                             "type": "string"
@@ -322,6 +488,44 @@
                     }
                 },
                 "type": "object"
+            },
+            "DeliveryUpdateSchema": {
+                "required": [
+                    "type",
+                    "group_no",
+                    "sh_nos"
+                ],
+                "properties": {
+                    "type": {
+                        "description": "코드 타입 GR001: 배송 상태의 변경, GR002: 배송 정보의 변경",
+                        "type": "string",
+                        "example": "GR001"
+                    },
+                    "group_no": {
+                        "description": "그룹번호",
+                        "type": "string",
+                        "example": "GR241015000381"
+                    },
+                    "sh_nos": {
+                        "description": "신청서 번호 리스트",
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "example": [
+                            "SH241015000381",
+                            "SH241015000382"
+                        ]
+                    }
+                },
+                "type": "object"
+            }
+        },
+        "securitySchemes": {
+            "BearerAuth": {
+                "type": "http",
+                "bearerFormat": "JWT",
+                "scheme": "bearer"
             }
         }
     }

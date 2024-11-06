@@ -20,6 +20,7 @@ use App\Models\BonaeraOutWeightData;
 use App\Models\HsCodeData;
 use App\Models\OrderChannelData;
 use App\Packages\Bonaera;
+use App\Packages\JwtPackage;
 use App\Vo\Bonaera\BonaeraOutDeliveryDataDto;
 use App\Vo\Bonaera\BonaeraOutWeightDataDto;
 use Carbon\Carbon;
@@ -28,9 +29,9 @@ use SimpleXMLElement;
 
 class WmsW1 extends WmsAbstract
 {
-    public function __construct(Bonaera $bonaera)
+    public function __construct(Bonaera $bonaera, JwtPackage $jwtPackage)
     {
-        parent::__construct($bonaera);
+        parent::__construct($bonaera, $jwtPackage);
     }
 
     public function hsCodeList(array $params): array

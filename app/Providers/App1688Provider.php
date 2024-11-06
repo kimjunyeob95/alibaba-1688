@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use App\Abstracts\WmsAbstract;
 use App\Packages\Bonaera;
+use App\Packages\JwtPackage;
 use App\Packages\Kafka;
 use App\Packages\S3;
 use App\Services\Category\CategoryW1;
@@ -73,7 +74,7 @@ class App1688Provider extends ServiceProvider
          * WMS 의존성
          */
         $this->app->bind(WmsAbstract::class, function ($app) {
-            return new WmsW1($app->make(Bonaera::class));
+            return new WmsW1($app->make(Bonaera::class), $app->make(JwtPackage::class));
         });
 
         /**
