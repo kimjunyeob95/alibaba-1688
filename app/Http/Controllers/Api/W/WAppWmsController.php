@@ -2,16 +2,26 @@
 
 namespace App\Http\Controllers\Api\W;
 
+use App\Constants\BonaeraErrorMessageConstant;
 use App\Constants\HttpConstant;
 use App\Constants\WmsConstant;
 use App\Constants\WmsErrorMessageConstant;
 use App\Http\Controllers\Controller;
+use App\Http\Request\Bonaera\BonaeraDeliveryUpdateRequest;
+use App\Http\Request\Bonaera\BonaeraInUpdateRequest;
+use App\Http\Request\Bonaera\BonaeraOutUpdateRequest;
+use App\Http\Request\Bonaera\BonaeraTokenCreateRequest;
+use App\Jobs\WmsJob;
+use App\Models\BonaeraInBaseData;
+use App\Models\BonaeraOutBaseData;
 use App\Services\Wms\WmsService;
+use App\Vo\Bonaera\BonaeraRequestQueueDto;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Symfony\Component\Process\Process;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Queue;
 
 class WAppWmsController extends Controller
 {
@@ -273,6 +283,91 @@ class WAppWmsController extends Controller
             $process->start();
 
             return helpers_json_response(HttpConstant::OK, helpers_success_message([], "출고 배송비 결제 요청 완료\r\n처리 건이 많을 경우 업데이트에 시간이 소요될 수 있습니다."));
+        } catch (Exception $e) {
+            return helpers_json_response(HttpConstant::BAD_REQUEST, [], $e->getMessage());
+        }
+    }
+
+    public function RequestBonaeraTokenCreate(BonaeraTokenCreateRequest $request): JsonResponse
+    {
+        try {
+            $result = $this->wmsService->RequestBonaeraTokenCreate($request->userId);
+            if( $result["isSuccess"] == true ){
+                return helpers_json_response(HttpConstant::OK, $result);
+            } else {
+                return helpers_json_response(HttpConstant::BAD_REQUEST, [], $result["msg"]);
+            }
+        } catch (Exception $e) {
+            return helpers_json_response(HttpConstant::BAD_REQUEST, [], $e->getMessage());
+        }
+    }
+
+    public function RequestBonaeraInUpdate(BonaeraInUpdateRequest $request): JsonResponse
+    {
+        try {
+            $bonaeraRequestQueueDtoBind = [
+                "type"    => $request->type,
+                "stockNo" => $request->stockNo,
+            ];
+            $bonaeraRequestQueueDto = new BonaeraRequestQueueDto();
+            $bonaeraRequestQueueDto->bind($bonaeraRequestQueueDtoBind);
+
+            $obj = BonaeraInBaseData::where("stock_no", $bonaeraRequestQueueDto->stockNo)->first();
+            if( $obj === null ){
+                throw new Exception(BonaeraErrorMessageConstant::getNotHaveErrorMessage("BONAERA_IN_BASE_DATA"));
+            }
+            
+            Queue::push(new WmsJob($bonaeraRequestQueueDto));
+
+            return helpers_json_response(HttpConstant::OK, helpers_success_message());
+        } catch (Exception $e) {
+            return helpers_json_response(HttpConstant::BAD_REQUEST, [], $e->getMessage());
+        }
+    }
+
+    public function RequestBonaeraOutUpdate(BonaeraOutUpdateRequest $request): JsonResponse
+    {
+        try {
+            $bonaeraRequestQueueDtoBind = [
+                "type"    => $request->type,
+                "groupNo" => $request->groupNo,
+                "shNos"   => $request->shNos,
+            ];
+            $bonaeraRequestQueueDto = new BonaeraRequestQueueDto();
+            $bonaeraRequestQueueDto->bind($bonaeraRequestQueueDtoBind);
+
+            $objs = BonaeraOutBaseData::where("group_no", $bonaeraRequestQueueDto->groupNo)->get();
+            if( count($objs) < 1 ){
+                throw new Exception(BonaeraErrorMessageConstant::getNotHaveErrorMessage("BONAERA_OUT_BASE_DATA"));
+            }
+
+            Queue::push(new WmsJob($bonaeraRequestQueueDto));
+
+            return helpers_json_response(HttpConstant::OK, helpers_success_message());
+        } catch (Exception $e) {
+            return helpers_json_response(HttpConstant::BAD_REQUEST, [], $e->getMessage());
+        }
+    }
+
+    public function RequestBonaeraDeliveryUpdate(BonaeraDeliveryUpdateRequest $request): JsonResponse
+    {
+        try {
+            $bonaeraRequestQueueDtoBind = [
+                "type"    => $request->type,
+                "groupNo" => $request->groupNo,
+                "shNos"   => $request->shNos,
+            ];
+            $bonaeraRequestQueueDto = new BonaeraRequestQueueDto();
+            $bonaeraRequestQueueDto->bind($bonaeraRequestQueueDtoBind);
+
+            $objs = BonaeraOutBaseData::where("group_no", $bonaeraRequestQueueDto->groupNo)->get();
+            if( count($objs) < 1 ){
+                throw new Exception(BonaeraErrorMessageConstant::getNotHaveErrorMessage("BONAERA_OUT_BASE_DATA"));
+            }
+
+            Queue::push(new WmsJob($bonaeraRequestQueueDto));
+
+            return helpers_json_response(HttpConstant::OK, helpers_success_message());
         } catch (Exception $e) {
             return helpers_json_response(HttpConstant::BAD_REQUEST, [], $e->getMessage());
         }

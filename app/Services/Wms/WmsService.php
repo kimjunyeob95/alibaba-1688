@@ -192,4 +192,15 @@ class WmsService
    {
       return $this->wmsAbstract->outDetail($groupNo);
    }
+
+   /**
+    * @func RequestBonaeraTokenCreate
+    * @description '토큰 생성'
+    * @param string $userId
+    * @return array
+   */
+   public function RequestBonaeraTokenCreate(string $userId): array
+   {
+      return $this->wmsAbstract->RequestBonaeraTokenCreate($userId);
+   }
 }
