@@ -196,6 +196,21 @@ Route::name('w.')->prefix('w')->group(function () {
         Route::post("/bonaeraOut/update", [WAppWmsController::class, "bonaeraOutUpdate"])->name("bonaeraOutUpdate");
         /** 출고 배송비 결제 */
         Route::post("/bonaeraOut/pay", [WAppWmsController::class, "bonaeraOutPay"])->name("bonaeraOutPay");
+
+        Route::middleware(["whiteIp"])->group(function () {
+            /** 토큰 생성 */
+            Route::post("/token/create", [WAppWmsController::class, "RequestBonaeraTokenCreate"])->name("RequestBonaeraTokenCreate");
+            Route::prefix("request/bonaera")->name("request.bonaera.")->group(function () {
+                Route::middleware(["oepnApi.jwt.verify"])->group(function () {
+                    /** 입고 관련 정보의 변경 */
+                    Route::post("/in/update", [WAppWmsController::class, "RequestBonaeraInUpdate"])->name("RequestBonaeraInUpdate");
+                    /** 출고 관련 정보의 변경 */
+                    Route::post("/out/update", [WAppWmsController::class, "RequestBonaeraOutUpdate"])->name("RequestBonaeraOutUpdate");
+                    /** 배송 관련 정보의 변경 */
+                    Route::post("/delivery/update", [WAppWmsController::class, "RequestBonaeraDeliveryUpdate"])->name("RequestBonaeraDeliveryUpdate");
+                });
+            });
+        });
     });
 
     Route::name('forbiddenWord.')->prefix('forbiddenWord')->group(function () {

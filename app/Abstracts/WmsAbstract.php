@@ -2,18 +2,25 @@
 
 namespace App\Abstracts;
 
+use App\Constants\WmsConstant;
+use App\Models\ApiUser;
 use App\Packages\Bonaera;
+use App\Packages\JwtPackage;
+use Carbon\Carbon;
+use Exception;
 
 abstract class WmsAbstract
 {
     protected array $returnMsg;
     protected string $unipass_token;
     protected Bonaera $bonaera;
+    private JwtPackage $jwtPackage;
 
-    public function __construct(Bonaera $bonaera)
+    public function __construct(Bonaera $bonaera, JwtPackage $jwtPackage)
     {
         $this->returnMsg     = helpers_fail_message();
         $this->bonaera       = $bonaera;
+        $this->jwtPackage    = $jwtPackage;
         $this->unipass_token = env("UNIPASS_TOKEN", "g230z224g099q163r080k040u0");
     }
 
@@ -165,4 +172,34 @@ abstract class WmsAbstract
     * @return array
     */
     abstract function outDetail(string $groupNo): array;
+
+    /**
+     * @func RequestBonaeraTokenCreate
+     * @description '토큰 생성'
+     * @param string $userId
+     * @return array
+    */
+    public function RequestBonaeraTokenCreate(string $userId): array
+    {
+        $returnMsg = $this->returnMsg;
+        try {            
+            $result = $this->jwtPackage->tokenCreate($userId, WmsConstant::COMPANY_BONAERA);
+            if( $result["isSuccess"] && isset($result["data"]["token"]) ){
+                ApiUser::where([
+                    'user_id'      => $userId,
+                    'user_company' => WmsConstant::COMPANY_BONAERA,
+                ])->update([
+                    "updated_at" => Carbon::now()
+                ]);
+                $tokenResult = $result["data"];
+                $returnMsg   = helpers_success_message($tokenResult);
+            } else {
+                throw new Exception($result["msg"]);
+            }
+        } catch (Exception $e) {
+            $returnMsg = helpers_fail_message($e->getMessage());
+        }
+
+        return $returnMsg;
+    }
 }

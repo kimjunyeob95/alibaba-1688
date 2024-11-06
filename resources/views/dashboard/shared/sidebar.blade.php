@@ -122,6 +122,11 @@
                         SAI Swagger
                     </a>
                 </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/api/wms/swagger" target="_blank">
+                        WMS Swagger
+                    </a>
+                </li>
             </ul>
         </li>
     </ul>
