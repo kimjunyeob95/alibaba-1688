@@ -140,25 +140,25 @@ class OrderBaseDto extends Vo
         $this->pay_timeout_type      = $data["payTimeoutType"] ?? 0;
         $this->pay_channel_code_list = $data["payChannelCodeList"][0] ?? "";
 
-        $this->__changeUTCTime();
+        $this->__changeKrUTCTime();
     }
 
-    public function __changeUTCTime()
+    public function __changeKrUTCTime()
     {
         if ($this->all_delivered_time) {
-            $this->all_delivered_time = Carbon::createFromFormat('YmdHisvO', $this->all_delivered_time);
+            $this->all_delivered_time = Carbon::createFromFormat('YmdHisvO', $this->all_delivered_time)->setTimezone(config('app.timezone'));
         }
         if ($this->pay_time) {
-            $this->pay_time = Carbon::createFromFormat('YmdHisvO', $this->pay_time);
+            $this->pay_time = Carbon::createFromFormat('YmdHisvO', $this->pay_time)->setTimezone(config('app.timezone'));
         }
         if ($this->modify_time) {
-            $this->modify_time = Carbon::createFromFormat('YmdHisvO', $this->modify_time);
+            $this->modify_time = Carbon::createFromFormat('YmdHisvO', $this->modify_time)->setTimezone(config('app.timezone'));
         }
         if ($this->complete_time) {
-            $this->complete_time = Carbon::createFromFormat('YmdHisvO', $this->complete_time);
+            $this->complete_time = Carbon::createFromFormat('YmdHisvO', $this->complete_time)->setTimezone(config('app.timezone'));
         }
         if ($this->create_time) {
-            $this->create_time = Carbon::createFromFormat('YmdHisvO', $this->create_time);
+            $this->create_time = Carbon::createFromFormat('YmdHisvO', $this->create_time)->setTimezone(config('app.timezone'));
         }
     }
 }

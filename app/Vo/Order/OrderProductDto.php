@@ -77,19 +77,19 @@ class OrderProductDto extends Vo
         $this->gmt_modified         = $data["gmtModified"] ?? null;
         $this->gmt_completed        = $data["gmtCompleted"] ?? null;
 
-        $this->__changeUTCTime();
+        $this->__changeKrUTCTime();
     }
 
-    public function __changeUTCTime()
+    public function __changeKrUTCTime()
     {
         if ($this->gmt_create) {
-            $this->gmt_create = Carbon::createFromFormat('YmdHisvO', $this->gmt_create);
+            $this->gmt_create = Carbon::createFromFormat('YmdHisvO', $this->gmt_create)->setTimezone(config('app.timezone'));
         }
         if ($this->gmt_modified) {
-            $this->gmt_modified = Carbon::createFromFormat('YmdHisvO', $this->gmt_modified);
+            $this->gmt_modified = Carbon::createFromFormat('YmdHisvO', $this->gmt_modified)->setTimezone(config('app.timezone'));
         }
         if ($this->gmt_completed) {
-            $this->gmt_completed = Carbon::createFromFormat('YmdHisvO', $this->gmt_completed);
+            $this->gmt_completed = Carbon::createFromFormat('YmdHisvO', $this->gmt_completed)->setTimezone(config('app.timezone'));
         }
     }
 }
