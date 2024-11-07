@@ -542,6 +542,4 @@ abstract class OrderAbstract
 
         return $returnMsg;
     }
-
-    abstract function queueTest(): void;
 }
