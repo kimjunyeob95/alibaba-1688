@@ -6,13 +6,15 @@ namespace App\Constants;
 class BonaeraConstant
 {
     /** 입고상태 */
-    public const WAREHOUSE_STATUS_PENDING  = "1001";
-    public const WAREHOUSE_STATUS_RECEIVED = "1003";
     public const WAREHOUSE_STATUS_DISPOSED = "1000";
+    public const WAREHOUSE_STATUS_PENDING  = "1001";
+    public const WAREHOUSE_STATUS_ETC      = "1002";
+    public const WAREHOUSE_STATUS_RECEIVED = "1003";
     public const WAREHOUSE_STATUS          = [
-        self::WAREHOUSE_STATUS_PENDING  => "입고대기",
-        self::WAREHOUSE_STATUS_RECEIVED => "입고완료",
         self::WAREHOUSE_STATUS_DISPOSED => "폐기",
+        self::WAREHOUSE_STATUS_PENDING  => "입고대기",
+        self::WAREHOUSE_STATUS_ETC      => "기타상태",
+        self::WAREHOUSE_STATUS_RECEIVED => "입고완료",
     ];
 
     /** 재고상태 */
