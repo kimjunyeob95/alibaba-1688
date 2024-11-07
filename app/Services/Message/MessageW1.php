@@ -43,7 +43,7 @@ class MessageW1 extends WMessageAbstract
     public function message(array $params): array
     {
         $returnMsg = $this->returnMsg;
-        $updateResult = $this->orderW1->queueTest();
+
         try {
             if( isset($params["message"]) && !empty($params["message"]) && isset($params["_aop_signature"]) && !empty($params["_aop_signature"]) ){
                 $message = json_decode($params["message"], JSON_UNESCAPED_UNICODE);
