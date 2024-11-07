@@ -824,4 +824,12 @@ class OrderW1 extends OrderAbstract
 
         return $returnMsg;
     }
+
+    public function queueTest(): void
+    {
+        $params = [
+            "version" => 1
+        ];
+        debug_log(json_encode($params, JSON_UNESCAPED_UNICODE), "1688/queueTest", "queueTest");
+    }
 }
