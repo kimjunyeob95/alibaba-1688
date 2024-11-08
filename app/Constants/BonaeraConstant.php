@@ -13,7 +13,7 @@ class BonaeraConstant
     public const WAREHOUSE_STATUS          = [
         self::WAREHOUSE_STATUS_DISPOSED => "폐기",
         self::WAREHOUSE_STATUS_PENDING  => "입고대기",
-        self::WAREHOUSE_STATUS_ERROR    => "오류입고",
+        self::WAREHOUSE_STATUS_ERROR    => "입고오류",
         self::WAREHOUSE_STATUS_RECEIVED => "입고완료",
     ];
 
