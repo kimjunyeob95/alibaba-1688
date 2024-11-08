@@ -115,7 +115,7 @@
                                                 <span class="bg-dark rounded text-white px-2 py-1 fs-6">{{ BonaeraConstant::WAREHOUSE_STATUS[$in_option->status] }}</span>
                                             @elseif ( $in_option->status == BonaeraConstant::WAREHOUSE_STATUS_RECEIVED )
                                                 <span class="bg-success rounded text-white px-2 py-1 fs-6">{{ BonaeraConstant::WAREHOUSE_STATUS[$in_option->status] }}</span>
-                                            @elseif ( $in_option->status == BonaeraConstant::WAREHOUSE_STATUS_DISPOSED )
+                                            @else
                                                 <span class="bg-danger rounded text-white px-2 py-1 fs-6">{{ BonaeraConstant::WAREHOUSE_STATUS[$in_option->status] }}</span>
                                             @endif
                                         </td>

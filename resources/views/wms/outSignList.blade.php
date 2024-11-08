@@ -224,8 +224,10 @@
                                                     @if (!empty($wInStatus))
                                                         @if ($wInStatus === BonaeraConstant::WAREHOUSE_STATUS_RECEIVED )
                                                             <span class="bg-success rounded text-white px-1 py-0 fs-7 small">{{ BonaeraConstant::WAREHOUSE_STATUS[$wInStatus] }}</span>
-                                                        @else
+                                                        @elseif ( $wInStatus == BonaeraConstant::WAREHOUSE_STATUS_PENDING )
                                                             <span class="bg-dark rounded text-white px-1 py-0 fs-7 small">{{ BonaeraConstant::WAREHOUSE_STATUS[$wInStatus] }}</span>
+                                                        @else
+                                                            <span class="bg-danger rounded text-white px-1 py-0 fs-7 small">{{ BonaeraConstant::WAREHOUSE_STATUS[$wInStatus] }}</span>
                                                         @endif
                                                     @endif
                                                 </small>

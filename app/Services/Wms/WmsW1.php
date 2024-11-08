@@ -338,15 +338,16 @@ class WmsW1 extends WmsAbstract
 
             /** 재고현황 조회 */
             $res = $this->bonaera->getStockList($inBaseObj->stock_no);
-
+            // dd($res);
             if( $res["isSuccess"] === true && isset($res["data"]["appCode"]) && isset($res["data"]["appitemList"]) ) {
                 $stockCode       = $res["data"]["appCode"];
                 $lastCompletedAt = null;
                 foreach ($res["data"]["appitemList"] as $item) {
-                    $currentDate = Carbon::parse($item["itemIndate"]);
-    
-                    if ($lastCompletedAt === null || $currentDate->gt($lastCompletedAt)) {
-                        $lastCompletedAt = $currentDate;
+                    if( !empty($item["itemIndate"]) ){
+                        $currentDate = Carbon::parse($item["itemIndate"]);
+                        if ( $lastCompletedAt === null || $currentDate->gt($lastCompletedAt) ) { // 가장 최근 날짜로 할당
+                            $lastCompletedAt = $currentDate;
+                        }
                     }
 
                     $inProductObj = BonaeraInProductData::where([
@@ -381,11 +382,9 @@ class WmsW1 extends WmsAbstract
                     }
                 }
 
-                if( $lastCompletedAt !== null ){
-                    $inBaseObj->update([
-                        "completed_at" => $lastCompletedAt
-                    ]);
-                }
+                $inBaseObj->update([
+                    "completed_at" => $lastCompletedAt
+                ]);
             }
         } catch (Exception $e) {
             $msg = "error: " . $e->getMessage() . " | id: {$id}";
