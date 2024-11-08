@@ -187,7 +187,7 @@
                                                         상태: <span class="bg-dark rounded text-white px-1 py-0 fs-7 small">{{ BonaeraConstant::WAREHOUSE_STATUS[$in_option->status] }}</span>,
                                                     @elseif ( $in_option->status == BonaeraConstant::WAREHOUSE_STATUS_RECEIVED )
                                                         상태: <span class="bg-success rounded text-white px-1 py-0 fs-7 small">{{ BonaeraConstant::WAREHOUSE_STATUS[$in_option->status] }}</span>,
-                                                    @elseif ( $in_option->status == BonaeraConstant::WAREHOUSE_STATUS_DISPOSED )
+                                                    @else
                                                         상태: <span class="bg-danger rounded text-white px-1 py-0 fs-7 small">{{ BonaeraConstant::WAREHOUSE_STATUS[$in_option->status] }}</span>,
                                                     @endif
                                                     입고: {{ $in_option->quantity }}, 재고: {{ $in_option->lack_status }}
