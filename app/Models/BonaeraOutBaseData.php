@@ -43,4 +43,12 @@ class BonaeraOutBaseData extends Model
     public function pay_fail_log () {
         return $this->hasOne(BonaeraOutDeliveryPayLogData::class, "group_no", "group_no")->where("success", BonaeraConstant::DELIVERY_PAY_N);
     }
+
+    public function out_extras () {
+        return $this->hasMany(BonaeraOutExtraData::class, "sh_no", "sh_no");
+    }
+
+    public function out_delivery_extras () {
+        return $this->hasMany(BonaeraOutDeliveryExtraData::class, "group_no", "group_no");
+    }
 }

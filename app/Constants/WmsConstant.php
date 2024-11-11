@@ -95,4 +95,8 @@ class WmsConstant
         self::WMS_CODE_TYPE_GR001,
         self::WMS_CODE_TYPE_GR002,
     ];
+
+    /** 부가서비스 종류 */
+    public const OUT_EXTRA_NAME          = "출고";
+    public const OUT_DELIVERY_EXTRA_NAME = "배송";
 }

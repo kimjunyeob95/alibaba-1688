@@ -338,7 +338,6 @@ class WmsW1 extends WmsAbstract
 
             /** 재고현황 조회 */
             $res = $this->bonaera->getStockList($inBaseObj->stock_no);
-            // dd($res);
             if( $res["isSuccess"] === true && isset($res["data"]["appCode"]) && isset($res["data"]["appitemList"]) ) {
                 $stockCode       = $res["data"]["appCode"];
                 $lastCompletedAt = null;
@@ -828,7 +827,9 @@ class WmsW1 extends WmsAbstract
                 "logistics_last",
                 "out_delivery",
                 "out_weight",
-                "pay_fail_log"
+                "pay_fail_log",
+                "out_extras",
+                "out_delivery_extras",
             ])
             ->where("group_no", $groupNo)->first();
 
