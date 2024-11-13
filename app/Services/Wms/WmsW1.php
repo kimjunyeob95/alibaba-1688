@@ -699,9 +699,11 @@ class WmsW1 extends WmsAbstract
                         }
                     }
 
-                    BonaeraOutDeliveryExtraData::where("group_no", $groupNo)
-                    ->whereNotIn("extra_name", $existsExtras)
-                    ->forceDelete();
+                    if( !empty($existsExtras)) {
+                        BonaeraOutDeliveryExtraData::where("group_no", $groupNo)
+                        ->whereNotIn("extra_name", $existsExtras)
+                        ->forceDelete();
+                    }
                 }
 
                 if( isset($res["weightList"][0]) ){
@@ -766,9 +768,11 @@ class WmsW1 extends WmsAbstract
                         }
                     }
 
-                    BonaeraOutExtraData::where("sh_no", $shNo)
-                    ->whereNotIn("extra_name", $existsExtras)
-                    ->forceDelete();
+                    if( !empty($existsExtras)) {
+                        BonaeraOutExtraData::where("sh_no", $shNo)
+                        ->whereNotIn("extra_name", $existsExtras)
+                        ->forceDelete();
+                    }
                 }
             }
         } catch (Exception $e) {
