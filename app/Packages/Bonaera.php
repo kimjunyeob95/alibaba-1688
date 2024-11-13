@@ -328,6 +328,7 @@ class Bonaera
                                 "receiverPhone" => $orderChannelObj->buyer_number,
                                 "personalNum"   => $orderChannelObj->buyer_clearance_number,
                                 "shipMemo"      => $orderChannelObj->buyer_memo,
+                                "personalType"  => BonaeraConstant::CLEARANCE_TYPE_VARCHAR[$orderChannelObj->clearance_type],
                             ]
                         ],
                         "itemList" => $itemList
