@@ -260,7 +260,7 @@
                                         </small>
                                         <br>
                                         <small>
-                                            ({{ OrderConstant::SHIPPING_TYPE[$data->shipping_type]}})
+                                            ({{ BonaeraConstant::CTR_NUM[$data->ctr_num] }})
                                         </small>
                                     </td>
                                     <td rowspan={{ $rowSpan }}>
