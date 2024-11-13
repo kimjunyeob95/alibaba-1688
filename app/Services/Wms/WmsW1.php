@@ -682,8 +682,10 @@ class WmsW1 extends WmsAbstract
                 );
 
                 if( isset($res["ExtraSvcShip"]) ){
+                    $existsExtras = [];
                     foreach ($res["ExtraSvcShip"] as $extra) {
                         if( !empty($extra["ExtraName"]) ){
+                            $existsExtras[] = $extra["ExtraName"];
                             BonaeraOutDeliveryExtraData::updateOrCreate(
                                 [
                                     "group_no"   => $groupNo,
@@ -696,6 +698,10 @@ class WmsW1 extends WmsAbstract
                             );
                         }
                     }
+
+                    BonaeraOutDeliveryExtraData::where("group_no", $groupNo)
+                    ->whereNotIn("extra_name", $existsExtras)
+                    ->forceDelete();
                 }
 
                 if( isset($res["weightList"][0]) ){
@@ -743,8 +749,10 @@ class WmsW1 extends WmsAbstract
                 /** 상품정보조회(출고신청번호기준) 조회 */
                 $orderRes = $this->bonaera->getOrderApplicationList($shNo);
                 if( isset($orderRes["data"]["ExtraSvcOrder"]) ){
+                    $existsExtras = [];
                     foreach ($orderRes["data"]["ExtraSvcOrder"] as $extraOrder) {
                         if( !empty($extraOrder["ExtraName"]) ){
+                            $existsExtras[] = $extraOrder["ExtraName"];
                             BonaeraOutExtraData::updateOrCreate(
                                 [
                                     "sh_no"      => $shNo,
@@ -757,6 +765,10 @@ class WmsW1 extends WmsAbstract
                             );  
                         }
                     }
+
+                    BonaeraOutExtraData::where("sh_no", $shNo)
+                    ->whereNotIn("extra_name", $existsExtras)
+                    ->forceDelete();
                 }
             }
         } catch (Exception $e) {
