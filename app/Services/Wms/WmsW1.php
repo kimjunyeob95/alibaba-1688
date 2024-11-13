@@ -533,6 +533,7 @@ class WmsW1 extends WmsAbstract
                 "bodd.receiver_name",
                 "bodd.personal_num",
                 "bodd.unipass_reason",
+                "bodd.ctr_num",
                 "ocd.clearance_type",
                 "ocd.shipping_type",
             ])
