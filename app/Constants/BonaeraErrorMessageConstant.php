@@ -27,6 +27,9 @@ class BonaeraErrorMessageConstant
     public const ERROR_MESSAGE_STOCK_NO                  = "stock_no";
     public const ERROR_MESSAGE_GROUP_NO                  = "group_no";
     public const ERROR_MESSAGE_SH_NOS                    = "sh_nos";
+    public const ERROR_MESSAGE_SH_NO                     = "sh_no";
+    public const ERROR_MESSAGE_ORIGIN_GROUP_NO           = "origin_group_no";
+    public const ERROR_MESSAGE_CHANGE_GROUP_NO           = "change_group_no";
  
     public static function getErrorMessageNotDefault($constantName): string
     {

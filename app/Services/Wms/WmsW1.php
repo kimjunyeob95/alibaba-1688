@@ -869,4 +869,28 @@ class WmsW1 extends WmsAbstract
 
         return $returnMsg;
     }
+
+    public function bonaeraDeliveryBundle(int $id, string $changeGroupNo): void
+    {
+        try {
+            $baseObj = BonaeraOutBaseData::where("id", $id)->first();
+            if( $baseObj == null ){
+                throw new Exception(BonaeraErrorMessageConstant::getNotHaveErrorMessage("BONAERA_OUT_BASE_DATA"));
+            }
+
+            $anotherCount = BonaeraOutBaseData::where("group_no", $baseObj->group_no)->where("id", "!=", $baseObj->id)->count();
+            if( $anotherCount < 1 ){
+                BonaeraOutDeliveryExtraData::where("group_no", $baseObj->group_no)->forceDelete();
+            }
+
+            BonaeraOutBaseData::where("id", $id)->update([
+                "group_no" => $changeGroupNo
+            ]);
+
+            $this->bonaeraOutUpdate($id);
+        } catch (Exception $e) {
+            $msg = "error: " . $e->getMessage() . " | id: {$id}";
+            debug_log($msg, "boneara/bonaeraDeliveryBundle", "bonaeraDeliveryBundle");
+        }
+    }
 }

@@ -165,6 +165,61 @@
                 ]
             }
         },
+        "/api/w/wms/request/bonaera/delivery/bundle": {
+            "post": {
+                "tags": [
+                    "배송"
+                ],
+                "summary": "묶음 배송 처리",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/DeliveryBundleSchema"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SuccessResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/400ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/500ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            }
+        },
         "/api/w/wms/request/bonaera/delivery/update": {
             "post": {
                 "tags": [
@@ -485,6 +540,37 @@
                             "SH241015000381",
                             "SH241015000382"
                         ]
+                    }
+                },
+                "type": "object"
+            },
+            "DeliveryBundleSchema": {
+                "required": [
+                    "type",
+                    "sh_no",
+                    "origin_group_no",
+                    "change_group_no"
+                ],
+                "properties": {
+                    "type": {
+                        "description": "코드 타입 GR003: 묶음 배송변경",
+                        "type": "string",
+                        "example": "GR003"
+                    },
+                    "sh_no": {
+                        "description": "출고 번호",
+                        "type": "string",
+                        "example": "SH241114001737"
+                    },
+                    "origin_group_no": {
+                        "description": "원본 배송 번호",
+                        "type": "string",
+                        "example": "GR241114001730"
+                    },
+                    "change_group_no": {
+                        "description": "변경 배송 번호",
+                        "type": "string",
+                        "example": "GR241114001731"
                     }
                 },
                 "type": "object"

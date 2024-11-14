@@ -7,6 +7,7 @@ use App\Constants\HttpConstant;
 use App\Constants\WmsConstant;
 use App\Constants\WmsErrorMessageConstant;
 use App\Http\Controllers\Controller;
+use App\Http\Request\Bonaera\BonaeraDeliveryBundleRequest;
 use App\Http\Request\Bonaera\BonaeraDeliveryUpdateRequest;
 use App\Http\Request\Bonaera\BonaeraInUpdateRequest;
 use App\Http\Request\Bonaera\BonaeraOutUpdateRequest;
@@ -362,6 +363,34 @@ class WAppWmsController extends Controller
 
             $objs = BonaeraOutBaseData::where("group_no", $bonaeraRequestQueueDto->groupNo)->get();
             if( count($objs) < 1 ){
+                throw new Exception(BonaeraErrorMessageConstant::getNotHaveErrorMessage("BONAERA_OUT_BASE_DATA"));
+            }
+
+            Queue::push(new WmsJob($bonaeraRequestQueueDto));
+
+            return helpers_json_response(HttpConstant::OK, helpers_success_message());
+        } catch (Exception $e) {
+            return helpers_json_response(HttpConstant::BAD_REQUEST, [], $e->getMessage());
+        }
+    }
+
+    public function RequestBonaeraDeliveryBundle(BonaeraDeliveryBundleRequest $request): JsonResponse
+    {
+        try {
+            $bonaeraRequestQueueDtoBind = [
+                "type"          => $request->type,
+                "shNo"          => $request->shNo,
+                "originGroupNo" => $request->originGroupNo,
+                "changeGroupNo" => $request->changeGroupNo,
+            ];
+            $bonaeraRequestQueueDto = new BonaeraRequestQueueDto();
+            $bonaeraRequestQueueDto->bind($bonaeraRequestQueueDtoBind);
+
+            $obj = BonaeraOutBaseData::where([
+                "sh_no"    => $bonaeraRequestQueueDto->shNo,
+                "group_no" => $bonaeraRequestQueueDto->originGroupNo
+            ])->first();
+            if( $obj === null ){
                 throw new Exception(BonaeraErrorMessageConstant::getNotHaveErrorMessage("BONAERA_OUT_BASE_DATA"));
             }
 
