@@ -43,6 +43,15 @@ class WmsJob implements ShouldQueue
                     $wmsService->bonaeraOutUpdate($obj->id);
                 }
                 break;
+            case WmsConstant::WMS_CODE_TYPE_GR003:
+                $obj = BonaeraOutBaseData::where([
+                    "sh_no"    => $this->bonaeraRequestQueueDto->shNo,
+                    "group_no" => $this->bonaeraRequestQueueDto->originGroupNo
+                ])->first();
+                if( $obj !== null ){
+                    $wmsService->bonaeraDeliveryBundle($obj->id, $this->bonaeraRequestQueueDto->changeGroupNo);
+                }
+                break;
             default:
                 break;
         }

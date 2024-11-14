@@ -208,6 +208,8 @@ Route::name('w.')->prefix('w')->group(function () {
                     Route::post("/out/update", [WAppWmsController::class, "RequestBonaeraOutUpdate"])->name("RequestBonaeraOutUpdate");
                     /** 배송 관련 정보의 변경 */
                     Route::post("/delivery/update", [WAppWmsController::class, "RequestBonaeraDeliveryUpdate"])->name("RequestBonaeraDeliveryUpdate");
+                    /** 묶음배송 처리 */
+                    Route::post("/delivery/bundle", [WAppWmsController::class, "RequestBonaeraDeliveryBundle"])->name("RequestBonaeraDeliveryBundle");
                 });
             });
         });

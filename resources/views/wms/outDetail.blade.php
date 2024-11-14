@@ -202,7 +202,20 @@
                         <table class="table table-bordered">
                             <thead>
                                 <tr>
-                                    <th colspan="6">출고정보</th>
+                                    <th colspan="4">출고정보</th>
+                                    <th>W결제금액(배송비) 합계</th>
+                                    <td>
+                                        @php
+                                            $totalAmount      = $data->order->total_amount ?? 0;
+                                            $totalShippingFee = $data->order->shipping_fee ?? 0;
+
+                                            foreach ($data->otherObjs as $otherObj) {
+                                                $totalAmount      += $otherObj->order->total_amount ?? 0;
+                                                $totalShippingFee += $otherObj->order->shipping_fee ?? 0;
+                                            }
+                                        @endphp
+                                        {{ number_format($totalAmount, 2) }}({{ number_format($totalShippingFee, 2) }})
+                                    </td>
                                 </tr>
                             </thead>
                             <tbody>
@@ -218,7 +231,7 @@
                                     <th scope="col" style="width: 10%">상품명</th>
                                     <td colspan="3">(<a href="https://detail.1688.com/offer/{{ $data->order->product->offer_id }}.html" target="_blank">{{ $data->order->product->offer_id }}</a>) {{ $data->order->product->prd_name_kr }}</td>
                                     <th scope="col" style="width: 15%">W결제금액(배송비)</th>
-                                    <td>{{ number_format($data->order->total_amount) }} ({{ number_format($data->order->shipping_fee) }})</td>
+                                    <td>{{ number_format($data->order->total_amount, 2) }} ({{ number_format($data->order->shipping_fee, 2) }})</td>
                                 </tr>
                                 <tr>
                                     <th colspan="4">옵션정보(이미지/재고번호/옵션명)</th>
@@ -266,7 +279,9 @@
                                     </tr>
                                     <tr>
                                         <th scope="col" style="width: 10%">상품명</th>
-                                        <td colspan="5">(<a href="https://detail.1688.com/offer/{{ $otherObj->order->product->offer_id }}.html" target="_blank">{{ $otherObj->order->product->offer_id }}</a>) {{ $otherObj->order->product->prd_name_kr }}</td>
+                                        <td colspan="3">(<a href="https://detail.1688.com/offer/{{ $otherObj->order->product->offer_id }}.html" target="_blank">{{ $otherObj->order->product->offer_id }}</a>) {{ $otherObj->order->product->prd_name_kr }}</td>
+                                        <th scope="col" style="width: 15%">W결제금액(배송비)</th>
+                                        <td>{{ number_format($otherObj->order->total_amount, 2) }} ({{ number_format($otherObj->order->shipping_fee, 2) }})</td>
                                     </tr>
                                     <tr>
                                         <th colspan="4">옵션정보(이미지/재고번호/옵션명)</th>
