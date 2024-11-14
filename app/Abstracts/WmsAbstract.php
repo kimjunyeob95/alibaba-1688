@@ -202,4 +202,13 @@ abstract class WmsAbstract
 
         return $returnMsg;
     }
+
+    /**
+    * @func bonaeraDeliveryBundle
+    * @description '묶음 배송 처리'
+    * @param int $id
+    * @param string $changeGroupNo
+    * @return void
+    */
+    abstract function bonaeraDeliveryBundle(int $id, string $changeGroupNo): void;
 }

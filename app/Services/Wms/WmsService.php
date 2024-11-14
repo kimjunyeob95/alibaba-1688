@@ -203,4 +203,16 @@ class WmsService
    {
       return $this->wmsAbstract->RequestBonaeraTokenCreate($userId);
    }
+
+   /**
+    * @func bonaeraDeliveryBundle
+    * @description '묶음 배송 처리'
+    * @param int $id
+    * @param string $changeGroupNo
+    * @return void
+   */
+   public function bonaeraDeliveryBundle(int $id, string $changeGroupNo): void
+   {
+      $this->wmsAbstract->bonaeraDeliveryBundle($id, $changeGroupNo);
+   }
 }
