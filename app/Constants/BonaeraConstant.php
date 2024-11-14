@@ -106,7 +106,7 @@ class BonaeraConstant
     /** 통관유형 */
     public const CLEARANCE_TYPE_VARCHAR = [
         OrderConstant::CLEARANCE_SA_TYPE => "1",
-        OrderConstant::CLEARANCE_PA_TYPE => "2",
+        OrderConstant::CLEARANCE_PA_TYPE => "3",
         OrderConstant::CLEARANCE_IA_TYPE => "3",
     ];
 }
