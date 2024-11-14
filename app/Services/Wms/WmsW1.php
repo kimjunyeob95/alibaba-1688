@@ -26,6 +26,7 @@ use App\Vo\Bonaera\BonaeraOutWeightDataDto;
 use Carbon\Carbon;
 use Exception;
 use SimpleXMLElement;
+use Throwable;
 
 class WmsW1 extends WmsAbstract
 {
@@ -76,7 +77,7 @@ class WmsW1 extends WmsAbstract
             $lists = $builder->paginate($pageSize, ['*'], 'page', $page)->appends($params);
 
             $returnMsg = helpers_success_message($lists);
-        } catch (Exception $e) {
+        } catch (Throwable $e) {
             $returnMsg = helpers_fail_message($e->getMessage());
         }
 
@@ -150,7 +151,7 @@ class WmsW1 extends WmsAbstract
             $lists = $builder->paginate($pageSize)->appends($params);
 
             $returnMsg = helpers_success_message($lists);
-        } catch (Exception $e) {
+        } catch (Throwable $e) {
             $returnMsg = helpers_fail_message($e->getMessage());
         }
 
@@ -224,7 +225,7 @@ class WmsW1 extends WmsAbstract
             $lists = $builder->paginate($pageSize)->appends($params);
 
             $returnMsg = helpers_success_message($lists);
-        } catch (Exception $e) {
+        } catch (Throwable $e) {
             $returnMsg = helpers_fail_message($e->getMessage());
         }
 
@@ -269,7 +270,7 @@ class WmsW1 extends WmsAbstract
             }
 
             $returnMsg = helpers_success_message($res);
-        } catch (Exception $e) {
+        } catch (Throwable $e) {
             $returnMsg = helpers_fail_message($e->getMessage());
         }
 
@@ -289,7 +290,7 @@ class WmsW1 extends WmsAbstract
             }
 
             $returnMsg = helpers_success_message();
-        } catch (Exception $e) {
+        } catch (Throwable $e) {
             $returnMsg = helpers_fail_message($e->getMessage());
         }
 
@@ -306,7 +307,7 @@ class WmsW1 extends WmsAbstract
             ]);
 
             $returnMsg = helpers_success_message();
-        } catch (Exception $e) {
+        } catch (Throwable $e) {
             $returnMsg = helpers_fail_message($e->getMessage());
         }
 
@@ -322,7 +323,7 @@ class WmsW1 extends WmsAbstract
             }
 
             $this->bonaera->createStockApi($inFailObj->order_id);
-        } catch (Exception $e) {
+        } catch (Throwable $e) {
             $msg = "error: " . $e->getMessage(). " | id: " . $id;
             debug_log($msg, "boneara/bonaeraInFailCreate", "bonaeraInFailCreate");
         }
@@ -385,7 +386,7 @@ class WmsW1 extends WmsAbstract
                     "completed_at" => $lastCompletedAt
                 ]);
             }
-        } catch (Exception $e) {
+        } catch (Throwable $e) {
             $msg = "error: " . $e->getMessage() . " | id: {$id}";
             debug_log($msg, "boneara/bonaeraUpdate", "bonaeraInUpdate");
         }
@@ -404,7 +405,7 @@ class WmsW1 extends WmsAbstract
             ->where("stock_no", $stockNo)->first();
 
             $returnMsg = helpers_success_message($res);
-        } catch (Exception $e) {
+        } catch (Throwable $e) {
             $returnMsg = helpers_fail_message($e->getMessage());
         }
 
@@ -504,7 +505,7 @@ class WmsW1 extends WmsAbstract
             $lists     = $builder->paginate($pageSize)->appends($params);
             $returnMsg = helpers_success_message($lists);
             // dd($lists->toArray());
-        } catch (Exception $e) {
+        } catch (Throwable $e) {
             $returnMsg = helpers_fail_message($e->getMessage());
         }
         return $returnMsg;
@@ -608,7 +609,7 @@ class WmsW1 extends WmsAbstract
             }
             // dd($lists->toArray());
             $returnMsg = helpers_success_message($lists);
-        } catch (Exception $e) {
+        } catch (Throwable $e) {
             $returnMsg = helpers_fail_message($e->getMessage());
         }
 
@@ -631,7 +632,7 @@ class WmsW1 extends WmsAbstract
             if( $outBaseObj !== null ){
                 $this->bonaeraOutUpdate($outBaseObj->id);
             }
-        } catch (Exception $e) {
+        } catch (Throwable $e) {
             $msg = "error: " . $e->getMessage() . " | id: {$id}";
             debug_log($msg, "boneara/bonaeraOutCreate", "bonaeraOutCreate");
         }
@@ -775,7 +776,7 @@ class WmsW1 extends WmsAbstract
                     }
                 }
             }
-        } catch (Exception $e) {
+        } catch (Throwable $e) {
             $msg = "error: " . $e->getMessage() . " | id: {$id}";
             debug_log($msg, "boneara/bonaeraUpdate", "bonaeraOutUpdate");
         }
@@ -826,7 +827,7 @@ class WmsW1 extends WmsAbstract
                     );
                 }
             }
-        } catch (Exception $e) {
+        } catch (Throwable $e) {
             $msg = "error: " . $e->getMessage() . " | id: {$id}";
             debug_log($msg, "boneara/bonaeraOutPay", "bonaeraOutPay");
         }
@@ -863,7 +864,7 @@ class WmsW1 extends WmsAbstract
             }
 
             $returnMsg = helpers_success_message($res);
-        } catch (Exception $e) {
+        } catch (Throwable $e) {
             $returnMsg = helpers_fail_message($e->getMessage());
         }
 
@@ -888,7 +889,7 @@ class WmsW1 extends WmsAbstract
             ]);
 
             $this->bonaeraOutUpdate($id);
-        } catch (Exception $e) {
+        } catch (Throwable $e) {
             $msg = "error: " . $e->getMessage() . " | id: {$id}";
             debug_log($msg, "boneara/bonaeraDeliveryBundle", "bonaeraDeliveryBundle");
         }
