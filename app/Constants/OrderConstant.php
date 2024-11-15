@@ -234,10 +234,10 @@ class OrderConstant
         self::CLEARANCE_PA_TYPE => "사업자 통관(사업자 명의)",
         self::CLEARANCE_IA_TYPE => "사업자 통관(온채널 또는 셀러허브 명의)",
     ];
-    public const SHIPPING_OF_TYPE = "OF";
     public const SHIPPING_AF_TYPE = "AF";
+    public const SHIPPING_OF_TYPE = "OF";
     public const SHIPPING_TYPE    = [
-        self::SHIPPING_OF_TYPE => "해운",
         self::SHIPPING_AF_TYPE => "항공",
+        self::SHIPPING_OF_TYPE => "해운",
     ];
 }

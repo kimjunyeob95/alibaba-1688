@@ -24,6 +24,7 @@ use App\Models\ProductImageData;
 use App\Models\ProductOptionData;
 use Exception;
 use Illuminate\Support\Facades\DB;
+use Throwable;
 
 class Bonaera
 {
@@ -318,7 +319,7 @@ class Bonaera
         
                     $payload  = [
                         "userId"  => $this->userId,
-                        "ctrNum"  => 2,
+                        "ctrNum"  => BonaeraConstant::SHIPPING_TYPE[$orderChannelObj->shipping_type],
                         "RecInfo" => [
                             [
                                 "receiverName"  => $orderChannelObj->buyer_name,
@@ -385,7 +386,7 @@ class Bonaera
                 }
                 
             }
-        } catch (Exception $e) {
+        } catch (Throwable $e) {
             $errorMsg = $e->getMessage();
 
             BonaeraOutFailData::updateOrCreate(

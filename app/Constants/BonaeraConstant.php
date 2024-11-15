@@ -102,6 +102,10 @@ class BonaeraConstant
         self::CTR_NUM_1 => "항공",
         self::CTR_NUM_2 => "해운",
     ];
+    public const SHIPPING_TYPE = [
+        OrderConstant::SHIPPING_AF_TYPE => self::CTR_NUM_1,
+        OrderConstant::SHIPPING_OF_TYPE => self::CTR_NUM_2,
+    ];
 
     /** 통관유형 */
     public const CLEARANCE_TYPE_VARCHAR = [
