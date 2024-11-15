@@ -554,7 +554,7 @@ class WmsW1 extends WmsAbstract
                 $builder->where("ocd.clearance_type", $clearanceType);
             }
             if( !empty($shippingType) ){
-                $builder->where("ocd.shipping_type", $shippingType);
+                $builder->where("bodd.ctr_num", $shippingType);
             }
             if( !empty($timeCls) ){
                 if( $timeCls == "order" ){
