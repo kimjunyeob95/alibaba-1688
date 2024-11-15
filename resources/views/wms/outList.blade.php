@@ -79,7 +79,7 @@
                                         <div class="d-flex flex-wrap m-n1">
                                             <button type="button" name="shipping_type" class="btn-status btn btn-sm m-1 {{ $shippingType == '' ? 'btn-primary' : 'btn-dark' }}"
                                                 value="">전체</button>
-                                            @foreach (OrderConstant::SHIPPING_TYPE as $key => $value)    
+                                            @foreach (BonaeraConstant::CTR_NUM as $key => $value)    
                                                 <button type="button" name="shipping_type" class="btn-status btn btn-sm m-1 {{ $shippingType == $key ? 'btn-primary' : 'btn-dark' }}"
                                                     value="{{ $key }}">{{ $value }}</button>
                                             @endforeach
