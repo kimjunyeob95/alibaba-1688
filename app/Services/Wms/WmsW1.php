@@ -775,6 +775,12 @@ class WmsW1 extends WmsAbstract
                         ->forceDelete();
                     }
                 }
+
+                if( isset($orderRes["data"]["orState"]) && !empty($orderRes["data"]["orState"]) ){
+                    BonaeraOutBaseData::where("sh_no", $shNo)->update([
+                        "state" => $orderRes["data"]["orState"]
+                    ]);
+                }
             }
         } catch (Throwable $e) {
             $msg = "error: " . $e->getMessage() . " | id: {$id}";
