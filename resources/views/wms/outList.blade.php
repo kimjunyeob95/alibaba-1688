@@ -193,8 +193,8 @@
                                         <small>{{ number_format(($paginator->total() - $offset) - $index) }}</small>
                                     </td>
                                     <td rowspan={{ $rowSpan }}>
-                                        @if ($data->state)
-                                            <small>{{ BonaeraConstant::GROUP_STATUS[$data->state] }}</small>
+                                        @if ($data->delivery_state)
+                                            <small>{{ BonaeraConstant::GROUP_STATUS[$data->delivery_state] }}</small>
                                         @else
                                             <small>출고상태X</small>
                                         @endif
@@ -271,7 +271,7 @@
                                                 0                                                
                                             @endif
                                         </small>
-                                        @if ($data->out_weight && $data->state === BonaeraConstant::GROUP_STATUS_304)
+                                        @if ($data->out_weight && $data->delivery_state === BonaeraConstant::GROUP_STATUS_304)
                                             <button class="btn btn-sm btn-danger btn-pay text-white" data-id={{ $data->id }}>결제하기</button>
                                             @if ($data->pay_fail_log)
                                                 <br>

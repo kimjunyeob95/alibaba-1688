@@ -529,7 +529,7 @@ class WmsW1 extends WmsAbstract
 
             $builder = BonaeraOutBaseData::select([
                 "bonaera_out_base_datas.*",
-                "bodd.state",
+                "bodd.state as delivery_state",
                 "bodd.invoice",
                 "bodd.receiver_name",
                 "bodd.personal_num",
@@ -774,6 +774,12 @@ class WmsW1 extends WmsAbstract
                         ->whereNotIn("extra_name", $existsExtras)
                         ->forceDelete();
                     }
+                }
+
+                if( isset($orderRes["data"]["orState"]) && !empty($orderRes["data"]["orState"]) ){
+                    BonaeraOutBaseData::where("sh_no", $shNo)->update([
+                        "state" => $orderRes["data"]["orState"]
+                    ]);
                 }
             }
         } catch (Throwable $e) {
