@@ -529,7 +529,7 @@ class WmsW1 extends WmsAbstract
 
             $builder = BonaeraOutBaseData::select([
                 "bonaera_out_base_datas.*",
-                "bodd.state",
+                "bodd.state as delivery_state",
                 "bodd.invoice",
                 "bodd.receiver_name",
                 "bodd.personal_num",
