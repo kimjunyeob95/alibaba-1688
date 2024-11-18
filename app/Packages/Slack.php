@@ -9,22 +9,20 @@ use Throwable;
 class Slack
 {
     private array $returnMsg;
-    private string $webhookUrl;
     private Client $client;
 
-    public function __construct(string $webhookUrl)
+    public function __construct()
     {
-        $this->returnMsg  = helpers_fail_message();
-        $this->webhookUrl = $webhookUrl;
-        $this->client     = new Client();
+        $this->returnMsg = helpers_fail_message();
+        $this->client    = new Client();
     }
 
-    public function sendMessage(string $message): array
+    public function sendMessage(string $webhookUrl, string $message): array
     {
         $returnMsg = $this->returnMsg;
 
         try {
-            $response = $this->client->post($this->webhookUrl, [
+            $response = $this->client->post($webhookUrl, [
                 'json' => [
                     'text' => $message
                 ]
