@@ -15,6 +15,7 @@ class BonaeraErrorMessageConstant
     public const ERROR_MESSAGE_BONAERA_IN_FAIL_DATA      = "bonaera_in_fail_data";
     public const ERROR_MESSAGE_BONAERA_OUT_BASE_DATA     = "bonaera_out_base_data";
     public const ERROR_MESSAGE_BONAERA_OUT_DELIVERY_DATA = "bonaera_out_delivery_data";
+    public const ERROR_MESSAGE_ORDER_LOGISTICS_DATAS     = "order_logistics_datas";
     public const ERROR_MESSAGE_LOGISTICS_BILL_NO         = "logisticsBillNo";
     public const ERROR_MESSAGE_LOGISTICS_ITEMLIST        = "logistics itemList";
     public const ERROR_MESSAGE_HS_CODE                   = "hs_code";
