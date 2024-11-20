@@ -13,6 +13,7 @@ use App\Models\BonaeraInFailData;
 use App\Models\BonaeraInProductData;
 use App\Models\BonaeraInProductImgData;
 use App\Models\BonaeraOutBaseData;
+use App\Models\BonaeraOutBoxData;
 use App\Models\BonaeraOutDeliveryData;
 use App\Models\BonaeraOutDeliveryExtraData;
 use App\Models\BonaeraOutDeliveryPayLogData;
@@ -23,6 +24,7 @@ use App\Models\OrderChannelData;
 use App\Packages\Bonaera;
 use App\Packages\JwtPackage;
 use App\Packages\Slack;
+use App\Vo\Bonaera\BonaeraOutBoxDataDto;
 use App\Vo\Bonaera\BonaeraOutDeliveryDataDto;
 use App\Vo\Bonaera\BonaeraOutWeightDataDto;
 use Carbon\Carbon;
@@ -776,15 +778,30 @@ class WmsW1 extends WmsAbstract
                 }
 
                 if( isset($res["weightList"][0]) ){
-                    $weight = $res["weightList"][0];
+                    $weight  = $res["weightList"][0];
+                    $boxList = $weight["boxList"] ?? [];
+
+                    BonaeraOutBoxData::where("group_no", $groupNo)->forceDelete();
+
+                    foreach ($boxList as $box) {
+                        $bonaeraOutBoxDataDtoBind = [
+                            "groupNo"        => $groupNo,
+                            "boxCnt"         => 1,
+                            "realWeight"     => !empty($box["realWeight"]) ? $box["realWeight"] : 0,
+                            "width"          => !empty($box["width"]) ? $box["width"] : 0,
+                            "length"         => !empty($box["length"]) ? $box["length"] : 0,
+                            "height"         => !empty($box["height"]) ? $box["height"] : 0,
+                        ];
+                        $bonaeraOutBoxDataDto = new BonaeraOutBoxDataDto();
+                        $bonaeraOutBoxDataDto->bind($bonaeraOutBoxDataDtoBind);
+    
+                        $insertWhere = $bonaeraOutBoxDataDto->getAllProperties();
+                        BonaeraOutBoxData::create($insertWhere);
+                    }
 
                     $bonaeraOutWeightDataDtoBind = [
                         "groupNo"        => $groupNo,
                         "boxCnt"         => !empty($weight["boxCnt"]) ? $weight["boxCnt"] : 0,
-                        "realWeight"     => !empty($weight["realWeight"]) ? $weight["realWeight"] : 0,
-                        "width"          => !empty($weight["width"]) ? $weight["width"] : 0,
-                        "length"         => !empty($weight["length"]) ? $weight["length"] : 0,
-                        "height"         => !empty($weight["height"]) ? $weight["height"] : 0,
                         "weight"         => !empty($weight["weight"]) ? $weight["weight"] : 0,
                         "shipMoney"      => !empty($weight["shipMoney"]) ? $weight["shipMoney"] : 0,
                         "weightFee"      => !empty($weight["weightFee"]) ? $weight["weightFee"] : 0,
@@ -798,7 +815,6 @@ class WmsW1 extends WmsAbstract
                         "commission"     => !empty($weight["commission"]) ? $weight["commission"] : 0,
                         "islands"        => !empty($weight["islands"]) ? $weight["islands"] : 0,
                         "totalMoney"     => !empty($weight["totalMoney"]) ? $weight["totalMoney"] : 0,
-
                     ];
                     $bonaeraOutWeightDataDto = new BonaeraOutWeightDataDto();
                     $bonaeraOutWeightDataDto->bind($bonaeraOutWeightDataDtoBind);

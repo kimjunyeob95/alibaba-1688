@@ -8,10 +8,6 @@ class BonaeraOutWeightDataDto extends Vo
 {
     protected string $group_no         = "";
     protected int $box_cnt             = 0;
-    protected float $real_weight       = 0;
-    protected float $width             = 0;
-    protected float $length            = 0;
-    protected float $height            = 0;
     protected float $weight            = 0;
     protected int $ship_money          = 0;
     protected int $weight_fee          = 0;
@@ -30,10 +26,6 @@ class BonaeraOutWeightDataDto extends Vo
     {
         $this->group_no         = $data["groupNo"];
         $this->box_cnt          = $data["boxCnt"];
-        $this->real_weight      = $data["realWeight"];
-        $this->width            = $data["width"];
-        $this->length           = $data["length"];
-        $this->height           = $data["height"];
         $this->weight           = $data["weight"];
         $this->ship_money       = $data["shipMoney"];
         $this->weight_fee       = $data["weightFee"];
