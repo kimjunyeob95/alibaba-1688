@@ -712,6 +712,14 @@ class WmsW1 extends WmsAbstract
             if( $res["isSuccess"] === true && isset($res["data"]["data"]["grCode"]) && isset($res["data"]["data"]["ReciverInfo"][0]) ) {
                 $res         = $res["data"]["data"];
                 $reciverInfo = $res["ReciverInfo"][0];
+                $deliveryObj = BonaeraOutDeliveryData::where("group_no", $groupNo)->first();
+                if( $deliveryObj !== null ){
+                    if( !in_array($deliveryObj->state, [BonaeraConstant::GROUP_STATUS_304, BonaeraConstant::GROUP_STATUS_307]) && 
+                        in_array($res["state"], [BonaeraConstant::GROUP_STATUS_304, BonaeraConstant::GROUP_STATUS_307])    
+                    ){
+                        $this->bonaeraOutUpdateSendSlack($groupNo);
+                    }
+                }
 
                 $bonaeraOutDeliveryDataDtoBind = [
                     "groupNo"       => $groupNo,
@@ -895,6 +903,36 @@ class WmsW1 extends WmsAbstract
         } catch (Throwable $e) {
             $msg = "error: " . $e->getMessage() . " | id: {$id}";
             debug_log($msg, "boneara/bonaeraOutPay", "bonaeraOutPay");
+        }
+    }
+
+    public function bonaeraOutUpdateSendSlack(string $groupNo): void
+    {
+        $webhookUrl = SlackConstant::BONAERA_IN_STATUS;
+        $message    = "[WMS 출고 알림]\n";
+
+        $deliveryObj = BonaeraOutDeliveryData::where("group_no", $groupNo)->first();
+        if( $deliveryObj !== null ){
+            $message .= "배송번호 : {$groupNo}\n";
+            $message .= "상태 : " . BonaeraConstant::GROUP_STATUS[$deliveryObj->state] . "\n";
+            $message .= "출고번호 : \n";
+
+            $outBaseObjs = BonaeraOutBaseData::with([
+                "order.channel_obj"
+            ])->where("group_no", $groupNo)->get();
+            $idx = 1;
+            foreach ($outBaseObjs as $outBaseObj) {
+                $channelOrderId  = $outBaseObj->order->channel_obj->channel_order_id ?? "";
+                $message        .= $idx . ". " . $outBaseObj->sh_no . " (" . $channelOrderId . ")\n";
+                $idx++;
+            }
+
+            $message   .= "운송장번호 : {$deliveryObj->invoice}\n";
+            $weightObj  = BonaeraOutWeightData::where("group_no", $groupNo)->first();
+            if( $weightObj !== null ){
+                $message .= "총 배송금액 : " . number_format($weightObj->total_money) . "\n";
+            }
+            $this->slack->sendMessage($webhookUrl, $message);
         }
     }
 
