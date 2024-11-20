@@ -713,11 +713,12 @@ class WmsW1 extends WmsAbstract
                 $res         = $res["data"]["data"];
                 $reciverInfo = $res["ReciverInfo"][0];
                 $deliveryObj = BonaeraOutDeliveryData::where("group_no", $groupNo)->first();
+                $isSendSlack = false;
                 if( $deliveryObj !== null ){
                     if( !in_array($deliveryObj->state, [BonaeraConstant::GROUP_STATUS_304, BonaeraConstant::GROUP_STATUS_307]) && 
                         in_array($res["state"], [BonaeraConstant::GROUP_STATUS_304, BonaeraConstant::GROUP_STATUS_307])    
                     ){
-                        $this->bonaeraOutUpdateSendSlack($groupNo);
+                        $isSendSlack = true;
                     }
                 }
 
@@ -809,6 +810,10 @@ class WmsW1 extends WmsAbstract
                         ["group_no" => $groupNo],
                         $upsertWhere
                     );
+                }
+
+                if( $isSendSlack === true ){
+                    $this->bonaeraOutUpdateSendSlack($groupNo);
                 }
             }
 
