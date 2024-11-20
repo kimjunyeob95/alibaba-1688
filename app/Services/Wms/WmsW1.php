@@ -6,6 +6,7 @@ use App\Abstracts\WmsAbstract;
 use App\Constants\BonaeraConstant;
 use App\Constants\BonaeraErrorMessageConstant;
 use App\Constants\OrderErrorMessageConstant;
+use App\Constants\SlackConstant;
 use App\Constants\WmsConstant;
 use App\Models\BonaeraInBaseData;
 use App\Models\BonaeraInFailData;
@@ -21,18 +22,20 @@ use App\Models\HsCodeData;
 use App\Models\OrderChannelData;
 use App\Packages\Bonaera;
 use App\Packages\JwtPackage;
+use App\Packages\Slack;
 use App\Vo\Bonaera\BonaeraOutDeliveryDataDto;
 use App\Vo\Bonaera\BonaeraOutWeightDataDto;
 use Carbon\Carbon;
 use Exception;
+use PDO;
 use SimpleXMLElement;
 use Throwable;
 
 class WmsW1 extends WmsAbstract
 {
-    public function __construct(Bonaera $bonaera, JwtPackage $jwtPackage)
+    public function __construct(Bonaera $bonaera, JwtPackage $jwtPackage, Slack $slack)
     {
-        parent::__construct($bonaera, $jwtPackage);
+        parent::__construct($bonaera, $jwtPackage, $slack);
     }
 
     public function hsCodeList(array $params): array
@@ -342,6 +345,7 @@ class WmsW1 extends WmsAbstract
             if( $res["isSuccess"] === true && isset($res["data"]["appCode"]) && isset($res["data"]["appitemList"]) ) {
                 $stockCode       = $res["data"]["appCode"];
                 $lastCompletedAt = null;
+                $isStatusChange  = false;
                 foreach ($res["data"]["appitemList"] as $item) {
                     if( !empty($item["itemIndate"]) ){
                         $currentDate = Carbon::parse($item["itemIndate"]);
@@ -366,6 +370,10 @@ class WmsW1 extends WmsAbstract
                         ]);
                     }
 
+                    if( $inProductObj === null || ( $isStatusChange === false && $inProductObj->status != $item["itemState"] ) ){
+                        $isStatusChange = true;
+                    }
+
                     for ($i = 1; $i < 11; $i ++) { 
                         $imgKey = "itemImg" . $i;
                         if (isset($item[$imgKey]) && !empty($item[$imgKey])) {
@@ -385,10 +393,61 @@ class WmsW1 extends WmsAbstract
                 $inBaseObj->update([
                     "completed_at" => $lastCompletedAt
                 ]);
+
+                if( $isStatusChange === true ){
+                    $this->bonaeraInUpdateSendSlack($inBaseObj);
+                }
             }
         } catch (Throwable $e) {
             $msg = "error: " . $e->getMessage() . " | id: {$id}";
             debug_log($msg, "boneara/bonaeraUpdate", "bonaeraInUpdate");
+        }
+    }
+
+    public function bonaeraInUpdateSendSlack(BonaeraInBaseData $inBaseObj): void
+    {
+        $isSendSlack         = false;
+        $allInStatusRecieved = true;
+        $webhookUrl          = SlackConstant::BONAERA_IN_STATUS;
+        $message             = "[WMS 입고 알림]\n";
+        $channelObj          = OrderChannelData::where("order_id", $inBaseObj->order_id)->first();
+        $inProductObjs       = BonaeraInProductData::with(["w_option"])->where([
+            "stock_no" => $inBaseObj->stock_no,
+            "order_id" => $inBaseObj->order_id,
+        ])->get();
+
+        if( $channelObj !== null && count($inProductObjs) > 0 ){
+            foreach ($inProductObjs as $inProductObj) {
+                if( in_array($inProductObj->status, [BonaeraConstant::WAREHOUSE_STATUS_RECEIVED, BonaeraConstant::WAREHOUSE_STATUS_ERROR]) ){
+                    $isSendSlack = true;
+                    break;
+                }
+            }
+            if( $isSendSlack === true ){
+                foreach ($inProductObjs as $inProductObj) {
+                    if( $inProductObj->status !== BonaeraConstant::WAREHOUSE_STATUS_RECEIVED ){
+                        $allInStatusRecieved = false;
+                        break;
+                    }
+                }
+
+                if( $allInStatusRecieved === true ){
+                    $message .= "상태 : 정상입고\n";
+                } else {
+                    $message .= "상태 : 오류입고\n";
+                }
+                $message .= "채널 주문번호 : {$channelObj->channel_order_id}\n";
+                $message .= "WAPP 주문 번호 : {$inBaseObj->order_id}\n";
+                $message .= "입고번호 : {$inBaseObj->stock_no}\n";
+                $optCnt   = 1;
+                foreach ($inProductObjs as $inProductObj) {
+                    if( $inProductObj->w_option ){
+                        $message .= $optCnt . ". " . $inProductObj->w_option->option_name_kr . " ({$inProductObj->quantity}) : " . BonaeraConstant::WAREHOUSE_STATUS[$inProductObj->status] . "\n";
+                        $optCnt++;
+                    }
+                }
+                $this->slack->sendMessage($webhookUrl, $message);
+            }
         }
     }
 

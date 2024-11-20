@@ -6,6 +6,7 @@ use App\Constants\WmsConstant;
 use App\Models\ApiUser;
 use App\Packages\Bonaera;
 use App\Packages\JwtPackage;
+use App\Packages\Slack;
 use Carbon\Carbon;
 use Exception;
 
@@ -15,12 +16,14 @@ abstract class WmsAbstract
     protected string $unipass_token;
     protected Bonaera $bonaera;
     private JwtPackage $jwtPackage;
+    protected Slack $slack;
 
-    public function __construct(Bonaera $bonaera, JwtPackage $jwtPackage)
+    public function __construct(Bonaera $bonaera, JwtPackage $jwtPackage, Slack $slack)
     {
         $this->returnMsg     = helpers_fail_message();
         $this->bonaera       = $bonaera;
         $this->jwtPackage    = $jwtPackage;
+        $this->slack         = $slack;
         $this->unipass_token = env("UNIPASS_TOKEN", "g230z224g099q163r080k040u0");
     }
 
