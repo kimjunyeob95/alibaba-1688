@@ -53,7 +53,7 @@
                                         <div class="d-flex flex-wrap m-n1">
                                             <button type="button" name="status" class="btn-status btn btn-sm m-1 {{ $status == '' ? 'btn-primary' : 'btn-dark' }}"
                                                 value="">전체</button>
-                                            @foreach (BonaeraConstant::OUT_PUBLIC_STATUS as $key => $value)    
+                                            @foreach (WmsConstant::OUT_LIST_STATUS as $key => $value)    
                                                 <button type="button" name="status" class="btn-status btn btn-sm m-1 {{ $status == $key ? 'btn-primary' : 'btn-dark' }}"
                                                     value="{{ $key }}">{{ $value }}</button>
                                             @endforeach
@@ -154,14 +154,14 @@
                                     <input class="form-check-input" type="checkbox" id="allCheckbox">
                                 </th>
                                 <th scope="col" style="width: 1%">No</th>
-                                <th scope="col" style="width: 5%">출고상태</th>
                                 <th scope="col" style="width: 5%">
                                     배송번호<br>
-                                    (출고 주문번호)
+                                    출고상태
                                 </th>
                                 <th scope="col" style="width: 5%">
-                                    W 주문번호<br>
-                                    채널 주문번호
+                                    출고 주문번호<br>
+                                    채널 주문번호<br>
+                                    W 주문번호
                                 </th>
                                 <th scope="col" style="width: 20%">출고정보</th>
                                 <th scope="col" style="width: 5%">수령인</th>
@@ -193,23 +193,22 @@
                                         <small>{{ number_format(($paginator->total() - $offset) - $index) }}</small>
                                     </td>
                                     <td rowspan={{ $rowSpan }}>
+                                        <small>{{ $data->group_no }}</small>
+                                        <br>
                                         @if ($data->delivery_state)
-                                            <small>{{ BonaeraConstant::GROUP_STATUS[$data->delivery_state] }}</small>
+                                            <small>({{ BonaeraConstant::GROUP_STATUS[$data->delivery_state] }})</small>
                                         @else
-                                            <small>출고상태X</small>
+                                            <small>(출고상태X)</small>
                                         @endif
                                     </td>
                                     <td>
-                                        <small>({{ $data->group_no }})</small>
+                                        <small>{{ $data->sh_no }}</small>
                                         <br>
-                                        <small>({{ $data->sh_no }})</small>
+                                        <small>{{ $data->channel_order_id }}</small>
                                         <br>
-                                        <button class="btn btn-sm btn-primary btn-in-detail text-white" data-stockno={{ $data->stock_no }}>입고상세</button>
-                                    </td>
-                                    <td>
                                         <small>{{ $data->order_id }}</small>
                                         <br>
-                                        <small>({{ $data->channel_order_id }})</small>
+                                        <button class="btn btn-sm btn-primary btn-in-detail text-white" data-stockno={{ $data->stock_no }}>입고상세</button>
                                     </td>
                                     <td>
                                         <small>
@@ -279,7 +278,7 @@
                                             @endif
                                         @endif
                                     </td>
-                                    <td rowspan={{ $rowSpan }}>
+                                    <td>
                                         <small>
                                             {{ $data->out_ordered_at }}
                                         </small>
@@ -297,18 +296,15 @@
                                     </td>
                                 </tr>
                                 @foreach ($data->otherObjs as $otherObj)
-                                    <tr>
+                                    <tr class="{{ $subTrClassName }}">
                                         <td>
-                                            <small>({{ $otherObj->group_no }})</small>
+                                            <small>{{ $otherObj->sh_no }}</small>
                                             <br>
-                                            <small>({{ $otherObj->sh_no }})</small>
+                                            <small>{{ $otherObj->channel_order_id }}</small>
                                             <br>
-                                            <button class="btn btn-sm btn-primary btn-in-detail text-white" data-stockno={{ $otherObj->stock_no }}>입고상세</button>
-                                        </td>
-                                        <td>
                                             <small>{{ $otherObj->order_id }}</small>
                                             <br>
-                                            <small>({{ $otherObj->channel_order_id }})</small>
+                                            <button class="btn btn-sm btn-primary btn-in-detail text-white" data-stockno={{ $otherObj->stock_no }}>입고상세</button>
                                         </td>
                                         <td>
                                             <small>
@@ -337,6 +333,15 @@
                                                     </small>
                                                 @endif
                                             @endforeach
+                                        </td>
+                                        <td>
+                                            <small>
+                                                {{ $otherObj->out_ordered_at }}
+                                            </small>
+                                            <br>
+                                            <small>
+                                                {{ $otherObj->out_completed_at }}
+                                            </small>
                                         </td>
                                     </tr>
                                 @endforeach

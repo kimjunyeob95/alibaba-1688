@@ -10,7 +10,6 @@ class BonaeraOutDeliveryDataDto extends Vo
     protected string $invoice        = "";
     protected string $ctr_num        = "";
     protected string $state          = "";
-    protected ?string $outday        = "";
     protected string $receiver_name  = "";
     protected string $zip_code       = "";
     protected string $addr1          = "";
@@ -28,7 +27,6 @@ class BonaeraOutDeliveryDataDto extends Vo
         $this->invoice        = $data["invoice"];
         $this->ctr_num        = $data["ctrNum"];
         $this->state          = $data["state"];
-        $this->outday         = $data["outday"];
         $this->receiver_name  = $data["receiverName"];
         $this->zip_code       = $data["zipCode"];
         $this->addr1          = $data["addr1"];
