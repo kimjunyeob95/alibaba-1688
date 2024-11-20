@@ -66,13 +66,8 @@ class Bonaera
                 if( $prdObj == null ){
                     throw new Exception(OrderErrorMessageConstant::getNotHaveErrorMessage("PRODUCT"));
                 }
-                $orderPrdObjs     = OrderProductData::where("order_id", $orderId)->get();
-                $logicObjs        = OrderLogisticsData::where("order_id", $orderId)->groupBy("logistics_bill_no")->get();
-                $logisticsBillNos = $logicObjs->pluck('logistics_bill_no')->filter()->implode(',');
-                if( empty($logisticsBillNos) ){
-                    throw new Exception(BonaeraErrorMessageConstant::getNotHaveErrorMessage("LOGISTICS_BILL_NO"));
-                }
-                $imgObj = ProductImageData::where("offer_id", $offerId)->where([
+                $orderPrdObjs = OrderProductData::where("order_id", $orderId)->get();
+                $imgObj       = ProductImageData::where("offer_id", $offerId)->where([
                     "img_type" => ImageConstant::IMAGE_TYPE_MAIN,
                     "lang"     => ProductConstant::COLLECT_KR
                 ])->first();
@@ -101,6 +96,27 @@ class Bonaera
                 }
                 
                 foreach ($orderPrdObjs as $orderPrdObj) {
+                    $subItemId       = $orderPrdObj->sub_item_id;
+                    $logisticsBillNo = "";
+                    $logicObj        = OrderLogisticsData::where([
+                        "order_id"     => $orderId,
+                        "sub_item_ids" => $subItemId
+                    ])->first();
+
+                    if( $logicObj === null ){
+                        $logicObj = OrderLogisticsData::where([
+                            "order_id" => $orderId,
+                        ])->first();
+                    }
+                    if( empty($logicObj) ){
+                        throw new Exception(BonaeraErrorMessageConstant::getNotHaveErrorMessage("ORDER_LOGISTICS_DATAS"));
+                    }
+
+                    $logisticsBillNo = $logicObj->logistics_bill_no;
+                    if( empty($logisticsBillNo) ){
+                        throw new Exception(BonaeraErrorMessageConstant::getNotHaveErrorMessage("LOGISTICS_BILL_NO"));
+                    }
+
                     $skuId  = $orderPrdObj->sku_id;
                     $optObj = ProductOptionData::where("offer_id", $offerId)->where("sku_id", $skuId)->first();
 
@@ -110,7 +126,7 @@ class Bonaera
                         $itemList[] = [
                             "productShno"    => $productShno,
                             "productNameEng" => $prdObj->prd_name_kr,
-                            "trackingNumber" => $logisticsBillNos,
+                            "trackingNumber" => $logisticsBillNo,
                             "productMoney"   => $orderPrdObj->price,
                             "productCount"   => $orderPrdObj->quantity,
                             "imgUrl"         => !empty($sku_img_url) ? $sku_img_url : $imgObj->img_url_origin,
