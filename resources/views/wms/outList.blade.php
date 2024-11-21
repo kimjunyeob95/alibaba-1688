@@ -159,7 +159,7 @@
                                     출고상태
                                 </th>
                                 <th scope="col" style="width: 5%">
-                                    출고 주문번호<br>
+                                    출고번호<br>
                                     채널 주문번호<br>
                                     W 주문번호
                                 </th>
