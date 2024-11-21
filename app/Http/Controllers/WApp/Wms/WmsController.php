@@ -191,6 +191,7 @@ class WmsController extends Controller
         $status        = $this->request->get("status", "");
         $clearanceType = $this->request->get("clearance_type", "");
         $shippingType  = $this->request->get("shipping_type", "");
+        $unipassType   = $this->request->get("unipass_type", "");
         $timeCls       = $this->request->get("time_cls", "order");
         $startTime     = $this->request->get("start_time", "");
         $endTime       = $this->request->get("end_time", "");
@@ -207,6 +208,7 @@ class WmsController extends Controller
             "status"        => $status,
             "clearanceType" => $clearanceType,
             "shippingType"  => $shippingType,
+            "unipassType"   => $unipassType,
             "timeCls"       => $timeCls,
             "startTime"     => $startTime,
             "endTime"       => $endTime,
@@ -219,6 +221,7 @@ class WmsController extends Controller
             "status"        => $status,
             "clearanceType" => $clearanceType,
             "shippingType"  => $shippingType,
+            "unipassType"   => $unipassType,
             "timeCls"       => $timeCls,
             "startTime"     => $startTime,
             "endTime"       => $endTime,

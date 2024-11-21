@@ -580,6 +580,7 @@ class WmsW1 extends WmsAbstract
             $status        = $params["status"];
             $clearanceType = $params["clearanceType"];
             $shippingType  = $params["shippingType"];
+            $unipassType   = $params["unipassType"];
             $timeCls       = $params["timeCls"];
             $startTime     = $params["startTime"];
             $endTime       = $params["endTime"];
@@ -621,7 +622,7 @@ class WmsW1 extends WmsAbstract
                         $builder->where("bonaera_out_base_datas.state", BonaeraConstant::GROUP_STATUS_302);
                         $builder->where("bodd.state", BonaeraConstant::GROUP_STATUS_306);    
                         break;
-                    case WmsConstant::OUT_LIST_STATUS_302_306:
+                    case WmsConstant::OUT_LIST_STATUS_302_307:
                         $builder->where("bonaera_out_base_datas.state", BonaeraConstant::GROUP_STATUS_302);
                         $builder->where("bodd.state", BonaeraConstant::GROUP_STATUS_307);    
                         break;
@@ -637,6 +638,18 @@ class WmsW1 extends WmsAbstract
             }
             if( !empty($shippingType) ){
                 $builder->where("bodd.ctr_num", $shippingType);
+            }
+            if( !empty($unipassType) ){
+                switch ($unipassType) {
+                    case BonaeraConstant::UNIPASS_RESULT_SUCCESS:
+                        $builder->where("bodd.unipass_result", "!=", BonaeraConstant::UNIPASS_RESULT_0);
+                        break;
+                    case BonaeraConstant::UNIPASS_RESULT_FAIL:
+                        $builder->where("bodd.unipass_result", BonaeraConstant::UNIPASS_RESULT_0);
+                        break;
+                    default:
+                        break;
+                }
             }
             if( !empty($timeCls) ){
                 if( $timeCls == "order" ){
