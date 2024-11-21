@@ -22,6 +22,7 @@ use App\Models\OrderProductData;
 use App\Models\ProductData;
 use App\Models\ProductImageData;
 use App\Models\ProductOptionData;
+use Carbon\Carbon;
 use Exception;
 use Illuminate\Support\Facades\DB;
 use Throwable;
@@ -97,24 +98,13 @@ class Bonaera
                 
                 foreach ($orderPrdObjs as $orderPrdObj) {
                     $subItemId       = $orderPrdObj->sub_item_id;
-                    $logisticsBillNo = "";
+                    $logisticsBillNo = "트레킹 번호 없음";
                     $logicObj        = OrderLogisticsData::where([
-                        "order_id"     => $orderId,
-                        "sub_item_ids" => $subItemId
-                    ])->first();
+                        "order_id" => $orderId,
+                    ])->where('sub_item_ids', 'LIKE', '%' . $subItemId . '%')->first();
 
-                    if( $logicObj === null ){
-                        $logicObj = OrderLogisticsData::where([
-                            "order_id" => $orderId,
-                        ])->first();
-                    }
-                    if( empty($logicObj) ){
-                        throw new Exception(BonaeraErrorMessageConstant::getNotHaveErrorMessage("ORDER_LOGISTICS_DATAS"));
-                    }
-
-                    $logisticsBillNo = $logicObj->logistics_bill_no;
-                    if( empty($logisticsBillNo) ){
-                        throw new Exception(BonaeraErrorMessageConstant::getNotHaveErrorMessage("LOGISTICS_BILL_NO"));
+                    if( $logicObj !== null ){
+                        $logisticsBillNo = $logicObj->logistics_bill_no;
                     }
 
                     $skuId  = $orderPrdObj->sku_id;
@@ -369,7 +359,7 @@ class Bonaera
                                     "channel_order_id" => $channelOrderId,
                                     "state"            => BonaeraConstant::GROUP_STATUS_302,
                                     "group_no"         => $groupNo,
-                                    "out_ordered_at"   => null,
+                                    "out_ordered_at"   => Carbon::now(),
                                     "out_completed_at" => null,
                                 ]
                             );
