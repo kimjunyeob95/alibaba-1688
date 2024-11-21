@@ -87,7 +87,12 @@ class MessageW1 extends WMessageAbstract
                     if( isset($message["data"]["OrderLogisticsTracingModel"]["statusChanged"]) && $message["data"]["OrderLogisticsTracingModel"]["statusChanged"] ) {
                         $statusChanged = $message["data"]["OrderLogisticsTracingModel"]["statusChanged"];
                     }
-                    
+
+                    $logisticsId = "";
+                    if( isset($message["data"]["MailNoChangeModel"]["logisticsId"]) && !empty($message["data"]["MailNoChangeModel"]["logisticsId"]) ) {
+                        $logisticsId = $message["data"]["MailNoChangeModel"]["logisticsId"];
+                    }
+
                     $logParams = [
                         "message"        => $message,
                         "_aop_signature" => $params["_aop_signature"],
@@ -184,7 +189,7 @@ class MessageW1 extends WMessageAbstract
                                 switch ($messageCode) {
                                     case MessageConstant::OT002:
                                         if( $inBaseObj !== null ){
-                                            $this->bonaera->stockModifyApi($inBaseObj->stock_no);
+                                            $this->bonaera->stockModifyApiBindOT002($orderId, $logisticsId);
                                         }
                                         break;
                                     
