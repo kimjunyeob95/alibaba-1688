@@ -43,6 +43,7 @@
                     <input type="hidden" name="status" value={{ $status }}>
                     <input type="hidden" name="clearance_type" value={{ $clearanceType }}>
                     <input type="hidden" name="shipping_type" value={{ $shippingType }}>
+                    <input type="hidden" name="unipass_type" value={{ $unipassType }}>
 
                     <div class="card">
                         <div class="card-header">
@@ -81,6 +82,17 @@
                                                 value="">전체</button>
                                             @foreach (BonaeraConstant::CTR_NUM as $key => $value)    
                                                 <button type="button" name="shipping_type" class="btn-status btn btn-sm m-1 {{ $shippingType == $key ? 'btn-primary' : 'btn-dark' }}"
+                                                    value="{{ $key }}">{{ $value }}</button>
+                                            @endforeach
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr class="align-middle">
+                                    <th style="width: 120px">통관부호</th>
+                                    <td colspan="2">
+                                        <div class="d-flex flex-wrap m-n1">
+                                            @foreach (BonaeraConstant::UNIPASS_RESULT as $key => $value)    
+                                                <button type="button" name="unipass_type" class="btn-status btn btn-sm m-1 {{ $unipassType == $key ? 'btn-primary' : 'btn-dark' }}"
                                                     value="{{ $key }}">{{ $value }}</button>
                                             @endforeach
                                         </div>

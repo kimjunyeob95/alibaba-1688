@@ -113,4 +113,18 @@ class BonaeraConstant
         OrderConstant::CLEARANCE_PA_TYPE => "3",
         OrderConstant::CLEARANCE_IA_TYPE => "3",
     ];
+
+    /** 통관부호 */
+    public const UNIPASS_RESULT_ALL     = "";
+    public const UNIPASS_RESULT_SUCCESS = "success";
+    public const UNIPASS_RESULT_FAIL    = "fail";
+    public const UNIPASS_RESULT_0       = "0";
+    public const UNIPASS_RESULT_1       = "1";
+    public const UNIPASS_RESULT_2       = "2";
+    public const UNIPASS_RESULT_3       = "3";
+    public const UNIPASS_RESULT         = [
+        self::UNIPASS_RESULT_ALL     => "전체",
+        self::UNIPASS_RESULT_SUCCESS => "일치",
+        self::UNIPASS_RESULT_FAIL    => "불일치",
+    ];
 }

@@ -62,7 +62,7 @@ class WmsConstant
         self::OUT_SIGN_SEARCH_TYPE_GROUP_NO         => "배송번호",
     ];
 
-    /** 출고관리 검색종류 */
+    /** 출고 리스트 검색종류 */
     public const OUT_SEARCH_TYPE_GROUP_NO         = "group_no";
     public const OUT_SEARCH_TYPE_SH_NO            = "sh_no";
     public const OUT_SEARCH_TYPE_CHANNEL_ORDER_ID = "channel_order_id";
