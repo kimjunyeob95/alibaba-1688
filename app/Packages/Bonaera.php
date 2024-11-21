@@ -98,24 +98,13 @@ class Bonaera
                 
                 foreach ($orderPrdObjs as $orderPrdObj) {
                     $subItemId       = $orderPrdObj->sub_item_id;
-                    $logisticsBillNo = "";
+                    $logisticsBillNo = "트레킹 번호 없음";
                     $logicObj        = OrderLogisticsData::where([
-                        "order_id"     => $orderId,
-                        "sub_item_ids" => $subItemId
-                    ])->first();
+                        "order_id" => $orderId,
+                    ])->where('sub_item_ids', 'LIKE', '%' . $subItemId . '%')->first();
 
-                    if( $logicObj === null ){
-                        $logicObj = OrderLogisticsData::where([
-                            "order_id" => $orderId,
-                        ])->first();
-                    }
-                    if( empty($logicObj) ){
-                        throw new Exception(BonaeraErrorMessageConstant::getNotHaveErrorMessage("ORDER_LOGISTICS_DATAS"));
-                    }
-
-                    $logisticsBillNo = $logicObj->logistics_bill_no;
-                    if( empty($logisticsBillNo) ){
-                        throw new Exception(BonaeraErrorMessageConstant::getNotHaveErrorMessage("LOGISTICS_BILL_NO"));
+                    if( $logicObj !== null ){
+                        $logisticsBillNo = $logicObj->logistics_bill_no;
                     }
 
                     $skuId  = $orderPrdObj->sku_id;
