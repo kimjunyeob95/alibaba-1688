@@ -9,6 +9,7 @@ use App\Packages\JwtPackage;
 use App\Packages\Slack;
 use Carbon\Carbon;
 use Exception;
+use Throwable;
 
 abstract class WmsAbstract
 {
@@ -113,6 +114,22 @@ abstract class WmsAbstract
     abstract function bonaeraInFailCreate(int $id): void;
 
     /**
+    * @func bonaeraCreateStockApi
+    * @description '입고신청'
+    * @param string $orderId
+    * @return void
+    */
+    public function bonaeraCreateStockApi(string $orderId): void
+    {
+        try {
+            $this->bonaera->createStockApi($orderId);
+        } catch (Throwable $e) {
+            $msg = "error: " . $e->getMessage(). " | orderId: " . $orderId;
+            debug_log($msg, "boneara/bonaeraCreateStockApi", "bonaeraCreateStockApi");
+        }
+    }
+
+    /**
     * @func bonaeraInUpdate
     * @description '입고정보 업데이트'
     * @param int $id
@@ -214,4 +231,28 @@ abstract class WmsAbstract
     * @return void
     */
     abstract function bonaeraDeliveryBundle(int $id, string $changeGroupNo): void;
+
+    /**
+    * @func bonaeraStockModifyApiBindCall
+    * @description '재고신청서 수정 처리'
+    * @param string $orderId
+    * @param array $bonaeraStockModifyApiDtos
+    * @return array
+    */
+    public function bonaeraStockModifyApiBindCall(string $orderId, array $bonaeraStockModifyApiDtos): array
+    {
+        return $this->bonaera->stockModifyApiBindCall($orderId, $bonaeraStockModifyApiDtos);
+    }
+
+    /**
+    * @func bonaeraStockModifyApiBindOT002
+    * @description '재고신청서 수정(OT002)'
+    * @param string $orderId
+    * @param string $logisticsCode
+    * @return array
+    */
+    public function bonaeraStockModifyApiBindOT002(string $orderId, string $logisticsCode): array
+    {
+        return $this->bonaera->stockModifyApiBindOT002($orderId, $logisticsCode);
+    }
 }

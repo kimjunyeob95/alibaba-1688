@@ -564,6 +564,10 @@ class Bonaera
                 }
             }
 
+            if( !empty($itemList) ){
+                $payload["itemList"] = $itemList;
+            }
+
             $result = helpers_curl("PUT", $endPoint, $this->header, $payload);
             if( !isset($result["message"]) || $result["message"] !== "재고수정완료" || empty($result["stockNo"]) ) {
                 throw new Exception("stockModify_api 통신");
@@ -571,7 +575,7 @@ class Bonaera
 
             $returnMsg = helpers_success_message($result);
         } catch (Exception $e) {
-            $errorMsg  = $e->getMessage();
+            $errorMsg  = "error: " . $e->getMessage();
             $returnMsg = helpers_fail_message($e->getMessage());
             debug_log($errorMsg . " | stockNo: " . $stockNo, "boneara/stockModifyApi", "stockModifyApi");
         }
@@ -580,34 +584,53 @@ class Bonaera
     }
 
     /**
-     * @func stockModifyApiBind
+     * @func stockModifyApiBindCall
      * @description '재고신청서 수정'
      * @param string $orderId
      * @param array $bonaeraStockModifyApiDtos BonaeraStockModifyApiDto
      */
-    public function stockModifyApiBind(string $orderId, array $bonaeraStockModifyApiDtos): array
+    public function stockModifyApiBindCall(string $orderId, array $bonaeraStockModifyApiDtos): array
     {
         $returnMsg = $this->returnMsg;
         $endPoint  = $this->domain . '/elpisapi/stockModify_api.php';
 
         try {
+            if( empty($bonaeraStockModifyApiDtos) ){
+                throw new Exception("Empty bonaeraStockModifyApiDtos");
+            }
 
-        $inBaseObj = BonaeraInBaseData::where("order_id", $orderId)->first();
-        if( $inBaseObj === null ){
-            throw new Exception(BonaeraErrorMessageConstant::getNotHaveErrorMessage("BONAERA_IN_BASE_DATA"));
+            $inBaseObj = BonaeraInBaseData::where("order_id", $orderId)->first();
+            if( $inBaseObj === null ){
+                throw new Exception(BonaeraErrorMessageConstant::getNotHaveErrorMessage("BONAERA_IN_BASE_DATA"));
+            }
+
+            $payload  = [
+                "userId"   => $this->userId,
+                "stockNo"  => $inBaseObj->stock_no,
+                "itemList" => $bonaeraStockModifyApiDtos
+            ];
+
+            $result = helpers_curl("PUT", $endPoint, $this->header, $payload);
+            if( !isset($result["message"]) || $result["message"] !== "재고수정완료" || empty($result["stockNo"]) ) {
+                throw new Exception("stockModify_api 통신");
+            }
+
+            $returnMsg = helpers_success_message($result);
+        } catch (Throwable $e) {
+            $returnMsg = helpers_fail_message($e->getMessage());
+            debug_log("error: " . $e->getMessage() . " | orderId: " . $orderId, "boneara/stockModifyApi", "stockModifyApiBindCall");
         }
-
-        $payload  = [
-            "userId"  => $this->userId,
-            "stockNo" => $inBaseObj->stock_no
-        ];
-
-        
 
         return $returnMsg;
     }
 
-    /** 재고신청서 수정(OT002) DTOs */
+    /**
+     * @func stockModifyApiBindOT002
+     * @description '재고신청서 수정(OT002)'
+     * @param string $orderId
+     * @param string $logisticsCode 'params1'
+     * @return array bonaeraStockModifyApiDtos
+     */
     public function stockModifyApiBindOT002(string $orderId, string $logisticsCode): array
     {
         $bonaeraStockModifyApiDtos = [];
@@ -625,6 +648,11 @@ class Bonaera
 
             $logisticsBillNo = $logicObj->logistics_bill_no;
             $subItemIds      = explode(",", $logicObj->sub_item_ids) ?? [];
+
+            if( empty($subItemIds) ){
+                throw new Exception("Empty subItemIds");
+            }
+
             foreach ($subItemIds as $subItemId) {
                 $orderPrdObj = OrderProductData::where([
                     "order_id"    => $orderId,
@@ -685,7 +713,7 @@ class Bonaera
                 $bonaeraStockModifyApiDtos[] = $bonaeraStockModifyApiDto->getAllProperties();
             }
         } catch (Throwable $e) {
-            debug_log($e->getMessage() . " | orderId: " . $orderId . " | logisticsCode: " . $logisticsCode, "boneara/stockModifyApi", "stockModifyApiBindOT001");
+            debug_log("error: " . $e->getMessage() . " | orderId: " . $orderId . " | logisticsCode: " . $logisticsCode, "boneara/stockModifyApi", "stockModifyApiBindOT002");
         }
 
         return $bonaeraStockModifyApiDtos;

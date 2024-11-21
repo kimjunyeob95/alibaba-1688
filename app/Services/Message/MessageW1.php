@@ -10,6 +10,7 @@ use App\Constants\MessageConstant;
 use App\Constants\MessageErrorMessageConstant;
 use App\Exceptions\ArrayValueError;
 use App\Models\BonaeraInBaseData;
+use App\Models\BonaeraInProductData;
 use App\Models\OrderBaseData;
 use App\Models\WMessageLog;
 use App\Packages\Bonaera;
@@ -21,18 +22,18 @@ class MessageW1 extends WMessageAbstract
 {
     private OrderAbstract $orderW1;
     private Kafka $kafka;
-    private Bonaera $bonaera;
+    private WmsAbstract $wmsW1;
 
     public function __construct(
         OrderAbstract $orderW1,
         Kafka $kafka,
-        Bonaera $bonaera,
+        WmsAbstract $wmsW1,
     )
     {
         parent::__construct();
         $this->orderW1 = $orderW1;
         $this->kafka   = $kafka;
-        $this->bonaera = $bonaera;
+        $this->wmsW1   = $wmsW1;
     }
 
     /**
@@ -189,18 +190,24 @@ class MessageW1 extends WMessageAbstract
                                 switch ($messageCode) {
                                     case MessageConstant::OT002:
                                         if( $inBaseObj !== null ){
-                                            $this->bonaera->stockModifyApiBindOT002($orderId, $logisticsId);
+                                            $bonaeraStockModifyApiDtos = $this->wmsW1->bonaeraStockModifyApiBindOT002($orderId, $logisticsId);
+                                            $this->wmsW1->bonaeraStockModifyApiBindCall($orderId, $bonaeraStockModifyApiDtos);
                                         }
                                         break;
-                                    
+                                    case MessageConstant::OS001:
+                                    case MessageConstant::OS002:
+                                        $inPrdObj = BonaeraInProductData::where("order_id", $orderId)->first();
+                                        if( $inPrdObj === null ){
+                                            /** 입고신청 */
+                                            $this->wmsW1->bonaeraCreateStockApi($orderId);
+                                        } else {
+
+                                        }
+                                        break;
                                     default:
-                                        # code...
                                         break;
                                 }
 
-
-                                /** 입고정보 전송 */
-                                $this->bonaera->createStockApi($orderId);
                             } else if( in_array($messageCode, [MessageConstant::OT001]) ){
 
                             }

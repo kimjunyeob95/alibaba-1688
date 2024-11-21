@@ -71,7 +71,7 @@ class BonaeraTest extends TestCase
     {
         $bonaera = new Bonaera();
 
-        $result = $bonaera->stockModifyApiBindOT001("2360257214955135493", "LP00691146849651");
+        $result = $bonaera->stockModifyApiBindOT002("2360257214955135493", "LP00691146849651");
         dd($result);
         
     }
