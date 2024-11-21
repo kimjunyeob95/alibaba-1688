@@ -9,6 +9,7 @@ use App\Constants\KafkaConstant;
 use App\Constants\MessageConstant;
 use App\Constants\MessageErrorMessageConstant;
 use App\Exceptions\ArrayValueError;
+use App\Models\BonaeraInBaseData;
 use App\Models\OrderBaseData;
 use App\Models\WMessageLog;
 use App\Packages\Bonaera;
@@ -178,7 +179,21 @@ class MessageW1 extends WMessageAbstract
 
 
                             $messageCode = MessageConstant::MESSAGE_CODE[$type];
-                            if( in_array($messageCode, [MessageConstant::OS001, MessageConstant::OS002]) ){
+                            if( in_array($messageCode, [MessageConstant::OS001, MessageConstant::OS002, MessageConstant::OT002]) ){
+                                $inBaseObj = BonaeraInBaseData::where("order_id", $orderId)->first();
+                                switch ($messageCode) {
+                                    case MessageConstant::OT002:
+                                        if( $inBaseObj !== null ){
+                                            $this->bonaera->stockModifyApi($inBaseObj->stock_no);
+                                        }
+                                        break;
+                                    
+                                    default:
+                                        # code...
+                                        break;
+                                }
+
+
                                 /** 입고정보 전송 */
                                 $this->bonaera->createStockApi($orderId);
                             } else if( in_array($messageCode, [MessageConstant::OT001]) ){

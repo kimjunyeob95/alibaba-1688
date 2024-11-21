@@ -55,6 +55,16 @@ class BonaeraTest extends TestCase
         $bonaera->createApplicationApi($orderId);
     }
 
+    # php artisan test --filter teststockModifyApi
+    /** 재고신청서 수정 */
+    public function teststockModifyApi()
+    {
+        $bonaera = new Bonaera();
+
+        $result = $bonaera->stockModifyApi("ST241121002656");
+        $this->assertTrue($result['isSuccess']);
+    }
+
     # php artisan test --filter testCreateDelivery
     /** 신청서 조회 */
     public function testCreateDelivery(BonaeraOutBaseData $outBaseObj)
