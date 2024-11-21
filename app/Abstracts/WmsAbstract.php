@@ -255,4 +255,15 @@ abstract class WmsAbstract
     {
         return $this->bonaera->stockModifyApiBindOT002($orderId, $logisticsCode);
     }
+
+    /**
+    * @func bonaeraStockModifyApiBindOS002
+    * @description '재고신청서 수정(OS002)'
+    * @param string $orderId
+    * @return array
+    */
+    public function bonaeraStockModifyApiBindOS002(string $orderId): array
+    {
+        return $this->bonaera->stockModifyApiBindOS002($orderId);
+    }
 }

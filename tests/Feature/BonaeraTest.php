@@ -65,15 +65,24 @@ class BonaeraTest extends TestCase
         $this->assertTrue($result['isSuccess']);
     }
 
-    # php artisan test --filter testStockModifyApiBindOT001
-    /** 재고신청서 수정(OT001) */
-    public function testStockModifyApiBindOT001()
+    # php artisan test --filter testStockModifyApiBindOT002
+    /** 재고신청서 수정(OT002) */
+    public function testStockModifyApiBindOT002()
     {
         $bonaera = new Bonaera();
 
         $result = $bonaera->stockModifyApiBindOT002("2360257214955135493", "LP00691146849651");
         dd($result);
-        
+    }
+
+    # php artisan test --filter testStockModifyApiBindOS002
+    /** 재고신청서 수정(OS002) */
+    public function testStockModifyApiBindOS002()
+    {
+        $bonaera = new Bonaera();
+
+        $result = $bonaera->stockModifyApiBindOS002("2372844614162135493");
+        dd($result);
     }
 
     # php artisan test --filter testCreateDelivery

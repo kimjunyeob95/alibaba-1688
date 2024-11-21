@@ -25,6 +25,7 @@ use App\Models\ProductData;
 use App\Models\ProductImageData;
 use App\Models\ProductOptionData;
 use App\Vo\Bonaera\BonaeraStockModifyApiDto;
+use App\Vo\Order\OrderProductDto;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Support\Facades\DB;
@@ -594,11 +595,9 @@ class Bonaera
         $returnMsg = $this->returnMsg;
         $endPoint  = $this->domain . '/elpisapi/stockModify_api.php';
 
-        try {
-            if( empty($bonaeraStockModifyApiDtos) ){
-                throw new Exception("Empty bonaeraStockModifyApiDtos");
-            }
+        if( empty($bonaeraStockModifyApiDtos) ) return $returnMsg;
 
+        try {
             $inBaseObj = BonaeraInBaseData::where("order_id", $orderId)->first();
             if( $inBaseObj === null ){
                 throw new Exception(BonaeraErrorMessageConstant::getNotHaveErrorMessage("BONAERA_IN_BASE_DATA"));
@@ -714,6 +713,92 @@ class Bonaera
             }
         } catch (Throwable $e) {
             debug_log("error: " . $e->getMessage() . " | orderId: " . $orderId . " | logisticsCode: " . $logisticsCode, "boneara/stockModifyApi", "stockModifyApiBindOT002");
+        }
+
+        return $bonaeraStockModifyApiDtos;
+    }
+
+     /**
+     * @func stockModifyApiBindOS002
+     * @description '재고신청서 수정(OS002)'
+     * @param string $orderId
+     * @return array bonaeraStockModifyApiDtos
+     */
+    public function stockModifyApiBindOS002(string $orderId): array
+    {
+        $bonaeraStockModifyApiDtos = [];
+
+        if( empty($orderId) ) return $bonaeraStockModifyApiDtos;
+
+        try {
+            $inPrdObjs = BonaeraInProductData::where([
+                "order_id" => $orderId,
+                "status" => BonaeraConstant::WAREHOUSE_STATUS_PENDING,
+            ])->get();
+
+            if( count($inPrdObjs) < 1 ){
+                throw new Exception(BonaeraErrorMessageConstant::getNotHaveErrorMessage("BONAERA_IN_PRODUCT_DATA"));
+            }
+
+            foreach ($inPrdObjs as $inPrdObj) {
+                $optObj = ProductOptionData::where("id", $inPrdObj->option_id)->first();
+                if( $optObj === null ){
+                    throw new Exception(ProductErrorMessageConstant::getNotHaveErrorMessage("OPTION"));
+                }
+
+                $offerId = $optObj->offer_id;
+                $prdObj  = ProductData::where("offer_id", $offerId)->first();
+                if( $prdObj === null ){
+                    throw new Exception(ProductErrorMessageConstant::getNotHaveErrorMessage("PRODUCT"));
+                }
+
+                $orderPrdObj = OrderProductData::where([
+                    "order_id" => $orderId,
+                    "sku_id"   => $optObj->sku_id,
+                ])->first();
+                if( $orderPrdObj === null ){
+                    throw new Exception(OrderErrorMessageConstant::getNotHaveErrorMessage("ORDER_PRODUCT_DATAS"));
+                }
+
+                $subItemId   = $orderPrdObj->sub_item_id;
+                $hsCodeObj   = HsCodeData::where("hs_code", $inPrdObj->hs_code)->first();
+                $productShno = $hsCodeObj->sh_no ?? "";
+
+                $logicObj = OrderLogisticsData::where([
+                    "order_id" => $orderId,
+                ])->where('sub_item_ids', 'LIKE', '%' . $subItemId . '%')->first();
+                if( $logicObj === null ){
+                    throw new Exception(OrderErrorMessageConstant::getNotHaveErrorMessage("ORDER_LOGISTICS_DATAS"));
+                }
+    
+                $logisticsBillNo = $logicObj->logistics_bill_no;
+
+                $imgObj = ProductImageData::where("offer_id", $offerId)->where([
+                    "img_type" => ImageConstant::IMAGE_TYPE_MAIN,
+                    "lang"     => ProductConstant::COLLECT_KR
+                ])->first();
+                if( $imgObj === null ){
+                    throw new Exception(ImageErrorMessageConstant::getNotHaveErrorMessage("IMAGE"));
+                }
+
+                $bonaeraStockModifyApiDtoBind = [
+                    'itCode'         => $inPrdObj->it_code,
+                    'productShno'    => $productShno,
+                    'productNameEng' => $prdObj->prd_name_kr,
+                    'trackingNumber' => $logisticsBillNo,
+                    'productMoney'   => $orderPrdObj->price,
+                    'productCount'   => $orderPrdObj->quantity,
+                    'imgUrl'         => !empty($sku_img_url) ? $sku_img_url : $imgObj->img_url_origin,
+                    'option1'        => $optObj->option_name_kr,
+                    'option2'        => $optObj->id,
+                ];
+                $bonaeraStockModifyApiDto = new BonaeraStockModifyApiDto();
+                $bonaeraStockModifyApiDto->bind($bonaeraStockModifyApiDtoBind);
+
+                $bonaeraStockModifyApiDtos[] = $bonaeraStockModifyApiDto->getAllProperties();
+            }
+        } catch (Throwable $e) {
+            debug_log("error: " . $e->getMessage() . " | orderId: " . $orderId, "boneara/stockModifyApi", "stockModifyApiBindOS002");
         }
 
         return $bonaeraStockModifyApiDtos;

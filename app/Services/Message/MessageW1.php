@@ -191,6 +191,7 @@ class MessageW1 extends WMessageAbstract
                                     case MessageConstant::OT002:
                                         if( $inBaseObj !== null ){
                                             $bonaeraStockModifyApiDtos = $this->wmsW1->bonaeraStockModifyApiBindOT002($orderId, $logisticsId);
+                                            /** 재고신청서 수정 */
                                             $this->wmsW1->bonaeraStockModifyApiBindCall($orderId, $bonaeraStockModifyApiDtos);
                                         }
                                         break;
@@ -201,7 +202,9 @@ class MessageW1 extends WMessageAbstract
                                             /** 입고신청 */
                                             $this->wmsW1->bonaeraCreateStockApi($orderId);
                                         } else {
-
+                                            $bonaeraStockModifyApiDtos = $this->wmsW1->bonaeraStockModifyApiBindOS002($orderId);
+                                            /** 재고신청서 수정 */
+                                            $this->wmsW1->bonaeraStockModifyApiBindCall($orderId, $bonaeraStockModifyApiDtos);
                                         }
                                         break;
                                     default:
