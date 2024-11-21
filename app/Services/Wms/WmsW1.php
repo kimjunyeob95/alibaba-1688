@@ -29,7 +29,6 @@ use App\Vo\Bonaera\BonaeraOutDeliveryDataDto;
 use App\Vo\Bonaera\BonaeraOutWeightDataDto;
 use Carbon\Carbon;
 use Exception;
-use PDO;
 use SimpleXMLElement;
 use Throwable;
 
@@ -673,7 +672,7 @@ class WmsW1 extends WmsAbstract
                 } else if( $search_cls == WmsConstant::OUT_SEARCH_TYPE_CHANNEL_ORDER_ID ){
                     $builder->whereIn("ocd.channel_order_id", $keyword);
                 } else if( $search_cls == WmsConstant::OUT_SEARCH_TYPE_INVOICE ){
-                    $builder->whereIn("bonaera_out_base_datas.invoice", $keyword);
+                    $builder->whereIn("bodd.invoice", $keyword);
                 }
             }
 
