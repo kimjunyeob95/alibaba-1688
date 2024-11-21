@@ -22,6 +22,7 @@ use App\Models\OrderProductData;
 use App\Models\ProductData;
 use App\Models\ProductImageData;
 use App\Models\ProductOptionData;
+use Carbon\Carbon;
 use Exception;
 use Illuminate\Support\Facades\DB;
 use Throwable;
@@ -369,7 +370,7 @@ class Bonaera
                                     "channel_order_id" => $channelOrderId,
                                     "state"            => BonaeraConstant::GROUP_STATUS_302,
                                     "group_no"         => $groupNo,
-                                    "out_ordered_at"   => null,
+                                    "out_ordered_at"   => Carbon::now(),
                                     "out_completed_at" => null,
                                 ]
                             );

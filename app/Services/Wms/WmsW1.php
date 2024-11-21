@@ -29,7 +29,6 @@ use App\Vo\Bonaera\BonaeraOutDeliveryDataDto;
 use App\Vo\Bonaera\BonaeraOutWeightDataDto;
 use Carbon\Carbon;
 use Exception;
-use PDO;
 use SimpleXMLElement;
 use Throwable;
 
@@ -605,10 +604,32 @@ class WmsW1 extends WmsAbstract
             ->groupBy("bonaera_out_base_datas.group_no");
 
             if( !empty($status) ){
-                if( $status == BonaeraConstant::GROUP_STATUS_300 ){
-                    $builder->whereIn("bodd.state", BonaeraConstant::OUT_PEKI_STATUS);
-                } else {
-                    $builder->where("bodd.state", $status);
+                switch ($status) {
+                    case WmsConstant::OUT_LIST_STATUS_302_303:
+                        $builder->where("bonaera_out_base_datas.state", BonaeraConstant::GROUP_STATUS_302);
+                        $builder->where("bodd.state", BonaeraConstant::GROUP_STATUS_303);    
+                        break;
+                    case WmsConstant::OUT_LIST_STATUS_302_304:
+                        $builder->where("bonaera_out_base_datas.state", BonaeraConstant::GROUP_STATUS_302);
+                        $builder->where("bodd.state", BonaeraConstant::GROUP_STATUS_304);    
+                        break;
+                    case WmsConstant::OUT_LIST_STATUS_302_305:
+                        $builder->where("bonaera_out_base_datas.state", BonaeraConstant::GROUP_STATUS_302);
+                        $builder->where("bodd.state", BonaeraConstant::GROUP_STATUS_305);    
+                        break;
+                    case WmsConstant::OUT_LIST_STATUS_302_306:
+                        $builder->where("bonaera_out_base_datas.state", BonaeraConstant::GROUP_STATUS_302);
+                        $builder->where("bodd.state", BonaeraConstant::GROUP_STATUS_306);    
+                        break;
+                    case WmsConstant::OUT_LIST_STATUS_302_306:
+                        $builder->where("bonaera_out_base_datas.state", BonaeraConstant::GROUP_STATUS_302);
+                        $builder->where("bodd.state", BonaeraConstant::GROUP_STATUS_307);    
+                        break;
+                    case WmsConstant::OUT_LIST_STATUS_300:
+                        $builder->where("bonaera_out_base_datas.state", BonaeraConstant::GROUP_STATUS_300);
+                        break;
+                    default:
+                        break;
                 }
             }
             if( !empty($clearanceType) ){
@@ -650,6 +671,8 @@ class WmsW1 extends WmsAbstract
                     $builder->whereIn("bonaera_out_base_datas.group_no", $keyword);
                 } else if( $search_cls == WmsConstant::OUT_SEARCH_TYPE_CHANNEL_ORDER_ID ){
                     $builder->whereIn("ocd.channel_order_id", $keyword);
+                } else if( $search_cls == WmsConstant::OUT_SEARCH_TYPE_INVOICE ){
+                    $builder->whereIn("bodd.invoice", $keyword);
                 }
             }
 
@@ -729,7 +752,6 @@ class WmsW1 extends WmsAbstract
                     "invoice"       => $res["invoice"] ?? "",
                     "ctrNum"        => $res["ctrNum"] ?? BonaeraConstant::CTR_NUM_2,
                     "state"         => $res["state"],
-                    "outday"        => $res["outday"] ?? null,
                     "receiverName"  => $reciverInfo["receiverName"],
                     "zipCode"       => $reciverInfo["zipCode"],
                     "addr1"         => $reciverInfo["addr1"],
@@ -751,6 +773,10 @@ class WmsW1 extends WmsAbstract
                     ["group_no" => $groupNo],
                     $upsertWhere
                 );
+
+                BonaeraOutBaseData::where("group_no", $groupNo)->update([
+                    "out_completed_at" => $res["outday"] ?? null
+                ]);
 
                 if( isset($res["ExtraSvcShip"]) ){
                     $existsExtras = [];

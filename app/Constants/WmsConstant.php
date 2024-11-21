@@ -66,10 +66,28 @@ class WmsConstant
     public const OUT_SEARCH_TYPE_GROUP_NO         = "group_no";
     public const OUT_SEARCH_TYPE_SH_NO            = "sh_no";
     public const OUT_SEARCH_TYPE_CHANNEL_ORDER_ID = "channel_order_id";
+    public const OUT_SEARCH_TYPE_INVOICE          = "invoice";
     public const OUT_SEARCH_TYPE                  = [
         self::OUT_SEARCH_TYPE_GROUP_NO         => "배송번호",
         self::OUT_SEARCH_TYPE_SH_NO            => "출고번호",
         self::OUT_SEARCH_TYPE_CHANNEL_ORDER_ID => "채널 주문번호",
+        self::OUT_SEARCH_TYPE_INVOICE          => "운송장번호",
+    ];
+
+    /** 출고리스트 검색종류 */
+    public const OUT_LIST_STATUS_302_303 = "302_303";
+    public const OUT_LIST_STATUS_302_304 = "302_304";
+    public const OUT_LIST_STATUS_302_305 = "302_305";
+    public const OUT_LIST_STATUS_302_306 = "302_306";
+    public const OUT_LIST_STATUS_302_307 = "302_307";
+    public const OUT_LIST_STATUS_300     = "300";
+    public const OUT_LIST_STATUS         = [
+        self::OUT_LIST_STATUS_302_303 => "무게측정",
+        self::OUT_LIST_STATUS_302_304 => "결제대기",
+        self::OUT_LIST_STATUS_302_305 => "결제확인중",
+        self::OUT_LIST_STATUS_302_306 => "출고준비",
+        self::OUT_LIST_STATUS_302_307 => "출고완료",
+        self::OUT_LIST_STATUS_300     => "폐기",
     ];
 
     /** WMS PUB/SUB 코드타입 */
