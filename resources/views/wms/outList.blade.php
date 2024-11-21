@@ -8,13 +8,13 @@
 
 @section('styles')
 <style>
-    .has-child td{
+    tr:not(.has-child):not(.this-child) {
+        border-top-width: 1px !important;
+    }
+    .has-child td, .this-child td{
         border-bottom: none !important;
     }
 
-    tr:not(.has-child) {
-        border-bottom-width: 1px !important;
-    }
 </style>
 @endsection
 
@@ -308,7 +308,7 @@
                                     </td>
                                 </tr>
                                 @foreach ($data->otherObjs as $otherObj)
-                                    <tr class="{{ $subTrClassName }}">
+                                    <tr class="this-child">
                                         <td>
                                             <small>{{ $otherObj->sh_no }}</small>
                                             <br>
