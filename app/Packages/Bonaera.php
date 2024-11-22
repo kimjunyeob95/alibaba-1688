@@ -614,9 +614,12 @@ class Bonaera
         $returnMsg = $this->returnMsg;
         $endPoint  = $this->domain . '/elpisapi/stockModify_api.php';
 
-        if( empty($bonaeraStockModifyApiDtos) ) return $returnMsg;
-
+        
         try {
+            if( empty($bonaeraStockModifyApiDtos) ) {
+                throw new Exception(BonaeraErrorMessageConstant::getNotHaveErrorMessage("BONAERA_STOCK_MODIFY_API_DTOS"));
+            }
+
             $inBaseObj = BonaeraInBaseData::where("order_id", $orderId)->first();
             if( $inBaseObj === null ){
                 throw new Exception(BonaeraErrorMessageConstant::getNotHaveErrorMessage("BONAERA_IN_BASE_DATA"));
@@ -630,7 +633,7 @@ class Bonaera
 
             $result = helpers_curl("PUT", $endPoint, $this->header, $payload);
             if( !isset($result["message"]) || $result["message"] !== "재고수정완료" || empty($result["stockNo"]) ) {
-                throw new Exception("stockModify_api 통신");
+                throw new Exception(BonaeraErrorMessageConstant::getFitErrorMessage("STOCKMODIFY_API"));
             }
 
             $returnMsg = helpers_success_message($result);
@@ -670,9 +673,14 @@ class Bonaera
     {
         $bonaeraStockModifyApiDtos = [];
 
-        if( empty($orderId) || empty($logisticsCode) ) return $bonaeraStockModifyApiDtos;
-
         try {
+            if( empty($orderId) ){
+                throw new Exception(OrderErrorMessageConstant::getNotHaveErrorMessage("ORDER_ID"));
+            }
+            if( empty($logisticsCode) ){
+                throw new Exception(OrderErrorMessageConstant::getNotHaveErrorMessage("LOGISTICSCODE"));
+            }
+            
             $logicObj = OrderLogisticsData::where([
                 "order_id"       => $orderId,
                 "logistics_code" => $logisticsCode,
@@ -685,7 +693,7 @@ class Bonaera
             $subItemIds      = explode(",", $logicObj->sub_item_ids) ?? [];
 
             if( empty($subItemIds) ){
-                throw new Exception("Empty subItemIds");
+                throw new Exception(OrderErrorMessageConstant::getNotHaveErrorMessage("SUB_ITEM_IDS"));
             }
 
             foreach ($subItemIds as $subItemId) {
@@ -764,9 +772,11 @@ class Bonaera
     {
         $bonaeraStockModifyApiDtos = [];
 
-        if( empty($orderId) ) return $bonaeraStockModifyApiDtos;
-
         try {
+            if( empty($orderId) ){
+                throw new Exception(OrderErrorMessageConstant::getNotHaveErrorMessage("ORDER_ID"));
+            }
+
             $inPrdObjs = BonaeraInProductData::where([
                 "order_id" => $orderId,
                 "status" => BonaeraConstant::WAREHOUSE_STATUS_PENDING,
