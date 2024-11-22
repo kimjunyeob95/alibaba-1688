@@ -237,11 +237,12 @@ abstract class WmsAbstract
     * @description '재고신청서 수정 처리'
     * @param string $orderId
     * @param array $bonaeraStockModifyApiDtos
+    * @param string $code
     * @return array
     */
-    public function bonaeraStockModifyApiBindCall(string $orderId, array $bonaeraStockModifyApiDtos): array
+    public function bonaeraStockModifyApiBindCall(string $orderId, array $bonaeraStockModifyApiDtos, string $code = ""): array
     {
-        return $this->bonaera->stockModifyApiBindCall($orderId, $bonaeraStockModifyApiDtos);
+        return $this->bonaera->stockModifyApiBindCall($orderId, $bonaeraStockModifyApiDtos, $code);
     }
 
     /**

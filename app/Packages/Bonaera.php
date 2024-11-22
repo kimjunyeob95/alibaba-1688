@@ -145,9 +145,11 @@ class Bonaera
         
                     $result = helpers_curl("POST", $endPoint, $this->header, $payload);
                     if( isset($result["stockNo"]) && isset($result["item"]) && !empty($result["item"]) ){
+
                         $stockNo = $result["stockNo"];
-                        
+
                         try {
+
                             DB::beginTransaction();
     
                             BonaeraInBaseData::updateOrCreate(
@@ -190,6 +192,15 @@ class Bonaera
                             BonaeraInFailData::where("order_id", $orderId)->forceDelete();
                             
                             DB::commit();
+
+                            $logMessage = [
+                                "name"     => "입고신청",
+                                "order_id" => $orderId,
+                                "result"   => "성공",
+                                "payload"  => $payload,
+                            ];
+                            debug_log(json_encode($logMessage, JSON_UNESCAPED_UNICODE), "boneara/log-jisong", "createStockApi");
+
                         } catch (Exception $dbError) {
                             DB::rollBack();
                             throw new Exception($dbError->getMessage());   
@@ -219,7 +230,13 @@ class Bonaera
                     "msg"      => $errorMsg
                 ]);
             }
-            // debug_log($errorMsg . " | order_id: " . $orderId, "boneara/createStockApi", "createStockApi");
+            $logMessage = [
+                "name"     => "입고신청",
+                "order_id" => $orderId,
+                "result"   => "실패",
+                "error"    => $errorMsg,
+            ];
+            debug_log(json_encode($logMessage, JSON_UNESCAPED_UNICODE), "boneara/log-jisong", "createStockApi");
         }
     }
 
@@ -589,8 +606,10 @@ class Bonaera
      * @description '재고신청서 수정'
      * @param string $orderId
      * @param array $bonaeraStockModifyApiDtos BonaeraStockModifyApiDto
+     * @param string $code
+     * @return array $returnMsg
      */
-    public function stockModifyApiBindCall(string $orderId, array $bonaeraStockModifyApiDtos): array
+    public function stockModifyApiBindCall(string $orderId, array $bonaeraStockModifyApiDtos, string $code = ""): array
     {
         $returnMsg = $this->returnMsg;
         $endPoint  = $this->domain . '/elpisapi/stockModify_api.php';
@@ -615,9 +634,26 @@ class Bonaera
             }
 
             $returnMsg = helpers_success_message($result);
+
+            $logMessage = [
+                "name"     => "재고신청서 수정",
+                "order_id" => $orderId,
+                "code"     => $code,
+                "result"   => "성공",
+                "payload"  => $payload,
+            ];
+            debug_log(json_encode($logMessage, JSON_UNESCAPED_UNICODE), "boneara/log-jisong", "stockModifyApiBindCall");
         } catch (Throwable $e) {
             $returnMsg = helpers_fail_message($e->getMessage());
-            debug_log("error: " . $e->getMessage() . " | orderId: " . $orderId, "boneara/stockModifyApi", "stockModifyApiBindCall");
+
+            $logMessage = [
+                "name"     => "재고신청서 수정",
+                "order_id" => $orderId,
+                "code"     => $code,
+                "result"   => "실패",
+                "error"    => $e->getMessage(),
+            ];
+            debug_log(json_encode($logMessage, JSON_UNESCAPED_UNICODE), "boneara/log-jisong", "stockModifyApiBindCall");
         }
 
         return $returnMsg;
