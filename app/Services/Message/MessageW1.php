@@ -121,7 +121,7 @@ class MessageW1 extends WMessageAbstract
                             if( isset($message["data"]["refundAction"]) && isset($message["data"]["operator"]) ){
                                 $refund_info = [
                                     "refund_action" => $message["data"]["refundAction"],
-                                    "oprerator"     => $message["data"]["operator"],
+                                    "operator"      => $message["data"]["operator"],
                                 ];
                             }
     
@@ -133,7 +133,7 @@ class MessageW1 extends WMessageAbstract
                                             "option_id"        => $optDetail->option_id,
                                             "status"           => $wOption->status,
                                             "logistics_status" => $wOption->logistics_status,
-                                            "refunds_stautus"  => $wOption->refund_status,
+                                            "refund_status"    => $wOption->refund_status,
                                         ];
                                     }
                                 }
