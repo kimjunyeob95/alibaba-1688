@@ -68,7 +68,7 @@ if (!function_exists('helpers_curl')) {
 				CURLOPT_HTTPHEADER     => $header,
                 CURLOPT_ENCODING       => "utf-8"  // 지정된 인코딩으로 데이터를 디코드합니다.
 			));
-		} else if($method == 'POST'){
+		} else if($method == 'POST' || $method == 'PUT'){
 			curl_setopt_array($curl, array(
 				CURLOPT_URL            => $url,
 				CURLOPT_POST           => true,

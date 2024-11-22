@@ -9,6 +9,8 @@ use App\Constants\KafkaConstant;
 use App\Constants\MessageConstant;
 use App\Constants\MessageErrorMessageConstant;
 use App\Exceptions\ArrayValueError;
+use App\Models\BonaeraInBaseData;
+use App\Models\BonaeraInProductData;
 use App\Models\OrderBaseData;
 use App\Models\WMessageLog;
 use App\Packages\Bonaera;
@@ -20,18 +22,18 @@ class MessageW1 extends WMessageAbstract
 {
     private OrderAbstract $orderW1;
     private Kafka $kafka;
-    private Bonaera $bonaera;
+    private WmsAbstract $wmsW1;
 
     public function __construct(
         OrderAbstract $orderW1,
         Kafka $kafka,
-        Bonaera $bonaera,
+        WmsAbstract $wmsW1,
     )
     {
         parent::__construct();
         $this->orderW1 = $orderW1;
         $this->kafka   = $kafka;
-        $this->bonaera = $bonaera;
+        $this->wmsW1   = $wmsW1;
     }
 
     /**
@@ -86,7 +88,12 @@ class MessageW1 extends WMessageAbstract
                     if( isset($message["data"]["OrderLogisticsTracingModel"]["statusChanged"]) && $message["data"]["OrderLogisticsTracingModel"]["statusChanged"] ) {
                         $statusChanged = $message["data"]["OrderLogisticsTracingModel"]["statusChanged"];
                     }
-                    
+
+                    $logisticsId = "";
+                    if( isset($message["data"]["MailNoChangeModel"]["logisticsId"]) && !empty($message["data"]["MailNoChangeModel"]["logisticsId"]) ) {
+                        $logisticsId = $message["data"]["MailNoChangeModel"]["logisticsId"];
+                    }
+
                     $logParams = [
                         "message"        => $message,
                         "_aop_signature" => $params["_aop_signature"],
@@ -178,9 +185,32 @@ class MessageW1 extends WMessageAbstract
 
 
                             $messageCode = MessageConstant::MESSAGE_CODE[$type];
-                            if( in_array($messageCode, [MessageConstant::OS001, MessageConstant::OS002]) ){
-                                /** 입고정보 전송 */
-                                $this->bonaera->createStockApi($orderId);
+                            if( in_array($messageCode, [MessageConstant::OS001, MessageConstant::OS002, MessageConstant::OT002]) ){
+                                $inBaseObj = BonaeraInBaseData::where("order_id", $orderId)->first();
+                                switch ($messageCode) {
+                                    case MessageConstant::OT002:
+                                        if( $inBaseObj !== null ){
+                                            $bonaeraStockModifyApiDtos = $this->wmsW1->bonaeraStockModifyApiBindOT002($orderId, $logisticsId);
+                                            /** 재고신청서 수정 */
+                                            $this->wmsW1->bonaeraStockModifyApiBindCall($orderId, $bonaeraStockModifyApiDtos, $messageCode);
+                                        }
+                                        break;
+                                    case MessageConstant::OS001:
+                                    case MessageConstant::OS002:
+                                        $inPrdObj = BonaeraInProductData::where("order_id", $orderId)->first();
+                                        if( $inPrdObj === null ){
+                                            /** 입고신청 */
+                                            $this->wmsW1->bonaeraCreateStockApi($orderId);
+                                        } else {
+                                            $bonaeraStockModifyApiDtos = $this->wmsW1->bonaeraStockModifyApiBindOS002($orderId);
+                                            /** 재고신청서 수정 */
+                                            $this->wmsW1->bonaeraStockModifyApiBindCall($orderId, $bonaeraStockModifyApiDtos, $messageCode);
+                                        }
+                                        break;
+                                    default:
+                                        break;
+                                }
+
                             } else if( in_array($messageCode, [MessageConstant::OT001]) ){
 
                             }
