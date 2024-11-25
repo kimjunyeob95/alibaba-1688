@@ -20,7 +20,6 @@ use App\Services\Product\ProductW2;
 use App\Services\Service1688Category;
 use Illuminate\Support\ServiceProvider;
 use App\Services\Service1688Product;
-use App\Services\Wms\WmsService;
 
 class App1688Provider extends ServiceProvider
 {
@@ -85,7 +84,7 @@ class App1688Provider extends ServiceProvider
             return new MessageW1(
                 $app->make(OrderW1::class),
                 $app->make(Kafka::class),
-                $app->make(Bonaera::class)
+                $app->make(WmsW1::class)
             );
         });
         $this->app->singleton(WMessageService::class, function ($app) {
