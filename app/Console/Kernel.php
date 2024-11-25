@@ -119,7 +119,7 @@ class Kernel extends ConsoleKernel
              * ############
              */
             /** 신규 일반상품 등록 */
-            $schedule->command("onchannel_command --func=newProductRegist")->cron("0 5 * * *")->description("온채널 신규 상품 등록")->withoutOverlapping()->runInBackground();
+            // $schedule->command("onchannel_command --func=newProductRegist")->cron("0 5 * * *")->description("온채널 신규 상품 등록")->withoutOverlapping()->runInBackground();
             /** 수정 상품 전송 */
             $schedule->command("onchannel_command --func=sendModiProduct")->cron("*/5 * * * *")->description("온채널 수정 된 상품 전송")->withoutOverlapping()->runInBackground();
 
