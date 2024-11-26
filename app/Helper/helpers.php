@@ -129,6 +129,12 @@ if (!function_exists("debug_log")) {
         // 파일 이름과 경로 설정
         $logFile = $logPath . '/' . $filename . date('Ymd') . '.log';
 
+        // 파일이 없으면 생성하고 권한 설정
+        if (!file_exists($logFile)) {
+            touch($logFile);
+            chmod($logFile, 0777); // 파일 권한을 777로 설정
+        }
+
         // 경로와 파일 이름을 사용하여 로그 채널 동적으로 생성
         $logChannel = Log::build([
             'driver' => 'single',
