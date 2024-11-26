@@ -992,7 +992,11 @@ class WmsW1 extends WmsAbstract
             if( $weightObj !== null ){
                 $message .= "총 배송금액 : " . number_format($weightObj->total_money) . "\n";
             }
-            $this->slack->sendMessage($webhookUrl, $message);
+            $res = $this->slack->sendMessage($webhookUrl, $message);
+            if( $res["isSuccess"] === false ){
+                $msg = "error: " . $res["msg"] . " | groupNo: {$groupNo}";
+                debug_log($msg, "boneara/bonaeraSlack", "bonaeraOutUpdateSendSlack");
+            }
         }
     }
 
