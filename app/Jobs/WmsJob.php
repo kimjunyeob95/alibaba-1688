@@ -60,7 +60,8 @@ class WmsJob implements ShouldQueue
         $payload          = [];
         foreach ($getAllProperties as $key => $property) {
             if( !empty($property) ){
-                $payload[$key] = $property;
+                $camelKey           = snakeToCamelCase($key);
+                $payload[$camelKey] = $property;
             }
         }
 
