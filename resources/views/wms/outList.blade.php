@@ -270,9 +270,11 @@
                                             @endif
                                         </small>
                                         <br>
-                                        <small>
-                                            ({{ BonaeraConstant::CTR_NUM[$data->ctr_num] }})
-                                        </small>
+                                        @if (!empty($data->ctr_num))
+                                            <small>
+                                                ({{ BonaeraConstant::CTR_NUM[$data->ctr_num] }})
+                                            </small>
+                                        @endif
                                     </td>
                                     <td rowspan={{ $rowSpan }}>
                                         <small>

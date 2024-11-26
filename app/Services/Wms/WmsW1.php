@@ -1046,6 +1046,9 @@ class WmsW1 extends WmsAbstract
             if( $anotherCount < 1 ){
                 BonaeraOutDeliveryExtraData::where("group_no", $baseObj->group_no)->forceDelete();
             }
+            if( $anotherCount < 1 ){
+                BonaeraOutDeliveryPayLogData::where("group_no", $baseObj->group_no)->forceDelete();
+            }
 
             BonaeraOutBaseData::where("id", $id)->update([
                 "group_no" => $changeGroupNo

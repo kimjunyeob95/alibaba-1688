@@ -1190,3 +1190,11 @@ if (!function_exists("removeCacheWeightDatas")) {
         Cache::forget('weight_data');
     }
 }
+
+/** 스네이크 케이스를 카멜 케이스로 변환하는 함수 */
+function snakeToCamelCase(string $string) {
+      // 대문자 앞에 언더스코어를 추가하고 전체를 소문자로 변환
+    $pattern = '/(?<=\w)(?=[A-Z])/';
+    $result  = strtolower(preg_replace($pattern, '_', $string));
+    return $result;
+}
