@@ -409,7 +409,7 @@ class WmsW1 extends WmsAbstract
     {
         $isSendSlack         = false;
         $allInStatusRecieved = true;
-        $webhookUrl          = SlackConstant::BONAERA_IN_STATUS;
+        $webhookUrl          = SlackConstant::WMS_INFO_SLACK;
         $message             = "[WMS 입고 알림]\n";
         $channelObj          = OrderChannelData::where("order_id", $inBaseObj->order_id)->first();
         $inProductObjs       = BonaeraInProductData::with(["w_option"])->where([
@@ -447,7 +447,11 @@ class WmsW1 extends WmsAbstract
                         $optCnt++;
                     }
                 }
-                $this->slack->sendMessage($webhookUrl, $message);
+                $res = $this->slack->sendMessage($webhookUrl, $message);
+                if( $res["isSuccess"] === false ){
+                    $msg = "error: " . $res["msg"] . " | stockNo: {$inBaseObj->stock_no}";
+                    debug_log($msg, "boneara/bonaeraSlack", "bonaeraInUpdateSendSlack");
+                }
             }
         }
     }
@@ -968,7 +972,7 @@ class WmsW1 extends WmsAbstract
 
     public function bonaeraOutUpdateSendSlack(string $groupNo): void
     {
-        $webhookUrl = SlackConstant::BONAERA_IN_STATUS;
+        $webhookUrl = SlackConstant::WMS_INFO_SLACK;
         $message    = "[WMS 출고 알림]\n";
 
         $deliveryObj = BonaeraOutDeliveryData::where("group_no", $groupNo)->first();
