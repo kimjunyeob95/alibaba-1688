@@ -88,8 +88,9 @@ class Kernel extends ConsoleKernel
              * WMS 배치
              * ############
             */
-            $schedule->command("wms_command --func=batchInUpdate")->cron("0 8-20 * * *")->description("보내라 입고정보 업데이트")->withoutOverlapping()->runInBackground();
-            $schedule->command("wms_command --func=batchOutUpdate")->cron("0 8-20 * * *")->description("보내라 출고정보 업데이트")->withoutOverlapping()->runInBackground();
+            /** 평일(월-금) 08:00, 11:00, 14:00, 17:00, 20:00 */
+            $schedule->command("wms_command --func=batchInUpdate")->cron("0 8,11,14,17,20 * * 1-5")->description("보내라 입고정보 업데이트")->withoutOverlapping()->runInBackground();
+            $schedule->command("wms_command --func=batchOutUpdate")->cron("0 8,11,14,17,20 * * 1-5")->description("보내라 출고정보 업데이트")->withoutOverlapping()->runInBackground();
 
             /**
              * ############
