@@ -3,6 +3,7 @@
 namespace App\Abstracts;
 
 use App\Constants\WmsConstant;
+use App\Http\Request\Bonaera\BonaeraOutDeliveryUpdateRequest;
 use App\Models\ApiUser;
 use App\Packages\Bonaera;
 use App\Packages\JwtPackage;
@@ -160,6 +161,14 @@ abstract class WmsAbstract
     * @return void
     */
     abstract function bonaeraOutPay(int $id): void;
+
+    /**
+    * @func bonaeraOutDeliveryUpdate
+    * @description '출고 배송정보 업데이트'
+    * @param BonaeraOutDeliveryUpdateRequest $request
+    * @return array
+    */
+    abstract function bonaeraOutDeliveryUpdate(BonaeraOutDeliveryUpdateRequest $request): array;
 
     /**
     * @func inDetail

@@ -3,6 +3,7 @@
 namespace App\Services\Wms;
 
 use App\Abstracts\WmsAbstract;
+use App\Http\Request\Bonaera\BonaeraOutDeliveryUpdateRequest;
 
 class WmsService
 {
@@ -147,6 +148,17 @@ class WmsService
    public function bonaeraOutPay(int $id): void
    {
       $this->wmsAbstract->bonaeraOutPay($id);
+   }
+
+   /**
+    * @func bonaeraOutDeliveryUpdate
+    * @description '출고 배송정보 업데이트'
+    * @param BonaeraOutDeliveryUpdateRequest $request
+    * @return array
+    */
+   public function bonaeraOutDeliveryUpdate(BonaeraOutDeliveryUpdateRequest $request): array
+   {
+      return $this->wmsAbstract->bonaeraOutDeliveryUpdate($request);
    }
 
    /**

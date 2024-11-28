@@ -38,6 +38,7 @@
                 <div class="row mb-12">
                     <div class="text-center">
                         <form id="searchFrm">
+                            <input type="hidden" name="group_no" value="{{ $data->group_no}}">
                             <table class="table table-bordered">
                                 <thead>
                                     <tr>
@@ -52,7 +53,7 @@
                                         <td>{{ BonaeraConstant::GROUP_STATUS[$data->out_delivery->state] }}</td>
                                         <th scope="col" style="width: 10%">운송방법</th>
                                         <td>
-                                            <select class="form-select" name="ctrNum">
+                                            <select class="form-select" name="ctr_num">
                                                 @foreach (BonaeraConstant::CTR_NUM as $key => $value)
                                                     @if ($data->out_delivery && $key == $data->out_delivery->ctr_num)
                                                         <option value="{{ $key }}" selected>{{ $value }}</option>
@@ -80,7 +81,7 @@
                                         </td>
                                         <th scope="col" style="width: 10%">타입</th>
                                         <td>
-                                            <select class="form-select" name="clearanceType">
+                                            <select class="form-select" name="personal_type">
                                                 @foreach (OrderConstant::CLEARANCE_TYPE as $key => $value)
                                                     @if ($data->order->channel_obj && $key == $data->order->channel_obj->clearance_type)
                                                         <option value="{{ $key }}" selected>{{ $value }}</option>
@@ -410,7 +411,7 @@
                     $.ajax({
                         "headers" : {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
                         "type"    : "POST",
-                        "url"     : "{{ route('w.wms.bonaeraOutUpdate') }}",
+                        "url"     : "{{ route('w.wms.bonaeraOutDeliveryUpdate') }}",
                         "data"    : formData,
                         beforeSend: function () {
                             // $("#loadingOverlay").show();

@@ -10,6 +10,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Request\Bonaera\BonaeraDeliveryBundleRequest;
 use App\Http\Request\Bonaera\BonaeraDeliveryUpdateRequest;
 use App\Http\Request\Bonaera\BonaeraInUpdateRequest;
+use App\Http\Request\Bonaera\BonaeraOutDeliveryUpdateRequest;
 use App\Http\Request\Bonaera\BonaeraOutUpdateRequest;
 use App\Http\Request\Bonaera\BonaeraTokenCreateRequest;
 use App\Jobs\WmsJob;
@@ -412,6 +413,23 @@ class WAppWmsController extends Controller
             } else {
                 return helpers_json_response(HttpConstant::BAD_REQUEST, [], $result["msg"]);
             }
+        } catch (Exception $e) {
+            return helpers_json_response(HttpConstant::BAD_REQUEST, [], $e->getMessage());
+        }
+    }
+
+    public function bonaeraOutDeliveryUpdate(BonaeraOutDeliveryUpdateRequest $request): JsonResponse
+    {
+        try {
+            $result = $this->wmsService->bonaeraOutDeliveryUpdate($request);
+
+            if( $result["isSuccess"] == true ){
+                return helpers_json_response(HttpConstant::OK, $result);
+            } else {
+                return helpers_json_response(HttpConstant::BAD_REQUEST, [], $result["msg"]);
+            }
+
+            return helpers_json_response(HttpConstant::OK, helpers_success_message());
         } catch (Exception $e) {
             return helpers_json_response(HttpConstant::BAD_REQUEST, [], $e->getMessage());
         }

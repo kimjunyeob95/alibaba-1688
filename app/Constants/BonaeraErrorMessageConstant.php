@@ -34,6 +34,14 @@ class BonaeraErrorMessageConstant
     public const ERROR_MESSAGE_CHANGE_GROUP_NO               = "change_group_no";
     public const ERROR_MESSAGE_BONAERA_STOCK_MODIFY_API_DTOS = "bonaeraStockModifyApiDtos";
     public const ERROR_MESSAGE_STOCKMODIFY_API               = "stockModify_api";
+    public const ERROR_MESSAGE_CTR_NUM                       = "ctr_num";
+    public const ERROR_MESSAGE_RECEIVER_NAME                 = "receiver_name";
+    public const ERROR_MESSAGE_PERSONAL_NUM                  = "personal_num";
+    public const ERROR_MESSAGE_RECEIVER_PHONE                = "receiver_phone";
+    public const ERROR_MESSAGE_PERSONAL_TYPE                 = "personal_type";
+    public const ERROR_MESSAGE_ZIP_CODE                      = "zip_code";
+    public const ERROR_MESSAGE_ADDR1                         = "addr1";
+    public const ERROR_MESSAGE_SHIP_MEMO                     = "ship_memo";
  
     public static function getErrorMessageNotDefault($constantName): string
     {

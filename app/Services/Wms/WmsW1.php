@@ -8,6 +8,7 @@ use App\Constants\BonaeraErrorMessageConstant;
 use App\Constants\OrderErrorMessageConstant;
 use App\Constants\SlackConstant;
 use App\Constants\WmsConstant;
+use App\Http\Request\Bonaera\BonaeraOutDeliveryUpdateRequest;
 use App\Models\BonaeraInBaseData;
 use App\Models\BonaeraInFailData;
 use App\Models\BonaeraInProductData;
@@ -968,6 +969,18 @@ class WmsW1 extends WmsAbstract
             $msg = "error: " . $e->getMessage() . " | id: {$id}";
             debug_log($msg, "boneara/bonaeraOutPay", "bonaeraOutPay");
         }
+    }
+
+    public function bonaeraOutDeliveryUpdate(BonaeraOutDeliveryUpdateRequest $request): array
+    {
+        $result = $this->bonaera->applicationModifyApi($request);
+
+        if( $result["isSuccess"] === true ){
+            $baseOutObj = BonaeraOutBaseData::where("group_no", $request->groupNo)->first();
+            $this->bonaeraOutUpdate($baseOutObj->id);
+        }
+
+        return $result;
     }
 
     public function bonaeraOutUpdateSendSlack(string $groupNo): void
