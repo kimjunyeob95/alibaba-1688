@@ -58,6 +58,14 @@ class BonaeraConstant
         self::GROUP_STATUS_306_PEKI => "폐기<br>(출고준비)",
         self::GROUP_STATUS_307_PEKI => "폐기<br>(출고완료)",
     ];
+    public const BATCH_GROUP_STATUS = [
+        self::GROUP_STATUS_301,
+        self::GROUP_STATUS_302,
+        self::GROUP_STATUS_303,
+        self::GROUP_STATUS_304,
+        self::GROUP_STATUS_305,
+        self::GROUP_STATUS_306,
+    ];
     public const OUT_PUBLIC_STATUS = [
         self::GROUP_STATUS_301 => self::GROUP_STATUS[self::GROUP_STATUS_301],
         self::GROUP_STATUS_302 => self::GROUP_STATUS[self::GROUP_STATUS_302],
