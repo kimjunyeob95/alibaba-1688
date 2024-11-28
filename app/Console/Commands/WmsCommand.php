@@ -1,6 +1,7 @@
 <?php
 namespace App\Console\Commands;
 
+use App\Constants\BonaeraConstant;
 use App\Models\BonaeraInBaseData;
 use App\Models\BonaeraOutBaseData;
 use App\Services\Wms\WmsService;
@@ -116,7 +117,11 @@ class WmsCommand extends Command
              * php artisan wms_command --func=batchOutUpdate
              */
             case 'batchOutUpdate':
-                $builder    = BonaeraOutBaseData::select(["id"]);
+                $builder = BonaeraOutBaseData::select(["bonaera_out_base_datas.id"])
+                ->join("bonaera_out_delivery_datas as b", "bonaera_out_base_datas.group_no", "=", "b.group_no")
+                ->whereIn("b.state", BonaeraConstant::BATCH_GROUP_STATUS)
+                ->groupBy("bonaera_out_base_datas.id");
+
                 $perPage    = 900;
                 $totalCount = count($builder->get());
                 $totalPages = ceil($totalCount / $perPage);

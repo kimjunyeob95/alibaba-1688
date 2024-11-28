@@ -11,7 +11,7 @@ class SlackTest extends TestCase
     # php artisan test --filter testSlackSendMessage
     public function testSlackSendMessage()
     {
-        $webhookUrl  = SlackConstant::WMS_INFO_SLACK;
+        $webhookUrl  = SlackConstant::WMS_INFO_SLACK();
         $slack       = new Slack();
         $message     = "[WMS 입고 알림 Test]\n";
         $message    .= "상태 : 정상입고\n";
