@@ -259,7 +259,7 @@
                                             <small>{{ $data->personal_num }}</small>
                                         @endif
                                         <br>
-                                        ({{ BonaeraConstant::CLEARANCE_TYPE_VARCHAR_NAME[$data->personal_type] }})
+                                        [{{ BonaeraConstant::CLEARANCE_TYPE_VARCHAR_NAME[$data->personal_type] }}]
                                     </td>
                                     <td rowspan={{ $rowSpan }}>
                                         <small>
