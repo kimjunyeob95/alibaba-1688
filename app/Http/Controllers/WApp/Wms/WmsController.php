@@ -237,7 +237,7 @@ class WmsController extends Controller
     public function outDetail(string $groupNo): View
     {
         $result = $this->wmsService->outDetail($groupNo);
-        if( $result["isSuccess"] === false ) abort(404);
+        if( $result["isSuccess"] === false ) abort(404, $result["msg"]);
 
         return view("wms.outDetail")->with($result);
     }
