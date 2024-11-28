@@ -82,11 +82,11 @@
                                         <th scope="col" style="width: 10%">타입</th>
                                         <td>
                                             <select class="form-select" name="personal_type">
-                                                @foreach (OrderConstant::CLEARANCE_TYPE as $key => $value)
-                                                    @if ($data->order->channel_obj && $key == $data->order->channel_obj->clearance_type)
-                                                        <option value="{{ $key }}" selected>{{ $value }}</option>
+                                                @foreach (BonaeraConstant::CLEARANCE_TYPE_VARCHAR as $key => $value)
+                                                    @if ($data->out_delivery && $value == $data->out_delivery->personal_type)
+                                                        <option value="{{ $value }}" selected>{{ OrderConstant::CLEARANCE_TYPE[$key] }}</option>
                                                     @else
-                                                        <option value="{{ $key }}" >{{ $value }}</option>
+                                                        <option value="{{ $value }}" >{{ OrderConstant::CLEARANCE_TYPE[$key] }}</option>
                                                     @endif
                                                 @endforeach
                                             </select>
@@ -414,10 +414,10 @@
                         "url"     : "{{ route('w.wms.bonaeraOutDeliveryUpdate') }}",
                         "data"    : formData,
                         beforeSend: function () {
-                            // $("#loadingOverlay").show();
+                            $("#loadingOverlay").show();
                         },
                         complete  : function(xhr, status) {
-                            // $("#loadingOverlay").hide();
+                            $("#loadingOverlay").hide();
                         },
                         success : function (resp) {
                             alert(resp.msg);

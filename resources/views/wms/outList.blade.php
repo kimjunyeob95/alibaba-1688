@@ -41,7 +41,7 @@
 
                 <form id="searchFrm">
                     <input type="hidden" name="status" value={{ $status }}>
-                    <input type="hidden" name="clearance_type" value={{ $clearanceType }}>
+                    <input type="hidden" name="personal_type" value={{ $personalType }}>
                     <input type="hidden" name="shipping_type" value={{ $shippingType }}>
                     <input type="hidden" name="unipass_type" value={{ $unipassType }}>
 
@@ -65,11 +65,11 @@
                                     <th style="width: 120px">타입</th>
                                     <td colspan="2">
                                         <div class="d-flex flex-wrap m-n1">
-                                            <button type="button" name="clearance_type" class="btn-status btn btn-sm m-1 {{ $clearanceType == '' ? 'btn-primary' : 'btn-dark' }}"
+                                            <button type="button" name="personal_type" class="btn-status btn btn-sm m-1 {{ $personalType == '' ? 'btn-primary' : 'btn-dark' }}"
                                                 value="">전체</button>
-                                            @foreach (OrderConstant::CLEARANCE_TYPE as $key => $value)    
-                                                <button type="button" name="clearance_type" class="btn-status btn btn-sm m-1 {{ $clearanceType == $key ? 'btn-primary' : 'btn-dark' }}"
-                                                    value="{{ $key }}">{{ $value }}</button>
+                                            @foreach (BonaeraConstant::CLEARANCE_TYPE_VARCHAR as $key => $value) 
+                                                <button type="button" name="personal_type" class="btn-status btn btn-sm m-1 {{ $personalType == $value ? 'btn-primary' : 'btn-dark' }}"
+                                                    value="{{ $value }}">{{ OrderConstant::CLEARANCE_TYPE[$key] }}</button>
                                             @endforeach
                                         </div>
                                     </td>
@@ -259,7 +259,7 @@
                                             <small>{{ $data->personal_num }}</small>
                                         @endif
                                         <br>
-                                        ({{ OrderConstant::CLEARANCE_TYPE[$data->clearance_type]}})
+                                        ({{ BonaeraConstant::CLEARANCE_TYPE_VARCHAR_NAME[$data->personal_type] }})
                                     </td>
                                     <td rowspan={{ $rowSpan }}>
                                         <small>

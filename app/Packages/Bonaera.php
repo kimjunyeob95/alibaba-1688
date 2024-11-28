@@ -26,7 +26,6 @@ use App\Models\ProductData;
 use App\Models\ProductImageData;
 use App\Models\ProductOptionData;
 use App\Vo\Bonaera\BonaeraStockModifyApiDto;
-use App\Vo\Order\OrderProductDto;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Support\Facades\DB;
@@ -875,8 +874,7 @@ class Bonaera
                         "addr1"         => $request->addr1,
                         "addr2"         => "",
                         "receiverPhone" => $request->receiverPhone,
-                        // "personalType"  => $request->personalType,
-                        "personalType"  => 3,
+                        "personalType"  => $request->personalType,
                         "personalNum"   => $request->personalNum,
                         "shipMemo"      => $request->shipMemo,
                     ]
