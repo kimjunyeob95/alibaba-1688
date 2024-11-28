@@ -237,7 +237,8 @@ class WmsController extends Controller
     public function outDetail(string $groupNo): View
     {
         $result = $this->wmsService->outDetail($groupNo);
-        // dd($result["data"]->toArray());
+        if( $result["isSuccess"] === false ) abort(404);
+
         return view("wms.outDetail")->with($result);
     }
 }

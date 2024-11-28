@@ -1019,6 +1019,7 @@ class WmsW1 extends WmsAbstract
                 "pay_fail_log",
                 "out_extras",
                 "out_delivery_extras",
+                "out_boxs"
             ])
             ->where("group_no", $groupNo)->first();
 
@@ -1032,6 +1033,10 @@ class WmsW1 extends WmsAbstract
                 ->get();
                 
                 $res["otherObjs"] = $otherObjs;
+            }
+            
+            if( $res === null ){
+                throw new Exception(BonaeraErrorMessageConstant::getNotHaveErrorMessage("BONAERA_OUT_BASE_DATA"));
             }
 
             $returnMsg = helpers_success_message($res);
@@ -1067,5 +1072,24 @@ class WmsW1 extends WmsAbstract
             $msg = "error: " . $e->getMessage() . " | id: {$id}";
             debug_log($msg, "boneara/bonaeraDeliveryBundle", "bonaeraDeliveryBundle");
         }
+    }
+
+    public function bonaeraOutBox(string $groupNo): array
+    {
+        $returnMsg = helpers_fail_message();
+
+        try {
+            $objs = BonaeraOutBoxData::where("group_no", $groupNo)->get();
+            
+            if( count($objs) < 1 ){
+                throw new Exception(BonaeraErrorMessageConstant::getNotHaveErrorMessage("BONAERA_OUT_BOX_DATAS")); 
+            }
+
+            $returnMsg = helpers_success_message($objs);
+        } catch (Throwable $e) {
+            $returnMsg = helpers_fail_message($e->getMessage());
+        }
+
+        return $returnMsg;
     }
 }

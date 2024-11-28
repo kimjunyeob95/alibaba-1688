@@ -196,6 +196,8 @@ Route::name('w.')->prefix('w')->group(function () {
         Route::post("/bonaeraOut/update", [WAppWmsController::class, "bonaeraOutUpdate"])->name("bonaeraOutUpdate");
         /** 출고 배송비 결제 */
         Route::post("/bonaeraOut/pay", [WAppWmsController::class, "bonaeraOutPay"])->name("bonaeraOutPay");
+        /** 출고 배송번호 박스 정보 */
+        Route::get("/bonaeraOut/box/{groupNo}", [WAppWmsController::class, "bonaeraOutBox"])->name("bonaeraOutBox");
 
         Route::middleware(["whiteIp"])->group(function () {
             /** 토큰 생성 */

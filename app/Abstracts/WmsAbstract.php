@@ -267,4 +267,12 @@ abstract class WmsAbstract
     {
         return $this->bonaera->stockModifyApiBindOS002($orderId);
     }
+
+    /**
+    * @func bonaeraOutBox
+    * @description '보내라 박스 정보'
+    * @param string $groupNo
+    * @return array
+    */
+    abstract function bonaeraOutBox(string $groupNo): array;
 }

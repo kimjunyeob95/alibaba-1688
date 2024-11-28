@@ -215,4 +215,15 @@ class WmsService
    {
       $this->wmsAbstract->bonaeraDeliveryBundle($id, $changeGroupNo);
    }
+
+   /**
+    * @func bonaeraOutBox
+    * @description '보내라 박스 정보'
+    * @param string $groupNo
+    * @return array
+    */
+   public function bonaeraOutBox(string $groupNo): array
+   {
+      return $this->wmsAbstract->bonaeraOutBox($groupNo);
+   }
 }
