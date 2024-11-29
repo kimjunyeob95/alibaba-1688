@@ -983,14 +983,33 @@ class WmsW1 extends WmsAbstract
 
     public function bonaeraOutDeliveryUpdate(BonaeraOutDeliveryUpdateRequest $request): array
     {
-        $result = $this->bonaera->applicationModifyApi($request);
+        $returnMsg = $this->returnMsg;
+        
+        try {
+            $outDeliveryObj = BonaeraOutDeliveryData::where("group_no", $request->groupNo)->first();
+            if( $outDeliveryObj === null ){
+                throw new Exception(BonaeraErrorMessageConstant::getNotHaveErrorMessage("BONAERA_OUT_DELIVERY_DATA"));
+            }
 
-        if( $result["isSuccess"] === true ){
+            if( !in_array($outDeliveryObj->state, [BonaeraConstant::GROUP_STATUS_303, BonaeraConstant::GROUP_STATUS_304]) ){
+                $errorMsg = "배송정보 수정은 " . BonaeraConstant::GROUP_STATUS[BonaeraConstant::GROUP_STATUS_303] . ", " . BonaeraConstant::GROUP_STATUS[BonaeraConstant::GROUP_STATUS_304] . " 상태만 가능합니다.";
+                throw new Exception($errorMsg);
+            }
+
+            $result = $this->bonaera->applicationModifyApi($request);
+            if( $result["isSuccess"] !== true ){
+                throw new Exception($result["msg"]);
+            }
+
             $baseOutObj = BonaeraOutBaseData::where("group_no", $request->groupNo)->first();
             $this->bonaeraOutUpdate($baseOutObj->id);
+
+            $returnMsg = helpers_success_message();
+        } catch (Throwable $e) {
+            $returnMsg = helpers_fail_message($e->getMessage());
         }
 
-        return $result;
+        return $returnMsg;
     }
 
     public function bonaeraOutUpdateSendSlack(string $groupNo): void
