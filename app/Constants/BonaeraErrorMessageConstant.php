@@ -15,6 +15,7 @@ class BonaeraErrorMessageConstant
     public const ERROR_MESSAGE_BONAERA_IN_FAIL_DATA          = "bonaera_in_fail_data";
     public const ERROR_MESSAGE_BONAERA_OUT_BASE_DATA         = "bonaera_out_base_data";
     public const ERROR_MESSAGE_BONAERA_OUT_DELIVERY_DATA     = "bonaera_out_delivery_data";
+    public const ERROR_MESSAGE_BONAERA_OUT_BOX_DATAS         = "bonaera_out_box_datas";
     public const ERROR_MESSAGE_ORDER_LOGISTICS_DATAS         = "order_logistics_datas";
     public const ERROR_MESSAGE_LOGISTICS_BILL_NO             = "logisticsBillNo";
     public const ERROR_MESSAGE_LOGISTICS_ITEMLIST            = "logistics itemList";
@@ -33,6 +34,14 @@ class BonaeraErrorMessageConstant
     public const ERROR_MESSAGE_CHANGE_GROUP_NO               = "change_group_no";
     public const ERROR_MESSAGE_BONAERA_STOCK_MODIFY_API_DTOS = "bonaeraStockModifyApiDtos";
     public const ERROR_MESSAGE_STOCKMODIFY_API               = "stockModify_api";
+    public const ERROR_MESSAGE_CTR_NUM                       = "ctr_num";
+    public const ERROR_MESSAGE_RECEIVER_NAME                 = "receiver_name";
+    public const ERROR_MESSAGE_PERSONAL_NUM                  = "personal_num";
+    public const ERROR_MESSAGE_RECEIVER_PHONE                = "receiver_phone";
+    public const ERROR_MESSAGE_PERSONAL_TYPE                 = "personal_type";
+    public const ERROR_MESSAGE_ZIP_CODE                      = "zip_code";
+    public const ERROR_MESSAGE_ADDR1                         = "addr1";
+    public const ERROR_MESSAGE_SHIP_MEMO                     = "ship_memo";
  
     public static function getErrorMessageNotDefault($constantName): string
     {

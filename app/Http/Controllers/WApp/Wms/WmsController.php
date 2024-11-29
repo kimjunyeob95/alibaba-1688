@@ -185,51 +185,51 @@ class WmsController extends Controller
 
     public function outList(): View
     {
-        $page          = $this->request->get("page", 1);
-        $pageSize      = $this->request->get("pageSize", 50);
-        $pageSize      = $pageSize > 500 ? 500 : $pageSize;
-        $status        = $this->request->get("status", "");
-        $clearanceType = $this->request->get("clearance_type", "");
-        $shippingType  = $this->request->get("shipping_type", "");
-        $unipassType   = $this->request->get("unipass_type", "");
-        $timeCls       = $this->request->get("time_cls", "order");
-        $startTime     = $this->request->get("start_time", "");
-        $endTime       = $this->request->get("end_time", "");
-        $search_cls    = $this->request->get("search_cls", WmsConstant::HSCODE_SEARCH_TYPE_KO);
-        $keyword       = $this->request->get("keyword", "");
-        $sort          = $this->request->get("sort", "created_at|desc");
+        $page         = $this->request->get("page", 1);
+        $pageSize     = $this->request->get("pageSize", 50);
+        $pageSize     = $pageSize > 500 ? 500 : $pageSize;
+        $status       = $this->request->get("status", "");
+        $personalType = $this->request->get("personal_type", "");
+        $shippingType = $this->request->get("shipping_type", "");
+        $unipassType  = $this->request->get("unipass_type", "");
+        $timeCls      = $this->request->get("time_cls", "order");
+        $startTime    = $this->request->get("start_time", "");
+        $endTime      = $this->request->get("end_time", "");
+        $search_cls   = $this->request->get("search_cls", WmsConstant::HSCODE_SEARCH_TYPE_KO);
+        $keyword      = $this->request->get("keyword", "");
+        $sort         = $this->request->get("sort", "created_at|desc");
 
         $pageSize = $pageSize > 500 ? 500 : $pageSize;
         $offset   = ($page - 1) * $pageSize;
 
         $params = [
-            "page"          => $page,
-            "pageSize"      => $pageSize,
-            "status"        => $status,
-            "clearanceType" => $clearanceType,
-            "shippingType"  => $shippingType,
-            "unipassType"   => $unipassType,
-            "timeCls"       => $timeCls,
-            "startTime"     => $startTime,
-            "endTime"       => $endTime,
-            "search_cls"    => $search_cls,
-            "keyword"       => $keyword,
-            "sort"          => $sort,
+            "page"         => $page,
+            "pageSize"     => $pageSize,
+            "status"       => $status,
+            "personalType" => $personalType,
+            "shippingType" => $shippingType,
+            "unipassType"  => $unipassType,
+            "timeCls"      => $timeCls,
+            "startTime"    => $startTime,
+            "endTime"      => $endTime,
+            "search_cls"   => $search_cls,
+            "keyword"      => $keyword,
+            "sort"         => $sort,
         ];
         $result     = $this->wmsService->outList($params);
         $viewParams = [
-            "status"        => $status,
-            "clearanceType" => $clearanceType,
-            "shippingType"  => $shippingType,
-            "unipassType"   => $unipassType,
-            "timeCls"       => $timeCls,
-            "startTime"     => $startTime,
-            "endTime"       => $endTime,
-            "search_cls"    => $search_cls,
-            "keyword"       => $keyword,
-            "paginator"     => $result["data"],
-            "offset"        => (int) $offset,
-            "pageSize"      => (int) $pageSize,
+            "status"       => $status,
+            "personalType" => $personalType,
+            "shippingType" => $shippingType,
+            "unipassType"  => $unipassType,
+            "timeCls"      => $timeCls,
+            "startTime"    => $startTime,
+            "endTime"      => $endTime,
+            "search_cls"   => $search_cls,
+            "keyword"      => $keyword,
+            "paginator"    => $result["data"],
+            "offset"       => (int) $offset,
+            "pageSize"     => (int) $pageSize,
         ];
         return view("wms.outList")->with($viewParams);
     }
@@ -237,7 +237,8 @@ class WmsController extends Controller
     public function outDetail(string $groupNo): View
     {
         $result = $this->wmsService->outDetail($groupNo);
-        // dd($result["data"]->toArray());
+        if( $result["isSuccess"] === false ) abort(404, $result["msg"]);
+
         return view("wms.outDetail")->with($result);
     }
 }

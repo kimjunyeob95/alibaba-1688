@@ -118,8 +118,13 @@ class BonaeraConstant
     /** 통관유형 */
     public const CLEARANCE_TYPE_VARCHAR = [
         OrderConstant::CLEARANCE_SA_TYPE => "1",
+        OrderConstant::CLEARANCE_IA_TYPE => "2",
         OrderConstant::CLEARANCE_PA_TYPE => "3",
-        OrderConstant::CLEARANCE_IA_TYPE => "3",
+    ];
+    public const CLEARANCE_TYPE_VARCHAR_NAME = [
+        self::CLEARANCE_TYPE_VARCHAR[OrderConstant::CLEARANCE_SA_TYPE] => OrderConstant::CLEARANCE_TYPE[OrderConstant::CLEARANCE_SA_TYPE],
+        self::CLEARANCE_TYPE_VARCHAR[OrderConstant::CLEARANCE_IA_TYPE] => OrderConstant::CLEARANCE_TYPE[OrderConstant::CLEARANCE_IA_TYPE],
+        self::CLEARANCE_TYPE_VARCHAR[OrderConstant::CLEARANCE_PA_TYPE] => OrderConstant::CLEARANCE_TYPE[OrderConstant::CLEARANCE_PA_TYPE],
     ];
 
     /** 통관부호 */
