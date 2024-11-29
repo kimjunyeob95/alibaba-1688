@@ -894,7 +894,7 @@ class Bonaera
         } catch (Exception $e) {
             $errorMsg  = "error: " . $e->getMessage();
             $returnMsg = helpers_fail_message($e->getMessage());
-            debug_log($errorMsg . " | groupNo: " . $request->groupNo, "boneara/applicationModifyApi", "applicationModifyApi");
+            // debug_log($errorMsg . " | groupNo: " . $request->groupNo, "boneara/applicationModifyApi", "applicationModifyApi");
         }
 
         return $returnMsg;
