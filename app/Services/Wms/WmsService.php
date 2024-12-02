@@ -3,6 +3,7 @@
 namespace App\Services\Wms;
 
 use App\Abstracts\WmsAbstract;
+use App\Http\Request\Bonaera\BonaeraOutDeliveryUpdateRequest;
 
 class WmsService
 {
@@ -150,6 +151,17 @@ class WmsService
    }
 
    /**
+    * @func bonaeraOutDeliveryUpdate
+    * @description '출고 배송정보 업데이트'
+    * @param BonaeraOutDeliveryUpdateRequest $request
+    * @return array
+    */
+   public function bonaeraOutDeliveryUpdate(BonaeraOutDeliveryUpdateRequest $request): array
+   {
+      return $this->wmsAbstract->bonaeraOutDeliveryUpdate($request);
+   }
+
+   /**
     * @func inDetail
     * @description '입고정보 상세'
     * @param string $stockNo
@@ -214,5 +226,16 @@ class WmsService
    public function bonaeraDeliveryBundle(int $id, string $changeGroupNo): void
    {
       $this->wmsAbstract->bonaeraDeliveryBundle($id, $changeGroupNo);
+   }
+
+   /**
+    * @func bonaeraOutBox
+    * @description '보내라 박스 정보'
+    * @param string $groupNo
+    * @return array
+    */
+   public function bonaeraOutBox(string $groupNo): array
+   {
+      return $this->wmsAbstract->bonaeraOutBox($groupNo);
    }
 }

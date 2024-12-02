@@ -37,53 +37,93 @@
             <div class="row my-4 bg-white py-3">
                 <div class="row mb-12">
                     <div class="text-center">
-                        <table class="table table-bordered">
-                            <thead>
-                                <tr>
-                                    <th colspan="8">배송정보</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <th scope="col" style="width: 10%">배송번호</th>
-                                    <td>{{ $data->group_no }}</td>
-                                    <th scope="col" style="width: 10%">출고상태</th>
-                                    <td>{{ BonaeraConstant::GROUP_STATUS[$data->out_delivery->state] }}</td>
-                                    <th scope="col" style="width: 10%">운송방법</th>
-                                    <td>
-                                        @if ($data->out_delivery)
-                                            {{ BonaeraConstant::CTR_NUM[$data->out_delivery->ctr_num] }}
-                                        @endif
-                                    </td>
-                                    <th scope="col" style="width: 10%">운송장 번호</th>
-                                    <td>{{ $data->out_delivery->invoice }}</td>
-                                </tr>
-                                <tr>
-                                    <th scope="col" style="width: 10%">수령인</th>
-                                    <td>{{ $data->out_delivery->receiver_name }}</td>
-                                    <th scope="col" style="width: 10%">통관부호</th>
-                                    <td>
-                                        @if (!empty($data->out_delivery->unipass_reason))   
-                                            <span class="text-danger">{{ $data->out_delivery->unipass_reason }}</span>
-                                        @else
-                                            {{ $data->out_delivery->personal_num }}
-                                        @endif
-                                    </td>
-                                    <th scope="col" style="width: 10%">타입</th>
-                                    <td>{{ OrderConstant::CLEARANCE_TYPE[$data->order->channel_obj->clearance_type] }}</td>
-                                    <th scope="col" style="width: 10%">연락처</th>
-                                    <td>{{ $data->out_delivery->receiver_phone }}</td>
-                                </tr>
-                                <tr>
-                                    <th scope="col" style="width: 10%">주소</th>
-                                    <td colspan="3">
-                                        ({{ $data->out_delivery->zip_code }}) {{ $data->out_delivery->addr1 }} {{ $data->out_delivery->addr2 }}
-                                    </td>
-                                    <th scope="col" style="width: 10%">메모</th>
-                                    <td colspan="3">{{ $data->out_delivery->ship_memo }}</td>
-                                </tr>
-                            </tbody>
-                        </table>
+                        <form id="searchFrm">
+                            <input type="hidden" name="group_no" value="{{ $data->group_no}}">
+                            <table class="table table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th colspan="8">배송정보</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <th scope="col" style="width: 10%">배송번호</th>
+                                        <td>{{ $data->group_no }}</td>
+                                        <th scope="col" style="width: 10%">출고상태</th>
+                                        <td>{{ BonaeraConstant::GROUP_STATUS[$data->out_delivery->state] }}</td>
+                                        <th scope="col" style="width: 10%">운송방법</th>
+                                        <td>
+                                            <select class="form-select" name="ctr_num">
+                                                @foreach (BonaeraConstant::CTR_NUM as $key => $value)
+                                                    @if ($data->out_delivery && $key == $data->out_delivery->ctr_num)
+                                                        <option value="{{ $key }}" selected>{{ $value }}</option>
+                                                    @else
+                                                        <option value="{{ $key }}" >{{ $value }}</option>
+                                                    @endif
+                                                @endforeach
+                                            </select>
+                                        </td>
+                                        <th scope="col" style="width: 10%">운송장 번호</th>
+                                        <td>{{ $data->out_delivery->invoice }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="col" style="width: 10%">수령인</th>
+                                        <td>
+                                            <input type="text" class="form-control required-inp" name="receiver_name" value="{{ $data->out_delivery->receiver_name }}">
+                                        </td>
+                                        <th scope="col" style="width: 10%">통관부호</th>
+                                        <td>
+                                            <input type="text" class="form-control required-inp" name="personal_num" value="{{ $data->out_delivery->personal_num }}">
+                                            @if (!empty($data->out_delivery->unipass_reason))   
+                                                <br>
+                                                <span class="text-danger">{{ $data->out_delivery->unipass_reason }}</span>
+                                            @endif
+                                        </td>
+                                        <th scope="col" style="width: 10%">타입</th>
+                                        <td>
+                                            <select class="form-select" name="personal_type">
+                                                @foreach (BonaeraConstant::CLEARANCE_TYPE_VARCHAR as $key => $value)
+                                                    @if ($data->out_delivery && $value == $data->out_delivery->personal_type)
+                                                        <option value="{{ $value }}" selected>{{ OrderConstant::CLEARANCE_TYPE[$key] }}</option>
+                                                    @else
+                                                        <option value="{{ $value }}" >{{ OrderConstant::CLEARANCE_TYPE[$key] }}</option>
+                                                    @endif
+                                                @endforeach
+                                            </select>
+                                        </td>
+                                        <th scope="col" style="width: 10%">연락처</th>
+                                        <td>
+                                            <input type="text" class="form-control required-inp" name="receiver_phone" value="{{ $data->out_delivery->receiver_phone }}">
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="col" style="width: 10%">주소</th>
+                                        <td colspan="3">
+                                            <div class="row g-2">
+                                                <div class="col-auto d-flex align-items-center">
+                                                    <span>우편번호:</span>
+                                                </div>
+                                                <div class="col-auto">
+                                                    <input type="text" class="form-control required-inp" name="zip_code" value="{{ $data->out_delivery->zip_code }}">
+                                                </div>
+                                            </div>
+                                            <div class="row g-2 mt-2">
+                                                <div class="col-auto d-flex align-items-center">
+                                                    <span>주소:</span>
+                                                </div>
+                                                <div class="col">
+                                                    <input type="text" class="form-control required-inp" name="addr1" value="{{ $data->out_delivery->addr1 }}">
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <th scope="col" style="width: 10%">메모</th>
+                                        <td colspan="3">
+                                            <input type="text" class="form-control" name="ship_memo" value="{{ $data->out_delivery->ship_memo }}">
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </form>
                     </div>
 
                     <div class="text-center mt-3">
@@ -95,40 +135,37 @@
                             </thead>
                             <tbody>
                                 <tr>
-                                    <th scope="col" style="width: 12%">실무게(kg)</th>
-                                    <td>{{ $data->out_weight->real_weight }}</td>
+                                    <th scope="col" style="width: 12%">박스수</th>
+                                    <td>
+                                        {{ number_format($data->out_weight->box_cnt) }}
+                                        <button type="button" class="btn btn-sm btn-success btn-box-detail btn-dark text-white" data-groupno={{ $data->group_no }}>상세정보</button>
+                                    </td>
                                     <th scope="col" style="width: 12%">적용무게(kg)</th>
                                     <td>{{ $data->out_weight->weight }}</td>
-                                    <th scope="col" style="width: 12%">크기(cm)</th>
-                                    <td>{{ $data->out_weight->width }} x {{ $data->out_weight->length }} x {{ $data->out_weight->height }}</td>
-                                    <th scope="col" style="width: 12%">박스수</th>
-                                    <td>{{ number_format($data->out_weight->box_cnt) }}</td>
-                                </tr>
-                                <tr>
-                                    <th scope="col">부피할증료</th>
+                                    <th scope="col" style="width: 12%">부피할증료</th>
                                     <td>{{ number_format($data->out_weight->volume_fee) }}</td>
-                                    <th scope="col">무게할증료</th>
+                                    <th scope="col" style="width: 12%">무게할증료</th>
                                     <td>{{ number_format($data->out_weight->weight_fee) }}</td>
-                                    <th scope="col">추가 요금#1 (원) / 메모</th>
-                                    <td>{{ number_format($data->out_weight->plus_money) }} / {{ $data->out_weight->plus_money_memo }}</td>
-                                    <th scope="col">추가 할인#2 (원) / 메모</th>
-                                    <td>{{ number_format($data->out_weight->minus_money) }} / {{ $data->out_weight->minus_money_memo }}</td>
                                 </tr>
                                 <tr>
                                     <th scope="col">부가서비스:입고(원)</th>
                                     <td>{{ number_format($data->out_weight->svc_money1) }}</td>
                                     <th scope="col">부가서비스:출고(원)</th>
                                     <td>{{ number_format($data->out_weight->svc_money2) }}</td>
+                                    <th scope="col">추가 요금#1 (원) / 메모</th>
+                                    <td>{{ number_format($data->out_weight->plus_money) }} / {{ $data->out_weight->plus_money_memo }}</td>
+                                    <th scope="col">추가 할인#2 (원) / 메모</th>
+                                    <td>{{ number_format($data->out_weight->minus_money) }} / {{ $data->out_weight->minus_money_memo }}</td>
+                                </tr>
+                                <tr>
                                     <th scope="col">기본배송비(원)</th>
                                     <td>{{ number_format($data->out_weight->ship_money) }}</td>
                                     <th scope="col">도서산간(원)</th>
                                     <td>{{ number_format($data->out_weight->islands) }}</td>
-                                </tr>
-                                <tr>
                                     <th scope="col">수수료(원)</th>
-                                    <td colspan="3">{{ number_format($data->out_weight->commission) }}</td>
+                                    <td>{{ number_format($data->out_weight->commission) }}</td>
                                     <th scope="col">총 배송금액(원)</th>
-                                    <td colspan="3">
+                                    <td>
                                         {{ number_format($data->out_weight->total_money) }}
                                         @if ($data->out_weight && $data->out_delivery && $data->out_delivery->state === BonaeraConstant::GROUP_STATUS_304)
                                             <button class="btn btn-sm btn-danger btn-pay text-white" data-id={{ $data->id }}>결제하기</button>
@@ -320,9 +357,36 @@
                     </div>
 
                     <div class="mt-3 mb-3 d-flex justify-content-center">
-                        <button type="button" class="btn btn-dark btn-update text-white" data-id={{ $data->id }}>출고정보 업데이트</button>
+                        <button type="button" class="btn btn-dark btn-update text-white me-3" data-id={{ $data->id }}>출고정보 업데이트</button>
+                        <button type="button" class="btn btn-success btn-modi text-white" data-id={{ $data->id }}>배송정보 수정</button>
                     </div>
 
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade" id="htmlModal" tabindex="-1" role="dialog" aria-labelledby="htmlModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="htmlModalLabel"></h5>
+                    </div>
+                    <div class="modal-body">
+                        <table class="table table-white bg-white box-table">
+                            <thead class="table-light">
+                                <tr>
+                                    <th scope="col" style="width: 200px;" class="text-center">No</th>
+                                    <th scope="col" style="width: 200px;" class="text-center">실무게(kg)</th>
+                                    <th scope="col" style="width: 200px;" class="text-center">크기(cm)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary htmlModalClose">닫기</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -330,6 +394,84 @@
     </div>
 <script type="text/javascript">
     $(document).ready(function() {
+
+        $('.btn-modi').click(function(){
+            let validate = true;
+            $(".required-inp").each(function(){
+                if($(this).val().trim() == ""){
+                    alert("빈 값없이 입력해주세요.");
+                    validate = false;
+                    return $(this).focus();
+                }
+            });
+
+            if( validate == true ){
+                let formData = $("#searchFrm").serialize();
+                if( confirm("배송정보를 수정하시겠습니까?\n수정 시 보내라로 업데이트 됩니다.") ){
+                    $.ajax({
+                        "headers" : {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
+                        "type"    : "POST",
+                        "url"     : "{{ route('w.wms.bonaeraOutDeliveryUpdate') }}",
+                        "data"    : formData,
+                        beforeSend: function () {
+                            $("#loadingOverlay").show();
+                        },
+                        complete  : function(xhr, status) {
+                            $("#loadingOverlay").hide();
+                        },
+                        success : function (resp) {
+                            alert(resp.msg);
+                        },
+                        error: function (request) {
+                            let { error } = JSON.parse(request.responseText);
+                            alert(error.message);
+                        }
+                    });
+                }
+            }
+        });
+
+        $(".htmlModalClose").click(function(){
+            $("#htmlModal").modal('hide');
+        });
+
+        $(".btn-box-detail").click(function(){
+            let groupNo = [$(this).data("groupno")];
+
+            $.ajax({
+                "headers" : {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
+                "type"    : "GET",
+                "url"     : `/api/w/wms/bonaeraOut/box/${groupNo}`,
+                beforeSend: function () {
+                    $("#loadingOverlay").show();
+                },
+                complete  : function(xhr, status) {
+                    $("#loadingOverlay").hide();
+                },
+                success : function (resp) {
+                    $("#htmlModalLabel").text(`박스 정보 : ${groupNo}`);
+
+                    $(".box-table tbody").html("");
+                    resp.data?.map(function(obj, key){
+                        $(".box-table tbody").append(`
+                            <tr class="text-center">
+                                <td>${key+1}</td>
+                                <td>${obj.real_weight.toLocaleString('ko-KR')}</td>
+                                <td>${obj.width.toLocaleString('ko-KR')} x ${obj.height.toLocaleString('ko-KR')} x ${obj.length.toLocaleString('ko-KR')}</td>
+                            </tr>
+                        `);
+                    });
+
+                    $("#htmlModal").modal('show');
+                    console.log(resp);
+                },
+                error: function (request) {
+                    let { error } = JSON.parse(request.responseText);
+                    alert(error.message);
+                }
+            });
+        });
+
         $(".btn-update").click(function(){
             let ids = [$(this).data("id")];
 

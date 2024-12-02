@@ -45,7 +45,11 @@ class Handler extends ExceptionHandler
     {
         // 404 Not Found 예외 처리
         if ($exception instanceof NotFoundHttpException) {
-            return helpers_json_response(HttpConstant::NOT_FOUND, [], HttpConstant::ERROR_MESSAGE_NOT_FOUND);
+            $message = HttpConstant::ERROR_MESSAGE_NOT_FOUND;
+            if( !empty($exception->getMessage()) ){
+                $message = $exception->getMessage();
+            }
+            return helpers_json_response(HttpConstant::NOT_FOUND, [], $message);
         }
 
         return parent::render($request, $exception);

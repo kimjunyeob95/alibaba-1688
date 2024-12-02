@@ -9,6 +9,7 @@ use App\Constants\ImageErrorMessageConstant;
 use App\Constants\OrderErrorMessageConstant;
 use App\Constants\ProductConstant;
 use App\Constants\ProductErrorMessageConstant;
+use App\Http\Request\Bonaera\BonaeraOutDeliveryUpdateRequest;
 use App\Models\BonaeraInBaseData;
 use App\Models\BonaeraInFailData;
 use App\Models\BonaeraInProductData;
@@ -25,7 +26,6 @@ use App\Models\ProductData;
 use App\Models\ProductImageData;
 use App\Models\ProductOptionData;
 use App\Vo\Bonaera\BonaeraStockModifyApiDto;
-use App\Vo\Order\OrderProductDto;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Support\Facades\DB;
@@ -848,5 +848,55 @@ class Bonaera
         }
 
         return $bonaeraStockModifyApiDtos;
+    }
+
+    /** 신청서 수정 */
+     /**
+     * @func applicationModifyApi
+     * @description '신청서 수정'
+     * @param BonaeraOutDeliveryUpdateRequest $request
+     * @return array
+     */
+    public function applicationModifyApi(BonaeraOutDeliveryUpdateRequest $request): array
+    {
+        $returnMsg = $this->returnMsg;
+        $endPoint  = $this->domain . '/elpisapi/applicationModify_api.php';
+        
+        try {
+            $payload  = [
+                "userId"  => $this->userId,
+                "groupNo" => $request->groupNo,
+                "ctrNum"  => $request->ctrNum,
+                "RecInfo" => [
+                    [
+                        "receiverName"  => $request->receiverName,
+                        "zipCode"       => $request->zipCode,
+                        "addr1"         => $request->addr1,
+                        "addr2"         => "",
+                        "receiverPhone" => $request->receiverPhone,
+                        "personalType"  => $request->personalType,
+                        "personalNum"   => $request->personalNum,
+                        "shipMemo"      => $request->shipMemo,
+                    ]
+                ],
+            ];
+
+            $result = helpers_curl("PUT", $endPoint, $this->header, $payload);
+            if( !isset($result["message"]) || $result["message"] !== "수정완료" ) {
+                $errorMsg = "applicationModify_api 통신";
+                if( !empty($result["message"]) ){
+                    $errorMsg = $result["message"];
+                }
+                throw new Exception($errorMsg);
+            }
+
+            $returnMsg = helpers_success_message($result);
+        } catch (Exception $e) {
+            $errorMsg  = "error: " . $e->getMessage();
+            $returnMsg = helpers_fail_message($e->getMessage());
+            // debug_log($errorMsg . " | groupNo: " . $request->groupNo, "boneara/applicationModifyApi", "applicationModifyApi");
+        }
+
+        return $returnMsg;
     }
 }

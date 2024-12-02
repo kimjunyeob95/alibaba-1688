@@ -3,6 +3,7 @@
 namespace App\Abstracts;
 
 use App\Constants\WmsConstant;
+use App\Http\Request\Bonaera\BonaeraOutDeliveryUpdateRequest;
 use App\Models\ApiUser;
 use App\Packages\Bonaera;
 use App\Packages\JwtPackage;
@@ -162,6 +163,14 @@ abstract class WmsAbstract
     abstract function bonaeraOutPay(int $id): void;
 
     /**
+    * @func bonaeraOutDeliveryUpdate
+    * @description '출고 배송정보 업데이트'
+    * @param BonaeraOutDeliveryUpdateRequest $request
+    * @return array
+    */
+    abstract function bonaeraOutDeliveryUpdate(BonaeraOutDeliveryUpdateRequest $request): array;
+
+    /**
     * @func inDetail
     * @description '입고정보 상세'
     * @param string $stockNo
@@ -267,4 +276,12 @@ abstract class WmsAbstract
     {
         return $this->bonaera->stockModifyApiBindOS002($orderId);
     }
+
+    /**
+    * @func bonaeraOutBox
+    * @description '보내라 박스 정보'
+    * @param string $groupNo
+    * @return array
+    */
+    abstract function bonaeraOutBox(string $groupNo): array;
 }

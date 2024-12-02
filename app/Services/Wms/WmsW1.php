@@ -8,6 +8,7 @@ use App\Constants\BonaeraErrorMessageConstant;
 use App\Constants\OrderErrorMessageConstant;
 use App\Constants\SlackConstant;
 use App\Constants\WmsConstant;
+use App\Http\Request\Bonaera\BonaeraOutDeliveryUpdateRequest;
 use App\Models\BonaeraInBaseData;
 use App\Models\BonaeraInFailData;
 use App\Models\BonaeraInProductData;
@@ -580,17 +581,17 @@ class WmsW1 extends WmsAbstract
         $returnMsg = $this->returnMsg;
 
         try {
-            $pageSize      = $params["pageSize"];
-            $status        = $params["status"];
-            $clearanceType = $params["clearanceType"];
-            $shippingType  = $params["shippingType"];
-            $unipassType   = $params["unipassType"];
-            $timeCls       = $params["timeCls"];
-            $startTime     = $params["startTime"];
-            $endTime       = $params["endTime"];
-            $search_cls    = $params["search_cls"];
-            $keyword       = $params["keyword"];
-            $sortArr       = explode("|", $params["sort"]);
+            $pageSize     = $params["pageSize"];
+            $status       = $params["status"];
+            $personalType = $params["personalType"];
+            $shippingType = $params["shippingType"];
+            $unipassType  = $params["unipassType"];
+            $timeCls      = $params["timeCls"];
+            $startTime    = $params["startTime"];
+            $endTime      = $params["endTime"];
+            $search_cls   = $params["search_cls"];
+            $keyword      = $params["keyword"];
+            $sortArr      = explode("|", $params["sort"]);
 
             $builder = BonaeraOutBaseData::select([
                 "bonaera_out_base_datas.*",
@@ -598,9 +599,9 @@ class WmsW1 extends WmsAbstract
                 "bodd.invoice",
                 "bodd.receiver_name",
                 "bodd.personal_num",
+                "bodd.personal_type",
                 "bodd.unipass_reason",
                 "bodd.ctr_num",
-                "ocd.clearance_type",
                 "ocd.shipping_type",
             ])
             ->with(["order.product", "logistics_last", "out_options.w_option", "out_weight", "pay_fail_log"])
@@ -637,8 +638,8 @@ class WmsW1 extends WmsAbstract
                         break;
                 }
             }
-            if( !empty($clearanceType) ){
-                $builder->where("ocd.clearance_type", $clearanceType);
+            if( !empty($personalType) ){
+                $builder->where("bodd.personal_type", $personalType);
             }
             if( !empty($shippingType) ){
                 $builder->where("bodd.ctr_num", $shippingType);
@@ -695,19 +696,29 @@ class WmsW1 extends WmsAbstract
 
             $builder->orderBy("bonaera_out_base_datas." . $sortArr[0], $sortArr[1]);
 
+            $groupNos     = (clone $builder)->pluck('bonaera_out_base_datas.group_no');
+            $otherObjsMap = BonaeraOutBaseData::select([
+                "bonaera_out_base_datas.*",
+            ])->with([
+                "order.product",
+                "out_options.w_option"
+            ])
+            ->whereIn("bonaera_out_base_datas.group_no", $groupNos)
+            ->get()
+            ->groupBy('group_no');
+
             $lists = $builder->paginate($pageSize)->appends($params);
 
             foreach ($lists as &$data) {
-                $otherObjs = BonaeraOutBaseData::select([
-                    "bonaera_out_base_datas.*",
-                ])
-                ->with(["order.product", "out_options.w_option"])
-                ->where("bonaera_out_base_datas.group_no", $data->group_no)
-                ->where("bonaera_out_base_datas.id", "!=", $data->id)
-                ->get();
+                $otherObjs = collect($otherObjsMap->get($data->group_no, []))
+                    ->filter(function($item) use ($data) {
+                        return $item->id !== $data->id;
+                    })
+                    ->values();
                 
                 $data["otherObjs"] = $otherObjs;
             }
+
             // dd($lists->toArray());
             $returnMsg = helpers_success_message($lists);
         } catch (Throwable $e) {
@@ -970,6 +981,37 @@ class WmsW1 extends WmsAbstract
         }
     }
 
+    public function bonaeraOutDeliveryUpdate(BonaeraOutDeliveryUpdateRequest $request): array
+    {
+        $returnMsg = $this->returnMsg;
+        
+        try {
+            $outDeliveryObj = BonaeraOutDeliveryData::where("group_no", $request->groupNo)->first();
+            if( $outDeliveryObj === null ){
+                throw new Exception(BonaeraErrorMessageConstant::getNotHaveErrorMessage("BONAERA_OUT_DELIVERY_DATA"));
+            }
+
+            if( !in_array($outDeliveryObj->state, [BonaeraConstant::GROUP_STATUS_303, BonaeraConstant::GROUP_STATUS_304]) ){
+                $errorMsg = "배송정보 수정은 " . BonaeraConstant::GROUP_STATUS[BonaeraConstant::GROUP_STATUS_303] . ", " . BonaeraConstant::GROUP_STATUS[BonaeraConstant::GROUP_STATUS_304] . " 상태만 가능합니다.";
+                throw new Exception($errorMsg);
+            }
+
+            $result = $this->bonaera->applicationModifyApi($request);
+            if( $result["isSuccess"] !== true ){
+                throw new Exception($result["msg"]);
+            }
+
+            $baseOutObj = BonaeraOutBaseData::where("group_no", $request->groupNo)->first();
+            $this->bonaeraOutUpdate($baseOutObj->id);
+
+            $returnMsg = helpers_success_message();
+        } catch (Throwable $e) {
+            $returnMsg = helpers_fail_message($e->getMessage());
+        }
+
+        return $returnMsg;
+    }
+
     public function bonaeraOutUpdateSendSlack(string $groupNo): void
     {
         $webhookUrl = SlackConstant::WMS_INFO_SLACK();
@@ -1019,6 +1061,7 @@ class WmsW1 extends WmsAbstract
                 "pay_fail_log",
                 "out_extras",
                 "out_delivery_extras",
+                "out_boxs"
             ])
             ->where("group_no", $groupNo)->first();
 
@@ -1032,6 +1075,10 @@ class WmsW1 extends WmsAbstract
                 ->get();
                 
                 $res["otherObjs"] = $otherObjs;
+            }
+            
+            if( $res === null ){
+                throw new Exception(BonaeraErrorMessageConstant::getNotHaveErrorMessage("BONAERA_OUT_BASE_DATA"));
             }
 
             $returnMsg = helpers_success_message($res);
@@ -1067,5 +1114,24 @@ class WmsW1 extends WmsAbstract
             $msg = "error: " . $e->getMessage() . " | id: {$id}";
             debug_log($msg, "boneara/bonaeraDeliveryBundle", "bonaeraDeliveryBundle");
         }
+    }
+
+    public function bonaeraOutBox(string $groupNo): array
+    {
+        $returnMsg = helpers_fail_message();
+
+        try {
+            $objs = BonaeraOutBoxData::where("group_no", $groupNo)->get();
+            
+            if( count($objs) < 1 ){
+                throw new Exception(BonaeraErrorMessageConstant::getNotHaveErrorMessage("BONAERA_OUT_BOX_DATAS")); 
+            }
+
+            $returnMsg = helpers_success_message($objs);
+        } catch (Throwable $e) {
+            $returnMsg = helpers_fail_message($e->getMessage());
+        }
+
+        return $returnMsg;
     }
 }
