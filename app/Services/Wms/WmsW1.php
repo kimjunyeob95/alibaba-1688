@@ -184,7 +184,10 @@ class WmsW1 extends WmsAbstract
             ])
             ->with(["order.product", "logistics_last", "w_options.option"])
             ->leftJoin("order_base_datas as obd", "bonaera_in_fail_datas.order_id", "=", "obd.order_id")
-            ->leftJoin("order_channel_datas as ocd", "bonaera_in_fail_datas.order_id", "=", "ocd.order_id");
+            ->leftJoin("order_channel_datas as ocd", "bonaera_in_fail_datas.order_id", "=", "ocd.order_id")
+            ->leftJoin("bonaera_in_base_datas as bibd", "bonaera_in_fail_datas.order_id", "=", "bibd.order_id");
+
+            $builder->whereNull("bibd.id");
 
             if( !empty($status) ){
                 $builder->where("bipd.status", $status);
