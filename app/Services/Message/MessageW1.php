@@ -13,7 +13,7 @@ use App\Models\BonaeraInBaseData;
 use App\Models\BonaeraInProductData;
 use App\Models\OrderBaseData;
 use App\Packages\Kafka;
-use App\Vo\Bonaera\OrderPubSubDto;
+use App\Vo\Order\OrderPubSubDto;
 use Exception;
 
 class MessageW1 extends WMessageAbstract
