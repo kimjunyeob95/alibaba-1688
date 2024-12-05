@@ -12,25 +12,22 @@ use App\Exceptions\ArrayValueError;
 use App\Models\BonaeraInBaseData;
 use App\Models\BonaeraInProductData;
 use App\Models\OrderBaseData;
-use App\Packages\Kafka;
 use App\Vo\Order\OrderPubSubDto;
 use Exception;
+use Psr\Log\LogLevel;
 
 class MessageW1 extends WMessageAbstract
 {
     private OrderAbstract $orderW1;
-    private Kafka $kafka;
     private WmsAbstract $wmsW1;
 
     public function __construct(
         OrderAbstract $orderW1,
-        Kafka $kafka,
         WmsAbstract $wmsW1,
     )
     {
         parent::__construct();
         $this->orderW1 = $orderW1;
-        $this->kafka   = $kafka;
         $this->wmsW1   = $wmsW1;
     }
 
@@ -43,6 +40,7 @@ class MessageW1 extends WMessageAbstract
     public function message(array $params): array
     {
         $returnMsg = $this->returnMsg;
+        $message   = [];
 
         try {
             if( isset($params["message"]) && !empty($params["message"]) && isset($params["_aop_signature"]) && !empty($params["_aop_signature"]) ){
@@ -155,12 +153,16 @@ class MessageW1 extends WMessageAbstract
                 }
             }
         } catch (ArrayValueError $e) {
-            $errorArray          = $e->getErrorArray();
-            $params["message"]   = $errorArray["message"];
-            $params["error_msg"] = $errorArray["msg"];
-            debug_log(json_encode($params, JSON_UNESCAPED_UNICODE), "1688/message", "error-message");
+            $errorArray                   = $e->getErrorArray();
+            $params["message"]            = $errorArray["message"];
+            $params["arrayValueErrorMsg"] = $errorArray["msg"];
+            debug_log(json_encode($params, JSON_UNESCAPED_UNICODE), "1688/message", "error-message", LogLevel::ERROR);
         } catch (Exception $e) {
-            debug_log($e->getMessage(), "1688/message", "error-message");
+            $params = [
+                "message"           => $message,
+                "exceptionErrorMsg" => $e->getMessage(),
+            ];
+            debug_log(json_encode($params, JSON_UNESCAPED_UNICODE), "1688/message", "error-message", LogLevel::ERROR);
         }
 
         /** 200으로 반환 안할 시 1688에서 재전송함 */

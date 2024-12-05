@@ -14,7 +14,6 @@ use App\Models\OrderChannelData;
 use App\Models\OrderLogisticsData;
 use App\Packages\Bonaera;
 use App\Packages\JwtPackage;
-use App\Packages\Kafka;
 use App\Packages\Slack;
 use App\Vo\Wms\WmsPubSubDto;
 use Carbon\Carbon;
@@ -28,15 +27,13 @@ abstract class WmsAbstract
     protected Bonaera $bonaera;
     private JwtPackage $jwtPackage;
     protected Slack $slack;
-    protected Kafka $kafka;
 
-    public function __construct(Bonaera $bonaera, JwtPackage $jwtPackage, Slack $slack, Kafka $kafka)
+    public function __construct(Bonaera $bonaera, JwtPackage $jwtPackage, Slack $slack)
     {
         $this->returnMsg     = helpers_fail_message();
         $this->bonaera       = $bonaera;
         $this->jwtPackage    = $jwtPackage;
         $this->slack         = $slack;
-        $this->kafka         = $kafka;
         $this->unipass_token = env("UNIPASS_TOKEN", "g230z224g099q163r080k040u0");
     }
 
@@ -136,13 +133,15 @@ abstract class WmsAbstract
         try {
             $result = $this->bonaera->createStockApi($orderId);
 
-            $wmsPubSubDtoBind = [
-                'type'    => WmsConstant::WMS_CODE_TYPE_IT000,
-                'stockNo' => $result["data"]["stock_no"],
-            ];
-            $wmsPubSubDto = new WmsPubSubDto();
-            $wmsPubSubDto->bind($wmsPubSubDtoBind);
-            event(new WmsPubSubEvent($wmsPubSubDto));
+            if( $result["isSuccess"] === true ){
+                $wmsPubSubDtoBind = [
+                    'type'    => WmsConstant::WMS_CODE_TYPE_IT000,
+                    'stockNo' => $result["data"]["stock_no"],
+                ];
+                $wmsPubSubDto = new WmsPubSubDto();
+                $wmsPubSubDto->bind($wmsPubSubDtoBind);
+                event(new WmsPubSubEvent($wmsPubSubDto));
+            }
         } catch (Throwable $e) {
             $msg = "error: " . $e->getMessage(). " | orderId: " . $orderId;
             debug_log($msg, "boneara/bonaeraCreateStockApi", "bonaeraCreateStockApi");

@@ -25,7 +25,6 @@ use App\Models\HsCodeData;
 use App\Models\OrderChannelData;
 use App\Packages\Bonaera;
 use App\Packages\JwtPackage;
-use App\Packages\Kafka;
 use App\Packages\Slack;
 use App\Vo\Bonaera\BonaeraOutBoxDataDto;
 use App\Vo\Bonaera\BonaeraOutDeliveryDataDto;
@@ -38,9 +37,9 @@ use Throwable;
 
 class WmsW1 extends WmsAbstract
 {
-    public function __construct(Bonaera $bonaera, JwtPackage $jwtPackage, Slack $slack, Kafka $kafka)
+    public function __construct(Bonaera $bonaera, JwtPackage $jwtPackage, Slack $slack)
     {
-        parent::__construct($bonaera, $jwtPackage, $slack, $kafka);
+        parent::__construct($bonaera, $jwtPackage, $slack);
     }
 
     public function hsCodeList(array $params): array
