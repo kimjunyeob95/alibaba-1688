@@ -4,7 +4,10 @@ namespace Tests\Feature;
 
 use App\Constants\KafkaConstant;
 use App\Constants\MallConstant;
+use App\Jobs\WmsJob;
 use App\Packages\Kafka;
+use App\Services\Wms\WmsService;
+use App\Vo\Bonaera\BonaeraRequestQueueDto;
 use Carbon\Carbon;
 use Tests\TestCase;
 
@@ -31,4 +34,39 @@ class KafkaTest extends TestCase
         $producer->consume(KafkaConstant::WAPP, MallConstant::MALL_ONCHANNEL);
     }
 
+    # php artisan test --filter testWmsInKafkaConsumer
+    public function testWmsInKafkaConsumer()
+    {
+        $type                       = "IT001";
+        $stockNo                    = "ST241125003127";
+        $bonaeraRequestQueueDtoBind = [
+            "type"    => $type,
+            "stockNo" => $stockNo,
+        ];
+        $bonaeraRequestQueueDto = new BonaeraRequestQueueDto();
+        $bonaeraRequestQueueDto->bind($bonaeraRequestQueueDtoBind);
+
+        $wmsJob       = new WmsJob($bonaeraRequestQueueDto);
+        $wmsJob->handle(app(WmsService::class), app(Kafka::class));
+    }
+
+    # php artisan test --filter testWmsOutKafkaConsumer
+    public function testWmsOutKafkaConsumer()
+    {
+        $type                       = "SH001";
+        $shNo                       = "SH241114001801";
+        $originGroupNo              = "GR241114001782";
+        $changeGroupNo              = "GR241114001782";
+        $bonaeraRequestQueueDtoBind = [
+            "type"          => $type,
+            "shNo"          => $shNo,
+            "originGroupNo" => $originGroupNo,
+            "changeGroupNo" => $changeGroupNo,
+        ];
+        $bonaeraRequestQueueDto = new BonaeraRequestQueueDto();
+        $bonaeraRequestQueueDto->bind($bonaeraRequestQueueDtoBind);
+
+        $wmsJob       = new WmsJob($bonaeraRequestQueueDto);
+        $wmsJob->handle(app(WmsService::class), app(Kafka::class));
+    }
 }

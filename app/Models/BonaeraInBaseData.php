@@ -15,6 +15,10 @@ class BonaeraInBaseData extends Model
     protected $guarded    = [];
     protected $fillable   = [];
 
+    public function order () {
+        return $this->hasOne(OrderBaseData::class, "order_id", "order_id");
+    }
+
     public function product () {
         return $this->hasOne(ProductData::class, "offer_id", "offer_id");
     }
