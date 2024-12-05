@@ -2,9 +2,12 @@
 
 namespace App\Jobs;
 
+use App\Constants\KafkaConstant;
+use App\Constants\MallConstant;
 use App\Constants\WmsConstant;
 use App\Models\BonaeraInBaseData;
 use App\Models\BonaeraOutBaseData;
+use App\Packages\Kafka;
 use App\Services\Wms\WmsService;
 use App\Vo\Bonaera\BonaeraRequestQueueDto;
 use Illuminate\Bus\Queueable;
@@ -12,6 +15,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Throwable;
 
 class WmsJob implements ShouldQueue
 {
@@ -24,7 +28,7 @@ class WmsJob implements ShouldQueue
         $this->bonaeraRequestQueueDto = $bonaeraRequestQueueDto;
     }
 
-    public function handle(WmsService $wmsService): void
+    public function handle(WmsService $wmsService, Kafka $kafka): void
     {   
         switch ($this->bonaeraRequestQueueDto->type) {
             case WmsConstant::WMS_CODE_TYPE_IT001:
@@ -32,6 +36,16 @@ class WmsJob implements ShouldQueue
                 $obj = BonaeraInBaseData::where("stock_no", $this->bonaeraRequestQueueDto->stockNo)->first();
                 if( $obj !== null ){
                     $wmsService->bonaeraInUpdate($obj->id);
+
+                    $kafkaPayload = $wmsService->bindPubSubInData($this->bonaeraRequestQueueDto->type, $this->bonaeraRequestQueueDto->stockNo);
+                    if( !empty($kafkaPayload) ){
+                        $isSuccess = $kafka->sendQueue(KafkaConstant::WAPP, json_encode($kafkaPayload, JSON_UNESCAPED_UNICODE));
+                        if( $isSuccess !== true ) {
+                            debug_log(json_encode($kafkaPayload, JSON_UNESCAPED_UNICODE), "kafka/wms-log", "error-pub/sub");
+                        } else {
+                            debug_log(json_encode($kafkaPayload, JSON_UNESCAPED_UNICODE), "kafka/wms-log", "success-pub/sub");
+                        }
+                    }
                 }
                 break;
             case WmsConstant::WMS_CODE_TYPE_SH001:
@@ -42,6 +56,20 @@ class WmsJob implements ShouldQueue
                 foreach ($objs as $obj) {
                     $wmsService->bonaeraOutUpdate($obj->id);
                 }
+
+                $outObjs = BonaeraOutBaseData::where("group_no", $this->bonaeraRequestQueueDto->groupNo)
+                ->groupBy("channel_order_id")->get();
+                foreach ($outObjs as $outObj) {
+                    $kafkaPayload = $wmsService->bindPubSubOutData($this->bonaeraRequestQueueDto->type, $outObj->order_id, $outObj->channel_order_id);
+                    if( !empty($kafkaPayload) ){
+                        $isSuccess = $kafka->sendQueue(KafkaConstant::WAPP, json_encode($kafkaPayload, JSON_UNESCAPED_UNICODE));
+                        if( $isSuccess !== true ) {
+                            debug_log(json_encode($kafkaPayload, JSON_UNESCAPED_UNICODE), "kafka/wms-log", "error-pub/sub");
+                        } else {
+                            debug_log(json_encode($kafkaPayload, JSON_UNESCAPED_UNICODE), "kafka/wms-log", "success-pub/sub");
+                        }
+                    }
+                }
                 break;
             case WmsConstant::WMS_CODE_TYPE_GR003:
                 $obj = BonaeraOutBaseData::where([
@@ -50,6 +78,20 @@ class WmsJob implements ShouldQueue
                 ])->first();
                 if( $obj !== null ){
                     $wmsService->bonaeraDeliveryBundle($obj->id, $this->bonaeraRequestQueueDto->changeGroupNo);
+                }
+
+                $outObjs = BonaeraOutBaseData::where("group_no", $this->bonaeraRequestQueueDto->changeGroupNo)
+                ->groupBy("channel_order_id")->get();
+                foreach ($outObjs as $outObj) {
+                    $kafkaPayload = $wmsService->bindPubSubOutData($this->bonaeraRequestQueueDto->type, $outObj->order_id, $outObj->channel_order_id);
+                    if( !empty($kafkaPayload) ){
+                        $isSuccess = $kafka->sendQueue(KafkaConstant::WAPP, json_encode($kafkaPayload, JSON_UNESCAPED_UNICODE));
+                        if( $isSuccess !== true ) {
+                            debug_log(json_encode($kafkaPayload, JSON_UNESCAPED_UNICODE), "kafka/wms-log", "error-pub/sub");
+                        } else {
+                            debug_log(json_encode($kafkaPayload, JSON_UNESCAPED_UNICODE), "kafka/wms-log", "success-pub/sub");
+                        }
+                    }
                 }
                 break;
             default:

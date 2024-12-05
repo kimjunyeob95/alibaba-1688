@@ -91,16 +91,20 @@ class WmsConstant
     ];
 
     /** WMS PUB/SUB 코드타입 */
+    public const WMS_CODE_TYPE_IT000 = "IT000";
     public const WMS_CODE_TYPE_IT001 = "IT001";
     public const WMS_CODE_TYPE_IT002 = "IT002";
+    public const WMS_CODE_TYPE_SH000 = "SH000";
     public const WMS_CODE_TYPE_SH001 = "SH001";
     public const WMS_CODE_TYPE_SH002 = "SH002";
     public const WMS_CODE_TYPE_GR001 = "GR001";
     public const WMS_CODE_TYPE_GR002 = "GR002";
     public const WMS_CODE_TYPE_GR003 = "GR003";
     public const WMS_CODE_TYPE       = [
+        self::WMS_CODE_TYPE_IT000 => "입고 신청 완료",
         self::WMS_CODE_TYPE_IT001 => "입고 상태의 변경",
         self::WMS_CODE_TYPE_IT002 => "입고 정보 변경",
+        self::WMS_CODE_TYPE_SH000 => "출고 신청 완료",
         self::WMS_CODE_TYPE_SH001 => "출고 상태의 변경",
         self::WMS_CODE_TYPE_SH002 => "출고 정보의 변경",
         self::WMS_CODE_TYPE_GR001 => "배송 상태의 변경",

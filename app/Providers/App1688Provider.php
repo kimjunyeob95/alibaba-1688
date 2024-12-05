@@ -74,7 +74,7 @@ class App1688Provider extends ServiceProvider
          * WMS 의존성
          */
         $this->app->bind(WmsAbstract::class, function ($app) {
-            return new WmsW1($app->make(Bonaera::class), $app->make(JwtPackage::class), $app->make(Slack::class));
+            return new WmsW1($app->make(Bonaera::class), $app->make(JwtPackage::class), $app->make(Slack::class), $app->make(Kafka::class));
         });
 
         /**

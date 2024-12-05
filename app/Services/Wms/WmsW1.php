@@ -5,6 +5,7 @@ namespace App\Services\Wms;
 use App\Abstracts\WmsAbstract;
 use App\Constants\BonaeraConstant;
 use App\Constants\BonaeraErrorMessageConstant;
+use App\Constants\KafkaConstant;
 use App\Constants\OrderErrorMessageConstant;
 use App\Constants\SlackConstant;
 use App\Constants\WmsConstant;
@@ -24,6 +25,7 @@ use App\Models\HsCodeData;
 use App\Models\OrderChannelData;
 use App\Packages\Bonaera;
 use App\Packages\JwtPackage;
+use App\Packages\Kafka;
 use App\Packages\Slack;
 use App\Vo\Bonaera\BonaeraOutBoxDataDto;
 use App\Vo\Bonaera\BonaeraOutDeliveryDataDto;
@@ -35,9 +37,9 @@ use Throwable;
 
 class WmsW1 extends WmsAbstract
 {
-    public function __construct(Bonaera $bonaera, JwtPackage $jwtPackage, Slack $slack)
+    public function __construct(Bonaera $bonaera, JwtPackage $jwtPackage, Slack $slack, Kafka $kafka)
     {
-        parent::__construct($bonaera, $jwtPackage, $slack);
+        parent::__construct($bonaera, $jwtPackage, $slack, $kafka);
     }
 
     public function hsCodeList(array $params): array
@@ -330,7 +332,18 @@ class WmsW1 extends WmsAbstract
                 throw new Exception(BonaeraErrorMessageConstant::getNotHaveErrorMessage("BONAERA_IN_FAIL_DATA"));
             }
 
-            $this->bonaera->createStockApi($inFailObj->order_id);
+            $result = $this->bonaera->createStockApi($inFailObj->order_id);
+            if( $result["isSuccess"] === true ){
+                $kafkaPayload = $this->bindPubSubInData(WmsConstant::WMS_CODE_TYPE_IT000, $result["data"]["stock_no"]);
+                if( !empty($kafkaPayload) ){
+                    $isSuccess = $this->kafka->sendQueue(KafkaConstant::WAPP, json_encode($kafkaPayload, JSON_UNESCAPED_UNICODE));
+                    if( $isSuccess !== true ) {
+                        debug_log(json_encode($kafkaPayload, JSON_UNESCAPED_UNICODE), "kafka/wms-log", "error-pub/sub");
+                    } else {
+                        debug_log(json_encode($kafkaPayload, JSON_UNESCAPED_UNICODE), "kafka/wms-log", "success-pub/sub");
+                    }
+                }
+            }
         } catch (Throwable $e) {
             $msg = "error: " . $e->getMessage(). " | id: " . $id;
             debug_log($msg, "boneara/bonaeraInFailCreate", "bonaeraInFailCreate");
@@ -740,12 +753,24 @@ class WmsW1 extends WmsAbstract
             }
 
             /** 출고신청 */
-            $this->bonaera->createApplicationApi($channelObj->order_id);
+            $result = $this->bonaera->createApplicationApi($channelObj->order_id);
 
             /** 출고신청 업데이트 */
             $outBaseObj = BonaeraOutBaseData::where("order_id", $channelObj->order_id)->first();
             if( $outBaseObj !== null ){
                 $this->bonaeraOutUpdate($outBaseObj->id);
+            }
+
+            if( $result["isSuccess"] === true ){
+                $kafkaPayload = $this->bindPubSubOutData(WmsConstant::WMS_CODE_TYPE_SH000, $channelObj->order_id, $channelObj->channel_order_id);
+                if( !empty($kafkaPayload) ){
+                    $isSuccess = $this->kafka->sendQueue(KafkaConstant::WAPP, json_encode($kafkaPayload, JSON_UNESCAPED_UNICODE));
+                    if( $isSuccess !== true ) {
+                        debug_log(json_encode($kafkaPayload, JSON_UNESCAPED_UNICODE), "kafka/wms-log", "error-pub/sub");
+                    } else {
+                        debug_log(json_encode($kafkaPayload, JSON_UNESCAPED_UNICODE), "kafka/wms-log", "success-pub/sub");
+                    }
+                }
             }
         } catch (Throwable $e) {
             $msg = "error: " . $e->getMessage() . " | id: {$id}";

@@ -50,9 +50,10 @@ class Bonaera
     }
 
     /** 입고신청 */
-    public function createStockApi(string $orderId): void
+    public function createStockApi(string $orderId): array
     {
-        $endPoint = $this->domain . '/elpisapi/stock_api.php';
+        $returnMsg = $this->returnMsg;
+        $endPoint  = $this->domain . '/elpisapi/stock_api.php';
     
         try {
             $inBaseObj = BonaeraInBaseData::where("order_id", $orderId)->first();
@@ -201,6 +202,7 @@ class Bonaera
                             ];
                             debug_log(json_encode($logMessage, JSON_UNESCAPED_UNICODE), "boneara/log-jisong", "createStockApi");
 
+                            $returnMsg = helpers_success_message(["stock_no" => $stockNo]);
                         } catch (Exception $dbError) {
                             DB::rollBack();
                             throw new Exception($dbError->getMessage());   
@@ -237,7 +239,11 @@ class Bonaera
                 "error"    => $errorMsg,
             ];
             debug_log(json_encode($logMessage, JSON_UNESCAPED_UNICODE), "boneara/log-jisong", "createStockApi");
+
+            $returnMsg = helpers_fail_message($errorMsg);
         }
+
+        return $returnMsg;
     }
 
     /** 재고현황 조회 */
@@ -270,9 +276,10 @@ class Bonaera
     }
 
     /** 출고신청 */
-    public function createApplicationApi(string $orderId): void
+    public function createApplicationApi(string $orderId): array
     {
-        $endPoint = $this->domain . '/elpisapi/application_api.php';
+        $returnMsg = $this->returnMsg;
+        $endPoint  = $this->domain . '/elpisapi/application_api.php';
     
         try {
             $orderBaseObj     = OrderBaseData::where("order_id", $orderId)->first();
@@ -400,6 +407,8 @@ class Bonaera
                                 );
                             }
                             DB::commit();
+
+                            $returnMsg = helpers_success_message();
                         } catch (Exception $dbError) {
                             DB::rollBack();
                             throw new Exception($dbError->getMessage());   
@@ -426,7 +435,11 @@ class Bonaera
                 ]
             );
             // debug_log($errorMsg . " | order_id: " . $orderId, "boneara/createApplicationApi", "createApplicationApi");
+
+            $returnMsg = helpers_fail_message($errorMsg);
         }
+
+        return $returnMsg;
     }
 
     /** 신청서 조회 */

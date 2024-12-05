@@ -12,8 +12,7 @@ use App\Exceptions\ArrayValueError;
 use App\Models\BonaeraInBaseData;
 use App\Models\BonaeraInProductData;
 use App\Models\OrderBaseData;
-use App\Models\WMessageLog;
-use App\Packages\Bonaera;
+use App\Models\OrderLogisticsData;
 use App\Packages\Kafka;
 use Carbon\Carbon;
 use Exception;
@@ -116,7 +115,7 @@ class MessageW1 extends WMessageAbstract
                             "channel_objs.details"
                         ])->where("order_id", $orderId)->first();
 
-                        foreach ($baseObj->channel_objs as $channelObj) {    
+                        foreach ($baseObj->channel_objs as $channelObj) {
                             $refund_info = [];
                             if( isset($message["data"]["refundAction"]) && isset($message["data"]["operator"]) ){
                                 $refund_info = [
@@ -129,11 +128,16 @@ class MessageW1 extends WMessageAbstract
                             foreach ($channelObj->details as $optDetail) {
                                 foreach ($baseObj->w_options as $wOption) {
                                     if( $optDetail->option_id == $wOption->option->id ){
+                                        $logicObj = OrderLogisticsData::where("order_id", $orderId)
+                                        ->where('sub_item_ids', 'LIKE', '%' . $wOption->option->sub_item_id . '%')
+                                        ->first();
+                                        
                                         $options[] = [
                                             "option_id"        => $optDetail->option_id,
                                             "status"           => $wOption->status,
                                             "logistics_status" => $wOption->logistics_status,
                                             "refund_status"    => $wOption->refund_status,
+                                            "logistics_code"   => $logicObj->logistics_code ?? ""
                                         ];
                                     }
                                 }
@@ -167,11 +171,13 @@ class MessageW1 extends WMessageAbstract
                             ];
                             
                             $pubSubSend = MessageConstant::PUB_SUB_SEND_Y;
-                            // $isSuccess  = $this->kafka->sendQueue(KafkaConstant::WAPP, json_encode($kafkaPayload, JSON_UNESCAPED_UNICODE));
-                            // if( $isSuccess !== true ) {
-                            //     debug_log(json_encode($kafkaPayload, JSON_UNESCAPED_UNICODE), "1688/message", "kafka-error-message");
-                            //     $pubSubSend = MessageConstant::PUB_SUB_SEND_N;
-                            // }
+                            $isSuccess  = $this->kafka->sendQueue(KafkaConstant::WAPP, json_encode($kafkaPayload, JSON_UNESCAPED_UNICODE));
+                            if( $isSuccess !== true ) {
+                                debug_log(json_encode($kafkaPayload, JSON_UNESCAPED_UNICODE), "kafka/wms-log", "error-pub/sub");
+                                $pubSubSend = MessageConstant::PUB_SUB_SEND_N;
+                            } else {
+                                debug_log(json_encode($kafkaPayload, JSON_UNESCAPED_UNICODE), "kafka/wms-log", "success-pub/sub");
+                            }
 
                             // WMessageLog::create([
                             //     "order_id"         => $baseObj->order_id,
