@@ -5,16 +5,15 @@ namespace App\Services\Message;
 use App\Abstracts\OrderAbstract;
 use App\Abstracts\WMessageAbstract;
 use App\Abstracts\WmsAbstract;
-use App\Constants\KafkaConstant;
 use App\Constants\MessageConstant;
 use App\Constants\MessageErrorMessageConstant;
+use App\Events\BonaeraEvent;
 use App\Exceptions\ArrayValueError;
 use App\Models\BonaeraInBaseData;
 use App\Models\BonaeraInProductData;
 use App\Models\OrderBaseData;
-use App\Models\OrderLogisticsData;
 use App\Packages\Kafka;
-use Carbon\Carbon;
+use App\Vo\Bonaera\BonaeraEventDto;
 use Exception;
 
 class MessageW1 extends WMessageAbstract
@@ -83,11 +82,6 @@ class MessageW1 extends WMessageAbstract
                         throw new ArrayValueError($errArray);
                     }
 
-                    $statusChanged = "";
-                    if( isset($message["data"]["OrderLogisticsTracingModel"]["statusChanged"]) && $message["data"]["OrderLogisticsTracingModel"]["statusChanged"] ) {
-                        $statusChanged = $message["data"]["OrderLogisticsTracingModel"]["statusChanged"];
-                    }
-
                     $logisticsId = "";
                     if( isset($message["data"]["MailNoChangeModel"]["logisticsId"]) && !empty($message["data"]["MailNoChangeModel"]["logisticsId"]) ) {
                         $logisticsId = $message["data"]["MailNoChangeModel"]["logisticsId"];
@@ -109,118 +103,48 @@ class MessageW1 extends WMessageAbstract
                             throw new ArrayValueError($errArray);
                         }
 
-                        $baseObj = OrderBaseData::with([
-                            "logistics",
-                            "w_options.option",
-                            "channel_objs.details"
-                        ])->where("order_id", $orderId)->first();
+                        $messageCode = MessageConstant::MESSAGE_CODE[$type];
 
-                        foreach ($baseObj->channel_objs as $channelObj) {
-                            $refund_info = [];
-                            if( isset($message["data"]["refundAction"]) && isset($message["data"]["operator"]) ){
-                                $refund_info = [
-                                    "refund_action" => $message["data"]["refundAction"],
-                                    "operator"      => $message["data"]["operator"],
-                                ];
-                            }
-    
-                            $options = [];
-                            foreach ($channelObj->details as $optDetail) {
-                                foreach ($baseObj->w_options as $wOption) {
-                                    if( $optDetail->option_id == $wOption->option->id ){
-                                        $logicObj = OrderLogisticsData::where("order_id", $orderId)
-                                        ->where('sub_item_ids', 'LIKE', '%' . $wOption->option->sub_item_id . '%')
-                                        ->first();
-                                        
-                                        $options[] = [
-                                            "option_id"        => $optDetail->option_id,
-                                            "status"           => $wOption->status,
-                                            "logistics_status" => $wOption->logistics_status,
-                                            "refund_status"    => $wOption->refund_status,
-                                            "logistics_code"   => $logicObj->logistics_code ?? ""
-                                        ];
+                        if( in_array($messageCode, [MessageConstant::OS001, MessageConstant::OS002, MessageConstant::OT002]) ){
+                            $inBaseObj = BonaeraInBaseData::where("order_id", $orderId)->first();
+                            switch ($messageCode) {
+                                case MessageConstant::OT002:
+                                    if( $inBaseObj !== null ){
+                                        $bonaeraStockModifyApiDtos = $this->wmsW1->bonaeraStockModifyApiBindOT002($orderId, $logisticsId);
+                                        /** 재고신청서 수정 */
+                                        $this->wmsW1->bonaeraStockModifyApiBindCall($orderId, $bonaeraStockModifyApiDtos, $messageCode);
                                     }
-                                }
-                            }
-    
-                            $logisticsInfos = [];
-                            foreach ($baseObj->logistics as $logistic) {
-                                $logisticsInfos[] = [
-                                    "logistics_code"         => $logistic->logistics_code,
-                                    "logistics_company_name" => $logistic->logistics_company_name,
-                                    "logistics_bill_no"      => $logistic->logistics_bill_no,
-                                    "status"                 => $logistic->status,
-                                    "status_changed"         => $statusChanged,
-                                ];
-                            }
-    
-                            $kafkaPayload = [
-                                "type"             => MessageConstant::MESSAGE_CODE[$type],
-                                "channel"          => $baseObj->channel,
-                                "order_id"         => $baseObj->order_id,
-                                "channel_order_id" => $channelObj->channel_order_id,
-                                "offer_id"         => $baseObj->offer_id,
-                                "order_data"       => [
-                                    "status"        => $baseObj->status,
-                                    "refund_status" => $baseObj->refund_status,
-                                    "refund_info"   => $refund_info,
-                                ],
-                                "options"        => $options,
-                                "logistics_info" => $logisticsInfos,
-                                "created_at"     => Carbon::now(),
-                            ];
-                            
-                            $pubSubSend = MessageConstant::PUB_SUB_SEND_Y;
-                            $isSuccess  = $this->kafka->sendQueue(KafkaConstant::WAPP, json_encode($kafkaPayload, JSON_UNESCAPED_UNICODE));
-                            if( $isSuccess !== true ) {
-                                debug_log(json_encode($kafkaPayload, JSON_UNESCAPED_UNICODE), "kafka/wms-log", "error-pub/sub");
-                                $pubSubSend = MessageConstant::PUB_SUB_SEND_N;
-                            } else {
-                                debug_log(json_encode($kafkaPayload, JSON_UNESCAPED_UNICODE), "kafka/wms-log", "success-pub/sub");
+                                    break;
+                                case MessageConstant::OS001:
+                                case MessageConstant::OS002:
+                                    $inPrdObj = BonaeraInProductData::where("order_id", $orderId)->first();
+                                    if( $inPrdObj === null ){
+                                        /** 입고신청 */
+                                        $this->wmsW1->bonaeraCreateStockApi($orderId);
+                                    } else {
+                                        $bonaeraStockModifyApiDtos = $this->wmsW1->bonaeraStockModifyApiBindOS002($orderId);
+                                        /** 재고신청서 수정 */
+                                        $this->wmsW1->bonaeraStockModifyApiBindCall($orderId, $bonaeraStockModifyApiDtos, $messageCode);
+                                    }
+                                    break;
+                                default:
+                                    break;
                             }
 
-                            // WMessageLog::create([
-                            //     "order_id"         => $baseObj->order_id,
-                            //     "channel_order_id" => $channelObj->channel_order_id,
-                            //     "code"             => MessageConstant::MESSAGE_CODE[$type],
-                            //     "request"          => json_encode($logParams, JSON_UNESCAPED_UNICODE),
-                            //     "pub_sub_msg"      => json_encode($kafkaPayload, JSON_UNESCAPED_UNICODE),
-                            //     "pub_sub_is_send"  => $pubSubSend,
-                            // ]);
-                            debug_log(json_encode($logParams, JSON_UNESCAPED_UNICODE), "1688/message", "success-message");
+                        } else if( in_array($messageCode, [MessageConstant::OT001]) ){
 
-
-                            $messageCode = MessageConstant::MESSAGE_CODE[$type];
-                            if( in_array($messageCode, [MessageConstant::OS001, MessageConstant::OS002, MessageConstant::OT002]) ){
-                                $inBaseObj = BonaeraInBaseData::where("order_id", $orderId)->first();
-                                switch ($messageCode) {
-                                    case MessageConstant::OT002:
-                                        if( $inBaseObj !== null ){
-                                            $bonaeraStockModifyApiDtos = $this->wmsW1->bonaeraStockModifyApiBindOT002($orderId, $logisticsId);
-                                            /** 재고신청서 수정 */
-                                            $this->wmsW1->bonaeraStockModifyApiBindCall($orderId, $bonaeraStockModifyApiDtos, $messageCode);
-                                        }
-                                        break;
-                                    case MessageConstant::OS001:
-                                    case MessageConstant::OS002:
-                                        $inPrdObj = BonaeraInProductData::where("order_id", $orderId)->first();
-                                        if( $inPrdObj === null ){
-                                            /** 입고신청 */
-                                            $this->wmsW1->bonaeraCreateStockApi($orderId);
-                                        } else {
-                                            $bonaeraStockModifyApiDtos = $this->wmsW1->bonaeraStockModifyApiBindOS002($orderId);
-                                            /** 재고신청서 수정 */
-                                            $this->wmsW1->bonaeraStockModifyApiBindCall($orderId, $bonaeraStockModifyApiDtos, $messageCode);
-                                        }
-                                        break;
-                                    default:
-                                        break;
-                                }
-
-                            } else if( in_array($messageCode, [MessageConstant::OT001]) ){
-
-                            }
                         }
+
+                        $bonaeraEventDtoBind = [
+                            'type'    => $messageCode,
+                            'orderId' => $orderId,
+                            'message' => $message
+                        ];
+                        $bonaeraEventDto = new BonaeraEventDto();
+                        $bonaeraEventDto->bind($bonaeraEventDtoBind);
+                        event(new BonaeraEvent($bonaeraEventDto));
+
+                        debug_log(json_encode($logParams, JSON_UNESCAPED_UNICODE), "1688/message", "success-message");
                     }
                 } else {
                     $errArray = [
@@ -241,7 +165,7 @@ class MessageW1 extends WMessageAbstract
 
         /** 200으로 반환 안할 시 1688에서 재전송함 */
         $returnMsg = helpers_success_message();
-
+        
         return $returnMsg;
         
     }

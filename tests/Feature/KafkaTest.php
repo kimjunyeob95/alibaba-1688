@@ -6,6 +6,7 @@ use App\Constants\KafkaConstant;
 use App\Constants\MallConstant;
 use App\Jobs\WmsJob;
 use App\Packages\Kafka;
+use App\Services\Message\MessageW1;
 use App\Services\Wms\WmsService;
 use App\Vo\Bonaera\BonaeraRequestQueueDto;
 use Carbon\Carbon;

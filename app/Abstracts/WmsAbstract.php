@@ -2,17 +2,21 @@
 
 namespace App\Abstracts;
 
-use App\Constants\KafkaConstant;
 use App\Constants\MallConstant;
 use App\Constants\WmsConstant;
+use App\Events\BonaeraEvent;
 use App\Http\Request\Bonaera\BonaeraOutDeliveryUpdateRequest;
 use App\Models\ApiUser;
 use App\Models\BonaeraInBaseData;
 use App\Models\BonaeraOutBaseData;
+use App\Models\OrderBaseData;
+use App\Models\OrderChannelData;
+use App\Models\OrderLogisticsData;
 use App\Packages\Bonaera;
 use App\Packages\JwtPackage;
 use App\Packages\Kafka;
 use App\Packages\Slack;
+use App\Vo\Bonaera\BonaeraEventDto;
 use Carbon\Carbon;
 use Exception;
 use Throwable;
@@ -131,17 +135,14 @@ abstract class WmsAbstract
     {
         try {
             $result = $this->bonaera->createStockApi($orderId);
-            if( $result["isSuccess"] === true ){
-                $kafkaPayload = $this->bindPubSubInData(WmsConstant::WMS_CODE_TYPE_IT000, $result["data"]["stock_no"]);
-                if( !empty($kafkaPayload) ){
-                    $isSuccess = $this->kafka->sendQueue(KafkaConstant::WAPP, json_encode($kafkaPayload, JSON_UNESCAPED_UNICODE));
-                    if( $isSuccess !== true ) {
-                        debug_log(json_encode($kafkaPayload, JSON_UNESCAPED_UNICODE), "kafka/wms-log", "error-pub/sub");
-                    } else {
-                        debug_log(json_encode($kafkaPayload, JSON_UNESCAPED_UNICODE), "kafka/wms-log", "success-pub/sub");
-                    }
-                }
-            }
+
+            $bonaeraEventDtoBind = [
+                'type'    => WmsConstant::WMS_CODE_TYPE_IT000,
+                'stockNo' => $result["data"]["stock_no"],
+            ];
+            $bonaeraEventDto = new BonaeraEventDto();
+            $bonaeraEventDto->bind($bonaeraEventDtoBind);
+            event(new BonaeraEvent($bonaeraEventDto));
         } catch (Throwable $e) {
             $msg = "error: " . $e->getMessage(). " | orderId: " . $orderId;
             debug_log($msg, "boneara/bonaeraCreateStockApi", "bonaeraCreateStockApi");
@@ -302,6 +303,92 @@ abstract class WmsAbstract
     * @return array
     */
     abstract function bonaeraOutBox(string $groupNo): array;
+
+    /**
+     * @func bindPubSubOrderData
+     * @description '주문정보 pub/sub 메세지'
+     * @param OrderBaseData $baseObj
+     * @param OrderChannelData $channelObj
+     * @param array $type
+     * @param array $message
+     * @return array
+     */
+    public function bindPubSubOrderData(OrderBaseData $baseObj, OrderChannelData $channelObj, string $type, array $message): array
+    {
+        $payload = [];
+
+        try {
+            $orderId = $baseObj->order_id;
+
+            $statusChanged = "";
+            if( isset($message["data"]["OrderLogisticsTracingModel"]["statusChanged"]) && $message["data"]["OrderLogisticsTracingModel"]["statusChanged"] ) {
+                $statusChanged = $message["data"]["OrderLogisticsTracingModel"]["statusChanged"];
+            }
+
+            $refundInfo = [];
+            if( isset($message["data"]["refundAction"]) && isset($message["data"]["operator"]) ){
+                $refundInfo = [
+                    "refund_action" => $message["data"]["refundAction"],
+                    "operator"      => $message["data"]["operator"],
+                ];
+            }
+
+            $options = [];
+            foreach ($channelObj->details as $optDetail) {
+                foreach ($baseObj->w_options as $wOption) {
+                    if( $optDetail->option_id == $wOption->option->id ){
+                        $logicObj = OrderLogisticsData::where("order_id", $orderId)
+                        ->where('sub_item_ids', 'LIKE', '%' . $wOption->option->sub_item_id . '%')
+                        ->first();
+                        
+                        $options[] = [
+                            "option_id"        => $optDetail->option_id,
+                            "status"           => $wOption->status,
+                            "logistics_status" => $wOption->logistics_status,
+                            "refund_status"    => $wOption->refund_status,
+                            "logistics_code"   => $logicObj->logistics_code ?? ""
+                        ];
+                    }
+                }
+            }
+
+            $logisticsInfos = [];
+            foreach ($baseObj->logistics as $logistic) {
+                $logisticsInfos[] = [
+                    "logistics_code"         => $logistic->logistics_code,
+                    "logistics_company_name" => $logistic->logistics_company_name,
+                    "logistics_bill_no"      => $logistic->logistics_bill_no,
+                    "status"                 => $logistic->status,
+                    "status_changed"         => $statusChanged,
+                ];
+            }
+
+            $payload = [
+                "type"             => $type,
+                "channel"          => $baseObj->channel,
+                "order_id"         => $baseObj->order_id,
+                "channel_order_id" => $channelObj->channel_order_id,
+                "offer_id"         => $baseObj->offer_id,
+                "order_data"       => [
+                    "status"        => $baseObj->status,
+                    "refund_status" => $baseObj->refund_status,
+                    "refund_info"   => $refundInfo,
+                ],
+                "options"        => $options,
+                "logistics_info" => $logisticsInfos,
+                "created_at"     => Carbon::now(),
+            ];
+        } catch (Throwable $th) {
+            $errorMsg = [
+                "type"    => $type,
+                "orderId" => $orderId,
+                "error"   => $th->getMessage(),
+            ];
+            debug_log(json_encode($errorMsg, JSON_UNESCAPED_UNICODE), "kafka/wms-log", "error-bindPubSubOrderData");
+        }
+
+        return $payload;
+    }
 
     /**
      * @func bindPubSubInData

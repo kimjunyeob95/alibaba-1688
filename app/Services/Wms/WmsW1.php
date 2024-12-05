@@ -5,10 +5,10 @@ namespace App\Services\Wms;
 use App\Abstracts\WmsAbstract;
 use App\Constants\BonaeraConstant;
 use App\Constants\BonaeraErrorMessageConstant;
-use App\Constants\KafkaConstant;
 use App\Constants\OrderErrorMessageConstant;
 use App\Constants\SlackConstant;
 use App\Constants\WmsConstant;
+use App\Events\BonaeraEvent;
 use App\Http\Request\Bonaera\BonaeraOutDeliveryUpdateRequest;
 use App\Models\BonaeraInBaseData;
 use App\Models\BonaeraInFailData;
@@ -27,6 +27,7 @@ use App\Packages\Bonaera;
 use App\Packages\JwtPackage;
 use App\Packages\Kafka;
 use App\Packages\Slack;
+use App\Vo\Bonaera\BonaeraEventDto;
 use App\Vo\Bonaera\BonaeraOutBoxDataDto;
 use App\Vo\Bonaera\BonaeraOutDeliveryDataDto;
 use App\Vo\Bonaera\BonaeraOutWeightDataDto;
@@ -333,16 +334,15 @@ class WmsW1 extends WmsAbstract
             }
 
             $result = $this->bonaera->createStockApi($inFailObj->order_id);
+
             if( $result["isSuccess"] === true ){
-                $kafkaPayload = $this->bindPubSubInData(WmsConstant::WMS_CODE_TYPE_IT000, $result["data"]["stock_no"]);
-                if( !empty($kafkaPayload) ){
-                    $isSuccess = $this->kafka->sendQueue(KafkaConstant::WAPP, json_encode($kafkaPayload, JSON_UNESCAPED_UNICODE));
-                    if( $isSuccess !== true ) {
-                        debug_log(json_encode($kafkaPayload, JSON_UNESCAPED_UNICODE), "kafka/wms-log", "error-pub/sub");
-                    } else {
-                        debug_log(json_encode($kafkaPayload, JSON_UNESCAPED_UNICODE), "kafka/wms-log", "success-pub/sub");
-                    }
-                }
+                $bonaeraEventDtoBind = [
+                    'type'    => WmsConstant::WMS_CODE_TYPE_IT000,
+                    'stockNo' => $result["data"]["stock_no"],
+                ];
+                $bonaeraEventDto = new BonaeraEventDto();
+                $bonaeraEventDto->bind($bonaeraEventDtoBind);
+                event(new BonaeraEvent($bonaeraEventDto));
             }
         } catch (Throwable $e) {
             $msg = "error: " . $e->getMessage(). " | id: " . $id;
@@ -762,15 +762,15 @@ class WmsW1 extends WmsAbstract
             }
 
             if( $result["isSuccess"] === true ){
-                $kafkaPayload = $this->bindPubSubOutData(WmsConstant::WMS_CODE_TYPE_SH000, $channelObj->order_id, $channelObj->channel_order_id);
-                if( !empty($kafkaPayload) ){
-                    $isSuccess = $this->kafka->sendQueue(KafkaConstant::WAPP, json_encode($kafkaPayload, JSON_UNESCAPED_UNICODE));
-                    if( $isSuccess !== true ) {
-                        debug_log(json_encode($kafkaPayload, JSON_UNESCAPED_UNICODE), "kafka/wms-log", "error-pub/sub");
-                    } else {
-                        debug_log(json_encode($kafkaPayload, JSON_UNESCAPED_UNICODE), "kafka/wms-log", "success-pub/sub");
-                    }
-                }
+                $bonaeraEventDtoBind = [
+                    'type'           => WmsConstant::WMS_CODE_TYPE_SH000,
+                    'stockNo'        => $result["data"]["stock_no"],
+                    'orderId'        => $channelObj->order_id,
+                    'channelOrderId' => $channelObj->channel_order_id,
+                ];
+                $bonaeraEventDto = new BonaeraEventDto();
+                $bonaeraEventDto->bind($bonaeraEventDtoBind);
+                event(new BonaeraEvent($bonaeraEventDto));
             }
         } catch (Throwable $e) {
             $msg = "error: " . $e->getMessage() . " | id: {$id}";
