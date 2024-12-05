@@ -238,4 +238,29 @@ class WmsService
    {
       return $this->wmsAbstract->bonaeraOutBox($groupNo);
    }
+
+   /**
+    * @func bindPubSubInData
+    * @description '입고정보 pub/sub 메세지'
+    * @param string $type
+    * @param string $stockNo
+    * @return array
+   */
+   public function bindPubSubInData(string $type, string $stockNo): array
+   {
+      return $this->wmsAbstract->bindPubSubInData($type, $stockNo);
+   }
+
+   /**
+    * @func bindPubSubOutData
+    * @description '출고정보 pub/sub 메세지'
+    * @param string $type
+    * @param string $orderId
+    * @param string $channelOrderId
+    * @return array
+   */
+   public function bindPubSubOutData(string $type, string $orderId, string $channelOrderId): array
+   {
+      return $this->wmsAbstract->bindPubSubOutData($type, $orderId, $channelOrderId);
+   }
 }

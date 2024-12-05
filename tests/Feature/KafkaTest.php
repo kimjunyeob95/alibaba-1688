@@ -48,8 +48,25 @@ class KafkaTest extends TestCase
 
         $wmsJob       = new WmsJob($bonaeraRequestQueueDto);
         $wmsJob->handle(app(WmsService::class), app(Kafka::class));
-
-        
     }
 
+    # php artisan test --filter testWmsOutKafkaConsumer
+    public function testWmsOutKafkaConsumer()
+    {
+        $type                       = "SH001";
+        $shNo                       = "SH241114001801";
+        $originGroupNo              = "GR241114001782";
+        $changeGroupNo              = "GR241114001782";
+        $bonaeraRequestQueueDtoBind = [
+            "type"          => $type,
+            "shNo"          => $shNo,
+            "originGroupNo" => $originGroupNo,
+            "changeGroupNo" => $changeGroupNo,
+        ];
+        $bonaeraRequestQueueDto = new BonaeraRequestQueueDto();
+        $bonaeraRequestQueueDto->bind($bonaeraRequestQueueDtoBind);
+
+        $wmsJob       = new WmsJob($bonaeraRequestQueueDto);
+        $wmsJob->handle(app(WmsService::class), app(Kafka::class));
+    }
 }

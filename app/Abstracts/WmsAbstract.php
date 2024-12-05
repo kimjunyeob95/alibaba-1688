@@ -2,11 +2,15 @@
 
 namespace App\Abstracts;
 
+use App\Constants\MallConstant;
 use App\Constants\WmsConstant;
 use App\Http\Request\Bonaera\BonaeraOutDeliveryUpdateRequest;
 use App\Models\ApiUser;
+use App\Models\BonaeraInBaseData;
+use App\Models\BonaeraOutBaseData;
 use App\Packages\Bonaera;
 use App\Packages\JwtPackage;
+use App\Packages\Kafka;
 use App\Packages\Slack;
 use Carbon\Carbon;
 use Exception;
@@ -19,13 +23,15 @@ abstract class WmsAbstract
     protected Bonaera $bonaera;
     private JwtPackage $jwtPackage;
     protected Slack $slack;
+    protected Kafka $kafka;
 
-    public function __construct(Bonaera $bonaera, JwtPackage $jwtPackage, Slack $slack)
+    public function __construct(Bonaera $bonaera, JwtPackage $jwtPackage, Slack $slack, Kafka $kafka)
     {
         $this->returnMsg     = helpers_fail_message();
         $this->bonaera       = $bonaera;
         $this->jwtPackage    = $jwtPackage;
         $this->slack         = $slack;
+        $this->kafka         = $kafka;
         $this->unipass_token = env("UNIPASS_TOKEN", "g230z224g099q163r080k040u0");
     }
 
@@ -284,4 +290,204 @@ abstract class WmsAbstract
     * @return array
     */
     abstract function bonaeraOutBox(string $groupNo): array;
+
+    /**
+     * @func bindPubSubInData
+     * @description '입고정보 pub/sub 메세지'
+     * @param string $type
+     * @param string $stockNo
+     * @return array
+     */
+    public function bindPubSubInData(string $type, string $stockNo): array
+    {
+        $payload = [];
+
+        try {
+            $inObj = BonaeraInBaseData::with(["order.channel_obj", "in_options.imgs"])
+            ->where("stock_no", $stockNo)->first();
+            if( $inObj !== null ){
+                $itemInfos = [];
+                foreach ($inObj->in_options as $inOption) {
+                    $images = [];
+                    foreach ($inOption->imgs as $img) {
+                        $images[] = [
+                            'img_number' => $img->img_number,
+                            'img_url'    => $img->img_url,
+                        ];
+                    }
+
+                    $itemInfo = [
+                        'option_id'     => $inOption->option_id,
+                        'it_code'       => $inOption->it_code,
+                        'quantity'      => $inOption->quantity,
+                        'status'        => $inOption->status,
+                        'in_comming_at' => $inOption->in_comming_at,
+                        'memo'          => $inOption->memo,
+                        'images'        => $images,
+                    ];
+
+                    $itemInfos[] = $itemInfo;
+                }
+
+                $payload = [
+                    'type'             => $type,
+                    'channel'          => MallConstant::MALL_ONCHANNEL,
+                    'order_id'         => $inObj->order->order_id,
+                    'channel_order_id' => $inObj->order->channel_obj->channel_order_id,
+                    'offer_id'         => $inObj->order->offer_id,
+                    'in_data'          => [
+                        'stock_no'   => $stockNo,
+                        'item_infos' => $itemInfos
+                    ],
+                ];
+            }
+        } catch (Throwable $th) {
+            $errorMsg = [
+                "type"    => $type,
+                "stockNo" => $stockNo,
+                "error"   => $th->getMessage(),
+            ];
+            debug_log(json_encode($errorMsg, JSON_UNESCAPED_UNICODE), "kafka/wms-log", "error-bindInData");
+        }
+
+        return $payload;
+    }
+
+    /**
+     * @func bindPubSubOutData
+     * @description '출고정보 pub/sub 메세지'
+     * @param string $type
+     * @param string $orderId
+     * @param string $channelOrderId
+     * @return array
+     */
+    public function bindPubSubOutData(string $type, string $orderId, string $channelOrderId): array
+    {
+        $payload = [];
+
+        try {
+            $outObjs = BonaeraOutBaseData::with([
+                "out_options", "out_extras", "out_delivery", "out_extras", "out_weight",
+                "out_boxs", "out_delivery_extras"
+            ])
+            ->where("order_id", $orderId)
+            ->where("channel_order_id", $channelOrderId)
+            ->get();
+
+            $payload = [
+                'type'             => $type,
+                'channel'          => MallConstant::MALL_ONCHANNEL,
+                'order_id'         => $orderId,
+                'offer_id'         => $outObjs->first()->order->offer_id,
+                'channel_order_id' => $channelOrderId,
+            ];
+
+            $outDatas     = [];
+            $deiveryDatas = [];
+            foreach ($outObjs as $outObj) {
+                $outData = [
+                    'sh_no'            => $outObj->sh_no,
+                    'group_no'         => $outObj->group_no,
+                    'stock_no'         => $outObj->stock_no,
+                    'state'            => $outObj->state,
+                    'memo'             => $outObj->memo,
+                    'out_ordered_at'   => $outObj->out_ordered_at,
+                    'out_completed_at' => $outObj->out_completed_at,
+                ];
+
+                $itemInfos = [];
+                foreach ($outObj->out_options as $outOption) {
+                    $itemInfo = [
+                        'option_id'   => $outOption->option_id,
+                        'it_code'     => $outOption->it_code,
+                        'quantity'    => $outOption->quantity,
+                        'shipped_qty' => $outOption->shipped_qty,
+                    ];
+                    $itemInfos[] = $itemInfo;
+                }
+                $outData['items_infos'] = $itemInfos;
+
+                $outExtraServices = [];
+                foreach ($outObj->out_extras as $outExtra) {
+                    $outExtraService = [
+                        'extra_name'  => $outExtra->extra_name ?? "",
+                        'extra_money' => $outExtra->extra_money ?? 0.0,
+                        'extra_cnt'   => $outExtra->extra_cnt ?? 0,
+                    ];
+                    $outExtraServices[] = $outExtraService;
+                }
+                $outData['out_extra_services'] = $outExtraServices;
+
+                $deiveryData = [
+                    'group_no'         => $outObj->out_delivery->group_no ?? "",
+                    'receiver_name'    => $outObj->out_delivery->receiver_name ?? "",
+                    'zip_code'         => $outObj->out_delivery->zip_code ?? "",
+                    'addr1'            => $outObj->out_delivery->addr1 ?? "",
+                    'addr2'            => $outObj->out_delivery->addr2 ?? "",
+                    'receiver_phone'   => $outObj->out_delivery->receiver_phone ?? "",
+                    'personal_type'    => $outObj->out_delivery->personal_type ?? "",
+                    'personal_num'     => $outObj->out_delivery->personal_num ?? "",
+                    'unipass_result'   => $outObj->out_delivery->unipass_result ?? "",
+                    'unipass_reason'   => $outObj->out_delivery->unipass_reason ?? "",
+                    'ctr_num'          => $outObj->out_delivery->ctr_num ?? "",
+                    'state'            => $outObj->out_delivery->state ?? "",
+                    'invoice'          => $outObj->out_delivery->invoice ?? "",
+                    'box_cnt'          => $outObj->out_weight->box_cnt ?? 0,
+                    'weight'           => $outObj->out_weight->weight ?? 0.0,
+                    'ship_money'       => $outObj->out_weight->ship_money ?? 0,
+                    'weight_fee'       => $outObj->out_weight->weight_fee ?? 0,
+                    'volume_fee'       => $outObj->out_weight->volume_fee ?? 0,
+                    'scv_money1'       => $outObj->out_weight->scv_money1 ?? 0,
+                    'scv_money2'       => $outObj->out_weight->scv_money2 ?? 0,
+                    'plus_money'       => $outObj->out_weight->plus_money ?? 0,
+                    'plus_money_memo'  => $outObj->out_weight->plus_money_memo ?? "",
+                    'minus_money'      => $outObj->out_weight->minus_money ?? 0,
+                    'minus_money_memo' => $outObj->out_weight->minus_money_memo ?? "",
+                    'commission'       => $outObj->out_weight->commission ?? 0,
+                    'islands'          => $outObj->out_weight->islands ?? 0,
+                    'total_money'      => $outObj->out_weight->total_money ?? 0,
+                    'ship_memo'        => $outObj->out_weight->ship_memo ?? "",
+                ];
+
+                $boxInfos = [];
+                foreach ($outObj->out_boxs as $outBox) {
+                    $boxInfo = [
+                        'real_weight' => $outBox->real_weight ?? 0.0,
+                        'width'       => $outBox->width ?? 0.0,
+                        'length'      => $outBox->length ?? 0.0,
+                        'height'      => $outBox->height ?? 0.0,
+                    ];
+                    $boxInfos[] = $boxInfo;
+                }
+                $deiveryData['box_infos'] = $boxInfos;
+
+                $deliveryExtraServices = [];
+                foreach ($outObj->out_delivery_extras as $outDeliveryExtra) {
+                    $outDeliveryExtra = [
+                        'extra_name'  => $outDeliveryExtra->extra_name ?? "",
+                        'extra_money' => $outDeliveryExtra->extra_money ?? 0.0,
+                        'extra_cnt'   => $outDeliveryExtra->extra_cnt ?? 0,
+                    ];
+                    $deliveryExtraServices[] = $outDeliveryExtra;
+                }
+                $deiveryData['delivery_extra_services'] = $outDeliveryExtra;
+
+                $outDatas[]     = $outData;
+                $deiveryDatas[] = $deiveryData;
+            }
+
+            $payload["out_datas"] = $outDatas;
+            $payload["deivery_datas"] = $deiveryDatas;
+        } catch (Throwable $th) {
+            $errorMsg = [
+                "type"           => $type,
+                "orderId"        => $orderId,
+                "channelOrderId" => $channelOrderId,
+                "error"          => $th->getMessage(),
+            ];
+            debug_log(json_encode($errorMsg, JSON_UNESCAPED_UNICODE), "kafka/wms-log", "error-bindOutData");
+        }
+
+        return $payload;
+    }
 }

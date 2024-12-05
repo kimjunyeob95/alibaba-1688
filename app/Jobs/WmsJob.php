@@ -37,10 +37,14 @@ class WmsJob implements ShouldQueue
                 if( $obj !== null ){
                     $wmsService->bonaeraInUpdate($obj->id);
 
-                    $kafkaPayload = $this->bindInData($this->bonaeraRequestQueueDto->type, $this->bonaeraRequestQueueDto->stockNo);
-                    $isSuccess    = $kafka->sendQueue(KafkaConstant::WAPP, json_encode($kafkaPayload, JSON_UNESCAPED_UNICODE));
-                    if( $isSuccess !== true ) {
-                        debug_log(json_encode($kafkaPayload, JSON_UNESCAPED_UNICODE), "kafka/wms-log", "error-kafka");
+                    $kafkaPayload = $wmsService->bindPubSubInData($this->bonaeraRequestQueueDto->type, $this->bonaeraRequestQueueDto->stockNo);
+                    if( !empty($kafkaPayload) ){
+                        $isSuccess = $kafka->sendQueue(KafkaConstant::WAPP, json_encode($kafkaPayload, JSON_UNESCAPED_UNICODE));
+                        if( $isSuccess !== true ) {
+                            debug_log(json_encode($kafkaPayload, JSON_UNESCAPED_UNICODE), "kafka/wms-log", "error-pub/sub");
+                        } else {
+                            debug_log(json_encode($kafkaPayload, JSON_UNESCAPED_UNICODE), "kafka/wms-log", "success-pub/sub");
+                        }
                     }
                 }
                 break;
@@ -52,6 +56,20 @@ class WmsJob implements ShouldQueue
                 foreach ($objs as $obj) {
                     $wmsService->bonaeraOutUpdate($obj->id);
                 }
+
+                $outObjs = BonaeraOutBaseData::where("group_no", $this->bonaeraRequestQueueDto->groupNo)
+                ->groupBy("channel_order_id")->get();
+                foreach ($outObjs as $outObj) {
+                    $kafkaPayload = $wmsService->bindPubSubOutData($this->bonaeraRequestQueueDto->type, $outObj->order_id, $outObj->channel_order_id);
+                    if( !empty($kafkaPayload) ){
+                        $isSuccess = $kafka->sendQueue(KafkaConstant::WAPP, json_encode($kafkaPayload, JSON_UNESCAPED_UNICODE));
+                        if( $isSuccess !== true ) {
+                            debug_log(json_encode($kafkaPayload, JSON_UNESCAPED_UNICODE), "kafka/wms-log", "error-pub/sub");
+                        } else {
+                            debug_log(json_encode($kafkaPayload, JSON_UNESCAPED_UNICODE), "kafka/wms-log", "success-pub/sub");
+                        }
+                    }
+                }
                 break;
             case WmsConstant::WMS_CODE_TYPE_GR003:
                 $obj = BonaeraOutBaseData::where([
@@ -60,6 +78,20 @@ class WmsJob implements ShouldQueue
                 ])->first();
                 if( $obj !== null ){
                     $wmsService->bonaeraDeliveryBundle($obj->id, $this->bonaeraRequestQueueDto->changeGroupNo);
+                }
+
+                $outObjs = BonaeraOutBaseData::where("group_no", $this->bonaeraRequestQueueDto->changeGroupNo)
+                ->groupBy("channel_order_id")->get();
+                foreach ($outObjs as $outObj) {
+                    $kafkaPayload = $wmsService->bindPubSubOutData($this->bonaeraRequestQueueDto->type, $outObj->order_id, $outObj->channel_order_id);
+                    if( !empty($kafkaPayload) ){
+                        $isSuccess = $kafka->sendQueue(KafkaConstant::WAPP, json_encode($kafkaPayload, JSON_UNESCAPED_UNICODE));
+                        if( $isSuccess !== true ) {
+                            debug_log(json_encode($kafkaPayload, JSON_UNESCAPED_UNICODE), "kafka/wms-log", "error-pub/sub");
+                        } else {
+                            debug_log(json_encode($kafkaPayload, JSON_UNESCAPED_UNICODE), "kafka/wms-log", "success-pub/sub");
+                        }
+                    }
                 }
                 break;
             default:
@@ -76,60 +108,5 @@ class WmsJob implements ShouldQueue
         }
 
         debug_log(json_encode($payload, JSON_UNESCAPED_UNICODE), "boneara/request", "bonaeraRequest");
-    }
-
-    public function bindInData(string $type, string $stockNo): array
-    {
-        $payload = [];
-
-        try {
-            $inObj = BonaeraInBaseData::with(["order.channel_obj", "in_options.imgs"])
-            ->where("stock_no", $stockNo)->first();
-            if( $inObj !== null ){
-                $itemInfos = [];
-                foreach ($inObj->in_options as $inOption) {
-                    $images = [];
-                    foreach ($inOption->imgs as $img) {
-                        $images[] = [
-                            'img_number' => $img->img_number,
-                            'img_url'    => $img->img_url,
-                        ];
-                    }
-
-                    $itemInfo = [
-                        'option_id'     => $inOption->option_id,
-                        'it_code'       => $inOption->it_code,
-                        'quantity'      => $inOption->quantity,
-                        'status'        => $inOption->status,
-                        'in_comming_at' => $inOption->in_comming_at,
-                        'memo'          => $inOption->memo,
-                        'images'        => $images,
-                    ];
-
-                    $itemInfos[] = $itemInfo;
-                }
-
-                $payload = [
-                    'type'             => $type,
-                    'channel'          => MallConstant::MALL_ONCHANNEL,
-                    'order_id'         => $inObj->order->order_id,
-                    'channel_order_id' => $inObj->order->channel_obj->channel_order_id,
-                    'offer_id'         => $inObj->order->offer_id,
-                    'in_data'          => [
-                        'stock_no'   => $stockNo,
-                        'item_infos' => $itemInfos
-                    ],
-                ];
-            }
-        } catch (Throwable $th) {
-            $errorMsg = [
-                "type"     => $type,
-                "stock_no" => $stockNo,
-                "error"    => $th->getMessage(),
-            ];
-            debug_log(json_encode($errorMsg, JSON_UNESCAPED_UNICODE), "kafka/wms-log", "error-bindInData");
-        }
-
-        return $payload;
     }
 }
