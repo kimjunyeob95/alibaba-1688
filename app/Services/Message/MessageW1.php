@@ -82,11 +82,6 @@ class MessageW1 extends WMessageAbstract
                         throw new ArrayValueError($errArray);
                     }
 
-                    $statusChanged = "";
-                    if( isset($message["data"]["OrderLogisticsTracingModel"]["statusChanged"]) && $message["data"]["OrderLogisticsTracingModel"]["statusChanged"] ) {
-                        $statusChanged = $message["data"]["OrderLogisticsTracingModel"]["statusChanged"];
-                    }
-
                     $logisticsId = "";
                     if( isset($message["data"]["MailNoChangeModel"]["logisticsId"]) && !empty($message["data"]["MailNoChangeModel"]["logisticsId"]) ) {
                         $logisticsId = $message["data"]["MailNoChangeModel"]["logisticsId"];
