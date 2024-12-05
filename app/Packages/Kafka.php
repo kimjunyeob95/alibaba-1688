@@ -6,6 +6,8 @@ use Kafka\Producer;
 use Kafka\Consumer;
 use Kafka\ConsumerConfig;
 use Kafka\ProducerConfig;
+use Psr\Log\LogLevel;
+use Throwable;
 
 class Kafka
 {
@@ -14,17 +16,22 @@ class Kafka
 
     public function __construct()
     {
-        $this->brokers = env('KAFKA_BROKERS', 'sellerhub-broker01:9092,sellerhub-broker02:9092,sellerhub-broker03:9092');
-
-        $config = ProducerConfig::getInstance();
-        $config->setMetadataBrokerList($this->brokers);
-        $config->setMetadataRefreshIntervalMs(10000);
-        $config->setBrokerVersion('2.0.0');
-        $config->setRequiredAck(1);
-        $config->setIsAsyn(false);
-        $config->setProduceInterval(500);
-
-        $this->producer = new Producer();
+        try {
+            $this->brokers = env('KAFKA_BROKERS', 'sellerhub-broker01:9092,sellerhub-broker02:9092,sellerhub-broker03:9092');
+    
+            $config = ProducerConfig::getInstance();
+            $config->setMetadataBrokerList($this->brokers);
+            $config->setMetadataRefreshIntervalMs(10000);
+            $config->setBrokerVersion('2.0.0');
+            $config->setRequiredAck(1);
+            $config->setIsAsyn(false);
+            $config->setProduceInterval(500);
+    
+            $this->producer = new Producer();
+        } catch (Throwable $th) {
+            $msg = "error: " . $th->getMessage();
+            debug_log($msg, "kafka", "error-message", LogLevel::ERROR);
+        }
     }
 
     public function sendQueue(string $topic, string $message): bool
