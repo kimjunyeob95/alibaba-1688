@@ -4,7 +4,7 @@ namespace App\Abstracts;
 
 use App\Constants\MallConstant;
 use App\Constants\WmsConstant;
-use App\Events\BonaeraEvent;
+use App\Events\WmsPubSubEvent;
 use App\Http\Request\Bonaera\BonaeraOutDeliveryUpdateRequest;
 use App\Models\ApiUser;
 use App\Models\BonaeraInBaseData;
@@ -16,7 +16,7 @@ use App\Packages\Bonaera;
 use App\Packages\JwtPackage;
 use App\Packages\Kafka;
 use App\Packages\Slack;
-use App\Vo\Bonaera\BonaeraEventDto;
+use App\Vo\Wms\WmsPubSubDto;
 use Carbon\Carbon;
 use Exception;
 use Throwable;
@@ -136,13 +136,13 @@ abstract class WmsAbstract
         try {
             $result = $this->bonaera->createStockApi($orderId);
 
-            $bonaeraEventDtoBind = [
+            $wmsPubSubDtoBind = [
                 'type'    => WmsConstant::WMS_CODE_TYPE_IT000,
                 'stockNo' => $result["data"]["stock_no"],
             ];
-            $bonaeraEventDto = new BonaeraEventDto();
-            $bonaeraEventDto->bind($bonaeraEventDtoBind);
-            event(new BonaeraEvent($bonaeraEventDto));
+            $wmsPubSubDto = new WmsPubSubDto();
+            $wmsPubSubDto->bind($wmsPubSubDtoBind);
+            event(new WmsPubSubEvent($wmsPubSubDto));
         } catch (Throwable $e) {
             $msg = "error: " . $e->getMessage(). " | orderId: " . $orderId;
             debug_log($msg, "boneara/bonaeraCreateStockApi", "bonaeraCreateStockApi");
@@ -569,7 +569,7 @@ abstract class WmsAbstract
                     ];
                     $deliveryExtraServices[] = $outDeliveryExtra;
                 }
-                $deiveryData['delivery_extra_services'] = $outDeliveryExtra;
+                $deiveryData['delivery_extra_services'] = $deliveryExtraServices;
 
                 $outDatas[]     = $outData;
                 $deiveryDatas[] = $deiveryData;

@@ -54,10 +54,10 @@ class KafkaTest extends TestCase
     # php artisan test --filter testWmsOutKafkaConsumer
     public function testWmsOutKafkaConsumer()
     {
-        $type                       = "SH001";
-        $shNo                       = "SH241114001801";
-        $originGroupNo              = "GR241114001782";
-        $changeGroupNo              = "GR241114001782";
+        $type                       = "GR002";
+        $shNo                       = "SH241205004228";
+        $originGroupNo              = "GR241205004227";
+        $changeGroupNo              = "GR241205004227";
         $bonaeraRequestQueueDtoBind = [
             "type"          => $type,
             "shNo"          => $shNo,

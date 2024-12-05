@@ -3,12 +3,12 @@
 namespace App\Jobs;
 
 use App\Constants\WmsConstant;
-use App\Events\BonaeraEvent;
+use App\Events\WmsPubSubEvent;
 use App\Models\BonaeraInBaseData;
 use App\Models\BonaeraOutBaseData;
 use App\Services\Wms\WmsService;
-use App\Vo\Bonaera\BonaeraEventDto;
 use App\Vo\Bonaera\BonaeraRequestQueueDto;
+use App\Vo\Wms\WmsPubSubDto;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -59,15 +59,15 @@ class WmsJob implements ShouldQueue
                 break;
         }
 
-        $bonaeraEventDtoBind = [
+        $wmsPubSubDtoBind = [
             'type'          => $this->bonaeraRequestQueueDto->type,
             'stockNo'       => $this->bonaeraRequestQueueDto->stockNo,
             'groupNo'       => $this->bonaeraRequestQueueDto->groupNo,
             'changeGroupNo' => $this->bonaeraRequestQueueDto->changeGroupNo,
         ];
-        $bonaeraEventDto = new BonaeraEventDto();
-        $bonaeraEventDto->bind($bonaeraEventDtoBind);
-        event(new BonaeraEvent($bonaeraEventDto));
+        $wmsPubSubDto = new WmsPubSubDto();
+        $wmsPubSubDto->bind($wmsPubSubDtoBind);
+        event(new WmsPubSubEvent($wmsPubSubDto));
         
         $getAllProperties = $this->bonaeraRequestQueueDto->getAllProperties();
         $payload          = [];

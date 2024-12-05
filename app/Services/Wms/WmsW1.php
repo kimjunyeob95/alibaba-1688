@@ -8,7 +8,7 @@ use App\Constants\BonaeraErrorMessageConstant;
 use App\Constants\OrderErrorMessageConstant;
 use App\Constants\SlackConstant;
 use App\Constants\WmsConstant;
-use App\Events\BonaeraEvent;
+use App\Events\WmsPubSubEvent;
 use App\Http\Request\Bonaera\BonaeraOutDeliveryUpdateRequest;
 use App\Models\BonaeraInBaseData;
 use App\Models\BonaeraInFailData;
@@ -27,10 +27,10 @@ use App\Packages\Bonaera;
 use App\Packages\JwtPackage;
 use App\Packages\Kafka;
 use App\Packages\Slack;
-use App\Vo\Bonaera\BonaeraEventDto;
 use App\Vo\Bonaera\BonaeraOutBoxDataDto;
 use App\Vo\Bonaera\BonaeraOutDeliveryDataDto;
 use App\Vo\Bonaera\BonaeraOutWeightDataDto;
+use App\Vo\Wms\WmsPubSubDto;
 use Carbon\Carbon;
 use Exception;
 use SimpleXMLElement;
@@ -336,13 +336,13 @@ class WmsW1 extends WmsAbstract
             $result = $this->bonaera->createStockApi($inFailObj->order_id);
 
             if( $result["isSuccess"] === true ){
-                $bonaeraEventDtoBind = [
+                $wmsPubSubDtoBind = [
                     'type'    => WmsConstant::WMS_CODE_TYPE_IT000,
                     'stockNo' => $result["data"]["stock_no"],
                 ];
-                $bonaeraEventDto = new BonaeraEventDto();
-                $bonaeraEventDto->bind($bonaeraEventDtoBind);
-                event(new BonaeraEvent($bonaeraEventDto));
+                $wmsPubSubDto = new WmsPubSubDto();
+                $wmsPubSubDto->bind($wmsPubSubDtoBind);
+                event(new WmsPubSubEvent($wmsPubSubDto));
             }
         } catch (Throwable $e) {
             $msg = "error: " . $e->getMessage(). " | id: " . $id;
@@ -762,15 +762,15 @@ class WmsW1 extends WmsAbstract
             }
 
             if( $result["isSuccess"] === true ){
-                $bonaeraEventDtoBind = [
+                $wmsPubSubDtoBind = [
                     'type'           => WmsConstant::WMS_CODE_TYPE_SH000,
                     'stockNo'        => $result["data"]["stock_no"],
                     'orderId'        => $channelObj->order_id,
                     'channelOrderId' => $channelObj->channel_order_id,
                 ];
-                $bonaeraEventDto = new BonaeraEventDto();
-                $bonaeraEventDto->bind($bonaeraEventDtoBind);
-                event(new BonaeraEvent($bonaeraEventDto));
+                $wmsPubSubDto = new WmsPubSubDto();
+                $wmsPubSubDto->bind($wmsPubSubDtoBind);
+                event(new WmsPubSubEvent($wmsPubSubDto));
             }
         } catch (Throwable $e) {
             $msg = "error: " . $e->getMessage() . " | id: {$id}";

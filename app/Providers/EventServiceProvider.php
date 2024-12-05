@@ -2,8 +2,10 @@
 
 namespace App\Providers;
 
-use App\Events\BonaeraEvent;
-use App\Events\BonaeraListener;
+use App\Events\OrderPubSubEvent;
+use App\Events\OrderPubSubListener;
+use App\Events\WmsPubSubEvent;
+use App\Events\WmsPubSubListener;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
@@ -19,8 +21,11 @@ class EventServiceProvider extends ServiceProvider
         Registered::class => [
             SendEmailVerificationNotification::class,
         ],
-        BonaeraEvent::class => [
-            BonaeraListener::class
+        OrderPubSubEvent::class => [
+            OrderPubSubListener::class
+        ],
+        WmsPubSubEvent::class => [
+            WmsPubSubListener::class
         ]
     ];
 
