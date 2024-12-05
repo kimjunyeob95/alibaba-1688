@@ -133,16 +133,8 @@ class MessageW1 extends WMessageAbstract
 
                         }
 
-                        $orderPubSubDtoBind = [
-                            'type'    => $messageCode,
-                            'orderId' => $orderId,
-                            'message' => $message
-                        ];
-                        $orderPubSubDto = new OrderPubSubDto();
-                        $orderPubSubDto->bind($orderPubSubDtoBind);
-                        event(new OrderPubSubEvent($orderPubSubDto));
-
                         debug_log(json_encode($logParams, JSON_UNESCAPED_UNICODE), "1688/message", "success-message");
+                        $returnMsg = helpers_success_message();
                     }
                 } else {
                     $errArray = [
@@ -157,17 +149,29 @@ class MessageW1 extends WMessageAbstract
             $params["message"]            = $errorArray["message"];
             $params["arrayValueErrorMsg"] = $errorArray["msg"];
             debug_log(json_encode($params, JSON_UNESCAPED_UNICODE), "1688/message", "error-message", LogLevel::ERROR);
+
+            $returnMsg = helpers_fail_message($errorArray["msg"]);
         } catch (Exception $e) {
             $params = [
                 "message"           => $message,
                 "exceptionErrorMsg" => $e->getMessage(),
             ];
             debug_log(json_encode($params, JSON_UNESCAPED_UNICODE), "1688/message", "error-message", LogLevel::ERROR);
+
+            $returnMsg = helpers_fail_message($e->getMessage());
         }
 
-        /** 200으로 반환 안할 시 1688에서 재전송함 */
-        $returnMsg = helpers_success_message();
-        
+        if( $returnMsg["isSuccess"] === true ){
+            $orderPubSubDtoBind = [
+                'type'    => $messageCode,
+                'orderId' => $orderId,
+                'message' => $message
+            ];
+            $orderPubSubDto = new OrderPubSubDto();
+            $orderPubSubDto->bind($orderPubSubDtoBind);
+            event(new OrderPubSubEvent($orderPubSubDto));
+        }
+
         return $returnMsg;
         
     }

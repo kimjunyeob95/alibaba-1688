@@ -35,26 +35,31 @@ class Kafka
 
     public function sendQueue(string $topic, string $message): bool
     {
+        $result = true;
+
         if( $this->isHealthy() === false ){
             $msg = "error: Kafka health check failed";
-            debug_log($msg, "kafka", "error-message", LogLevel::ERROR);
+            debug_log($msg, "kafka/health", "error-message", LogLevel::ERROR);
 
-            return false;
+            $result = false;
         } else {
-            $result = $this->producer->send([
-                [
-                    'topic' => $topic,
-                    'value' => $message
-                ],
-            ]);
-    
-            if( empty($result) ){
-                return false;
+            try {
+                $sendResult = $this->producer->send([
+                    [
+                        'topic' => $topic,
+                        'value' => $message
+                    ],
+                ]);
+        
+                if( empty($sendResult) ){
+                    throw new Throwable("empty sendResult");
+                }
+            } catch (Throwable $th) {
+                $result = false;
             }
-    
-            return true;
         }
 
+        return $result;
     }
 
     public function isHealthy(): bool
