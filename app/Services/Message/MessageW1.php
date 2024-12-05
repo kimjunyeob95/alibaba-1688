@@ -7,13 +7,13 @@ use App\Abstracts\WMessageAbstract;
 use App\Abstracts\WmsAbstract;
 use App\Constants\MessageConstant;
 use App\Constants\MessageErrorMessageConstant;
-use App\Events\BonaeraEvent;
+use App\Events\OrderPubSubEvent;
 use App\Exceptions\ArrayValueError;
 use App\Models\BonaeraInBaseData;
 use App\Models\BonaeraInProductData;
 use App\Models\OrderBaseData;
 use App\Packages\Kafka;
-use App\Vo\Bonaera\BonaeraEventDto;
+use App\Vo\Bonaera\OrderPubSubDto;
 use Exception;
 
 class MessageW1 extends WMessageAbstract
@@ -135,14 +135,14 @@ class MessageW1 extends WMessageAbstract
 
                         }
 
-                        $bonaeraEventDtoBind = [
+                        $orderPubSubDtoBind = [
                             'type'    => $messageCode,
                             'orderId' => $orderId,
                             'message' => $message
                         ];
-                        $bonaeraEventDto = new BonaeraEventDto();
-                        $bonaeraEventDto->bind($bonaeraEventDtoBind);
-                        event(new BonaeraEvent($bonaeraEventDto));
+                        $orderPubSubDto = new OrderPubSubDto();
+                        $orderPubSubDto->bind($orderPubSubDtoBind);
+                        event(new OrderPubSubEvent($orderPubSubDto));
 
                         debug_log(json_encode($logParams, JSON_UNESCAPED_UNICODE), "1688/message", "success-message");
                     }

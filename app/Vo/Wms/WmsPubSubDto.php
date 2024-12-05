@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Vo\Bonaera;
+namespace App\Vo\Wms;
 
 use App\Vo\Vo;
 
-class BonaeraEventDto extends Vo
+class WmsPubSubDto extends Vo
 {
     protected string $type           = "";
     protected string $stockNo        = "";
@@ -12,7 +12,6 @@ class BonaeraEventDto extends Vo
     protected string $changeGroupNo  = "";
     protected string $orderId        = "";
     protected string $channelOrderId = "";
-    protected array $message         = [];
 
     public function bind(mixed $data): void
     {
@@ -22,6 +21,5 @@ class BonaeraEventDto extends Vo
         $this->changeGroupNo  = $data['changeGroupNo'] ?? "";
         $this->orderId        = $data['orderId'] ?? "";
         $this->channelOrderId = $data['channelOrderId'] ?? "";
-        $this->message        = $data['message'] ?? [];
     }
 }
