@@ -2,6 +2,7 @@
 
 namespace App\Abstracts;
 
+use App\Constants\KafkaConstant;
 use App\Constants\MallConstant;
 use App\Constants\WmsConstant;
 use App\Http\Request\Bonaera\BonaeraOutDeliveryUpdateRequest;
@@ -129,7 +130,18 @@ abstract class WmsAbstract
     public function bonaeraCreateStockApi(string $orderId): void
     {
         try {
-            $this->bonaera->createStockApi($orderId);
+            $result = $this->bonaera->createStockApi($orderId);
+            if( $result["isSuccess"] === true ){
+                $kafkaPayload = $this->bindPubSubInData(WmsConstant::WMS_CODE_TYPE_IT000, $result["data"]["stock_no"]);
+                if( !empty($kafkaPayload) ){
+                    $isSuccess = $this->kafka->sendQueue(KafkaConstant::WAPP, json_encode($kafkaPayload, JSON_UNESCAPED_UNICODE));
+                    if( $isSuccess !== true ) {
+                        debug_log(json_encode($kafkaPayload, JSON_UNESCAPED_UNICODE), "kafka/wms-log", "error-pub/sub");
+                    } else {
+                        debug_log(json_encode($kafkaPayload, JSON_UNESCAPED_UNICODE), "kafka/wms-log", "success-pub/sub");
+                    }
+                }
+            }
         } catch (Throwable $e) {
             $msg = "error: " . $e->getMessage(). " | orderId: " . $orderId;
             debug_log($msg, "boneara/bonaeraCreateStockApi", "bonaeraCreateStockApi");

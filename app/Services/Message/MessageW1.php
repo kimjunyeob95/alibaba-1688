@@ -115,7 +115,7 @@ class MessageW1 extends WMessageAbstract
                             "channel_objs.details"
                         ])->where("order_id", $orderId)->first();
 
-                        foreach ($baseObj->channel_objs as $channelObj) {    
+                        foreach ($baseObj->channel_objs as $channelObj) {
                             $refund_info = [];
                             if( isset($message["data"]["refundAction"]) && isset($message["data"]["operator"]) ){
                                 $refund_info = [
