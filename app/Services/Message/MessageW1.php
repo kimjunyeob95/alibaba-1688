@@ -12,8 +12,7 @@ use App\Exceptions\ArrayValueError;
 use App\Models\BonaeraInBaseData;
 use App\Models\BonaeraInProductData;
 use App\Models\OrderBaseData;
-use App\Models\WMessageLog;
-use App\Packages\Bonaera;
+use App\Models\OrderLogisticsData;
 use App\Packages\Kafka;
 use Carbon\Carbon;
 use Exception;
@@ -129,11 +128,16 @@ class MessageW1 extends WMessageAbstract
                             foreach ($channelObj->details as $optDetail) {
                                 foreach ($baseObj->w_options as $wOption) {
                                     if( $optDetail->option_id == $wOption->option->id ){
+                                        $logicObj = OrderLogisticsData::where("order_id", $orderId)
+                                        ->where('sub_item_ids', 'LIKE', '%' . $wOption->option->sub_item_id . '%')
+                                        ->first();
+                                        
                                         $options[] = [
                                             "option_id"        => $optDetail->option_id,
                                             "status"           => $wOption->status,
                                             "logistics_status" => $wOption->logistics_status,
                                             "refund_status"    => $wOption->refund_status,
+                                            "logistics_code"   => $logicObj->logistics_code ?? ""
                                         ];
                                     }
                                 }
