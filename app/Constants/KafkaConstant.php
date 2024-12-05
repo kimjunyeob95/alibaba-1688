@@ -7,4 +7,5 @@ class KafkaConstant
 {
     /** topics */
     public const WAPP = "wapp";
+    public const TEST = "test";
 }

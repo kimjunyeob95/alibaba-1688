@@ -4,7 +4,10 @@ namespace Tests\Feature;
 
 use App\Constants\KafkaConstant;
 use App\Constants\MallConstant;
+use App\Jobs\WmsJob;
 use App\Packages\Kafka;
+use App\Services\Wms\WmsService;
+use App\Vo\Bonaera\BonaeraRequestQueueDto;
 use Carbon\Carbon;
 use Tests\TestCase;
 
@@ -29,6 +32,24 @@ class KafkaTest extends TestCase
     {
         $producer = new Kafka();
         $producer->consume(KafkaConstant::WAPP, MallConstant::MALL_ONCHANNEL);
+    }
+
+    # php artisan test --filter testWmsInKafkaConsumer
+    public function testWmsInKafkaConsumer()
+    {
+        $type                       = "IT001";
+        $stockNo                    = "ST241125003127";
+        $bonaeraRequestQueueDtoBind = [
+            "type"    => $type,
+            "stockNo" => $stockNo,
+        ];
+        $bonaeraRequestQueueDto = new BonaeraRequestQueueDto();
+        $bonaeraRequestQueueDto->bind($bonaeraRequestQueueDtoBind);
+
+        $wmsJob       = new WmsJob($bonaeraRequestQueueDto);
+        $wmsJob->handle(app(WmsService::class), app(Kafka::class));
+
+        
     }
 
 }
