@@ -243,7 +243,7 @@ abstract class WmsAbstract
             } else {
                 throw new Exception($result["msg"]);
             }
-        } catch (Exception $e) {
+        } catch (Throwable $e) {
             $returnMsg = helpers_fail_message($e->getMessage());
         }
 

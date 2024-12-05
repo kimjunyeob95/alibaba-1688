@@ -2,6 +2,7 @@
 
 namespace App\Packages;
 
+use Exception;
 use Kafka\Producer;
 use Kafka\Consumer;
 use Kafka\ConsumerConfig;
@@ -52,10 +53,12 @@ class Kafka
                 ]);
         
                 if( empty($sendResult) ){
-                    throw new Throwable("empty sendResult");
+                    throw new Exception("empty sendResult");
                 }
             } catch (Throwable $th) {
                 $result = false;
+                $msg    = "error: " . $th->getMessage();
+                debug_log($msg, "kafka/sendQueue", "error-message", LogLevel::ERROR);
             }
         }
 

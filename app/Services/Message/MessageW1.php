@@ -13,8 +13,8 @@ use App\Models\BonaeraInBaseData;
 use App\Models\BonaeraInProductData;
 use App\Models\OrderBaseData;
 use App\Vo\Order\OrderPubSubDto;
-use Exception;
 use Psr\Log\LogLevel;
+use Throwable;
 
 class MessageW1 extends WMessageAbstract
 {
@@ -151,10 +151,10 @@ class MessageW1 extends WMessageAbstract
             debug_log(json_encode($params, JSON_UNESCAPED_UNICODE), "1688/message", "error-message", LogLevel::ERROR);
 
             $returnMsg = helpers_fail_message($errorArray["msg"]);
-        } catch (Exception $e) {
+        } catch (Throwable $e) {
             $params = [
                 "message"           => $message,
-                "exceptionErrorMsg" => $e->getMessage(),
+                "throwableErrorMsg" => $e->getMessage(),
             ];
             debug_log(json_encode($params, JSON_UNESCAPED_UNICODE), "1688/message", "error-message", LogLevel::ERROR);
 
