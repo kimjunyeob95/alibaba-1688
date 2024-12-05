@@ -167,11 +167,13 @@ class MessageW1 extends WMessageAbstract
                             ];
                             
                             $pubSubSend = MessageConstant::PUB_SUB_SEND_Y;
-                            // $isSuccess  = $this->kafka->sendQueue(KafkaConstant::WAPP, json_encode($kafkaPayload, JSON_UNESCAPED_UNICODE));
-                            // if( $isSuccess !== true ) {
-                            //     debug_log(json_encode($kafkaPayload, JSON_UNESCAPED_UNICODE), "1688/message", "kafka-error-message");
-                            //     $pubSubSend = MessageConstant::PUB_SUB_SEND_N;
-                            // }
+                            $isSuccess  = $this->kafka->sendQueue(KafkaConstant::WAPP, json_encode($kafkaPayload, JSON_UNESCAPED_UNICODE));
+                            if( $isSuccess !== true ) {
+                                debug_log(json_encode($kafkaPayload, JSON_UNESCAPED_UNICODE), "kafka/wms-log", "error-pub/sub");
+                                $pubSubSend = MessageConstant::PUB_SUB_SEND_N;
+                            } else {
+                                debug_log(json_encode($kafkaPayload, JSON_UNESCAPED_UNICODE), "kafka/wms-log", "success-pub/sub");
+                            }
 
                             // WMessageLog::create([
                             //     "order_id"         => $baseObj->order_id,
