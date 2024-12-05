@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Vo\Bonaera;
+namespace App\Vo\Order;
 
 use App\Vo\Vo;
 

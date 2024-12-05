@@ -2,7 +2,7 @@
 
 namespace App\Events;
 
-use App\Vo\Bonaera\OrderPubSubDto;
+use App\Vo\Order\OrderPubSubDto;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
