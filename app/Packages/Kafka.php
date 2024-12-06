@@ -27,6 +27,13 @@ class Kafka
         $config->setIsAsyn(false);
         $config->setProduceInterval(500);
 
+        $config->setMessageTimeoutMs(30000);         // 메시지 타임아웃 (30초)
+        $config->setRequestTimeoutMs(60000);         // 요청 타임아웃 (60초)
+        $config->setRetries(3);                      // 재시도 횟수
+        $config->setRetryBackoffMs(100);             // 재시도 간격
+        $config->setSocketTimeoutMs(30000);          // 소켓 타임아웃
+        $config->setSocketKeepaliveEnable(true);     // 소켓 연결 유지
+
         $this->producer = new Producer();
     }
 
