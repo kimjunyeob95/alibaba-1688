@@ -7,6 +7,7 @@ use App\Constants\WmsConstant;
 use App\Models\BonaeraOutBaseData;
 use App\Packages\Kafka;
 use App\Services\Wms\WmsW1;
+use Psr\Log\LogLevel;
 
 class WmsPubSubListener
 {
@@ -34,9 +35,9 @@ class WmsPubSubListener
             case WmsConstant::WMS_CODE_TYPE_IT002:
                 $kafkaPayload = $this->wmsw1->bindPubSubInData($type, $stockNo);
                 if( !empty($kafkaPayload) ){
-                    $isSuccess = $this->kafka->sendQueue(KafkaConstant::WAPP, json_encode($kafkaPayload, JSON_UNESCAPED_UNICODE));
+                    $isSuccess = $this->kafka->sendQueue(KafkaConstant::WAPP, $kafkaPayload);
                     if( $isSuccess !== true ) {
-                        debug_log(json_encode($kafkaPayload, JSON_UNESCAPED_UNICODE), "kafka/wms-log", "error-pub&sub");
+                        debug_log(json_encode($kafkaPayload, JSON_UNESCAPED_UNICODE), "kafka/wms-log", "error-pub&sub", LogLevel::ERROR);
                     } else {
                         debug_log(json_encode($kafkaPayload, JSON_UNESCAPED_UNICODE), "kafka/wms-log", "success-pub&sub");
                     }
@@ -45,9 +46,9 @@ class WmsPubSubListener
             case WmsConstant::WMS_CODE_TYPE_SH000:
                 $kafkaPayload = $this->wmsw1->bindPubSubOutData(WmsConstant::WMS_CODE_TYPE_SH000, $orderId, $channelOrderId);
                 if( !empty($kafkaPayload) ){
-                    $isSuccess = $this->kafka->sendQueue(KafkaConstant::WAPP, json_encode($kafkaPayload, JSON_UNESCAPED_UNICODE));
+                    $isSuccess = $this->kafka->sendQueue(KafkaConstant::WAPP, $kafkaPayload);
                     if( $isSuccess !== true ) {
-                        debug_log(json_encode($kafkaPayload, JSON_UNESCAPED_UNICODE), "kafka/wms-log", "error-pub&sub");
+                        debug_log(json_encode($kafkaPayload, JSON_UNESCAPED_UNICODE), "kafka/wms-log", "error-pub&sub", LogLevel::ERROR);
                     } else {
                         debug_log(json_encode($kafkaPayload, JSON_UNESCAPED_UNICODE), "kafka/wms-log", "success-pub&sub");
                     }
@@ -63,9 +64,9 @@ class WmsPubSubListener
                 foreach ($outObjs as $outObj) {
                     $kafkaPayload = $this->wmsw1->bindPubSubOutData($type, $outObj->order_id, $outObj->channel_order_id);
                     if( !empty($kafkaPayload) ){
-                        $isSuccess = $this->kafka->sendQueue(KafkaConstant::WAPP, json_encode($kafkaPayload, JSON_UNESCAPED_UNICODE));
+                        $isSuccess = $this->kafka->sendQueue(KafkaConstant::WAPP, $kafkaPayload);
                         if( $isSuccess !== true ) {
-                            debug_log(json_encode($kafkaPayload, JSON_UNESCAPED_UNICODE), "kafka/wms-log", "error-pub&sub");
+                            debug_log(json_encode($kafkaPayload, JSON_UNESCAPED_UNICODE), "kafka/wms-log", "error-pub&sub", LogLevel::ERROR);
                         } else {
                             debug_log(json_encode($kafkaPayload, JSON_UNESCAPED_UNICODE), "kafka/wms-log", "success-pub&sub");
                         }
@@ -78,9 +79,9 @@ class WmsPubSubListener
                 foreach ($outObjs as $outObj) {
                     $kafkaPayload = $this->wmsw1->bindPubSubOutData($type, $outObj->order_id, $outObj->channel_order_id);
                     if( !empty($kafkaPayload) ){
-                        $isSuccess = $this->kafka->sendQueue(KafkaConstant::WAPP, json_encode($kafkaPayload, JSON_UNESCAPED_UNICODE));
+                        $isSuccess = $this->kafka->sendQueue(KafkaConstant::WAPP, $kafkaPayload);
                         if( $isSuccess !== true ) {
-                            debug_log(json_encode($kafkaPayload, JSON_UNESCAPED_UNICODE), "kafka/wms-log", "error-pub&sub");
+                            debug_log(json_encode($kafkaPayload, JSON_UNESCAPED_UNICODE), "kafka/wms-log", "error-pub&sub", LogLevel::ERROR);
                         } else {
                             debug_log(json_encode($kafkaPayload, JSON_UNESCAPED_UNICODE), "kafka/wms-log", "success-pub&sub");
                         }

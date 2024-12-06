@@ -71,7 +71,9 @@ RUN pip install --upgrade pip && \
 
 # confluent-kafka 패키지 별도 설치
 RUN apt-get update && apt-get install -y librdkafka-dev && \
-    pip install confluent-kafka
+    pip install confluent-kafka && \
+    pecl install rdkafka && \
+    docker-php-ext-enable rdkafka
 
 # bashrc에 alias 추가
 RUN echo 'alias python=python3.7' >> ~/.bashrc && \

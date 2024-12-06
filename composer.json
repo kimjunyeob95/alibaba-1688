@@ -17,11 +17,11 @@
         "laravel/tinker": "^2.5",
         "league/flysystem-aws-s3-v3": "^1.0",
         "maatwebsite/excel": "^1.1",
+        "mateusjunges/laravel-kafka": "^1.8",
         "opcodesio/log-viewer": "^3.4",
         "phpoffice/phpspreadsheet": "^2.1",
-        "symfony/process": "^5.4",
         "psr/log": "1.0.2",
-        "nmred/kafka-php": "0.2.*"
+        "symfony/process": "^5.4"
     },
     "require-dev": {
         "barryvdh/laravel-debugbar": "^3.7",

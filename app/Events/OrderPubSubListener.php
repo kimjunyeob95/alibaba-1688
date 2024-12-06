@@ -7,6 +7,7 @@ use App\Constants\MessageConstant;
 use App\Models\OrderBaseData;
 use App\Packages\Kafka;
 use App\Services\Wms\WmsW1;
+use Psr\Log\LogLevel;
 
 class OrderPubSubListener
 {
@@ -35,9 +36,9 @@ class OrderPubSubListener
             foreach ($baseObj->channel_objs as $channelObj) {
                 $kafkaPayload = $this->wmsw1->bindPubSubOrderData($baseObj, $channelObj, $type, $message);
                 if( !empty($kafkaPayload) ){
-                    $isSuccess = $this->kafka->sendQueue(KafkaConstant::WAPP, json_encode($kafkaPayload, JSON_UNESCAPED_UNICODE));
+                    $isSuccess = $this->kafka->sendQueue(KafkaConstant::WAPP, $kafkaPayload);
                     if( $isSuccess !== true ) {
-                        debug_log(json_encode($kafkaPayload, JSON_UNESCAPED_UNICODE), "kafka/wms-log", "error-pub&sub");
+                        debug_log(json_encode($kafkaPayload, JSON_UNESCAPED_UNICODE), "kafka/wms-log", "error-pub&sub", LogLevel::ERROR);
                     } else {
                         debug_log(json_encode($kafkaPayload, JSON_UNESCAPED_UNICODE), "kafka/wms-log", "success-pub&sub");
                     }
