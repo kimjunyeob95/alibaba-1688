@@ -31,7 +31,8 @@ class WmsJob implements ShouldQueue
     public function handle(WmsService $wmsService): void
     {   
         try {
-            switch ($this->bonaeraRequestQueueDto->type) {
+            $type = $this->bonaeraRequestQueueDto->type;
+            switch ($type) {
                 case WmsConstant::WMS_CODE_TYPE_IT001:
                 case WmsConstant::WMS_CODE_TYPE_IT002:
                     $obj = BonaeraInBaseData::where("stock_no", $this->bonaeraRequestQueueDto->stockNo)->first();
@@ -62,9 +63,9 @@ class WmsJob implements ShouldQueue
                     break;
             }
 
-            if (!empty($this->bonaeraRequestQueueDto->type)) {
+            if (!empty($type)) {
                 $wmsPubSubDtoBind = [
-                    'type'          => $this->bonaeraRequestQueueDto->type,
+                    'type'          => $type,
                     'stockNo'       => $this->bonaeraRequestQueueDto->stockNo,
                     'groupNo'       => $this->bonaeraRequestQueueDto->groupNo,
                     'changeGroupNo' => $this->bonaeraRequestQueueDto->changeGroupNo,
