@@ -25,7 +25,7 @@ class KafkaTest extends TestCase
             "created_at" => Carbon::now()->format('Y-m-d H:i:s')
         ];
         $producer = new Kafka();
-        $result   = $producer->sendQueue(KafkaConstant::WAPP, json_encode($test));
+        $result   = $producer->sendQueue(KafkaConstant::WAPP, $test);
 
         $this->assertTrue($result);
     }
