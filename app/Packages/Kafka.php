@@ -17,21 +17,17 @@ class Kafka
 
     public function __construct()
     {
-        try {
-            $this->brokers = env('KAFKA_BROKERS', 'sellerhub-broker01:9092,sellerhub-broker02:9092,sellerhub-broker03:9092');
-    
-            $config = ProducerConfig::getInstance();
-            $config->setMetadataBrokerList($this->brokers);
-            $config->setMetadataRefreshIntervalMs(10000);
-            $config->setBrokerVersion('2.0.0');
-            $config->setRequiredAck(1);
-            $config->setIsAsyn(false);
-            $config->setProduceInterval(500);
-    
-            $this->producer = new Producer();
-        } catch (Throwable $th) {
-            $this->producer = null;
-        }
+        $this->brokers = env('KAFKA_BROKERS', 'sellerhub-broker01:9092,sellerhub-broker02:9092,sellerhub-broker03:9092');
+
+        $config = ProducerConfig::getInstance();
+        $config->setMetadataBrokerList($this->brokers);
+        $config->setMetadataRefreshIntervalMs(10000);
+        $config->setBrokerVersion('2.0.0');
+        $config->setRequiredAck(1);
+        $config->setIsAsyn(false);
+        $config->setProduceInterval(500);
+
+        $this->producer = new Producer();
     }
 
     public function sendQueue(string $topic, string $message): bool

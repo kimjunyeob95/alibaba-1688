@@ -763,7 +763,6 @@ class WmsW1 extends WmsAbstract
             if( $result["isSuccess"] === true ){
                 $wmsPubSubDtoBind = [
                     'type'           => WmsConstant::WMS_CODE_TYPE_SH000,
-                    'stockNo'        => $result["data"]["stock_no"],
                     'orderId'        => $channelObj->order_id,
                     'channelOrderId' => $channelObj->channel_order_id,
                 ];

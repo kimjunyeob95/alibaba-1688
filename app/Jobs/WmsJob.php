@@ -14,6 +14,8 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Psr\Log\LogLevel;
+use Throwable;
 
 class WmsJob implements ShouldQueue
 {
@@ -28,47 +30,66 @@ class WmsJob implements ShouldQueue
 
     public function handle(WmsService $wmsService): void
     {   
-        switch ($this->bonaeraRequestQueueDto->type) {
-            case WmsConstant::WMS_CODE_TYPE_IT001:
-            case WmsConstant::WMS_CODE_TYPE_IT002:
-                $obj = BonaeraInBaseData::where("stock_no", $this->bonaeraRequestQueueDto->stockNo)->first();
-                if( $obj !== null ){
-                    $wmsService->bonaeraInUpdate($obj->id);
-                }
-                break;
-            case WmsConstant::WMS_CODE_TYPE_SH001:
-            case WmsConstant::WMS_CODE_TYPE_SH002:
-            case WmsConstant::WMS_CODE_TYPE_GR001:
-            case WmsConstant::WMS_CODE_TYPE_GR002:
-                $objs = BonaeraOutBaseData::where("group_no", $this->bonaeraRequestQueueDto->groupNo)->get();
-                foreach ($objs as $obj) {
-                    $wmsService->bonaeraOutUpdate($obj->id);
-                }
+        try {
+            switch ($this->bonaeraRequestQueueDto->type) {
+                case WmsConstant::WMS_CODE_TYPE_IT001:
+                case WmsConstant::WMS_CODE_TYPE_IT002:
+                    $obj = BonaeraInBaseData::where("stock_no", $this->bonaeraRequestQueueDto->stockNo)->first();
+                    if( $obj !== null ){
+                        $wmsService->bonaeraInUpdate($obj->id);
+                    }
+                    break;
+                case WmsConstant::WMS_CODE_TYPE_SH001:
+                case WmsConstant::WMS_CODE_TYPE_SH002:
+                case WmsConstant::WMS_CODE_TYPE_GR001:
+                case WmsConstant::WMS_CODE_TYPE_GR002:
+                    $objs = BonaeraOutBaseData::where("group_no", $this->bonaeraRequestQueueDto->groupNo)->get();
+                    foreach ($objs as $obj) {
+                        $wmsService->bonaeraOutUpdate($obj->id);
+                    }
+    
+                    break;
+                case WmsConstant::WMS_CODE_TYPE_GR003:
+                    $obj = BonaeraOutBaseData::where([
+                        "sh_no"    => $this->bonaeraRequestQueueDto->shNo,
+                        "group_no" => $this->bonaeraRequestQueueDto->originGroupNo
+                    ])->first();
+                    if( $obj !== null ){
+                        $wmsService->bonaeraDeliveryBundle($obj->id, $this->bonaeraRequestQueueDto->changeGroupNo);
+                    }
+                    break;
+                default:
+                    break;
+            }
 
-                break;
-            case WmsConstant::WMS_CODE_TYPE_GR003:
-                $obj = BonaeraOutBaseData::where([
-                    "sh_no"    => $this->bonaeraRequestQueueDto->shNo,
-                    "group_no" => $this->bonaeraRequestQueueDto->originGroupNo
-                ])->first();
-                if( $obj !== null ){
-                    $wmsService->bonaeraDeliveryBundle($obj->id, $this->bonaeraRequestQueueDto->changeGroupNo);
-                }
-                break;
-            default:
-                break;
+            if (!empty($this->bonaeraRequestQueueDto->type)) {
+                $wmsPubSubDtoBind = [
+                    'type'          => $this->bonaeraRequestQueueDto->type,
+                    'stockNo'       => $this->bonaeraRequestQueueDto->stockNo,
+                    'groupNo'       => $this->bonaeraRequestQueueDto->groupNo,
+                    'changeGroupNo' => $this->bonaeraRequestQueueDto->changeGroupNo,
+                ];
+                $wmsPubSubDto = new WmsPubSubDto();
+                $wmsPubSubDto->bind($wmsPubSubDtoBind);
+                event(new WmsPubSubEvent($wmsPubSubDto));
+            }
+
+            $this->logPayload();
+
+        } catch (Throwable $th) {
+            $payload = [
+                'type'          => $this->bonaeraRequestQueueDto->type,
+                'stockNo'       => $this->bonaeraRequestQueueDto->stockNo,
+                'groupNo'       => $this->bonaeraRequestQueueDto->groupNo,
+                'changeGroupNo' => $this->bonaeraRequestQueueDto->changeGroupNo,
+                'error'         => $th->getMessage()
+            ];
+            debug_log(json_encode($payload, JSON_UNESCAPED_UNICODE), "wms/job", "error-log", LogLevel::ERROR);
         }
+    }
 
-        $wmsPubSubDtoBind = [
-            'type'          => $this->bonaeraRequestQueueDto->type,
-            'stockNo'       => $this->bonaeraRequestQueueDto->stockNo,
-            'groupNo'       => $this->bonaeraRequestQueueDto->groupNo,
-            'changeGroupNo' => $this->bonaeraRequestQueueDto->changeGroupNo,
-        ];
-        $wmsPubSubDto = new WmsPubSubDto();
-        $wmsPubSubDto->bind($wmsPubSubDtoBind);
-        event(new WmsPubSubEvent($wmsPubSubDto));
-        
+    private function logPayload(): void
+    {
         $getAllProperties = $this->bonaeraRequestQueueDto->getAllProperties();
         $payload          = [];
         foreach ($getAllProperties as $key => $property) {

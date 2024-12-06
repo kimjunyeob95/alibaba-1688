@@ -135,6 +135,15 @@ class MessageW1 extends WMessageAbstract
 
                         debug_log(json_encode($logParams, JSON_UNESCAPED_UNICODE), "1688/message", "success-message");
                         $returnMsg = helpers_success_message();
+
+                        $orderPubSubDtoBind = [
+                            'type'    => $messageCode,
+                            'orderId' => $orderId,
+                            'message' => $message
+                        ];
+                        $orderPubSubDto = new OrderPubSubDto();
+                        $orderPubSubDto->bind($orderPubSubDtoBind);
+                        event(new OrderPubSubEvent($orderPubSubDto));
                     }
                 } else {
                     $errArray = [
@@ -161,18 +170,6 @@ class MessageW1 extends WMessageAbstract
             $returnMsg = helpers_fail_message($e->getMessage());
         }
 
-        if( $returnMsg["isSuccess"] === true ){
-            $orderPubSubDtoBind = [
-                'type'    => $messageCode,
-                'orderId' => $orderId,
-                'message' => $message
-            ];
-            $orderPubSubDto = new OrderPubSubDto();
-            $orderPubSubDto->bind($orderPubSubDtoBind);
-            event(new OrderPubSubEvent($orderPubSubDto));
-        }
-
         return $returnMsg;
-        
     }
 }

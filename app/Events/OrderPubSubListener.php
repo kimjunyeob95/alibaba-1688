@@ -11,7 +11,7 @@ use App\Services\Wms\WmsW1;
 class OrderPubSubListener
 {
     private WmsW1 $wmsw1;
-    private Kafka $kafka;
+    public Kafka $kafka;
 
     public function __construct(WmsW1 $wmsw1, Kafka $kafka) {
         $this->wmsw1 = $wmsw1;
