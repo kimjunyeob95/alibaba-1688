@@ -21,7 +21,7 @@
         "phpoffice/phpspreadsheet": "^2.1",
         "symfony/process": "^5.4",
         "psr/log": "1.0.2",
-        "nmred/kafka-php": "^0.2.0"
+        "nmred/kafka-php": "0.2.*"
     },
     "require-dev": {
         "barryvdh/laravel-debugbar": "^3.7",
