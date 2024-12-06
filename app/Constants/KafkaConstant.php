@@ -6,6 +6,6 @@ namespace App\Constants;
 class KafkaConstant
 {
     /** topics */
-    public const WAPP = "test";
+    public const WAPP = "wapp";
     public const TEST = "test";
 }
