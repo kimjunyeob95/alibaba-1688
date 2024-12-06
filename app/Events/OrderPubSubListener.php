@@ -13,9 +13,9 @@ class OrderPubSubListener
     private WmsW1 $wmsw1;
     public Kafka $kafka;
 
-    public function __construct(WmsW1 $wmsw1) {
+    public function __construct(WmsW1 $wmsw1, Kafka $kafka) {
         $this->wmsw1 = $wmsw1;
-        $this->kafka = app(Kafka::class);
+        $this->kafka = $kafka;
     }
 
     public function handle(OrderPubSubEvent $event)
