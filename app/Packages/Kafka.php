@@ -2,6 +2,7 @@
 
 namespace App\Packages;
 
+use Exception;
 use Kafka\Producer;
 use Kafka\Consumer;
 use Kafka\ConsumerConfig;
@@ -16,45 +17,48 @@ class Kafka
 
     public function __construct()
     {
-        try {
-            $this->brokers = env('KAFKA_BROKERS', 'sellerhub-broker01:9092,sellerhub-broker02:9092,sellerhub-broker03:9092');
-    
-            $config = ProducerConfig::getInstance();
-            $config->setMetadataBrokerList($this->brokers);
-            $config->setMetadataRefreshIntervalMs(10000);
-            $config->setBrokerVersion('2.0.0');
-            $config->setRequiredAck(1);
-            $config->setIsAsyn(false);
-            $config->setProduceInterval(500);
-    
-            $this->producer = new Producer();
-        } catch (Throwable $th) {
-            $this->producer = null;
-        }
+        $this->brokers = env('KAFKA_BROKERS', 'sellerhub-broker01:9092,sellerhub-broker02:9092,sellerhub-broker03:9092');
+
+        $config = ProducerConfig::getInstance();
+        $config->setMetadataBrokerList($this->brokers);
+        $config->setMetadataRefreshIntervalMs(10000);
+        $config->setBrokerVersion('2.0.0');
+        $config->setRequiredAck(1);
+        $config->setIsAsyn(false);
+        $config->setProduceInterval(500);
+
+        $this->producer = new Producer();
     }
 
     public function sendQueue(string $topic, string $message): bool
     {
+        $result = true;
+
         if( $this->isHealthy() === false ){
             $msg = "error: Kafka health check failed";
-            debug_log($msg, "kafka", "error-message", LogLevel::ERROR);
+            debug_log($msg, "kafka/health", "error-message", LogLevel::ERROR);
 
-            return false;
+            $result = false;
         } else {
-            $result = $this->producer->send([
-                [
-                    'topic' => $topic,
-                    'value' => $message
-                ],
-            ]);
-    
-            if( empty($result) ){
-                return false;
+            try {
+                $sendResult = $this->producer->send([
+                    [
+                        'topic' => $topic,
+                        'value' => $message
+                    ],
+                ]);
+        
+                if( empty($sendResult) ){
+                    throw new Exception("empty sendResult");
+                }
+            } catch (Throwable $th) {
+                $result = false;
+                $msg    = "error: " . $th->getMessage();
+                debug_log($msg, "kafka/sendQueue", "error-message", LogLevel::ERROR);
             }
-    
-            return true;
         }
 
+        return $result;
     }
 
     public function isHealthy(): bool

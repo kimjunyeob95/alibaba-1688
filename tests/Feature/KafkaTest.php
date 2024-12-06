@@ -4,11 +4,13 @@ namespace Tests\Feature;
 
 use App\Constants\KafkaConstant;
 use App\Constants\MallConstant;
+use App\Constants\MessageConstant;
+use App\Events\OrderPubSubEvent;
 use App\Jobs\WmsJob;
 use App\Packages\Kafka;
-use App\Services\Message\MessageW1;
 use App\Services\Wms\WmsService;
 use App\Vo\Bonaera\BonaeraRequestQueueDto;
+use App\Vo\Order\OrderPubSubDto;
 use Carbon\Carbon;
 use Tests\TestCase;
 
@@ -35,20 +37,19 @@ class KafkaTest extends TestCase
         $producer->consume(KafkaConstant::WAPP, MallConstant::MALL_ONCHANNEL);
     }
 
-    # php artisan test --filter testWmsInKafkaConsumer
-    public function testWmsInKafkaConsumer()
+    # php artisan test --filter testWmsPubSubOrder
+    public function testWmsPubSubOrder()
     {
-        $type                       = "IT001";
-        $stockNo                    = "ST241125003127";
-        $bonaeraRequestQueueDtoBind = [
-            "type"    => $type,
-            "stockNo" => $stockNo,
+        $orderPubSubDtoBind = [
+            'type'    => MessageConstant::OS001,
+            'orderId' => "2393111535014135493",
+            'message' => []
         ];
-        $bonaeraRequestQueueDto = new BonaeraRequestQueueDto();
-        $bonaeraRequestQueueDto->bind($bonaeraRequestQueueDtoBind);
-
-        $wmsJob       = new WmsJob($bonaeraRequestQueueDto);
-        $wmsJob->handle(app(WmsService::class), app(Kafka::class));
+        $orderPubSubDto = new OrderPubSubDto();
+        $orderPubSubDto->bind($orderPubSubDtoBind);
+        $result = event(new OrderPubSubEvent($orderPubSubDto));
+        
+        $this->assertNull($result[0]);
     }
 
     # php artisan test --filter testWmsOutKafkaConsumer
