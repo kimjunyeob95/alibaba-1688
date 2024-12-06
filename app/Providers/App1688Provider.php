@@ -32,10 +32,6 @@ class App1688Provider extends ServiceProvider
         $this->app->singleton(S3::class, function () {
             return new S3();
         });
-        /** Kafka 싱글톤으로 등록 **/
-        $this->app->singleton(Kafka::class, function ($app) {
-            return new Kafka();
-        });
 
         $this->app->bind(ProductW2::class, function ($app) {
             $transApiAbstract = $app->make(GenuioService::class);

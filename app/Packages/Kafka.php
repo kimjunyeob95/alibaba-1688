@@ -22,7 +22,7 @@ class Kafka
         $config = ProducerConfig::getInstance();
         $config->setMetadataBrokerList($this->brokers);
         $config->setMetadataRefreshIntervalMs(10000);
-        $config->setBrokerVersion('2.0.0');
+        $config->setBrokerVersion('1.0.0');
         $config->setRequiredAck(1);
         $config->setIsAsyn(false);
         $config->setProduceInterval(500);
@@ -95,7 +95,7 @@ class Kafka
         $config->setGroupId($group);
         $config->setTopics([$topic]);
         $config->setOffsetReset('earliest');
-        $config->setBrokerVersion('2.0.0');
+        $config->setBrokerVersion('1.0.0');
 
         $consumer = new Consumer();
         $consumer->start(function($topic, $part, $message) use($group) {
