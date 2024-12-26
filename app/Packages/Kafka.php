@@ -41,7 +41,8 @@ class Kafka
                 ->withConsumerGroupId($group)
                 ->withAutoCommit()
                 ->withHandler(function($message) use($group, $topic) {
-                    $msg = "topic: {$topic} | part: {$message->getPartition()} | group: {$group} | message: {$message->getBody()}";
+                    $jsonEncode = json_encode($message->getBody(), JSON_UNESCAPED_UNICODE);
+                    $msg = "topic: {$topic} | part: {$message->getPartition()} | group: {$group} | message: {$jsonEncode}";
                     debug_log($msg, "kafka/consumer", "consumer");
                 })
                 ->build()
