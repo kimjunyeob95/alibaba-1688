@@ -19,13 +19,14 @@ class KafkaTest extends TestCase
     # php artisan test --filter testKafkaProducer
     public function testKafkaProducer()
     {
-        $test = [
+        $topic = env("TEST_TOPIC", KafkaConstant::TEST);
+        $test  = [
             "type"       => "PM001",
             "offer_id"   => 590177967435,
             "created_at" => Carbon::now()->format('Y-m-d H:i:s')
         ];
         $producer = new Kafka();
-        $result   = $producer->sendQueue(KafkaConstant::WAPP, $test);
+        $result   = $producer->sendQueue($topic, $test);
 
         $this->assertTrue($result);
     }
@@ -34,7 +35,7 @@ class KafkaTest extends TestCase
     public function testKafkaConsumer()
     {
         $producer = new Kafka();
-        $producer->consume(KafkaConstant::WAPP, MallConstant::MALL_ONCHANNEL);
+        $producer->consume(KafkaConstant::TEST, MallConstant::MALL_ONCHANNEL);
     }
 
     # php artisan test --filter testWmsPubSubOrder
