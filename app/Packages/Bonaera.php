@@ -327,7 +327,11 @@ class Bonaera
                             "order_channel_id" => $orderChannelObj->id,
                             "option_id"        => $inPrdObj->option_id,
                         ])->first();
-        
+                        
+                        if( $orderChannnelDetailObj === null ){
+                            throw new Exception(OrderErrorMessageConstant::getNotHaveErrorMessage("ORDER_CHANNEL_DETAIL_DATAS"));
+                        }
+
                         $quantity = $orderChannnelDetailObj->quantity;
         
                         $itemList[] = [
