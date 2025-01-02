@@ -481,7 +481,7 @@ abstract class WmsAbstract
             ];
 
             $outDatas     = [];
-            $deiveryDatas = [];
+            $deliveryDatas = [];
             foreach ($outObjs as $outObj) {
                 $outData = [
                     'sh_no'            => $outObj->sh_no,
@@ -571,11 +571,11 @@ abstract class WmsAbstract
                 $deiveryData['delivery_extra_services'] = $deliveryExtraServices;
 
                 $outDatas[]     = $outData;
-                $deiveryDatas[] = $deiveryData;
+                $deliveryDatas[] = $deiveryData;
             }
 
-            $payload["out_datas"] = $outDatas;
-            $payload["deivery_datas"] = $deiveryDatas;
+            $payload["out_datas"]      = $outDatas;
+            $payload["delivery_datas"] = $deliveryDatas;
         } catch (Throwable $th) {
             $errorMsg = [
                 "type"           => $type,
