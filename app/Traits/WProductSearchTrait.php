@@ -277,12 +277,14 @@ trait WProductSearchTrait
             $apiDatas = curl_1688("POST", $endPoint, $payload);
 
             if( !isset($apiDatas["data"]["result"]["result"]) || count($apiDatas["data"]["result"]["result"]) < 1 ){
-                throw new Exception(ProductErrorMessageConstant::getNotHaveErrorMessage("PRODUCT_SEARCH_OFFERRECOMMEND"));
-            }
-            $datas = $apiDatas["data"]["result"]["result"];
-            foreach ($datas as &$data) {
-                $ocPrice          = ocPrice((float)$data["priceInfo"]["price"]);
-                $data["oc_orice"] = $ocPrice;
+                // throw new Exception(ProductErrorMessageConstant::getNotHaveErrorMessage("PRODUCT_SEARCH_OFFERRECOMMEND"));
+                $datas = [];
+            } else {
+                $datas = $apiDatas["data"]["result"]["result"];
+                foreach ($datas as &$data) {
+                    $ocPrice          = ocPrice((float)$data["priceInfo"]["price"]);
+                    $data["oc_orice"] = $ocPrice;
+                }
             }
 
             $res = [
