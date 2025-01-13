@@ -109,7 +109,7 @@ if (!function_exists("debug_log")) {
 	global $debugTime;
 	$debugTime = microtime_float();
 
-    function debug_log(mixed $str, string $dirname, string $filename, string $level = LogLevel::DEBUG)
+    function debug_log(mixed $str, string $dirname, string $filename = "", string $level = LogLevel::DEBUG)
 	{
 		global $debugTime;
 
@@ -138,8 +138,14 @@ if (!function_exists("debug_log")) {
             is_array($str) ? json_encode($str, JSON_UNESCAPED_UNICODE) : $str
         );
 
-        $dir_path = "/".$dirname;
-        $logfile  = $dir_path."/".$filename.date('Y-m-d').".log";
+        if( $filename == "" ){
+			$filename = date('Y-m-d');
+		} else {
+			$filename = date('Y-m-d') . $filename;
+		}
+
+        $dir_path = "/" . $dirname;
+        $logfile  = $dir_path . "/" . $filename . ".log";
 
         // 경로가 존재하지 않으면 생성
         if (!Storage::disk('logs')->exists(dirname($dir_path))) {
