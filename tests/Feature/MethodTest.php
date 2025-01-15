@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\File;
 use GuzzleHttp\Client;
 use GuzzleHttp\Promise;
 use GuzzleHttp\Psr7\Request;
+use Symfony\Component\Process\Process;
 
 class MethodTest extends TestCase
 {
@@ -166,5 +167,18 @@ class MethodTest extends TestCase
     {
         $msg = "test Log";
         debug_log($msg, "testLog", "testLog");
+    }
+
+    # php artisan test --filter testPhpAliasDebugLog
+    public function testPhpAliasDebugLog()
+    {
+        $phpAlias = env("PHP_ALIAS", "php80");
+        $command  = "nohup " . $phpAlias . " artisan test --filter testDebugLog > /dev/null 2>&1 &";
+        $process  = Process::fromShellCommandline($command);
+        $process->setWorkingDirectory(env("WORK_DIRECTORY", "/web1/1688"));
+        $process->setTimeout(null); // 실행 시간 제한 없음
+        $process->start();
+
+        dd("끝");
     }
 }
