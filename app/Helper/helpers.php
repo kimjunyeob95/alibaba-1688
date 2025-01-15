@@ -157,7 +157,7 @@ if (!function_exists("debug_log")) {
         // 파일 생성
         $filePath = $logPath . "/" . $filename . ".log";
         if (!file_exists($filePath)) {
-            mkdir($filePath, 0777, true);
+            touch($filePath, 0777, true);
             chmod($filePath, 0777); // 디렉토리 권한을 777로 설정
         }
 
