@@ -113,11 +113,10 @@ if (!function_exists("debug_log")) {
 	{
 		global $debugTime;
 
-        $newTime = microtime(true);
-        $timeGap = $newTime - $debugTime;
-        
-        // 실행 시간 계산
-        $runningTime = number_format($timeGap, 3);
+		$newTime   = microtime(true); // Laravel에서는 이 함수를 직접 사용할 수 있습니다.
+        $time_gap  = $newTime - $debugTime;
+        $debugTime = $newTime;
+        $time_str  = ($time_gap > 1000000000) ? "-.---" : number_format($time_gap, 3);
 
         // Get caller information
         $backtrace = debug_backtrace();
@@ -125,18 +124,14 @@ if (!function_exists("debug_log")) {
         $runFile   = basename($caller['file']);
         $location  = "{$runFile}:{$caller['line']}";
 
-        $environment = app()->environment();
+        $logStr = "[runningTime: {$time_str}s][location: {$location}] $str";
 
-        // 로그 문자열 생성
-        $logstr = sprintf(
-            "[%s] %s.%s: [runningTime: %ss][location: %s] %s",
-            date('Y-m-d H:i:s'),
-            $environment,
-            strtoupper($level),
-            $runningTime,
-            $location,
-            is_array($str) ? json_encode($str, JSON_UNESCAPED_UNICODE) : $str
-        );
+        // 로그 경로 생성
+        $logPath = storage_path('logs/'.$dirname);
+        if (!file_exists($logPath)) {
+            mkdir($logPath, 0777, true);
+            chmod($logPath, 0777); // 디렉토리 권한을 777로 설정
+        }
 
         if( $filename == "" ){
 			$filename = date('Y-m-d');
@@ -144,39 +139,37 @@ if (!function_exists("debug_log")) {
 			$filename = date('Y-m-d') . $filename;
 		}
 
-        $dirPath = "/" . $dirname;
-        $logfile = $dirPath . "/" . $filename . ".log";
+        // 파일 이름과 경로 설정
+        $logFile = $logPath . '/' . $filename . '.log';
 
-        // 폴더 생성
-        $logPath = storage_path('logs/'.$dirname);
-        if (!file_exists($logPath)) {
-            mkdir($logPath, 0777, true);
-            chmod($logPath, 0777); // 디렉토리 권한을 777로 설정
+        // 파일이 없으면 생성하고 권한 설정
+        if (!file_exists($logFile)) {
+            touch($logFile);
+            chmod($logFile, 0777); // 파일 권한을 777로 설정
         }
 
-        // 파일 생성
-        $filePath = $logPath . "/" . $filename . ".log";
-        if (!file_exists($filePath)) {
-            touch($filePath, 0777, true);
-            chmod($filePath, 0777); // 디렉토리 권한을 777로 설정
-        }
+        // 경로와 파일 이름을 사용하여 로그 채널 동적으로 생성
+        $logChannel = Log::build([
+            'driver' => 'single',
+            'path'   => $logFile,
+        ]);
 
-        // 경로가 존재하지 않으면 생성
-        if (!Storage::disk('logs')->exists(dirname($dirPath))) {
-            Storage::disk('logs')->makeDirectory(dirname($dirPath));
-        }
-
-        // 파일이 이미 존재하면 이어쓰기 작성
-        if (Storage::disk('logs')->exists($logfile)) {
-            Storage::disk('logs')->append($logfile, $logstr);
-        } else {
-            // 파일이 존재하지 않으면 새로 생성
-            Storage::disk('logs')->put($logfile, $logstr);
-        }
-
-        // 터미널에서 실행 중일 때만 출력
-        if (php_sapi_name() === 'cli') {
-            echo $logstr . PHP_EOL;
+        switch ($level) {
+            case LogLevel::DEBUG:
+                $logChannel->debug($logStr);
+                break;
+            case LogLevel::NOTICE:
+                $logChannel->notice($logStr);
+                break;
+            case LogLevel::WARNING:
+                $logChannel->warning($logStr);
+                break;
+            case LogLevel::ERROR:
+                $logChannel->error($logStr);
+                break;
+            case LogLevel::INFO:
+            default:
+                $logChannel->info($logStr);
         }
     }
 }
