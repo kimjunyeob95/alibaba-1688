@@ -147,11 +147,18 @@ if (!function_exists("debug_log")) {
         $dirPath = "/" . $dirname;
         $logfile = $dirPath . "/" . $filename . ".log";
 
-        // 파일이 없으면 생성하고 권한 설정
+        // 폴더 생성
         $logPath = storage_path('logs/'.$dirname);
         if (!file_exists($logPath)) {
             mkdir($logPath, 0777, true);
             chmod($logPath, 0777); // 디렉토리 권한을 777로 설정
+        }
+
+        // 파일 생성
+        $filePath = $logPath . "/" . $filename . ".log";
+        if (!file_exists($filePath)) {
+            mkdir($filePath, 0777, true);
+            chmod($filePath, 0777); // 디렉토리 권한을 777로 설정
         }
 
         // 경로가 존재하지 않으면 생성
