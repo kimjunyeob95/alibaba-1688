@@ -18,6 +18,7 @@ use App\Packages\Slack;
 use App\Vo\Wms\WmsPubSubDto;
 use Carbon\Carbon;
 use Exception;
+use Psr\Log\LogLevel;
 use Throwable;
 
 abstract class WmsAbstract
@@ -144,7 +145,7 @@ abstract class WmsAbstract
             }
         } catch (Throwable $e) {
             $msg = "error: " . $e->getMessage(). " | orderId: " . $orderId;
-            debug_log($msg, "boneara/bonaeraCreateStockApi", "bonaeraCreateStockApi");
+            debug_log($msg, "boneara/bonaeraCreateStockApi", "bonaeraCreateStockApi", LogLevel::ERROR);
         }
     }
 
@@ -383,7 +384,7 @@ abstract class WmsAbstract
                 "orderId" => $orderId,
                 "error"   => $th->getMessage(),
             ];
-            debug_log(json_encode($errorMsg, JSON_UNESCAPED_UNICODE), "kafka/wms-log", "error-bindPubSubOrderData");
+            debug_log(json_encode($errorMsg, JSON_UNESCAPED_UNICODE), "kafka/wms-log", "error-bindPubSubOrderData", LogLevel::ERROR);
         }
 
         return $payload;
@@ -445,7 +446,7 @@ abstract class WmsAbstract
                 "stockNo" => $stockNo,
                 "error"   => $th->getMessage(),
             ];
-            debug_log(json_encode($errorMsg, JSON_UNESCAPED_UNICODE), "kafka/wms-log", "error-bindInData");
+            debug_log(json_encode($errorMsg, JSON_UNESCAPED_UNICODE), "kafka/wms-log", "error-bindInData", LogLevel::ERROR);
         }
 
         return $payload;

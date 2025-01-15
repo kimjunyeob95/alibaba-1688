@@ -113,7 +113,7 @@ if (!function_exists("debug_log")) {
 	{
 		global $debugTime;
 
-        $newTime = microtime_float();
+        $newTime = microtime(true);
         $timeGap = $newTime - $debugTime;
         
         // 실행 시간 계산
@@ -144,12 +144,18 @@ if (!function_exists("debug_log")) {
 			$filename = date('Y-m-d') . $filename;
 		}
 
-        $dir_path = "/" . $dirname;
-        $logfile  = $dir_path . "/" . $filename . ".log";
+        $dirPath = "/" . $dirname;
+        $logfile = $dirPath . "/" . $filename . ".log";
+
+        // 파일이 없으면 생성하고 권한 설정
+        if (!file_exists($logfile)) {
+            touch($logfile);
+            chmod($logfile, 0777); // 파일 권한을 777로 설정
+        }
 
         // 경로가 존재하지 않으면 생성
-        if (!Storage::disk('logs')->exists(dirname($dir_path))) {
-            Storage::disk('logs')->makeDirectory(dirname($dir_path));
+        if (!Storage::disk('logs')->exists(dirname($dirPath))) {
+            Storage::disk('logs')->makeDirectory(dirname($dirPath));
         }
 
         // 파일이 이미 존재하면 이어쓰기 작성
